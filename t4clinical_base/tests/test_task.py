@@ -2,9 +2,13 @@ from openerp.tests import common
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from openerp import tools
+from openerp.osv import orm, fields, osv
+
+
 
 task1_data = {'notes': "Test task is in draft when created by default"}
-data_model_data = {'data_model': 'test.observation3'}
+task1_type_data = {'summary': 'Test Type', 'data_model': 'observation.test'}
+data_model_data = {'summary': 'Test Type', 'data_model': 'observation.test'}
 submit_data = {'val1': 'submit_val1', 'val2': 'submit_val2'}
 
 
@@ -134,9 +138,9 @@ class TestTask(common.SingleTransactionCase):
             and
             task.data_res_id
             and 
-            task.data_model == test.observation3
+            task.data_model == observation.test
             and
-            (test.observation3, task.data_res_id).val1 == 'test'
+            (observation.test, task.data_res_id).val1 == 'test'
         """
         
         task_count0 = self.task_pool.search(self.cr, self.uid, [], count=True)
@@ -150,7 +154,7 @@ class TestTask(common.SingleTransactionCase):
         self.assertTrue(task_count1 > task_count0, 'test_recurrence_minute count')
         self.assertEquals(last_task.summary,'test', 'test_recurrence_minute summary')
         self.assertTrue(last_task.data_res_id, 'test_recurrence_minute data_res_id')
-        self.assertEquals(last_task.data_model,'test.observation3', 'test_recurrence_minute data_model')
+        self.assertEquals(last_task.data_model,'observation.test', 'test_recurrence_minute data_model')
         self.assertEquals(last_task_data.val1,'test', 'test_recurrence_minute val1')
         
         

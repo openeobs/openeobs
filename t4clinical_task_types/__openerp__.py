@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'T4 Clinical Improved',
+    'name': 'T4 Clinical Task types',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
@@ -8,9 +8,9 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['project','hr'],
-    'data': ['task_view.xml','base_data.xml'],
-    'demo': ['demo_data.xml',],
+    'depends': ['t4clinical_base','project','hr'],
+    'data': ['observation_view.xml', 'observation_data.xml'],
+    'demo': [],
     'css': [],
     'js': [],
     'qweb': [],

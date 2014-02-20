@@ -182,7 +182,7 @@ class t4_clinical_task(orm.Model):
         'state': fields.selection(_states, 'State'),  
         
         # task type and related model/resource
-        'type_id': fields.many2one('t4.clinical.task.type', "Task Attributes"),
+        'type_id': fields.many2one('t4.clinical.task.type', "Task Type"),
         'data_res_id': fields.integer("Data Model's ResID", help="Data Model's ResID"),
         'data_model': fields.related('type_id','data_model',type='text',string="Data Model")
         
@@ -442,3 +442,11 @@ class t4_clinical_task_data(orm.AbstractModel):
     def validate(self, cr, uid, ids, context=None):
         return True    
     
+
+class observation_test(orm.Model):
+    _name = 'observation.test'
+    _inherit = ['t4.clinical.task.data']    
+    _columns = {
+        'val1': fields.text('val1'),
+        'val2': fields.text('val2')
+    }
