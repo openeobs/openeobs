@@ -63,4 +63,13 @@ class t4_clinical_patient(osv.Model):
 
     _defaults = {
         'active': True,
+        'name': 'unknown'
     }
+    
+    def create(self, cr, uid, vals, context=None):
+        if not vals.get('name'):
+            vals.update({'name': self._get_fullname(vals)})
+        rec_id = super(t4_clinical_patient, self).create(cr, uid, vals, context)
+        return rec_id    
+    
+    

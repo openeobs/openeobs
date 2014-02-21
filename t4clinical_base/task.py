@@ -154,13 +154,10 @@ class t4_clinical_task(orm.Model):
     _columns = {
         'summary': fields.char('Summary', size=256),
         'task_id': fields.many2one('t4.clinical.task', 'Parent Task'),
-
-        #'location_id': fields.many2one('t4.clinical.location', 'POS Location'),
-#         'case_id': fields.many2one('t4.clinical.case', 'Case'), 
-#         'spell_id': fields.many2one('t4.clinical.spell', 'Spell of Care'),
-        #'patient_id': fields.many2one('res.partner', 'Patient'), 
         'user_id': fields.many2one('res.users', 'Assignee'),
         'employee_id': fields.function(_user2employee_id, type='many2one', relation='hr.employee'),        
+        'notes': fields.text('Notes'),
+        'state': fields.selection(_states, 'State'),
         # system data
         'create_date': fields.datetime('Create Date'),
         'write_date': fields.datetime('Write Date'),
@@ -175,11 +172,6 @@ class t4_clinical_task(orm.Model):
         # dates limits
         'date_deadline': fields.datetime('Deadline Time'),
         'date_expiry': fields.datetime('Expiry Time'),
-        # completion
-        #'time_spent_total': fields.datetime('Total Time spent'), # is it date_complete - date_start ??? if not it means the info should exit somewhere else 
-        'notes': fields.text('Notes'),
-        'state': fields.selection(_states, 'State'),  
-        
         # task type and related model/resource
         'type_id': fields.many2one('t4.clinical.task.type', "Task Type"),
         'data_res_id': fields.integer("Data Model's ResID", help="Data Model's ResID"),
@@ -190,8 +182,6 @@ class t4_clinical_task(orm.Model):
     _defaults = {
         'state': 'draft',
         'summary': 'Not specified',
-        #'type': 'clinical',
-        
     }
 
     def create(self, cr, uid, vals, context=None):
@@ -435,18 +425,13 @@ class t4_clinical_task_data(orm.AbstractModel):
         rec_id = super(t4_clinical_task_data, self).create(cr, uid, vals, context)
         return rec_id    
     
-    def create_task(self, cr, uid, vals_data={}, context=None):
-        """
-        parent_task_id expected in the context
-        """
-        context = context and context or {}
-        parent_task_id = context.get('parent_task_id')
+    def create_task(self, cr, uid, task_id=False, vals_data={}, context=None):
         task_pool = self.pool['t4.clinical.task']
         type_id = type_pool.search(cr, uid, [('data_model','=',self._name)])
         type_id = type_id and type_id[0] or False
-        task_id = task_pool.create(cr, uid, {'type_id': type_id, 'task_id': parent_task_id})
-        vals_data and task_pool.submit(cr, uid, task_id, vals_data, context)
-        return task_id
+        new_task_id = task_pool.create(cr, uid, {'type_id': type_id, 'task_id': task_id})
+        vals_data and task_pool.submit(cr, uid, new_task_id, vals_data, context)
+        return new_task_id
     
     def save(self, cr, uid, ids, context=None):
         #from pprint import pprint as pp

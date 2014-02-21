@@ -1,17 +1,6 @@
 <?xml version="1.0"?>
 <openerp>
 	<data>
-<!--		<record model="t4.clinical.task.attr" id="t4c_aw_test_observation">-->
-<!--			<field name="data_model">test.observation</field>-->
-<!--			<field name="act_window_xmlid">action_test_observation</field>-->
-<!--			<field name="data_model">test.observation</field>-->
-<!--		</record>-->
-<!--		<record model="t4.clinical.task.attr" id="t4c_aw_test_observation2">-->
-<!--			<field name="name">Test type of task</field>-->
-<!--			<field name="data_model">test.observation2</field>-->
-<!--			<field name="act_window_xmlid">action_test_observation</field>-->
-<!--			<field name="parent_rule">[]</field>-->
-<!--			<field name="children_rule">[('model','in',['test.observation'])]</field>-->
-<!--		</record>		-->
+
 	</data>
 </openerp>
