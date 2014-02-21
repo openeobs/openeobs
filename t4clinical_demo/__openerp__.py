@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'T4 Clinical Improved',
+    'name': 'T4 Clinical Internal Demo',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
@@ -8,13 +8,8 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['project','hr'],
-    'data': ['task_view.xml','task_data.xml'],
-    'demo': ['demo_data.xml',],
-    'css': [],
-    'js': [],
-    'qweb': [],
-    'images': [],
+    'depends': ['t4clinical_base'],
+    'data': ['master_data.xml'],
     'application': True,
     'installable': True,
     'active': False,

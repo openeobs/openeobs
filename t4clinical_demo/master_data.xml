@@ -1,0 +1,789 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <!-- Point of Service Delivery - Hospital -->
+        <record id="t4skr_newsdemo_pos_hospital_newsdemo" model="t4clinical.pos.delivery">
+            <field name="name">University Hospital Greenfield</field>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_hospital"/>
+        </record>
+
+        <!-- Point of Service Delivery - Wards -->
+        <record id="t4skr_newsdemo_pos_ward_e8" model="t4clinical.pos.delivery">
+            <field name="name">WARD E8</field>
+            <field name="reference">E8</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_hospital_newsdemo"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_ward"/>
+        </record>
+
+        <record id="t4skr_newsdemo_pos_ward_e9" model="t4clinical.pos.delivery">
+            <field name="name">WARD E9</field>
+            <field name="reference">E9</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_hospital_newsdemo"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_ward"/>
+        </record>
+
+        <!-- Point of Service Delivery - Beds -->
+
+        <!-- E8 Ward -->
+        <record id="t4clinical_pos_ward_e8_bay1_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay1_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay1_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay1_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay2_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay2_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay2_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay2_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay3_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay3_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay3_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay3_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay4_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay4_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay4_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay4_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay5_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay5_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay5_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay5_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay6_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay6_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay6_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_bay6_bed_4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_ex01" model="t4clinical.pos.delivery">
+            <field name="name">Ex 01</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_ex02" model="t4clinical.pos.delivery">
+            <field name="name">Ex 02</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr1" model="t4clinical.pos.delivery">
+            <field name="name">SR 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr2" model="t4clinical.pos.delivery">
+            <field name="name">SR 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr3" model="t4clinical.pos.delivery">
+            <field name="name">SR 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr4" model="t4clinical.pos.delivery">
+            <field name="name">SR 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr4" model="t4clinical.pos.delivery">
+            <field name="name">SR 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr5" model="t4clinical.pos.delivery">
+            <field name="name">SR 5</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr6" model="t4clinical.pos.delivery">
+            <field name="name">SR 6</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e8_sr7" model="t4clinical.pos.delivery">
+            <field name="name">SR 7</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e8"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <!-- E9 Ward -->
+        <record id="t4clinical_pos_ward_e9_bay1_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay1_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay1_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay1_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 1 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay2_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay2_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay2_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay2_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 2 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay3_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay3_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay3_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay3_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 3 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay4_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay4_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay4_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay4_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 4 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay5_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay5_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay5_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay5_bed4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 5 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay6_bed1" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 1</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay6_bed2" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 2</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay6_bed3" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 3</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <record id="t4clinical_pos_ward_e9_bay6_bed_4" model="t4clinical.pos.delivery">
+            <field name="name">Bay 6 Bed 4</field>
+            <field name="parent_id" ref="t4skr_newsdemo_pos_ward_e9"/>
+            <field name="pos_type" ref="t4clinical.t4clinical_pos_delivery_type_bed"/>
+        </record>
+
+        <!-- Task Recurrence Patterns -->
+        <record id="t4skr.t4skr_task_pattern_mews_default" model="project.task.recurrence.pattern">
+            <field name="frequency_mins">60</field>
+        </record>
+
+        <!-- Users -->
+        <record id="t4skr_newsdemo_hca_harold_user" model="res.users">
+            <field name="name">Harold Bishop</field>
+            <field name="login">harold</field>
+            <field name="password">harold</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_hca'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_hca_henry_user" model="res.users">
+            <field name="name">Henry Higgins</field>
+            <field name="login">henry</field>
+            <field name="password">henry</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_hca'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_hca_hannah_user" model="res.users">
+            <field name="name">Hannah Mitchell</field>
+            <field name="login">hannah</field>
+            <field name="password">hannah</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_hca'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_nurse_norah_user" model="res.users">
+            <field name="name">Norah Miller</field>
+            <field name="login">norah</field>
+            <field name="password">norah</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_nurse'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_nurse_nadine_user" model="res.users">
+            <field name="name">Nadine Bullock</field>
+            <field name="login">nadine</field>
+            <field name="password">nadine</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_nurse'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_nurse_nathan_user" model="res.users">
+            <field name="name">Nathan Lewis</field>
+            <field name="login">nathan</field>
+            <field name="password">nathan</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_nurse'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_ward_manager_winifred_user" model="res.users">
+            <field name="name">Winifred Kirrin</field>
+            <field name="login">winifred</field>
+            <field name="password">winifred</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_ward_manager'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_ward_manager_walter_user" model="res.users">
+            <field name="name">Walter Smith</field>
+            <field name="login">walter</field>
+            <field name="password">walter</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_ward_manager'))]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_ward_manager_whitney_user" model="res.users">
+            <field name="name">Whitney Williams</field>
+            <field name="login">whitney</field>
+            <field name="password">whitney</field>
+            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_ward_manager'))]"/>
+        </record>
+
+        <!-- Employees -->
+        <record id="t4skr_newsdemo_hca_harold_employee" model="hr.employee">
+            <field name="name">Harold Bishop</field>
+            <field name="user_id" ref="t4skr_newsdemo_hca_harold_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_hca')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e8')]]]"/>
+        </record>
+        <record id="t4skr_newsdemo_hca_henry_employee" model="hr.employee">
+            <field name="name">Henry Higgins</field>
+            <field name="user_id" ref="t4skr_newsdemo_hca_henry_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_hca')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e8')]]]"/>
+        </record>
+        <record id="t4skr_newsdemo_hca_hannah_employee" model="hr.employee">
+            <field name="name">Hannah Mitchell</field>
+            <field name="user_id" ref="t4skr_newsdemo_hca_hannah_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_hca')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e9')]]]"/>
+        </record>
+
+        <record id="t4skr_newsdemo_nurse_norah_employee" model="hr.employee">
+            <field name="name">Norah Miller</field>
+            <field name="user_id" ref="t4skr_newsdemo_nurse_norah_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_nurse')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e8')]]]"/>
+        </record>
+        <record id="t4skr_nurse_nadine_employee" model="hr.employee">
+            <field name="name">Nadine Bullock</field>
+            <field name="user_id" ref="t4skr_newsdemo_nurse_nadine_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_nurse')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e8')]]]"/>
+        </record>
+        <record id="t4skr_nurse_nathan_employee" model="hr.employee">
+            <field name="name">Nathan Lewis</field>
+            <field name="user_id" ref="t4skr_newsdemo_nurse_nathan_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_nurse')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e9')]]]"/>
+        </record>
+
+        <record id="t4skr_ward_manager_winifred_employee" model="hr.employee">
+            <field name="name">Winifred Kirrin</field>
+            <field name="user_id" ref="t4skr_newsdemo_ward_manager_winifred_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_ward_manager')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e8')]]]"/>
+        </record>
+        <record id="t4skr_ward_manager_walter_employee" model="hr.employee">
+            <field name="name">Walter Smith</field>
+            <field name="user_id" ref="t4skr_newsdemo_ward_manager_walter_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_ward_manager')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e8')]]]"/>
+        </record>
+        <record id="t4skr_ward_manager_whitney_employee" model="hr.employee">
+            <field name="name">Whitney Williams</field>
+            <field name="user_id" ref="t4skr_newsdemo_ward_manager_whitney_user"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_ward_manager')]]]"/>
+            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_ward_e9')]]]"/>
+        </record>
+
+        <record model="res.partner" id="base.main_partner">
+            <field name="image">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</field>
+        </record>
+
+        <!-- Device Types -->
+        <record model="product.category" id="t4skr_device_type_catheter">
+            <field name="parent_id" ref="t4clinical.t4clinical_product_category_devices"/>
+            <field name="name">Catheter</field>
+        </record>
+        <record model="product.category" id="t4skr_device_type_enteric">
+            <field name="parent_id" ref="t4clinical.t4clinical_product_category_devices"/>
+            <field name="name">Enteric</field>
+        </record>
+        <record model="product.category" id="t4skr_device_type_stoma">
+            <field name="parent_id" ref="t4clinical.t4clinical_product_category_devices"/>
+            <field name="name">Stoma</field>
+        </record>
+        <record model="product.category" id="t4skr_device_type_surgical">
+            <field name="parent_id" ref="t4clinical.t4clinical_product_category_devices"/>
+            <field name="name">Surgical</field>
+        </record>
+        <record model="product.category" id="t4skr_device_type_urinary">
+            <field name="parent_id" ref="t4clinical.t4clinical_product_category_devices"/>
+            <field name="name">Urinary</field>
+        </record>
+        <record model="product.category" id="t4skr_device_type_vascular">
+            <field name="parent_id" ref="t4clinical.t4clinical_product_category_devices"/>
+            <field name="name">Vascular</field>
+        </record>
+        <record model="product.category" id="t4skr_device_type_o2">
+            <field name="parent_id" ref="t4clinical.t4clinical_product_category_devices"/>
+            <field name="name">Supplemental O2</field>
+        </record>
+
+        <!-- Devices -->
+        <record model="t4clinical.device" id="t4skr_device_hickman_catheter">
+            <field name="name">Hickman Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_catheter"/>
+            <field name="flow_direction">both</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_pigtail_catheter">
+            <field name="name">Pigtail Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_catheter"/>
+            <field name="flow_direction">both</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_robinson_catheter">
+            <field name="name">Robinson Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_catheter"/>
+            <field name="flow_direction">both</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_subclavian_catheter">
+            <field name="name">Subclavian Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_catheter"/>
+            <field name="flow_direction">both</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_swan_ganz_catheter">
+            <field name="name">Swan-Ganz Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_catheter"/>
+            <field name="flow_direction">both</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_transhepatic_biliary_catheter">
+            <field name="name">Transhepatic Biliary Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_catheter"/>
+            <field name="flow_direction">both</field>
+        </record>
+
+        <record model="t4clinical.device" id="t4skr_device_gastrostomy">
+            <field name="name">Gastrostomy</field>
+            <field name="type_id" ref="t4skr_device_type_enteric"/>
+            <field name="flow_direction">both</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_jejunostomy">
+            <field name="name">Jejunostomy</field>
+            <field name="type_id" ref="t4skr_device_type_enteric"/>
+            <field name="flow_direction">both</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_nasogastric_tube">
+            <field name="name">Nasogastric Tube</field>
+            <field name="type_id" ref="t4skr_device_type_enteric"/>
+            <field name="flow_direction">both</field>
+        </record>
+
+        <record model="t4clinical.device" id="t4skr_device_colostomy">
+            <field name="name">Colostomy</field>
+            <field name="type_id" ref="t4skr_device_type_stoma"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_ileostomy">
+            <field name="name">Ileostomy</field>
+            <field name="type_id" ref="t4skr_device_type_stoma"/>
+            <field name="flow_direction">out</field>
+        </record>
+
+        <record model="t4clinical.device" id="t4skr_device_ascitic_drain">
+            <field name="name">Ascitic Drain</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_chest_drain_small_bore">
+            <field name="name">Chest Drain (Small Bore)</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_chest_drain_large_bore">
+            <field name="name">Chest Drain (Large Bore)</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_corrugated_drain">
+            <field name="name">Corrugated Drain</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_csf_drain">
+            <field name="name">CSF Drain</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_pericardial_drain">
+            <field name="name">Pericardial Drain</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_pigtail_drain">
+            <field name="name">Pigtail Drain</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_wallace_drain">
+            <field name="name">Wallace Drain</field>
+            <field name="type_id" ref="t4skr_device_type_surgical"/>
+            <field name="flow_direction">out</field>
+        </record>
+
+        <record model="t4clinical.device" id="t4skr_device_condom_catheter">
+            <field name="name">Condom Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_cystostomy">
+            <field name="name">Cystostomy</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_female_catheter">
+            <field name="name">Female Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_foley_catheter">
+            <field name="name">Foley Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_irrigation_catheter">
+            <field name="name">Irrigation Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_nephrostomy">
+            <field name="name">Nephrostomy</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_silastic_catheter">
+            <field name="name">Silastic Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_suprapubic_catheter">
+            <field name="name">Suprapubic Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_transurethral_catheter">
+            <field name="name">Transurethral Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_urostomy">
+            <field name="name">Urostomy</field>
+            <field name="type_id" ref="t4skr_device_type_urinary"/>
+            <field name="flow_direction">out</field>
+        </record>
+
+        <record model="t4clinical.device" id="t4skr_device_internal_jugular_catheter">
+            <field name="name">Internal Jugular Catheter</field>
+            <field name="type_id" ref="t4skr_device_type_vascular"/>
+            <field name="flow_direction">in</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_intravenous_catheter_venflon">
+            <field name="name">Intravenous Catheter (Venflon)</field>
+            <field name="type_id" ref="t4skr_device_type_vascular"/>
+            <field name="flow_direction">in</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_tunneled_cvc_jugular">
+            <field name="name">Tunneled CVC (Jugular)</field>
+            <field name="type_id" ref="t4skr_device_type_vascular"/>
+            <field name="flow_direction">in</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_subclavian">
+            <field name="name">Tunneled CVC (Subclavian)</field>
+            <field name="type_id" ref="t4skr_device_type_vascular"/>
+            <field name="flow_direction">in</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_haemocath">
+            <field name="name">Haemocath</field>
+            <field name="type_id" ref="t4skr_device_type_vascular"/>
+            <field name="flow_direction">in</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_subcutaneous_catheter_butterfly">
+            <field name="name">Subcutaneous Catheter (Butterfly)</field>
+            <field name="type_id" ref="t4skr_device_type_vascular"/>
+            <field name="flow_direction">in</field>
+        </record>
+
+        <record model="t4clinical.device" id="t4skr_device_nasal_cannula">
+            <field name="name">Nasal Cannula</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_simple_mask">
+            <field name="name">Simple Mask</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_with_reservoir">
+            <field name="name">With Reservoir</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_aerosol_neb">
+            <field name="name">Aerosol/Neb</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_venturi_mask">
+            <field name="name">Venturi Mask</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_humidified_sytem">
+            <field name="name">Humidified System</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_tracheostomy">
+            <field name="name">Tracheostomy</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_intubated">
+            <field name="name">Intubated</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_cpap">
+            <field name="name">CPAP</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+        <record model="t4clinical.device" id="t4skr_device_niv_bipap">
+            <field name="name">NIV BiPAP</field>
+            <field name="type_id" ref="t4skr_device_type_o2"/>
+            <field name="flow_direction">none</field>
+        </record>
+
+        <!-- Services -->
+        <record model="t4clinical.service" id="t4clinical_service_AE">
+            <field name="name">AE Service</field>
+            <field name="code">AE</field>
+        </record>
+
+        <!-- Consultants -->
+        <record id="t4clinical_consulting_doctor_catherine_devito" model="hr.employee">
+            <field name="name">Catherine Devito</field>
+            <field name="code">87897</field>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_doctor')]]]"/>
+        </record>
+        <record id="t4clinical_referring_doctor_richard_hawkins" model="res.partner">
+            <field name="name">Richard Hawkins</field>
+            <field name="ref">6566655</field>
+            <field name="doctor" eval="True"/>
+        </record>
+    </data>
+</openerp>

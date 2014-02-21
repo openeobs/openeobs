@@ -155,7 +155,6 @@ class t4_clinical_task(orm.Model):
         'summary': fields.char('Summary', size=256),
         'task_id': fields.many2one('t4.clinical.task', 'Parent Task'),
 
-        'pos_id': fields.many2one('t4.clinical.pos', 'Point of Service', help="Task with pos_id==False is global, company(trust)-wide"),
         #'location_id': fields.many2one('t4.clinical.location', 'POS Location'),
 #         'case_id': fields.many2one('t4.clinical.case', 'Case'), 
 #         'spell_id': fields.many2one('t4.clinical.spell', 'Spell of Care'),
@@ -425,7 +424,6 @@ class t4_clinical_task_data(orm.AbstractModel):
         'name': fields.char('Name', size=256),
         'task_type_id': fields.function(_task_data2task_type_id, type='many2one', relation='t4.clinical.task.type', string="Task Attrs"),
         'task_id': fields.function(_task_data2task_id, type='many2one', relation='t4.clinical.task', string="Task"),
-        'pos_id': fields.related('task_id', 'pos_id', string='Point of Service', type='many2one', relation='t4.clinical.pos'),
         'date_started': fields.related('task_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('task_id', 'date_terminated', string='Terminated Time', type='datetime'),
         'state': fields.related('task_id', 'state', string='Start Time', type='char', size=64),        
@@ -437,7 +435,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         rec_id = super(t4_clinical_task_data, self).create(cr, uid, vals, context)
         return rec_id    
     
-    def create_task(self, cr, uid, pos_id=False, vals_data={}, context=None):
+    def create_task(self, cr, uid, vals_data={}, context=None):
         """
         parent_task_id expected in the context
         """
@@ -446,7 +444,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_pool = self.pool['t4.clinical.task']
         type_id = type_pool.search(cr, uid, [('data_model','=',self._name)])
         type_id = type_id and type_id[0] or False
-        task_id = task_pool.create(cr, uid, {'type_id': type_id, 'pos_id': pos_id, 'task_id': parent_task_id})
+        task_id = task_pool.create(cr, uid, {'type_id': type_id, 'task_id': parent_task_id})
         vals_data and task_pool.submit(cr, uid, task_id, vals_data, context)
         return task_id
     
