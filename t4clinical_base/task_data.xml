@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<openerp>
+	<data>
+        <record model="ir.cron" id="t4_clinical_task_recurrence_cron">
+            <field name="name">Task Recurrence</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model" eval="'t4.clinical.task.recurrence'"/>
+            <field name="function" eval="'cron'"/>
+            <field name="args" eval="'()'" />
+        </record>		
+		<record model="t4.clinical.task.recurrence" id="test_recurrence">
+			<field name="date_start">2014-02-18 10:00:00</field>
+			<field name="unit">minute</field>
+			<field name="unit_qty">1</field>
+		</record>	        								
+	</data>
+</openerp>

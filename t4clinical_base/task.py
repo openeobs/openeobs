@@ -155,7 +155,7 @@ class t4_clinical_task(orm.Model):
         'summary': fields.char('Summary', size=256),
         'task_id': fields.many2one('t4.clinical.task', 'Parent Task'),
 
-        #'pos_id': fields.many2one('t4.clinical.pos', 'Point of Service'),
+        'pos_id': fields.many2one('t4.clinical.pos', 'Point of Service', help="Task with pos_id==False is global, company(trust)-wide"),
         #'location_id': fields.many2one('t4.clinical.location', 'POS Location'),
 #         'case_id': fields.many2one('t4.clinical.case', 'Case'), 
 #         'spell_id': fields.many2one('t4.clinical.spell', 'Spell of Care'),
@@ -302,10 +302,11 @@ class t4_clinical_task(orm.Model):
         pass 
     def schedule(self, cr, uid, ids, date_scheduled=None, context=None):
         ids = isinstance(ids,(list,tuple)) and ids or [ids]
+        allowed_states = ['draft', 'planned']
         for task in self.browse(cr, uid, ids, context):
-            if task.state not in ['draft','planned']:
+            if task.state not in allowed_states:
                 raise orm.except_orm('Task in state %s can not be scheduled!' % task.state, 
-                               'Make sure that the task is in (draft,planned)')
+                               'Make sure that the task is in %s' % allowed_states)
             elif not task.date_scheduled  and not date_scheduled:
                 raise orm.except_orm('Scheduled date is neither set on task nor passed to the method', 
                                'Make sure that the date is either set on task or passed to the method!')                
@@ -329,10 +330,11 @@ class t4_clinical_task(orm.Model):
    
     def unassign(self, cr, uid, ids, user_id, context=None):
         ids = isinstance(ids,(list,tuple)) and ids or [ids]
+        allowed_states = ['draft', 'planned', 'scheduled']
         for task in self.browse(cr, uid, ids, context):
-            if task.state not in ['draft','planned','scheduled']:
+            if task.state not in allowed_states:
                 raise orm.except_orm('Task in state %s can not be un-assigned!' % task.state, 
-                               'Make sure that the task is in (draft,planned,scheduled)')
+                               'Make sure that the task is in %s' % allowed_states)
             elif task.user_id:
                 raise orm.except_orm('Non-assigned task can not be un-assigned!', 
                                'Assign first!')               
@@ -354,10 +356,11 @@ class t4_clinical_task(orm.Model):
          
     def start(self, cr, uid, ids, context=None):        
         ids = isinstance(ids,(list,tuple)) and ids or [ids]
+        allowed_states = ['draft', 'planned', 'scheduled']
         for task in self.browse(cr, uid, ids, context):
-            if task.state not in ['scheduled']:
+            if task.state not in ['draft', 'planned', 'scheduled']:
                 raise orm.except_orm('Task in state %s can not be started' % task.state, 
-                               'Make sure that the task is in (scheduled)')
+                               'Make sure that the task is in %s' % allowed_states)
             elif not task.user_id:
                 raise orm.except_orm('Task is not assigned to anyone, thus can not be started', 
                                'Assign first!')               
@@ -367,10 +370,11 @@ class t4_clinical_task(orm.Model):
     
     def complete(self, cr, uid, ids, context=None):
         ids = isinstance(ids,(list,tuple)) and ids or [ids]
+        allowed_states = ['started']
         for task in self.browse(cr, uid, ids, context):
-            if task.state not in ['started']:
+            if task.state not in allowed_states:
                 raise orm.except_orm('Task in state %s can not be completed!' % task.state, 
-                               'Start first!')
+                               'Make sure that the task is in %s' % allowed_states)
             elif task.state in ['started'] and task.type_id and not self.validate(cr, uid, ids, context):
                 raise orm.except_orm('Invalid or missing data for the task id=%s!' % task.id, 
                                'Make sure that data provided is sufficient and valid!')         
@@ -381,10 +385,11 @@ class t4_clinical_task(orm.Model):
     
     def cancel(self, cr, uid, ids, context=None):
         ids = isinstance(ids,(list,tuple)) and ids or [ids]
+        allowed_states = ['draft','planned','scheduled','started']
         for task in self.browse(cr, uid, ids, context):
-            if task.state not in ['draft','planned','scheduled']:
+            if task.state not in allowed_states:
                 raise orm.except_orm('Task in state %s can not be cancelled!' % task.state, 
-                               'Make sure that the task in (draft,planned,scheduled)')           
+                               'Make sure that the task in %s' % allowed_states)           
             else:
                 now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
                 self.write(cr,uid,ids,{'state': 'cancelled', 'date_terminated': now}, context)                
@@ -399,7 +404,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     
     _name = 't4.clinical.task.data'
     
-    def _tdm2ta(self, cr, uid, ids, field, arg, context=None):
+    def _task_data2task_type_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
         type_pool = self.pool['t4.clinical.task.type']
         for data_model in self.browse(cr, uid, ids, context):
@@ -407,7 +412,7 @@ class t4_clinical_task_data(orm.AbstractModel):
             res[data_model.id] = type_id and type_id[0] or False
         return res
     
-    def _tdm2t(self, cr, uid, ids, field, arg, context=None):
+    def _task_data2task_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
         task_pool = self.pool['t4.clinical.task']
         for data_model in self.browse(cr, uid, ids, context):
@@ -418,8 +423,9 @@ class t4_clinical_task_data(orm.AbstractModel):
     
     _columns = {
         'name': fields.char('Name', size=256),
-        'task_type_id': fields.function(_tdm2ta, type='many2one', relation='t4.clinical.task.type', string="Task Attrs"),
-        'task_id': fields.function(_tdm2t, type='many2one', relation='t4.clinical.task', string="Task"),
+        'task_type_id': fields.function(_task_data2task_type_id, type='many2one', relation='t4.clinical.task.type', string="Task Attrs"),
+        'task_id': fields.function(_task_data2task_id, type='many2one', relation='t4.clinical.task', string="Task"),
+        'pos_id': fields.related('task_id', 'pos_id', string='Point of Service', type='many2one', relation='t4.clinical.pos'),
         'date_started': fields.related('task_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('task_id', 'date_terminated', string='Terminated Time', type='datetime'),
         'state': fields.related('task_id', 'state', string='Start Time', type='char', size=64),        
@@ -430,6 +436,19 @@ class t4_clinical_task_data(orm.AbstractModel):
             raise orm.except_orm('Only t4.clinical.task can create t4.clinical.task.data records!', 'msg')
         rec_id = super(t4_clinical_task_data, self).create(cr, uid, vals, context)
         return rec_id    
+    
+    def create_task(self, cr, uid, pos_id=False, vals_data={}, context=None):
+        """
+        parent_task_id expected in the context
+        """
+        context = context and context or {}
+        parent_task_id = context.get('parent_task_id')
+        task_pool = self.pool['t4.clinical.task']
+        type_id = type_pool.search(cr, uid, [('data_model','=',self._name)])
+        type_id = type_id and type_id[0] or False
+        task_id = task_pool.create(cr, uid, {'type_id': type_id, 'pos_id': pos_id, 'task_id': parent_task_id})
+        vals_data and task_pool.submit(cr, uid, task_id, vals_data, context)
+        return task_id
     
     def save(self, cr, uid, ids, context=None):
         #from pprint import pprint as pp
