@@ -2,6 +2,7 @@
 from openerp.osv import orm, fields, osv
 
 
+
 class t4_clinical_location(orm.Model):
     """ Clinical point of service LOCATION """
 

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-		<record model="t4.clinical.task.type" id="t4c_aw_test_observation">
+		<record model="t4.clinical.task.data.type" id="t4c_aw_test_observation">
 			<field name="summary">Test Observation</field>
 			<field name="data_model">test.observation</field>
 			<field name="act_window_xmlid">action_test_observation</field>
 		</record>
-		<record model="t4.clinical.task.type" id="t4c_aw_test_observation2">
+		<record model="t4.clinical.task.data.type" id="t4c_aw_test_observation2">
 			<field name="summary">Test type of task</field>
 			<field name="data_model">test.observation2</field>
 <!--			<field name="act_window_xmlid">action_test_observation</field-->
 			<field name="parent_rule">[]</field>
 			<field name="children_rule">[('model','in',['test.observation'])]</field>
 		</record>	
-		<record model="t4.clinical.task.type" id="t4c_aw_patient_move">
+		<record model="t4.clinical.task.data.type" id="t4c_aw_patient_move">
 			<field name="summary">Patient Transfer</field>
 			<field name="data_model">t4.clinical.patient.move</field>
 			<field name="act_window_xmlid">action_patient_move</field>

@@ -27,7 +27,7 @@
 
                     <tree string="T4 Clinical Task Tree View">
 		                       <field name="create_date" />
-		                       <field name="type_id" />
+		                       <field name="data_type_id" />
 		                       <field name="date_deadline" />
 		                       <field name="date_expiry" />
 		                       <field name="date_planned" />
@@ -58,7 +58,7 @@
                       	    <group string="Task">
 	
 		                       <field name="create_date" />
-		                       <field name="type_id" />
+		                       <field name="data_type_id" />
 		                       <field name="date_deadline" />
 		                       <field name="date_expiry" />
 		                       <field name="date_planned" />
