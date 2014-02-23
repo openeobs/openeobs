@@ -25,7 +25,14 @@
             <field name="location_id" ref="demo_location_pos_uhg"/>
         </record>         
 
-        <!-- Point of Service Delivery - Beds -->
+		<!-- Company -->
+        <record id="main_company" model="res.company">
+        	<field name="name">TRUST</field>
+<!--             <field name="pos_ids" eval="[(6,0,[ref('demo_location_pos_uhg')])]"/> -->
+            <field name="lot_admission_id" ref="demo_location_structural_w9"/>
+        </record>  
+
+        <!-- Point of Service - Beds -->
 
         <!-- E8 Ward -->
         <record id="demo_location_poc_b1" model="t4.clinical.location">

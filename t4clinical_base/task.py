@@ -6,21 +6,25 @@ from openerp import SUPERUSER_ID
 import logging        
 _logger = logging.getLogger(__name__)
 
+def res2ref(self, model, res_id):
+    return "%s,%s" % (str(model), str(res_id))
+
+def ref2res(self, ref):
+    model, res_id = ref.split(",")
+    return model, int(res_id)
+
 def create_ref(self, cr, uid, host_id, ref_model, ref_vals,  ref_field, context=None):
-    #host_resource = self.read(cr, uid, host_id, [ref_field], context)
+    """
+    created resource in model ref_model and binds it to host_id.ref_field
+    """
     ref_model = self.pool[ref_model]
     ref_id = ref_model.create(cr, uid, ref_vals, context)
-    #import pdb; pdb.set_trace()
     self.write(cr, uid, host_id, {ref_field: "%s,%s" % (ref_model._name, ref_id)}, context)
     return ref_id
 
 def browse_ref(self, cr, uid, host_id, ref_field, context=None):
-    host_resource = self.read(cr, uid, host_id, [ref_field], context)
-    if not host_resource[ref_field]:
-        return orm.browse_null()
-    model,res_id = host_resource[ref_field].split(',')
-    #ref_model = self.pool[model]
-    return ref_model.browse(cr, uid, res_id, context)
+    host_resource = self.browse(cr, uid, host_id, context)
+    return eval("host_resource.%s" % ref_field)
 
 def read_ref(self, cr, uid, host_id, ref_field, fields=[], context=None):
     host_resource = self.read(cr, uid, host_id, [ref_field], context)
@@ -28,10 +32,13 @@ def read_ref(self, cr, uid, host_id, ref_field, fields=[], context=None):
     ref_model = self.pool[model]
     if not model or not res_id:
         return []
-    #import pdb; pdb.set_trace()
     return ref_model.read(cr, uid, int(res_id), fields, context)
 
 def write_ref(self, cr, uid, host_id, vals, ref_field, context=None):
+    """
+    writes to resource related to host_id.ref_field
+    returns True or False
+    """
     host_resource = self.read(cr, uid, host_id, [ref_field], context)
     model,res_id = host_resource[ref_field].split(',')
     if not res_id or not model:
@@ -41,6 +48,9 @@ def write_ref(self, cr, uid, host_id, vals, ref_field, context=None):
     return ref_model.write(cr, uid, int(res_id), vals, context)
 
 def search_ref(self, cr, user, host_domain, ref_domain, ref_field, context=None):
+    """
+    returns host_ids that are intersection of host_domain and ref_domain 
+    """
     field_list = [rd[0] for rd in ref_domain if isinstance(rd,(list, tuple))]
     sql_models = """select 
                         imf.model
@@ -63,7 +73,8 @@ def search_ref(self, cr, user, host_domain, ref_domain, ref_field, context=None)
     host_ids = search(cr, uid, host_domain, context=None)
     return host_ids
     
-
+orm.Model.res2ref = res2ref
+orm.Model.ref2res = ref2res 
 orm.Model.create_ref = create_ref    
 orm.Model.browse_ref = browse_ref
 orm.Model.read_ref = read_ref
@@ -188,8 +199,8 @@ class t4_clinical_task_data_type(orm.Model):
     def create(self, cr, uid, vals, context=None):
         if not vals.get('act_window_xmlid'):
             _logger.warning('Field act_window_xmlid is not found in vals during attempt to create a record for t4.clinical.task.data.type!')
-        res = super(t4_clinical_task_data_type, self).create(cr, uid, vals, context)
-        return res
+        res_id = super(t4_clinical_task_data_type, self).create(cr, uid, vals, context)
+        return res_id
     
 class t4_clinical_task(orm.Model):
     """ task

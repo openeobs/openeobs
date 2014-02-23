@@ -1,6 +1,17 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
 
+class res_company(orm.Model):
+    _name = 'res.company'
+    _inherit = 'res.company'
+    # default company has xmlid == 'main_company'
+    _columns = {
+        'pos_ids': fields.many2many('t4.clinical.location', 'company_pos_rel', 'company_id', 'pos_id', 'POS Locations'),
+        'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
+        'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),
+        
+        
+    }
 
 
 class t4_clinical_location(orm.Model):

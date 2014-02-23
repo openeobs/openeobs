@@ -28,7 +28,7 @@ class t4_clinical_spell(orm.Model):
         parent_task_id is expected in context
         """
         context = context and context or {}
-        current_spell = self.current_spell_browse(self, cr, uid, ptient_id, location_id, context=None)
+        current_spell = self.current_spell_browse(self, cr, uid, patient_id, location_id, context=None)
         if current_spell:
             _logger.warn("Attempt to admit a patient with active spell of care! Current spell used, location remains in tact.")
             task_id = current_spell.task_id.id
@@ -51,7 +51,7 @@ class t4_clinical_spell(orm.Model):
          pass    
 
     def discharge_patient(self, cr, uid, patient_id, location_id, context=None):
-        current_spell = self.current_spell_browse(self, cr, uid, ptient_id, location_id, context=None)
+        current_spell = self.current_spell_browse(self, cr, uid, patient_id, location_id, context=None)
         
         
 # class t4_clinical_pos(orm.Model):
