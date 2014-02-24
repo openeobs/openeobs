@@ -28,8 +28,11 @@ class TestAdmission(common.SingleTransactionCase):
                 
         self.task_pool = self.registry('t4.clinical.task')
         self.adm_pool = self.registry('t4.clinical.patient.admission')
-        self.admission_data = {'location_id': self.xml2db_id("demo_location_pos_uhg"), 'patient_id':self.xml2db_id("t4clinical_patient_donald_duck")}
-        self.adm_task_id = self.adm_pool.create_task(self.cr, self.uid, self.admission_data)
+        self.move_pool = self.registry('t4.clinical.patient.move')
+        self.patient_id = self.xml2db_id("t4clinical_patient_donald_duck")
+        self.location_id = self.xml2db_id("demo_location_pos_uhg")
+        self.admission_data = {'location_id': self.location_id, 'patient_id':self.patient_id}
+        self.adm_task_id = self.adm_pool.create_task(self.cr, self.uid, {}, self.admission_data)
         
         super(TestAdmission, self).setUp()
 
@@ -45,6 +48,7 @@ class TestAdmission(common.SingleTransactionCase):
             adm_task.complete
         then:
             adm_task.parent_id.data_model == 't4.clinical.spell'
+            move_pool.get_location() == self.location
             
         """
         self.task_pool.assign(self.cr, self.uid, self.adm_task_id, 1)
@@ -54,7 +58,8 @@ class TestAdmission(common.SingleTransactionCase):
         adm_task = self.task_pool.browse(self.cr, self.uid, self.adm_task_id)
         
         self.assertTrue(adm_task.parent_id.data_model == 't4.clinical.spell', 'Data model')
-        
+        location = self.move_pool.get_location(self.cr, self.uid, self.patient_id)
+        self.assertTrue( location and location.id == self.location_id, 'Data model')
         
      
         

@@ -7,6 +7,7 @@
 			<field name="act_window_xmlid">action_patient_move</field>
 			<field name="parent_rule">[]</field>
 			<field name="children_rule">[]</field>
+			<field name="assignee_required" eval="0"/>
 		</record>
 		<record model="t4.clinical.task.data.type" id="patient_placement_data_type">
 			<field name="summary">Patient Placement</field>

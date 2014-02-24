@@ -14,20 +14,23 @@ class t4_clinical_spell(orm.Model):
         
         #...
     }
-    def current_spell_browse(self, cr, uid, patient_id, context=None):
+    def get_spell(self, cr, uid, patient_id, context=None):
+        """
+        returns started spell for the patient or False
+        """
         spell_filter = [('patient_id','=',patient_id),('state','in',['started'])]
         spell_id = self.search(cr, uid, spell_filter, context=context)
         res = spell_id and self.browse(cr, uid, spell_id[0], context) or False
         return res
     
     def create(self, cr, uid, vals, context=None):
-        current_spell = self.current_spell_browse(cr, uid, vals['patient_id'], context)
+        current_spell = self.get_spell(cr, uid, vals['patient_id'], context)
         if current_spell:
             res = current_spell.id
             _logger.warn("Attempt to admit a patient with active spell of care! Current spell ID=%s returned." % current_spell.id)
         else:        
             res = super(t4_clinical_spell, self).create(cr, uid, vals, context)
-            _logger.info("New Spell of Care task ID=%s successfully created for Patient ID=%s" % (res, vals['patient_id']))
+            _logger.info("New Spell of Care ID=%s successfully created" % (res))
         return res
         
         

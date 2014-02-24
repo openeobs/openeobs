@@ -285,7 +285,9 @@ class t4_clinical_task(orm.Model):
 
     def create(self, cr, uid, vals, context=None):
         fields = {'summary', 'assignee_required'}
-        fields = fields - set(vals)
+        print "fields",fields,"vals",vals
+        fields = fields - set(vals.keys())
+        
         if vals.get('data_type_id') and fields:
             type_pool = self.pool['t4.clinical.task.data.type']
             task_type = type_pool.read(cr, uid, vals['data_type_id'], fields, context)
@@ -498,7 +500,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         rec_id = super(t4_clinical_task_data, self).create(cr, uid, vals, context)
         return rec_id    
     
-    def create_task(self, cr, uid, vals_data={}, parent_id=False, context=None):
+    def create_task(self, cr, uid, vals_task={}, vals_data={}, context=None):
         task_pool = self.pool['t4.clinical.task']
         data_type_pool = self.pool['t4.clinical.task.data.type']
         data_type_id = data_type_pool.search(cr, uid, [('data_model','=',self._name)])
@@ -506,7 +508,8 @@ class t4_clinical_task_data(orm.AbstractModel):
             raise orm.except_orm("Model %s is not registered as t4.clinical.task.data.type!" % self._name,
                        "Add the type!")
         data_type_id = data_type_id and data_type_id[0] or False
-        new_task_id = task_pool.create(cr, uid, {'data_type_id': data_type_id, 'parent_id': parent_id}, context)
+        vals_task.update({'data_type_id': data_type_id})
+        new_task_id = task_pool.create(cr, uid, vals_task, context)
         vals_data and task_pool.submit(cr, uid, new_task_id, vals_data, context)
         return new_task_id
     

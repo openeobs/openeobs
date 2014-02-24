@@ -28,7 +28,7 @@
 		<!-- Company -->
         <record id="main_company" model="res.company">
         	<field name="name">TRUST</field>
-<!--             <field name="pos_ids" eval="[(6,0,[ref('demo_location_pos_uhg')])]"/> -->
+            <field name="pos_ids" eval="[(6,0,[ref('demo_location_pos_uhg')])]"/>
             <field name="lot_admission_id" ref="demo_location_structural_w9"/>
         </record>  
 
