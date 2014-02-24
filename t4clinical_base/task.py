@@ -17,6 +17,9 @@ def create_ref(self, cr, uid, host_id, ref_model, ref_vals,  ref_field, context=
     """
     created resource in model ref_model and binds it to host_id.ref_field
     """
+    if not self.pool.models.get(ref_model):
+        raise orm.except_orm("Model %s is not found in the model pool!" % ref_model,
+                              "Create the model!")
     ref_model = self.pool[ref_model]
     ref_id = ref_model.create(cr, uid, ref_vals, context)
     self.write(cr, uid, host_id, {ref_field: "%s,%s" % (ref_model._name, ref_id)}, context)
@@ -187,18 +190,21 @@ class t4_clinical_task_data_type(orm.Model):
         'act_window_id': fields.function(_aw_xmlid2id, type='many2one', relation='ir.actions.act_window', string='Window Action'),
         'active': fields.boolean('Is Active?', help='When we don\'t need the model anymore we may hide it instead of deleting'),
         'parent_rule': fields.text('Parent Rule', help='Type domain for parent task'),
-        'children_rule': fields.text('Children Rule', help='Type domain for children tasks')
+        'children_rule': fields.text('Children Rule', help='Type domain for children tasks'),
+        'assignee_required': fields.boolean('Assignee Required?', help="When False, allows to start task without assignee")  
     }
     
     _defaults = {
          'active': True,
          'summary': 'Unknown',
-         
+         'assignee_required': True      
      }
         
     def create(self, cr, uid, vals, context=None):
         if not vals.get('act_window_xmlid'):
             _logger.warning('Field act_window_xmlid is not found in vals during attempt to create a record for t4.clinical.task.data.type!')
+        if not self.pool.models.get(vals['data_model']):
+            _logger.error('Model %s is not found in the model pool!' % vals['data_model'])
         res_id = super(t4_clinical_task_data_type, self).create(cr, uid, vals, context)
         return res_id
     
@@ -208,7 +214,7 @@ class t4_clinical_task(orm.Model):
     
     _name = 't4.clinical.task'
     _name_rec = 'summary'
-    _parent_name = 'task_id' # the hierarchy will represent instruction-activity relation. 
+    #_parent_name = 'task_id' # the hierarchy will represent instruction-activity relation. 
     #_inherit = ['mail.thread']
 
     _states = [('draft','Draft'), ('planned', 'Planned'), ('scheduled', 'Scheduled'), 
@@ -240,10 +246,11 @@ class t4_clinical_task(orm.Model):
         
     _columns = {
         'summary': fields.char('Summary', size=256),
-        'task_id': fields.many2one('t4.clinical.task', 'Parent Task'),
+        'parent_id': fields.many2one('t4.clinical.task', 'Parent Task'),
         'user_id': fields.many2one('res.users', 'Assignee'),
         'employee_id': fields.function(_user2employee_id, type='many2one', relation='hr.employee'),        
         'notes': fields.text('Notes'),
+        'assignee_required': fields.boolean('Assignee Required?', help="When False, allows to start task without assignee"),
         'state': fields.selection(_states, 'State'),
         # system data
         'create_date': fields.datetime('Create Date'),
@@ -277,10 +284,12 @@ class t4_clinical_task(orm.Model):
     }
 
     def create(self, cr, uid, vals, context=None):
-        if vals.get('data_type_id') and not vals.get('summary'):
+        fields = {'summary', 'assignee_required'}
+        fields = fields - set(vals)
+        if vals.get('data_type_id') and fields:
             type_pool = self.pool['t4.clinical.task.data.type']
-            task_type = type_pool.browse(cr, uid, vals['data_type_id'], context)
-            vals.update({'summary': task_type.summary})
+            task_type = type_pool.read(cr, uid, vals['data_type_id'], fields, context)
+            vals.update({k: task_type[k] for k in fields})
         rec_id = super(t4_clinical_task, self).create(cr, uid, vals, context)
         return rec_id
     
@@ -300,9 +309,8 @@ class t4_clinical_task(orm.Model):
             orm.except_orm("Data can not be submitted for a task in state other than %s!" % allowed_states, 
                            "Make sure that the following tasks are in %s: %s" % (allowed_states, str(state_exception)))        
         for t in task:
-            not t.data_ref and self.create_ref(cr, uid, t.id, t.data_model, {}, 'data_ref', context)
-            if not self.validate(cr, uid, t.id, context):
-                orm.except_orm("Invalid data!", "Task id %s, data model: %s, data: %s" % (t.id, t.data_model, vals))               
+            not t.data_ref and self.create_ref(cr, uid, t.id, t.data_model, vals, 'data_ref', context)
+        for task in self.browse(cr, uid, ids, context):        
             self.write_ref(cr, uid, t.id, vals, 'data_ref', context)
         return True
 
@@ -344,13 +352,13 @@ class t4_clinical_task(orm.Model):
         return {id: self.browse_rel(cr, uid, id, 'data_ref', context) for id in ids}        
  
           
-    def validate(self, cr, uid, ids, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        res = []
-        for task in self.browse(cr, uid, ids, context):
-            model_pool = self.pool[task.data_model]
-            model_pool and res.append(hasattr(model_pool, 'validate') and model_pool.validate(cr,uid,[task.data_res_id], context) or True)
-        return all(res)
+#     def validate(self, cr, uid, ids, context=None):
+#         ids = isinstance(ids,(list,tuple)) and ids or [ids]
+#         res = []
+#         for task in self.browse(cr, uid, ids, context):
+#             model_pool = self.pool[task.data_model]
+#             model_pool and res.append(hasattr(model_pool, 'validate') and model_pool.validate(cr,uid,[task.data_res_id], context) or True)
+#         return all(res)
     
     # MGMT API
 
@@ -415,8 +423,8 @@ class t4_clinical_task(orm.Model):
             if task.state not in ['draft', 'planned', 'scheduled']:
                 raise orm.except_orm('Task in state %s can not be started' % task.state, 
                                'Make sure that the task is in %s' % allowed_states)
-            elif not task.user_id:
-                raise orm.except_orm('Task is not assigned to anyone, thus can not be started', 
+            if not task.user_id and task.assignee_required:
+                raise orm.except_orm('Task assignee required for task of type: %s' % task.data_model, 
                                'Assign first!')               
             else:              
                 self.write(cr,uid,ids,{'state': 'started'}, context)             
@@ -428,13 +436,12 @@ class t4_clinical_task(orm.Model):
         for task in self.browse(cr, uid, ids, context):
             if task.state not in allowed_states:
                 raise orm.except_orm('Task in state %s can not be completed!' % task.state, 
-                               'Make sure that the task is in %s' % allowed_states)
-            elif task.state in ['started'] and task.data_type_id and not self.validate(cr, uid, ids, context):
-                raise orm.except_orm('Invalid or missing data for the task id=%s!' % task.id, 
-                               'Make sure that data provided is sufficient and valid!')         
+                               'Make sure that the task is in %s' % allowed_states)       
             else:
                 now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
-                self.write(cr,uid,ids,{'state': 'completed', 'date_terminated': now}, context)                
+                data_model_pool = self.pool[task.data_model]
+                data_model_pool.complete(cr, uid, task.id, context)
+                self.write(cr, uid, task.id, {'state': 'completed', 'date_terminated': now}, context)                
         return True 
     
     def cancel(self, cr, uid, ids, context=None):
@@ -474,15 +481,16 @@ class t4_clinical_task_data(orm.AbstractModel):
             res[data.id] = task_id and task_id[0] or False
         return res
     
-    
     _columns = {
         'name': fields.char('Name', size=256),
-        'data_type_id': fields.function(_task_data2data_type_id, type='many2one', relation='t4.clinical.task.data.type', string="Task Attrs"),
-        'task_id': fields.function(_task_data2task_id, type='many2one', relation='t4.clinical.task', string="Task"),
+        'data_type_id': fields.function(_task_data2data_type_id, type='many2one', relation='t4.clinical.task.data.type', string="Task Attrs", store=True),
+        'task_id': fields.function(_task_data2task_id, type='many2one', relation='t4.clinical.task', string="Task", store=True),
         'date_started': fields.related('task_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('task_id', 'date_terminated', string='Terminated Time', type='datetime'),
-        'state': fields.related('task_id', 'state', string='Start Time', type='char', size=64),        
+        'state': fields.related('task_id', 'state', string='Start Time', type='char', size=64),  
+            
     }
+    
 
     def create(self, cr, uid, vals, context=None):
 #         if not context or not context.get('t4_source') == "t4.clinical.task":
@@ -490,11 +498,15 @@ class t4_clinical_task_data(orm.AbstractModel):
         rec_id = super(t4_clinical_task_data, self).create(cr, uid, vals, context)
         return rec_id    
     
-    def create_task(self, cr, uid, task_id=False, vals_data={}, context=None):
+    def create_task(self, cr, uid, vals_data={}, parent_id=False, context=None):
         task_pool = self.pool['t4.clinical.task']
-        data_type_id = type_pool.search(cr, uid, [('data_model','=',self._name)])
+        data_type_pool = self.pool['t4.clinical.task.data.type']
+        data_type_id = data_type_pool.search(cr, uid, [('data_model','=',self._name)])
+        if not data_type_id:
+            raise orm.except_orm("Model %s is not registered as t4.clinical.task.data.type!" % self._name,
+                       "Add the type!")
         data_type_id = data_type_id and data_type_id[0] or False
-        new_task_id = task_pool.create(cr, uid, {'data_type_id': data_type_id, 'task_id': task_id})
+        new_task_id = task_pool.create(cr, uid, {'data_type_id': data_type_id, 'parent_id': parent_id}, context)
         vals_data and task_pool.submit(cr, uid, new_task_id, vals_data, context)
         return new_task_id
     
@@ -507,8 +519,16 @@ class t4_clinical_task_data(orm.AbstractModel):
         return {'type': 'ir.actions.act_window_close'}
     
     def validate(self, cr, uid, ids, context=None):
-        return True    
     
+        return {}.fromkeys(ids, True)    
+
+    def start(self, cr, uid, ids, context=None):
+        return True
+
+    def complete(self, cr, uid, ids, context=None):
+        return True 
+
+
 
 class observation_test(orm.Model):
     _name = 'observation.test'
@@ -516,4 +536,4 @@ class observation_test(orm.Model):
     _columns = {
         'val1': fields.text('val1'),
         'val2': fields.text('val2')
-    }
+    }   

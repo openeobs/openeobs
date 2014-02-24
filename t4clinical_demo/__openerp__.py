@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['t4clinical_base'],
+    'depends': ['t4clinical_base','t4clinical_task_types'],
     'data': ['master_data.xml'],
     'application': True,
     'installable': True,

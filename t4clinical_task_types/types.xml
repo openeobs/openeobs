@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>	
+		<record model="t4.clinical.task.data.type" id="patient_move_data_type">
+			<field name="summary">Patient Move</field>
+			<field name="data_model">t4.clinical.patient.move</field>
+			<field name="act_window_xmlid">action_patient_move</field>
+			<field name="parent_rule">[]</field>
+			<field name="children_rule">[]</field>
+		</record>
+		<record model="t4.clinical.task.data.type" id="patient_placement_data_type">
+			<field name="summary">Patient Placement</field>
+			<field name="data_model">t4.clinical.patient.placement</field>
+<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+			<field name="parent_rule">[]</field>
+			<field name="children_rule">[]</field>
+			<field name="assignee_required" eval="0"/>
+		</record>			
+		<record model="t4.clinical.task.data.type" id="patient_admission_data_type">
+			<field name="summary">Patient Admission</field>
+			<field name="data_model">t4.clinical.patient.admission</field>
+<!-- 			<field name="act_window_xmlid">action_patient_move</field> -->
+			<field name="parent_rule">[]</field>
+			<field name="children_rule">[]</field>
+			<field name="assignee_required" eval="0"/>
+		</record>
+		<record model="t4.clinical.task.data.type" id="observation_height_weight_data_type">
+			<field name="summary">Observation Height, Weight</field>
+			<field name="data_model">t4.clinical.observation.height_weight</field>
+			<field name="act_window_xmlid">action_observation_height_weight</field>
+			<field name="parent_rule">[]</field>
+			<field name="children_rule">[]</field>
+		</record>		
+		<record model="t4.clinical.task.data.type" id="spell_data_type">
+			<field name="summary">Spell of Care</field>
+			<field name="data_model">t4.clinical.spell</field>
+<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+			<field name="parent_rule">[]</field>
+			<field name="children_rule">[]</field>
+			<field name="assignee_required" eval="0"/>
+		</record>			
+	</data>
+</openerp>

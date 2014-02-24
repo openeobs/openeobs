@@ -10,7 +10,7 @@
     'website': 'http://www.tactix4.com/',
     'depends': ['project','hr'],
     'data': ['task_view.xml','task_data.xml'],
-    'demo': ['demo_data.xml',],
+    'demo': [],
     'css': [],
     'js': [],
     'qweb': [],

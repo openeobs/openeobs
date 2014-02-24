@@ -18,19 +18,42 @@ class t4_clinical_location(orm.Model):
     """ Clinical point of service LOCATION """
 
     _name = 't4.clinical.location'
-    _parent_name = 'location_id'
+    #_parent_name = 'location_id'
     _rec_name = 'code'
     _types = [('poc', 'Point of Care'), ('structural', 'Structural'), ('virtual', 'Virtual'), ('pos', 'POS')]
     _usages = [('bed', 'Bed'), ('ward', 'Ward'), ('department', 'Department'), ('hospital', 'Hospital')]
+    
+    def _location2pos_id(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for location in self.browse(cr, uid, ids, context):
+            domain = [('type','=','pos'),('parent_id.parent_left', '>=', location.parent_left),('parent_id.parent_right', '<=', location.parent_right)]
+            pos_id = self.search(cr, uid, domain, context=context)
+            res[location.id] = pos_id and pos_id[0] or False
+        return res
+    
+    def _location2company_id(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        company_pool = self.pool['res.company']
+        for location in self.browse(cr, uid, ids, context):
+            domain = [('pos_ids','in',location.pos_id)]
+            company_id = company_pool.search(cr, uid, domain, context=context)
+            res[location.id] = company_id and company_id[0] or False
+        return res    
+    
     _columns = {
         'name': fields.char('Point of Care', size=100, required=True, select=True),
         'code': fields.char('Code', size=256),
-        'location_id': fields.many2one('t4.clinical.location', 'Parent Location'),
+        'parent_id': fields.many2one('t4.clinical.location', 'Parent Location'),
         'type': fields.selection(_types, 'Location Type'),
         'usage': fields.selection(_usages, 'Location Usage'),
         'is_available': fields.boolean('Is Available', help="Will"),
-        'active': fields.boolean('Active')
+        'active': fields.boolean('Active'),
+        'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.location', string='POS'),
+        'company_id': fields.function(_location2company_id, type='many2one', relation='res.company', string='Company') 
     }
+    
+
+        
     _defaults = {
         'active': True
     }

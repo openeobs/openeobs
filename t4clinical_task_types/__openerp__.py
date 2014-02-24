@@ -9,7 +9,7 @@
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
     'depends': ['t4clinical_base','project','hr'],
-    'data': ['observation_view.xml', 'observation_data.xml'],
+    'data': ['types.xml', 'window_actions.xml'],
     'demo': [],
     'css': [],
     'js': [],

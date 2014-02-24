@@ -1,7 +1,7 @@
 import test_task
-import test_patients
+import test_patient
 
 fast_suite = [
-    test_patients,
+    test_patient,
     test_task,
     ]

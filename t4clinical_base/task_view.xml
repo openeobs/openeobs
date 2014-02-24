@@ -58,7 +58,7 @@
                       	    <group string="Task">
 	
 		                       <field name="create_date" />
-		                       <field name="data_type_id" />
+		                       <field name="data_type_id" widget="selection"/>
 		                       <field name="date_deadline" />
 		                       <field name="date_expiry" />
 		                       <field name="date_planned" />
