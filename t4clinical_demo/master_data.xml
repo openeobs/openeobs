@@ -2,7 +2,7 @@
 <openerp>
     <data>
         <!-- Location - Point of Service - Hospital -->
-        <record id="demo_location_pos_uhg" model="t4.clinical.location">
+        <record id="demo_location_uhg" model="t4.clinical.location">
             <field name="name">University Hospital Greenfield</field>
             <field name="code">UHG</field>
             <field name="type">pos</field>
@@ -10,100 +10,94 @@
         </record>
 
         <!-- Location - Point of Care - Wards -->
-        <record id="demo_location_structural_w8" model="t4.clinical.location">
+        <record id="demo_location_w8" model="t4.clinical.location">
             <field name="name">Ward W8</field>
             <field name="code">W8</field>
             <field name="type">structural</field>
             <field name="usage">ward</field>
-            <field name="location_id" ref="demo_location_pos_uhg"/>
+            <field name="location_id" ref="demo_location_uhg"/>
         </record>        
-        <record id="demo_location_structural_w9" model="t4.clinical.location">
+        <record id="demo_location_w9" model="t4.clinical.location">
             <field name="name">Ward W9</field>
             <field name="code">W9</field>
             <field name="type">structural</field>
             <field name="usage">ward</field>
-            <field name="location_id" ref="demo_location_pos_uhg"/>
+            <field name="location_id" ref="demo_location_uhg"/>
         </record>         
 
 		<!-- Company -->
         <record id="main_company" model="res.company">
         	<field name="name">TRUST</field>
-            <field name="pos_ids" eval="[(6,0,[ref('demo_location_pos_uhg')])]"/>
-            <field name="lot_admission_id" ref="demo_location_structural_w9"/>
+            <field name="pos_ids" eval="[(6,0,[ref('demo_location_uhg')])]"/>
+            <field name="lot_admission_id" ref="demo_location_w9"/>
         </record>  
 
         <!-- Point of Service - Beds -->
 
         <!-- E8 Ward -->
-        <record id="demo_location_poc_b1" model="t4.clinical.location">
+        <record id="demo_location_b1" model="t4.clinical.location">
             <field name="name">Bed 1</field>
             <field name="code">B1</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w8"/>
+            <field name="location_id" ref="demo_location_w8"/>
         </record>   
-        <record id="demo_location_poc_b2" model="t4.clinical.location">
+        <record id="demo_location_b2" model="t4.clinical.location">
             <field name="name">Bed 2</field>
             <field name="code">B2</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w8"/>
+            <field name="location_id" ref="demo_location_w8"/>
         </record>  
-        <record id="demo_location_poc_b3" model="t4.clinical.location">
+        <record id="demo_location_b3" model="t4.clinical.location">
             <field name="name">Bed 3</field>
             <field name="code">B3</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w8"/>
+            <field name="location_id" ref="demo_location_w8"/>
         </record>  
-        <record id="demo_location_poc_b4" model="t4.clinical.location">
+        <record id="demo_location_b4" model="t4.clinical.location">
             <field name="name">Bed 4</field>
             <field name="code">B4</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w8"/>
+            <field name="location_id" ref="demo_location_w8"/>
         </record>          
 
 
         <!-- E9 Ward -->
-        <record id="demo_location_poc_b5" model="t4.clinical.location">
+        <record id="demo_location_b5" model="t4.clinical.location">
             <field name="name">Bed 5</field>
             <field name="code">B5</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w9"/>
+            <field name="location_id" ref="demo_location_w9"/>
         </record>   
-        <record id="demo_location_poc_b6" model="t4.clinical.location">
+        <record id="demo_location_b6" model="t4.clinical.location">
             <field name="name">Bed 6</field>
             <field name="code">B6</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w9"/>
+            <field name="location_id" ref="demo_location_w9"/>
         </record>  
-        <record id="demo_location_poc_b7" model="t4.clinical.location">
+        <record id="demo_location_b7" model="t4.clinical.location">
             <field name="name">Bed 7</field>
             <field name="code">B7</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w9"/>
+            <field name="location_id" ref="demo_location_w9"/>
         </record>  
-        <record id="demo_location_poc_b8" model="t4.clinical.location">
+        <record id="demo_location_b8" model="t4.clinical.location">
             <field name="name">Bed 8</field>
             <field name="code">B8</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_structural_w9"/>
+            <field name="location_id" ref="demo_location_w9"/>
         </record>  
   
-        <!-- Patient -->
-        <!-- Patients -->
-        <record id="t4clinical_partner_title_mr" model="res.partner.title">
-            <field name="name">Mr</field>
-            <field name="shortcut">Mr</field>
-            <field name="domain">partner</field>
-        </record>
+<!-- Patient -->
 
-        <record id="t4clinical_patient_donald_duck" model="t4.clinical.patient">
+        <record id="demo_patient_donald" model="t4.clinical.patient">
             <field name="name">WHATTHEF</field>
             <field name="given_name">Donald</field>
             <field name="middle_names">Fauntelroy</field>
@@ -113,12 +107,12 @@
             <field name="gender">M</field>
             <field name="patient_identifier">22767676</field>
             <field name="other_identifier">hosp67676</field>
-            <field name="title" ref="t4clinical_partner_title_mr"/>
+            <field name="title" ref="t4clinical_base.partner_title_t4clinical_mr"/>
             <field name="email">dfduck@disney.com</field>
             <field name="mobile">07234765582</field>
             <field name="city">Disney World</field>
         </record>
-        <record id="t4clinical_patient_mick_dundee" model="t4.clinical.patient">
+        <record id="demo_patient_mick" model="t4.clinical.patient">
             <field name="name">WHATTHEF</field>
             <field name="given_name">Mick</field>
             <field name="middle_names">Sam</field>
@@ -127,59 +121,59 @@
             <field name="sex">M</field>
             <field name="gender">M</field>
             <field name="other_identifier">hosp67677</field>
-            <field name="title" ref="t4clinical_partner_title_mr"/>
+            <field name="title" ref="t4clinical_base.partner_title_t4clinical_mr"/>
             <field name="email">mjdundee@yahoo.au</field>
             <field name="mobile">07503723893</field>
             <field name="city">The Outback</field>
         </record> 
         
         
-<!--         Users
-        <record id="t4skr_newsdemo_hca_harold_user" model="res.users">
-            <field name="name">Harold Bishop</field>
-            <field name="login">harold</field>
-            <field name="password">harold</field>
-            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_hca'))]"/>
+<!--     Users -->
+        <record id="demo_user_hca" model="res.users">
+            <field name="name">hca</field>
+            <field name="login">hca</field>
+            <field name="password">hca</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
         </record>
         
-        <record id="t4skr_newsdemo_nurse_norah_user" model="res.users">
-            <field name="name">Norah Miller</field>
-            <field name="login">norah</field>
-            <field name="password">norah</field>
-            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_nurse'))]"/>
+        <record id="demo_user_nurse" model="res.users">
+            <field name="name">nurse</field>
+            <field name="login">nurse</field>
+            <field name="password">nurse</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
         </record>
 
-        <record id="t4skr_newsdemo_manager_winifred_user" model="res.users">
-            <field name="name">Winifred Kirrin</field>
-            <field name="login">winifred</field>
-            <field name="password">winifred</field>
-            <field name="groups_id" eval="[(4, ref('t4skr.t4skr_manager'))]"/>
+        <record id="demo_user_manager" model="res.users">
+            <field name="name">manager</field>
+            <field name="login">manager</field>
+            <field name="password">manager</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
         </record>
 
 
-        Employees
-        <record id="t4skr_newsdemo_hca_harold_employee" model="hr.employee">
+<!--     Employees -->
+        <record id="demo_employee_harold" model="hr.employee">
             <field name="name">Harold Bishop</field>
-            <field name="user_id" ref="t4skr_newsdemo_hca_harold_user"/>
-            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_hca')]]]"/>
-            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_e8')]]]"/>
+            <field name="user_id" ref="demo_user_hca"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_hca')]]]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>
 
 
-        <record id="t4skr_newsdemo_nurse_norah_employee" model="hr.employee">
+        <record id="demo_employee_norah" model="hr.employee">
             <field name="name">Norah Miller</field>
-            <field name="user_id" ref="t4skr_newsdemo_nurse_norah_user"/>
-            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_nurse')]]]"/>
-            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_e8')]]]"/>
+            <field name="user_id" ref="demo_user_nurse"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_nurse')]]]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>
 
 
-        <record id="t4skr_manager_winifred_employee" model="hr.employee">
+        <record id="demo_employee_winifred" model="hr.employee">
             <field name="name">Winifred Kirrin</field>
-            <field name="user_id" ref="t4skr_newsdemo_manager_winifred_user"/>
-            <field name="category_ids" eval="[[6, False, [ref('t4clinical.t4_employee_category_manager')]]]"/>
-            <field name="pos_location_ids" eval="[[6, False, [ref('t4skr_newsdemo_pos_e8')]]]"/>
-        </record> -->
+            <field name="user_id" ref="demo_user_manager"/>
+            <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_ward_manager')]]]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
+        </record>
 
 
         <record model="res.partner" id="base.main_partner">

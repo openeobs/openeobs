@@ -9,7 +9,7 @@
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
     'depends': ['project','hr'],
-    'data': ['task_view.xml','task_data.xml'],
+    'data': ['task_view.xml','data.xml'],
     'demo': [],
     'css': [],
     'js': [],

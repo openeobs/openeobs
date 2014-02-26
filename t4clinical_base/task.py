@@ -17,6 +17,10 @@ def create_ref(self, cr, uid, host_id, ref_model, ref_vals,  ref_field, context=
     """
     created resource in model ref_model and binds it to host_id.ref_field
     """
+    
+    if not isinstance(host_id, (int,long)):
+        raise orm.except_orm("host_id must be integer or long!",
+                              "Current host_id=%s" % host_id)
     if not self.pool.models.get(ref_model):
         raise orm.except_orm("Model %s is not found in the model pool!" % ref_model,
                               "Create the model!")
@@ -26,10 +30,16 @@ def create_ref(self, cr, uid, host_id, ref_model, ref_vals,  ref_field, context=
     return ref_id
 
 def browse_ref(self, cr, uid, host_id, ref_field, context=None):
+    if not isinstance(host_id, (int,long)):
+        raise orm.except_orm("host_id must be integer or long!",
+                              "Current host_id=%s" % host_id)    
     host_resource = self.browse(cr, uid, host_id, context)
     return eval("host_resource.%s" % ref_field)
 
 def read_ref(self, cr, uid, host_id, ref_field, fields=[], context=None):
+    if not isinstance(host_id, (int,long)):
+        raise orm.except_orm("host_id must be integer or long!",
+                              "Current host_id=%s" % host_id)    
     host_resource = self.read(cr, uid, host_id, [ref_field], context)
     model,res_id = host_resource[ref_field].split(',')
     ref_model = self.pool[model]
@@ -42,6 +52,9 @@ def write_ref(self, cr, uid, host_id, vals, ref_field, context=None):
     writes to resource related to host_id.ref_field
     returns True or False
     """
+    if not isinstance(host_id, (int,long)):
+        raise orm.except_orm("host_id must be integer or long!",
+                              "Current host_id=%s" % host_id)    
     host_resource = self.read(cr, uid, host_id, [ref_field], context)
     model,res_id = host_resource[ref_field].split(',')
     if not res_id or not model:
@@ -75,6 +88,52 @@ def search_ref(self, cr, user, host_domain, ref_domain, ref_field, context=None)
     host_domain.append((ref_field,'in',refs))    
     host_ids = search(cr, uid, host_domain, context=None)
     return host_ids
+
+
+def read_none(self, cr, uid, ids, fields=[], context=None):
+    """
+    If in the DB field value=false in the result it will be replaced with None
+    """
+    import psycopg2
+    from psycopg2 import extras
+    from openerp.tools import config
+        
+    single = not isinstance(ids, (tuple,  list))
+    ids =  isinstance(ids, (tuple,  list)) and ids or [ids]
+    read_vals = self.read(cr, uid, ids, fields, context)
+    numeric_fields = [k for k in self._columns if self._columns[k]._type in ('integer', 'float')]
+    if not numeric_fields:
+        return single and read_vals[0] or read_vals
+    numeric_fields.append('id')
+    kwargs = {'database': config['db_name'], 'user': config['db_user'], 'password': config['db_password']}
+    config['db_host'] and kwargs.update({'host': config['db_host']})
+    config['db_port'] and kwargs.update({'port': config['db_port']}) 
+    cn = psycopg2.connect(**kwargs)
+    cr2 = cn.cursor(cursor_factory=extras.DictCursor)
+    sql = "select %s from %s where id in (%s)" % (",".join(numeric_fields), self._table, ",".join([str(id) for id in ids]))
+    cr2.execute(sql)
+    res = cr2.fetchall()
+    sql_vals = [{k:v for k,v in r.iteritems()} for r in res]
+    cr2.close()
+    cn.close()     
+    cr.execute(sql)
+    #import pdb; pdb.set_trace()
+    for sql_row in sql_vals:
+        [row.update(sql_row) for row in read_vals if row['id'] == sql_row['id']][0]
+
+    return single and read_vals[0] or read_vals
+
+def browse_domain(self, cr, uid, domain, context=None):
+    ids = self.search(cr, uid, domain, context=context)
+    return self.browse(cr, uid, ids, context)
+
+def read_domain(self, cr, uid, domain, fields=[], context=None):
+    ids = self.search(cr, uid, domain, context=context)
+    return self.read(cr, uid, ids, fields, context)   
+
+def except_if(test=True, capture="Exception!", msg="Message is not defined..."):
+    if test:
+        raise orm.except_orm(capture, msg)
     
 orm.Model.res2ref = res2ref
 orm.Model.ref2res = ref2res 
@@ -83,7 +142,9 @@ orm.Model.browse_ref = browse_ref
 orm.Model.read_ref = read_ref
 orm.Model.write_ref = write_ref
 orm.Model.search_ref = search_ref  
-
+orm.Model.read_none = read_none
+orm.Model.browse_domain = browse_domain
+orm.Model.read_domain = read_domain
 
 class t4_clinical_task_recurrence(orm.Model):
     """
@@ -112,6 +173,8 @@ class t4_clinical_task_recurrence(orm.Model):
         'task_ids': fields.many2many('t4.clinical.task', 'recurrence_task_rel', 'recurrence_id', 'task_id', 'Generated Tasks'),
         'date_next': fields.datetime('Next Date', readonly=True), # =date_start in create 
     }
+    
+
     
     def create(self, cr, uid, vals, context=None):
         vals.get('date_start') and vals.update({'date_next': vals['date_start']})
@@ -207,6 +270,22 @@ class t4_clinical_task_data_type(orm.Model):
             _logger.error('Model %s is not found in the model pool!' % vals['data_model'])
         res_id = super(t4_clinical_task_data_type, self).create(cr, uid, vals, context)
         return res_id
+
+def data_model_event(callback_before=None, callback_after=None):
+    def decorator(f):
+        def wrapper(*args, **kwargs):
+            self, cr, uid, task_id = args[:4]
+            context = kwargs.get('context') or None
+            task = self.browse(cr, uid, task_id, context)
+            model_pool = self.pool.get(task.data_model)
+            model_pool and callback_before and eval("model_pool.%s(*args[1:], **kwargs)" % callback_before)
+            res = f(*args, **kwargs)
+            dir(f)
+            model_pool and callback_after and eval("model_pool.%s(*args[1:], **kwargs)" % callback_after)
+            print args[1:], kwargs
+            return res
+        return wrapper
+    return decorator
     
 class t4_clinical_task(orm.Model):
     """ task
@@ -285,7 +364,7 @@ class t4_clinical_task(orm.Model):
 
     def create(self, cr, uid, vals, context=None):
         fields = {'summary', 'assignee_required'}
-        print "fields",fields,"vals",vals
+        #print "fields",fields,"vals",vals
         fields = fields - set(vals.keys())
         
         if vals.get('data_type_id') and fields:
@@ -293,32 +372,31 @@ class t4_clinical_task(orm.Model):
             task_type = type_pool.read(cr, uid, vals['data_type_id'], fields, context)
             vals.update({k: task_type[k] for k in fields})
         rec_id = super(t4_clinical_task, self).create(cr, uid, vals, context)
+        task = self.browse(cr, uid, rec_id, context)
+        _logger.info("Task '%s' created, task.id=%s" % (task.data_model, task.id))
         return rec_id
+
+    def write(self,cr, uid, ids, vals, context=None):
+
+        res = super(t4_clinical_task, self).write(cr, uid, ids, vals, context)
+        return res
     
     # DATA API
-    def submit(self, cr, uid, ids, vals, context=None):
-        ctx = context and context.copy() or {}
-        ctx.update({'t4_source': 't4.clinical.task'})
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        task = self.browse(cr, uid, ids, context)
-        model_exception = [t.id for t in task if not t.data_type_id]        
-        if model_exception:
-            orm.except_orm("Data can not be submitted for a task without data_type_id set", 
-                           "Make sure that the following tasks are have data_type_id set: %s" % str(model_exception))            
+    def submit(self, cr, uid, task_id, vals, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        task = self.browse(cr, uid, task_id, context)      
+        except_if(not task.data_type_id, msg="No data model for this task")           
         allowed_states = ['draft','planned', 'scheduled','started']
-        state_exception = [{'id': t.id, 'state': t.state} for t in task if t.state not in allowed_states]        
-        if state_exception:
-            orm.except_orm("Data can not be submitted for a task in state other than %s!" % allowed_states, 
-                           "Make sure that the following tasks are in %s: %s" % (allowed_states, str(state_exception)))        
-        for t in task:
-            not t.data_ref and self.create_ref(cr, uid, t.id, t.data_model, vals, 'data_ref', context)
-        for task in self.browse(cr, uid, ids, context):        
-            self.write_ref(cr, uid, t.id, vals, 'data_ref', context)
+        except_if(task.state not in allowed_states, msg="Data can't be submitted in this state '%s'" % task.state)       
+        not task.data_ref and self.create_ref(cr, uid, task.id, task.data_model, vals, 'data_ref', context)
+        task = self.browse(cr, uid, task_id, context)        
+        self.write_ref(cr, uid, task.id, vals, 'data_ref', context)
+        task.data_model = self.pool.get(task.data_model).submit(cr, uid, task.id, context)
+        _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))
         return True
 
-    def submit_act_window(self, cr, uid, ids, fields, context=None):     
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        task = self.browse(cr, uid, ids[0], context)
+    def submit_act_window(self, cr, uid, task_id, fields, context=None):     
+        task = self.browse(cr, uid, task_id, context)
         allowed_states = ['draft','planned', 'scheduled','started']
         if task.state not in allowed_states:
             raise orm.except_orm('Data can not be submitted for a task in state %s !' % task.state, 
@@ -342,68 +420,57 @@ class t4_clinical_task(orm.Model):
                 'context': ctx,
                 }
 
-    def retrieve(self, cr, uid, ids, context=None):  
-        return self.retrieve_read(cr, uid, ids, context=None)  
-     
-    def retrieve_read(self, cr, uid, ids, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        return {id: self.read_ref(cr, uid, id, 'data_ref', context) for id in ids}
-     
-    def retrieve_browse(self, cr, uid, ids, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        return {id: self.browse_rel(cr, uid, id, 'data_ref', context) for id in ids}        
+    def retrieve(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        task = self.browse(cr, uid, task_id, context)    
+        return self.retrieve_read(cr, uid, task_id, context=None)  
+    
+    @data_model_event(callback_before=None, callback_after="retrieve")
+    def retrieve_read(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        return self.read_ref(cr, uid, task_id, 'data_ref', context)
+    
+    @data_model_event(callback_before=None, callback_after="retrieve") 
+    def retrieve_browse(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        return self.browse_ref(cr, uid, task_id, 'data_ref', context)        
  
-          
-#     def validate(self, cr, uid, ids, context=None):
-#         ids = isinstance(ids,(list,tuple)) and ids or [ids]
-#         res = []
-#         for task in self.browse(cr, uid, ids, context):
-#             model_pool = self.pool[task.data_model]
-#             model_pool and res.append(hasattr(model_pool, 'validate') and model_pool.validate(cr,uid,[task.data_res_id], context) or True)
-#         return all(res)
+    @data_model_event(callback_before=None, callback_after="validate")          
+    def validate(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        task = self.browse(cr, uid, task_id, context) 
+        return all(res)
     
     # MGMT API
-
-    def schedule(self, cr, uid, ids, date_scheduled=None, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        allowed_states = ['draft', 'planned']
-        for task in self.browse(cr, uid, ids, context):
-            if task.state not in allowed_states:
-                raise orm.except_orm('Task in state %s can not be scheduled!' % task.state, 
-                               'Make sure that the task is in %s' % allowed_states)
-            elif not task.date_scheduled  and not date_scheduled:
-                raise orm.except_orm('Scheduled date is neither set on task nor passed to the method', 
-                               'Make sure that the date is either set on task or passed to the method!')                
-            else:
-                self.write(cr,uid,ids,{'date_scheduled': date_scheduled or task.date_scheduled, 'state': 'scheduled'}, context)
-                
+    @data_model_event(callback_before=None, callback_after="schedule")
+    def schedule(self, cr, uid, task_id, date_scheduled=None, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        task = self.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft', 'planned'], msg="Task in state %s can not be scheduled!" % task.state)
+        except_if(not task.date_scheduled and not date_scheduled, msg="Scheduled date is neither set on task nor passed to the method")
+        self.write(cr, uid, task_id, {'date_scheduled': date_scheduled or task.date_scheduled, 'state': 'scheduled'}, context)
+        _logger.info("Task '%s', task.id=%s scheduled, date_scheduled='%s'" % (task.data_model, task.id, date_scheduled or task.date_scheduled))
         return True
     
-    def assign(self, cr, uid, ids, user_id, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        for task in self.browse(cr, uid, ids, context):
-            if task.state not in ['draft','planned','scheduled']:
-                raise orm.except_orm('Task in state %s can not be assigned!' % task.state, 
-                               'Make sure that the task is in (draft,planned,scheduled)')
-            elif task.user_id:
-                raise orm.except_orm('Task is assigned already assigned to %s!' % task.user_id.name, 
-                               'Un-assign first!')               
-            else:
-                self.write(cr,uid,ids,{'user_id': user_id}, context)                
+    @data_model_event(callback_before=None, callback_after="assign")
+    def assign(self, cr, uid, task_id, user_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        task = self.browse(cr, uid, task_id, context)
+        allowed_states = ['draft','planned','scheduled']
+        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be assigned!" % task.state)
+        except_if(task.user_id, msg="Task is assigned already assigned to %s!" % task.user_id.name)         
+        self.write(cr, uid, task_id,{'user_id': user_id}, context)
+        _logger.info("Task '%s', task.id=%s assigned to user.id=%s" % (task.data_model, task.id, user_id))            
         return True        
-   
-    def unassign(self, cr, uid, ids, user_id, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        allowed_states = ['draft', 'planned', 'scheduled']
-        for task in self.browse(cr, uid, ids, context):
-            if task.state not in allowed_states:
-                raise orm.except_orm('Task in state %s can not be un-assigned!' % task.state, 
-                               'Make sure that the task is in %s' % allowed_states)
-            elif task.user_id:
-                raise orm.except_orm('Non-assigned task can not be un-assigned!', 
-                               'Assign first!')               
-            else:
-                self.write(cr,uid,ids,{'user_id': False}, context)                
+    
+    @data_model_event(callback_before=None, callback_after="unassign")   
+    def unassign(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        task = self.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be unassigned!" % task.state)
+        except_if(task.user_id, msg="Task is not assigned yet!")               
+        self.write(cr, uid, task_id,{'user_id': False}, context) 
+        _logger.info("Task '%s', task.id=%s unassigned" % (task.data_model, task.id))        
         return True 
     
     def button_schedule(self, cr, uid, ids, context=None):
@@ -417,48 +484,41 @@ class t4_clinical_task(orm.Model):
     def button_start(self, cr, uid, ids, fields, context=None):
         res = self.start(cr, uid, ids, context)
         return res
-         
-    def start(self, cr, uid, ids, context=None):        
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
+    @data_model_event(callback_before=None, callback_after="start")        
+    def start(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)      
         allowed_states = ['draft', 'planned', 'scheduled']
-        for task in self.browse(cr, uid, ids, context):
-            if task.state not in ['draft', 'planned', 'scheduled']:
-                raise orm.except_orm('Task in state %s can not be started' % task.state, 
-                               'Make sure that the task is in %s' % allowed_states)
-            if not task.user_id and task.assignee_required:
-                raise orm.except_orm('Task assignee required for task of type: %s' % task.data_model, 
-                               'Assign first!')               
-            else:              
-                self.write(cr,uid,ids,{'state': 'started'}, context)             
+        task = self.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft', 'planned', 'scheduled'], msg="Task in state %s can not be started" % task.state)
+        except_if(not task.user_id and task.assignee_required,msg="Task assignee required for task of type: %s" % task.data_model)                   
+        self.write(cr, uid, task_id, {'state': 'started'}, context)
+        _logger.info("Task '%s', task.id=%s started" % (task.data_model, task.id))             
         return True 
     
-    def complete(self, cr, uid, ids, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
-        allowed_states = ['started']
-        for task in self.browse(cr, uid, ids, context):
-            if task.state not in allowed_states:
-                raise orm.except_orm('Task in state %s can not be completed!' % task.state, 
-                               'Make sure that the task is in %s' % allowed_states)       
-            else:
-                now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
-                data_model_pool = self.pool[task.data_model]
-                data_model_pool.complete(cr, uid, task.id, context)
-                self.write(cr, uid, task.id, {'state': 'completed', 'date_terminated': now}, context)                
+    @data_model_event(callback_before=None, callback_after="complete")
+    def complete(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        task = self.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['started'], msg="Task in state %s can not be completed!" % task.state)      
+        now = dt.today().strftime('%Y-%m-%d %H:%M:%S') 
+        self.write(cr, uid, task.id, {'state': 'completed', 'date_terminated': now}, context)     
+        _logger.info("Task '%s', task.id=%s completed" % (task.data_model, task.id))           
         return True 
     
-    def cancel(self, cr, uid, ids, context=None):
-        ids = isinstance(ids,(list,tuple)) and ids or [ids]
+    @data_model_event(callback_before=None, callback_after="cancel")    
+    def cancel(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
         allowed_states = ['draft','planned','scheduled','started']
-        for task in self.browse(cr, uid, ids, context):
-            if task.state not in allowed_states:
-                raise orm.except_orm('Task in state %s can not be cancelled!' % task.state, 
-                               'Make sure that the task in %s' % allowed_states)           
-            else:
-                now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
-                self.write(cr,uid,ids,{'state': 'cancelled', 'date_terminated': now}, context)                
+        task = self.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft','planned','scheduled','started'], msg="Task in state %s can not be cancelled!" % task.state)         
+        now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
+        self.write(cr, uid, task_id,{'state': 'cancelled', 'date_terminated': now}, context)
+        _logger.info("Task '%s', task.id=%s cancelled" % (task.data_model, task.id))             
         return True 
     
-    def abort(self, cr, uid, ids, context=None):
+    def abort(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
         # not to be impl.
         pass  
     
@@ -466,7 +526,6 @@ class t4_clinical_task(orm.Model):
 class t4_clinical_task_data(orm.AbstractModel):
     
     _name = 't4.clinical.task.data'
-    
     def _task_data2data_type_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
         type_pool = self.pool['t4.clinical.task.data.type']
@@ -514,25 +573,44 @@ class t4_clinical_task_data(orm.AbstractModel):
         return new_task_id
     
     def save(self, cr, uid, ids, context=None):
-        #from pprint import pprint as pp
-        #pp(context)
+
         if context.get('active_id'):
             task_pool = self.pool['t4.clinical.task']
             task_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
+            task = task_pool.browse(cr, uid, context['active_id'], context)
+            _logger.info("Task '%s', task.id=%s data submitted via UI" % (task.data_model, task.id))
         return {'type': 'ir.actions.act_window_close'}
     
     def validate(self, cr, uid, ids, context=None):
-    
         return {}.fromkeys(ids, True)    
 
     def start(self, cr, uid, ids, context=None):
         return True
 
     def complete(self, cr, uid, ids, context=None):
-        return True 
+        return True
+    
+    def assign(self, cr, uid, ids, user_id, context=None):
+        return True
+    
+    def unassign(self, cr, uid, ids, user_id, context=None):
+        return True
+            
+    def abort(self, cr, uid, ids, context=None):
+        return True
+    
+    def cancel(self, cr, uid, ids, context=None):
+        return True
 
+    def retrieve(self, cr, uid, ids, context=None):
+        return True
 
-
+    def shcedule(self, cr, uid, ids, context=None):
+        return True
+    
+    def submit(self, cr, uid, ids, context=None):
+        return True    
+    
 class observation_test(orm.Model):
     _name = 'observation.test'
     _inherit = ['t4.clinical.task.data']    

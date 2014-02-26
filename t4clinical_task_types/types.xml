@@ -27,7 +27,7 @@
 		</record>
 		<record model="t4.clinical.task.data.type" id="observation_height_weight_data_type">
 			<field name="summary">Observation Height, Weight</field>
-			<field name="data_model">t4.clinical.observation.height_weight</field>
+			<field name="data_model">t4.clinical.patient.observation.height_weight</field>
 			<field name="act_window_xmlid">action_observation_height_weight</field>
 			<field name="parent_rule">[]</field>
 			<field name="children_rule">[]</field>

@@ -105,8 +105,8 @@ class TestTask(common.SingleTransactionCase):
         task1 = self.get_task1()
         data = self.task_pool.retrieve(self.cr, self.uid, task1.id)
         
-        self.assertEquals(data[task1.id]['val1'], 'submit_val1', 'test_submit val1')
-        self.assertEquals(data[task1.id]['val2'], 'submit_val2', 'test_submit val2')
+        self.assertEquals(data['val1'], 'submit_val1', 'test_submit val1')
+        self.assertEquals(data['val2'], 'submit_val2', 'test_submit val2')
        
         
     def test_complete(self):

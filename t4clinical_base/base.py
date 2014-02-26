@@ -58,11 +58,23 @@ class t4_clinical_location(orm.Model):
         'active': True
     }
 
+class hr_employee(orm.Model):
+    _name = 'hr.employee'
+    _inherit = 'hr.employee'
+    
+    _columns = {
+        'location_ids': fields.many2many('t4.clinical.location', 'employee_location_rel', 'employee_id', 'location_id', 'Locations of Responsibility'),
+        
+    }
+    
+    
+    
+    
 
 class t4_clinical_patient(osv.Model):
     """T4Clinical Patient object, to store all the parameters of the Patient
     """
-    _name = "t4.clinical.patient"
+    _name = 't4.clinical.patient'
     _description = "A Patient"
 
     _inherits = {'res.partner': 'partner_id'}

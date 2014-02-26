@@ -18,7 +18,6 @@ class t4_clinical_patient_move(orm.Model):
     def create(self, cr, uid, vals, context=None):
    
         res = super(t4_clinical_patient_move, self).create(cr, uid, vals, context)
-        _logger.info("New Patient Move ID=%s successfully created" % (res))
         return res
         
     def get_location(self, cr, uid, patient_id, context=None):
@@ -41,18 +40,20 @@ class t4_clinical_patient_placement(orm.Model):
     }
     
     def create(self, cr, uid, vals, context=None):
-   
         res = super(t4_clinical_patient_placement, self).create(cr, uid, vals, context)
-        _logger.info("New Patient Placement ID=%s successfully created" % (res))
         return res
         
-    def get_location(self, cr, uid, patient_id, context=None):
+    def get_patient_location(self, cr, uid, patient_id, context=None):
         """
         returns latest location
         """
         domain = [('state','=','completed'), ('patient_id','=',patient_id)]
         ids = self.search(cr, uid, domain, context=context, limit=1, order='id desc')
         return ids and self.browse(cr, uid, ids[0], context).location_id or False
+    
+
+
+
 
 class t4_clinical_admission(orm.Model):
     _name = 't4.clinical.patient.admission'    
@@ -81,12 +82,16 @@ class t4_clinical_admission(orm.Model):
             task_pool.start(cr, uid, move_task_id, context)
             task_pool.complete(cr, uid, move_task_id, context)
             # if location.type != poc and/or bed, create patient allocation task with parent_id = admission.task_id
-            placement_idmove_task_id = placement_pool.create_task(cr, uid, {'parent_id': adm.task_id.id}, {'patient_id': adm.patient_id.id}, context)
+            placement_task_id = placement_pool.create_task(cr, uid, {'parent_id': adm.task_id.id}, {'patient_id': adm.patient_id.id}, context)
         return res
     
     
-    
-    
+   
+class t4_clinical_location(orm.Model):
+    _name = 't4.clinical.location'
+   
+    def available_locations(self, cr, uid, parent_id=None, context=None):
+        pass
     
     
     

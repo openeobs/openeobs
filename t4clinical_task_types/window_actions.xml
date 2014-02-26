@@ -35,7 +35,7 @@
             
             <record model="ir.ui.view" id="view_observation_height_weight">
                 <field name="name">Observation Height, Weight</field>
-                <field name="model">t4.clinical.observation.height_weight</field>
+                <field name="model">t4.clinical.patient.observation.height_weight</field>
                 <field name="arch" type="xml">
 
                     <form string="Patient Transfer Form">
@@ -50,7 +50,7 @@
 
             <record model="ir.actions.act_window" id="action_observation_height_weight" >
                 <field name="name">Observation Height, Weight</field>
-                <field name="res_model">t4.clinical.observation.height_weight</field>
+                <field name="res_model">t4.clinical.patient.observation.height_weight</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">form</field>
                 <field name="target">new</field>

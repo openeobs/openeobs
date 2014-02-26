@@ -30,7 +30,6 @@ class t4_clinical_spell(orm.Model):
             _logger.warn("Attempt to admit a patient with active spell of care! Current spell ID=%s returned." % current_spell.id)
         else:        
             res = super(t4_clinical_spell, self).create(cr, uid, vals, context)
-            _logger.info("New Spell of Care ID=%s successfully created" % (res))
         return res
         
         
