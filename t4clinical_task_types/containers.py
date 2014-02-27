@@ -14,7 +14,7 @@ class t4_clinical_spell(orm.Model):
         'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS')
         #...
     }
-    def get_spell(self, cr, uid, patient_id, context=None):
+    def get_patient_spell(self, cr, uid, patient_id, context=None):
         """
         returns started spell for the patient or False
         """
@@ -24,7 +24,7 @@ class t4_clinical_spell(orm.Model):
         return res
     
     def create(self, cr, uid, vals, context=None):
-        current_spell = self.get_spell(cr, uid, vals['patient_id'], context)
+        current_spell = self.get_patient_spell(cr, uid, vals['patient_id'], context)
         if current_spell:
             res = current_spell.id
             _logger.warn("Attempt to admit a patient with active spell of care! Current spell ID=%s returned." % current_spell.id)

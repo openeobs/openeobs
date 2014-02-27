@@ -69,6 +69,19 @@ class t4_clinical_location(orm.Model):
         'active': True
     }
 
+    def get_location_tasks(self, cr, uid, location_id, context=None):
+        """
+        """
+        data_type_pool = self.pool['t4.clinical.task.data.type']
+        all_models = [self.pool[data_type.data_model] for data_type in data_type_pool.browse_domain(cr, uid, [], context=context)]
+        location_models = [m for m in all_models if 'location_id' in m._columns.keys()]
+        task_ids = []
+        for m in location_models:
+            data = m.browse_domain(cr, uid, [('location_id','=',location_id)], context=context)
+            data = data and data[0]
+            data and data.task_id and task_ids.append(data.task_id.id)
+        return task_ids
+
 class hr_employee(orm.Model):
     _name = 'hr.employee'
     _inherit = 'hr.employee'
@@ -78,6 +91,14 @@ class hr_employee(orm.Model):
         
     }
     
+    def get_employee_tasks(self, cr, uid, employee_id, context=None):
+        """
+        """
+        location_pool = self.pool['location_pool']
+        task_ids = []
+        for employee in self.browse(cr, uid, employee_id, context):
+            task_ids.extend(location_pool.get_location_tasks(cr, uid, location_id, context))
+        return task_ids  
     
     
     

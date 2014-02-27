@@ -10,8 +10,12 @@ def res2ref(self, model, res_id):
     return "%s,%s" % (str(model), str(res_id))
 
 def ref2res(self, ref):
-    model, res_id = ref.split(",")
-    return model, int(res_id)
+    if ref:
+        model, res_id = ref.split(",")
+        res_id = int(res_id)
+    else:
+        model, res_id = False, False
+    return model, res_id
 
 def create_ref(self, cr, uid, host_id, ref_model, ref_vals,  ref_field, context=None):
     """
@@ -135,6 +139,11 @@ def except_if(test=True, capture="Exception!", msg="Message is not defined..."):
     if test:
         raise orm.except_orm(capture, msg)
     
+def browse_model(self, cr, uid, model, ids, context=None):
+    model_pool = self.pool.get('model')
+    except_if(not model_pool, msg="Model '%s' is not found in the model pool!" % model)
+    return model_pool.browse(cr, uid, ids, context)   
+ 
 orm.Model.res2ref = res2ref
 orm.Model.ref2res = ref2res 
 orm.Model.create_ref = create_ref    
@@ -145,6 +154,8 @@ orm.Model.search_ref = search_ref
 orm.Model.read_none = read_none
 orm.Model.browse_domain = browse_domain
 orm.Model.read_domain = read_domain
+orm.Model.browse_model = browse_model
+
 
 class t4_clinical_task_recurrence(orm.Model):
     """
@@ -275,6 +286,10 @@ def data_model_event(callback_before=None, callback_after=None):
     def decorator(f):
         def wrapper(*args, **kwargs):
             self, cr, uid, task_id = args[:4]
+            task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
+            args_list = list(args)
+            args_list[3] = task_id
+            args = tuple(args_list)
             context = kwargs.get('context') or None
             task = self.browse(cr, uid, task_id, context)
             model_pool = self.pool.get(task.data_model)
@@ -282,7 +297,7 @@ def data_model_event(callback_before=None, callback_after=None):
             res = f(*args, **kwargs)
             dir(f)
             model_pool and callback_after and eval("model_pool.%s(*args[1:], **kwargs)" % callback_after)
-            print args[1:], kwargs
+            #print args[1:], kwargs
             return res
         return wrapper
     return decorator
@@ -302,11 +317,11 @@ class t4_clinical_task(orm.Model):
     
     def _user2employee_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
-        ids = isinstance(ids,(list, tuple)) and ids or [ids]
         employee_pool = self.pool['hr.employee']
         for task in self.browse(cr, uid, ids, context):
-            emp_id = employee_pool.search(cr, uid, [('user_id','=',task.user_id.id)], context=context)
-            res[task.id] = emp_id and emp_id[0] or False
+            user_id = task.user_id and task.user_id.id
+            emp_id = employee_pool.search(cr, uid, [('user_id','=',user_id)], context=context)
+            res[task.id] = emp_id and emp_id[0]
         return res
     
     def _get_data_type_selection(self, cr, uid, context=None):
@@ -318,19 +333,49 @@ class t4_clinical_task(orm.Model):
         res = {}
         ids = isinstance(ids,(list, tuple)) and ids or [ids]
         #import pdb; pdb.set_trace()
-        for task in self.browse(cr, uid, ids, context):
-            res[task.id] = task.data_ref and task.data_ref._id or False
+        for task in self.read(cr, uid, ids, ['data_ref'], context):
+            res[task['id']] = self.ref2res(task['data_ref'])[1]
         return res
-
+    
+    def _task2location_id(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        #import pdb
         
+        for task in self.browse(cr, uid, ids, context):
+            #task.id == 3775 and pdb.set_trace()
+            data_pool = self.pool.get(task.data_model)
+            res[task.id] = data_pool and data_pool.get_task_location(cr, uid, task.id, context)
+        return res
+    
+    def _search_loaction_id(self, cr, uid, model, field_name, domain, context):
+        #print model, field_name, domain
+        location_pool = self.pool['t4.clinical.location']
+        location_domain = [('id',domain[0][1], domain[0][2])]
+        location_ids = location_pool.search(cr, uid, location_domain, context=context)
+        task_ids = []
+        for location_id in location_ids:
+            task_ids.extend(location_pool.get_location_tasks(cr, uid, location_id, context))  
+        return [('id','in',task_ids)]
+    
+    def _task2patient_id(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        #import pdb; pdb.set_trace()
+        for task in self.browse(cr, uid, ids, context):
+            data_pool = self.pool.get(task.data_model)
+            res[task.id] = data_pool and data_pool.get_task_patient(cr, uid, task.id, context)
+        return res        
+    
     _columns = {
         'summary': fields.char('Summary', size=256),
-        'parent_id': fields.many2one('t4.clinical.task', 'Parent Task'),
-        'user_id': fields.many2one('res.users', 'Assignee'),
-        'employee_id': fields.function(_user2employee_id, type='many2one', relation='hr.employee'),        
+        'parent_id': fields.many2one('t4.clinical.task', 'Parent Task'),      
         'notes': fields.text('Notes'),
         'assignee_required': fields.boolean('Assignee Required?', help="When False, allows to start task without assignee"),
         'state': fields.selection(_states, 'State'),
+        # coordinates
+        'user_id': fields.many2one('res.users', 'Assignee'),
+        'employee_id': fields.function(_user2employee_id, type='many2one', relation='hr.employee', string='Employee'),
+        'location_id': fields.function(_task2location_id, fnct_search=_search_loaction_id, type='many2one', relation='t4.clinical.location', string='Location'),
+        'patient_id': fields.function(_task2patient_id, type='many2one', relation='t4.clinical.patient', string='Patient'),
         # system data
         'create_date': fields.datetime('Create Date'),
         'write_date': fields.datetime('Write Date'),
@@ -362,6 +407,49 @@ class t4_clinical_task(orm.Model):
         'summary': 'Not specified',
     }
 
+    def get_task_patient(self, cr, uid, task_id, context=None):
+        """
+        Data Model API call
+        If the model is patient-related, returns patient_id, otherwise False
+        By defult field 'patient_id' is taken as target patient
+        """
+        #import pdb; pdb.set_trace()
+        res = False
+        if 'patient_id' in self._columns.keys():
+            data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
+            res = data.patient_id and data.patient_id.id
+        return res
+    
+    def get_task_location(self, cr, uid, task_id, context=None):
+        """
+        Data Model API call
+        If the model is location-related, returns location_id, otherwise False
+        The location is not necessarily placed(assigned) location
+        example: clinical.precedure data model which may happen outside of patient's ward and last for few minutes
+        """
+#         if task_id == 3775:
+#             import pdb; pdb.set_trace()
+        res = False
+        if 'location_id' in self._columns.keys():
+            data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
+            res = data.location_id and data.location_id.id
+        return res        
+
+    def get_task_spell(self, cr, uid, task_id, context=None):
+        """
+        Data Model API call
+        If the model is spell-related and has parent started, not terminated spell, returns spell_id, otherwise False
+        By default current spell.id of patient (if any) returned 
+        """
+        res = False
+        if 'patient_id' in self._columns.keys():
+            data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
+            if data:            
+                spell_pool = self.pool['t4.clinical.spell']
+                spell = spell_pool.get_patient_spell(cr, uid, data.patient_id.id, context)
+                res = spell.id
+        return res
+
     def create(self, cr, uid, vals, context=None):
         fields = {'summary', 'assignee_required'}
         #print "fields",fields,"vals",vals
@@ -371,11 +459,17 @@ class t4_clinical_task(orm.Model):
             type_pool = self.pool['t4.clinical.task.data.type']
             task_type = type_pool.read(cr, uid, vals['data_type_id'], fields, context)
             vals.update({k: task_type[k] for k in fields})
-        rec_id = super(t4_clinical_task, self).create(cr, uid, vals, context)
-        task = self.browse(cr, uid, rec_id, context)
+        task_id = super(t4_clinical_task, self).create(cr, uid, vals, context)
+        task = self.browse(cr, uid, task_id, context)
         _logger.info("Task '%s' created, task.id=%s" % (task.data_model, task.id))
-        return rec_id
-
+        self.auto_assign(cr, uid, task_id, context)
+        return task_id
+    
+    def auto_assign(cr, uid, task_id, context):
+        if
+        self.assign(cr, uid, task_id, context)
+        return True
+        
     def write(self,cr, uid, ids, vals, context=None):
 
         res = super(t4_clinical_task, self).write(cr, uid, ids, vals, context)
@@ -395,30 +489,26 @@ class t4_clinical_task(orm.Model):
         _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))
         return True
 
-    def submit_act_window(self, cr, uid, task_id, fields, context=None):     
+    def submit_act_window(self, cr, uid, task_id, fields, context=None): 
+        task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id    
         task = self.browse(cr, uid, task_id, context)
-        allowed_states = ['draft','planned', 'scheduled','started']
-        if task.state not in allowed_states:
-            raise orm.except_orm('Data can not be submitted for a task in state %s !' % task.state, 
-                           'Make sure that the task is in %s' % allowed_states)
-        if not task.data_type_id:
-            raise orm.except_orm('Data model is not set for the task !', 
-                           'Set data model first')
-        if not task.data_type_id.act_window_id:   
-            raise orm.except_orm('Window action is not set for data model %s' % task.data_model,
-                           'Unless window action is not set it is impossible to submit data via UI!')                
+        except_if(task.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a task in state %s !" % task.state)
+        except_if(not task.data_type_id,msg="Data model is not set for the task!")
+        except_if(not task.data_type_id.act_window_id,msg="Window action is not set for data model %s" % task.data_model)                
         aw_pool = self.pool['ir.actions.act_window']
         aw = aw_pool.browse(cr, uid, task.data_type_id.act_window_id.id, context)
         ctx = eval(aw.context) or {}
         ctx.update({'t4_source': 't4.clinical.task'}) 
-        return {'type': 'ir.actions.act_window',
-                'res_model': aw.res_model,
-                'res_id': task.data_res_id, # must always be there 
-                'view_type': aw.view_type,
-                'view_mode': aw.view_mode,
-                'target': aw.target,
-                'context': ctx,
-                }
+        aw_data = {'type': 'ir.actions.act_window',
+                    'res_model': aw.res_model,
+                    'res_id': task.data_res_id, # must always be there 
+                    'view_type': aw.view_type,
+                    'view_mode': aw.view_mode,
+                    'target': aw.target,
+                    'context': ctx,
+                    }
+        print aw_data
+        return aw_data
 
     def retrieve(self, cr, uid, task_id, context=None):
         assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
@@ -523,6 +613,8 @@ class t4_clinical_task(orm.Model):
         pass  
     
 
+    
+
 class t4_clinical_task_data(orm.AbstractModel):
     
     _name = 't4.clinical.task.data'
@@ -581,35 +673,36 @@ class t4_clinical_task_data(orm.AbstractModel):
             _logger.info("Task '%s', task.id=%s data submitted via UI" % (task.data_model, task.id))
         return {'type': 'ir.actions.act_window_close'}
     
-    def validate(self, cr, uid, ids, context=None):
-        return {}.fromkeys(ids, True)    
+    def validate(self, cr, uid, task_id, context=None):
+        return {}.fromkeys(task_id, True)    
 
-    def start(self, cr, uid, ids, context=None):
+    def start(self, cr, uid, task_id, context=None):
         return True
 
-    def complete(self, cr, uid, ids, context=None):
+    def complete(self, cr, uid, task_id, context=None):
         return True
     
-    def assign(self, cr, uid, ids, user_id, context=None):
+    def assign(self, cr, uid, task_id, user_id, context=None):
         return True
     
-    def unassign(self, cr, uid, ids, user_id, context=None):
+    def unassign(self, cr, uid, task_id, user_id, context=None):
         return True
             
-    def abort(self, cr, uid, ids, context=None):
+    def abort(self, cr, uid, task_id, context=None):
         return True
     
-    def cancel(self, cr, uid, ids, context=None):
+    def cancel(self, cr, uid, task_id, context=None):
         return True
 
-    def retrieve(self, cr, uid, ids, context=None):
+    def retrieve(self, cr, uid, task_id, context=None):
         return True
 
-    def shcedule(self, cr, uid, ids, context=None):
+    def shcedule(self, cr, uid, task_id, context=None):
         return True
     
-    def submit(self, cr, uid, ids, context=None):
+    def submit(self, cr, uid, task_id, context=None):
         return True    
+    
     
 class observation_test(orm.Model):
     _name = 'observation.test'

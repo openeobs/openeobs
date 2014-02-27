@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields, osv
+from openerp.addons.t4clinical_base.task import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class t4_clinical_patient_move(orm.Model):
         res = super(t4_clinical_patient_move, self).create(cr, uid, vals, context)
         return res
         
-    def get_location(self, cr, uid, patient_id, context=None):
+    def get_patient_location(self, cr, uid, patient_id, context=None):
         """
         returns latest location
         """
@@ -51,6 +52,10 @@ class t4_clinical_patient_placement(orm.Model):
         ids = self.search(cr, uid, domain, context=context, limit=1, order='id desc')
         return ids and self.browse(cr, uid, ids[0], context).location_id or False
     
+    def complete(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        placement = task_pool.browse_ref(cr, uid, task_id, 'data_ref', context)
+        except_if(not placement.patient_id or not placement.location_id, msg="Can't complete placement task without patient and/or location")
 
 class t4_clinical_patient_discharge(orm.Model):
     _name = 't4.clinical.patient.discharge'    
@@ -69,11 +74,11 @@ class t4_clinical_patient_discharge(orm.Model):
         discharge = task.data_ref
         # get spell.pos_id.lot_discharge_id
         spell_pool = self.pool['t4.clinical.spell']
-        spell = spell_pool.get_spell(cr, uid, discharge.patient_id.id, context)
+        spell = spell_pool.get_patient_spell(cr, uid, discharge.patient_id.id, context)
         # patient
         patient_pool = self.pool['t4.clinical.patient']
         location = patient_pool.current_location(cr, uid, discharge.patient_id.id, context)
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         # move to discharge_lot
         move_pool = self.pool['t4.clinical.patient.move']
         move_task_id = move_pool.create_task(cr, uid, 

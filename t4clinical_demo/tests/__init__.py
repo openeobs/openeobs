@@ -1,5 +1,5 @@
-import test_admission
+import test_operations
 
 fast_suite = [
-    test_admission
+    test_operations
     ]

@@ -28,6 +28,10 @@
                     <tree string="T4 Clinical Task Tree View">
 		                       <field name="create_date" />
 		                       <field name="data_type_id" />
+		                       <field name="user_id" />
+		                       <field name="employee_id" />
+		                       <field name="location_id" />
+		                       <field name="patient_id" />
 		                       <field name="date_deadline" />
 		                       <field name="date_expiry" />
 		                       <field name="date_planned" />
@@ -56,9 +60,12 @@
                   				<button style="oe_highlight" name="submit_act_window" type="object" string="Submit Data"/>
                       		</group>
                       	    <group string="Task">
-	
-		                       <field name="create_date" />
-		                       <field name="data_type_id" widget="selection"/>
+			                   <field name="create_date" />
+		                       <field name="data_type_id" />
+		                       <field name="user_id" />
+		                       <field name="employee_id" />
+		                       <field name="location_id" />
+		                       <field name="patient_id" />
 		                       <field name="date_deadline" />
 		                       <field name="date_expiry" />
 		                       <field name="date_planned" />
