@@ -123,8 +123,8 @@ def read_none(self, cr, uid, ids, fields=[], context=None):
 
     return single and read_vals[0] or read_vals
 
-def browse_domain(self, cr, uid, domain, context=None):
-    ids = self.search(cr, uid, domain, context=context)
+def browse_domain(self, cr, uid, domain, limit=None, order=None, context=None):
+    ids = self.search(cr, uid, domain, limit=limit, order=order, context=context)
     return self.browse(cr, uid, ids, context)
 
 def read_domain(self, cr, uid, domain, fields=[], context=None):

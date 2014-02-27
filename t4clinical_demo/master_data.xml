@@ -1,98 +1,121 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
+		<!-- Company -->
+        <record id="main_company" model="res.company">
+        	<field name="name">TRUST</field>
+        </record>  
+            
         <!-- Location - Point of Service - Hospital -->
         <record id="demo_location_uhg" model="t4.clinical.location">
-            <field name="name">University Hospital Greenfield</field>
+            <field name="name">UHG POS Location</field>
             <field name="code">UHG</field>
             <field name="type">pos</field>
             <field name="usage">hospital</field>
         </record>
 
-        <!-- Location - Point of Care - Wards -->
+        <!-- Location - Wards -->
         <record id="demo_location_w8" model="t4.clinical.location">
             <field name="name">Ward W8</field>
             <field name="code">W8</field>
             <field name="type">structural</field>
             <field name="usage">ward</field>
-            <field name="location_id" ref="demo_location_uhg"/>
+            <field name="parent_id" ref="demo_location_uhg"/>
         </record>        
         <record id="demo_location_w9" model="t4.clinical.location">
             <field name="name">Ward W9</field>
             <field name="code">W9</field>
             <field name="type">structural</field>
             <field name="usage">ward</field>
-            <field name="location_id" ref="demo_location_uhg"/>
-        </record>         
+            <field name="parent_id" ref="demo_location_uhg"/>
+        </record>
 
-		<!-- Company -->
-        <record id="main_company" model="res.company">
-        	<field name="name">TRUST</field>
-            <field name="pos_ids" eval="[(6,0,[ref('demo_location_uhg')])]"/>
-            <field name="lot_admission_id" ref="demo_location_w9"/>
+<!-- Location Lots -->
+        <record id="demo_location_lot_admission" model="t4.clinical.location">
+            <field name="name">Admission Location</field>
+            <field name="code">ADML</field>
+            <field name="type">structural</field>
+            <field name="usage">room</field>
+            <field name="parent_id" ref="demo_location_uhg"/>
+        </record>
+        <record id="demo_location_lot_discharge" model="t4.clinical.location">
+            <field name="name">Discharge Location</field>
+            <field name="code">DISL</field>
+            <field name="type">structural</field>
+            <field name="usage">room</field>
+            <field name="parent_id" ref="demo_location_uhg"/>
+        </record>      
+          
+<!-- POS -->
+        <record id="demo_pos_uhg" model="t4.clinical.pos">
+        	<field name="name">University Hospital Greenfield POS</field>
+            <field name="location_id" ref="demo_location_uhg"/>
+            <field name="company_id" ref="main_company"/>
+            <field name="lot_admission_id" ref="demo_location_lot_admission"/>
+            <field name="lot_discharge_id" ref="demo_location_lot_discharge"/>
         </record>  
 
         <!-- Point of Service - Beds -->
 
-        <!-- E8 Ward -->
+        <!-- BEDS E8 Ward -->
         <record id="demo_location_b1" model="t4.clinical.location">
             <field name="name">Bed 1</field>
             <field name="code">B1</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w8"/>
+            <field name="parent_id" ref="demo_location_w8"/>
         </record>   
         <record id="demo_location_b2" model="t4.clinical.location">
             <field name="name">Bed 2</field>
             <field name="code">B2</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w8"/>
+            <field name="parent_id" ref="demo_location_w8"/>
         </record>  
         <record id="demo_location_b3" model="t4.clinical.location">
             <field name="name">Bed 3</field>
             <field name="code">B3</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w8"/>
+            <field name="parent_id" ref="demo_location_w8"/>
         </record>  
         <record id="demo_location_b4" model="t4.clinical.location">
             <field name="name">Bed 4</field>
             <field name="code">B4</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w8"/>
+            <field name="parent_id" ref="demo_location_w8"/>
         </record>          
 
 
-        <!-- E9 Ward -->
+        <!-- BEDS E9 Ward -->
         <record id="demo_location_b5" model="t4.clinical.location">
             <field name="name">Bed 5</field>
             <field name="code">B5</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w9"/>
+            <field name="parent_id" ref="demo_location_w9"/>
         </record>   
         <record id="demo_location_b6" model="t4.clinical.location">
             <field name="name">Bed 6</field>
             <field name="code">B6</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w9"/>
+            <field name="parent_id" ref="demo_location_w9"/>
         </record>  
         <record id="demo_location_b7" model="t4.clinical.location">
             <field name="name">Bed 7</field>
             <field name="code">B7</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w9"/>
+            <field name="parent_id" ref="demo_location_w9"/>
         </record>  
         <record id="demo_location_b8" model="t4.clinical.location">
             <field name="name">Bed 8</field>
             <field name="code">B8</field>
             <field name="type">poc</field>
             <field name="usage">bed</field>
-            <field name="location_id" ref="demo_location_w9"/>
+            <field name="parent_id" ref="demo_location_w9"/>
         </record>  
   
 <!-- Patient -->

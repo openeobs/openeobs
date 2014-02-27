@@ -13,14 +13,14 @@ spell_type_data = {'summary': 'Spell of Care', 'data_model': 't4.clinical.spell'
 data_model_data = {'summary': 'Test Type', 'data_model': 'observation.test'}
 submit_data = {'val1': 'submit_val1', 'val2': 'submit_val2'}
 cr, uid = 0, 0
-task_pool, spell_pool, adm_pool, hw_obs_pool, move_pool = 0,0,0,0,0
-patient_id, location_id, bed_location_id, admissiion_data, adm_task_id = 0,0,0,0,0
+task_pool, spell_pool, adm_pool, hw_obs_pool, move_pool, discharge_pool = 0,0,0,0,0,0
+patient_id, location_id, bed_location_id, admissiion_data, adm_task_id, dis_task_id = 0,0,0,0,0,0
 now, tomorrow = 0,0
 class TestAdmission(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid
-        global task_pool, spell_pool, adm_pool, hw_obs_pool, move_pool
-        global patient_id, location_id, bed_location_id, admissiion_data, adm_task_id
+        global task_pool, spell_pool, adm_pool, hw_obs_pool, move_pool, discharge_pool
+        global patient_id, location_id, bed_location_id, admissiion_data, adm_task_id, dis_task_id
         global now, tomorrow
         
         cr, uid = self.cr, self.uid
@@ -39,11 +39,13 @@ class TestAdmission(common.SingleTransactionCase):
         adm_pool = self.registry('t4.clinical.patient.admission')
         move_pool = self.registry('t4.clinical.patient.move')
         hw_obs_pool = self.registry('t4.clinical.patient.observation.height_weight')
+        discharge_pool = self.registry('t4.clinical.patient.discharge')
+        
         patient_id = self.xml2db_id("demo_patient_donald")
         location_id = self.xml2db_id("demo_location_uhg")
         bed_location_id = self.xml2db_id("demo_location_b1")
-        admission_data = {'location_id': location_id, 'patient_id': patient_id}
-        adm_task_id = adm_pool.create_task(cr, uid, {}, admission_data)
+        adm_task_id = adm_pool.create_task(cr, uid, {}, {'location_id': location_id, 'patient_id': patient_id})
+        dis_task_id = discharge_pool.create_task(cr, uid, {}, {'patient_id': patient_id})
         
         super(TestAdmission, self).setUp()
 
@@ -63,8 +65,8 @@ class TestAdmission(common.SingleTransactionCase):
             
         """
         global cr, uid
-        global task_pool, spell_pool, adm_pool, hw_obs_pool, move_pool
-        global patient_id, location_id, bed_location_id, admissiion_data, adm_task_id
+        global task_pool, spell_pool, adm_pool, hw_obs_pool, move_pool, discharge_pool
+        global patient_id, location_id, bed_location_id, admissiion_data, adm_task_id, dis_task_id
         
         
         
@@ -89,6 +91,8 @@ class TestAdmission(common.SingleTransactionCase):
         self.assertTrue(adm_task.parent_id.data_model == 't4.clinical.spell', 'Data model')
         location = move_pool.get_location(cr, uid, patient_id)
         self.assertTrue( location and location.id == location_id, 'Data model')
-        self.assertTrue(obs_task.data_ref.is_partial, 'partial')
+        self.assertTrue(not obs_task.data_ref.is_partial, 'partial')
+        
+        discharge_pool.complete(cr, uid, dis_task_id)
         
         

@@ -10,8 +10,8 @@ class t4_clinical_spell(orm.Model):
     _inherit = ['t4.clinical.task.data']
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True), # domain=[('is_patient','=',True)])
-        'location_id': fields.many2one('t4.clinical.location', 'Assigned Location', help="If location.usage != 'bed' then the patient is without a bed")
-        
+        'location_id': fields.many2one('t4.clinical.location', 'Assigned Location', help="If location.usage != 'bed' then the patient is without a bed"),
+        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS')
         #...
     }
     def get_spell(self, cr, uid, patient_id, context=None):

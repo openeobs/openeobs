@@ -1,34 +1,45 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
 
+class t4_clinical_pos(orm.Model):
+    """ Clinical point of service """
+    _name = 't4.clinical.pos'
+    _columns = {
+        'name': fields.char('Point of Service', size=100, required=True, select=True),
+        'code': fields.char('Code', size=256),
+        'location_id': fields.many2one('t4.clinical.location', 'POS Location', required=True), 
+        'company_id': fields.many2one('res.company', 'Company'),
+        'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
+        'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),          
+    }
+
 class res_company(orm.Model):
     _name = 'res.company'
     _inherit = 'res.company'
     # default company has xmlid == 'main_company'
     _columns = {
-        'pos_ids': fields.many2many('t4.clinical.location', 'company_pos_rel', 'company_id', 'pos_id', 'POS Locations'),
-        'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
-        'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),
-        
-        
+        'pos_ids': fields.one2many('t4.clinical.pos', 'company_id', 'POSs'),
     }
 
-
 class t4_clinical_location(orm.Model):
-    """ Clinical point of service LOCATION """
+    """ Clinical LOCATION """
 
     _name = 't4.clinical.location'
     #_parent_name = 'location_id'
     _rec_name = 'code'
     _types = [('poc', 'Point of Care'), ('structural', 'Structural'), ('virtual', 'Virtual'), ('pos', 'POS')]
-    _usages = [('bed', 'Bed'), ('ward', 'Ward'), ('department', 'Department'), ('hospital', 'Hospital')]
+    _usages = [('bed', 'Bed'), ('ward', 'Ward'), ('room', 'Room'),('department', 'Department'), ('hospital', 'Hospital')]
     
     def _location2pos_id(self, cr, uid, ids, field, args, context=None):
         res = {}
-        for location in self.browse(cr, uid, ids, context):
-            domain = [('type','=','pos'),('parent_id.parent_left', '>=', location.parent_left),('parent_id.parent_right', '<=', location.parent_right)]
-            pos_id = self.search(cr, uid, domain, context=context)
-            res[location.id] = pos_id and pos_id[0] or False
+        pos_pool = self.pool['t4.clinical.pos']
+        #pos_ids = pos_pool.search(cr, uid, [])
+        #import pdb; pdb.set_trace()
+        for pos in pos_pool.browse_domain(cr, uid, []):
+            for location in self.browse(cr, uid, ids, context):
+                domain = ['|',('id', 'child_of', pos.location_id.id),('id','=',pos.location_id.id)]
+                location_id = self.search(cr, uid, domain, context=context)
+                res[location.id] = location_id and pos.id
         return res
     
     def _location2company_id(self, cr, uid, ids, field, args, context=None):
@@ -41,17 +52,17 @@ class t4_clinical_location(orm.Model):
         return res    
     
     _columns = {
-        'name': fields.char('Point of Care', size=100, required=True, select=True),
+        'name': fields.char('Location', size=100, required=True, select=True),
         'code': fields.char('Code', size=256),
         'parent_id': fields.many2one('t4.clinical.location', 'Parent Location'),
         'type': fields.selection(_types, 'Location Type'),
         'usage': fields.selection(_usages, 'Location Usage'),
-        'is_available': fields.boolean('Is Available', help="Will"),
         'active': fields.boolean('Active'),
-        'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.location', string='POS'),
-        'company_id': fields.function(_location2company_id, type='many2one', relation='res.company', string='Company') 
+        'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.pos', string='POS'),
+        'company_id': fields.function(_location2company_id, type='many2one', relation='res.company', string='Company'),
+        'parent_left': fields.integer('Left Parent', select=1),
+        'parent_right': fields.integer('Right Parent', select=1),        
     }
-    
 
         
     _defaults = {

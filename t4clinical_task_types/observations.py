@@ -21,10 +21,12 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         
     }
     _defaults = {
-         'none_values': str(_required)
+
      }
     
     def create(self, cr, uid, vals, context=None):
+        none_values = list(set(vals.keys()) & set(self._required))
+        vals.update({'none_values': none_values})
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)        
     
     
@@ -59,13 +61,9 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
                        
         'height': fields.float('Height'),
         'weight': fields.float('Weight'),
-        'weight_test': fields.float('Weight'),
     }
     
-    _defaults = {
-        'weight': None,
-        'height': None
-     }
+
     
     def complete(self, cr, uid, task_ids, context=None):
         return True

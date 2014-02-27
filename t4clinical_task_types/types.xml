@@ -25,6 +25,14 @@
 			<field name="children_rule">[]</field>
 			<field name="assignee_required" eval="0"/>
 		</record>
+		<record model="t4.clinical.task.data.type" id="patient_dischcarge_data_type">
+			<field name="summary">Patient Discharge</field>
+			<field name="data_model">t4.clinical.patient.discharge</field>
+<!-- 			<field name="act_window_xmlid">action_patient_move</field> -->
+			<field name="parent_rule">[]</field>
+			<field name="children_rule">[]</field>
+			<field name="assignee_required" eval="0"/>
+		</record>
 		<record model="t4.clinical.task.data.type" id="observation_height_weight_data_type">
 			<field name="summary">Observation Height, Weight</field>
 			<field name="data_model">t4.clinical.patient.observation.height_weight</field>
