@@ -80,6 +80,7 @@ class t4_clinical_patient_discharge(orm.Model):
             {'parent_id': task_id}, 
             {'patient_id': discharge.patient_id.id, 'location_id':location.pos_id.lot_discharge_id.id or location.pos_id.location_id.id}, 
             context)
+        task_pool.start(cr, uid, move_task_id, context)
         task_pool.complete(cr, uid, move_task_id, context)      
         # complete spell
         spell_pool.complete(cr, uid, spell.id, context)

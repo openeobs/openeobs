@@ -93,6 +93,7 @@ class TestAdmission(common.SingleTransactionCase):
         self.assertTrue( location and location.id == location_id, 'Data model')
         self.assertTrue(not obs_task.data_ref.is_partial, 'partial')
         
-        discharge_pool.complete(cr, uid, dis_task_id)
+        task_pool.start(cr, uid, dis_task_id)
+        task_pool.complete(cr, uid, dis_task_id)
         
         
