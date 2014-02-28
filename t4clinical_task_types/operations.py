@@ -21,7 +21,7 @@ class t4_clinical_patient_move(orm.Model):
         res = super(t4_clinical_patient_move, self).create(cr, uid, vals, context)
         return res
         
-    def get_patient_location(self, cr, uid, patient_id, context=None):
+    def get_patient_location_browse(self, cr, uid, patient_id, context=None):
         """
         returns latest location
         """
@@ -44,7 +44,7 @@ class t4_clinical_patient_placement(orm.Model):
         res = super(t4_clinical_patient_placement, self).create(cr, uid, vals, context)
         return res
         
-    def get_patient_location(self, cr, uid, patient_id, context=None):
+    def get_patient_location_browse(self, cr, uid, patient_id, context=None):
         """
         returns latest location
         """
@@ -74,10 +74,10 @@ class t4_clinical_patient_discharge(orm.Model):
         discharge = task.data_ref
         # get spell.pos_id.lot_discharge_id
         spell_pool = self.pool['t4.clinical.spell']
-        spell = spell_pool.get_patient_spell(cr, uid, discharge.patient_id.id, context)
+        spell = spell_pool.get_patient_spell_browse(cr, uid, discharge.patient_id.id, context)
         # patient
         patient_pool = self.pool['t4.clinical.patient']
-        location = patient_pool.current_location(cr, uid, discharge.patient_id.id, context)
+        location = patient_pool.current_patient_location_browse(cr, uid, discharge.patient_id.id, context)
         #import pdb; pdb.set_trace()
         # move to discharge_lot
         move_pool = self.pool['t4.clinical.patient.move']
@@ -137,7 +137,7 @@ class t4_clinical_patient_admission(orm.Model):
 class t4_clinical_location(orm.Model):
     _inherit = 't4.clinical.location'
     
-    def available_locations(self, cr, uid, parent_id=None, context=None):
+    def available_location_browse(self, cr, uid, parent_id=None, context=None):
         pass
     
     
@@ -145,7 +145,7 @@ class t4_clinical_location(orm.Model):
 class t4_clinical_patient(orm.Model):
     _inherit = 't4.clinical.patient'
    
-    def current_location(self, cr, uid, patient_id, context=None):
+    def current_patient_location_browse(self, cr, uid, patient_id, context=None):
         placement_pool = self.pool['t4.clinical.patient.placement']
         placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
         placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
@@ -154,7 +154,14 @@ class t4_clinical_patient(orm.Model):
         move_domain = [('patient_id','=',patient_id), ('state','=','completed')]
         move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated desc", context=context)
         move = move and move[0]
-        return placement.date_terminated > move.date_terminated and placement.location_id or move.location_id   
+        res = False
+        if placement and move:
+            res = placement.date_terminated > move.date_terminated and placement.location_id or move.location_id
+        elif placement and not move:
+            res = placement.location_id
+        elif not placement and move:
+            res = move.location_id
+        return res
     
       
     

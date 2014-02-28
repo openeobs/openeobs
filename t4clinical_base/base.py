@@ -3,14 +3,15 @@ from openerp.osv import orm, fields, osv
 
 class t4_clinical_pos(orm.Model):
     """ Clinical point of service """
-    _name = 't4.clinical.pos'
+    _name = 't4.clinical.pos' 
+     
     _columns = {
         'name': fields.char('Point of Service', size=100, required=True, select=True),
         'code': fields.char('Code', size=256),
         'location_id': fields.many2one('t4.clinical.location', 'POS Location', required=True), 
         'company_id': fields.many2one('res.company', 'Company'),
         'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
-        'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),          
+        'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),       
     }
 
 class res_company(orm.Model):
@@ -35,21 +36,23 @@ class t4_clinical_location(orm.Model):
         pos_pool = self.pool['t4.clinical.pos']
         #pos_ids = pos_pool.search(cr, uid, [])
         #import pdb; pdb.set_trace()
-        for pos in pos_pool.browse_domain(cr, uid, []):
-            for location in self.browse(cr, uid, ids, context):
-                domain = ['|',('id', 'child_of', pos.location_id.id),('id','=',pos.location_id.id)]
-                location_id = self.search(cr, uid, domain, context=context)
-                res[location.id] = location_id and pos.id
+        pos_locations_map = {pos.id: pos.location_id.id for pos in pos_pool.browse_domain(cr, uid, [])}
+        for location in self.browse(cr, uid, ids, context):
+            res[location.id] = False
+            for pos_id, pos_location_id in pos_locations_map.iteritems():
+                if location.id in self.search(cr, uid, ['|',('id', 'child_of', [pos_location_id]),('id','=',pos_location_id)]):
+                    res[location.id] = pos_id
+                    break
         return res
     
-    def _location2company_id(self, cr, uid, ids, field, args, context=None):
-        res = {}
-        company_pool = self.pool['res.company']
-        for location in self.browse(cr, uid, ids, context):
-            domain = [('pos_ids','in',location.pos_id)]
-            company_id = company_pool.search(cr, uid, domain, context=context)
-            res[location.id] = company_id and company_id[0] or False
-        return res    
+#     def _location2company_id(self, cr, uid, ids, field, args, context=None):
+#         res = {}
+#         company_pool = self.pool['res.company']
+#         for location in self.browse(cr, uid, ids, context):
+#             domain = [('pos_ids','in',location.pos_id)]
+#             company_id = company_pool.search(cr, uid, domain, context=context)
+#             res[location.id] = company_id and company_id[0] or False
+#         return res    
     
     _columns = {
         'name': fields.char('Location', size=100, required=True, select=True),
@@ -59,9 +62,9 @@ class t4_clinical_location(orm.Model):
         'usage': fields.selection(_usages, 'Location Usage'),
         'active': fields.boolean('Active'),
         'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.pos', string='POS'),
-        'company_id': fields.function(_location2company_id, type='many2one', relation='res.company', string='Company'),
-        'parent_left': fields.integer('Left Parent', select=1),
-        'parent_right': fields.integer('Right Parent', select=1),        
+        'company_id': fields.related('pos_id', 'company_id', type='many2one', relation='res.company', string='Company'),
+        #'parent_left': fields.integer('Left Parent', select=1),
+        #'parent_right': fields.integer('Right Parent', select=1),        
     }
 
         
@@ -69,12 +72,10 @@ class t4_clinical_location(orm.Model):
         'active': True
     }
 
-    def get_location_tasks(self, cr, uid, location_id, context=None):
+    def get_location_task_ids(self, cr, uid, location_id, context=None):
         """
         """
-        data_type_pool = self.pool['t4.clinical.task.data.type']
-        all_models = [self.pool[data_type.data_model] for data_type in data_type_pool.browse_domain(cr, uid, [], context=context)]
-        location_models = [m for m in all_models if 'location_id' in m._columns.keys()]
+        location_models = self.pool['t4.clinical.task.data.type'].get_field_models(cr, uid, 'location_id')
         task_ids = []
         for m in location_models:
             data = m.browse_domain(cr, uid, [('location_id','=',location_id)], context=context)
@@ -91,13 +92,15 @@ class hr_employee(orm.Model):
         
     }
     
-    def get_employee_tasks(self, cr, uid, employee_id, context=None):
+    def get_employee_task_ids(self, cr, uid, employee_id, context=None):
         """
         """
-        location_pool = self.pool['location_pool']
+        location_pool = self.pool['t4.clinical.location']
         task_ids = []
-        for employee in self.browse(cr, uid, employee_id, context):
-            task_ids.extend(location_pool.get_location_tasks(cr, uid, location_id, context))
+        employee = self.browse(cr, uid, employee_id, context)
+        print 'employee.location_ids',employee.location_ids
+        for location_id in employee.location_ids:
+            task_ids.extend(location_pool.get_location_task_ids(cr, uid, location_id.id, context))
         return task_ids  
     
     

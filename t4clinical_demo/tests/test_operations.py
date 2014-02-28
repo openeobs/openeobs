@@ -48,7 +48,7 @@ class TestOperations(common.SingleTransactionCase):
         employee_pool = self.registry('hr.employee')
         
         patient_id = self.xml2db_id("demo_patient_donald")
-        location_id = self.xml2db_id("demo_location_uhg")
+        location_id = self.xml2db_id("demo_location_w8")
         bed_location_id = self.xml2db_id("demo_location_b1")
         admission_task_id = admission_pool.create_task(cr, uid, {}, {'location_id': location_id, 'patient_id': patient_id})
         discharge_task_id = discharge_pool.create_task(cr, uid, {}, {'patient_id': patient_id})
@@ -79,17 +79,17 @@ class TestOperations(common.SingleTransactionCase):
         self.assertTrue(employee.user_id.id == user_id, 'Employee-User test')
         
         # admission
-        task_pool.assign(cr, uid, admission_task_id, 1)
+        task_pool.assign(cr, uid, admission_task_id, user_id)
         task_pool.start(cr, uid, admission_task_id)
         task_pool.complete(cr, uid, admission_task_id)
         admission_task = task_pool.browse(cr, uid, admission_task_id)
         # spell
-        spell_task = spell_pool.get_patient_spell(cr, uid, patient_id).task_id
+        spell_task = spell_pool.get_patient_spell_browse(cr, uid, patient_id).task_id
 
         # tests
         self.assertTrue(admission_task.location_id.id == location_id, 'location_id on Task model')
         self.assertTrue(admission_task.patient_id.id == patient_id, 'patient_id on Task model')
-        self.assertTrue(spell_pool.get_task_spell(cr, uid, admission_task_id) == spell_task.data_ref.id, 'get_patient_spell')
+        self.assertTrue(task_pool.get_task_spell_id(cr, uid, admission_task_id) == spell_task.data_ref.id, 'get_patient_spell_browse')
         
         # placement
         placement_domain = [('parent_id','=',admission_task.id), ('data_model','=','t4.clinical.patient.placement')]
@@ -111,7 +111,7 @@ class TestOperations(common.SingleTransactionCase):
         
         # tests
         self.assertTrue(admission_task.parent_id.data_model == 't4.clinical.spell', 'Data model')
-        location = move_pool.get_patient_location(cr, uid, patient_id)
+        location = move_pool.get_patient_location_browse(cr, uid, patient_id)
         self.assertTrue( location and location.id == location_id, 'Data model')
         self.assertTrue(not height_weight_task.data_ref.is_partial, 'partial')
         #self.assertTrue(height_weight_task.patient_id.id == , 'partial')
@@ -121,8 +121,9 @@ class TestOperations(common.SingleTransactionCase):
         task_pool.complete(cr, uid, discharge_task_id)
         
         #access
-        employee_task_ids = employee_pool.get_employee_tasks(cr, uid, employee_id, context)
-        task_ids = task_pool.search(cr, uid, [('location_id','child_of',employee_location_ids)])
+        employee_task_ids = employee_pool.get_employee_task_ids(cr, uid, employee_id)
+        print employee_task_ids
+        #task_ids = task_pool.search(cr, uid, [('location_id','child_of',employee_location_id)])
         
         
         
