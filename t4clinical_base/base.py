@@ -101,6 +101,7 @@ class hr_employee(orm.Model):
         print 'employee.location_ids',employee.location_ids
         for location_id in employee.location_ids:
             task_ids.extend(location_pool.get_location_task_ids(cr, uid, location_id.id, context))
+            #print "get_employee_task_ids", str({'discharge': discharge, 'location_id': res[discharge.id]})
         return task_ids  
     
     

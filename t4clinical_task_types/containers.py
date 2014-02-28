@@ -10,20 +10,13 @@ class t4_clinical_spell(orm.Model):
     _inherit = ['t4.clinical.task.data']
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True), # domain=[('is_patient','=',True)])
-        'location_id': fields.many2one('t4.clinical.location', 'Assigned Location', help="If location.usage != 'bed' then the patient is without a bed"),
+        'location_id': fields.many2one('t4.clinical.location', 'Placement Location'),
         'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS')
         #...
     }
-    def get_patient_spell_browse(self, cr, uid, patient_id, context=None):
-        """
-        returns started spell for the patient or False
-        """
-        res = self.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','in',['started'])], context)
-        res = res and res[0]
-        return res
     
     def create(self, cr, uid, vals, context=None):
-        current_spell = self.get_patient_spell_browse(cr, uid, vals['patient_id'], context)
+        current_spell = self.browse_domain(cr, uid, [('patient_id','=',vals['patient_id']),('state','in',['started'])], context)
         if current_spell:
             res = current_spell.id
             _logger.warn("Attempt to admit a patient with active spell of care! Current spell ID=%s returned." % current_spell.id)
@@ -42,3 +35,17 @@ class t4_clinical_complaint(orm.Model):
         'descr': fields.text('Description')
         #...
     }
+
+
+
+class t4_clinical_patient(orm.Model):
+    _inherit = 't4.clinical.patient'    
+    
+    def get_patient_spell_browse(self, cr, uid, patient_id, context=None):
+        """
+        returns started spell for the patient or False
+        """
+        spell_pool = self.pool['t4.clinical.spell']
+        res = spell_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','in',['started'])], context)
+        res = res and res[0]
+        return res

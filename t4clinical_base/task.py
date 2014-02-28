@@ -337,7 +337,7 @@ class t4_clinical_task(orm.Model):
         cr.execute(sql)
         return cr.fetchall()
     
-    def _get_data_res_id(self, cr, uid, ids, field, arg, context=None):
+    def _task2data_res_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
         ids = isinstance(ids,(list, tuple)) and ids or [ids]
         #import pdb; pdb.set_trace()
@@ -351,7 +351,7 @@ class t4_clinical_task(orm.Model):
             res[task_id] = self.get_task_location_id(cr, uid, task_id, context)
         return res
     
-    def _search_loaction_id(self, cr, uid, model, field_name, domain, context):
+    def _search_location_id(self, cr, uid, model, field_name, domain, context):
         #print model, field_name, domain
         location_pool = self.pool['t4.clinical.location']
         location_domain = [('id',domain[0][1], domain[0][2])]
@@ -376,7 +376,7 @@ class t4_clinical_task(orm.Model):
         # coordinates
         'user_id': fields.many2one('res.users', 'Assignee'),
         'employee_id': fields.function(_user2employee_id, type='many2one', relation='hr.employee', string='Employee'),
-        'location_id': fields.function(_task2location_id, fnct_search=_search_loaction_id, type='many2one', relation='t4.clinical.location', string='Location'),
+        'location_id': fields.function(_task2location_id, fnct_search=_search_location_id, type='many2one', relation='t4.clinical.location', string='Location'),
         'patient_id': fields.function(_task2patient_id, type='many2one', relation='t4.clinical.patient', string='Patient'),
         # system data
         'create_date': fields.datetime('Create Date'),
@@ -394,7 +394,7 @@ class t4_clinical_task(orm.Model):
         'date_expiry': fields.datetime('Expiry Time'),
         # task type and related model/resource
         'data_type_id': fields.many2one('t4.clinical.task.data.type', "Task Type"),
-        'data_res_id': fields.function(_get_data_res_id, type='integer', string="Data Model's ResID", help="Data Model's ResID"),
+        'data_res_id': fields.function(_task2data_res_id, type='integer', string="Data Model's ResID", help="Data Model's ResID"),
         'data_model': fields.related('data_type_id','data_model',type='text',string="Data Model"),
         'data_ref': fields.reference('Data Reference', _get_data_type_selection, size=256)
         
@@ -409,48 +409,6 @@ class t4_clinical_task(orm.Model):
         'summary': 'Not specified',
     }
 
-    def get_task_patient_id(self, cr, uid, task_id, context=None):
-        """
-        Data Model API call
-        If the model is patient-related, returns patient_id, otherwise False
-        By defult field 'patient_id' is taken as target patient
-        """
-        #import pdb; pdb.set_trace()
-        res = False
-        if 'patient_id' in self._columns.keys():
-            data = self.browse_ref(cr, uid, task_id, 'data_ref', context=None)
-            res = data.patient_id and data.patient_id.id
-        return res
-    
-    def get_task_location_id(self, cr, uid, task_id, context=None):
-        """
-        Data Model API call
-        If the model is location-related, returns location_id, otherwise False
-        The location is not necessarily placed(assigned) location
-        example: clinical.precedure data model which may happen outside of patient's ward and last for few minutes
-        """
-#         if task_id == 3775:
-#             import pdb; pdb.set_trace()
-        res = False
-        if 'location_id' in self._columns.keys():
-            data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
-            res = data.location_id and data.location_id.id
-        return res        
-
-    def get_task_spell_id(self, cr, uid, task_id, context=None):
-        """
-        Data Model API call
-        If the model is spell-related and has parent started, not terminated spell, returns spell_id, otherwise False
-        By default current spell.id of patient (if any) returned 
-        """
-        res = False
-        if 'patient_id' in self._columns.keys():
-            data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
-            if data:            
-                spell_pool = self.pool['t4.clinical.spell']
-                spell = spell_pool.get_patient_spell_browse(cr, uid, data.patient_id.id, context)
-                res = spell.id
-        return res
 
     def create(self, cr, uid, vals, context=None):
         fields = {'summary', 'assignee_required'}
