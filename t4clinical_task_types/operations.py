@@ -256,6 +256,8 @@ class t4_clinical_location(orm.Model):
     
     def get_location_patient_ids(self, cr, uid, location_id, context=None):
         # current spells
+        task_pool = self.pool['t4.clinical.task']
+        spell_tasks = self.browse_domain(cr, uid, [('data_model','=','t4.clinical.spell'),('state','=','started')])
         spell_pool = self.pool['t4.clinical.spell']
         spells = spell_pool.browse_domain(cr, uid, [('state','in',['started'])], context)        
         patients = [spell.patient_id for spell in spells]

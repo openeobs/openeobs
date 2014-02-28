@@ -67,7 +67,7 @@ def write_ref(self, cr, uid, host_id, vals, ref_field, context=None):
     #import pdb; pdb.set_trace()
     return ref_model.write(cr, uid, int(res_id), vals, context)
 
-def search_ref(self, cr, user, host_domain, ref_domain, ref_field, context=None):
+def search_ref(self, cr, uid, host_domain, ref_domain, ref_field, context=None):
     """
     returns host_ids that are intersection of host_domain and ref_domain 
     """
@@ -78,7 +78,7 @@ def search_ref(self, cr, user, host_domain, ref_domain, ref_field, context=None)
                     inner join ir_model_fields imf on imf.model = split_part(%s,',',1)
                     group by imf.model
                     having array_agg(imf.name) @> array[%s]
-                    """ % (ref_field, self._name, ",".join(field_list))
+                    """ % ( self._table, ref_field, ",".join(field_list))
     cr.execute(sql_models)
     models = cr.fetchall()
     if not models:
@@ -347,18 +347,61 @@ class t4_clinical_task(orm.Model):
     
     def _task2location_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
-        for task_id in ids:
-            res[task_id] = self.get_task_location_id(cr, uid, task_id, context)
+        for task in self.browse(cr, uid, ids, context):
+            res[task.id] = False
+            if task.data_ref._columns.get('location_id'):
+                res[task.id] =  task.data_ref.location_id and task.data_ref.location_id.id
+        return res
+
+    def _task2employee_ids(self, cr, uid, ids, field, arg, context=None):
+        # !! user_id or child_of location_ids
+        employee_pool = self.pool['hr.employee']
+        location_pool = self.pool['t4.clinical.location']
+        res = {}
+        for task in self.browse(cr, uid, ids, context):
+            user_employee_ids = task.user_id and [employee.id for employee in task.user_id.employee_ids] or []
+            data_location_id = task.data_ref._columns.get('location_id') and task.data_ref.location_id and task.data_ref.location_id.id
+            res[task.id] = user_employee_ids
+            if data_location_id:
+                for location_id in location_pool.search(cr, uid, [('id','child_of',data_location_id)]):
+                    res[task.id].extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))
         return res
     
+    def _task2patient_id(self, cr, uid, ids, field, arg, context=None):
+       res = {}
+       for task_id in ids:
+           res[task_id] = self.get_task_location_id(cr, uid, task_id, context)
+       return res   
+    
     def _search_location_id(self, cr, uid, model, field_name, domain, context):
-        #print model, field_name, domain
         location_pool = self.pool['t4.clinical.location']
-        location_domain = [('id',domain[0][1], domain[0][2])]
-        location_ids = location_pool.search(cr, uid, location_domain, context=context)
+        location_ids = location_pool.search(cr, uid, [('id',domain[0][1], domain[0][2])])
         task_ids = []
-        for location_id in location_ids:
-            task_ids.extend(location_pool.get_location_task_ids(cr, uid, location_id, context))  
+        location_data_models = self.pool['t4.clinical.task.data.type'].get_field_models(cr, uid, 'location_id')
+        for m in location_data_models:
+            task_ids.extend([data.task_id.id for data in m.browse_domain(cr, uid, [('location_id','in',location_ids)])])
+        return [('id','in',task_ids)]
+
+    def _search_employee_ids(self, cr, uid, model, field_name, domain, context):
+        # !! user_id or child_of location_ids
+        employee_pool = self.pool['hr.employee']
+        location_pool = self.pool['t4.clinical.location']
+        user_pool = self.pool['res.users']
+        employee_ids = employee_pool.search(cr, uid, [('id',domain[0][1], domain[0][2])], context=context)
+        location_ids = []
+        user_ids = []
+        for employee in employee_pool.browse(cr, uid, employee_ids, context):
+            location_ids.extend([location.id for location in employee.location_ids])
+            user_ids.append(employee.user_id.id) 
+        return ['|',('user_id','in',user_ids),('location_id','child_of',location_ids)]
+
+    def _search_patient_id(self, cr, uid, model, field_name, domain, context):
+        patient_pool = self.pool['t4.clinical.patient']
+        patient_ids = patient_pool.search(cr, uid, [('id',domain[0][1], domain[0][2])], context=context)
+        task_ids = []
+        patient_data_models = self.pool['t4.clinical.task.data.type'].get_field_models(cr, uid, 'patient_id')
+        for m in patient_data_models:
+            task_ids.extend([data.task_id.id for data in m.browse_domain(cr, uid, [('patient_id','in',patient_ids)])])
         return [('id','in',task_ids)]
     
     def _task2patient_id(self, cr, uid, ids, field, arg, context=None):
@@ -375,7 +418,7 @@ class t4_clinical_task(orm.Model):
         'state': fields.selection(_states, 'State'),
         # coordinates
         'user_id': fields.many2one('res.users', 'Assignee'),
-        'employee_id': fields.function(_user2employee_id, type='many2one', relation='hr.employee', string='Employee'),
+        'employee_ids': fields.function(_task2employee_ids, fnct_search=_search_employee_ids, type='one2many', relation='hr.employee', string='Employees'),
         'location_id': fields.function(_task2location_id, fnct_search=_search_location_id, type='many2one', relation='t4.clinical.location', string='Location'),
         'patient_id': fields.function(_task2patient_id, type='many2one', relation='t4.clinical.patient', string='Patient'),
         # system data
@@ -409,7 +452,21 @@ class t4_clinical_task(orm.Model):
         'summary': 'Not specified',
     }
 
-
+    def get_task_ids(self, cr, uid, task_domain=[], data_domain=[], context=None):
+        task_ids = self.search(cr, uid, task_domain, context=context)
+        data_task_ids = []  
+        for task in self.browse(cr, uid, task_ids, context):
+            data_pool = self.pool.get(task.data_model)
+            if data_pool:
+                domain_fields = [leaf[0] for leaf in data_domain]
+                model_fields = data_pool._columns.keys()
+                if data_domain:
+                    except_if(not all([df in model_fields for df in domain_fields]), 
+                        msg="Not data_domain fields found in data model, \ndomain_fields=%s \nmodel_fields=%s\n" % (domain_fields, model_fields))
+                data_task_ids = [d.task_id.id for d in data_pool.browse_domain(cr, uid, data_domain)]
+        task_ids = list(set(task_ids) & set(data_task_ids))
+        return task_ids
+    
     def create(self, cr, uid, vals, context=None):
         fields = {'summary', 'assignee_required'}
         #print "fields",fields,"vals",vals
@@ -424,6 +481,7 @@ class t4_clinical_task(orm.Model):
         _logger.info("Task '%s' created, task.id=%s" % (task.data_model, task.id))
         self.after_create(cr, uid, task_id, context)
         return task_id
+    
     @data_model_event(callback_before=None, callback_after="retrieve")
     def after_create(self, cr, uid, task_id, context=None):
 #         if
