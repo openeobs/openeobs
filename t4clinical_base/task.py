@@ -344,71 +344,7 @@ class t4_clinical_task(orm.Model):
         for task in self.read(cr, uid, ids, ['data_ref'], context):
             res[task['id']] = self.ref2res(task['data_ref'])[1]
         return res
-    
-    def _task2location_id(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        for task in self.browse(cr, uid, ids, context):
-            res[task.id] = False
-            if task.data_ref._columns.get('location_id'):
-                res[task.id] =  task.data_ref.location_id and task.data_ref.location_id.id
-        return res
 
-    def _task2employee_ids(self, cr, uid, ids, field, arg, context=None):
-        # !! user_id or child_of location_ids
-        employee_pool = self.pool['hr.employee']
-        location_pool = self.pool['t4.clinical.location']
-        res = {}
-        for task in self.browse(cr, uid, ids, context):
-            user_employee_ids = task.user_id and [employee.id for employee in task.user_id.employee_ids] or []
-            data_location_id = task.data_ref._columns.get('location_id') and task.data_ref.location_id and task.data_ref.location_id.id
-            res[task.id] = user_employee_ids
-            if data_location_id:
-                for location_id in location_pool.search(cr, uid, [('id','child_of',data_location_id)]):
-                    res[task.id].extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))
-        return res
-    
-    def _task2patient_id(self, cr, uid, ids, field, arg, context=None):
-       res = {}
-       for task_id in ids:
-           res[task_id] = self.get_task_location_id(cr, uid, task_id, context)
-       return res   
-    
-    def _search_location_id(self, cr, uid, model, field_name, domain, context):
-        location_pool = self.pool['t4.clinical.location']
-        location_ids = location_pool.search(cr, uid, [('id',domain[0][1], domain[0][2])])
-        task_ids = []
-        location_data_models = self.pool['t4.clinical.task.data.type'].get_field_models(cr, uid, 'location_id')
-        for m in location_data_models:
-            task_ids.extend([data.task_id.id for data in m.browse_domain(cr, uid, [('location_id','in',location_ids)])])
-        return [('id','in',task_ids)]
-
-    def _search_employee_ids(self, cr, uid, model, field_name, domain, context):
-        # !! user_id or child_of location_ids
-        employee_pool = self.pool['hr.employee']
-        location_pool = self.pool['t4.clinical.location']
-        user_pool = self.pool['res.users']
-        employee_ids = employee_pool.search(cr, uid, [('id',domain[0][1], domain[0][2])], context=context)
-        location_ids = []
-        user_ids = []
-        for employee in employee_pool.browse(cr, uid, employee_ids, context):
-            location_ids.extend([location.id for location in employee.location_ids])
-            user_ids.append(employee.user_id.id) 
-        return ['|',('user_id','in',user_ids),('location_id','child_of',location_ids)]
-
-    def _search_patient_id(self, cr, uid, model, field_name, domain, context):
-        patient_pool = self.pool['t4.clinical.patient']
-        patient_ids = patient_pool.search(cr, uid, [('id',domain[0][1], domain[0][2])], context=context)
-        task_ids = []
-        patient_data_models = self.pool['t4.clinical.task.data.type'].get_field_models(cr, uid, 'patient_id')
-        for m in patient_data_models:
-            task_ids.extend([data.task_id.id for data in m.browse_domain(cr, uid, [('patient_id','in',patient_ids)])])
-        return [('id','in',task_ids)]
-    
-    def _task2patient_id(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        for task_id in ids:
-            res[task_id] = self.get_task_patient_id(cr, uid, task_id, context)
-        return res        
     
     _columns = {
         'summary': fields.char('Summary', size=256),
@@ -418,9 +354,10 @@ class t4_clinical_task(orm.Model):
         'state': fields.selection(_states, 'State'),
         # coordinates
         'user_id': fields.many2one('res.users', 'Assignee'),
-        'employee_ids': fields.function(_task2employee_ids, fnct_search=_search_employee_ids, type='one2many', relation='hr.employee', string='Employees'),
-        'location_id': fields.function(_task2location_id, fnct_search=_search_location_id, type='many2one', relation='t4.clinical.location', string='Location'),
-        'patient_id': fields.function(_task2patient_id, type='many2one', relation='t4.clinical.patient', string='Patient'),
+        'employee_id': fields.many2one('hr.employee', 'Employee', help="Assigned Employee"),
+        'employee_ids': fields.many2many('hr.employee','task_employee_rel', 'task_id', 'employee_id', 'Employees', help="Employees the task is visible for"),
+        'location_id': fields.many2one('t4.clinical.location', 'Location'),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         # system data
         'create_date': fields.datetime('Create Date'),
         'write_date': fields.datetime('Write Date'),
@@ -452,19 +389,9 @@ class t4_clinical_task(orm.Model):
         'summary': 'Not specified',
     }
 
-    def get_task_ids(self, cr, uid, task_domain=[], data_domain=[], context=None):
-        task_ids = self.search(cr, uid, task_domain, context=context)
-        data_task_ids = []  
-        for task in self.browse(cr, uid, task_ids, context):
-            data_pool = self.pool.get(task.data_model)
-            if data_pool:
-                domain_fields = [leaf[0] for leaf in data_domain]
-                model_fields = data_pool._columns.keys()
-                if data_domain:
-                    except_if(not all([df in model_fields for df in domain_fields]), 
-                        msg="Not data_domain fields found in data model, \ndomain_fields=%s \nmodel_fields=%s\n" % (domain_fields, model_fields))
-                data_task_ids = [d.task_id.id for d in data_pool.browse_domain(cr, uid, data_domain)]
-        task_ids = list(set(task_ids) & set(data_task_ids))
+    def get_task_ids(self, cr, uid, data_model, data_domain=[], order=None, limit=None, context=None):
+        data_pool = self.pool[data_model]
+        task_ids = [d.task_id.id for d in data_pool.browse_domain(cr, uid, data_domain, order=order, limit=limit)]
         return task_ids
     
     def create(self, cr, uid, vals, context=None):
@@ -494,6 +421,7 @@ class t4_clinical_task(orm.Model):
         return res
     
     # DATA API
+    @data_model_event(callback_before="before_submit", callback_after="after_submit")
     def submit(self, cr, uid, task_id, vals, context=None):
         assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
         task = self.browse(cr, uid, task_id, context)      
@@ -503,11 +431,12 @@ class t4_clinical_task(orm.Model):
         not task.data_ref and self.create_ref(cr, uid, task.id, task.data_model, vals, 'data_ref', context)
         task = self.browse(cr, uid, task_id, context)        
         self.write_ref(cr, uid, task.id, vals, 'data_ref', context)
-        task.data_model = self.pool.get(task.data_model).submit(cr, uid, task.id, context)
+        #self.pool.get(task.data_model).submit(cr, uid, task.id, context)
         _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))
         return True
-
-    def submit_act_window(self, cr, uid, task_id, fields, context=None): 
+    
+    @data_model_event(callback_before="act_window_before", callback_after="act_window_after")
+    def act_window(self, cr, uid, task_id, fields, context=None): 
         task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id    
         task = self.browse(cr, uid, task_id, context)
         except_if(task.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a task in state %s !" % task.state)
@@ -525,7 +454,7 @@ class t4_clinical_task(orm.Model):
                     'target': aw.target,
                     'context': ctx,
                     }
-        print aw_data
+        #print aw_data
         return aw_data
 
     def retrieve(self, cr, uid, task_id, context=None):
@@ -560,7 +489,7 @@ class t4_clinical_task(orm.Model):
         _logger.info("Task '%s', task.id=%s scheduled, date_scheduled='%s'" % (task.data_model, task.id, date_scheduled or task.date_scheduled))
         return True
     
-    @data_model_event(callback_before=None, callback_after="assign")
+    @data_model_event(callback_before="before_assign", callback_after="after_assign")
     def assign(self, cr, uid, task_id, user_id, context=None):
         
         task = self.browse(cr, uid, task_id, context)
@@ -636,8 +565,8 @@ class t4_clinical_task(orm.Model):
 class t4_clinical_task_data(orm.AbstractModel):
     
     _name = 't4.clinical.task.data'
-    _patient_id = 'patient_id'
-    _location_id = 'location_id'
+    _patient_name = 'patient_id'
+    _location_name = 'location_id'
     
     def _task_data2data_type_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
@@ -662,7 +591,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         'date_started': fields.related('task_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('task_id', 'date_terminated', string='Terminated Time', type='datetime'),
         'state': fields.related('task_id', 'state', string='Start Time', type='char', size=64),  
-            
+        'data_model': fields.related('data_type_id','data_model',type='text',string="Data Model"),            
     }
     
 
@@ -685,15 +614,21 @@ class t4_clinical_task_data(orm.AbstractModel):
         vals_data and task_pool.submit(cr, uid, new_task_id, vals_data, context)
         return new_task_id
     
-    def save(self, cr, uid, ids, context=None):
-
+    def submit_ui(self, cr, uid, ids, context=None):
         if context.get('active_id'):
             task_pool = self.pool['t4.clinical.task']
             task_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             task = task_pool.browse(cr, uid, context['active_id'], context)
             _logger.info("Task '%s', task.id=%s data submitted via UI" % (task.data_model, task.id))
+            self.after_submit(cr, uid, task.id, context)
         return {'type': 'ir.actions.act_window_close'}
     
+    def act_window_before(self, cr, uid, task_id, context=None):
+        return True  
+    
+    def act_window_after(self, cr, uid, task_id, context=None):
+        return True      
+
     def validate(self, cr, uid, task_id, context=None):
         return True    
 
@@ -703,7 +638,19 @@ class t4_clinical_task_data(orm.AbstractModel):
     def complete(self, cr, uid, task_id, context=None):
         return True
     
-    def assign(self, cr, uid, task_id, user_id, context=None):
+    def before_assign(self, cr, uid, task_id, user_id, context=None):       
+        return True
+
+    def after_assign(self, cr, uid, task_id, user_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        task = task_pool.browse(cr, uid, task_id, context)
+        task_vals = {}
+        if len(task.user_id.employee_ids) == 1:
+            task_vals.update({'employee_id': task.user_id.employee_ids[0].id})
+        if task.user_id.employee_ids: 
+            task_vals.update({'employee_ids': [(4, e.id) for e  in task.user_id.employee_ids]})
+        if task_vals:
+            task_pool.write(cr, uid, task_id, task_vals) 
         return True
     
     def unassign(self, cr, uid, task_id, user_id, context=None):
@@ -721,8 +668,60 @@ class t4_clinical_task_data(orm.AbstractModel):
     def shcedule(self, cr, uid, task_id, context=None):
         return True
     
-    def submit(self, cr, uid, task_id, context=None):
+    def before_submit(self, cr, uid, task_id, vals, context=None):
         return True    
+
+    def after_submit(self, cr, uid, task_id, vals, context=None):
+        # FIXME for improvement vals may be analysed to avoid unnecessary load
+        task_pool = self.pool['t4.clinical.task']
+        location_pool = self.pool['t4.clinical.location']
+        employee_pool = self.pool['hr.employee']
+        data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]
+        task_vals = {}
+        location = False
+        patient = False
+        # set task.location_id
+        if self._location_name in self._columns.keys():
+            location = eval("data.%s" % self._location_name)
+            location and task_vals.update({'location_id': location.id}) 
+        # set task.patient_id
+        if self._patient_name in self._columns.keys():
+            patient = eval("data.%s" % self._patient_name)
+            patient and task_vals.update({'patient_id': patient.id})
+        #get employees responsible for this and parent locations
+        employee_ids = []
+        if location:
+            parent_location_ids = [location.id]
+            parent_id = location.parent_id and location.parent_id.id
+            # branch location ids
+            while parent_id:
+                parent_location_ids.append(parent_id)
+                parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
+                parent_id = parent_location.parent_id and parent_location.parent_id.id
+            for location_id in parent_location_ids:
+                employee_ids.extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))    
+            print "parent_location_ids: %s" % parent_location_ids
+        print "location: %s" % location
+        print "employee_ids: %s" % employee_ids
+        # set task.employee_id
+        user_employees = data.task_id.user_id and data.task_id.user_id.employee_ids
+        user_employee_ids = user_employees and [e.id for e in data.task_id.user_id.employee_ids] or []
+        print "user_employee_ids: %s" % user_employee_ids
+        #import pdb; pdb.set_trace()
+        # 1. if task assigned to a user that has only 1 related employee 
+        if data.task_id.user_id and len(data.task_id.user_id.employee_ids) == 1:
+            task_vals.update({'employee_id': data.user_id.employee_ids.id})
+        # 2. if there's only 1 employee found responsible for the location
+        elif len(employee_ids) == 1:
+            task_vals.update({'employee_id': employee_ids[0]})
+        employee_ids.extend(user_employee_ids)
+        
+        employee_ids and task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
+        task_vals and task_pool.write(cr, uid, task_id, task_vals)     
+        return True 
+
+    def before_create(self, cr, uid, task_id, context=None):
+        return True 
 
     def after_create(self, cr, uid, task_id, context=None):
         return True       

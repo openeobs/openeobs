@@ -63,9 +63,17 @@ class t4_clinical_patient_discharge(orm.Model):
     
     def _discharge2location_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
-        patient_pool = self.pool['t4.clinical.patient']
+        placement_pool = self.pool['t4.clinical.patient.placement']
         for discharge in self.browse(cr, uid, ids, context):
-            res[discharge.id] = patient_pool.get_patient_location_id(cr, uid, discharge.patient_id.id, context)
+            placement_id = placement_pool.search(cr, uid,
+                                    [('state','=','completed'),('patient_id','=',discharge.patient_id.id)],
+                                    order="date_terminated desc", limit=1)
+            if not placement_id:
+                res[discharge.id] = False
+                continue
+            placement_id = placement_id[0]
+            placement = self.pool['t4.clinical.patient.placement'].browse(cr, uid, placement_id, context)
+            res[discharge.id] = placement.location_id.id
         return res
     
     def _search_location_id(self, cr, uid, model, field_name, domain, context):

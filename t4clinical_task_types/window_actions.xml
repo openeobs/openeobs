@@ -11,7 +11,7 @@
                        <field name="location_id" />
 					   <field name="reason" /> 	                     
                        
-						<button name="save" type="object" string="Save"/>
+						<button name="submit_ui" type="object" string="Submit"/>
                     </form>
                 
                 </field>
@@ -42,7 +42,7 @@
                        <field name="patient_id" />
                        <field name="height" />
 					   <field name="weight" />  
-						<button name="save" type="object" string="Save"/>
+						<button name="submit_ui" type="object" string="Submit"/>
                     </form>
                 
                 </field>

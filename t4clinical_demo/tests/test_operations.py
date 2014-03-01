@@ -147,12 +147,13 @@ class TestOperations(common.SingleTransactionCase):
 #         #self.assertTrue(height_weight_taskpatient_id.id == , 'partial')
 #         
         # discharge
+        #import pdb; pdb.set_trace()
         discharge_task_id = self.create_task_test(
                                      discharge_pool,
                                      task_vals      = {},
                                      data_vals      = {'patient_id': donald_patient_id},
                                      patient_id     = donald_patient_id, 
-                                     location_id    = w8_location_id, 
+                                     location_id    = b1_location_id, # patient placement location
                                      employee_id    = nurse_employee_id,
                                      user_id        = nurse_user_id
                                      )        
@@ -180,6 +181,7 @@ class TestOperations(common.SingleTransactionCase):
             print "data_vals: %s" % data_vals
             print "patient_id: %s" % patient_id
             print "employee_id: %s" % employee_id
+            print "location_id: %s" % location_id            
             print "user_id: %s" % user_id
             print "\n"
         
@@ -197,9 +199,7 @@ class TestOperations(common.SingleTransactionCase):
         location_id and task_domain.append(('location_id','=',location_id))
         employee_id and task_domain.append(('employee_ids','=',employee_id))        
         user_id and task_domain.append(('user_id','=',user_id))
-        task_ids = task_pool.get_task_ids(cr, uid, 
-                                task_domain=[('data_model','=',data_pool._name)], 
-                                data_domain=data_domain)
+        task_ids = task_pool.get_task_ids(cr, uid, data_pool._name, data_domain)
         print "\nget_task_ids():"
         print "task_ids: %s" % task_ids
         print "task_domain: %s" % task_domain
@@ -207,7 +207,9 @@ class TestOperations(common.SingleTransactionCase):
         print "\n"
         print "\n task fields"
         print "task.location_id: %s" % task.location_id
+        print "location_ids child_of task.location_id: %s" % location_pool.search(cr, uid, [('id','child_of',task.location_id.id)])        
         print "task.patient_id: %s" % task.patient_id
+        print "task.employee_id: %s" % task.employee_id
         print "task.employee_ids: %s" % task.employee_ids
         print "\n"        
         self.assertTrue(task_id in task_ids, "task_id in task_ids")
