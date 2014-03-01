@@ -133,7 +133,7 @@ class TestOperations(common.SingleTransactionCase):
                                      task_vals      = {'parent_id': spell_task_id},
                                      data_vals      = {'patient_id': donald_patient_id,'height': 180, 'weight': 80},
                                      patient_id     = donald_patient_id, 
-#                                      location_id    = w8_location_id, 
+#   not implemented yet for observation                                   location_id    = b1_location_id, 
 #                                      employee_id    = nurse_employee_id,
                                      user_id        = nurse_user_id
                                      )          

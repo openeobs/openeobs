@@ -567,7 +567,8 @@ class t4_clinical_task_data(orm.AbstractModel):
     _name = 't4.clinical.task.data'
     _patient_name = 'patient_id'
     _location_name = 'location_id'
-    
+    _employee_name = 'employee_id'
+    _employees_name = 'employee_ids'    
     def _task_data2data_type_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
         type_pool = self.pool['t4.clinical.task.data.type']
@@ -684,39 +685,53 @@ class t4_clinical_task_data(orm.AbstractModel):
         if self._location_name in self._columns.keys():
             location = eval("data.%s" % self._location_name)
             location and task_vals.update({'location_id': location.id}) 
+        else:
+            #FIXME calculate field when it's not defined on data model!
+            pass
         # set task.patient_id
         if self._patient_name in self._columns.keys():
             patient = eval("data.%s" % self._patient_name)
             patient and task_vals.update({'patient_id': patient.id})
+        else:
+            #FIXME calculate field when it's not defined on data model!
+            pass
+        
         #get employees responsible for this and parent locations
         employee_ids = []
-        if location:
-            parent_location_ids = [location.id]
-            parent_id = location.parent_id and location.parent_id.id
-            # branch location ids
-            while parent_id:
-                parent_location_ids.append(parent_id)
-                parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
-                parent_id = parent_location.parent_id and parent_location.parent_id.id
-            for location_id in parent_location_ids:
-                employee_ids.extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))    
-            print "parent_location_ids: %s" % parent_location_ids
-        print "location: %s" % location
-        print "employee_ids: %s" % employee_ids
-        # set task.employee_id
         user_employees = data.task_id.user_id and data.task_id.user_id.employee_ids
         user_employee_ids = user_employees and [e.id for e in data.task_id.user_id.employee_ids] or []
-        print "user_employee_ids: %s" % user_employee_ids
-        #import pdb; pdb.set_trace()
-        # 1. if task assigned to a user that has only 1 related employee 
-        if data.task_id.user_id and len(data.task_id.user_id.employee_ids) == 1:
-            task_vals.update({'employee_id': data.user_id.employee_ids.id})
-        # 2. if there's only 1 employee found responsible for the location
-        elif len(employee_ids) == 1:
-            task_vals.update({'employee_id': employee_ids[0]})
-        employee_ids.extend(user_employee_ids)
-        
-        employee_ids and task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
+        if self._employees_name in self._columns.keys():
+            employees = eval("data.%s" % self._employees_name)
+            employees and task_vals.update({'employee_ids': [(6, 0, [e.id for e in employees])]})
+        else:        
+            if location:
+                parent_location_ids = [location.id]
+                parent_id = location.parent_id and location.parent_id.id
+                # branch location ids
+                while parent_id:
+                    parent_location_ids.append(parent_id)
+                    parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
+                    parent_id = parent_location.parent_id and parent_location.parent_id.id
+                for location_id in parent_location_ids:
+                    employee_ids.extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))    
+                print "parent_location_ids: %s" % parent_location_ids
+            print "location: %s" % location
+            print "employee_ids: %s" % employee_ids
+            employee_ids.extend(user_employee_ids)
+            employee_ids and task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
+        # set task.employee_id
+        if self._employee_name in self._columns.keys():
+            employee = eval("data.%s" % self._employee_name)
+            employee and task_vals.update({'employee_id': employee.id})
+        else:           
+            print "user_employee_ids: %s" % user_employee_ids
+            #import pdb; pdb.set_trace()
+            # 1. if task assigned to a user that has only 1 related employee 
+            if data.task_id.user_id and len(data.task_id.user_id.employee_ids) == 1:
+                task_vals.update({'employee_id': data.user_id.employee_ids.id})
+            # 2. if there's only 1 employee found responsible for the location
+            elif len(employee_ids) == 1:
+                task_vals.update({'employee_id': employee_ids[0]})
         task_vals and task_pool.write(cr, uid, task_id, task_vals)     
         return True 
 
