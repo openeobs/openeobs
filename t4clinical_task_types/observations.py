@@ -66,5 +66,6 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
 
     
     def complete(self, cr, uid, task_ids, context=None):
+        super(t4_clinical_patient_observation_height_weight, self).complete(cr, uid, task_id, context)
         return True
     

@@ -289,7 +289,7 @@ class t4_clinical_task_data_type(orm.Model):
         res_id = super(t4_clinical_task_data_type, self).create(cr, uid, vals, context)
         return res_id
 
-def data_model_event(callback_before=None, callback_after=None):
+def data_model_event(callback=None):
     def decorator(f):
         def wrapper(*args, **kwargs):
             self, cr, uid, task_id = args[:4]
@@ -301,12 +301,11 @@ def data_model_event(callback_before=None, callback_after=None):
             context = kwargs.get('context') or None
             task = self.browse(cr, uid, task_id, context)
             model_pool = self.pool.get(task.data_model)
-            model_pool and callback_before and eval("model_pool.%s(*args[1:], **kwargs)" % callback_before)
-            res = f(*args, **kwargs)
-            dir(f)
-            model_pool and callback_after and eval("model_pool.%s(*args[1:], **kwargs)" % callback_after)
-            #print args[1:], kwargs
-            return res
+            res = False
+            f(*args, **kwargs)
+            if model_pool and callback:
+                res = eval("model_pool.%s(*args[1:], **kwargs)" % callback)
+            return True
         return wrapper
     return decorator
     
@@ -323,14 +322,6 @@ class t4_clinical_task(orm.Model):
                ('started', 'Started'), ('completed', 'Completed'), ('cancelled', 'Cancelled'),
                 ('suspended', 'Suspended'), ('aborted', 'Aborted'),('expired', 'Expired')]
     
-    def _user2employee_id(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        employee_pool = self.pool['hr.employee']
-        for task in self.browse(cr, uid, ids, context):
-            user_id = task.user_id and task.user_id.id
-            emp_id = employee_pool.search(cr, uid, [('user_id','=',user_id)], context=context)
-            res[task.id] = emp_id and emp_id[0]
-        return res
     
     def _get_data_type_selection(self, cr, uid, context=None):
         sql = "select data_model, summary from t4_clinical_task_data_type"
@@ -406,14 +397,7 @@ class t4_clinical_task(orm.Model):
         task_id = super(t4_clinical_task, self).create(cr, uid, vals, context)
         task = self.browse(cr, uid, task_id, context)
         _logger.info("Task '%s' created, task.id=%s" % (task.data_model, task.id))
-        self.after_create(cr, uid, task_id, context)
         return task_id
-    
-    @data_model_event(callback_before=None, callback_after="retrieve")
-    def after_create(self, cr, uid, task_id, context=None):
-#         if
-#         self.assign(cr, uid, task_id, context)
-        return True
         
     def write(self,cr, uid, ids, vals, context=None):
 
@@ -421,93 +405,36 @@ class t4_clinical_task(orm.Model):
         return res
     
     # DATA API
-    @data_model_event(callback_before="before_submit", callback_after="after_submit")
+    @data_model_event(callback="submit")
     def submit(self, cr, uid, task_id, vals, context=None):
         assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
-        task = self.browse(cr, uid, task_id, context)      
-        except_if(not task.data_type_id, msg="No data model for this task")           
-        allowed_states = ['draft','planned', 'scheduled','started']
-        except_if(task.state not in allowed_states, msg="Data can't be submitted in this state '%s'" % task.state)       
-        not task.data_ref and self.create_ref(cr, uid, task.id, task.data_model, vals, 'data_ref', context)
-        task = self.browse(cr, uid, task_id, context)        
-        self.write_ref(cr, uid, task.id, vals, 'data_ref', context)
-        #self.pool.get(task.data_model).submit(cr, uid, task.id, context)
-        _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))
         return True
     
-    @data_model_event(callback_before="act_window_before", callback_after="act_window_after")
+    @data_model_event(callback="act_window")
     def act_window(self, cr, uid, task_id, fields, context=None): 
-        task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id    
-        task = self.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a task in state %s !" % task.state)
-        except_if(not task.data_type_id,msg="Data model is not set for the task!")
-        except_if(not task.data_type_id.act_window_id,msg="Window action is not set for data model %s" % task.data_model)                
-        aw_pool = self.pool['ir.actions.act_window']
-        aw = aw_pool.browse(cr, uid, task.data_type_id.act_window_id.id, context)
-        ctx = eval(aw.context) or {}
-        ctx.update({'t4_source': 't4.clinical.task'}) 
-        aw_data = {'type': 'ir.actions.act_window',
-                    'res_model': aw.res_model,
-                    'res_id': task.data_res_id, # must always be there 
-                    'view_type': aw.view_type,
-                    'view_mode': aw.view_mode,
-                    'target': aw.target,
-                    'context': ctx,
-                    }
-        #print aw_data
-        return aw_data
-
+        return True
+    
+    @data_model_event(callback="retrieve") 
     def retrieve(self, cr, uid, task_id, context=None):
         assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
-        task = self.browse(cr, uid, task_id, context)    
-        return self.retrieve_read(cr, uid, task_id, context=None)  
-    
-    @data_model_event(callback_before=None, callback_after="retrieve")
-    def retrieve_read(self, cr, uid, task_id, context=None):
-        
-        return self.read_ref(cr, uid, task_id, 'data_ref', context)
-    
-    @data_model_event(callback_before=None, callback_after="retrieve") 
-    def retrieve_browse(self, cr, uid, task_id, context=None):
-        
-        return self.browse_ref(cr, uid, task_id, 'data_ref', context)        
+        return True
+           
  
-    @data_model_event(callback_before=None, callback_after="validate")          
+    @data_model_event(callback="validate")          
     def validate(self, cr, uid, task_id, context=None):
-        
-        task = self.browse(cr, uid, task_id, context) 
-        return all(res)
-    
-    # MGMT API
-    @data_model_event(callback_before=None, callback_after="schedule")
-    def schedule(self, cr, uid, task_id, date_scheduled=None, context=None):
-        
-        task = self.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft', 'planned'], msg="Task in state %s can not be scheduled!" % task.state)
-        except_if(not task.date_scheduled and not date_scheduled, msg="Scheduled date is neither set on task nor passed to the method")
-        self.write(cr, uid, task_id, {'date_scheduled': date_scheduled or task.date_scheduled, 'state': 'scheduled'}, context)
-        _logger.info("Task '%s', task.id=%s scheduled, date_scheduled='%s'" % (task.data_model, task.id, date_scheduled or task.date_scheduled))
         return True
     
-    @data_model_event(callback_before="before_assign", callback_after="after_assign")
+    # MGMT API
+    @data_model_event(callback="schedule")
+    def schedule(self, cr, uid, task_id, date_scheduled=None, context=None):
+        return True
+    
+    @data_model_event(callback="assign")
     def assign(self, cr, uid, task_id, user_id, context=None):
-        
-        task = self.browse(cr, uid, task_id, context)
-        allowed_states = ['draft','planned','scheduled']
-        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be assigned!" % task.state)
-        except_if(task.user_id, msg="Task is assigned already assigned to %s!" % task.user_id.name)         
-        self.write(cr, uid, task_id,{'user_id': user_id}, context)
-        _logger.info("Task '%s', task.id=%s assigned to user.id=%s" % (task.data_model, task.id, user_id))            
         return True        
     
-    @data_model_event(callback_before=None, callback_after="unassign")   
+    @data_model_event(callback="unassign")   
     def unassign(self, cr, uid, task_id, context=None):
-        
-        task = self.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be unassigned!" % task.state)
-        except_if(task.user_id, msg="Task is not assigned yet!")               
-        self.write(cr, uid, task_id,{'user_id': False}, context) 
-        _logger.info("Task '%s', task.id=%s unassigned" % (task.data_model, task.id))        
         return True 
     
     def button_schedule(self, cr, uid, ids, context=None):
@@ -521,42 +448,19 @@ class t4_clinical_task(orm.Model):
     def button_start(self, cr, uid, ids, fields, context=None):
         res = self.start(cr, uid, ids, context)
         return res
-    @data_model_event(callback_before=None, callback_after="start")        
-    def start(self, cr, uid, task_id, context=None):
-        
-              
-        allowed_states = ['draft', 'planned', 'scheduled']
-        task = self.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft', 'planned', 'scheduled'], msg="Task in state %s can not be started" % task.state)
-        except_if(not task.user_id and task.assignee_required,msg="Task assignee required for task of type: %s" % task.data_model)                   
-        self.write(cr, uid, task_id, {'state': 'started'}, context)
-        _logger.info("Task '%s', task.id=%s started" % (task.data_model, task.id))             
+    @data_model_event(callback="start")        
+    def start(self, cr, uid, task_id, context=None):             
         return True 
     
-    @data_model_event(callback_before=None, callback_after="complete")
-    def complete(self, cr, uid, task_id, context=None):
-        
-        task = self.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['started'], msg="Task in state %s can not be completed!" % task.state)      
-        now = dt.today().strftime('%Y-%m-%d %H:%M:%S') 
-        self.write(cr, uid, task.id, {'state': 'completed', 'date_terminated': now}, context)     
-        _logger.info("Task '%s', task.id=%s completed" % (task.data_model, task.id))           
+    @data_model_event(callback="complete")
+    def complete(self, cr, uid, task_id, context=None):          
         return True 
     
-    @data_model_event(callback_before=None, callback_after="cancel")    
-    def cancel(self, cr, uid, task_id, context=None):
-        
-        allowed_states = ['draft','planned','scheduled','started']
-        task = self.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft','planned','scheduled','started'], msg="Task in state %s can not be cancelled!" % task.state)         
-        now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
-        self.write(cr, uid, task_id,{'state': 'cancelled', 'date_terminated': now}, context)
-        _logger.info("Task '%s', task.id=%s cancelled" % (task.data_model, task.id))             
+    @data_model_event(callback="cancel")    
+    def cancel(self, cr, uid, task_id, context=None):            
         return True 
     
     def abort(self, cr, uid, task_id, context=None):
-        
-        # not to be impl.
         pass  
     
 
@@ -564,31 +468,11 @@ class t4_clinical_task(orm.Model):
 
 class t4_clinical_task_data(orm.AbstractModel):
     
-    _name = 't4.clinical.task.data'
-    _patient_name = 'patient_id'
-    _location_name = 'location_id'
-    _employee_name = 'employee_id'
-    _employees_name = 'employee_ids'    
-    def _task_data2data_type_id(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        type_pool = self.pool['t4.clinical.task.data.type']
-        for data_model in self.browse(cr, uid, ids, context):
-            data_type_id = type_pool.search(cr, uid, [('data_model','=',self._name)])
-            res[data_model.id] = data_type_id and data_type_id[0] or False
-        return res
-    
-    def _task_data2task_id(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        task_pool = self.pool['t4.clinical.task']
-        for data in self.browse(cr, uid, ids, context):
-            task_id = task_pool.search(cr, uid, [('data_ref','=',"%s,%s" % (data._name, data.id))])
-            res[data.id] = task_id and task_id[0] or False
-        return res
-    
+    _name = 't4.clinical.task.data'   
     _columns = {
         'name': fields.char('Name', size=256),
-        'data_type_id': fields.function(_task_data2data_type_id, type='many2one', relation='t4.clinical.task.data.type', string="Task Attrs", store=True),
-        'task_id': fields.function(_task_data2task_id, type='many2one', relation='t4.clinical.task', string="Task", store=True),
+        'data_type_id': fields.related('task_id', 'task_data_type', type='many2one', relation='t4.clinical.task.data.type', string="Task Data Type"),
+        'task_id': fields.many2one('t4.clinical.task', "Task"),
         'date_started': fields.related('task_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('task_id', 'date_terminated', string='Terminated Time', type='datetime'),
         'state': fields.related('task_id', 'state', string='Start Time', type='char', size=64),  
@@ -624,117 +508,190 @@ class t4_clinical_task_data(orm.AbstractModel):
             self.after_submit(cr, uid, task.id, context)
         return {'type': 'ir.actions.act_window_close'}
     
-    def act_window_before(self, cr, uid, task_id, context=None):
-        return True  
     
-    def act_window_after(self, cr, uid, task_id, context=None):
-        return True      
+    def act_window(self, cr, uid, task_id, context=None):
+        task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
+        task_pool = self.pool['t4.clinical.task']  
+        task = task_pool.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a task in state %s !" % task.state)
+        except_if(not task.data_type_id,msg="Data model is not set for the task!")
+        except_if(not task.data_type_id.act_window_id,msg="Window action is not set for data model %s" % task.data_model)                
+        aw_pool = self.pool['ir.actions.act_window']
+        aw = aw_pool.browse(cr, uid, task.data_type_id.act_window_id.id, context)
+        ctx = eval(aw.context) or {}
+        ctx.update({'t4_source': 't4.clinical.task'}) 
+        aw_data = {'type': 'ir.actions.act_window',
+                    'res_model': aw.res_model,
+                    'res_id': task.data_res_id, # must always be there 
+                    'view_type': aw.view_type,
+                    'view_mode': aw.view_mode,
+                    'target': aw.target,
+                    'context': ctx,
+                    }
+        return aw_data        
+    
 
     def validate(self, cr, uid, task_id, context=None):
         return True    
 
     def start(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        allowed_states = ['draft', 'planned', 'scheduled']
+        task = task_pool.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft', 'planned', 'scheduled'], msg="Task in state %s can not be started" % task.state)
+        except_if(not task.user_id and task.assignee_required,msg="Task assignee required for task of type: %s" % task.data_model)                   
+        task_pool.write(cr, uid, task_id, {'state': 'started'}, context)
+        _logger.info("Task '%s', task.id=%s started" % (task.data_model, task.id))        
         return True
 
     def complete(self, cr, uid, task_id, context=None):
-        return True
-    
-    def before_assign(self, cr, uid, task_id, user_id, context=None):       
-        return True
-
-    def after_assign(self, cr, uid, task_id, user_id, context=None):
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context)
-        task_vals = {}
-        if len(task.user_id.employee_ids) == 1:
+        except_if(task.state not in ['started'], msg="Task in state %s can not be completed!" % task.state)      
+        now = dt.today().strftime('%Y-%m-%d %H:%M:%S') 
+        task_pool.write(cr, uid, task.id, {'state': 'completed', 'date_terminated': now}, context)     
+        _logger.info("Task '%s', task.id=%s completed" % (task.data_model, task.id))         
+        return True
+
+    def assign(self, cr, uid, task_id, user_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        task = task_pool.browse(cr, uid, task_id, context)
+        allowed_states = ['draft','planned','scheduled']
+        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be assigned!" % task.state)
+        except_if(task.user_id, msg="Task is assigned already assigned to %s!" % task.user_id.name)         
+        task_vals = {'user_id': user_id}
+        if len(task.user_id.employee_ids or []) == 1:
             task_vals.update({'employee_id': task.user_id.employee_ids[0].id})
         if task.user_id.employee_ids: 
             task_vals.update({'employee_ids': [(4, e.id) for e  in task.user_id.employee_ids]})
-        if task_vals:
-            task_pool.write(cr, uid, task_id, task_vals) 
+        task_pool.write(cr, uid, task_id, task_vals)
+        _logger.info("Task '%s', task.id=%s assigned to user.id=%s" % (task.data_model, task.id, user_id)) 
         return True
     
     def unassign(self, cr, uid, task_id, user_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        task = task_pool.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be unassigned!" % task.state)
+        except_if(task.user_id, msg="Task is not assigned yet!")               
+        task_pool.write(cr, uid, task_id,{'user_id': False}, context) 
+        _logger.info("Task '%s', task.id=%s unassigned" % (task.data_model, task.id))         
         return True
             
     def abort(self, cr, uid, task_id, context=None):
         return True
     
     def cancel(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        allowed_states = ['draft','planned','scheduled','started']
+        task = task_pool.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft','planned','scheduled','started'], msg="Task in state %s can not be cancelled!" % task.state)         
+        now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
+        task_pool.write(cr, uid, task_id,{'state': 'cancelled', 'date_terminated': now}, context)
+        _logger.info("Task '%s', task.id=%s cancelled" % (task.data_model, task.id))         
         return True
 
     def retrieve(self, cr, uid, task_id, context=None):
-        return True
+        task_pool = self.pool['t4.clinical.task']
+        task = task_pool.browse(cr, uid, task_id, context)    
+        return self.retrieve_read(cr, uid, task_id, context=None)         
+
+
+    def retrieve_read(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        return task_pool.read_ref(cr, uid, task_id, 'data_ref', context)
+    
+    
+    def retrieve_browse(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        return task_pool.browse_ref(cr, uid, task_id, 'data_ref', context) 
 
     def shcedule(self, cr, uid, task_id, context=None):
-        return True
-    
-    def before_submit(self, cr, uid, task_id, vals, context=None):
-        return True    
-
-    def after_submit(self, cr, uid, task_id, vals, context=None):
-        # FIXME for improvement vals may be analysed to avoid unnecessary load
         task_pool = self.pool['t4.clinical.task']
-        location_pool = self.pool['t4.clinical.location']
-        employee_pool = self.pool['hr.employee']
-        data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]
+        task = task_pool.browse(cr, uid, task_id, context)
+        except_if(task.state not in ['draft', 'planned'], msg="Task in state %s can not be scheduled!" % task.state)
+        except_if(not task.date_scheduled and not date_scheduled, msg="Scheduled date is neither set on task nor passed to the method")
+        date_scheduled = date_scheduled or task.date_scheduled
+        task_pool.write(cr, uid, task_id, {'date_scheduled': date_scheduled, 'state': 'scheduled'}, context)
+        _logger.info("Task '%s', task.id=%s scheduled, date_scheduled='%s'" % (task.data_model, task.id, date_scheduled))        
+        return True
+
+    def submit(self, cr, uid, task_id, vals, context=None):
+        task_pool = self.pool['t4.clinical.task']        
+        task = task_pool.browse(cr, uid, task_id, context)              
+        except_if(not task.data_type_id, msg="Data type is not set for this task")          
+        allowed_states = ['draft','planned', 'scheduled','started']
+        except_if(task.state not in allowed_states, msg="Data can't be submitted in this state '%s'" % task.state)       
         task_vals = {}
-        location = False
-        patient = False
-        # set task.location_id
-        if self._location_name in self._columns.keys():
-            location = eval("data.%s" % self._location_name)
-            location and task_vals.update({'location_id': location.id}) 
-        else:
-            #FIXME calculate field when it's not defined on data model!
-            pass
-        # set task.patient_id
-        if self._patient_name in self._columns.keys():
-            patient = eval("data.%s" % self._patient_name)
-            patient and task_vals.update({'patient_id': patient.id})
-        else:
-            #FIXME calculate field when it's not defined on data model!
-            pass
+        if not task.data_ref:
+            vals.update({'task_id':task_id})
+            data_id = self.create(cr, uid, vals, context)
+            task_vals.update({'data_ref': "%s,%s" % (self._name,data_id)})
+        else:      
+            self.write(cr, uid, vals, context)
+        location_id = self.get_task_location_id(cr, uid, task_id)
+        patient_id = self.get_task_location_id(cr, uid, task_id)
+        employee_ids = self.get_task_employee_ids(cr, uid, task_id)
+        employee_id = self.get_task_employee_id(cr, uid, task_id)  
+        # if not assigned and only 1 employee is responsible for the task (auto-assign)
+        if not task.user_id and len(employee_ids) == 1:        
+            employee_id = employee_ids[0]      
+        task_vals.update({'location_id': location_id})
+        task_vals.update({'patient_id': patient_id})
+        task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
+        task_vals.update({'employee_id': employee_id})
+        task_pool.write(cr, uid, task_id, task_vals)  
+        _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))     
+        return True 
+    
+    def get_task_location_id(self, cr, uid, task_id, context=None):
+        location_id = False
+        data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]
+        if 'location_id' in self._columns.keys():
+             location_id = data.location_id and data.location_id.id         
+        return location_id
+
+    def get_task_patient_id(self, cr, uid, task_id, context=None):
+        patient_id = False
+        data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]
+        if 'patient_id' in self._columns.keys():
+             patient_id = data.patient_id and data.patient_id.id         
+        return patient_id
+    
+    def get_task_employee_id(self, cr, uid, task_id, context=None):
+        employee_id = False  
+        data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]      
+        # 1. if task assigned to a user that has only 1 related employee 
+        if data.task_id.user_id and len(data.task_id.user_id.employee_ids) == 1:
+            employee_id = data.user_id.employee_ids[0].id
+        return employee_id
         
-        #get employees responsible for this and parent locations
-        employee_ids = []
+    
+    def get_task_employee_ids(self, cr, uid, task_id, context=None):
+        location_pool = self.pool['t4.clinical.location']
+        employee_pool = self.pool['hr.employee']        
+        employee_ids = []    
+        data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]    
         user_employees = data.task_id.user_id and data.task_id.user_id.employee_ids
         user_employee_ids = user_employees and [e.id for e in data.task_id.user_id.employee_ids] or []
-        if self._employees_name in self._columns.keys():
-            employees = eval("data.%s" % self._employees_name)
-            employees and task_vals.update({'employee_ids': [(6, 0, [e.id for e in employees])]})
-        else:        
-            if location:
-                parent_location_ids = [location.id]
-                parent_id = location.parent_id and location.parent_id.id
-                # branch location ids
-                while parent_id:
-                    parent_location_ids.append(parent_id)
-                    parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
-                    parent_id = parent_location.parent_id and parent_location.parent_id.id
-                for location_id in parent_location_ids:
-                    employee_ids.extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))    
-                print "parent_location_ids: %s" % parent_location_ids
-            print "location: %s" % location
-            print "employee_ids: %s" % employee_ids
-            employee_ids.extend(user_employee_ids)
-            employee_ids and task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
-        # set task.employee_id
-        if self._employee_name in self._columns.keys():
-            employee = eval("data.%s" % self._employee_name)
-            employee and task_vals.update({'employee_id': employee.id})
-        else:           
-            print "user_employee_ids: %s" % user_employee_ids
-            #import pdb; pdb.set_trace()
-            # 1. if task assigned to a user that has only 1 related employee 
-            if data.task_id.user_id and len(data.task_id.user_id.employee_ids) == 1:
-                task_vals.update({'employee_id': data.user_id.employee_ids.id})
-            # 2. if there's only 1 employee found responsible for the location
-            elif len(employee_ids) == 1:
-                task_vals.update({'employee_id': employee_ids[0]})
-        task_vals and task_pool.write(cr, uid, task_id, task_vals)     
-        return True 
-
+        location_id = self.get_task_location_id(cr, uid, task_id, context)
+        location = location_pool.browse(cr, uid, location_id, context)
+        if location_id:
+            parent_location_ids = [location_id]
+            parent_id = location.parent_id and location.parent_id.id
+            # branch location ids
+            while parent_id:
+                parent_location_ids.append(parent_id)
+                parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
+                parent_id = parent_location.parent_id and parent_location.parent_id.id
+            for location_id in parent_location_ids:
+                employee_ids.extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))    
+            print "parent_location_ids: %s" % parent_location_ids
+        print "location: %s" % location
+        print "employee_ids: %s" % employee_ids
+        print "user_employee_ids: %s" % user_employee_ids
+        employee_ids.extend(user_employee_ids)        
+        return employee_ids    
+    
     def before_create(self, cr, uid, task_id, context=None):
         return True 
 

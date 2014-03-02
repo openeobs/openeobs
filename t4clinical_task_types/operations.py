@@ -53,6 +53,7 @@ class t4_clinical_patient_placement(orm.Model):
         return ids and self.browse(cr, uid, ids[0], context).location_id or False
     
     def complete(self, cr, uid, task_id, context=None):
+        super(t4_clinical_patient_placement, self).complete(cr, uid, task_id, context)
         task_pool = self.pool['t4.clinical.task']
         placement = task_pool.browse_ref(cr, uid, task_id, 'data_ref', context)
         except_if(not placement.patient_id or not placement.location_id, msg="Can't complete placement task without patient and/or location")
@@ -96,7 +97,7 @@ class t4_clinical_patient_discharge(orm.Model):
     }
 
     def complete(self, cr, uid, task_id, context=None):
-        
+        super(t4_clinical_patient_discharge, self).complete(cr, uid, task_id, context)
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context)
         assert task.patient_id, "Patient must be set!"
@@ -133,12 +134,14 @@ class t4_clinical_patient_admission(orm.Model):
     }
     
     def complete(self, cr, uid, task_id, context=None):
+        super(t4_clinical_patient_admission, self).complete(cr, uid, task_id, context)
         #import pdb; pdb.set_trace()
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context)
         admission = task.data_ref
         
         # spell
+        import pdb; pdb.set_trace()
         spell_pool = self.pool['t4.clinical.spell']
         spell_task_id = spell_pool.create_task(cr, uid, 
            {},
