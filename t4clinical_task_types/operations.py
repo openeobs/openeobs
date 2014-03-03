@@ -6,6 +6,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+
 class t4_clinical_patient_move(orm.Model):
     _name = 't4.clinical.patient.move'
     _inherit = ['t4.clinical.task.data']      

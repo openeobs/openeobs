@@ -115,30 +115,24 @@ class TestOperations(common.SingleTransactionCase):
         # tests
         self.assertTrue(placement_task.location_id.id == b1_location_id, 'task.location == b1_location_id')
 
-        # height_weight
-#         height_weight_task_id = height_weight_pool.create_task(cr, uid, 
-#                         {'parent_id': spell_task.id}, 
-#                         {'patient_id': donald_patient_id,'height': 180, 'weight': 80})
+
         admission_task = task_pool.browse(cr, uid, admission_task_id)
         spell_task_id = admission_task.parent_id.id
+        
         height_weight_task_id = self.create_task_test(
                                      height_weight_pool,
                                      task_vals      = {'parent_id': spell_task_id},
-                                     data_vals      = {'patient_id': donald_patient_id,'height': 180, 'weight': 80},
+                                     data_vals      = {'patient_id': donald_patient_id,'height': 180},#'weight': 80},
                                      patient_id     = donald_patient_id, 
                                      location_id    = b1_location_id, #implemented as latest placement location
                                      employee_id    = nurse_employee_id,
                                      user_id        = nurse_user_id
                                      )          
         height_weight_task = task_pool.browse(cr, uid, height_weight_task_id)
-#         
-#         # tests
-#         self.assertTrue(admission_task.parent_id.data_model == 't4.clinical.spell', 'Data model')
-#         location = move_pool.get_patient_location_browse(cr, uid, donald_patient_id)
-#         self.assertTrue( location and location.id == w8_location_id, 'Data model')
-#         self.assertTrue(not height_weight_task.data_ref.is_partial, 'partial')
-#         #self.assertTrue(height_weight_taskpatient_id.id == , 'partial')
-#         
+        # tests PARTIAL
+        self.assertTrue(height_weight_task.data_ref.is_partial, 'partial')
+  
+         
         # discharge
         #import pdb; pdb.set_trace()
         discharge_task_id = self.create_task_test(

@@ -11,7 +11,9 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
         if not self._required:
             return {id: False for id in ids}
-        res = {obs['id']: not bool(set(self._required) & set(eval(obs['none_values']))) for obs in self.read_none(cr, uid, ids, ['none_values'], context)}
+        res = {obs['id']: bool(set(self._required) & set(eval(obs['none_values']))) for obs in self.read(cr, uid, ids, ['none_values'], context)}
+        print 'is_partial: %s' % res
+        #import pdb; pdb.set_trace()
         return res    
     
     _columns = {
@@ -25,8 +27,9 @@ class t4_clinical_patient_observation(orm.AbstractModel):
      }
     
     def create(self, cr, uid, vals, context=None):
-        none_values = list(set(vals.keys()) & set(self._required))
+        none_values = list(set(self._required) - set(vals.keys()))
         vals.update({'none_values': none_values})
+        print "create none_values: %s" % none_values
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)        
     
     
@@ -36,8 +39,9 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         if not self._required:
             return super(t4_clinical_patient_observation, self).write(cr, uid, ids, vals, context)
         for obs in self.read(cr, uid, ids, ['none_values'], context):
-            none_values = list(set(vals.keys()) & set(eval(obs['none_values'])))
+            none_values = list(set(eval(obs['none_values'])) - set(vals.keys()))
             vals.update({'none_values': none_values})
+            print "write none_values: %s" % none_values
             super(t4_clinical_patient_observation, self).write(cr, uid, obs['id'], vals, context)
         return True
 
