@@ -239,7 +239,7 @@ class TestOperations(common.SingleTransactionCase):
         self.assertTrue(placement_task.state == "draft", "placement_task.state == draft")
         if patient_id:
             self.assertTrue(patient_id == admission_task.patient_id.id, 'patient == admission.patient') 
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
             self.assertTrue(patient_id == spell_task.patient_id.id, 'patient == spell.patient') 
             self.assertTrue(patient_id == move_task.patient_id.id, 'patient == move.patient')
             self.assertTrue(patient_id == placement_task.patient_id.id, 'patient == placement.patient')

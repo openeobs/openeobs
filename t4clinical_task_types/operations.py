@@ -118,8 +118,7 @@ class t4_clinical_patient_discharge(orm.Model):
         task_pool.complete(cr, uid, move_task_id, context)      
         # complete spell
         spell = patient_pool.get_patient_spell_browse(cr, uid, discharge.patient_id.id, context)
-        spell_pool = self.pool['t4.clinical.spell']
-        spell_pool.complete(cr, uid, spell.id, context)
+        task_pool.complete(cr, uid, spell.task_id.id, context)
         return True  
         
         
@@ -141,12 +140,13 @@ class t4_clinical_patient_admission(orm.Model):
         admission = task.data_ref
         
         # spell
-        import pdb; pdb.set_trace()
+        
         spell_pool = self.pool['t4.clinical.spell']
         spell_task_id = spell_pool.create_task(cr, uid, 
            {},
            {'patient_id': admission.patient_id.id}, 
            context=None)
+        #import pdb; pdb.set_trace()
         task_pool.start(cr, uid, spell_task_id, context)
         task_pool.write(cr, uid, admission.task_id.id, {'parent_id': spell_task_id}, context)
         # patient move

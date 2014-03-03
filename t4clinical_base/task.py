@@ -625,11 +625,11 @@ class t4_clinical_task_data(orm.AbstractModel):
         if not task.data_ref:
             vals.update({'task_id':task_id})
             data_id = self.create(cr, uid, vals, context)
-            task_vals.update({'data_ref': "%s,%s" % (self._name,data_id)})
+            task_pool.write(cr, uid, task_id, {'data_ref': "%s,%s" % (self._name,data_id)})
         else:      
-            self.write(cr, uid, vals, context)
+            self.write(cr, uid, task.data_ref.id, vals, context)
         location_id = self.get_task_location_id(cr, uid, task_id)
-        patient_id = self.get_task_location_id(cr, uid, task_id)
+        patient_id = self.get_task_patient_id(cr, uid, task_id)
         employee_ids = self.get_task_employee_ids(cr, uid, task_id)
         employee_id = self.get_task_employee_id(cr, uid, task_id)  
         # if not assigned and only 1 employee is responsible for the task (auto-assign)
@@ -639,7 +639,8 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_vals.update({'patient_id': patient_id})
         task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
         task_vals.update({'employee_id': employee_id})
-        task_pool.write(cr, uid, task_id, task_vals)  
+        task_pool.write(cr, uid, task_id, task_vals)
+        print"task_vals: %s" % task_vals
         _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))     
         return True 
     
@@ -647,14 +648,15 @@ class t4_clinical_task_data(orm.AbstractModel):
         location_id = False
         data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]
         if 'location_id' in self._columns.keys():
-             location_id = data.location_id and data.location_id.id         
+             location_id = data.location_id and data.location_id.id or False 
         return location_id
 
     def get_task_patient_id(self, cr, uid, task_id, context=None):
         patient_id = False
+        #import pdb; pdb.set_trace()
         data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]
         if 'patient_id' in self._columns.keys():
-             patient_id = data.patient_id and data.patient_id.id         
+             patient_id = data.patient_id and data.patient_id.id or False    
         return patient_id
     
     def get_task_employee_id(self, cr, uid, task_id, context=None):
@@ -686,9 +688,6 @@ class t4_clinical_task_data(orm.AbstractModel):
             for location_id in parent_location_ids:
                 employee_ids.extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))    
             print "parent_location_ids: %s" % parent_location_ids
-        print "location: %s" % location
-        print "employee_ids: %s" % employee_ids
-        print "user_employee_ids: %s" % user_employee_ids
         employee_ids.extend(user_employee_ids)        
         return employee_ids    
     
