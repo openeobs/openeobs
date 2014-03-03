@@ -40,7 +40,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             vals.update({'none_values': none_values})
             super(t4_clinical_patient_observation, self).write(cr, uid, obs['id'], vals, context)
         return True
-        
+
+   
 
         
 class test_observation3(orm.Model):
@@ -68,4 +69,10 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
     def complete(self, cr, uid, task_ids, context=None):
         super(t4_clinical_patient_observation_height_weight, self).complete(cr, uid, task_id, context)
         return True
-    
+
+    def get_task_location_id(self, cr, uid, task_id, context=None):
+        placement_pool = self.pool['t4.clinical.patient.placement']
+        placement = placement_pool.browse_domain(cr, uid, [], limit=1, order="date_terminated desc")
+        #import pdb; pdb.set_trace()
+        location_id = placement and placement[0].location_id.id or False
+        return location_id     

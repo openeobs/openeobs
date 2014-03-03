@@ -114,14 +114,7 @@ class TestOperations(common.SingleTransactionCase):
          
         # tests
         self.assertTrue(placement_task.location_id.id == b1_location_id, 'task.location == b1_location_id')
-#         
-#         location_patient_ids = location_pool.get_location_patient_ids(cr, uid, b1_location_id)
-#         import pdb; pdb.set_trace()
-#         self.assertTrue(donald_patient_id in location_patient_ids,
-#             "donald_patient_id in get_location_patient_ids. location_id=%s, patient_id=%s, location_patient_ids=%s" 
-#             % (b1_location_id, donald_patient_id, location_patient_ids))
-#         
-#        
+
         # height_weight
 #         height_weight_task_id = height_weight_pool.create_task(cr, uid, 
 #                         {'parent_id': spell_task.id}, 
@@ -133,8 +126,8 @@ class TestOperations(common.SingleTransactionCase):
                                      task_vals      = {'parent_id': spell_task_id},
                                      data_vals      = {'patient_id': donald_patient_id,'height': 180, 'weight': 80},
                                      patient_id     = donald_patient_id, 
-#   not implemented yet for observation                                   location_id    = b1_location_id, 
-#                                      employee_id    = nurse_employee_id,
+                                     location_id    = b1_location_id, #implemented as latest placement location
+                                     employee_id    = nurse_employee_id,
                                      user_id        = nurse_user_id
                                      )          
         height_weight_task = task_pool.browse(cr, uid, height_weight_task_id)
