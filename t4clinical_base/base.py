@@ -17,11 +17,18 @@ class t4_clinical_pos(orm.Model):
 class res_company(orm.Model):
     _name = 'res.company'
     _inherit = 'res.company'
-    # default company has xmlid == 'main_company'
     _columns = {
-        'pos_ids': fields.one2many('t4.clinical.pos', 'company_id', 'POSs'),
+        'pos_ids': fields.one2many('t4.clinical.pos', 'company_id', 'Points of Service'),
     }
-
+    
+class res_users(orm.Model):
+    _name = 'res.users'
+    _inherit = 'res.users'
+    _columns = {
+        'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
+        'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Locations of Responsibility'),        
+    }
+    
 class t4_clinical_location(orm.Model):
     """ Clinical LOCATION """
 
@@ -88,21 +95,10 @@ class hr_employee(orm.Model):
     _inherit = 'hr.employee'
     
     _columns = {
-        'location_ids': fields.many2many('t4.clinical.location', 'employee_location_rel', 'employee_id', 'location_id', 'Locations of Responsibility'),
+        'location_ids': fields.related('user_id','location_ids',type='many2many', relation='t4.clinical.location', string='Locations of Responsibility'),
         
     }
-    
-    def get_employee_task_ids(self, cr, uid, employee_id, context=None):
-        """
-        """
-        location_pool = self.pool['t4.clinical.location']
-        task_ids = []
-        employee = self.browse(cr, uid, employee_id, context)
-        print 'employee.location_ids',employee.location_ids
-        for location_id in employee.location_ids:
-            task_ids.extend(location_pool.get_location_task_ids(cr, uid, location_id.id, context))
-            #print "get_employee_task_ids", str({'discharge': discharge, 'location_id': res[discharge.id]})
-        return task_ids  
+
     
     
     

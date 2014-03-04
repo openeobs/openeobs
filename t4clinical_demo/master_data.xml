@@ -157,6 +157,7 @@
             <field name="login">hca</field>
             <field name="password">hca</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>
         
         <record id="demo_user_nurse" model="res.users">
@@ -164,6 +165,7 @@
             <field name="login">nurse</field>
             <field name="password">nurse</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>            
         </record>
 
         <record id="demo_user_manager" model="res.users">
@@ -171,6 +173,7 @@
             <field name="login">manager</field>
             <field name="password">manager</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
+			<field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>            
         </record>
 
 
@@ -179,7 +182,6 @@
             <field name="name">Harold Bishop</field>
             <field name="user_id" ref="demo_user_hca"/>
             <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_hca')]]]"/>
-            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>
 
 
@@ -187,7 +189,6 @@
             <field name="name">Norah Miller</field>
             <field name="user_id" ref="demo_user_nurse"/>
             <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_nurse')]]]"/>
-            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>
 
 
@@ -195,7 +196,6 @@
             <field name="name">Winifred Kirrin</field>
             <field name="user_id" ref="demo_user_manager"/>
             <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_ward_manager')]]]"/>
-            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>
 
 

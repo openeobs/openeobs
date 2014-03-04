@@ -8,7 +8,6 @@ from openerp.osv import orm, fields, osv
 
 
 admission_type_data = {'summary': 'Patient Admission', 'data_model': 't4.clinical.patient.admission'}
-spell_type_data = {'summary': 'Spell of Care', 'data_model': 't4.clinical.spell', 'assignee_required': False}
 
 data_model_data = {'summary': 'Test Type', 'data_model': 'observation.test'}
 submit_data = {'val1': 'submit_val1', 'val2': 'submit_val2'}

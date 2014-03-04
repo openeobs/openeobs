@@ -136,7 +136,7 @@ def read_domain(self, cr, uid, domain, fields=[], context=None):
     ids = self.search(cr, uid, domain, context=context)
     return self.read(cr, uid, ids, fields, context)   
 
-def except_if(test=True, capture="Exception!", msg="Message is not defined..."):
+def except_if(test=True, cap="Exception!", msg="Message is not defined..."):
     if test:
         raise orm.except_orm(capture, msg)
     
@@ -172,6 +172,7 @@ class t4_clinical_task_recurrence(orm.Model):
     """
     _name = 't4.clinical.task.recurrence'
     _periods = [('minute','Minute'), ('hour', 'Hour'), ('day', 'Day'), ('month', 'Month'), ('year', 'Year')]
+    _types = [('auto','Auto'), ('manual', 'Manual')]
     _columns = {
         'name': fields.char('Name', size=256),
         'vals_task': fields.text('Task Vals'), # init task data
@@ -179,14 +180,18 @@ class t4_clinical_task_recurrence(orm.Model):
         'date_start': fields.datetime('Start Date', required=True),
         'date_finish': fields.datetime('Finish Date'), # may be useful to add cycles number
         'qty2gen': fields.integer('Quantity to Generate'),
-        'active': fields.boolean('Is Active?'),      
+        'active': fields.boolean('Is Active?'),
+        'type': fields.selection(_types, 'Types', help="Auto - handled by cron, Manual - skipped by cron"),      
         'unit': fields.selection(_periods, 'Recurrence Unit'),
         'unit_qty': fields.integer('Qty of Recurrence Units'),
         'task_ids': fields.many2many('t4.clinical.task', 'recurrence_task_rel', 'recurrence_id', 'task_id', 'Generated Tasks'),
         'date_next': fields.datetime('Next Date', readonly=True), # =date_start in create 
     }
     
-
+    _defaults = {
+             'active': True,
+             'type': 'manual',
+     }
     
     def create(self, cr, uid, vals, context=None):
         vals.get('date_start') and vals.update({'date_next': vals['date_start']})
@@ -220,7 +225,7 @@ class t4_clinical_task_recurrence(orm.Model):
     def cron(self, cr, uid, *args):
         # args[0] contains alternative now for test purpose
         now = len(args) and args[0] or dt.now().strftime('%Y-%m-%d %H:%M:%S')
-        ids = self.search(cr, uid, [('active','=',True),('date_next','<=',now)])
+        ids = self.search(cr, uid, [('type','=','auto'),('date_next','<=',now)])
         if not ids:
             return True
         context = None
@@ -235,10 +240,7 @@ class t4_clinical_task_recurrence(orm.Model):
             _logger.info('Task id=%s successfully created according to recurrence id=%s' % (task_id, rec.id))
         return True   
             
-            
-    _defaults = {
-             'active': True,
-     }
+        
 
 class t4_clinical_task_data_type(orm.Model):
     # resources of this model should be created as pre-defined data when creating new data model
@@ -256,7 +258,7 @@ class t4_clinical_task_data_type(orm.Model):
             res[dm.id] = imd.res_id
         return res
     _rec_name = 'summary'
-    _types = [('clinical','Clinical'), ('admin', 'Administrative')]            
+    _types = [('clinical','Clinical'), ('admin', 'Administrative')]             
     _columns = {
         'summary': fields.text('Task Summary'), 
         'type': fields.selection(_types, 'Type', help="Clinical: patient-related task, Administrative: general, non-patient-related task"),        
@@ -266,13 +268,10 @@ class t4_clinical_task_data_type(orm.Model):
         'active': fields.boolean('Is Active?', help='When we don\'t need the model anymore we may hide it instead of deleting'),
         'parent_rule': fields.text('Parent Rule', help='Type domain for parent task'),
         'children_rule': fields.text('Children Rule', help='Type domain for children tasks'),
-        'assignee_required': fields.boolean('Assignee Required?', help="When False, allows to start task without assignee")  
     }
     
     _defaults = {
-         'active': True,
-         'summary': 'Unknown',
-         'assignee_required': True      
+         'active': True,    
      }
     
     def get_field_models(self, cr, uid, field):
@@ -341,10 +340,10 @@ class t4_clinical_task(orm.Model):
         'summary': fields.char('Summary', size=256),
         'parent_id': fields.many2one('t4.clinical.task', 'Parent Task'),      
         'notes': fields.text('Notes'),
-        'assignee_required': fields.boolean('Assignee Required?', help="When False, allows to start task without assignee"),
         'state': fields.selection(_states, 'State'),
         # coordinates
         'user_id': fields.many2one('res.users', 'Assignee'),
+        'user_ids': fields.many2many('res.users', 'task_user_rel', 'task_id','user_id','Users'),
         'employee_id': fields.many2one('hr.employee', 'Employee', help="Assigned Employee"),
         'employee_ids': fields.many2many('hr.employee','task_employee_rel', 'task_id', 'employee_id', 'Employees', help="Employees the task is visible for"),
         'location_id': fields.many2one('t4.clinical.location', 'Location'),
@@ -386,21 +385,12 @@ class t4_clinical_task(orm.Model):
         return task_ids
     
     def create(self, cr, uid, vals, context=None):
-        fields = {'summary', 'assignee_required'}
-        #print "fields",fields,"vals",vals
-        fields = fields - set(vals.keys())
-        
-        if vals.get('data_type_id') and fields:
-            type_pool = self.pool['t4.clinical.task.data.type']
-            task_type = type_pool.read(cr, uid, vals['data_type_id'], fields, context)
-            vals.update({k: task_type[k] for k in fields})
         task_id = super(t4_clinical_task, self).create(cr, uid, vals, context)
         task = self.browse(cr, uid, task_id, context)
-        _logger.info("Task '%s' created, task.id=%s" % (task.data_model, task.id))
+        _logger.info("Task '%s' created, task.id=%s" % (task.data_model, task_id))
         return task_id
         
     def write(self,cr, uid, ids, vals, context=None):
-
         res = super(t4_clinical_task, self).write(cr, uid, ids, vals, context)
         return res
     
@@ -538,8 +528,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_pool = self.pool['t4.clinical.task']
         allowed_states = ['draft', 'planned', 'scheduled']
         task = task_pool.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft', 'planned', 'scheduled'], msg="Task in state %s can not be started" % task.state)
-        except_if(not task.user_id and task.assignee_required,msg="Task assignee required for task of type: %s" % task.data_model)                   
+        except_if(task.state not in ['draft', 'planned', 'scheduled'], msg="Task in state %s can not be started" % task.state)                  
         task_pool.write(cr, uid, task_id, {'state': 'started'}, context)
         _logger.info("Task '%s', task.id=%s started" % (task.data_model, task.id))        
         return True
@@ -630,6 +619,7 @@ class t4_clinical_task_data(orm.AbstractModel):
             self.write(cr, uid, task.data_ref.id, vals, context)
         location_id = self.get_task_location_id(cr, uid, task_id)
         patient_id = self.get_task_patient_id(cr, uid, task_id)
+        user_ids = self.get_task_user_ids(cr, uid, task_id)
         employee_ids = self.get_task_employee_ids(cr, uid, task_id)
         employee_id = self.get_task_employee_id(cr, uid, task_id)  
         # if not assigned and only 1 employee is responsible for the task (auto-assign)
@@ -637,6 +627,7 @@ class t4_clinical_task_data(orm.AbstractModel):
             employee_id = employee_ids[0]      
         task_vals.update({'location_id': location_id})
         task_vals.update({'patient_id': patient_id})
+        task_vals.update({'user_ids': [(6, 0, user_ids)]})
         task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
         task_vals.update({'employee_id': employee_id})
         task_pool.write(cr, uid, task_id, task_vals)
@@ -659,6 +650,25 @@ class t4_clinical_task_data(orm.AbstractModel):
              patient_id = data.patient_id and data.patient_id.id or False    
         return patient_id
     
+    def get_task_user_ids(self, cr, uid, task_id, context=None):
+        location_pool = self.pool['t4.clinical.location']  
+        user_pool = self.pool['res.users']      
+        user_ids = []      
+        location_id = self.get_task_location_id(cr, uid, task_id, context)
+        location = location_pool.browse(cr, uid, location_id, context)
+        if location_id:
+            parent_location_ids = [location_id]
+            parent_id = location.parent_id and location.parent_id.id
+            while parent_id:
+                parent_location_ids.append(parent_id)
+                parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
+                parent_id = parent_location.parent_id and parent_location.parent_id.id
+            for location_id in parent_location_ids:
+                user_ids.extend(user_pool.search(cr, uid, [('location_ids','=',location_id)]))    
+            #print "parent_location_ids: %s" % parent_location_ids        
+        return user_ids
+    
+        
     def get_task_employee_id(self, cr, uid, task_id, context=None):
         employee_id = False  
         data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]      
@@ -696,6 +706,42 @@ class t4_clinical_task_data(orm.AbstractModel):
 
     def after_create(self, cr, uid, task_id, context=None):
         return True       
+
+
+class t4_clinical_task_resource(orm.Model):
+    _name = 't4.clinical.task.resource'
+    _columns = {
+        'name': fields.text('name'),
+        'category_id': fields.many2one('t4.clinical.task.resource.category', 'Category')
+    }
+
+class t4_clinical_task_resource_category(orm.Model):
+    _name = 't4.clinical.task.resource.category'
+    _columns = {
+        'name': fields.text('name'),
+        'resource_ids': fields.one2many('t4.clinical.task.resource', 'category_id', 'Resources')
+    }    
+
+class t4_clinical_task_resource_uom(orm.Model):
+    _name = 't4.clinical.task.resource.uom'
+    _columns = {
+        'name': fields.text('name'),
+    }    
+class t4_clinical_task_resource_uom_rate(orm.Model):
+    _name = 't4.clinical.task.resource.uom.rate'
+    _columns = {
+        'name': fields.text('name'),
+        'from_resource_id': fields.many2one('t4.clinical.task.resource', 'From Resource'),
+        'into_resource_id': fields.many2one('t4.clinical.task.resource', 'Into Resource'),
+        'rate': fields.float('Rate Ratio (into/from)')  
+           
+    }
+
+
+
+
+
+
     
 class observation_test(orm.Model):
     _name = 'observation.test'

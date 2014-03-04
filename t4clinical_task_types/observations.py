@@ -21,6 +21,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         'is_partial': fields.function(_is_partial, type='boolean', string='Is Partial?'),
         'none_values': fields.text('Non-updated fields'),
         
+        
     }
     _defaults = {
 
