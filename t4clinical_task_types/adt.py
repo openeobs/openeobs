@@ -11,6 +11,12 @@ class t4_clinical_adt(orm.Model):
     _name = 't4.clinical.adt'
     _inherit = ['t4.clinical.task.data']       
     _columns = {
+    }
+    
+class t4_clinical_adt_patient_register(orm.Model):
+    _name = 't4.clinical.adt.patient.register'
+    _inherit = ['t4.clinical.task.data']      
+    _columns = { 
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         
         'patient_identifier': fields.text('patientId'),
@@ -20,13 +26,7 @@ class t4_clinical_adt(orm.Model):
         'middle_names': fields.text('middleName'),  
         'dob': fields.datetime('DOB'),
         'gender': fields.char('Gender', size=1),      
-        'sex': fields.char('Sex', size=1),
-    }
-
-class t4_clinical_adt_patient_register(orm.Model):
-    _name = 't4.clinical.adt.patient.register'
-    _inherit = ['t4.clinical.adt']      
-    _columns = { 
+        'sex': fields.char('Sex', size=1),                
     }
     
     def submit(self, cr, uid, task_id, vals, context=None):
@@ -41,7 +41,7 @@ class t4_clinical_adt_patient_register(orm.Model):
             # handle duplicate patient here        
         patient_pool = self.pool['t4.clinical.patient']
         patient_pool.create(cr, uid, vals, context)
-        super(t4_clinical_adt, self).submit(cr, uid, task_id, vals, context)
+        super(t4_clinical_adt_patient_register, self).submit(cr, uid, task_id, vals, context)
         return True
         
 
@@ -89,16 +89,40 @@ class t4_clinical_adt_patient_admit(orm.Model):
 
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
-    _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
+    _inherit = ['t4.clinical.task.data']      
     _columns = {
     }
 
 class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
-    _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
+    _inherit = ['t4.clinical.task.data']      
     _columns = {
+        'patient_identifier': fields.text('patientId'),
+        'other_identifier': fields.text('otherId'),                
+        'location': fields.text('Location'),                
     }
     
+    def submit(self, cr, uid, task_id, vals, context=None):
+        except_if(not ('other_identifier' in vals or 'patient_identifier' in vals), msg="patient_identifier or other_identifier not found in submitted data!")
+        patient_pool = self.pool['t4.clinical.patient']
+        other_identifier = vals.get('other_identifier')
+        patient_identifier = vals.get('patient_identifier')
+        domain = []
+        other_identifier and domain.append(('other_identifier','=',other_identifier))
+        patient_identifier and domain.append(('patient_identifier','=',patient_identifier))
+        domain = domain and ['|']*(len(domain)-1) + domain
+        print "transfer domain: ", domain
+        patient_id = patient_pool.search(cr, uid, domain)
+        except_if(not patient_id, msg="Patient not found!")
+        patient_id = patient_id[0]           
+        location_pool = self.pool['t4.clinical.location']
+        location_id = location_pool.search(cr, uid, [('code','=',vals['location'])])
+        except_if(not location_id, msg="Location not found!")
+        location_id = location_id[0]
+        placement_pool = self.pool['t4.clinical.patient.placement']
+        placement_pool.create_task(cr, uid, {}, {'patient_id': patient_id}, context)
+        super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, task_id, vals, context)    
+        
 class t4_clinical_adt_patient_merge(orm.Model):
     _name = 't4.clinical.adt.patient.merge'
     _inherit = ['t4.clinical.task.data']      
@@ -111,14 +135,32 @@ class t4_clinical_adt_patient_merge(orm.Model):
         except_if(not ('from_identifier' in vals and 'into_identifier' in vals), msg="from_identifier or into_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
         from_id = self.search(cr, uid, [('other_identifier', '=', vals['from_identifier'])])
-        into_id = self.search(cr, uid, [('other_identifier', '=', vals['into_identifier'])])    
-        # compare and combine data
+        into_id = self.search(cr, uid, [('other_identifier', '=', vals['into_identifier'])])
+        except_if(not(from_id and into_id), msg="Source or destination patient not found!")    
+        # compare and combine data. may need new cursor to have the update in one transaction
+        for model_pool in self.pool._models.values():
+            if model_pool._name.startswith("t4.clinical") and 'patient_id' in model_pool.columns.keys() and model_pool._name != self._name:
+                ids = model_pool.search(cr, uid, [('patient_id','=',from_id)])
+                ids and model_pool.write(cr, uid, ids, {'patient_id': into_id})
+        from_data = patient_pool.read(cr, uid, from_id, context)        
+        indo_data = patient_pool.read(cr, uid, into_id, context)
+        vals_into = {}
+        for fk, fv in from_data.iteritems():
+            for ik, iv in into_data.iteritems():
+                if not fv:
+                    continue
+                if fv and iv and fv != iv:
+                    pass # which to choose ?
+                if fv and not iv:
+                    vals_into.update({ik: fv})
+        patient_pool.write(cr, uid, into_id, vals_into, context)
         patient_pool.write(cr, uid, from_id, {'active':False}, context)
+        super(t4_clinical_adt_patient_merge, self).submit(cr, uid, task_id, vals, context)
         
              
     
 class t4_clinical_adt_patient_update(orm.Model):
     _name = 't4.clinical.adt.patient.update'
-    _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
+    _inherit = ['t4.clinical.task.data']      
     _columns = {
     }

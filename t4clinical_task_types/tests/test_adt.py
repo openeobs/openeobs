@@ -8,7 +8,7 @@ from openerp.osv import orm, fields, osv
 class TestADT(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid
-        global register_pool, patient_pool, admit_pool, task_pool
+        global register_pool, patient_pool, admit_pool, task_pool, transfer_pool
         global task_id
         global now, tomorrow
         
@@ -21,6 +21,7 @@ class TestADT(common.SingleTransactionCase):
         patient_pool = self.registry('t4.clinical.patient')
         admit_pool = self.registry('t4.clinical.adt.patient.admit')
         task_pool = self.registry('t4.clinical.task')
+        transfer_pool = self.registry('t4.clinical.adt.patient.transfer')
         
         super(TestADT, self).setUp()
 
@@ -34,7 +35,7 @@ class TestADT(common.SingleTransactionCase):
         """            
         """
         global cr, uid
-        global register_pool, patient_pool, admit_pool, task_pool
+        global register_pool, patient_pool, admit_pool, task_pool, transfer_pool
         global task_id
         global now, tomorrow
         patient_data = {'family_name': 'Bacon', 'other_identifier': '30020', 'dob': '20-12-1922 12:33', 'gender': 'M', 'sex': 'M', 'given_name': 'Andy'}
@@ -48,10 +49,12 @@ class TestADT(common.SingleTransactionCase):
         admit_task = task_pool.browse(cr, uid, admit_task_id)
         spell_task_id = task_pool.search(cr, uid, [('parent_id','=',admit_task_id)])[0]
         spell_task = task_pool.browse(cr, uid, spell_task_id)
+        transfer_task_id = transfer_pool.create_task(cr, uid, {}, {'other_identifier': '30020', 'location': 'W8'})
         
         self.assertTrue(reg_task_id,"reg_task_id")
         self.assertTrue(not patient_data.get('reg_task_id'), 'reg_task_id is not in patient_data')
         self.assertTrue(patient_id, 'patient_id exists')
+        #self.assertTrue(patient_id, 'patient_id exists')
         
         #self.assertTrue(admit_task.parent_id.data_model == 't4.clinical.spell', "spell")
         
