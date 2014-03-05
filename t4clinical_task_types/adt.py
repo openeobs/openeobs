@@ -22,7 +22,7 @@ class t4_clinical_adt(orm.Model):
         
     }
 
-class t4_clinical_adt(orm.Model):
+class t4_clinical_adt_patient_register(orm.Model):
     _name = 't4.clinical.adt.patient.register'
     _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
     _columns = { 
@@ -47,26 +47,26 @@ class t4_clinical_adt(orm.Model):
         return True
         
 
-class t4_clinical_adt(orm.Model):
+class t4_clinical_adt_patient_admit(orm.Model):
     _name = 't4.clinical.adt.patient.admit'
     _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
     _columns = { 
     }
     
 
-class t4_clinical_adt(orm.Model):
+class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
     _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
     _columns = {
     }
 
-class t4_clinical_adt(orm.Model):
+class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
     _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
     _columns = {
     }
     
-class t4_clinical_adt(orm.Model):
+class t4_clinical_adt_patient_merge(orm.Model):
     _name = 't4.clinical.adt.patient.merge'
     _inherit = ['t4.clinical.task.data']      
     _columns = {
@@ -80,7 +80,7 @@ class t4_clinical_adt(orm.Model):
         oldId_id = self.search(cr, uid, [('other_identifier', '=', oldIdentifier)])
         newIdentifier_id = self.search(cr, uid, [('other_identifier', '=', newIdentifier)])         
     
-class t4_clinical_adt(orm.Model):
+class t4_clinical_adt_patient_update(orm.Model):
     _name = 't4.clinical.adt.patient.update'
     _inherit = ['t4.clinical.task.data', 't4.clinical.adt']      
     _columns = {
