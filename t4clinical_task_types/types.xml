@@ -51,6 +51,10 @@
 			<field name="data_model">t4.clinical.adt.patient.merge</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>			
-											
+		<record model="t4.clinical.task.data.type" id="observation_ews_data_type">
+			<field name="summary">Observation EWS</field>
+			<field name="data_model">t4.clinical.patient.observation.ews</field>
+<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+		</record>												
 	</data>
 </openerp>

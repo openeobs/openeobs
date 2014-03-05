@@ -65,10 +65,11 @@ class t4_clinical_adt_patient_admit(orm.Model):
         
         patient_pool = self.pool['t4.clinical.patient']
         patient_id = patient_pool.search(cr, uid, [('other_identifier','=',vals['other_identifier'])])
+        #import pdb; pdb.set_trace()
         if not patient_id:
-            except_if(True, "Patient not found!")
+            except_if(True, msg="Patient not found!")
         elif len(patient_id) > 1:
-            except_if(True, "More than one patient found!")
+            except_if(True, msg="More than one patient found!")
         patient_id = patient_id[0]
         super(t4_clinical_adt_patient_admit, self).submit(cr, uid, task_id, vals, context)
         admission_pool = self.pool['t4.clinical.patient.admission']

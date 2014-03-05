@@ -612,12 +612,16 @@ class t4_clinical_task_data(orm.AbstractModel):
         except_if(task.state not in allowed_states, msg="Data can't be submitted in this state '%s'" % task.state)       
         task_vals = {}
         data_vals = vals.copy()
+         
         if not task.data_ref:
             data_vals.update({'task_id':task_id})
+            _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(data_vals)))
             data_id = self.create(cr, uid, data_vals, context)
             task_pool.write(cr, uid, task_id, {'data_ref': "%s,%s" % (self._name,data_id)})
         else:      
+            _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))
             self.write(cr, uid, task.data_ref.id, vals, context)
+            
         location_id = self.get_task_location_id(cr, uid, task_id)
         patient_id = self.get_task_patient_id(cr, uid, task_id)
         user_ids = self.get_task_user_ids(cr, uid, task_id)
@@ -633,7 +637,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_vals.update({'employee_id': employee_id})
         task_pool.write(cr, uid, task_id, task_vals)
         ##print"task_vals: %s" % task_vals
-        _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))     
+            
         return True 
     
     def get_task_location_id(self, cr, uid, task_id, context=None):

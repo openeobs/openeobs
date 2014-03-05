@@ -199,6 +199,7 @@ class TestOperations(common.SingleTransactionCase):
 #         print "task.employee_ids: %s" % task.employee_ids
 #         print "\n"        
         self.assertTrue(task_id in task_ids, "task_id in task_ids")
+        #import pdb; pdb.set_trace()
         employee_id and self.assertTrue(employee_id in [e.id for e in task.employee_ids], "employee in task.employees")
         location_id and self.assertTrue(location_id == task.location_id.id, 'location == task.location')
         patient_id and self.assertTrue(patient_id == task.patient_id.id, 'patient == get.patient')        
