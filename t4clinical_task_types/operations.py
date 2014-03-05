@@ -141,10 +141,10 @@ class t4_clinical_patient_admission(orm.Model):
         admission = task.data_ref
         
         # spell
-        
+        spell_task_data = context and context.get('source_task_id') and {'parent_id': context['source_task_id']} or {}
         spell_pool = self.pool['t4.clinical.spell']
         spell_task_id = spell_pool.create_task(cr, uid, 
-           {},
+           spell_task_data,
            {'patient_id': admission.patient_id.id}, 
            context=None)
         #import pdb; pdb.set_trace()
@@ -164,7 +164,11 @@ class t4_clinical_patient_admission(orm.Model):
            {'parent_id': admission.task_id.id}, 
            {'patient_id': admission.patient_id.id}, 
            context)
-        return True
+        res = {'admission_task_id': task_id,
+               'spell_task_id': spell_task_id,
+               'move_task_id': move_task_id,
+               'placement_task_id': placement_task_id}
+        return res
     
     
    

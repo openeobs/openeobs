@@ -159,19 +159,19 @@ class TestOperations(common.SingleTransactionCase):
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
         global user_pool, employee_pool, type_pool, location_pool
         global now, tomorrow        
-        def print_vars():
-            print "\n"
-            print "task_create_test vars dump header"
-            print "data_pool: %s" % data_pool
-            print "task_vals: %s" % task_vals
-            print "data_vals: %s" % data_vals
-            print "patient_id: %s" % patient_id
-            print "employee_id: %s" % employee_id
-            print "location_id: %s" % location_id            
-            print "user_id: %s" % user_id
-            print "\n"
-        
-        print_vars()
+#         def print_vars():
+#             print "\n"
+#             print "task_create_test vars dump header"
+#             print "data_pool: %s" % data_pool
+#             print "task_vals: %s" % task_vals
+#             print "data_vals: %s" % data_vals
+#             print "patient_id: %s" % patient_id
+#             print "employee_id: %s" % employee_id
+#             print "location_id: %s" % location_id            
+#             print "user_id: %s" % user_id
+#             print "\n"
+#         
+#         print_vars()
             
             
         task_id = data_pool.create_task(cr, uid, task_vals, data_vals)
@@ -186,18 +186,18 @@ class TestOperations(common.SingleTransactionCase):
         employee_id and task_domain.append(('employee_ids','=',employee_id))        
         user_id and task_domain.append(('user_id','=',user_id))
         task_ids = task_pool.get_task_ids(cr, uid, data_pool._name, data_domain)
-        print "\nget_task_ids():"
-        print "task_ids: %s" % task_ids
-        print "task_domain: %s" % task_domain
-        print "data_domain: %s" % data_domain
-        print "\n"
-        print "\n task fields"
-        print "task.location_id: %s" % task.location_id
-        print "location_ids child_of task.location_id: %s" % location_pool.search(cr, uid, [('id','child_of',task.location_id.id)])        
-        print "task.patient_id: %s" % task.patient_id
-        print "task.employee_id: %s" % task.employee_id
-        print "task.employee_ids: %s" % task.employee_ids
-        print "\n"        
+#         print "\nget_task_ids():"
+#         print "task_ids: %s" % task_ids
+#         print "task_domain: %s" % task_domain
+#         print "data_domain: %s" % data_domain
+#         print "\n"
+#         print "\n task fields"
+#         print "task.location_id: %s" % task.location_id
+#         print "location_ids child_of task.location_id: %s" % location_pool.search(cr, uid, [('id','child_of',task.location_id.id)])        
+#         print "task.patient_id: %s" % task.patient_id
+#         print "task.employee_id: %s" % task.employee_id
+#         print "task.employee_ids: %s" % task.employee_ids
+#         print "\n"        
         self.assertTrue(task_id in task_ids, "task_id in task_ids")
         employee_id and self.assertTrue(employee_id in [e.id for e in task.employee_ids], "employee in task.employees")
         location_id and self.assertTrue(location_id == task.location_id.id, 'location == task.location')

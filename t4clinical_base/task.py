@@ -129,7 +129,7 @@ def read_none(self, cr, uid, ids, fields=[], context=None):
 
 def browse_domain(self, cr, uid, domain, limit=None, order=None, context=None):
     ids = self.search(cr, uid, domain, limit=limit, order=order, context=context)
-    print ids
+    ##print ids
     return self.browse(cr, uid, ids, context)
 
 def read_domain(self, cr, uid, domain, fields=[], context=None):
@@ -138,7 +138,7 @@ def read_domain(self, cr, uid, domain, fields=[], context=None):
 
 def except_if(test=True, cap="Exception!", msg="Message is not defined..."):
     if test:
-        raise orm.except_orm(capture, msg)
+        raise orm.except_orm(cap, msg)
     
 def browse_model(self, cr, uid, model, ids, context=None):
     model_pool = self.pool.get('model')
@@ -216,7 +216,7 @@ class t4_clinical_task_recurrence(orm.Model):
         deltas = {k+'s':v for k,v in deltas.iteritems()} # relativedelta requires years, not year
         # alternative now for test purpose
         now = now and now or dt.now()
-        #print deltas
+        ##print deltas
         while dn <= now:
             dn = dn + rd(**deltas)
         return dn.strftime("%Y-%m-%d %H:%M:%S")
@@ -611,9 +611,10 @@ class t4_clinical_task_data(orm.AbstractModel):
         allowed_states = ['draft','planned', 'scheduled','started']
         except_if(task.state not in allowed_states, msg="Data can't be submitted in this state '%s'" % task.state)       
         task_vals = {}
+        data_vals = vals.copy()
         if not task.data_ref:
-            vals.update({'task_id':task_id})
-            data_id = self.create(cr, uid, vals, context)
+            data_vals.update({'task_id':task_id})
+            data_id = self.create(cr, uid, data_vals, context)
             task_pool.write(cr, uid, task_id, {'data_ref': "%s,%s" % (self._name,data_id)})
         else:      
             self.write(cr, uid, task.data_ref.id, vals, context)
@@ -631,7 +632,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_vals.update({'employee_ids': [(6, 0, employee_ids)]})
         task_vals.update({'employee_id': employee_id})
         task_pool.write(cr, uid, task_id, task_vals)
-        print"task_vals: %s" % task_vals
+        ##print"task_vals: %s" % task_vals
         _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))     
         return True 
     
@@ -665,7 +666,7 @@ class t4_clinical_task_data(orm.AbstractModel):
                 parent_id = parent_location.parent_id and parent_location.parent_id.id
             for location_id in parent_location_ids:
                 user_ids.extend(user_pool.search(cr, uid, [('location_ids','=',location_id)]))    
-            #print "parent_location_ids: %s" % parent_location_ids        
+            ##print "parent_location_ids: %s" % parent_location_ids        
         return user_ids
     
         
@@ -697,7 +698,7 @@ class t4_clinical_task_data(orm.AbstractModel):
                 parent_id = parent_location.parent_id and parent_location.parent_id.id
             for location_id in parent_location_ids:
                 employee_ids.extend(employee_pool.search(cr, uid, [('location_ids','=',location_id)]))    
-            print "parent_location_ids: %s" % parent_location_ids
+            ##print "parent_location_ids: %s" % parent_location_ids
         employee_ids.extend(user_employee_ids)        
         return employee_ids    
     

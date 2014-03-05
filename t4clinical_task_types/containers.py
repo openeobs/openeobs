@@ -11,7 +11,9 @@ class t4_clinical_spell(orm.Model):
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'location_id': fields.many2one('t4.clinical.location', 'Placement Location'),
-        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS')
+        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
+        'code': fields.text("Code"),
+        'start_date': fields.datetime("ADT Start Date"),
         #...
     }
     
