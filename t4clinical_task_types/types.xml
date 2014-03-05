@@ -48,5 +48,13 @@
 			<field name="children_rule">[]</field>
 			
 		</record>			
+		<record model="t4.clinical.task.data.type" id="adt_patient_register_data_type">
+			<field name="summary">ADT Patient Register</field>
+			<field name="data_model">t4.clinical.adt.patient.register</field>
+<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+			<field name="parent_rule">[]</field>
+			<field name="children_rule">[]</field>
+			
+		</record>			
 	</data>
 </openerp>
