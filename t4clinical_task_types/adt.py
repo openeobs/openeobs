@@ -32,7 +32,19 @@ class t4_clinical_adt(orm.Model):
         if not 'patientid' in vals.keys() and not 'otherid' in vals.keys():
             except_if(not 'nhs_number' in vals.keys() and not 'hospital_number' in vals.keys(),
                   msg="Neither patientid nor otherid found in submitted data!")
-        super(t4_clinical_adt, self).submit(cr, uid, task_id, vals, context)
+        patient_pool = self.pool['t4.clinical.patient']
+        fields_map = {
+              'patientid': 'patient_identifier',
+              'otherid': 'other_identifier',
+              'familyname': 'family_name',
+              'givenname': 'given_name',
+              'middlename': 'middle_names'
+        }
+        vals_patient = {fieldsmap[lowercase(k)]: v for k, v in vals.iteritems()}
+        vals_adt = {lowercase(k): v for k, v in vals.iteritems()}
+        super(t4_clinical_adt, self).submit(cr, uid, task_id, vals_adt, context)
+        patient_pool.create(cr, uid, vals_patient, context)
+        return True
         
 
 class t4_clinical_adt(orm.Model):
@@ -61,6 +73,12 @@ class t4_clinical_adt(orm.Model):
         'from_patientid': fields.text('From patientId'),
         'into_patientid': fields.text('Into patientId'),        
     }
+    
+    def submit(self, cr, uid, task_id, vals, context=None):
+        except_if(vals[''])
+        patient_pool = self.pool['t4.clinical.patient']
+        oldId_id = self.search(cr, uid, [('other_identifier', '=', oldIdentifier)])
+        newIdentifier_id = self.search(cr, uid, [('other_identifier', '=', newIdentifier)])         
     
 class t4_clinical_adt(orm.Model):
     _name = 't4.clinical.adt.patient.update'
