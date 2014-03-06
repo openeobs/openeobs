@@ -158,6 +158,40 @@ orm.Model.read_domain = read_domain
 orm.Model.browse_model = browse_model
 
 
+class t4_clinical_patient_task_trigger(orm.Model):
+    """
+    """
+    _name = 't4.clinical.patient.task.trigger'
+    _periods = [('minute','Minute'), ('hour', 'Hour'), ('day', 'Day'), ('month', 'Month'), ('year', 'Year')]
+    
+    def _get_date_next(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        for trigger in self.browse(cr, uid, ids, context):
+            deltas = {}.fromkeys([item[0] for item in self._periods],0)
+            deltas[trigger.unit] = trigger.unit_qty
+            deltas = {k+'s':v for k,v in deltas.iteritems()} # relativedelta requires years, not year
+            res[trigger.id] = dt.now() + rd(**deltas)
+        return res
+        
+    _columns = {       
+        'active': fields.boolean('Is Active?'), 
+        'patient_id': fields.many2one('t4.clinical.patient', 'Task'),
+        'data_model': fields.text('Data Model'),
+        'unit': fields.selection(_periods, 'Recurrence Unit'),
+        'unit_qty': fields.integer('Qty of Recurrence Units'),
+        'task_ids': fields.many2many('t4.clinical.task', 'recurrence_task_rel', 'recurrence_id', 'task_id', 'Generated Tasks'),
+        'date_next': fields.function(_get_date_next, type='datetime', string='Next Date', help='Next date from now')
+    }
+
+    _defaults = {
+             'active': True,
+     }
+    
+    def name_get(self, cr, uid, ids, context=None):
+        res = [(t.id, "%s %s(s)" % (t.unit_qty, t.unit)) for t in self.browse(cr, uid, ids, context)]
+        return res    
+
+      
 class t4_clinical_task_recurrence(orm.Model):
     """
     To be able to track generation flow changing frequency would be 
@@ -172,7 +206,6 @@ class t4_clinical_task_recurrence(orm.Model):
     """
     _name = 't4.clinical.task.recurrence'
     _periods = [('minute','Minute'), ('hour', 'Hour'), ('day', 'Day'), ('month', 'Month'), ('year', 'Year')]
-    _types = [('auto','Auto'), ('manual', 'Manual')]
     _columns = {
         'name': fields.char('Name', size=256),
         'vals_task': fields.text('Task Vals'), # init task data
@@ -180,8 +213,7 @@ class t4_clinical_task_recurrence(orm.Model):
         'date_start': fields.datetime('Start Date', required=True),
         'date_finish': fields.datetime('Finish Date'), # may be useful to add cycles number
         'qty2gen': fields.integer('Quantity to Generate'),
-        'active': fields.boolean('Is Active?'),
-        'type': fields.selection(_types, 'Types', help="Auto - handled by cron, Manual - skipped by cron"),      
+        'active': fields.boolean('Is Active?'),     
         'unit': fields.selection(_periods, 'Recurrence Unit'),
         'unit_qty': fields.integer('Qty of Recurrence Units'),
         'task_ids': fields.many2many('t4.clinical.task', 'recurrence_task_rel', 'recurrence_id', 'task_id', 'Generated Tasks'),
@@ -189,8 +221,7 @@ class t4_clinical_task_recurrence(orm.Model):
     }
     
     _defaults = {
-             'active': True,
-             'type': 'manual',
+             'active': True
      }
     
     def create(self, cr, uid, vals, context=None):
@@ -225,7 +256,7 @@ class t4_clinical_task_recurrence(orm.Model):
     def cron(self, cr, uid, *args):
         # args[0] contains alternative now for test purpose
         now = len(args) and args[0] or dt.now().strftime('%Y-%m-%d %H:%M:%S')
-        ids = self.search(cr, uid, [('type','=','auto'),('date_next','<=',now)])
+        ids = self.search(cr, uid, [('date_next','<=',now)])
         if not ids:
             return True
         context = None
@@ -594,10 +625,10 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_pool = self.pool['t4.clinical.task']
         return task_pool.browse_ref(cr, uid, task_id, 'data_ref', context) 
 
-    def shcedule(self, cr, uid, task_id, context=None):
+    def schedule(self, cr, uid, task_id, date_scheduled=None, context=None):
         task_pool = self.pool['t4.clinical.task']
-        task = task_pool.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft', 'planned'], msg="Task in state %s can not be scheduled!" % task.state)
+        task = task_pool.browse(cr, uid, task_id, context=None)
+        #except_if(task.state not in ['draft', 'planned'], msg="Task in state %s can not be scheduled!" % task.state)
         except_if(not task.date_scheduled and not date_scheduled, msg="Scheduled date is neither set on task nor passed to the method")
         date_scheduled = date_scheduled or task.date_scheduled
         task_pool.write(cr, uid, task_id, {'date_scheduled': date_scheduled, 'state': 'scheduled'}, context)
@@ -609,8 +640,8 @@ class t4_clinical_task_data(orm.AbstractModel):
         task = task_pool.browse(cr, uid, task_id, context)              
         except_if(not task.data_type_id, msg="Data type is not set for this task")          
         allowed_states = ['draft','planned', 'scheduled','started']
-        except_if(task.state not in allowed_states, msg="Data can't be submitted in this state '%s'" % task.state)       
-        task_vals = {}
+        except_if(task.state not in allowed_states, msg="Data can't be submitted in state '%s'" % task.state)       
+        
         data_vals = vals.copy()
          
         if not task.data_ref:
@@ -621,7 +652,14 @@ class t4_clinical_task_data(orm.AbstractModel):
         else:      
             _logger.info("Task '%s', task.id=%s data submitted: %s" % (task.data_model, task.id, str(vals)))
             self.write(cr, uid, task.data_ref.id, vals, context)
-            
+        
+        self.update_task(cr, uid, task_id, context)
+        return True 
+    
+    def update_task(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']        
+        task = task_pool.browse(cr, uid, task_id, context)   
+        task_vals = {}    
         location_id = self.get_task_location_id(cr, uid, task_id)
         patient_id = self.get_task_patient_id(cr, uid, task_id)
         user_ids = self.get_task_user_ids(cr, uid, task_id)
@@ -637,9 +675,9 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_vals.update({'employee_id': employee_id})
         task_pool.write(cr, uid, task_id, task_vals)
         ##print"task_vals: %s" % task_vals
-            
-        return True 
-    
+        _logger.info("Task '%s', task.id=%s updated with: %s" % (task.data_model, task.id, task_vals))
+        return True             
+        
     def get_task_location_id(self, cr, uid, task_id, context=None):
         location_id = False
         data = self.browse_domain(cr, uid, [('task_id','=',task_id)])[0]

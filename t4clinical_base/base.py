@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
+import logging        
+_logger = logging.getLogger(__name__)
 
 class t4_clinical_pos(orm.Model):
     """ Clinical point of service """
@@ -151,4 +153,14 @@ class t4_clinical_patient(osv.Model):
         rec_id = super(t4_clinical_patient, self).create(cr, uid, vals, context)
         return rec_id    
     
-    
+    def set_task_frequency(self, cr, uid, patient_id, data_model, unit, unit_qty, context=None):
+        trigger_pool = self.pool['t4.clinical.patient.task.trigger']
+        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
+        if trigger_id:
+            trigger_id = trigger_id[0]
+            trigger_pool.write(cr, uid, trigger_id, trigger_data, {'active': False})
+
+        trigger_data = {'patient_id': patient_id, 'data_model': data_model, 'unit': unit, 'unit_qty': unit_qty}
+        trigger_id = trigger_pool.create(cr, uid, trigger_data)        
+        _logger.info("Task frequency for patient_id=%s data_model=%s set to %s %s(s)" % (patient_id, data_model, unit_qty, unit))
+        return trigger_id

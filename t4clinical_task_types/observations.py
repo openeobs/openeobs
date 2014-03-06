@@ -77,6 +77,36 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
         'weight': fields.float('Weight'),
     }
 
+class score(object):
+    _ranges = []
+    _limit_per_one = 3
+    _limit_in_one = False
+    _score = 0
+    def add_range(self, key=None, value=None, min=None, max=None, selection=None, score=None):
+        assert isinstance(key, basestring), "Key must be a string"
+        assert value is not None, "Value can't be None"
+        assert score is not None, "Score can't be None"
+        assert (isinstance(min, (int, long)) or isinstance(max, (int, long))) or isinstance(selection, (list,tuple)), "min-max or selection must be set"
+
+        self._ranges.append({'key': key, 'value': value, 'min': min, 'max': max, 'selection': selection, 'score': score})
+
+    def get_score(self):
+        for r in self._ranges:
+            min_max_test = r['min'] and r['value'] >= r['min'] or not r['min'] \
+                            and r['max'] and r['value'] <= r['max'] or not r['max']
+            if min_max_test:
+                r.update({'match': True, 'reason': 'min-max'})
+            elif r['selection'] and r['value'] in r['selection']:
+                r.update({'match': True, 'reason': 'selection'})
+            else:
+                r.update({'match': False, 'reason': ''})
+        for r in self._ranges:
+            if r['match']:
+                self._score += r['score']
+                self._limit_in_one = r['score'] >= self._limit_per_one
+                
+        return self._score, self._limit_in_one
+            
 class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
@@ -193,10 +223,10 @@ class t4_clinical_patient_observation_ews(orm.Model):
     }
     
 
-    def submit(self, cr, uid, task_vals, data_vals, context=None):
+    def submit(self, cr, uid, task_id, data_vals={}, context=None):
         vals = data_vals.copy()
         if vals.get('oxygen_administration'):
             vals.update({'oxygen_administration_flag': vals['oxygen_administration'].get('oxygen_administration_flag')})
             del vals['oxygen_administration']
 
-        return super(t4_clinical_patient_observation_ews, self).submit(cr, uid, task_vals, vals, context)   
+        return super(t4_clinical_patient_observation_ews, self).submit(cr, uid, task_id, data_vals, context)   
