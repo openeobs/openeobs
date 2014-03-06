@@ -328,7 +328,9 @@ def data_model_event(callback=None):
             args_list = list(args)
             args_list[3] = task_id
             args = tuple(args_list)
-            context = kwargs.get('context') or None
+            context = kwargs.get('context') or {}
+#             ctx = context.copy()
+#             ctx.update({'api_callback': True})
             task = self.browse(cr, uid, task_id, context)
             model_pool = self.pool.get(task.data_model)
             res = False
@@ -429,10 +431,13 @@ class t4_clinical_task(orm.Model):
     @data_model_event(callback="submit")
     def submit(self, cr, uid, task_id, vals, context=None):
         assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        assert isinstance(vals, dict), "vals must be a dict, found to be %s" % type(vals)
         return True
     
     @data_model_event(callback="act_window")
-    def act_window(self, cr, uid, task_id, fields, context=None): 
+    def act_window(self, cr, uid, task_id, fields, context=None):
+        task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id) 
         return True
     
     @data_model_event(callback="retrieve") 
@@ -443,21 +448,56 @@ class t4_clinical_task(orm.Model):
  
     @data_model_event(callback="validate")          
     def validate(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
         return True
     
     # MGMT API
     @data_model_event(callback="schedule")
     def schedule(self, cr, uid, task_id, date_scheduled=None, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        date_formats = ['%Y-%m-%d %H:%M:%S','%Y-%m-%d %H:%M','%Y-%m-%d %H', '%Y-%m-%d']
+        res = []
+        for df in date_formats:
+            try:
+                dt.strptime(date_scheduled, df)
+            except:
+                res.append(False)
+            else:
+                res.append(True)
+        assert any(res), "date_scheduled must be one of the following types: %s. Found: %s" % (date_formats, date_scheduled) 
         return True
     
     @data_model_event(callback="assign")
     def assign(self, cr, uid, task_id, user_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        assert isinstance(user_id,(int, long)), "user_id must be int or long, found to be %s" % type(user_id)
         return True        
     
     @data_model_event(callback="unassign")   
     def unassign(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
         return True 
     
+    @data_model_event(callback="start")        
+    def start(self, cr, uid, task_id, context=None): 
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)            
+        return True 
+    
+    @data_model_event(callback="complete")
+    def complete(self, cr, uid, task_id, context=None):    
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)      
+        return True 
+    
+    @data_model_event(callback="cancel")    
+    def cancel(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)            
+        return True 
+    
+    @data_model_event(callback="cancel")
+    def abort(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        return True
+
     def button_schedule(self, cr, uid, ids, context=None):
         date_exception = [task.id for task in self.browse(cr, uid, ids, context) if not task.date_scheduled]
         if date_exception:
@@ -469,23 +509,7 @@ class t4_clinical_task(orm.Model):
     def button_start(self, cr, uid, ids, fields, context=None):
         res = self.start(cr, uid, ids, context)
         return res
-    @data_model_event(callback="start")        
-    def start(self, cr, uid, task_id, context=None):             
-        return True 
-    
-    @data_model_event(callback="complete")
-    def complete(self, cr, uid, task_id, context=None):          
-        return True 
-    
-    @data_model_event(callback="cancel")    
-    def cancel(self, cr, uid, task_id, context=None):            
-        return True 
-    
-    def abort(self, cr, uid, task_id, context=None):
-        pass  
-    
-
-    
+        
 
 class t4_clinical_task_data(orm.AbstractModel):
     
@@ -508,6 +532,8 @@ class t4_clinical_task_data(orm.AbstractModel):
         return rec_id    
     
     def create_task(self, cr, uid, vals_task={}, vals_data={}, context=None):
+        assert isinstance(vals_task, dict), "vals_task must be a dict, found %" % type(vals_task)
+        assert isinstance(vals_task, dict), "vals_data must be a dict, found %" % type(vals_data)
         task_pool = self.pool['t4.clinical.task']
         data_type_pool = self.pool['t4.clinical.task.data.type']
         data_type_id = data_type_pool.search(cr, uid, [('data_model','=',self._name)])
@@ -531,7 +557,6 @@ class t4_clinical_task_data(orm.AbstractModel):
     
     
     def act_window(self, cr, uid, task_id, context=None):
-        task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
         task_pool = self.pool['t4.clinical.task']  
         task = task_pool.browse(cr, uid, task_id, context)
         except_if(task.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a task in state %s !" % task.state)

@@ -97,7 +97,7 @@ class demo(orm.AbstractModel):
         placement_task_ids = task_pool.search(cr, uid, [('data_model','=',placement_pool._name)])
         n = 0
         patient_ids = []
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         for placement_task_id in placement_task_ids:
             placement_task = task_pool.browse(cr, uid, placement_task_id)
             patient_ids.append(placement_task.patient_id.id)

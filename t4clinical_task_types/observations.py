@@ -50,8 +50,12 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         return True
 
     def get_task_location_id(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        task = task_pool.browse(cr, uid, task_id, context)
+        patient_id = task.data_ref.patient_id.id
         placement_pool = self.pool['t4.clinical.patient.placement']
-        placement = placement_pool.browse_domain(cr, uid, [], limit=1, order="date_terminated desc")
+        # FIXME + placement.id child_of current_spell_task
+        placement = placement_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
         #import pdb; pdb.set_trace()
         location_id = placement and placement[0].location_id.id or False
         return location_id     
