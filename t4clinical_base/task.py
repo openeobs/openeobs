@@ -557,6 +557,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     
     
     def act_window(self, cr, uid, task_id, context=None):
+        task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
         task_pool = self.pool['t4.clinical.task']  
         task = task_pool.browse(cr, uid, task_id, context)
         except_if(task.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a task in state %s !" % task.state)
