@@ -43,12 +43,26 @@ class t4_clinical_adt_patient_register(orm.Model):
         patient_pool.create(cr, uid, vals, context)
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, task_id, vals, context)
         return True
-        
+    
+
 
 class t4_clinical_adt_patient_admit(orm.Model):
     _name = 't4.clinical.adt.patient.admit'
     _inherit = ['t4.clinical.task.data']      
+
+    def _admit2location_id(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        location_pool = self.pool['t4.clinical.location']
+        for admit in self.browse(cr, uid, ids, context):
+            location_id = location_pool.search(cr, uid, [('code','=',admit.location)])
+            res[admit.id] = location_id and location_id[0] or False
+        return res
+        
     _columns = {
+        'location_id': fields.function(_admit2location_id, type='many2one', relation='t4.clinical.location', string='Location', 
+                               store={
+                                      't4.clinical.adt.patient.admit':(lambda self, cr, uid, ids, c: ids, ['location'], 10)
+                                      }),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         'location': fields.text('Location'),
         'code': fields.text("Code"),

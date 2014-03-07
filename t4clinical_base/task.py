@@ -537,7 +537,7 @@ class t4_clinical_task(orm.Model):
         trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
         if trigger_id:
             trigger_id = trigger_id[0]
-            trigger_pool.write(cr, uid, trigger_id, trigger_data, {'active': False})
+            trigger_pool.write(cr, uid, trigger_id, {'active': False})
 
         trigger_data = {'patient_id': patient_id, 'data_model': data_model, 'unit': unit, 'unit_qty': unit_qty}
         trigger_id = trigger_pool.create(cr, uid, trigger_data)        

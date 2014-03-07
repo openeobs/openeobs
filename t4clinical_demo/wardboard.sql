@@ -38,5 +38,5 @@ inner join t4_clinical_patient patient on spell.patient_id = patient.id
 left join t4_clinical_location location on location.id = spell.location_id -- FIXME spell.location update on placement.complete
 left join (select score, patient_id, rank from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
 left join (select score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
-left join t4_clinical_patient_task_trigger trigger on trigger.patient_id = patient.id and data_model = 't4.clinical.patient.obsevation.ews'
+left join t4_clinical_patient_task_trigger trigger on trigger.patient_id = patient.id and data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id

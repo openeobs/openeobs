@@ -88,6 +88,8 @@ class demo(orm.AbstractModel):
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
         task_pool = self.pool['t4.clinical.task']
         placement_pool = self.pool['t4.clinical.patient.placement']
+
+ 
         
         for rd in register_data:
             register_pool.create_task(cr, uid, {}, rd)
@@ -111,6 +113,8 @@ class demo(orm.AbstractModel):
         for n in range(1,10):
             ews_data = self.get_ews_data(cr, uid, patient_ids)
             for ews in ews_data:
+                        # task frequency
+                task_pool.set_task_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
                 ews_task_id = ews_pool.create_task(cr, uid, {}, {'patient_id': ews['patient_id']})
                 task_pool.schedule(cr, uid, ews_task_id, 
                    date_scheduled=fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"))
