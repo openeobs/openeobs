@@ -33,7 +33,7 @@ class t4_clinical_patient_move(orm.Model):
 
 class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.task.data']    
     _columns = {
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
@@ -55,10 +55,10 @@ class t4_clinical_patient_placement(orm.Model):
     
     def complete(self, cr, uid, task_id, context=None):
         super(t4_clinical_patient_placement, self).complete(cr, uid, task_id, context)
-        task_pool = self.pool['t4.clinical.task']
-        placement = task_pool.browse_ref(cr, uid, task_id, 'data_ref', context)
-        except_if(not placement.patient_id or not placement.location_id, msg="Can't complete placement task without patient and/or location")
-
+        # notify about completion
+        data_pool = self.pool['t4.clinical.task.data']
+        self.event(cr, uid, self._name, "complete", task_id)
+        
 class t4_clinical_patient_discharge(orm.Model):
     _name = 't4.clinical.patient.discharge'    
     _inherit = ['t4.clinical.task.data']
@@ -117,9 +117,9 @@ class t4_clinical_patient_discharge(orm.Model):
             context)
         task_pool.start(cr, uid, move_task_id, context)
         task_pool.complete(cr, uid, move_task_id, context)      
-        # complete spell
-        spell = patient_pool.get_patient_spell_browse(cr, uid, discharge.patient_id.id, context)
-        task_pool.complete(cr, uid, spell.task_id.id, context)
+        # complete spell 
+        spell_task = task_pool.get_patient_spell_task_browse(cr, uid, discharge.patient_id.id, context)
+        task_pool.complete(cr, uid, spell_task.id, context)
         return True  
         
         
@@ -141,7 +141,7 @@ class t4_clinical_patient_admission(orm.Model):
         admission = task.data_ref
         
         # spell
-        spell_task_data = context and context.get('source_task_id') and {'parent_id': context['source_task_id']} or {}
+        spell_task_data = context and context.get('parent_task_id') and {'parent_id': context['parent_task_id']} or {}
         spell_pool = self.pool['t4.clinical.spell']
         spell_task_id = spell_pool.create_task(cr, uid, 
            spell_task_data,
@@ -220,51 +220,51 @@ class t4_clinical_patient(orm.Model):
         res = res and res.id
         return res
 
-class t4_clinical_task(orm.Model):
-    _inherit = 't4.clinical.task'  
-    
-    def get_task_patient_id(self, cr, uid, task_id, context=None):
-        """
-        Data Model API call
-        If the model is patient-related, returns patient_id, otherwise False
-        By defult field 'patient_id' is taken as target patient
-        """
-        #import pdb; pdb.set_trace()
-        res = False
-        if 'patient_id' in self._columns.keys():
-            data = self.browse_ref(cr, uid, task_id, 'data_ref', context=None)
-            res = data.patient_id and data.patient_id.id
-        return res
-    
-    def get_task_location_id(self, cr, uid, task_id, context=None):
-        """
-        Data Model API call
-        If the model is location-related, returns location_id, otherwise False
-        The location is not necessarily placed(assigned) location
-        example: clinical.precedure data model which may happen outside of patient's ward and last for few minutes
-        """
-#         if task_id == 3775:
-#             import pdb; pdb.set_trace()
-        res = False
-        if 'location_id' in self._columns.keys():
-            data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
-            res = data.location_id and data.location_id.id
-        return res        
-
-    def get_task_spell_id(self, cr, uid, task_id, context=None):
-        """
-        Data Model API call
-        If the model is spell-related and has parent started, not terminated spell, returns spell_id, otherwise False
-        By default current spell.id of patient (if any) returned 
-        """
-        res = False
-        if 'patient_id' in self._columns.keys():
-            data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
-            if data:            
-                patient_pool = self.pool['t4.clinical.patient']
-                spell = patient_pool.get_patient_spell_browse(cr, uid, data.patient_id.id, context)
-                res = spell.id
-        return res    
+# class t4_clinical_task(orm.Model):
+#     _inherit = 't4.clinical.task'  
+#     
+#     def get_task_patient_id(self, cr, uid, task_id, context=None):
+#         """
+#         Data Model API call
+#         If the model is patient-related, returns patient_id, otherwise False
+#         By defult field 'patient_id' is taken as target patient
+#         """
+#         #import pdb; pdb.set_trace()
+#         res = False
+#         if 'patient_id' in self._columns.keys():
+#             data = self.browse_ref(cr, uid, task_id, 'data_ref', context=None)
+#             res = data.patient_id and data.patient_id.id
+#         return res
+#     
+#     def get_task_location_id(self, cr, uid, task_id, context=None):
+#         """
+#         Data Model API call
+#         If the model is location-related, returns location_id, otherwise False
+#         The location is not necessarily placed(assigned) location
+#         example: clinical.precedure data model which may happen outside of patient's ward and last for few minutes
+#         """
+# #         if task_id == 3775:
+# #             import pdb; pdb.set_trace()
+#         res = False
+#         if 'location_id' in self._columns.keys():
+#             data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
+#             res = data.location_id and data.location_id.id
+#         return res        
+# 
+#     def get_task_spell_id(self, cr, uid, task_id, context=None):
+#         """
+#         Data Model API call
+#         If the model is spell-related and has parent started, not terminated spell, returns spell_id, otherwise False
+#         By default current spell.id of patient (if any) returned 
+#         """
+#         res = False
+#         if 'patient_id' in self._columns.keys():
+#             task_pool = self.pool['t4.clinical.task']
+#             data = task_pool.browse_ref(cr, uid, task_id, 'data_ref', context=None)
+#             if data:            
+#                 spell_task = task_pool.get_patient_spell_task_browse(cr, uid, data.patient_id.id, context)
+#                 res = spell_task.id
+#         return res    
     
     
 class t4_clinical_location(orm.Model):

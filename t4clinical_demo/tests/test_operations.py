@@ -16,7 +16,7 @@ class TestOperations(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, employee_pool, type_pool, location_pool, patient_pool
+        global user_pool, employee_pool, type_pool, location_pool, patient_pool, ews_pool
         global donald_patient_id, w8_location_id, b1_location_id, admission_data, admission_task_id, discharge_task_id
         global nurse_user_id, nurse_employee_id
         global now, tomorrow
@@ -31,6 +31,7 @@ class TestOperations(common.SingleTransactionCase):
         admission_pool = self.registry('t4.clinical.patient.admission')
         move_pool = self.registry('t4.clinical.patient.move')
         height_weight_pool = self.registry('t4.clinical.patient.observation.height_weight')
+        ews_pool = self.registry('t4.clinical.patient.observation.ews')
         discharge_pool = self.registry('t4.clinical.patient.discharge')
         user_pool = self.registry('res.users')
         employee_pool = self.registry('hr.employee')
@@ -65,7 +66,10 @@ class TestOperations(common.SingleTransactionCase):
         nurse_employee_id = self.xml2db_id("demo_employee_norah")
         
         
-        
+        # task frequency
+        task_pool.set_task_trigger(cr, uid, donald_patient_id, 
+                                   't4.clinical.patient.observation.ews', 
+                                   'minute', 15, context=None)        
 
 
         # base data tests
@@ -130,7 +134,21 @@ class TestOperations(common.SingleTransactionCase):
         height_weight_task = task_pool.browse(cr, uid, height_weight_task_id)
         # tests PARTIAL
         self.assertTrue(height_weight_task.data_ref.is_partial, 'partial')
-  
+
+
+        # EWS
+        #import pdb; pdb.set_trace()
+        ews_task_id = self.create_task_test(
+                                     ews_pool,
+                                     task_vals      = {},
+                                     data_vals      = {'patient_id': donald_patient_id},
+                                     patient_id     = donald_patient_id, 
+                                     location_id    = b1_location_id, # patient placement location
+                                     employee_id    = nurse_employee_id,
+                                     user_id        = nurse_user_id
+                                     )        
+        task_pool.start(cr, uid, ews_task_id)
+        task_pool.complete(cr, uid, ews_task_id)  
          
         # discharge
         #import pdb; pdb.set_trace()
@@ -145,7 +163,10 @@ class TestOperations(common.SingleTransactionCase):
                                      )        
         task_pool.start(cr, uid, discharge_task_id)
         task_pool.complete(cr, uid, discharge_task_id)
-#         
+
+
+
+
 #         #access
 #         employee_task_ids = employee_pool.get_employee_task_ids(cr, uid, nurse_employee_id)
 #         employee = employee_pool.browse(cr, uid, nurse_employee_id)
@@ -157,7 +178,7 @@ class TestOperations(common.SingleTransactionCase):
     def create_task_test(self, data_pool, task_vals={}, data_vals={}, patient_id=False, location_id=False, employee_id=False, user_id=False):
         global cr, uid
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, employee_pool, type_pool, location_pool
+        global user_pool, employee_pool, type_pool, location_pool, ews_pool
         global now, tomorrow        
 #         def print_vars():
 #             print "\n"
@@ -209,7 +230,7 @@ class TestOperations(common.SingleTransactionCase):
     def admission_complete_test(self, admission_task_id, patient_id=False, location_id=False, employee_id=False, user_id=False):
         global cr, uid
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, employee_pool, type_pool, location_pool
+        global user_pool, employee_pool, type_pool, location_pool, ews_pool
         global now, tomorrow
         
         admission_task = task_pool.browse(cr, uid, admission_task_id)

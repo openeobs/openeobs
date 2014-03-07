@@ -74,8 +74,7 @@ class TestADT(common.SingleTransactionCase):
         admit_data = {'code': 'test', 'other_identifier': '30020', 'location': 'W9', 'start_date': '2014-01-01 12:00:01'}
         admit_task_id = admit_pool.create_task(cr, uid, {}, admit_data)
         admit_task = task_pool.browse(cr, uid, admit_task_id)
-        spell_task_id = task_pool.search(cr, uid, [('parent_id','=',admit_task_id)])[0]
-        spell_task = task_pool.browse(cr, uid, spell_task_id)
+        spell_task = task_pool.get_patient_spell_task_browse(cr, uid, patient_id)
         transfer_task_id = transfer_pool.create_task(cr, uid, {}, {'other_identifier': '30020', 'location': 'W8'})
         
         for data in ews_data:

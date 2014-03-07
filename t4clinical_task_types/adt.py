@@ -73,19 +73,16 @@ class t4_clinical_adt_patient_admit(orm.Model):
         patient_id = patient_id[0]
         super(t4_clinical_adt_patient_admit, self).submit(cr, uid, task_id, vals, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
-        vals_copy = vals.copy()
-
-        #del vals_copy['location']        
+        vals_copy = vals.copy()       
         vals_copy.update({'location_id': location_id})  
-
-        #del vals_copy['other_identifier']        
         vals_copy.update({'patient_id': patient_id})  
         admission_task_id = admission_pool.create_task(cr, uid, {}, vals_copy)
         task_pool = self.pool['t4.clinical.task']
         task_pool.start(cr, uid, admission_task_id, context)
-        ctx = context and context.copy() or {}
-        ctx.update({'source_task_id': task_id})        
-        tasks = task_pool.complete(cr, uid, admission_task_id, ctx)
+#         ctx = context and context.copy() or {}
+#         ctx.update({'parent_task_id': task_id})        
+        admission_result = task_pool.complete(cr, uid, admission_task_id, context)
+        task_pool.write(cr, uid, task_id, {'parent_id': admission_result['spell_task_id']})
         return True    
 
 class t4_clinical_adt_patient_discharge(orm.Model):

@@ -8,15 +8,19 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_spell(orm.Model):
     _name = 't4.clinical.spell'
     _inherit = ['t4.clinical.task.data']
+    
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'location_id': fields.many2one('t4.clinical.location', 'Placement Location'),
-        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
         'code': fields.text("Code"),
         'start_date': fields.datetime("ADT Start Date"),
         #...
     }
     
+    def init(self, cr):
+        self._events.append(['t4.clinical.patient.placement', self._name])
+        
+        
     def create(self, cr, uid, vals, context=None):
         current_spell = self.browse_domain(cr, uid, [('patient_id','=',vals['patient_id']),('state','in',['started'])], context)
         if current_spell:
@@ -25,8 +29,26 @@ class t4_clinical_spell(orm.Model):
         else:        
             res = super(t4_clinical_spell, self).create(cr, uid, vals, context)
         return res
+    
+    def get_spell_browse(self, cr, uid, pateint_id, context=None):
+        spell_id = spell_pool.search(cr, uid, [('patient_id','=',patient_id),('state','=','started')])
+        if spell_id:
+            spell_id = spell_id[0]
+
+    def on_placement_complete(self, cr, uid, task_id, context):
+        #import pdb; pdb.set_trace()
+        task_pool = self.pool['t4.clinical.task']
+        placement_task = task_pool.browse(cr, uid, task_id)
+        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.patient_id.id, context)
+        task_pool.submit(cr, uid, spell_task_id, {'location_id': placement_task.data_ref.location_id.id})
+        return True
+    
+    def event(self, cr, uid, model, event, task_id, context=None):
         
-        
+        if model == 't4.clinical.patient.placement' and event == "complete":
+            self.on_placement_complete(cr, uid, task_id, context)
+        #super(t4_clinical_spell, self).event(cr, uid, model, event, task_id, context)
+          
     
 class t4_clinical_complaint(orm.Model):
     _name = 't4.clinical.complaint'
@@ -37,17 +59,3 @@ class t4_clinical_complaint(orm.Model):
         'descr': fields.text('Description')
         #...
     }
-
-
-
-class t4_clinical_patient(orm.Model):
-    _inherit = 't4.clinical.patient'    
-    
-    def get_patient_spell_browse(self, cr, uid, patient_id, context=None):
-        """
-        returns started spell for the patient or False
-        """
-        spell_pool = self.pool['t4.clinical.spell']
-        res = spell_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','in',['started'])], context)
-        res = res and res[0]
-        return res

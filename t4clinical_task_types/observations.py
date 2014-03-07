@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-
+from openerp.addons.t4clinical_base.task import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -33,10 +33,16 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))
         vals.update({'none_values': none_values})
-        print "create none_values: %s" % none_values
+        #print "create none_values: %s" % none_values
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)        
     
-    
+    def create_task(self, cr, uid, task_vals={}, data_vals={}, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        patient_id = data_vals['patient_id']
+        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, patient_id, context)
+        except_if(not spell_task_id, msg="Current spell is not found for patient_id: %s" % patient_id)
+        task_vals.update({'parent_id': spell_task_id})
+        return super(t4_clinical_patient_observation, self).create_task(cr, uid, task_vals, data_vals, context)      
                 
     def write(self, cr, uid, ids, vals, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]

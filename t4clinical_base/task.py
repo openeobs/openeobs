@@ -337,7 +337,7 @@ def data_model_event(callback=None):
             f(*args, **kwargs)
             if model_pool and callback:
                 res = eval("model_pool.%s(*args[1:], **kwargs)" % callback)
-            return True
+            return res
         return wrapper
     return decorator
     
@@ -346,7 +346,7 @@ class t4_clinical_task(orm.Model):
     """
     
     _name = 't4.clinical.task'
-    _name_rec = 'summary'
+    _name_rec = 'data_type_id'
     #_parent_name = 'task_id' # the hierarchy will represent instruction-activity relation. 
     #_inherit = ['mail.thread']
 
@@ -371,7 +371,12 @@ class t4_clinical_task(orm.Model):
     
     _columns = {
         'summary': fields.char('Summary', size=256),
-        'parent_id': fields.many2one('t4.clinical.task', 'Parent Task'),      
+        'parent_id': fields.many2one('t4.clinical.task', 'Parent Task'), 
+        'child_ids': fields.one2many('t4.clinical.task', 'parent_id', 'Child Tasks'),     
+
+        'creator_task_id': fields.many2one('t4.clinical.task', 'Creator Task'), 
+        'created_task_ids': fields.one2many('t4.clinical.task', 'creator_task_id', 'Created Tasks'), 
+
         'notes': fields.text('Notes'),
         'state': fields.selection(_states, 'State'),
         # coordinates
@@ -381,6 +386,7 @@ class t4_clinical_task(orm.Model):
         'employee_ids': fields.many2many('hr.employee','task_employee_rel', 'task_id', 'employee_id', 'Employees', help="Employees the task is visible for"),
         'location_id': fields.many2one('t4.clinical.location', 'Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
         # system data
         'create_date': fields.datetime('Create Date'),
         'write_date': fields.datetime('Write Date'),
@@ -455,16 +461,17 @@ class t4_clinical_task(orm.Model):
     @data_model_event(callback="schedule")
     def schedule(self, cr, uid, task_id, date_scheduled=None, context=None):
         assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
-        date_formats = ['%Y-%m-%d %H:%M:%S','%Y-%m-%d %H:%M','%Y-%m-%d %H', '%Y-%m-%d']
-        res = []
-        for df in date_formats:
-            try:
-                dt.strptime(date_scheduled, df)
-            except:
-                res.append(False)
-            else:
-                res.append(True)
-        assert any(res), "date_scheduled must be one of the following types: %s. Found: %s" % (date_formats, date_scheduled) 
+        if date_scheduled:
+            date_formats = ['%Y-%m-%d %H:%M:%S','%Y-%m-%d %H:%M','%Y-%m-%d %H', '%Y-%m-%d']
+            res = []
+            for df in date_formats:
+                try:
+                    dt.strptime(date_scheduled, df)
+                except:
+                    res.append(False)
+                else:
+                    res.append(True)
+            #assert any(res), "date_scheduled must be one of the following types: %s. Found: %s" % (date_formats, date_scheduled) 
         return True
     
     @data_model_event(callback="assign")
@@ -509,11 +516,38 @@ class t4_clinical_task(orm.Model):
     def button_start(self, cr, uid, ids, fields, context=None):
         res = self.start(cr, uid, ids, context)
         return res
-        
+    
+    def get_patient_spell_task_id(self, cr, uid, patient_id, context=None):
+        domain = [('patient_id','=',patient_id),('state','=','started'),('data_model','=','t4.clinical.spell')]
+        spell_task_id = self.search(cr, uid, domain)
+        if not spell_task_id:
+            return False
+        if len(spell_task_id) >1:
+            _logger.warn("For pateint_id=%s found more than 1 started spell_task_ids: %s " % (patient_id, spell_task_id))
+        return spell_task_id[0]
+    
+    def get_patient_spell_task_browse(self, cr, uid, patient_id, context=None):
+        spell_task_id = self.get_patient_spell_task_id(cr, uid, patient_id, context)
+        if not spell_task_id:
+            return False
+        return self.browse(cr, uid, spell_task_id, context)
 
+    def set_task_trigger(self, cr, uid, patient_id, data_model, unit, unit_qty, context=None):
+        trigger_pool = self.pool['t4.clinical.patient.task.trigger']
+        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
+        if trigger_id:
+            trigger_id = trigger_id[0]
+            trigger_pool.write(cr, uid, trigger_id, trigger_data, {'active': False})
+
+        trigger_data = {'patient_id': patient_id, 'data_model': data_model, 'unit': unit, 'unit_qty': unit_qty}
+        trigger_id = trigger_pool.create(cr, uid, trigger_data)        
+        _logger.info("Task frequency for patient_id=%s data_model=%s set to %s %s(s)" % (patient_id, data_model, unit_qty, unit))
+        return trigger_id
+        
 class t4_clinical_task_data(orm.AbstractModel):
     
-    _name = 't4.clinical.task.data'   
+    _name = 't4.clinical.task.data'  
+    _events = [] # (event_model, handler_model)  
     _columns = {
         'name': fields.char('Name', size=256),
         'data_type_id': fields.related('task_id', 'task_data_type', type='many2one', relation='t4.clinical.task.data.type', string="Task Data Type"),
@@ -521,10 +555,25 @@ class t4_clinical_task_data(orm.AbstractModel):
         'date_started': fields.related('task_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('task_id', 'date_terminated', string='Terminated Time', type='datetime'),
         'state': fields.related('task_id', 'state', string='Start Time', type='char', size=64),  
-        'data_model': fields.related('data_type_id','data_model',type='text',string="Data Model"),            
+        'data_model': fields.related('data_type_id','data_model',type='text',string="Data Model"),    
+        'pos_id': fields.related('task_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),        
     }
     
-
+    def event(self, cr, uid, model, event, task_id, context=None):
+        assert model in self.pool.models.keys(), "Model is not found in model pool!"
+        assert isinstance(task_id, (int, long)), "task_id must be int or long, found %" % type(task_id)
+        """
+        This method may be called by any other method when it needs to notify about event
+        ex.: placement to notify about completion so interested data models can update location_id
+        """
+        # get derived models
+        print "event self:", self
+        for e in self._events:
+            if e[0] == model:
+                pool = self.pool[e[1]]
+                pool.event(cr, uid, model, event, task_id)
+        return True
+    
     def create(self, cr, uid, vals, context=None):
 #         if not context or not context.get('t4_source') == "t4.clinical.task":
 #             raise orm.except_orm('Only t4.clinical.task can create t4.clinical.task.data records!', 'msg')
@@ -596,7 +645,16 @@ class t4_clinical_task_data(orm.AbstractModel):
         except_if(task.state not in ['started'], msg="Task in state %s can not be completed!" % task.state)      
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S') 
         task_pool.write(cr, uid, task.id, {'state': 'completed', 'date_terminated': now}, context)     
-        _logger.info("Task '%s', task.id=%s completed" % (task.data_model, task.id))         
+        _logger.info("Task '%s', task.id=%s completed" % (task.data_model, task.id))   
+        trigger_pool = self.pool['t4.clinical.patient.task.trigger']
+        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',task.patient_id.id),('data_model','=',self._name)])
+        if trigger_id:
+            trigger_id = trigger_id[0]
+            trigger = trigger_pool.browse(cr, uid, trigger_id, context)
+            model_pool = self.pool[task.data_model]
+            
+            model_task_id = model_pool.create_task(cr, uid, {}, {'patient_id': task.patient_id.id})  
+            task_pool.schedule(cr, uid, model_task_id, trigger.date_next, context)
         return True
 
     def assign(self, cr, uid, task_id, user_id, context=None):
@@ -770,8 +828,9 @@ class t4_clinical_task_data(orm.AbstractModel):
         employee_ids.extend(user_employee_ids)        
         return employee_ids    
     
-    def before_create(self, cr, uid, task_id, context=None):
-        return True 
+    def get_task_browse(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
+        return task_pool.browse(cr, uid, task_id, context)
 
     def after_create(self, cr, uid, task_id, context=None):
         return True       

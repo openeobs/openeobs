@@ -54,6 +54,12 @@ class t4_clinical_location(orm.Model):
                     break
         return res
     
+    def _location2children_id(self, cr, uid, ids, context=None):
+        res = []
+        for location in self.read(cr, uid, ids, ['child_ids']):
+            res.extend(location['child_ids'])
+        res = list(set(res))
+        return res    
 #     def _location2company_id(self, cr, uid, ids, field, args, context=None):
 #         res = {}
 #         company_pool = self.pool['res.company']
@@ -67,10 +73,13 @@ class t4_clinical_location(orm.Model):
         'name': fields.char('Location', size=100, required=True, select=True),
         'code': fields.char('Code', size=256),
         'parent_id': fields.many2one('t4.clinical.location', 'Parent Location'),
+        'child_ids': fields.one2many('t4.clinical.location', 'parent_id', 'Child Locations'),
         'type': fields.selection(_types, 'Location Type'),
         'usage': fields.selection(_usages, 'Location Usage'),
         'active': fields.boolean('Active'),
-        'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.pos', string='POS'),
+        'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.pos', string='POS', store={
+                                  't4.clinical.location': (_location2children_id, ['parent_id'], 10),
+                                    }),
         'company_id': fields.related('pos_id', 'company_id', type='many2one', relation='res.company', string='Company'),
         #'parent_left': fields.integer('Left Parent', select=1),
         #'parent_right': fields.integer('Right Parent', select=1),        
@@ -153,14 +162,3 @@ class t4_clinical_patient(osv.Model):
         rec_id = super(t4_clinical_patient, self).create(cr, uid, vals, context)
         return rec_id    
     
-    def set_task_frequency(self, cr, uid, patient_id, data_model, unit, unit_qty, context=None):
-        trigger_pool = self.pool['t4.clinical.patient.task.trigger']
-        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
-        if trigger_id:
-            trigger_id = trigger_id[0]
-            trigger_pool.write(cr, uid, trigger_id, trigger_data, {'active': False})
-
-        trigger_data = {'patient_id': patient_id, 'data_model': data_model, 'unit': unit, 'unit_qty': unit_qty}
-        trigger_id = trigger_pool.create(cr, uid, trigger_data)        
-        _logger.info("Task frequency for patient_id=%s data_model=%s set to %s %s(s)" % (patient_id, data_model, unit_qty, unit))
-        return trigger_id
