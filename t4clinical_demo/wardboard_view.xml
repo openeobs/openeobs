@@ -63,8 +63,7 @@
                 <field name="view_id" ref="view_wardboard_form"/>
                 <field name="act_window_id" ref="action_wardboard"/>
             </record>
-          <menuitem name="Wardboard" id="menu_wardboard" parent="" action=""/>
-          <menuitem name="Wardboard" id="menu_left_wardboard" parent="menu_wardboard" action=""/>
+          <menuitem name="Wardboard" id="menu_left_wardboard" parent="t4clinical_base.menu_t4_clinical" action=""/>
           <menuitem name="Wardboard" id="menu_left_sub_wardboard" parent="menu_left_wardboard" action="action_wardboard"/>
     </data>
 </openerp>

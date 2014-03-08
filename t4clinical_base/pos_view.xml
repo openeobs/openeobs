@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+            <record model="ir.ui.view" id="view_pos_search">
+                <field name="name">pos Search View</field>
+                <field name="model">t4.clinical.pos</field>
+                <field name="arch" type="xml">
+                    <search string="pos Search View">
+                        <group expand="1" string="Group By...">
+                          <filter name="name" string="Name" domain="[]" context="{'group_by':'name'}" help="Name"/>
+                        </group>
+                    </search>
+                </field>
+            </record>
+            <record model="ir.ui.view" id="view_pos_tree">
+                <field name="name">pos Tree View</field>
+                <field name="model">t4.clinical.pos</field>
+                <field name="arch" type="xml">
+                    <tree string="pos Tree View">
+                       <field name="name" />
+                       <field name="code" />
+                       <field name="location_id" />
+                       <field name="company_id" />
+                       <field name="lot_admission_id" />
+                       <field name="lot_discharge_id" />
+                    </tree>
+                </field>
+            </record>    
+            <record model="ir.ui.view" id="view_pos_form">
+                <field name="name">pos Form View</field>
+                <field name="model">t4.clinical.pos</field>
+                <field name="arch" type="xml">
+                    <form string="pos Form View">
+                       <field name="name" />
+                       <field name="code" />
+                       <field name="location_id" />
+                       <field name="company_id" />
+                       <field name="lot_admission_id" />
+                       <field name="lot_discharge_id" />                     
+                    </form>
+                </field>
+            </record>
+            <record model="ir.actions.act_window" id="action_pos" >
+                <field name="name">t4.clinical.pos</field>
+                <field name="res_model">t4.clinical.pos</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="search_view_id" ref="view_pos_search"/>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_pos_tree">
+                <field eval="0" name="sequence"/>
+                <field name="view_mode">tree</field>
+                <field name="view_id" ref="view_pos_tree"/>
+                <field name="act_window_id" ref="action_pos"/>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_pos_form">
+                <field eval="1" name="sequence"/>
+                <field name="view_mode">form</field>
+                <field name="view_id" ref="view_pos_form"/>
+                <field name="act_window_id" ref="action_pos"/>
+            </record>
+          <menuitem name="Base" id="menu_left_base" parent="t4clinical_base.menu_t4_clinical" action=""/>
+          <menuitem name="pos" id="menu_left_sub_pos" parent="menu_left_base" action="action_pos"/>
+    </data>
+</openerp>
