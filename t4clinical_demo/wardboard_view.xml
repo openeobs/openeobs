@@ -19,13 +19,13 @@
                     <tree string="Wardboard Tree View">
                        <field name="full_name" />
                        <field name="location" />
+                       <field name="sex" />
                        <field name="dob" />
                        <field name="age" />
-                       <field name="gender" />
-                       <field name="sex" />
-                       <field name="other_identifier" />
-                       <field name="score1" />
-                       <field name="score2" />
+					   <field name="next_diff" />
+                       <field name="frequency" />
+                       <field name="ews_score" />
+                       <field name="ews_trend" />
                     </tree>
                 </field>
             </record>    
@@ -35,11 +35,15 @@
                 <field name="arch" type="xml">
                     <form string="Wardboard Form View">
                        <group string="Wardboard">
-	                       <field name="full_name" />
-	                       <field name="dob" />
-	                       <field name="age" />
-	                       <field name="score1" />
-	                       <field name="score2" />
+                       <field name="full_name" />
+                       <field name="location" />
+                       <field name="sex" />
+                       <field name="dob" />
+                       <field name="age" />
+					   <field name="next_diff" />
+                       <field name="frequency" />
+                       <field name="ews_score" />
+                       <field name="ews_trend" />
 					   </group>                       
                     </form>
                 </field>

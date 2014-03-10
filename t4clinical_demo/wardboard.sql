@@ -23,19 +23,16 @@ select
 	spell.patient_id as id,
 	coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
 	location.code as location,
+	patient.sex,
 	patient.dob,
 	extract(year from age(now(), patient.dob)) as age,
-	patient.gender,
-	patient.sex,
-	patient.other_identifier,
-	trigger.unit_qty,
-	trigger.unit,
-	ews0.date_scheduled,
-	ews1.score as score1, 
-	ews2.score as score2
+	(now() - ews0.date_scheduled)::text as next_diff, 
+	trigger.unit_qty || ' ' || trigger.unit || '(s)' as frequency,
+	ews1.score as ews_score,
+	ews1.score - ews2.score as ews_trend
 from t4_clinical_spell spell
 inner join t4_clinical_patient patient on spell.patient_id = patient.id
-left join t4_clinical_location location on location.id = spell.location_id -- FIXME spell.location update on placement.complete
+left join t4_clinical_location location on location.id = spell.location_id
 left join (select score, patient_id, rank from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
 left join (select score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
 left join t4_clinical_patient_task_trigger trigger on trigger.patient_id = patient.id and data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'

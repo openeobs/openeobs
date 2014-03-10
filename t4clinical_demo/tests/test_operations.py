@@ -114,6 +114,10 @@ class TestOperations(common.SingleTransactionCase):
         task_pool.start(cr, uid, placement_task.id)
         task_pool.submit(cr, uid, placement_task.id,{'location_id': b1_location_id})
         task_pool.complete(cr, uid, placement_task.id)
+        # test spell has placement location set
+        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.data_ref.patient_id.id)
+        spell_task = task_pool.browse(cr, uid, spell_task_id)
+        self.assertTrue(spell_task.data_ref.location_id.id == b1_location_id, 'spell.location == placement.location')
          
         # tests
         self.assertTrue(placement_task.location_id.id == b1_location_id, 'task.location == b1_location_id')
