@@ -54,10 +54,13 @@ class t4_clinical_patient_placement(orm.Model):
         return ids and self.browse(cr, uid, ids[0], context).location_id or False
     
     def complete(self, cr, uid, task_id, context=None):
+        task_pool = self.pool['t4.clinical.task']
         super(t4_clinical_patient_placement, self).complete(cr, uid, task_id, context)
         # notify about completion
-        data_pool = self.pool['t4.clinical.task.data']
-        self.event(cr, uid, self._name, "complete", task_id)
+        placement_task = task_pool.browse(cr, uid, task_id, context)
+        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.data_ref.patient_id.id, context)
+        task_pool.submit(cr, uid, spell_task_id, {'location_id': placement_task.data_ref.location_id.id})
+        
         
 class t4_clinical_patient_discharge(orm.Model):
     _name = 't4.clinical.patient.discharge'    

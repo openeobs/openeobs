@@ -170,7 +170,7 @@ class t4_clinical_patient_task_trigger(orm.Model):
             deltas = {}.fromkeys([item[0] for item in self._periods],0)
             deltas[trigger.unit] = trigger.unit_qty
             deltas = {k+'s':v for k,v in deltas.iteritems()} # relativedelta requires years, not year
-            res[trigger.id] = dt.now() + rd(**deltas)
+            res[trigger.id] = (dt.now() + rd(**deltas)).strftime('%Y-%m-%d %H:%M:%S')
         return res
         
     _columns = {       
