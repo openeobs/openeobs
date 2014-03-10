@@ -362,8 +362,9 @@ class t4_clinical_task(orm.Model):
     
     def _task2data_res_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
-        ids = isinstance(ids,(list, tuple)) and ids or [ids]
-        #import pdb; pdb.set_trace()
+        if not ids:
+            return res
+        ids = isinstance(ids, (list, tuple)) and ids or [ids]
         for task in self.read(cr, uid, ids, ['data_ref'], context):
             res[task['id']] = self.ref2res(task['data_ref'])[1]
         return res

@@ -22,6 +22,7 @@ class TestPatients(common.TransactionCase):
             'patient_identifier': 'NHS2223',
             'other_identifier': 'HOSPNO778',
             })
+
     def xml2db_id(self, xmlid):
         imd_pool = self.registry('ir.model.data')
         imd_id = imd_pool.search(self.cr, self.uid, [('name','=', xmlid)])
