@@ -8,9 +8,8 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['t4clinical_base','t4clinical_task_types'],
-    'data': ['security/ir.model.access.csv',
-             'master_data.xml',
+    'depends': ['t4clinical_base', 't4clinical_task_types', 't4clinical_demo'],
+    'data': [
              'wizard/patient_adt_wizard_view.xml',
              'wizard/assign_bed_and_obs_frequency_wizard_view.xml'],
     'application': True,

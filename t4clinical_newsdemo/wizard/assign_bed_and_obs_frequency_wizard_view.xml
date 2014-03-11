@@ -56,6 +56,6 @@
             <field name="target">inline</field>
         </record>
 
-        <menuitem id="menu_t4skr_assign_bed_and_obs_frequency_wizard" name="Bed and Obs Frequency" parent="menu_left_wardboard" action="action_t4skr_assign_bed_and_obs_frequency"/>
+        <menuitem id="menu_t4skr_assign_bed_and_obs_frequency_wizard" name="Bed and Obs Frequency" parent="t4clinical_demo.menu_left_wardboard" action="action_t4skr_assign_bed_and_obs_frequency"/>
     </data>
 </openerp>

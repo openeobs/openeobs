@@ -58,6 +58,8 @@ class TestADTEntry(common.SingleTransactionCase):
         }
 
         admit_task_id = self.admission_pool.create_task(cr, uid, {}, admission_data)
-        self.assertTrue(admit_task_id)
+        task = self.task_pool.browse(cr, uid, admit_task_id)
 
+        self.assertEqual(admit_task_id, task.id)
+        self.assertTrue(task.patient_id)
 

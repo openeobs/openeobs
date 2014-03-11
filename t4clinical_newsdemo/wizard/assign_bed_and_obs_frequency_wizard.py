@@ -14,23 +14,20 @@ class assign_bed_and_obs_frequency_wizard_view(osv.TransientModel):
         task_pool = self.pool.get('t4.clinical.task')
         placement_pool = self.pool.get('t4.clinical.patient.placement')
         wizard_pool = self.pool.get('t4skr.assign.bed.and.obs.frequency.wizard')
-        employee_pool = self.pool.get('hr.employee')
 
-        employee_id = employee_pool.search(cr, uid, [('user_id', '=', uid)], context=context)
-        employee_list = employee_pool.browse(cr, uid, employee_id, context=context)
-        if len(employee_list) != 1:
-            raise osv.except_osv(_('Error'), 'More than one Employee with user_id:%s' % uid)
-        employee = employee_list[0]
+        user_pool = self.pool.get('res.users')
 
-        placement_task_ids = task_pool.search(cr, uid, [('data_model', '=', placement_pool._name)], context=context)
+        user = user_pool.browse(cr, uid, uid)
+
+        placement_task_ids = task_pool.search(cr, uid, [('data_model', '=', placement_pool._name),
+                                                        ('state', '=', 'draft')
+                                                        ], context=context)
         wizard_ids = []
 
         for task_id in placement_task_ids:
             task = task_pool.browse(cr, uid, task_id, context=context)
 
-
-
-            if task.visit_id.pos_location in employee.pos_location_ids:
+            if task.location_id.id in user.location_ids:
                 vals = {
                         'task_id': task.id,
                         'visit_id': task.visit_id.id,

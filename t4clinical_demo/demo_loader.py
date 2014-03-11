@@ -121,3 +121,35 @@ class DemoLoader(orm.AbstractModel):
                 task_pool.complete(cr, uid, ews_task_id)
         except_if(rollback, msg="Rollback")
         return True
+
+    def set_patient_to_placement(self, cr, uid, rollback=True):
+        register_data = self.get_register_data(0)
+        admit_data = self.get_admit_data(register_data, 0)
+        register_pool = self.pool['t4.clinical.adt.patient.register']
+        admit_pool = self.pool['t4.clinical.adt.patient.admit']
+        task_pool = self.pool['t4.clinical.task']
+        placement_pool = self.pool['t4.clinical.patient.placement']
+
+        for rd in register_data:
+            register_pool.create_task(cr, uid, {}, rd)
+        for ad in admit_data:
+            admit_pool.create_task(cr, uid, {}, ad)
+        placement_data = self.get_placement_data(cr, uid, qty=1)
+
+        placement_task_ids = task_pool.search(cr, uid, [('data_model', '=', placement_pool._name),
+                                                        ('state', '=', 'draft')])
+
+        n = 0
+        patient_ids = []
+
+        for placement_task_id in placement_task_ids:
+            placement_task = task_pool.browse(cr, uid, placement_task_id)
+            patient_ids.append(placement_task.patient_id.id)
+            if n >=len(placement_data):
+                break
+            task_pool.submit(cr, uid, placement_task_id,  placement_data[n])
+            task_pool.start(cr, uid, placement_task_id)
+            task_pool.complete(cr, uid, placement_task_id)
+            n += 1
+        except_if(rollback, msg="Rollback")
+        return True

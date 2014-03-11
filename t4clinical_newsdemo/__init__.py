@@ -1,4 +1,3 @@
-import demo_loader
-import wardboard
 import clinical_ext
 import wizard
+import task_api

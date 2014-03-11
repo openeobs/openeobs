@@ -15,12 +15,15 @@ class TestTasks(common.SingleTransactionCase):
                 
         self.task_pool = self.registry('t4.clinical.task')
         self.user_pool = self.registry('res.users')
+
         super(TestTasks, self).setUp()
 
     def test_nurse_can_see_tasks(self):
         cr, uid = self.cr, self.uid
 
-        nurse_id = self.user_pool.search(cr, uid,[('login', '=', 'winifred')])[0]
+        self.task_pool.create_task()
+
+        nurse_id = self.user_pool.search(cr, uid, [('login', '=', 'winifred')])[0]
         print nurse_id
 
         tasks = self.task_pool.search(cr, nurse_id, [])

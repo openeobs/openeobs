@@ -9,7 +9,6 @@
           <menuitem name="employee" id="menu_left_sub_employee" parent="menu_left_base" action="action_employee" groups="group_t4clinical_base"/>
           <menuitem name="location" id="menu_left_sub_location" parent="menu_left_base" action="action_location" groups="group_t4clinical_base"/>   
           <menuitem name="pos" id="menu_left_sub_pos" parent="menu_left_base" action="action_pos" groups="group_t4clinical_base"/>              
-          <menuitem name="Task Recurrence" id="menu_left_sub_task_recurrence" parent="menu_left_t4_clinical_task" action="action_task_recurrence" groups="group_t4clinical_base"/>
        	  <menuitem name="Users" id="menu_left_sub_user" parent="menu_left_base" action="base.action_res_users" groups="group_t4clinical_base"/>
           <menuitem name="patient" id="menu_left_sub_patient" parent="menu_left_base" action="action_patient" groups="group_t4clinical_base"/>       	  
        
@@ -18,7 +17,8 @@
           
           <menuitem name="Task Data Types" id="menu_left_sub_t4_clinical_task_type" parent="menu_left_t4_clinical_task" action="action_t4_clinical_task_type" groups="group_t4clinical_base"/>
           <menuitem name="Tasks" id="menu_left_sub_t4_clinical_task" parent="menu_left_t4_clinical_task" action="action_t4_clinical_task" groups="group_t4clinical_base"/>
-          <menuitem name="Task Hierarchy" id="menu_left_sub_t4_clinical_task_hierarchy" parent="menu_left_t4_clinical_task" action="action_t4_clinical_task_hierarchy" groups="group_t4clinical_base"/>          
+          <menuitem name="Task Recurrence" id="menu_left_sub_task_recurrence" parent="menu_left_t4_clinical_task" action="action_task_recurrence" groups="group_t4clinical_base"/>
+          <menuitem name="Task Hierarchy" id="menu_left_sub_t4_clinical_task_hierarchy" parent="menu_left_t4_clinical_task" action="action_t4_clinical_task_hierarchy" groups="group_t4clinical_base"/>
           <menuitem name="Patient Task Trigger" id="menu_left_sub_patient_task_trigger" parent="menu_left_t4_clinical_task" action="action_patient_task_trigger" groups="group_t4clinical_base"/>
              
     </data>
