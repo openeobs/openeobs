@@ -71,7 +71,7 @@
                       </header>
                       <sheet>
                       		<group string="Data">
-                  				<button style="oe_highlight" name="submit_act_window" type="object" string="Submit Data"/>
+                  				<button style="oe_highlight" name="act_window" type="object" string="Submit Data"/>
                       		</group>
                       	    <group string="Task">
 			                   <field name="create_date" />

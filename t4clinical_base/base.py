@@ -13,7 +13,9 @@ class t4_clinical_pos(orm.Model):
         'location_id': fields.many2one('t4.clinical.location', 'POS Location', required=True), 
         'company_id': fields.many2one('res.company', 'Company'),
         'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
-        'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),       
+        'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),
+        'ews_init_frequency': fields.integer('EWS Initial Frequency in Minutes')
+             
     }
 
 class res_company(orm.Model):
@@ -59,8 +61,12 @@ class t4_clinical_location(orm.Model):
         res = []
         for location in self.read(cr, uid, ids, ['child_ids']):
             res.extend(location['child_ids'])
+            res.append(location['id'])
         res = list(set(res))
-        return res    
+        return res
+    def _pos2location_id(self, cr, uid, ids, context=None):
+        res = self.search(cr, uid, [])
+        return res          
 #     def _location2company_id(self, cr, uid, ids, field, args, context=None):
 #         res = {}
 #         company_pool = self.pool['res.company']
@@ -80,6 +86,7 @@ class t4_clinical_location(orm.Model):
         'active': fields.boolean('Active'),
         'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.pos', string='POS', store={
                                   't4.clinical.location': (_location2children_id, ['parent_id'], 10),
+                                  't4.clinical.pos': (_pos2location_id, ['location_id'], 5),
                                     }),
         'company_id': fields.related('pos_id', 'company_id', type='many2one', relation='res.company', string='Company'),
         #'parent_left': fields.integer('Left Parent', select=1),

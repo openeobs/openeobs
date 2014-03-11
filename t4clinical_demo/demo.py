@@ -8,6 +8,15 @@ from faker import Faker
 fake = Faker()
 
 
+class t4_clinical_pos(orm.Model):
+    """
+    POS Configuration
+    """
+    _inherit = 't4.clinical.pos'
+    
+    _defaults = {
+         'ews_init_frequency': 30,
+     }
     
     
 class demo(orm.AbstractModel):

@@ -65,21 +65,24 @@ class TestADT(common.SingleTransactionCase):
         global task_id
         global ews_data        
         global now, tomorrow
+        
+        adt_uid = self.xml2db_id("demo_user_adt_uhg")
+        
         patient_data = {'family_name': 'Bacon', 'other_identifier': '30020', 'dob': '20-12-1922 12:33', 'gender': 'M', 'sex': 'M', 'given_name': 'Andy'}
-        reg_task_id = register_pool.create_task(cr, uid, {}, patient_data)
+        reg_task_id = register_pool.create_task(cr, adt_uid, {}, patient_data)
         patient_domain = [(k,'=',v) for k,v in patient_data.iteritems()]
-        patient_id = patient_pool.search(cr, uid, patient_domain)[0]
+        patient_id = patient_pool.search(cr, adt_uid, patient_domain)[0]
         #dupl_task_id = register_pool.create_task(cr, uid, {}, patient_data)
 
         admit_data = {'code': 'test', 'other_identifier': '30020', 'location': 'W9', 'start_date': '2014-01-01 12:00:01'}
-        admit_task_id = admit_pool.create_task(cr, uid, {}, admit_data)
-        admit_task = task_pool.browse(cr, uid, admit_task_id)
-        spell_task = task_pool.get_patient_spell_task_browse(cr, uid, patient_id)
-        transfer_task_id = transfer_pool.create_task(cr, uid, {}, {'other_identifier': '30020', 'location': 'W8'})
+        admit_task_id = admit_pool.create_task(cr, adt_uid, {}, admit_data)
+        admit_task = task_pool.browse(cr, adt_uid, admit_task_id)
+        spell_task = task_pool.get_patient_spell_task_browse(cr, adt_uid, patient_id)
+        transfer_task_id = transfer_pool.create_task(cr, adt_uid, {}, {'other_identifier': '30020', 'location': 'W8'})
         
         for data in ews_data:
             data.update({'patient_id': patient_id})
-            ews_pool.create_task(cr, uid, {}, data)
+            ews_pool.create_task(cr, adt_uid, {}, data)
         
         self.assertTrue(reg_task_id,"reg_task_id")
         self.assertTrue(not patient_data.get('reg_task_id'), 'reg_task_id is not in patient_data')
@@ -87,24 +90,3 @@ class TestADT(common.SingleTransactionCase):
         #self.assertTrue(patient_id, 'patient_id exists')
         
         #self.assertTrue(admit_task.parent_id.data_model == 't4.clinical.spell', "spell")
-        
-
-         
-            
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        

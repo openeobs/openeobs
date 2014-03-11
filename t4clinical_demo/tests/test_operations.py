@@ -52,7 +52,7 @@ class TestOperations(common.SingleTransactionCase):
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
         global user_pool, employee_pool, type_pool, location_pool, patient_pool
         global donald_patient_id, w8_location_id, b1_location_id, admission_data, admission_task_id, discharge_task_id
-        global nurse_user_id, nurse_employee_id
+        global nurse_user_id, nurse_employee_id, manager_user_id
         global now, tomorrow
         
         # ids from demo & base data
@@ -62,6 +62,7 @@ class TestOperations(common.SingleTransactionCase):
         w8_location_id = self.xml2db_id("demo_location_w8")
         b1_location_id = self.xml2db_id("demo_location_b1")
         nurse_user_id = self.xml2db_id("demo_user_nurse")
+        manager_user_id = self.xml2db_id("demo_user_manager")
 
         
         
@@ -75,6 +76,7 @@ class TestOperations(common.SingleTransactionCase):
         self.assertTrue(w8_location_id in [l.id for l in nurse_user.location_ids], 'w8_location in nurse_user.locations')
         
         w8_location = location_pool.browse(cr, uid, w8_location_id)
+        import pdb; pdb.set_trace()
         self.assertTrue(w8_location.pos_id.id == uhg_pos_id, 'w8_location.pos == uhg_pos')
         
         b1_location = location_pool.browse(cr, uid, b1_location_id)
@@ -87,11 +89,11 @@ class TestOperations(common.SingleTransactionCase):
                                      data_vals      = {'location_id': w8_location_id, 'patient_id': donald_patient_id},
                                      patient_id     = donald_patient_id, 
                                      location_id    = w8_location_id, 
-                                     user_id        = nurse_user_id
+                                     user_id        = manager_user_id
                                      )
         
         # admission operations
-        task_pool.assign(cr, uid, admission_task_id, nurse_user_id)   
+        task_pool.assign(cr, uid, admission_task_id, manager_user_id)   
         task_pool.start(cr, uid, admission_task_id)
         task_pool.complete(cr, uid, admission_task_id)
         # admission test
@@ -99,7 +101,7 @@ class TestOperations(common.SingleTransactionCase):
                                      admission_task_id,
                                      patient_id     = donald_patient_id, 
                                      location_id    = w8_location_id, 
-                                     user_id        = nurse_user_id
+                                     user_id        = manager_user_id
                                      )
          
          
@@ -155,7 +157,7 @@ class TestOperations(common.SingleTransactionCase):
                                      data_vals      = {'patient_id': donald_patient_id},
                                      patient_id     = donald_patient_id, 
                                      location_id    = b1_location_id, # patient placement location
-                                     user_id        = nurse_user_id
+                                     user_id        = manager_user_id
                                      )        
         task_pool.start(cr, uid, discharge_task_id)
         task_pool.complete(cr, uid, discharge_task_id)
@@ -192,15 +194,15 @@ class TestOperations(common.SingleTransactionCase):
         location_id and task_domain.append(('location_id','=',location_id))      
         user_id and task_domain.append(('user_id','=',user_id))
         task_ids = task_pool.get_task_ids(cr, uid, data_pool._name, data_domain)
-        print "\nget_task_ids():"
+
         print "task_ids: %s" % task_ids
         print "task_domain: %s" % task_domain
         print "data_domain: %s" % data_domain
-        print "\n"
-        print "\n task fields"
+        print "user_id: %s" % user_id
         print "task.location_id: %s" % task.location_id
         print "location_ids child_of task.location_id: %s" % location_pool.search(cr, uid, [('id','child_of',task.location_id.id)])        
         print "task.patient_id: %s" % task.patient_id
+        print "task.user_ids: %s" % task.user_ids
         print "\n"        
         self.assertTrue(task_id in task_ids, "task_id in task_ids")
         #import pdb; pdb.set_trace()

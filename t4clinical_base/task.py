@@ -783,9 +783,9 @@ class t4_clinical_task_data(orm.AbstractModel):
                 parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
                 parent_id = parent_location.parent_id and parent_location.parent_id.id
             for location_id in parent_location_ids:
-                user_ids.extend(user_pool.search(cr, uid, [('location_ids','=',location_id), ('task_type_ids','=',task.type_id.id)]))    
+                user_ids.extend(user_pool.search(cr, uid, [('location_ids','child_of',location_id), ('task_type_ids','=',task.type_id.id)]))    
             ##print "parent_location_ids: %s" % parent_location_ids        
-        return user_ids
+        return list(set(user_ids))
     
         
 #     def get_task_employee_id(self, cr, uid, task_id, context=None):

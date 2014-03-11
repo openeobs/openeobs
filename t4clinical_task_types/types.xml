@@ -16,7 +16,7 @@
 			<field name="data_model">t4.clinical.patient.admission</field>
 <!-- 			<field name="act_window_xmlid">action_patient_move</field> -->
 		</record>
-		<record model="t4.clinical.task.type" id="patient_dischcarge_data_type">
+		<record model="t4.clinical.task.type" id="patient_discharge_data_type">
 			<field name="summary">Patient Discharge</field>
 			<field name="data_model">t4.clinical.patient.discharge</field>
 <!-- 			<field name="act_window_xmlid">action_patient_move</field> -->

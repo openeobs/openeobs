@@ -97,6 +97,9 @@ class t4_clinical_adt_patient_admit(orm.Model):
 #         ctx.update({'parent_task_id': task_id})        
         admission_result = task_pool.complete(cr, uid, admission_task_id, context)
         task_pool.write(cr, uid, task_id, {'parent_id': admission_result['spell_task_id']})
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        task_pool.set_task_trigger(cr, uid, patient_id,'t4.clinical.patient.observation.ews',
+                                   'minute', user.pos_id.ews_init_frequency, context=None)
         return True    
 
 class t4_clinical_adt_patient_discharge(orm.Model):

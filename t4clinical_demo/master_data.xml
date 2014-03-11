@@ -20,7 +20,7 @@
             <field name="code">W8</field>
             <field name="type">structural</field>
             <field name="usage">ward</field>
-            <field name="parent_id" ref="demo_location_uhg"/>
+          <field name="parent_id" ref="demo_location_uhg"/>
         </record>        
         <record id="demo_location_w9" model="t4.clinical.location">
             <field name="name">Ward W9</field>
@@ -166,8 +166,10 @@
             <field name="password">nurse</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
-			<field name="task_type_ids" eval="[[6, False, 
-													[ref('t4clinical_task_types.observation_ews_data_type')]]]"/>                      
+			<field name="task_type_ids" eval="[[6, False,[
+												ref('t4clinical_task_types.observation_ews_data_type'),
+												ref('t4clinical_task_types.observation_height_weight_data_type')
+												]]]"/>                      
         </record>
 
         <record id="demo_user_manager" model="res.users">
@@ -176,8 +178,12 @@
             <field name="password">manager</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
 			<field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>    
-			<field name="task_type_ids" eval="[[6, False, 
-													[ref('t4clinical_task_types.patient_placement_data_type')]]]"/>  			       
+			<field name="task_type_ids" eval="[[6, False,[
+												ref('t4clinical_task_types.patient_placement_data_type'),
+												ref('t4clinical_task_types.patient_admission_data_type'),
+												ref('t4clinical_task_types.patient_move_data_type'),
+												ref('t4clinical_task_types.patient_discharge_data_type')	
+													]]]"/>  			       
         </record>
 
         <record id="demo_user_manager" model="res.users">
@@ -186,6 +192,15 @@
             <field name="password">a</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_admin'))]"/> 			       
         </record>
+
+        <record id="demo_user_adt_uhg" model="res.users">
+            <field name="name">adt</field>
+            <field name="login">adt</field>
+            <field name="password">adt</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_admin'))]"/>
+            <field name="pos_id" ref="demo_pos_uhg"/>		       
+        </record>
+
 
 <!--     Employees -->
         <record id="demo_employee_harold" model="hr.employee">
