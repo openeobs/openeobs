@@ -22,11 +22,11 @@
                 <field name="field_parent">child_ids</field>
                 <field name="arch" type="xml">
                     <tree string="T4 Clinical Task Tree View">
-                       <field name="data_type_id" />
+                       <field name="type_id" />
                        <field name="user_id" />
                        <field name="user_ids" />
-                       <field name="employee_id" />
-                       <field name="employee_ids" />
+<!--                        <field name="employee_id" />
+                       <field name="employee_ids" /> -->
                        <field name="location_id" />
                        <field name="patient_id" />
                        <field name="date_scheduled" />
@@ -43,11 +43,11 @@
                 <field name="model">t4.clinical.task</field>
                 <field name="arch" type="xml">
                     <tree string="T4 Clinical Task Tree View">
-                       <field name="data_type_id" />
+                       <field name="type_id" />
                        <field name="user_id" />
                        <field name="user_ids" />
-                       <field name="employee_id" />
-                       <field name="employee_ids" />
+<!--                        <field name="employee_id" />
+                       <field name="employee_ids" /> -->
                        <field name="location_id" />
                        <field name="patient_id" />
                        <field name="date_scheduled" />
@@ -75,9 +75,9 @@
                       		</group>
                       	    <group string="Task">
 			                   <field name="create_date" />
-		                       <field name="data_type_id" />
+		                       <field name="type_id" />
 		                       <field name="user_id" />
-		                       <field name="employee_id" />
+<!-- 		                       <field name="employee_id" /> -->
 		                       <field name="location_id" />
 		                       <field name="patient_id" />
 		                       <field name="date_deadline" />

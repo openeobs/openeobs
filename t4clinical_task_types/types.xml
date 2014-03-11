@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>	
-		<record model="t4.clinical.task.data.type" id="patient_move_data_type">
+		<record model="t4.clinical.task.type" id="patient_move_data_type">
 			<field name="summary">Patient Move</field>
 			<field name="data_model">t4.clinical.patient.move</field>
 			<field name="act_window_xmlid">action_patient_move</field>
 		</record>
-		<record model="t4.clinical.task.data.type" id="patient_placement_data_type">
+		<record model="t4.clinical.task.type" id="patient_placement_data_type">
 			<field name="summary">Patient Placement</field>
 			<field name="data_model">t4.clinical.patient.placement</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>			
-		<record model="t4.clinical.task.data.type" id="patient_admission_data_type">
+		<record model="t4.clinical.task.type" id="patient_admission_data_type">
 			<field name="summary">Patient Admission</field>
 			<field name="data_model">t4.clinical.patient.admission</field>
 <!-- 			<field name="act_window_xmlid">action_patient_move</field> -->
 		</record>
-		<record model="t4.clinical.task.data.type" id="patient_dischcarge_data_type">
+		<record model="t4.clinical.task.type" id="patient_dischcarge_data_type">
 			<field name="summary">Patient Discharge</field>
 			<field name="data_model">t4.clinical.patient.discharge</field>
 <!-- 			<field name="act_window_xmlid">action_patient_move</field> -->
 		</record>
-		<record model="t4.clinical.task.data.type" id="observation_height_weight_data_type">
+		<record model="t4.clinical.task.type" id="observation_height_weight_data_type">
 			<field name="summary">Observation Height, Weight</field>
 			<field name="data_model">t4.clinical.patient.observation.height_weight</field>
 			<field name="act_window_xmlid">action_observation_height_weight</field>
 		</record>		
-		<record model="t4.clinical.task.data.type" id="spell_data_type">
+		<record model="t4.clinical.task.type" id="spell_data_type">
 			<field name="summary">Spell of Care</field>
 			<field name="data_model">t4.clinical.spell</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>			
-		<record model="t4.clinical.task.data.type" id="adt_patient_register_data_type">
+		<record model="t4.clinical.task.type" id="adt_patient_register_data_type">
 			<field name="summary">ADT Patient Register</field>
 			<field name="data_model">t4.clinical.adt.patient.register</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>
-		<record model="t4.clinical.task.data.type" id="adt_patient_admit_data_type">
+		<record model="t4.clinical.task.type" id="adt_patient_admit_data_type">
 			<field name="summary">ADT Patient Admit</field>
 			<field name="data_model">t4.clinical.adt.patient.admit</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>
-		<record model="t4.clinical.task.data.type" id="adt_patient_transfer_data_type">
+		<record model="t4.clinical.task.type" id="adt_patient_transfer_data_type">
 			<field name="summary">ADT Patient Transfer</field>
 			<field name="data_model">t4.clinical.adt.patient.transfer</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>
-		<record model="t4.clinical.task.data.type" id="adt_patient_merge_data_type">
+		<record model="t4.clinical.task.type" id="adt_patient_merge_data_type">
 			<field name="summary">ADT Patient Merge</field>
 			<field name="data_model">t4.clinical.adt.patient.merge</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>			
-		<record model="t4.clinical.task.data.type" id="observation_ews_data_type">
+		<record model="t4.clinical.task.type" id="observation_ews_data_type">
 			<field name="summary">Observation EWS</field>
 			<field name="data_model">t4.clinical.patient.observation.ews</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->

@@ -16,7 +16,7 @@ class TestOperations(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, employee_pool, type_pool, location_pool, patient_pool, ews_pool
+        global user_pool, type_pool, location_pool, patient_pool, ews_pool
         global donald_patient_id, w8_location_id, b1_location_id, admission_data, admission_task_id, discharge_task_id
         global nurse_user_id, nurse_employee_id
         global now, tomorrow
@@ -34,7 +34,6 @@ class TestOperations(common.SingleTransactionCase):
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
         discharge_pool = self.registry('t4.clinical.patient.discharge')
         user_pool = self.registry('res.users')
-        employee_pool = self.registry('hr.employee')
         location_pool = self.registry('t4.clinical.location')
         patient_pool = self.registry('t4.clinical.patient')
         
@@ -63,7 +62,7 @@ class TestOperations(common.SingleTransactionCase):
         w8_location_id = self.xml2db_id("demo_location_w8")
         b1_location_id = self.xml2db_id("demo_location_b1")
         nurse_user_id = self.xml2db_id("demo_user_nurse")
-        nurse_employee_id = self.xml2db_id("demo_employee_norah")
+
         
         
         # task frequency
@@ -71,11 +70,9 @@ class TestOperations(common.SingleTransactionCase):
                                    't4.clinical.patient.observation.ews', 
                                    'minute', 15, context=None)        
 
-
+        nurse_user = user_pool.browse(cr, uid, nurse_user_id)
         # base data tests
-        nurse_employee = employee_pool.browse(cr, uid, nurse_employee_id)
-        self.assertTrue(nurse_employee.user_id.id == nurse_user_id, 'nurse_user == nurse_employee.user')
-        self.assertTrue(w8_location_id in [e.id for e in nurse_employee.location_ids], 'w8_location in nurse_employee.locations')
+        self.assertTrue(w8_location_id in [l.id for l in nurse_user.location_ids], 'w8_location in nurse_user.locations')
         
         w8_location = location_pool.browse(cr, uid, w8_location_id)
         self.assertTrue(w8_location.pos_id.id == uhg_pos_id, 'w8_location.pos == uhg_pos')
@@ -90,7 +87,6 @@ class TestOperations(common.SingleTransactionCase):
                                      data_vals      = {'location_id': w8_location_id, 'patient_id': donald_patient_id},
                                      patient_id     = donald_patient_id, 
                                      location_id    = w8_location_id, 
-                                     employee_id    = nurse_employee_id, 
                                      user_id        = nurse_user_id
                                      )
         
@@ -103,7 +99,6 @@ class TestOperations(common.SingleTransactionCase):
                                      admission_task_id,
                                      patient_id     = donald_patient_id, 
                                      location_id    = w8_location_id, 
-                                     employee_id    = nurse_employee_id, 
                                      user_id        = nurse_user_id
                                      )
          
@@ -114,6 +109,10 @@ class TestOperations(common.SingleTransactionCase):
         task_pool.start(cr, uid, placement_task.id)
         task_pool.submit(cr, uid, placement_task.id,{'location_id': b1_location_id})
         task_pool.complete(cr, uid, placement_task.id)
+        # test spell has placement location set
+        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.data_ref.patient_id.id)
+        spell_task = task_pool.browse(cr, uid, spell_task_id)
+        self.assertTrue(spell_task.data_ref.location_id.id == b1_location_id, 'spell.location == placement.location')
          
         # tests
         self.assertTrue(placement_task.location_id.id == b1_location_id, 'task.location == b1_location_id')
@@ -128,7 +127,6 @@ class TestOperations(common.SingleTransactionCase):
                                      data_vals      = {'patient_id': donald_patient_id,'height': 180},#'weight': 80},
                                      patient_id     = donald_patient_id, 
                                      location_id    = b1_location_id, #implemented as latest placement location
-                                     employee_id    = nurse_employee_id,
                                      user_id        = nurse_user_id
                                      )          
         height_weight_task = task_pool.browse(cr, uid, height_weight_task_id)
@@ -144,7 +142,6 @@ class TestOperations(common.SingleTransactionCase):
                                      data_vals      = {'patient_id': donald_patient_id},
                                      patient_id     = donald_patient_id, 
                                      location_id    = b1_location_id, # patient placement location
-                                     employee_id    = nurse_employee_id,
                                      user_id        = nurse_user_id
                                      )        
         task_pool.start(cr, uid, ews_task_id)
@@ -158,7 +155,6 @@ class TestOperations(common.SingleTransactionCase):
                                      data_vals      = {'patient_id': donald_patient_id},
                                      patient_id     = donald_patient_id, 
                                      location_id    = b1_location_id, # patient placement location
-                                     employee_id    = nurse_employee_id,
                                      user_id        = nurse_user_id
                                      )        
         task_pool.start(cr, uid, discharge_task_id)
@@ -166,19 +162,10 @@ class TestOperations(common.SingleTransactionCase):
 
 
 
-
-#         #access
-#         employee_task_ids = employee_pool.get_employee_task_ids(cr, uid, nurse_employee_id)
-#         employee = employee_pool.browse(cr, uid, nurse_employee_id)
-#         employee_task_test = [{'emp_uid':employee.user_id.id, 'task_uid':task.user_id.id, 'task_id': task.id, 'employee_id': employee.id} 
-#                               for task in task_pool.browse(cr, uid, employee_task_ids)]
-#         #print employee_task_test
-#         self.assertTrue(employee_task_ids, 'employee tasks qty > 0')
-
-    def create_task_test(self, data_pool, task_vals={}, data_vals={}, patient_id=False, location_id=False, employee_id=False, user_id=False):
+    def create_task_test(self, data_pool, task_vals={}, data_vals={}, patient_id=False, location_id=False, user_id=False):
         global cr, uid
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, employee_pool, type_pool, location_pool, ews_pool
+        global user_pool, type_pool, location_pool, ews_pool
         global now, tomorrow        
 #         def print_vars():
 #             print "\n"
@@ -187,7 +174,6 @@ class TestOperations(common.SingleTransactionCase):
 #             print "task_vals: %s" % task_vals
 #             print "data_vals: %s" % data_vals
 #             print "patient_id: %s" % patient_id
-#             print "employee_id: %s" % employee_id
 #             print "location_id: %s" % location_id            
 #             print "user_id: %s" % user_id
 #             print "\n"
@@ -203,34 +189,31 @@ class TestOperations(common.SingleTransactionCase):
         
         task_domain=[('data_model','=',data_pool._name)]
         patient_id and task_domain.append(('patient_id','=',patient_id))
-        location_id and task_domain.append(('location_id','=',location_id))
-        employee_id and task_domain.append(('employee_ids','=',employee_id))        
+        location_id and task_domain.append(('location_id','=',location_id))      
         user_id and task_domain.append(('user_id','=',user_id))
         task_ids = task_pool.get_task_ids(cr, uid, data_pool._name, data_domain)
-#         print "\nget_task_ids():"
-#         print "task_ids: %s" % task_ids
-#         print "task_domain: %s" % task_domain
-#         print "data_domain: %s" % data_domain
-#         print "\n"
-#         print "\n task fields"
-#         print "task.location_id: %s" % task.location_id
-#         print "location_ids child_of task.location_id: %s" % location_pool.search(cr, uid, [('id','child_of',task.location_id.id)])        
-#         print "task.patient_id: %s" % task.patient_id
-#         print "task.employee_id: %s" % task.employee_id
-#         print "task.employee_ids: %s" % task.employee_ids
-#         print "\n"        
+        print "\nget_task_ids():"
+        print "task_ids: %s" % task_ids
+        print "task_domain: %s" % task_domain
+        print "data_domain: %s" % data_domain
+        print "\n"
+        print "\n task fields"
+        print "task.location_id: %s" % task.location_id
+        print "location_ids child_of task.location_id: %s" % location_pool.search(cr, uid, [('id','child_of',task.location_id.id)])        
+        print "task.patient_id: %s" % task.patient_id
+        print "\n"        
         self.assertTrue(task_id in task_ids, "task_id in task_ids")
         #import pdb; pdb.set_trace()
-        employee_id and self.assertTrue(employee_id in [e.id for e in task.employee_ids], "employee in task.employees")
+        user_id and self.assertTrue(user_id in [u.id for u in task.user_ids], "user in task.user")
         location_id and self.assertTrue(location_id == task.location_id.id, 'location == task.location')
         patient_id and self.assertTrue(patient_id == task.patient_id.id, 'patient == get.patient')        
              
         return task_id
 
-    def admission_complete_test(self, admission_task_id, patient_id=False, location_id=False, employee_id=False, user_id=False):
+    def admission_complete_test(self, admission_task_id, patient_id=False, location_id=False, user_id=False):
         global cr, uid
         global task_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, employee_pool, type_pool, location_pool, ews_pool
+        global user_pool, type_pool, location_pool, ews_pool
         global now, tomorrow
         
         admission_task = task_pool.browse(cr, uid, admission_task_id)
@@ -256,10 +239,10 @@ class TestOperations(common.SingleTransactionCase):
             self.assertTrue(not spell_task.location_id.id, 'not spell.location') 
             self.assertTrue(location_id == move_task.location_id.id, 'location == move.location')
             self.assertTrue(not placement_task.location_id.id, 'not placement.location')   
-        if employee_id:
-            self.assertTrue(employee_id in [e.id for e in admission_task.employee_ids], 'employee in admission.employees') 
-            self.assertTrue(not [e.id for e in spell_task.employee_ids], 'not spell.employees') 
-            self.assertTrue(employee_id in [e.id for e in move_task.employee_ids], 'employee in move.employees')
-            self.assertTrue(not [e.id for e in placement_task.employee_ids], 'not placement.employees')     
+        if user_id:
+            self.assertTrue(user_id in [u.id for u in admission_task.user_ids], 'user in admission.users') 
+            self.assertTrue(not [u.id for u in spell_task.user_ids], 'not spell.users') 
+            self.assertTrue(user_id in [u.id for u in move_task.user_ids], 'user in move.users')
+            self.assertTrue(not [u.id for u in placement_task.user_ids], 'not placement.users')     
         if user_id:
             self.assertTrue(admission_task.user_id.id == user_id, 'admission.user == user')

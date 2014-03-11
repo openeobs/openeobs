@@ -9,7 +9,7 @@
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
     'depends': ['t4clinical_base','t4clinical_task_types'],
-    'data': ['master_data.xml', 'wardboard_view.xml'],
+    'data': ['master_data.xml', 'wardboard_view.xml','ir.model.access.csv'],
     'application': True,
     'installable': True,
     'active': False,
