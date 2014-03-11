@@ -59,7 +59,5 @@
                 <field name="view_id" ref="view_pos_form"/>
                 <field name="act_window_id" ref="action_pos"/>
             </record>
-          <menuitem name="Base" id="menu_left_base" parent="t4clinical_base.menu_t4_clinical" action=""/>
-          <menuitem name="pos" id="menu_left_sub_pos" parent="menu_left_base" action="action_pos"/>
     </data>
 </openerp>

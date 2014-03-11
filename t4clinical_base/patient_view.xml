@@ -65,6 +65,5 @@
                 <field name="view_id" ref="view_patient_form"/>
                 <field name="act_window_id" ref="action_patient"/>
             </record>
-          <menuitem name="patient" id="menu_left_sub_patient" parent="menu_left_base" action="action_patient"/>
     </data>
 </openerp>

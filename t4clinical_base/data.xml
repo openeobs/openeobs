@@ -12,7 +12,7 @@
             <field name="function" eval="'cron'"/>
             <field name="args" eval="'()'" />
         </record>	
-<!-- Modele category -->
+<!-- Model category -->
         <record model="ir.module.category" id="module_category_t4clinical">
             <field name="name">T4 Clinical</field>
             <field name="description">Clinical application by Tactix4</field>
@@ -22,7 +22,7 @@
         <record model="ir.rule" id="t4clinical_rule_user_task">
             <field name="name">T4 Clinical User-Task Rule</field>
             <field name="model_id" ref="model_t4_clinical_task"/>
-            <field name="domain_force">[('location_id','in',user.location_ids),('type_id','in',user.task_type_ids)]</field>
+            <field name="domain_force">[('user_ids','in',user.id)]</field>
         </record>
 <!-- Groups -->
         <record id="group_t4clinical_base" model="res.groups">

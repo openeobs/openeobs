@@ -131,9 +131,5 @@
                 <field name="view_id" ref="view_t4_clinical_task_form"/>
                 <field name="act_window_id" ref="action_t4_clinical_task"/>
             </record>   -->          
-          <menuitem name="T4 Clinical" id="menu_t4_clinical" parent="" action=""/>
-          <menuitem name="Tasks" id="menu_left_t4_clinical_task" parent="menu_t4_clinical" action=""/>
-          <menuitem name="Tasks" id="menu_left_sub_t4_clinical_task" parent="menu_left_t4_clinical_task" action="action_t4_clinical_task"/>
-         <menuitem name="Task Hierarchy" id="menu_left_sub_t4_clinical_task_hierarchy" parent="menu_left_t4_clinical_task" action="action_t4_clinical_task_hierarchy"/>          
-    </data>
+     </data>
 </openerp>
