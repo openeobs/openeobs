@@ -158,6 +158,14 @@
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>
+	
+		<record id="demo_user_hca" model="res.users">
+			<field name="name">hca</field>
+			<field name="login">hca</field>
+			<field name="password">hca</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
+        </record>        
         
         <record id="demo_user_norah" model="res.users">
             <field name="name">Norah Miller</field>
@@ -170,6 +178,20 @@
 												ref('t4clinical_task_types.observation_height_weight_data_type')
 												]]]"/>                      
         </record>
+
+	
+		<record id="demo_user_nurse" model="res.users">
+			<field name="name">nurse</field>
+			<field name="login">nurse</field>
+			<field name="password">nurse</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
+			<field name="task_type_ids" eval="[[6, False,[
+												ref('t4clinical_task_types.observation_ews_data_type'),
+												ref('t4clinical_task_types.observation_height_weight_data_type')
+												]]]"/>                      
+        </record>
+
 
         <record id="demo_user_winifred" model="res.users">
             <field name="name">Winifred</field>
@@ -184,6 +206,22 @@
 												ref('t4clinical_task_types.patient_discharge_data_type')	
 													]]]"/>  			       
         </record>
+
+	
+		<record id="demo_user_manager" model="res.users">
+			<field name="name">manager</field>
+			<field name="login">manager</field>	
+			<field name="password">manager</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
+			<field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>    
+			<field name="task_type_ids" eval="[[6, False,[
+												ref('t4clinical_task_types.patient_placement_data_type'),
+												ref('t4clinical_task_types.patient_admission_data_type'),
+												ref('t4clinical_task_types.patient_move_data_type'),
+												ref('t4clinical_task_types.patient_discharge_data_type')	
+													]]]"/>  			       
+        </record>
+
 
         <record id="demo_user_manager" model="res.users">
             <field name="name">t4admin</field>
