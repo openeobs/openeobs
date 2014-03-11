@@ -76,7 +76,7 @@ class TestOperations(common.SingleTransactionCase):
         self.assertTrue(w8_location_id in [l.id for l in nurse_user.location_ids], 'w8_location in nurse_user.locations')
         
         w8_location = location_pool.browse(cr, uid, w8_location_id)
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         self.assertTrue(w8_location.pos_id.id == uhg_pos_id, 'w8_location.pos == uhg_pos')
         
         b1_location = location_pool.browse(cr, uid, b1_location_id)

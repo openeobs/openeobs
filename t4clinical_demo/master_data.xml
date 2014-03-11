@@ -223,7 +223,7 @@
         </record>
 
 
-        <record id="demo_user_manager" model="res.users">
+        <record id="demo_user_admin" model="res.users">
             <field name="name">t4admin</field>
             <field name="login">a</field>
             <field name="password">a</field>
