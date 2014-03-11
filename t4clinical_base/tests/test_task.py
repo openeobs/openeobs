@@ -22,10 +22,10 @@ class TestTask(common.SingleTransactionCase):
         self.task_pool = self.registry('t4.clinical.task')
         self.task1_id = self.task_pool.create(self.cr, self.uid, task1_data)
 
-        self.type_pool = self.registry('t4.clinical.task.data.type')
-        self.data_type_id = self.type_pool.create(self.cr, self.uid, data_model_data)
+        self.type_pool = self.registry('t4.clinical.task.type')
+        self.type_id = self.type_pool.create(self.cr, self.uid, data_model_data)
         recurrence_minute_data = {'unit':'minute', 'unit_qty':1, 'date_start': (dt.now()+rd(days=-1)).strftime('%Y-%m-%d %H:%M:%S'),
-                          'vals_task': "{'summary': 'test', 'data_type_id': %s}" % str(self.data_type_id),
+                          'vals_task': "{'summary': 'test', 'type_id': %s}" % str(self.type_id),
                           'vals_data': "{'val1': 'test'}"
                           }
         self.rec_pool = self.registry('t4.clinical.task.recurrence')
@@ -99,7 +99,7 @@ class TestTask(common.SingleTransactionCase):
             
         """
         self.test_start()
-        self.write_task1({'data_type_id': self.data_type_id})
+        self.write_task1({'type_id': self.type_id})
         self.task_pool.submit(self.cr, self.uid, self.task1_id, submit_data)
         #import pdb; pdb.set_trace()
         task1 = self.get_task1()

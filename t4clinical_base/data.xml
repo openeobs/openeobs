@@ -19,14 +19,10 @@
             <field name="sequence">5</field>
         </record>
 <!-- Record Rules -->
-        <record model="ir.rule" id="rule_">
-            <field name="name">T4 Clinical Employee-Task Rule</field>
+        <record model="ir.rule" id="t4clinical_rule_user_task">
+            <field name="name">T4 Clinical User-Task Rule</field>
             <field name="model_id" ref="model_t4_clinical_task"/>
-            <field name="domain_force">[()]</field>
-            <field name="perm_read" eval="1"/>
-            <field name="perm_write" eval="1"/>
-            <field name="perm_create" eval="1"/>
-            <field name="perm_unlink" eval="1"/>
+            <field name="domain_force">[('location_id','in',user.location_ids),('type_id','in',user.task_type_ids)]</field>
         </record>
 <!-- Groups -->
         <record id="group_t4clinical_base" model="res.groups">
@@ -64,7 +60,11 @@
             <field name="category_id" ref="module_category_t4clinical"/>
             <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
         </record>
-        
+        <record id="group_t4clinical_adt" model="res.groups">
+            <field name="name">T4 Clinical ADT Group</field>
+            <field name="category_id" ref="module_category_t4clinical"/>
+            <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
+        </record>        
 <!-- Partner title -->
         <record id="partner_title_t4clinical_mr" model="res.partner.title">
             <field name="name">Mr</field>

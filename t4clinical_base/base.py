@@ -28,7 +28,8 @@ class res_users(orm.Model):
     _inherit = 'res.users'
     _columns = {
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
-        'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Locations of Responsibility'),        
+        'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Locations of Responsibility'),
+        'task_type_ids': fields.many2many('t4.clinical.task.type', 'user_task_type_rel', 'user_id', 'type_id', 'Task Types of Responsibility'),
     }
     
 class t4_clinical_location(orm.Model):
@@ -93,7 +94,7 @@ class t4_clinical_location(orm.Model):
     def get_location_task_ids(self, cr, uid, location_id, context=None):
         """
         """
-        location_models = self.pool['t4.clinical.task.data.type'].get_field_models(cr, uid, 'location_id')
+        location_models = self.pool['t4.clinical.task.type'].get_field_models(cr, uid, 'location_id')
         task_ids = []
         for m in location_models:
             data = m.browse_domain(cr, uid, [('location_id','=',location_id)], context=context)
