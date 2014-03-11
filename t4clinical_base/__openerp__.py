@@ -9,16 +9,19 @@
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
     'depends': ['project','hr'],
-    'data': ['data.xml',
+    'data': ['data.xml', 
+             
              'task_view.xml',
              'pos_view.xml',
              'location_view.xml',
              'patient_view.xml',
              'task_type_view.xml',
-             #'employee_view.xml',
+             'employee_view.xml',
              'user_view.xml',
              'recurrence_view.xml',
              'trigger_view.xml',
+             
+             'menuitem.xml',             
              
              'ir.model.access.csv'],
     'demo': [],

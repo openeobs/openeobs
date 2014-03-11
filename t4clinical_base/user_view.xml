@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-       <menuitem name="Users" id="menu_left_sub_user" parent="menu_left_base" action="base.action_res_users"/>
+       
     </data>
 </openerp>

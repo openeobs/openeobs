@@ -828,35 +828,35 @@ class t4_clinical_task_data(orm.AbstractModel):
     def after_create(self, cr, uid, task_id, context=None):
         return True       
 
-
-class t4_clinical_task_resource(orm.Model):
-    _name = 't4.clinical.task.resource'
-    _columns = {
-        'name': fields.text('name'),
-        'category_id': fields.many2one('t4.clinical.task.resource.category', 'Category')
-    }
-
-class t4_clinical_task_resource_category(orm.Model):
-    _name = 't4.clinical.task.resource.category'
-    _columns = {
-        'name': fields.text('name'),
-        'resource_ids': fields.one2many('t4.clinical.task.resource', 'category_id', 'Resources')
-    }    
-
-class t4_clinical_task_resource_uom(orm.Model):
-    _name = 't4.clinical.task.resource.uom'
-    _columns = {
-        'name': fields.text('name'),
-    }    
-class t4_clinical_task_resource_uom_rate(orm.Model):
-    _name = 't4.clinical.task.resource.uom.rate'
-    _columns = {
-        'name': fields.text('name'),
-        'from_resource_id': fields.many2one('t4.clinical.task.resource', 'From Resource'),
-        'into_resource_id': fields.many2one('t4.clinical.task.resource', 'Into Resource'),
-        'rate': fields.float('Rate Ratio (into/from)')  
-           
-    }
+# 
+# class t4_clinical_task_resource(orm.Model):
+#     _name = 't4.clinical.task.resource'
+#     _columns = {
+#         'name': fields.text('name'),
+#         'category_id': fields.many2one('t4.clinical.task.resource.category', 'Category')
+#     }
+# 
+# class t4_clinical_task_resource_category(orm.Model):
+#     _name = 't4.clinical.task.resource.category'
+#     _columns = {
+#         'name': fields.text('name'),
+#         'resource_ids': fields.one2many('t4.clinical.task.resource', 'category_id', 'Resources')
+#     }    
+# 
+# class t4_clinical_task_resource_uom(orm.Model):
+#     _name = 't4.clinical.task.resource.uom'
+#     _columns = {
+#         'name': fields.text('name'),
+#     }    
+# class t4_clinical_task_resource_uom_rate(orm.Model):
+#     _name = 't4.clinical.task.resource.uom.rate'
+#     _columns = {
+#         'name': fields.text('name'),
+#         'from_resource_id': fields.many2one('t4.clinical.task.resource', 'From Resource'),
+#         'into_resource_id': fields.many2one('t4.clinical.task.resource', 'Into Resource'),
+#         'rate': fields.float('Rate Ratio (into/from)')  
+#            
+#     }
 
 
 

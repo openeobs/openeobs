@@ -69,7 +69,5 @@
                 <field name="view_id" ref="view_task_recurrence_form"/>
                 <field name="act_window_id" ref="action_task_recurrence"/>
             </record>
-          <menuitem name="Base" id="menu_left_base" parent="t4clinical_base.menu_t4_clinical" action=""/>
-          <menuitem name="Task Recurrence" id="menu_left_sub_task_recurrence" parent="menu_left_t4_clinical_task" action="action_task_recurrence"/>
     </data>
 </openerp>
