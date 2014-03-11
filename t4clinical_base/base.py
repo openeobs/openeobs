@@ -169,4 +169,3 @@ class t4_clinical_patient(osv.Model):
             vals.update({'name': self._get_fullname(vals)})
         rec_id = super(t4_clinical_patient, self).create(cr, uid, vals, context)
         return rec_id    
-    

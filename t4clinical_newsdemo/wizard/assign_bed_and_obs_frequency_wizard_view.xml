@@ -1,0 +1,61 @@
+<openerp>
+    <data>
+        <record id="view_t4skr_assign_bed_and_obs_frequency_wizard" model="ir.ui.view">
+            <field name="name">Patients Without Beds Wizard</field>
+            <field name="model">t4skr.assign.bed.and.obs.frequency.wizard</field>
+            <field name="arch" type="xml">
+                <tree string="Assign Bed and Obs Frequency" editable="top" delete="false" create="false">
+                    <field name="wizard_view_id" invisible="True" eval="active_id"/>
+                    <field name="patient_name" readonly="True"/>
+                    <field name="hospital_number" readonly="True"/>
+                    <field name="spell_id" readonly="True"/>
+                    <field name="ward_id" readonly="True"/>
+                    <field name="bed_id" domain="[('parent_id','=',ward_id), ('occupants','=',None)]"/>
+                    <field name="news_frequency"/>
+                    <field name="gcs_frequency"/>
+                    <field name="target_o2" widget="selection"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_t4skr_assign_bed_and_obs_frequency_wizard_view" model="ir.ui.view">
+            <field name="name">Patients Without Beds Wizard View</field>
+            <field name="model">t4skr.assign.bed.and.obs.frequency.wizard.view</field>
+            <field name="arch" type="xml">
+                <form string="Assign Bed and Obs Frequency" version="7.0">
+                    <sheet>
+                        <div>
+                            <h2><label for="wizards" string="Patients without bed:"/></h2>
+                            <field name="wizards"/>
+                            <button name="applyChanges" string="Confirm" type="object" class="oe_highlight" icon="gtk-go-forward"/>
+                        </div>
+                        <div>
+                            <br><h2><label for="last" string="Last 3 assigned patients:"/></h2></br>
+                            <field name="last" readonly="True">
+                                <tree delete="false" create="false">
+                                    <field name="wizard_view_id" invisible="True" eval="active_id"/>
+                                    <field name="patient_name" readonly="True"/>
+                                    <field name="hospital_number" readonly="True"/>
+                                    <field name="spell_id" readonly="True"/>
+                                    <field name="ward_id" readonly="True"/>
+                                    <field name="bed_id" domain="[('parent_id','=',ward_id), ('occupants','=',None)]"/>
+                                    <field name="date"/>
+                                </tree>
+                            </field>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_t4skr_assign_bed_and_obs_frequency" model="ir.actions.act_window">
+            <field name="name">Admit Patients</field>
+            <field name="res_model">t4skr.assign.bed.and.obs.frequency.wizard.view</field>
+            <field name="view_mode">form</field>
+            <field name="view_type">form</field>
+            <field name="target">inline</field>
+        </record>
+
+        <menuitem id="menu_t4skr_assign_bed_and_obs_frequency_wizard" name="Bed and Obs Frequency" parent="t4clinical_demo.menu_left_wardboard" action="action_t4skr_assign_bed_and_obs_frequency"/>
+    </data>
+</openerp>

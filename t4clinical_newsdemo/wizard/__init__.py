@@ -1,0 +1,2 @@
+import patient_adt_wizard
+import assign_bed_and_obs_frequency_wizard

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_t4_clinical_location_t4clinical_base,t4.clinical.location.base.access,t4clinical_base.model_t4_clinical_location,t4clinical_base.group_t4clinical_base,1,0,0,0
+access_t4_clinical_pos_t4clinical_base,t4.clinical.pos.base.access,t4clinical_base.model_t4_clinical_pos,t4clinical_base.group_t4clinical_base,1,0,0,0
+access_t4_clinical_task_t4clinical_base,t4.clinical.task.base.access,t4clinical_base.model_t4_clinical_task,t4clinical_base.group_t4clinical_base,1,0,0,0
+access_t4_clinical_task_data_type_t4clinical_base,t4.clinical.task.data.type.base.access,t4clinical_base.model_t4_clinical_task_data_type,t4clinical_base.group_t4clinical_base,1,0,0,0
+
