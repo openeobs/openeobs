@@ -11,6 +11,8 @@ class patient_adt_wizard(osv.TransientModel):
         'middle_names': fields.char('Middle Names', size=200),
         'family_name': fields.char('Family Name', size=200),
         'dob': fields.datetime('Date Of Birth'),
+        'sex': fields.char('Sex', size=1),
+        'gender': fields.char('Gender', size=1),
         #patient visit information
         'visit_ref': fields.char('Ward Ref', help='eg: GW001'),
         'visit_no': fields.char('Visit No'),
@@ -21,7 +23,8 @@ class patient_adt_wizard(osv.TransientModel):
         'visit_start': lambda *a: fields.datetime.now(),
         'given_name': 'Jane',
         'family_name': 'Test',
-        'visit_ref': 'GW001',
+        'sex': 'F',
+        'visit_ref': 'W8',
         'other_identifier': lambda *a: str(random.randint(1000, 99999)),
         'visit_no': lambda *a: str(random.randint(100000, 999999))
     }
