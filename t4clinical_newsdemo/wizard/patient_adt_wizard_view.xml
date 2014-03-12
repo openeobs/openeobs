@@ -13,6 +13,8 @@
                         <field name="middle_names"/>
                         <field name="family_name"/>
                         <field name="dob"/>
+                        <field name="sex"/>
+                        <field name="gender"/>
                         <button string="Call patientNew" type="object" name="call_patientNew" class="oe_highlight"/>
                     </group>
                     <group string="Patient Visit Details">
