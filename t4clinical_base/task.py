@@ -516,6 +516,34 @@ class t4_clinical_task(orm.Model):
         res = self.start(cr, uid, ids, context)
         return res
     
+    def get_available_bed_location_ids(self, cr, uid, location_id=None, context=None):
+        """
+        beds not placed into and not in non-terminated placement tasks
+        """
+        #import pdb; pdb.set_trace()
+        domain = [('usage','=','bed')]
+        location_id and  domain.append(('location_id','child_of',location_id)) 
+        location_pool = self.pool['t4.clinical.location']
+        location_ids = location_pool.search(cr, uid, domain)
+        spell_pool = self.pool['t4.clinical.spell']
+        domain = [('state','=','started'),('location_id','in',location_ids)]
+        spell_ids = spell_pool.search(cr, uid, domain)
+        location_ids = list(set(location_ids) - set([s.location_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]))
+        placement_pool = self.pool['t4.clinical.patient.placement']
+        domain = [('date_terminated','=',False),('location_id','in',location_ids)]    
+        placement_ids = placement_pool.search(cr, uid, domain)
+        location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
+        return location_ids
+
+    def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
+        #import pdb; pdb.set_trace()
+        domain = [('state','=','started'),('location_id','=',False)]
+        location_id and  domain.append(('location_id','child_of',location_id))
+        spell_pool = self.pool['t4.clinical.spell']
+        spell_ids = spell_pool.search(cr, uid, domain)
+        patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
+        return patient_ids
+           
     def get_patient_spell_task_id(self, cr, uid, patient_id, context=None):
         domain = [('patient_id','=',patient_id),('state','=','started'),('data_model','=','t4.clinical.spell')]
         spell_task_id = self.search(cr, uid, domain)
@@ -549,7 +577,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     _events = [] # (event_model, handler_model)  
     _columns = {
         'name': fields.char('Name', size=256),
-        'type_id': fields.related('task_id', 'task_type', type='many2one', relation='t4.clinical.task.type', string="Task Data Type"),
+        'type_id': fields.related('task_id', 'type_id', type='many2one', relation='t4.clinical.task.type', string="Task Data Type"),
         'task_id': fields.many2one('t4.clinical.task', "Task"),
         'date_started': fields.related('task_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('task_id', 'date_terminated', string='Terminated Time', type='datetime'),

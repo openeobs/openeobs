@@ -109,8 +109,14 @@ class TestOperations(common.SingleTransactionCase):
         placement_task = task_pool.browse_domain(cr, uid, 
                              [('parent_id','=',admission_task_id), ('data_model','=','t4.clinical.patient.placement')])[0]
         task_pool.start(cr, uid, placement_task.id)
+        #self.assertTrue(b1_location_id in task_pool.get_available_bed_location_ids(cr, uid), 'location in get_available_bed_location_ids()')
         task_pool.submit(cr, uid, placement_task.id,{'location_id': b1_location_id})
+        self.assertTrue(b1_location_id not in task_pool.get_available_bed_location_ids(cr, uid), 'location NOT in get_available_bed_location_ids()')
+        
+        self.assertTrue(donald_patient_id in task_pool.get_not_palced_patient_ids(cr, uid), 'patient in get_not_palced_patient_ids()')
+        
         task_pool.complete(cr, uid, placement_task.id)
+        self.assertTrue(donald_patient_id not in task_pool.get_not_palced_patient_ids(cr, uid), 'patient not in get_not_palced_patient_ids()')
         # test spell has placement location set
         spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.data_ref.patient_id.id)
         spell_task = task_pool.browse(cr, uid, spell_task_id)

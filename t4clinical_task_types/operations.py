@@ -60,6 +60,14 @@ class t4_clinical_patient_placement(orm.Model):
         placement_task = task_pool.browse(cr, uid, task_id, context)
         spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.data_ref.patient_id.id, context)
         task_pool.submit(cr, uid, spell_task_id, {'location_id': placement_task.data_ref.location_id.id})
+     
+    def submit(self, cr, uid, task_id, vals, context=None):
+        if vals.get('location_id'):
+            task_pool = self.pool['t4.clinical.task']
+            available_location_ids = task_pool.get_available_bed_location_ids(cr, uid, context=context)
+            except_if(vals['location_id'] not in available_location_ids, msg="Location id=%s is not available" % vals['location_id'])
+        super(t4_clinical_patient_placement, self).submit(cr, uid, task_id, vals, context)
+        return True
         
         
 class t4_clinical_patient_discharge(orm.Model):
