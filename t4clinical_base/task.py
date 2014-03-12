@@ -581,7 +581,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     
     def create_task(self, cr, uid, vals_task={}, vals_data={}, context=None):
         assert isinstance(vals_task, dict), "vals_task must be a dict, found %" % type(vals_task)
-        assert isinstance(vals_task, dict), "vals_data must be a dict, found %" % type(vals_data)
+        assert isinstance(vals_data, dict), "vals_data must be a dict, found %" % type(vals_data)
         task_pool = self.pool['t4.clinical.task']
         data_type_pool = self.pool['t4.clinical.task.type']
         type_id = data_type_pool.search(cr, uid, [('data_model','=',self._name)])
