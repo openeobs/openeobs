@@ -6,13 +6,13 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-
 class t4_clinical_adt(orm.Model):
     _name = 't4.clinical.adt'
     _inherit = ['t4.clinical.task.data']       
     _columns = {
     }
-    
+
+
 class t4_clinical_adt_patient_register(orm.Model):
     _name = 't4.clinical.adt.patient.register'
     _inherit = ['t4.clinical.task.data']      
@@ -39,12 +39,10 @@ class t4_clinical_adt_patient_register(orm.Model):
             patient_id = patient_id[0]
             except_if(patient_id, msg="Patient with the data submitted already exists! Data: %s" % vals)
             # handle duplicate patient here        
-        patient_pool = self.pool['t4.clinical.patient']
         patient_pool.create(cr, uid, vals, context)
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, task_id, vals, context)
         return True
     
-
 
 class t4_clinical_adt_patient_admit(orm.Model):
     _name = 't4.clinical.adt.patient.admit'
@@ -69,6 +67,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         'start_date': fields.datetime("ADT Start Date"), 
         'other_identifier': fields.text("Other Identifier")              
     }
+
     def submit(self, cr, uid, task_id, vals, context=None):
 #         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
 #               msg="patient_identifier or other_identifier not found in submitted data!")
@@ -102,11 +101,13 @@ class t4_clinical_adt_patient_admit(orm.Model):
                                    'minute', user.pos_id.ews_init_frequency, context=None)
         return True    
 
+
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
     _inherit = ['t4.clinical.task.data']      
     _columns = {
     }
+
 
 class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
@@ -138,6 +139,7 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         placement_pool.create_task(cr, uid, {}, {'patient_id': patient_id}, context)
         super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, task_id, vals, context)    
         
+
 class t4_clinical_adt_patient_merge(orm.Model):
     _name = 't4.clinical.adt.patient.merge'
     _inherit = ['t4.clinical.task.data']      
@@ -172,8 +174,7 @@ class t4_clinical_adt_patient_merge(orm.Model):
         patient_pool.write(cr, uid, from_id, {'active':False}, context)
         super(t4_clinical_adt_patient_merge, self).submit(cr, uid, task_id, vals, context)
         
-             
-    
+
 class t4_clinical_adt_patient_update(orm.Model):
     _name = 't4.clinical.adt.patient.update'
     _inherit = ['t4.clinical.task.data']      

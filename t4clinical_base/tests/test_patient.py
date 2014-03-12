@@ -23,12 +23,6 @@ class TestPatients(common.TransactionCase):
             'other_identifier': 'HOSPNO778',
             })
 
-    def xml2db_id(self, xmlid):
-        imd_pool = self.registry('ir.model.data')
-        imd_id = imd_pool.search(self.cr, self.uid, [('name','=', xmlid)])
-        imd = imd_pool.browse(self.cr, self.uid, imd_id)
-        return imd.res_id
-     
     def test_patient_name_returns_concatenated(self):
         cr, uid = self.cr, self.uid
         patient = self.patient_pool.browse(cr, uid, self.new_patient_id, context=None)
@@ -36,8 +30,3 @@ class TestPatients(common.TransactionCase):
                          msg="Patient has the wrong name: %s" % patient.name)
         self.assertTrue(isinstance(patient.color, int))
 
-#     def test_admit_patient(self):
-#         pos_id = self.xml2db_id('demo_location_pos_uhg')
-#         self.spell_pool.admit_patient(self.cr, self.uid, self.new_patient_id, pos_id)
-        
-        

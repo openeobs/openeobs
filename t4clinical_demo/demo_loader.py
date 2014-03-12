@@ -1,5 +1,6 @@
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.task import except_if
+
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -122,7 +123,14 @@ class DemoLoader(orm.AbstractModel):
         except_if(rollback, msg="Rollback")
         return True
 
+    def xml2db_id(self, cr, uid, xmlid):
+        imd_pool = self.pool['ir.model.data']
+        imd_id = imd_pool.search(cr, uid, [('name', '=', xmlid)])
+        imd = imd_pool.browse(cr, uid, imd_id[0])
+        return imd.res_id
+
     def set_patient_to_placement(self, cr, uid, rollback=True):
+
         register_data = self.get_register_data(0)
         admit_data = self.get_admit_data(register_data, 0)
         register_pool = self.pool['t4.clinical.adt.patient.register']
@@ -134,22 +142,28 @@ class DemoLoader(orm.AbstractModel):
             register_pool.create_task(cr, uid, {}, rd)
         for ad in admit_data:
             admit_pool.create_task(cr, uid, {}, ad)
-        placement_data = self.get_placement_data(cr, uid, qty=1)
 
-        placement_task_ids = task_pool.search(cr, uid, [('data_model', '=', placement_pool._name),
-                                                        ('state', '=', 'draft')])
+        #get a wardmanager
+        ward_manager_id = self.xml2db_id(cr, uid, 'demo_user_winifred')
 
-        n = 0
-        patient_ids = []
+        #get placements tasks for ward managers
+        placement_task_ids = task_pool.search(cr, ward_manager_id, [('data_model', '=', placement_pool._name),
+                                                                    ('state', '=', 'draft')])
 
-        for placement_task_id in placement_task_ids:
-            placement_task = task_pool.browse(cr, uid, placement_task_id)
-            patient_ids.append(placement_task.patient_id.id)
-            if n >=len(placement_data):
-                break
-            task_pool.submit(cr, uid, placement_task_id,  placement_data[n])
-            task_pool.start(cr, uid, placement_task_id)
-            task_pool.complete(cr, uid, placement_task_id)
-            n += 1
+        #get available beds for location in placement task (ward)
+        for placement_task in task_pool.browse(cr, ward_manager_id, placement_task_ids):
+            location_ids = task_pool.get_available_bed_location_ids(cr, ward_manager_id,
+                                                                    placement_task.parent_id.location_id.id)
+            if location_ids:
+                #submit location to placement task
+                task_pool.submit(cr, ward_manager_id, placement_task.id, {'location_id': location_ids[0] })
+                #complete placement task
+                task_pool.complete(cr, ward_manager_id, placement_task.id)
+
+
+            #assign obs frequency
+            task_pool.set_task_trigger(cr, uid, placement_task.patient_id.id, 't4.clinical.patient.observation.ews',
+                                   'minute', 30)
+
         except_if(rollback, msg="Rollback")
         return True

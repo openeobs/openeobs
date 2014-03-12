@@ -21,17 +21,7 @@ class TestADTEntry(common.SingleTransactionCase):
         self.move_pool = self.registry('t4.clinical.patient.move')
         super(TestADTEntry, self).setUp()
 
-    def xml2db_id(self, xmlid):
-        cr, uid = self.cr, self.uid
-        imd_pool = self.registry('ir.model.data')
-        imd_id = imd_pool.search(cr, uid, [('name','=', xmlid)])
-        db_id = imd_id and imd_pool.browse(cr, uid, imd_id[0]).res_id or False
-        return db_id
-
-    def test_register_patient(self):
-        cr, uid = self.cr, self.uid
-
-        patient_data = {
+        self.patient_data = {
             'given_name': 'Fred',
             'middle_names': 'John',
             'family_name': 'Flintstone',
@@ -40,7 +30,17 @@ class TestADTEntry(common.SingleTransactionCase):
             'gender': 'M',
             'patient_identifier': 'NHS2223',
             'other_identifier': 'HOSPNO778',
-        }
+            }
+
+    def xml2db_id(self, xmlid):
+        cr, uid = self.cr, self.uid
+        imd_pool = self.registry('ir.model.data')
+        imd_id = imd_pool.search(cr, uid, [('name','=', xmlid)])
+        db_id = imd_id and imd_pool.browse(cr, uid, imd_id[0]).res_id or False
+        return db_id
+
+    def test_register_patient(self):
+        cr, uid, patient_data = self.cr, self.uid, self.patient_data
 
         reg_task_id = self.register_pool.create_task(cr, uid, {}, patient_data)
         self.assertTrue(reg_task_id)
@@ -54,7 +54,10 @@ class TestADTEntry(common.SingleTransactionCase):
         cr, uid = self.cr, self.uid
 
         admission_data = {
-
+            'other_identifier': self.patient_data['other_identifier'],
+            'code': '100100',
+            'location': 'W8',
+            'start_date': dt.now().strftime('%Y-%m-%d %H:%M:%S')
         }
 
         admit_task_id = self.admission_pool.create_task(cr, uid, {}, admission_data)
@@ -63,3 +66,6 @@ class TestADTEntry(common.SingleTransactionCase):
         self.assertEqual(admit_task_id, task.id)
         self.assertTrue(task.patient_id)
 
+    def test_place_patient_can_only_be_done_by_ward_manager(self):
+        cr, uid = self.cr, self.uid
+        self.assertTrue(False, 'Not Yet Implemented')

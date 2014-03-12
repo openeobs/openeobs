@@ -1,6 +1,8 @@
 from openerp.tests import common
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
+from t4_base.tools import xml2db_id
+
 from openerp import tools
 from openerp.osv import orm, fields, osv
 
@@ -51,12 +53,6 @@ class TestADT(common.SingleTransactionCase):
         
         super(TestADT, self).setUp()
 
-    def xml2db_id(self, xmlid):
-        imd_pool = self.registry('ir.model.data')
-        imd_id = imd_pool.search(cr, uid, [('name','=', xmlid)])
-        db_id = imd_id and imd_pool.browse(cr, uid, imd_id[0]).res_id or False
-        return db_id
-    
     def test_task_types(self):
         """            
         """

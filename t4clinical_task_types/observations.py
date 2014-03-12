@@ -66,17 +66,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         location_id = placement and placement[0].location_id.id or False
         return location_id     
 
-        
-class test_observation3(orm.Model):
-    _name = 'test.observation3'
-    _inherit = ['t4.clinical.patient.observation']    
-    _columns = {
-        'val1': fields.text('val1'),
-        'val2': fields.text('val2')
-    }
 
- 
-    
 class t4_clinical_patient_observation_height_weight(orm.Model):
     _name = 't4.clinical.patient.observation.height_weight'
     _inherit = ['t4.clinical.patient.observation']
@@ -87,11 +77,13 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
         'weight': fields.float('Weight'),
     }
 
+
 class score(object):
     _ranges = []
     _limit_per_one = 3
     _limit_in_one = False
     _score = 0
+
     def add_range(self, key=None, value=None, min=None, max=None, selection=None, score=None):
         assert isinstance(key, basestring), "Key must be a string"
         assert value is not None, "Value can't be None"
@@ -116,7 +108,8 @@ class score(object):
                 self._limit_in_one = r['score'] >= self._limit_per_one
                 
         return self._score, self._limit_in_one
-            
+
+
 class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
@@ -231,7 +224,6 @@ class t4_clinical_patient_observation_ews(orm.Model):
         'niv_epap': fields.integer('NIV: EPAP (cmH2O)'),
         #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),        
     }
-    
 
     def submit(self, cr, uid, task_id, data_vals={}, context=None):
         vals = data_vals.copy()
