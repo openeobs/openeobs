@@ -12,6 +12,7 @@
     'data': [
              'window_actions.xml',
              'patient_placement_view.xml',
+             'placement_wizard_view.xml',
              'types.xml', 
              'menuitem.xml',
              'ir.model.access.csv'],

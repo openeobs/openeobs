@@ -75,7 +75,24 @@ class t4_clinical_location(orm.Model):
 #             company_id = company_pool.search(cr, uid, domain, context=context)
 #             res[location.id] = company_id and company_id[0] or False
 #         return res    
+    def _is_available(self, cr, uid, ids, field, args, context=None):
+        #import pdb; pdb.set_trace()
+        task_pool = self.pool['t4.clinical.task']
+        res = {}
+        pos_ids = list(set([l.pos_id.id for l in self.browse(cr, uid, ids, context)]))
+        available_location_ids = []
+        for pos_id in pos_ids:
+            available_location_ids.extend(task_pool.get_available_bed_location_ids(cr, uid, pos_id, context))
+        for location in self.browse(cr, uid, ids, context):
+            res[location.id] = location.id in available_location_ids
+        return res
     
+    def _placement2location_id(self, cr, uid, ids, context=None):
+        res = [p.location_id.id for p in self.pool['t4.clinical.patient.placement'].browse(cr, uid, ids, context)]
+        return res
+        
+         
+         
     _columns = {
         'name': fields.char('Location', size=100, required=True, select=True),
         'code': fields.char('Code', size=256),
@@ -89,13 +106,18 @@ class t4_clinical_location(orm.Model):
                                   't4.clinical.pos': (_pos2location_id, ['location_id'], 5),
                                     }),
         'company_id': fields.related('pos_id', 'company_id', type='many2one', relation='res.company', string='Company'),
+        'is_available': fields.function(_is_available, type='boolean', string='Is Available?', 
+                                        store={
+                                               't4.clinical.location': (lambda self, cr, uid, ids, c: ids, [], 10),
+                                               't4.clinical.patient.placement': (_placement2location_id, ['location_id'], 20),
+                                                                                          })
         #'parent_left': fields.integer('Left Parent', select=1),
         #'parent_right': fields.integer('Right Parent', select=1),        
     }
 
         
     _defaults = {
-        'active': True
+        'active': True,
     }
 
     def get_location_task_ids(self, cr, uid, location_id, context=None):

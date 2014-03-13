@@ -19,6 +19,7 @@
                     <tree string="location Tree View">
                        <field name="name" />
                        <field name="code" />
+                       <field name="is_available" />
                        <field name="parent_id" />
                        <field name="child_ids" />
                        <field name="type" />
@@ -35,6 +36,7 @@
                     <form string="location Form View">
                        <field name="name" />
                        <field name="code" />
+                        <field name="is_available" />
                        <field name="parent_id" />
                        <field name="child_ids" />
                        <field name="type" />

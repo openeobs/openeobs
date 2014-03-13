@@ -542,7 +542,7 @@ class t4_clinical_task(orm.Model):
         """
         #import pdb; pdb.set_trace()
         domain = [('usage','=','bed')]
-        location_id and  domain.append(('location_id','child_of',location_id)) 
+        location_id and  domain.append(('id','child_of',location_id)) 
         location_pool = self.pool['t4.clinical.location']
         location_ids = location_pool.search(cr, uid, domain)
         spell_pool = self.pool['t4.clinical.spell']
@@ -676,8 +676,6 @@ class t4_clinical_task_data(orm.AbstractModel):
         except:
             except_if(True,msg="Command '%s' is not recognized!" % command)
         except_if(not view, msg="%s view is not set for data model %s" % (command.capitalize(), task.data_model))                
-        #view_pool = self.pool['ir.ui.view']
-        #view = view_pool.browse(cr, uid, view.id, context)
         ctx = context or {}
         ctx.update({'t4_source': 't4.clinical.task'}) 
         aw = {'type': 'ir.actions.act_window',

@@ -13,5 +13,12 @@
           	parent="menu_left_t4_clinical_operation" 
           	action="action_patient_placement" 
           	groups="t4clinical_base.group_t4clinical_base"/>
+          
+          <menuitem name="Placement Wizard" 
+          	id="patient_placement_wizard" 
+          	parent="menu_left_t4_clinical_operation" 
+          	action="action_patient_placement_wizard" 
+          	groups="t4clinical_base.group_t4clinical_base"/>          
+          	           		
     </data>
 </openerp>

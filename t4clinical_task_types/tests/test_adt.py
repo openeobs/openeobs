@@ -1,7 +1,7 @@
 from openerp.tests import common
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
-from t4_base.tools import xml2db_id
+#from t4_base.tools import xml2db_id
 
 from openerp import tools
 from openerp.osv import orm, fields, osv
@@ -52,7 +52,13 @@ class TestADT(common.SingleTransactionCase):
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
         
         super(TestADT, self).setUp()
-
+    
+    def xml2db_id(self, xmlid):
+        imd_pool = self.registry('ir.model.data')
+        imd_id = imd_pool.search(self.cr, self.uid, [('name','=', xmlid)])
+        db_id = imd_id and imd_pool.browse(self.cr, self.uid, imd_id[0]).res_id or False
+        return db_id
+    
     def test_task_types(self):
         """            
         """
