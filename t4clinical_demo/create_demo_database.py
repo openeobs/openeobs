@@ -7,7 +7,7 @@ rollback = False
 
 user = "admin"
 pwd = "admin"
-current_db = "demo8"
+current_db = "oetrunk_test"
 
  
 

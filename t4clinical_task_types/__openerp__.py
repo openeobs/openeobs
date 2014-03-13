@@ -9,7 +9,11 @@
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
     'depends': ['t4clinical_base','project','hr'],
-    'data': ['types.xml', 'window_actions.xml',
+    'data': [
+             'window_actions.xml',
+             'patient_placement_view.xml',
+             'types.xml', 
+             'menuitem.xml',
              'ir.model.access.csv'],
     'demo': [],
     'css': [],

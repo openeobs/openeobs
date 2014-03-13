@@ -15,22 +15,20 @@
                     </form>
                 
                 </field>
-            </record>
-
-            <record model="ir.actions.act_window" id="action_patient_move" >
-                <field name="name">Patient Transfer</field>
-                <field name="res_model">t4.clinical.patient.move</field>
-                <field name="view_type">form</field>
-                <field name="view_mode">form</field>
-                <field name="target">new</field>
-            </record>           
-            <record model="ir.actions.act_window.view" id="act_view_patient_move">
-                <field eval="0" name="sequence"/>
-                <field name="view_mode">form</field>
-                <field name="view_id" ref="view_patient_move_form"/>
-                <field name="act_window_id" ref="action_patient_move"/>
-            </record>         
-            
+            </record>          
+      
+            <record model="ir.ui.view" id="view_patient_placement_form">
+                <field name="name">Patient Transfer Form</field>
+                <field name="model">t4.clinical.patient.placement</field>
+                <field name="arch" type="xml">
+                    <form string="Patient Placement Form">
+                       <field name="patient_id" />
+                       <field name="location_id" />                     
+						<button name="submit_ui" type="object" string="Submit"/>
+                    </form>
+                
+                </field>
+            </record>              
             
             
             <record model="ir.ui.view" id="view_observation_height_weight">
@@ -47,19 +45,6 @@
                 
                 </field>
             </record>
-
-            <record model="ir.actions.act_window" id="action_observation_height_weight" >
-                <field name="name">Observation Height, Weight</field>
-                <field name="res_model">t4.clinical.patient.observation.height_weight</field>
-                <field name="view_type">form</field>
-                <field name="view_mode">form</field>
-                <field name="target">new</field>
-            </record>           
-            <record model="ir.actions.act_window.view" id="act_view_patient_move">
-                <field eval="0" name="sequence"/>
-                <field name="view_mode">form</field>
-                <field name="view_id" ref="view_observation_height_weight"/>
-                <field name="act_window_id" ref="action_observation_height_weight"/>
-            </record>                                
+                            
     </data>
 </openerp>

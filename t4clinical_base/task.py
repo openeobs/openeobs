@@ -299,6 +299,11 @@ class t4_clinical_task_type(orm.Model):
         'active': fields.boolean('Is Active?', help='When we don\'t need the model anymore we may hide it instead of deleting'),
         'parent_rule': fields.text('Parent Rule', help='Type domain for parent task'),
         'children_rule': fields.text('Children Rule', help='Type domain for children tasks'),
+        'start_view_id': fields.many2one('ir.ui.view', "Submit View"),
+        'schedule_view_id': fields.many2one('ir.ui.view', "Submit View"),
+        'submit_view_id': fields.many2one('ir.ui.view', "Submit View"),
+        'complete_view_id': fields.many2one('ir.ui.view', "Submit View"),
+        'cancel_view_id': fields.many2one('ir.ui.view', "Submit View"),
     }
     
     _defaults = {
@@ -323,7 +328,6 @@ def data_model_event(callback=None):
     def decorator(f):
         def wrapper(*args, **kwargs):
             self, cr, uid, task_id = args[:4]
-            assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
             task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
             args_list = list(args)
             args_list[3] = task_id
@@ -433,17 +437,33 @@ class t4_clinical_task(orm.Model):
         return res
     
     # DATA API
+    
+    @data_model_event(callback="start_act_window")
+    def start_act_window(self, cr, uid, task_id, fields, context=None):
+        return True
+    
+    @data_model_event(callback="schedule_act_window")
+    def schedule_act_window(self, cr, uid, task_id, fields, context=None):
+        return True
+    
+    @data_model_event(callback="submit_act_window")
+    def submit_act_window(self, cr, uid, task_id, fields, context=None):
+        return True
+    
+    @data_model_event(callback="complete_act_window")
+    def complete_act_window(self, cr, uid, task_id, fields, context=None):
+        return True
+    
+    @data_model_event(callback="cancel_act_window")
+    def cancel_act_window(self, cr, uid, task_id, fields, context=None):
+        return True      
+    
+    
     @data_model_event(callback="submit")
     def submit(self, cr, uid, task_id, vals, context=None):
         assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
         assert isinstance(vals, dict), "vals must be a dict, found to be %s" % type(vals)
-        return True
-    
-    @data_model_event(callback="act_window")
-    def act_window(self, cr, uid, task_id, fields, context=None):
-        task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
-        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id) 
-        return True
+        return True    
     
     @data_model_event(callback="retrieve") 
     def retrieve(self, cr, uid, task_id, context=None):
@@ -628,30 +648,48 @@ class t4_clinical_task_data(orm.AbstractModel):
             task_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             task = task_pool.browse(cr, uid, context['active_id'], context)
             _logger.info("Task '%s', task.id=%s data submitted via UI" % (task.data_model, task.id))
-            self.after_submit(cr, uid, task.id, context)
         return {'type': 'ir.actions.act_window_close'}
     
     
-    def act_window(self, cr, uid, task_id, context=None):
+    def start_act_window(self, cr, uid, task_id, context=None):
+        return self.act_window(cr, uid, task_id, "start", context)
+    def schedule_act_window(self, cr, uid, task_id, context=None):
+        return self.act_window(cr, uid, task_id, "schedule", context)
+    def submit_act_window(self, cr, uid, task_id, context=None):
+        return self.act_window(cr, uid, task_id, "submit", context)
+    def complete_act_window(self, cr, uid, task_id, context=None):
+        return self.act_window(cr, uid, task_id, "complete", context)
+    def cancel_act_window(self, cr, uid, task_id, context=None):
+        return self.act_window(cr, uid, task_id, "cancel", context)        
+        
+        
+        
+    def act_window(self, cr, uid, task_id, command, context=None):
         task_id = isinstance(task_id, (list, tuple)) and task_id[0] or task_id
         task_pool = self.pool['t4.clinical.task']  
         task = task_pool.browse(cr, uid, task_id, context)
         except_if(task.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a task in state %s !" % task.state)
         except_if(not task.type_id,msg="Data model is not set for the task!")
-        except_if(not task.type_id.act_window_id,msg="Window action is not set for data model %s" % task.data_model)                
-        aw_pool = self.pool['ir.actions.act_window']
-        aw = aw_pool.browse(cr, uid, task.type_id.act_window_id.id, context)
-        ctx = eval(aw.context) or {}
+        #import pdb; pdb.set_trace()
+        try:
+            view = eval("task.type_id.%s_view_id" % command)
+        except:
+            except_if(True,msg="Command '%s' is not recognized!" % command)
+        except_if(not view, msg="%s view is not set for data model %s" % (command.capitalize(), task.data_model))                
+        #view_pool = self.pool['ir.ui.view']
+        #view = view_pool.browse(cr, uid, view.id, context)
+        ctx = context or {}
         ctx.update({'t4_source': 't4.clinical.task'}) 
-        aw_data = {'type': 'ir.actions.act_window',
-                    'res_model': aw.res_model,
+        aw = {'type': 'ir.actions.act_window',
+                    'res_model': view.model,
                     'res_id': task.data_res_id, # must always be there 
-                    'view_type': aw.view_type,
-                    'view_mode': aw.view_mode,
-                    'target': aw.target,
+                    'view_type': view.type,
+                    'view_mode': view.type,
+                    'target': "new",
                     'context': ctx,
+                    'name': view.name
                     }
-        return aw_data        
+        return aw   
     
 
     def validate(self, cr, uid, task_id, context=None):

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+       <!-- OPERATION Left -->
+          <menuitem name="Operations" 
+          	id="menu_left_t4_clinical_operation" 
+          	parent="t4clinical_base.menu_t4_clinical" 
+          	action="" 
+          	groups="t4clinical_base.group_t4clinical_base"/>
+          
+          <menuitem name="Patient Placement" 
+          	id="menu_t4_clinical_patient_placement" 
+          	parent="menu_left_t4_clinical_operation" 
+          	action="action_patient_placement" 
+          	groups="t4clinical_base.group_t4clinical_base"/>
+    </data>
+</openerp>
