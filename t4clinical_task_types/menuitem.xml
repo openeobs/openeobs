@@ -20,5 +20,11 @@
           	action="action_patient_placement_wizard" 
           	groups="t4clinical_base.group_t4clinical_base"/>          
           	           		
+          	           		
+          <menuitem name="Patient Placement Tasks" 
+          	id="menu_t4_clinical_patient_placement_task" 
+          	parent="menu_left_t4_clinical_operation" 
+          	action="action_t4_clinical_placement_task" 
+          	groups="t4clinical_base.group_t4clinical_base"/>          	           		
     </data>
 </openerp>

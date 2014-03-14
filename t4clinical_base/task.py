@@ -299,15 +299,16 @@ class t4_clinical_task_type(orm.Model):
         'active': fields.boolean('Is Active?', help='When we don\'t need the model anymore we may hide it instead of deleting'),
         'parent_rule': fields.text('Parent Rule', help='Type domain for parent task'),
         'children_rule': fields.text('Children Rule', help='Type domain for children tasks'),
-        'start_view_id': fields.many2one('ir.ui.view', "Submit View"),
+
         'schedule_view_id': fields.many2one('ir.ui.view', "Submit View"),
+        'start_view_id': fields.many2one('ir.ui.view', "Submit View"),
         'submit_view_id': fields.many2one('ir.ui.view', "Submit View"),
         'complete_view_id': fields.many2one('ir.ui.view', "Submit View"),
-        'cancel_view_id': fields.many2one('ir.ui.view', "Submit View"),
+        'cancel_view_id': fields.many2one('ir.ui.view', "Submit View")
     }
     
     _defaults = {
-         'active': True,    
+         'active': True,
      }
     
     def get_field_models(self, cr, uid, field):
@@ -408,8 +409,14 @@ class t4_clinical_task(orm.Model):
         'type_id': fields.many2one('t4.clinical.task.type', "Task Type"),
         'data_res_id': fields.function(_task2data_res_id, type='integer', string="Data Model's ResID", help="Data Model's ResID"),
         'data_model': fields.related('type_id','data_model',type='text',string="Data Model"),
-        'data_ref': fields.reference('Data Reference', _get_data_type_selection, size=256)
+        'data_ref': fields.reference('Data Reference', _get_data_type_selection, size=256),
+        #views
         
+        'schedule_view_id': fields.related('type_id', 'schedule_view_id', type='many2one', relation='ir.ui.view', string="Schedule View"),
+        'start_view_id': fields.related('type_id', 'start_view_id', type='many2one', relation='ir.ui.view', string="Start View"),
+        'submit_view_id': fields.related('type_id', 'submit_view_id', type='many2one', relation='ir.ui.view', string="Submit View"),
+        'complete_view_id': fields.related('type_id', 'complete_view_id', type='many2one', relation='ir.ui.view', string="Complete View"),
+        'cancel_view_id': fields.related('type_id', 'cancel_view_id', type='many2one', relation='ir.ui.view', string="Cancel View"),
     }
     
     _sql_constrints = {

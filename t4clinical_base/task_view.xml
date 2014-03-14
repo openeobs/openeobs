@@ -42,12 +42,7 @@
                 <field name="name">T4 Clinical Task Tree View</field>
                 <field name="model">t4.clinical.task</field>
                 <field name="arch" type="xml">
-                    <tree string="T4 Clinical Task Tree View">
-                   			<button name="start_act_window" type="object" string="Start"/>
-                   			<button name="schedule_act_window" type="object" string="Schedule"/>
-               				<button name="submit_act_window" type="object" string="Submit"/>
-               				<button name="complete_act_window" type="object" string="Complete"/>
-               				<button name="cancel_act_window" type="object" string="Cancel"/>                       
+                    <tree string="T4 Clinical Task Tree View">                    
                        <field name="type_id" />
                        <field name="user_id" />
                        <field name="user_ids" />
@@ -58,6 +53,18 @@
                        <field name="date_terminated" />
 					   <field name="state" />
 					   <field name="pos_id" />
+					   
+					   <field name="schedule_view_id" invisible="1"/>
+					   <field name="start_view_id" invisible="1"/>
+					   <field name="submit_view_id" invisible="1"/>
+					   <field name="complete_view_id" invisible="1"/>
+					   <field name="cancel_view_id" invisible="1"/>
+
+               			<button name="schedule_act_window" type="object" string="Schedule" attrs="{'invisible': [('schedule_view_id','=',False)]}"/>
+               			<button name="start_act_window" type="object" string="Start" attrs="{'invisible': [('start_view_id','=',False)]}"/>
+           				<button name="submit_act_window" type="object" string="Submit" attrs="{'invisible': [('submit_view_id','=',False)]}"/>
+           				<button name="complete_act_window" type="object" string="Complete" attrs="{'invisible': [('complete_view_id','=',False)]}"/>
+           				<button name="cancel_act_window" type="object" string="Cancel" attrs="{'invisible': [('cancel_view_id','=',False)]}"/>   					   
                     </tree>
                 </field>
             </record>              
@@ -66,12 +73,17 @@
                 <field name="model">t4.clinical.task</field>
                 <field name="arch" type="xml">
                     <form string="T4 Clinical Task Form View" version="7.0">
-                      <header>           
-                   			<button style="oe_highlight" name="start_act_window" type="object" string="Start"/>
-                   			<button style="oe_highlight" name="schedule_act_window" type="object" string="Schedule"/>
-               				<button style="oe_highlight" name="submit_act_window" type="object" string="Submit"/>
-               				<button style="oe_highlight" name="complete_act_window" type="object" string="Complete"/>
-               				<button style="oe_highlight" name="cancel_act_window" type="object" string="Cancel"/>       
+                      <header>        
+                       <field name="schedule_view_id" invisible="1"/>
+					   <field name="start_view_id" invisible="1"/>
+					   <field name="submit_view_id" invisible="1"/>
+					   <field name="complete_view_id" invisible="1"/>
+					   <field name="cancel_view_id" invisible="1"/>   
+               			<button name="schedule_act_window" type="object" string="Schedule" attrs="{'invisible': [('schedule_view_id','=',False)]}"/>
+               			<button name="start_act_window" type="object" string="Start" attrs="{'invisible': [('start_view_id','=',False)]}"/>
+           				<button name="submit_act_window" type="object" string="Submit" attrs="{'invisible': [('submit_view_id','=',False)]}"/>
+           				<button name="complete_act_window" type="object" string="Complete" attrs="{'invisible': [('complete_view_id','=',False)]}"/>
+           				<button name="cancel_act_window" type="object" string="Cancel" attrs="{'invisible': [('cancel_view_id','=',False)]}"/>      
 							
                     		<field name="state" widget="statusbar" statusbar_visible="draft,scheduled,started,completed,cancelled"/>
                       </header>
