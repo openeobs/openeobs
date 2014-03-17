@@ -8,7 +8,7 @@
           	action="" 
           	groups="t4clinical_base.group_t4clinical_base"/>
           
-          <menuitem name="Patient Placement" 
+<!--           <menuitem name="Patient Placement" 
           	id="menu_t4_clinical_patient_placement" 
           	parent="menu_left_t4_clinical_operation" 
           	action="action_patient_placement" 
@@ -18,13 +18,13 @@
           	id="patient_placement_wizard" 
           	parent="menu_left_t4_clinical_operation" 
           	action="action_patient_placement_wizard" 
-          	groups="t4clinical_base.group_t4clinical_base"/>          
+          	groups="t4clinical_base.group_t4clinical_base"/>      -->     
           	           		
           	           		
           <menuitem name="Patient Placement Tasks" 
           	id="menu_t4_clinical_patient_placement_task" 
           	parent="menu_left_t4_clinical_operation" 
           	action="action_t4_clinical_placement_task" 
-          	groups="t4clinical_base.group_t4clinical_base"/>          	           		
+          	groups="t4clinical_base.group_t4clinical_ward_manager"/>          	           		
     </data>
 </openerp>

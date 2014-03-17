@@ -54,17 +54,17 @@
 					   <field name="state" />
 					   <field name="pos_id" />
 					   
-					   <field name="schedule_view_id" invisible="1"/>
-					   <field name="start_view_id" invisible="1"/>
-					   <field name="submit_view_id" invisible="1"/>
-					   <field name="complete_view_id" invisible="1"/>
-					   <field name="cancel_view_id" invisible="1"/>
+					   <field name="is_schedule_allowed" invisible="1"/>
+					   <field name="is_start_allowed" invisible="1"/>
+					   <field name="is_submit_allowed" invisible="1"/>
+					   <field name="is_complete_allowed" invisible="1"/>
+					   <field name="is_cancel_allowed" invisible="1"/>
 
-               			<button name="schedule_act_window" type="object" string="Schedule" attrs="{'invisible': [('schedule_view_id','=',False)]}"/>
-               			<button name="start_act_window" type="object" string="Start" attrs="{'invisible': [('start_view_id','=',False)]}"/>
-           				<button name="submit_act_window" type="object" string="Submit" attrs="{'invisible': [('submit_view_id','=',False)]}"/>
-           				<button name="complete_act_window" type="object" string="Complete" attrs="{'invisible': [('complete_view_id','=',False)]}"/>
-           				<button name="cancel_act_window" type="object" string="Cancel" attrs="{'invisible': [('cancel_view_id','=',False)]}"/>   					   
+               			<button name="schedule_act_window" type="object" string="Schedule" attrs="{'invisible': [('is_schedule_allowed','=',False)]}"/>
+               			<button name="start_act_window" type="object" string="Start" attrs="{'invisible': [('is_start_allowed','=',False)]}"/>
+           				<button name="submit_act_window" type="object" string="Submit" attrs="{'invisible': [('is_submit_allowed','=',False)]}"/>
+           				<button name="complete_act_window" type="object" string="Complete" attrs="{'invisible': [('is_complete_allowed','=',False)]}"/>
+           				<button name="cancel_act_window" type="object" string="Cancel" attrs="{'invisible': [('is_cancel_allowed','=',False)]}"/>   					   
                     </tree>
                 </field>
             </record>              
@@ -74,16 +74,17 @@
                 <field name="arch" type="xml">
                     <form string="T4 Clinical Task Form View" version="7.0">
                       <header>        
-                       <field name="schedule_view_id" invisible="1"/>
-					   <field name="start_view_id" invisible="1"/>
-					   <field name="submit_view_id" invisible="1"/>
-					   <field name="complete_view_id" invisible="1"/>
-					   <field name="cancel_view_id" invisible="1"/>   
-               			<button name="schedule_act_window" type="object" string="Schedule" attrs="{'invisible': [('schedule_view_id','=',False)]}"/>
-               			<button name="start_act_window" type="object" string="Start" attrs="{'invisible': [('start_view_id','=',False)]}"/>
-           				<button name="submit_act_window" type="object" string="Submit" attrs="{'invisible': [('submit_view_id','=',False)]}"/>
-           				<button name="complete_act_window" type="object" string="Complete" attrs="{'invisible': [('complete_view_id','=',False)]}"/>
-           				<button name="cancel_act_window" type="object" string="Cancel" attrs="{'invisible': [('cancel_view_id','=',False)]}"/>      
+					   <field name="is_schedule_allowed" invisible="1"/>
+					   <field name="is_start_allowed" invisible="1"/>
+					   <field name="is_submit_allowed" invisible="1"/>
+					   <field name="is_complete_allowed" invisible="1"/>
+					   <field name="is_cancel_allowed" invisible="1"/>
+
+               			<button name="schedule_act_window" type="object" string="Schedule" attrs="{'invisible': [('is_schedule_allowed','=',False)]}"/>
+               			<button name="start_act_window" type="object" string="Start" attrs="{'invisible': [('is_start_allowed','=',False)]}"/>
+           				<button name="submit_act_window" type="object" string="Submit" attrs="{'invisible': [('is_submit_allowed','=',False)]}"/>
+           				<button name="complete_act_window" type="object" string="Complete" attrs="{'invisible': [('is_complete_allowed','=',False)]}"/>
+           				<button name="cancel_act_window" type="object" string="Cancel" attrs="{'invisible': [('is_cancel_allowed','=',False)]}"/>     
 							
                     		<field name="state" widget="statusbar" statusbar_visible="draft,scheduled,started,completed,cancelled"/>
                       </header>

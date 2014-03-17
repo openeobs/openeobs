@@ -13,6 +13,7 @@
              'wardboard_view.xml',
              #'wizard/patient_adt_wizard_view.xml',
              #'wizard/assign_bed_and_obs_frequency_wizard_view.xml',
+             'menuitem.xml',
              'ir.model.access.csv'],
     'application': True,
     'installable': True,

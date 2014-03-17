@@ -59,7 +59,7 @@
             
             <!-- TASK VIEW  -->
             <record model="ir.actions.act_window" id="action_t4_clinical_placement_task" >
-                <field name="name">T4 Clinical Task Window Action</field>
+                <field name="name">Patient Placement Tasks</field>
                 <field name="res_model">t4.clinical.task</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>

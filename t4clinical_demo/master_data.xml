@@ -212,7 +212,7 @@
 			<field name="name">manager</field>
 			<field name="login">manager</field>	
 			<field name="password">manager</field>
-            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
+            <field name="groups_id" eval="[(6, False, [ref('t4clinical_base.group_t4clinical_ward_manager')])]"/>
 			<field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>    
 			<field name="task_type_ids" eval="[[6, False,[
 												ref('t4clinical_task_types.patient_placement_data_type'),

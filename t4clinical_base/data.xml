@@ -26,23 +26,23 @@
         <record id="group_t4clinical_hca" model="res.groups">
             <field name="name">T4 Clinical HCA Group</field>
             <field name="category_id" ref="module_category_t4clinical"/>
-            <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>
+            <field name="implied_ids" eval="[(6, False, [ref('group_t4clinical_base')])]"/>
         </record>
         <record id="group_t4clinical_nurse" model="res.groups">
             <field name="name">T4 Clinical Nurse Group</field>
             <field name="category_id" ref="module_category_t4clinical"/>
-            <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
+            <field name="implied_ids" eval="[(6, False, [ref('group_t4clinical_hca')])]"/>            
+        </record>
+        <record id="group_t4clinical_ward_manager" model="res.groups">
+            <field name="name">T4 Clinical Ward Manager Group</field>
+            <field name="category_id" ref="module_category_t4clinical"/>
+            <field name="implied_ids" eval="[(6, False, [ref('group_t4clinical_nurse')])]"/>            
         </record>
         <record id="group_t4clinical_doctor" model="res.groups">
             <field name="name">T4 Clinical Doctor Group</field>
             <field name="category_id" ref="module_category_t4clinical"/>
             <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
-        </record>
-        <record id="group_t4clinical_ward_manager" model="res.groups">
-            <field name="name">T4 Clinical Ward Manager Group</field>
-            <field name="category_id" ref="module_category_t4clinical"/>
-            <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
-        </record>
+        </record>        
         <record id="group_t4clinical_admin" model="res.groups">
             <field name="name">T4 Clinical Admin Group</field>
             <field name="category_id" ref="module_category_t4clinical"/>

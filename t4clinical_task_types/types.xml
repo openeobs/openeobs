@@ -14,7 +14,7 @@
 		<record model="t4.clinical.task.type" id="patient_placement_data_type">
 			<field name="summary">Patient Placement</field>
 			<field name="data_model">t4.clinical.patient.placement</field>
-			<field name="complete_view_id" ref="view_patient_placement_form" />
+			<field name="complete_view_id" ref="view_patient_placement_complete" />
 		</record>			
 		<record model="t4.clinical.task.type" id="patient_admission_data_type">
 			<field name="summary">Patient Admission</field>

@@ -116,7 +116,7 @@ class demo(orm.AbstractModel):
                 break
             task_pool.submit(cr, uid, placement_task_id,  placement_data[n])
             task_pool.start(cr, uid, placement_task_id) 
-            task_pool.complete(cr, uid, placement_task_id) 
+            #task_pool.complete(cr, uid, placement_task_id) 
             n += 1
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         for n in range(1,10):

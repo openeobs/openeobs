@@ -33,7 +33,15 @@ class t4_clinical_patient_move(orm.Model):
 
 class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
-    _inherit = ['t4.clinical.task.data']    
+    _inherit = ['t4.clinical.task.data'] 
+    _transitions = {
+        'draft': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'scheduled': ['start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'started': ['complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'completed': ['retrieve','validate'],
+        'cancelled': ['retrieve','validate']
+                    }       
     _columns = {
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),

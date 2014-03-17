@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<!-- WARDBOARD -->
+          <menuitem name="Wardboard" 
+          	id="menu_left_wardboard" 
+          	parent="t4clinical_base.menu_t4_clinical" 
+          	action=""
+          	groups="t4clinical_base.group_t4clinical_nurse"/>
+          	
+          <menuitem name="Wardboard" 
+          	id="menu_left_sub_wardboard" 
+          	parent="menu_left_wardboard" 
+          	action="action_wardboard"
+          	groups="t4clinical_base.group_t4clinical_nurse"/>    	
+
+    </data>
+</openerp>

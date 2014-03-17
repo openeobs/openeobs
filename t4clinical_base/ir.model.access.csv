@@ -8,3 +8,4 @@ access_t4_clinical_task,admin:access_t4_clinical_task,model_t4_clinical_task,t4c
 access_t4_clinical_task_data,admin:access_t4_clinical_task_data,model_t4_clinical_task_data,t4clinical_base.group_t4clinical_base,1,1,1,1
 access_t4_clinical_task_type,admin:access_t4_clinical_task_type,model_t4_clinical_task_type,t4clinical_base.group_t4clinical_base,1,1,1,1
 access_res_users,admin:access_res_users,model_res_users,t4clinical_base.group_t4clinical_base,1,1,1,1
+access_res_partner,admin:access_res_partner,base.model_res_partner,t4clinical_base.group_t4clinical_base,1,1,1,1

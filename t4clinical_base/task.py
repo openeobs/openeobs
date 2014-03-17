@@ -374,49 +374,83 @@ class t4_clinical_task(orm.Model):
             res[task['id']] = self.ref2res(task['data_ref'])[1]
         return res
 
+    def _is_schedule_allowed(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        for task in self.browse(cr, uid, ids, context):
+            res[task.id] = self.pool[task.data_model].is_action_allowed(task.state, 'schedule') \
+                            and task.type_id.schedule_view_id.id
+        return res
+
+    def _is_start_allowed(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        for task in self.browse(cr, uid, ids, context):
+            res[task.id] = self.pool[task.data_model].is_action_allowed(task.state, 'start') \
+                            and task.type_id.start_view_id.id
+        return res
+
+    def _is_submit_allowed(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        for task in self.browse(cr, uid, ids, context):
+            res[task.id] = self.pool[task.data_model].is_action_allowed(task.state, 'submit') \
+                            and task.type_id.submit_view_id.id
+        return res
+
+    def _is_complete_allowed(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        for task in self.browse(cr, uid, ids, context):
+            res[task.id] = self.pool[task.data_model].is_action_allowed(task.state, 'complete') \
+                            and task.type_id.complete_view_id.id
+        return res
+
+    def _is_cancel_allowed(self, cr, uid, ids, field, arg, context=None):
+        res = {}
+        for task in self.browse(cr, uid, ids, context):
+            res[task.id] = self.pool[task.data_model].is_action_allowed(task.state, 'cancel') \
+                            and task.type_id.cancel_view_id.id
+        return res
     
     _columns = {
-        'summary': fields.char('Summary', size=256),
+        #'summary': fields.char('Summary', size=256),
         'parent_id': fields.many2one('t4.clinical.task', 'Parent Task'), 
         'child_ids': fields.one2many('t4.clinical.task', 'parent_id', 'Child Tasks'),     
 
-        'creator_task_id': fields.many2one('t4.clinical.task', 'Creator Task'), 
-        'created_task_ids': fields.one2many('t4.clinical.task', 'creator_task_id', 'Created Tasks'), 
+        'creator_task_id': fields.many2one('t4.clinical.task', 'Creator Task', readonly=True), 
+        'created_task_ids': fields.one2many('t4.clinical.task', 'creator_task_id', 'Created Tasks', readonly=True), 
 
         'notes': fields.text('Notes'),
-        'state': fields.selection(_states, 'State'),
+        'state': fields.selection(_states, 'State', readonly=True),
         # coordinates
-        'user_id': fields.many2one('res.users', 'Assignee'),
-        'user_ids': fields.many2many('res.users', 'task_user_rel', 'task_id','user_id','Users'),
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
-        'location_id': fields.many2one('t4.clinical.location', 'Location'),        
-        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
+        'user_id': fields.many2one('res.users', 'Assignee', readonly=True),
+        'user_ids': fields.many2many('res.users', 'task_user_rel', 'task_id','user_id','Users', readonly=True),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', readonly=True),
+        'location_id': fields.many2one('t4.clinical.location', 'Location', readonly=True),        
+        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS', readonly=True),
         # system data
-        'create_date': fields.datetime('Create Date'),
-        'write_date': fields.datetime('Write Date'),
-        'create_uid': fields.many2one('res.users', 'Created By'),
-        'write_uid': fields.many2one('res.users', 'Updated By'),        
+        'create_date': fields.datetime('Create Date', readonly=True),
+        'write_date': fields.datetime('Write Date', readonly=True),
+        'create_uid': fields.many2one('res.users', 'Created By', readonly=True),
+        'write_uid': fields.many2one('res.users', 'Updated By', readonly=True),        
         # dates planning
-        'date_planned': fields.datetime('Planned Time'),
-        'date_scheduled': fields.datetime('Scheduled Time'),
+        'date_planned': fields.datetime('Planned Time', readonly=True),
+        'date_scheduled': fields.datetime('Scheduled Time', readonly=True),
         #dates actions
-        'date_started': fields.datetime('Started Time'),
-        'date_terminated': fields.datetime('Termination Time', help="Completed, Aborted, Expired"),
+        'date_started': fields.datetime('Started Time', readonly=True),
+        'date_terminated': fields.datetime('Termination Time', help="Completed, Aborted, Expired", readonly=True),
         # dates limits
-        'date_deadline': fields.datetime('Deadline Time'),
-        'date_expiry': fields.datetime('Expiry Time'),
+        'date_deadline': fields.datetime('Deadline Time', readonly=True),
+        'date_expiry': fields.datetime('Expiry Time', readonly=True),
         # task type and related model/resource
         'type_id': fields.many2one('t4.clinical.task.type', "Task Type"),
-        'data_res_id': fields.function(_task2data_res_id, type='integer', string="Data Model's ResID", help="Data Model's ResID"),
+        'data_res_id': fields.function(_task2data_res_id, type='integer', string="Data Model's ResID", help="Data Model's ResID", readonly=True),
         'data_model': fields.related('type_id','data_model',type='text',string="Data Model"),
-        'data_ref': fields.reference('Data Reference', _get_data_type_selection, size=256),
-        #views
+        'data_ref': fields.reference('Data Reference', _get_data_type_selection, size=256, readonly=True),
+        # UI actions
+        'is_schedule_allowed': fields.function(_is_schedule_allowed, type='boolean', string='Is Schedule Allowed?'),
+        'is_start_allowed': fields.function(_is_start_allowed, type='boolean', string='Is Start Allowed?'),
+        'is_submit_allowed': fields.function(_is_submit_allowed, type='boolean', string='Is Submit Allowed?'),
+        'is_complete_allowed': fields.function(_is_complete_allowed, type='boolean', string='Is Complete Allowed?'),
+        'is_cancel_allowed': fields.function(_is_cancel_allowed, type='boolean', string='Is Cancel Allowed?'),
         
-        'schedule_view_id': fields.related('type_id', 'schedule_view_id', type='many2one', relation='ir.ui.view', string="Schedule View"),
-        'start_view_id': fields.related('type_id', 'start_view_id', type='many2one', relation='ir.ui.view', string="Start View"),
-        'submit_view_id': fields.related('type_id', 'submit_view_id', type='many2one', relation='ir.ui.view', string="Submit View"),
-        'complete_view_id': fields.related('type_id', 'complete_view_id', type='many2one', relation='ir.ui.view', string="Complete View"),
-        'cancel_view_id': fields.related('type_id', 'cancel_view_id', type='many2one', relation='ir.ui.view', string="Cancel View"),
     }
     
     _sql_constrints = {
@@ -425,7 +459,7 @@ class t4_clinical_task(orm.Model):
     
     _defaults = {
         'state': 'draft',
-        'summary': 'Not specified',
+        #'summary': 'Not specified',
     }
 
     def get_task_ids(self, cr, uid, data_model, data_domain=[], order=None, limit=None, context=None):
@@ -465,6 +499,10 @@ class t4_clinical_task(orm.Model):
     def cancel_act_window(self, cr, uid, task_id, fields, context=None):
         return True      
     
+    @data_model_event(callback="update_task")
+    def update_task(self, cr, uid, task_id, context=None):
+        assert isinstance(task_id,(int, long)), "task_id must be int or long, found to be %s" % type(task_id)
+        return True        
     
     @data_model_event(callback="submit")
     def submit(self, cr, uid, task_id, vals, context=None):
@@ -602,6 +640,17 @@ class t4_clinical_task_data(orm.AbstractModel):
     
     _name = 't4.clinical.task.data'  
     _events = [] # (event_model, handler_model)  
+    _transitions = {
+        'draft': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'scheduled': ['start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'started': ['complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'completed': ['retrieve','validate'],
+        'cancelled': ['retrieve','validate']
+                    }
+    def is_action_allowed(self, state, action):
+        return action in self._transitions[state]
+        
     _columns = {
         'name': fields.char('Name', size=256),
         'type_id': fields.related('task_id', 'type_id', type='many2one', relation='t4.clinical.task.type', string="Task Data Type"),
@@ -654,9 +703,20 @@ class t4_clinical_task_data(orm.AbstractModel):
             task_pool = self.pool['t4.clinical.task']
             task_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             task = task_pool.browse(cr, uid, context['active_id'], context)
+            task_pool.update_task(cr, uid, task.id, context)
             _logger.info("Task '%s', task.id=%s data submitted via UI" % (task.data_model, task.id))
         return {'type': 'ir.actions.act_window_close'}
     
+    def complete_ui(self, cr, uid, ids, context=None):
+        print context
+        if context.get('active_id'):
+            task_pool = self.pool['t4.clinical.task']
+            task_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
+            task = task_pool.browse(cr, uid, context['active_id'], context)
+            task_pool.update_task(cr, uid, task.id, context)
+            task_pool.complete(cr, uid, task.id, context)            
+            _logger.info("Task '%s', task.id=%s data completed via UI" % (task.data_model, task.id))
+        return {'type': 'ir.actions.act_window_close'}
     
     def start_act_window(self, cr, uid, task_id, context=None):
         return self.act_window(cr, uid, task_id, "start", context)
@@ -682,18 +742,20 @@ class t4_clinical_task_data(orm.AbstractModel):
             view = eval("task.type_id.%s_view_id" % command)
         except:
             except_if(True,msg="Command '%s' is not recognized!" % command)
-        except_if(not view, msg="%s view is not set for data model %s" % (command.capitalize(), task.data_model))                
+        except_if(not view, msg="Command '%s' view is not set for data model '%s'" % (command, task.data_model))                
         ctx = context or {}
         ctx.update({'t4_source': 't4.clinical.task'}) 
-        aw = {'type': 'ir.actions.act_window',
-                    'res_model': view.model,
-                    'res_id': task.data_res_id, # must always be there 
-                    'view_type': view.type,
-                    'view_mode': view.type,
-                    'target': "new",
-                    'context': ctx,
-                    'name': view.name
-                    }
+        aw = {      
+            'type': 'ir.actions.act_window',
+            'view_id': view.id,
+            'res_model': view.model,
+            'res_id': task.data_res_id, # must always be there 
+            'view_type': view.type,
+            'view_mode': view.type,
+            'target': "new",
+            'context': ctx,
+            'name': view.name
+        }
         return aw   
     
 
@@ -702,9 +764,8 @@ class t4_clinical_task_data(orm.AbstractModel):
 
     def start(self, cr, uid, task_id, context=None):
         task_pool = self.pool['t4.clinical.task']
-        allowed_states = ['draft', 'planned', 'scheduled']
         task = task_pool.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft', 'planned', 'scheduled'], msg="Task in state %s can not be started" % task.state)                  
+        except_if(not self.is_action_allowed(task.state, 'start'), msg="Task of type '%s' can not be started from state '%s'" % (task.data_model, task.state))                  
         task_pool.write(cr, uid, task_id, {'state': 'started'}, context)
         _logger.info("Task '%s', task.id=%s started" % (task.data_model, task.id))        
         return True
@@ -712,7 +773,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     def complete(self, cr, uid, task_id, context=None):
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['started'], msg="Task in state %s can not be completed!" % task.state)      
+        except_if(not self.is_action_allowed(task.state, 'complete'), msg="Task of type '%s' can not be completed from state '%s'" % (task.data_model, task.state))      
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S') 
         task_pool.write(cr, uid, task.id, {'state': 'completed', 'date_terminated': now}, context)     
         _logger.info("Task '%s', task.id=%s completed" % (task.data_model, task.id))   
@@ -730,8 +791,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     def assign(self, cr, uid, task_id, user_id, context=None):
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context)
-        allowed_states = ['draft','planned','scheduled']
-        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be assigned!" % task.state)
+        except_if(not self.is_action_allowed(task.state, 'assign'), msg="Task of type '%s' can not be assigned in state '%s'" % (task.data_model, task.state))
         except_if(task.user_id, msg="Task is assigned already assigned to %s!" % task.user_id.name)         
         task_vals = {'user_id': user_id}
         if len(task.user_id.employee_ids or []) == 1:
@@ -745,7 +805,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     def unassign(self, cr, uid, task_id, user_id, context=None):
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft','planned','scheduled'], msg="Task in state %s can not be unassigned!" % task.state)
+        except_if(not self.is_action_allowed(task.state, 'unassign'), msg="Task of type '%s' can not be unassigned in state '%s'" % (task.data_model, task.state))
         except_if(task.user_id, msg="Task is not assigned yet!")               
         task_pool.write(cr, uid, task_id,{'user_id': False}, context) 
         _logger.info("Task '%s', task.id=%s unassigned" % (task.data_model, task.id))         
@@ -756,9 +816,8 @@ class t4_clinical_task_data(orm.AbstractModel):
     
     def cancel(self, cr, uid, task_id, context=None):
         task_pool = self.pool['t4.clinical.task']
-        allowed_states = ['draft','planned','scheduled','started']
         task = task_pool.browse(cr, uid, task_id, context)
-        except_if(task.state not in ['draft','planned','scheduled','started'], msg="Task in state %s can not be cancelled!" % task.state)         
+        except_if(not self.is_action_allowed(task.state, 'cancel'), msg="Task of type '%s' can not be cancelled in state '%s'" % (task.data_model, task.state))        
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         task_pool.write(cr, uid, task_id,{'state': 'cancelled', 'date_terminated': now}, context)
         _logger.info("Task '%s', task.id=%s cancelled" % (task.data_model, task.id))         
@@ -767,6 +826,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     def retrieve(self, cr, uid, task_id, context=None):
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context)    
+        except_if(not self.is_action_allowed(task.state, 'retrieve'), msg="Data can't be retrieved from task of type '%s' in state '%s'" % (task.data_model, task.state))
         return self.retrieve_read(cr, uid, task_id, context=None)         
 
 
@@ -782,7 +842,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     def schedule(self, cr, uid, task_id, date_scheduled=None, context=None):
         task_pool = self.pool['t4.clinical.task']
         task = task_pool.browse(cr, uid, task_id, context=None)
-        #except_if(task.state not in ['draft', 'planned'], msg="Task in state %s can not be scheduled!" % task.state)
+        except_if(not self.is_action_allowed(task.state, 'schedule'), msg="Task of type '%s' can't be scheduled in state '%s'" % (task.data_model, task.state))
         except_if(not task.date_scheduled and not date_scheduled, msg="Scheduled date is neither set on task nor passed to the method")
         date_scheduled = date_scheduled or task.date_scheduled
         task_pool.write(cr, uid, task_id, {'date_scheduled': date_scheduled, 'state': 'scheduled'}, context)
@@ -793,8 +853,7 @@ class t4_clinical_task_data(orm.AbstractModel):
         task_pool = self.pool['t4.clinical.task']        
         task = task_pool.browse(cr, uid, task_id, context)              
         except_if(not task.type_id, msg="Data type is not set for this task")          
-        allowed_states = ['draft','planned', 'scheduled','started']
-        except_if(task.state not in allowed_states, msg="Data can't be submitted in state '%s'" % task.state)       
+        except_if(not self.is_action_allowed(task.state, 'submit'), msg="Data can't be submitted to task of type '%s' in state '%s'" % (task.data_model, task.state))
         
         data_vals = vals.copy()
          
@@ -895,9 +954,7 @@ class t4_clinical_task_data(orm.AbstractModel):
     def get_task_browse(self, cr, uid, task_id, context=None):
         task_pool = self.pool['t4.clinical.task']
         return task_pool.browse(cr, uid, task_id, context)
-
-    def after_create(self, cr, uid, task_id, context=None):
-        return True       
+    
 
 # 
 # class t4_clinical_task_resource(orm.Model):

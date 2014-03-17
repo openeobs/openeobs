@@ -5,46 +5,42 @@
                 <field name="name">Patient Transfer Form</field>
                 <field name="model">t4.clinical.patient.move</field>
                 <field name="arch" type="xml">
-
                     <form string="Patient Transfer Form">
                        <field name="patient_id" />
                        <field name="location_id" />
 					   <field name="reason" /> 	                     
-                       
 						<button name="submit_ui" type="object" string="Submit"/>
                     </form>
-                
                 </field>
             </record>          
-      
-            <record model="ir.ui.view" id="view_patient_placement_form">
-                <field name="name">Patient Transfer Form</field>
+      		<!-- PLACEMENT VIEWS  -->
+
+      		
+            <record model="ir.ui.view" id="view_patient_placement_complete">
+                <field name="name">Patient Placement</field>
                 <field name="model">t4.clinical.patient.placement</field>
                 <field name="arch" type="xml">
-                    <form string="Patient Placement Form">
+                    <form string="Patient Placement" version="7.0">
+                       <label for="patient_id" string="Patient"/>
                        <field name="patient_id" />
-                       <field name="location_id" />                     
-						<button name="submit_ui" type="object" string="Submit"/>
+                       <label for="location_id" string="Location"/>
+                       <field name="location_id" domain="[('is_available','=',True)]"/>                     
+						<button name="complete_ui" type="object" string="Confirm Placement"/>
                     </form>
-                
                 </field>
             </record>              
-            
             
             <record model="ir.ui.view" id="view_observation_height_weight">
                 <field name="name">Observation Height, Weight</field>
                 <field name="model">t4.clinical.patient.observation.height_weight</field>
                 <field name="arch" type="xml">
-
                     <form string="Patient Transfer Form">
                        <field name="patient_id" />
                        <field name="height" />
 					   <field name="weight" />  
 						<button name="submit_ui" type="object" string="Submit"/>
                     </form>
-                
                 </field>
-            </record>
-                            
+            </record> 
     </data>
 </openerp>
