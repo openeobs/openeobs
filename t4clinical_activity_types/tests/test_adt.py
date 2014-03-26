@@ -34,8 +34,8 @@ ews_data = [{
 class TestADT(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid
-        global register_pool, patient_pool, admit_pool, task_pool, transfer_pool, ews_pool
-        global task_id
+        global register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool
+        global activity_id
         global ews_data
         global now, tomorrow
         
@@ -47,7 +47,7 @@ class TestADT(common.SingleTransactionCase):
         register_pool = self.registry('t4.clinical.adt.patient.register')
         patient_pool = self.registry('t4.clinical.patient')
         admit_pool = self.registry('t4.clinical.adt.patient.admit')
-        task_pool = self.registry('t4.clinical.task')
+        activity_pool = self.registry('t4.clinical.activity')
         transfer_pool = self.registry('t4.clinical.adt.patient.transfer')
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
         
@@ -59,36 +59,36 @@ class TestADT(common.SingleTransactionCase):
         db_id = imd_id and imd_pool.browse(self.cr, self.uid, imd_id[0]).res_id or False
         return db_id
     
-    def test_task_types(self):
+    def test_activity_types(self):
         """            
         """
         global cr, uid
-        global register_pool, patient_pool, admit_pool, task_pool, transfer_pool, ews_pool
-        global task_id
+        global register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool
+        global activity_id
         global ews_data        
         global now, tomorrow
         
         adt_uid = self.xml2db_id("demo_user_adt_uhg")
         
         patient_data = {'family_name': 'Bacon', 'other_identifier': '30020', 'dob': '20-12-1922 12:33', 'gender': 'M', 'sex': 'M', 'given_name': 'Andy'}
-        reg_task_id = register_pool.create_task(cr, adt_uid, {}, patient_data)
+        reg_activity_id = register_pool.create_activity(cr, adt_uid, {}, patient_data)
         patient_domain = [(k,'=',v) for k,v in patient_data.iteritems()]
         patient_id = patient_pool.search(cr, adt_uid, patient_domain)[0]
-        #dupl_task_id = register_pool.create_task(cr, uid, {}, patient_data)
+        #dupl_activity_id = register_pool.create_activity(cr, uid, {}, patient_data)
 
         admit_data = {'code': 'test', 'other_identifier': '30020', 'location': 'W9', 'start_date': '2014-01-01 12:00:01'}
-        admit_task_id = admit_pool.create_task(cr, adt_uid, {}, admit_data)
-        admit_task = task_pool.browse(cr, adt_uid, admit_task_id)
-        spell_task = task_pool.get_patient_spell_task_browse(cr, adt_uid, patient_id)
-        transfer_task_id = transfer_pool.create_task(cr, adt_uid, {}, {'other_identifier': '30020', 'location': 'W8'})
+        admit_activity_id = admit_pool.create_activity(cr, adt_uid, {}, admit_data)
+        admit_activity = activity_pool.browse(cr, adt_uid, admit_activity_id)
+        spell_activity = activity_pool.get_patient_spell_activity_browse(cr, adt_uid, patient_id)
+        transfer_activity_id = transfer_pool.create_activity(cr, adt_uid, {}, {'other_identifier': '30020', 'location': 'W8'})
         
         for data in ews_data:
             data.update({'patient_id': patient_id})
-            ews_pool.create_task(cr, adt_uid, {}, data)
+            ews_pool.create_activity(cr, adt_uid, {}, data)
         
-        self.assertTrue(reg_task_id,"reg_task_id")
-        self.assertTrue(not patient_data.get('reg_task_id'), 'reg_task_id is not in patient_data')
+        self.assertTrue(reg_activity_id,"reg_activity_id")
+        self.assertTrue(not patient_data.get('reg_activity_id'), 'reg_activity_id is not in patient_data')
         self.assertTrue(patient_id, 'patient_id exists')
         #self.assertTrue(patient_id, 'patient_id exists')
         
-        #self.assertTrue(admit_task.parent_id.data_model == 't4.clinical.spell', "spell")
+        #self.assertTrue(admit_activity.parent_id.data_model == 't4.clinical.spell', "spell")

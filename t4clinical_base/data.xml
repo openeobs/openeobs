@@ -2,13 +2,13 @@
 <openerp>
 	<data>
 		<!-- Recurrence Scheduler -->
-        <record model="ir.cron" id="t4_clinical_task_recurrence_cron">
-            <field name="name">Task Recurrence</field>
+        <record model="ir.cron" id="t4_clinical_activity_recurrence_cron">
+            <field name="name">activity Recurrence</field>
             <field name="interval_number">1</field>
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
             <field name="doall" eval="False"/>
-            <field name="model" eval="'t4.clinical.task.recurrence'"/>
+            <field name="model" eval="'t4.clinical.activity.recurrence'"/>
             <field name="function" eval="'cron'"/>
             <field name="args" eval="'()'" />
         </record>	
@@ -60,9 +60,9 @@
             <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
         </record>
 <!-- Record Rules -->
-        <record model="ir.rule" id="t4clinical_rule_user_task">
-            <field name="name">T4 Clinical User-Task Rule</field>
-            <field name="model_id" ref="model_t4_clinical_task"/>
+        <record model="ir.rule" id="t4clinical_rule_user_activity">
+            <field name="name">T4 Clinical User-activity Rule</field>
+            <field name="model_id" ref="model_t4_clinical_activity"/>
             <field name="domain_force">[('user_ids','in',user.id)]</field>
             <field name="groups" eval="[(4, ref('group_t4clinical_hca')), 
             							(4, ref('group_t4clinical_nurse')), 

@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 
 class t4_clinical_spell(orm.Model):
     _name = 't4.clinical.spell'
-    _inherit = ['t4.clinical.task.data']
+    _inherit = ['t4.clinical.activity.data']
     
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
@@ -34,15 +34,15 @@ class t4_clinical_spell(orm.Model):
         if spell_id:
             spell_id = spell_id[0]
 
-    def on_placement_complete(self, cr, uid, task_id, context):
-        task_pool = self.pool['t4.clinical.task']
-        placement_task = task_pool.browse(cr, uid, task_id)
-        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.patient_id.id, context)
-        task_pool.submit(cr, uid, spell_task_id, {'location_id': placement_task.data_ref.location_id.id})
+    def on_placement_complete(self, cr, uid, activity_id, context):
+        activity_pool = self.pool['t4.clinical.activity']
+        placement_activity = activity_pool.browse(cr, uid, activity_id)
+        spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.patient_id.id, context)
+        activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         return True
     
-    def event(self, cr, uid, model, event, task_id, context=None):
+    def event(self, cr, uid, model, event, activity_id, context=None):
         
         if model == 't4.clinical.patient.placement' and event == "complete":
-            self.on_placement_complete(cr, uid, task_id, context)
-        #super(t4_clinical_spell, self).event(cr, uid, model, event, task_id, context)
+            self.on_placement_complete(cr, uid, activity_id, context)
+        #super(t4_clinical_spell, self).event(cr, uid, model, event, activity_id, context)

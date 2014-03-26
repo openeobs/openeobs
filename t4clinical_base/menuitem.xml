@@ -45,47 +45,47 @@
           	action="action_patient" 
           	groups="group_t4clinical_admin"/>       	  
        
-       <!-- TASK Left -->
-          <menuitem name="Tasks" 
-          	id="menu_left_t4_clinical_task" 
+       <!-- activity Left -->
+          <menuitem name="Activities" 
+          	id="menu_left_t4_clinical_activity" 
           	parent="menu_t4_clinical" 
           	action="" 
           	groups="group_t4clinical_admin"/>
           
-          <menuitem name="Task Data Types" 
-          	id="menu_left_sub_t4_clinical_task_type" 
-          	parent="menu_left_t4_clinical_task" 
-          	action="action_t4_clinical_task_type" 
+          <menuitem name="activity Data Types" 
+          	id="menu_left_sub_t4_clinical_activity_type" 
+          	parent="menu_left_t4_clinical_activity" 
+          	action="action_t4_clinical_activity_type" 
           	groups="group_t4clinical_admin"/>
           	
-          <menuitem name="Tasks" 
-          	id="menu_left_sub_t4_clinical_task" 
-          	parent="menu_left_t4_clinical_task" 
-          	action="action_t4_clinical_task" 
+          <menuitem name="Activities" 
+          	id="menu_left_sub_t4_clinical_activity" 
+          	parent="menu_left_t4_clinical_activity" 
+          	action="action_t4_clinical_activity" 
           	groups="group_t4clinical_admin"/>
           	
-          <menuitem name="Task Recurrence" 
-          	id="menu_left_sub_task_recurrence" 
-          	parent="menu_left_t4_clinical_task" 
-          	action="action_task_recurrence" 
+          <menuitem name="activity Recurrence" 
+          	id="menu_left_sub_activity_recurrence" 
+          	parent="menu_left_t4_clinical_activity" 
+          	action="action_activity_recurrence" 
           	groups="group_t4clinical_admin"/>
           	
-          <menuitem name="Tasks Hierarchy" 
-          	id="menu_left_sub_t4_clinical_task_hierarchy" 
-          	parent="menu_left_t4_clinical_task" 
-          	action="action_t4_clinical_task_hierarchy" 
+          <menuitem name="Activities Hierarchy" 
+          	id="menu_left_sub_t4_clinical_activity_hierarchy" 
+          	parent="menu_left_t4_clinical_activity" 
+          	action="action_t4_clinical_activity_hierarchy" 
           	groups="group_t4clinical_admin"/>
           	
-          <menuitem name="Patient Task Trigger" 
-          	id="menu_left_sub_patient_task_trigger" 
-          	parent="menu_left_t4_clinical_task" 
-          	action="action_patient_task_trigger" 
+          <menuitem name="Patient activity Trigger" 
+          	id="menu_left_sub_patient_activity_trigger" 
+          	parent="menu_left_t4_clinical_activity" 
+          	action="action_patient_activity_trigger" 
           	groups="group_t4clinical_admin"/>
           
-          <menuitem name="Task Recurrence" 
-          	id="menu_left_sub_task_recurrence" 
-          	parent="menu_left_t4_clinical_task" 
-          	action="action_task_recurrence" 
+          <menuitem name="activity Recurrence" 
+          	id="menu_left_sub_activity_recurrence" 
+          	parent="menu_left_t4_clinical_activity" 
+          	action="action_activity_recurrence" 
           	groups="group_t4clinical_admin"/>   
     </data>
 </openerp>

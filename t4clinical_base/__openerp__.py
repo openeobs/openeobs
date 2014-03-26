@@ -11,11 +11,11 @@
     'depends': ['project','hr'], #, 't4_base'],
     'data': ['data.xml', 
              
-             'task_view.xml',
+             'activity_view.xml',
              'pos_view.xml',
              'location_view.xml',
              'patient_view.xml',
-             'task_type_view.xml',
+             'activity_type_view.xml',
              'employee_view.xml',
              'user_view.xml',
              'recurrence_view.xml',

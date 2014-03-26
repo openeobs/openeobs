@@ -17,12 +17,12 @@ class TestAdmission(common.SingleTransactionCase):
         self.tomorrow = (dt.today() + rd(days=1)).strftime('%Y-%m-%d %H:%M:%S')
         
                 
-        self.task_pool = self.registry('t4.clinical.task')
+        self.activity_pool = self.registry('t4.clinical.activity')
         self.hw_pool = self.registry('t4.clinical.patient.observation.height_weight')
         self.patient_id = self.xml2db_id("demo_patient_donald")
         self.location_id = self.xml2db_id("demo_location_uhg")
         self.admission_data = {'location_id': self.location_id, 'patient_id':self.patient_id}
-        self.adm_task_id = self.adm_pool.create_task(self.cr, self.uid, {}, self.admission_data)
+        self.adm_activity_id = self.adm_pool.create_activity(self.cr, self.uid, {}, self.admission_data)
         
         super(TestAdmission, self).setUp()
 
@@ -35,19 +35,19 @@ class TestAdmission(common.SingleTransactionCase):
     def test_complete(self):
         """
         when:
-            adm_task.complete
+            adm_activity.complete
         then:
-            adm_task.parent_id.data_model == 't4.clinical.spell'
+            adm_activity.parent_id.data_model == 't4.clinical.spell'
             move_pool.get_location() == self.location
             
         """
-        self.task_pool.assign(self.cr, self.uid, self.adm_task_id, 1)
-        self.task_pool.start(self.cr, self.uid, self.adm_task_id)
+        self.activity_pool.assign(self.cr, self.uid, self.adm_activity_id, 1)
+        self.activity_pool.start(self.cr, self.uid, self.adm_activity_id)
         #import pdb; pdb.set_trace()
-        self.task_pool.complete(self.cr, self.uid, self.adm_task_id)
-        adm_task = self.task_pool.browse(self.cr, self.uid, self.adm_task_id)
+        self.activity_pool.complete(self.cr, self.uid, self.adm_activity_id)
+        adm_activity = self.activity_pool.browse(self.cr, self.uid, self.adm_activity_id)
         
-        self.assertTrue(adm_task.parent_id.data_model == 't4.clinical.spell', 'Data model')
+        self.assertTrue(adm_activity.parent_id.data_model == 't4.clinical.spell', 'Data model')
         location = self.move_pool.get_location(self.cr, self.uid, self.patient_id)
         self.assertTrue( location and location.id == self.location_id, 'Data model')
         

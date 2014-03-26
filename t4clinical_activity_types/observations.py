@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.addons.t4clinical_base.task import except_if
+from openerp.addons.t4clinical_base.activity import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
 
 class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
-    _inherit = ['t4.clinical.task.data']    
+    _inherit = ['t4.clinical.activity.data']    
     _required = [] # fields required for complete observation
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):
@@ -36,13 +36,13 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         #print "create none_values: %s" % none_values
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)        
     
-    def create_task(self, cr, uid, task_vals={}, data_vals={}, context=None):
-        task_pool = self.pool['t4.clinical.task']
+    def create_activity(self, cr, uid, activity_vals={}, data_vals={}, context=None):
+        activity_pool = self.pool['t4.clinical.activity']
         patient_id = data_vals['patient_id']
-        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, patient_id, context)
-        except_if(not spell_task_id, msg="Current spell is not found for patient_id: %s" % patient_id)
-        task_vals.update({'parent_id': spell_task_id})
-        return super(t4_clinical_patient_observation, self).create_task(cr, uid, task_vals, data_vals, context)      
+        spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, patient_id, context)
+        except_if(not spell_activity_id, msg="Current spell is not found for patient_id: %s" % patient_id)
+        activity_vals.update({'parent_id': spell_activity_id})
+        return super(t4_clinical_patient_observation, self).create_activity(cr, uid, activity_vals, data_vals, context)      
                 
     def write(self, cr, uid, ids, vals, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
@@ -55,12 +55,12 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             super(t4_clinical_patient_observation, self).write(cr, uid, obs['id'], vals, context)
         return True
 
-    def get_task_location_id(self, cr, uid, task_id, context=None):
-        task_pool = self.pool['t4.clinical.task']
-        task = task_pool.browse(cr, uid, task_id, context)
-        patient_id = task.data_ref.patient_id.id
+    def get_activity_location_id(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.clinical.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context)
+        patient_id = activity.data_ref.patient_id.id
         placement_pool = self.pool['t4.clinical.patient.placement']
-        # FIXME + placement.id child_of current_spell_task
+        # FIXME + placement.id child_of current_spell_activity
         placement = placement_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
         #import pdb; pdb.set_trace()
         location_id = placement and placement[0].location_id.id or False
@@ -191,7 +191,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
                 score += 3
                 three_in_one = True
             res[ews.id] = {'score': score, 'three_in_one': three_in_one}
-            _logger.info("Observation EWS task_id=%s ews_id=%s score: %s" % (ews.task_id.id, ews.id, res[ews.id]))
+            _logger.info("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res    
     
     _columns = {
@@ -225,10 +225,10 @@ class t4_clinical_patient_observation_ews(orm.Model):
         #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),        
     }
 
-    def submit(self, cr, uid, task_id, data_vals={}, context=None):
+    def submit(self, cr, uid, activity_id, data_vals={}, context=None):
         vals = data_vals.copy()
         if vals.get('oxygen_administration'):
             vals.update({'oxygen_administration_flag': vals['oxygen_administration'].get('oxygen_administration_flag')})
             del vals['oxygen_administration']
 
-        return super(t4_clinical_patient_observation_ews, self).submit(cr, uid, task_id, data_vals, context)   
+        return super(t4_clinical_patient_observation_ews, self).submit(cr, uid, activity_id, data_vals, context)   

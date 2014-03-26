@@ -57,26 +57,26 @@
                 <field name="act_window_id" ref="action_patient_placement"/>
             </record>
             
-            <!-- TASK VIEW  -->
-            <record model="ir.actions.act_window" id="action_t4_clinical_placement_task" >
-                <field name="name">Patient Placement Tasks</field>
-                <field name="res_model">t4.clinical.task</field>
+            <!-- activity VIEW  -->
+            <record model="ir.actions.act_window" id="action_t4_clinical_placement_activity" >
+                <field name="name">Patient Placement Activities</field>
+                <field name="res_model">t4.clinical.activity</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>
-                <field name="search_view_id" ref="t4clinical_base.view_t4_clinical_task_search"/>
+                <field name="search_view_id" ref="t4clinical_base.view_t4_clinical_activity_search"/>
                 <field name="domain">[('data_model','=','t4.clinical.patient.placement')]</field>
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_t4_clinical_placement_task_tree">
+            <record model="ir.actions.act_window.view" id="act_view_t4_clinical_placement_activity_tree">
                 <field eval="0" name="sequence"/>
                 <field name="view_mode">tree</field>
-                <field name="view_id" ref="t4clinical_base.view_t4_clinical_task_tree"/>
-                <field name="act_window_id" ref="action_t4_clinical_placement_task"/>                
+                <field name="view_id" ref="t4clinical_base.view_t4_clinical_activity_tree"/>
+                <field name="act_window_id" ref="action_t4_clinical_placement_activity"/>                
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_t4_clinical_placement_task_form">
+            <record model="ir.actions.act_window.view" id="act_view_t4_clinical_placement_activity_form">
                 <field eval="1" name="sequence"/>
                 <field name="view_mode">form</field>
-                <field name="view_id" ref="t4clinical_base.view_t4_clinical_task_form"/>
-                <field name="act_window_id" ref="action_t4_clinical_placement_task"/>
+                <field name="view_id" ref="t4clinical_base.view_t4_clinical_activity_form"/>
+                <field name="act_window_id" ref="action_t4_clinical_placement_activity"/>
             </record>       
     </data>
 </openerp>

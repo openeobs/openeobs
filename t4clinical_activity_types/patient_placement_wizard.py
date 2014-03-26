@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields, osv
-from openerp.addons.t4clinical_base.task import except_if
+from openerp.addons.t4clinical_base.activity import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -35,12 +35,12 @@ class t4_clinical_patient_placement_wizard(orm.TransientModel):
     def apply(self, cr, uid, ids, context=None):
         #import pdb; pdb.set_trace()
         print "apply ids:", ids
-        task_pool = self.pool['t4.clinical.task']
+        activity_pool = self.pool['t4.clinical.activity']
         for placement in self.browse(cr, uid, ids[0], context).placement_ids:
             if placement.location_id:
-                task_pool.start(cr, uid, placement.task_id.id, context)
-                task_pool.submit(cr, uid, placement.task_id.id, {'location': placement.location_id.id}, context)
-                task_pool.complete(cr, uid, placement.task_id.id, context)
+                activity_pool.start(cr, uid, placement.activity_id.id, context)
+                activity_pool.submit(cr, uid, placement.activity_id.id, {'location': placement.location_id.id}, context)
+                activity_pool.complete(cr, uid, placement.activity_id.id, context)
                 
         self.write(cr, uid, ids, {'placement_ids': [(6,0,self._get_placement_ids(cr, uid))],
                                   'recent_placement_ids': [(6,0,self._get_recent_placement_ids(cr, uid))]})

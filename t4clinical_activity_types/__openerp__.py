@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'T4 Clinical Task types',
+    'name': 'T4 Clinical activity types',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',

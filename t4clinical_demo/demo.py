@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.addons.t4clinical_base.task import except_if
+from openerp.addons.t4clinical_base.activity import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -95,40 +95,40 @@ class demo(orm.AbstractModel):
         admit_data = self.get_admit_data(register_data, 5)       
         register_pool = self.pool['t4.clinical.adt.patient.register']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-        task_pool = self.pool['t4.clinical.task']
+        activity_pool = self.pool['t4.clinical.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
 
  
         
         for rd in register_data:
-            register_pool.create_task(cr, uid, {}, rd)
+            register_pool.create_activity(cr, uid, {}, rd)
         for ad in admit_data:
-            admit_pool.create_task(cr, uid, {}, ad)    
+            admit_pool.create_activity(cr, uid, {}, ad)    
         placement_data = self.get_placement_data(cr, uid, qty=5)
-        placement_task_ids = task_pool.search(cr, uid, [('data_model','=',placement_pool._name)])
+        placement_activity_ids = activity_pool.search(cr, uid, [('data_model','=',placement_pool._name)])
         n = 0
         patient_ids = []
         #import pdb; pdb.set_trace()
-        for placement_task_id in placement_task_ids:
-            placement_task = task_pool.browse(cr, uid, placement_task_id)
-            patient_ids.append(placement_task.patient_id.id)
+        for placement_activity_id in placement_activity_ids:
+            placement_activity = activity_pool.browse(cr, uid, placement_activity_id)
+            patient_ids.append(placement_activity.patient_id.id)
             if n >=len(placement_data):
                 break
-            task_pool.submit(cr, uid, placement_task_id,  placement_data[n])
-            task_pool.start(cr, uid, placement_task_id) 
-            #task_pool.complete(cr, uid, placement_task_id) 
+            activity_pool.submit(cr, uid, placement_activity_id,  placement_data[n])
+            activity_pool.start(cr, uid, placement_activity_id) 
+            #activity_pool.complete(cr, uid, placement_activity_id) 
             n += 1
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         for n in range(1,10):
             ews_data = self.get_ews_data(cr, uid, patient_ids)
             for ews in ews_data:
-                        # task frequency
-                task_pool.set_task_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
-                ews_task_id = ews_pool.create_task(cr, uid, {}, {'patient_id': ews['patient_id']})
-                task_pool.schedule(cr, uid, ews_task_id, 
+                        # activity frequency
+                activity_pool.set_activity_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
+                ews_activity_id = ews_pool.create_activity(cr, uid, {}, {'patient_id': ews['patient_id']})
+                activity_pool.schedule(cr, uid, ews_activity_id, 
                    date_scheduled=fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"))
-                task_pool.submit(cr, uid, ews_task_id, ews)
-                task_pool.start(cr, uid, ews_task_id)
-                task_pool.complete(cr, uid, ews_task_id)
+                activity_pool.submit(cr, uid, ews_activity_id, ews)
+                activity_pool.start(cr, uid, ews_activity_id)
+                activity_pool.complete(cr, uid, ews_activity_id)
         except_if(rollback, msg="Rollback")
         return True

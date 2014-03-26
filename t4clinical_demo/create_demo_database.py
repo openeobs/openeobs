@@ -1,13 +1,13 @@
 import erppeek
 
 
-new_db = "demo_test4"
-new_demo = True
+new_db = "demo_test40"
+new_demo = False
 rollback = False
 
 user = "admin"
 pwd = "admin"
-current_db = "demo_test1"
+current_db = "test11"
 
  
 

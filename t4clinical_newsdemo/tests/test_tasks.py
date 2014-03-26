@@ -4,7 +4,7 @@ from openerp.osv import orm
 from dateutil.relativedelta import relativedelta as rd
 
 
-class TestTasks(common.SingleTransactionCase):
+class TestActivities(common.SingleTransactionCase):
 
     def setUp(self):
 
@@ -13,21 +13,21 @@ class TestTasks(common.SingleTransactionCase):
         self.now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         self.tomorrow = (dt.today() + rd(days=1)).strftime('%Y-%m-%d %H:%M:%S')
                 
-        self.task_pool = self.registry('t4.clinical.task')
+        self.activity_pool = self.registry('t4.clinical.activity')
         self.user_pool = self.registry('res.users')
 
-        super(TestTasks, self).setUp()
+        super(TestActivities, self).setUp()
 
-    def test_nurse_can_see_tasks(self):
+    def test_nurse_can_see_Activities(self):
         cr, uid = self.cr, self.uid
 
-        self.task_pool.create_task()
+        self.activity_pool.create_activity()
 
         nurse_id = self.user_pool.search(cr, uid, [('login', '=', 'winifred')])[0]
         print nurse_id
 
-        tasks = self.task_pool.search(cr, nurse_id, [])
-        self.assertTrue(tasks)
+        Activities = self.activity_pool.search(cr, nurse_id, [])
+        self.assertTrue(Activities)
 
 
 

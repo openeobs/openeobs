@@ -30,21 +30,21 @@ class analytic_entries_report(osv.osv):
                         select 
                             spell.patient_id,
                             ews.score,
-                            rank() over (partition by spell.patient_id order by task.date_terminated, task.id desc)
+                            rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
                         from t4_clinical_spell spell
                         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-                        inner join t4_clinical_task task on ews.task_id = task.id
-                        where task.state = 'completed'
+                        inner join t4_clinical_activity activity on ews.activity_id = activity.id
+                        where activity.state = 'completed'
                         ),
                 scheduled_ews as(
                         select 
                             spell.patient_id,
-                            task.date_scheduled,
-                            rank() over (partition by spell.patient_id order by task.date_terminated, task.id desc)
+                            activity.date_scheduled,
+                            rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
                         from t4_clinical_spell spell
                         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-                        inner join t4_clinical_task task on ews.task_id = task.id
-                        where task.state = 'scheduled'
+                        inner join t4_clinical_activity activity on ews.activity_id = activity.id
+                        where activity.state = 'scheduled'
                         )        
                 select 
                     spell.patient_id as id,
@@ -62,7 +62,7 @@ class analytic_entries_report(osv.osv):
                 left join t4_clinical_location location on location.id = spell.location_id
                 left join (select score, patient_id, rank from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
                 left join (select score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
-                left join t4_clinical_patient_task_trigger trigger on trigger.patient_id = patient.id and data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
+                left join t4_clinical_patient_activity_trigger trigger on trigger.patient_id = patient.id and data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
                 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
             )
         """)

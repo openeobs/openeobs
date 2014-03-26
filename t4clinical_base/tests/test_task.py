@@ -6,63 +6,63 @@ from openerp.osv import orm, fields, osv
 
 
 
-task1_data = {'notes': "Test task is in draft when created by default"}
-task1_type_data = {'summary': 'Test Type', 'data_model': 'observation.test'}
+activity1_data = {'notes': "Test activity is in draft when created by default"}
+activity1_type_data = {'summary': 'Test Type', 'data_model': 'observation.test'}
 data_model_data = {'summary': 'Test Type', 'data_model': 'observation.test'}
 submit_data = {'val1': 'submit_val1', 'val2': 'submit_val2'}
 
 
-class TestTask(common.SingleTransactionCase):
+class Testactivity(common.SingleTransactionCase):
     def setUp(self):
 
         self.now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         self.tomorrow = (dt.today() + rd(days=1)).strftime('%Y-%m-%d %H:%M:%S')
 
-        super(TestTask, self).setUp()
-        self.task_pool = self.registry('t4.clinical.task')
-        self.task1_id = self.task_pool.create(self.cr, self.uid, task1_data)
+        super(Testactivity, self).setUp()
+        self.activity_pool = self.registry('t4.clinical.activity')
+        self.activity1_id = self.activity_pool.create(self.cr, self.uid, activity1_data)
 
-        self.type_pool = self.registry('t4.clinical.task.type')
+        self.type_pool = self.registry('t4.clinical.activity.type')
         self.type_id = self.type_pool.create(self.cr, self.uid, data_model_data)
         recurrence_minute_data = {'unit':'minute', 'unit_qty':1, 'date_start': (dt.now()+rd(days=-1)).strftime('%Y-%m-%d %H:%M:%S'),
-                          'vals_task': "{'summary': 'test', 'type_id': %s}" % str(self.type_id),
+                          'vals_activity': "{'summary': 'test', 'type_id': %s}" % str(self.type_id),
                           'vals_data': "{'val1': 'test'}"
                           }
-        self.rec_pool = self.registry('t4.clinical.task.recurrence')
+        self.rec_pool = self.registry('t4.clinical.activity.recurrence')
         self.rec_id = self.rec_pool.create(self.cr, self.uid, recurrence_minute_data)
         
 
     
-#     def get_task1(self):
-#         return self.task_pool.browse(self.cr, self.uid, self.task1_id)
+#     def get_activity1(self):
+#         return self.activity_pool.browse(self.cr, self.uid, self.activity1_id)
 #     
-#     def write_task1(self, vals):
-#         self.task_pool.write(self.cr, self.uid, self.task1_id, vals)
+#     def write_activity1(self, vals):
+#         self.activity_pool.write(self.cr, self.uid, self.activity1_id, vals)
 #     
 #     def test_draft(self):
 #         """
 #         when created state == draft
 #         """
-#         self.task1_id = self.task_pool.create(self.cr, self.uid, task1_data)
+#         self.activity1_id = self.activity_pool.create(self.cr, self.uid, activity1_data)
 #         
-#         task1 = self.get_task1()
-#         self.assertEquals(task1.state, 'draft', 'test_draft error')
+#         activity1 = self.get_activity1()
+#         self.assertEquals(activity1.state, 'draft', 'test_draft error')
 #         
 #         
 #     def test_scheduled(self):
 #         """
 #         if 
-#             date_scheduled written to task
+#             date_scheduled written to activity
 #             and
 #             schedule() run
 #         then 
 #             state == 'scheduled'  
 #         """
-#         self.write_task1({'date_scheduled': self.tomorrow})
-#         self.task_pool.schedule(self.cr, self.uid, self.task1_id)
+#         self.write_activity1({'date_scheduled': self.tomorrow})
+#         self.activity_pool.schedule(self.cr, self.uid, self.activity1_id)
 #         
-#         task1 = self.get_task1()
-#         self.assertEquals(task1.state, 'scheduled', 'test_scheduled error')
+#         activity1 = self.get_activity1()
+#         self.assertEquals(activity1.state, 'scheduled', 'test_scheduled error')
 #         
 #     def test_start(self):
 #         """
@@ -76,34 +76,34 @@ class TestTask(common.SingleTransactionCase):
 #             state == 'started'
 #         """
 #         self.test_scheduled()
-#         self.task_pool.assign(self.cr, self.uid, self.task1_id, 1)
-#         self.task_pool.start(self.cr, self.uid, self.task1_id)
+#         self.activity_pool.assign(self.cr, self.uid, self.activity1_id, 1)
+#         self.activity_pool.start(self.cr, self.uid, self.activity1_id)
 #         
-#         task1 = self.get_task1()
-#         self.assertEquals(task1.user_id.id, 1, 'test_start user_id')
-#         self.assertEquals(task1.state, 'started', 'test_start state')
+#         activity1 = self.get_activity1()
+#         self.assertEquals(activity1.user_id.id, 1, 'test_start user_id')
+#         self.assertEquals(activity1.state, 'started', 'test_start state')
 #         
 # 
 #     def test_submit_retrieve(self):
 #         """
 #         if
-#             type_id written to task
+#             type_id written to activity
 #             and
 #             submit() run
 #             and 
 #             data = retrieve() 
 #         then
-#             data[task1.id]['val1'] == 'submit_val1'
+#             data[activity1.id]['val1'] == 'submit_val1'
 #             and 
-#             data[task1.id]['val2'] == 'submit_val2'
+#             data[activity1.id]['val2'] == 'submit_val2'
 #             
 #         """
 #         self.test_start()
-#         self.write_task1({'type_id': self.type_id})
-#         self.task_pool.submit(self.cr, self.uid, self.task1_id, submit_data)
+#         self.write_activity1({'type_id': self.type_id})
+#         self.activity_pool.submit(self.cr, self.uid, self.activity1_id, submit_data)
 #         #import pdb; pdb.set_trace()
-#         task1 = self.get_task1()
-#         data = self.task_pool.retrieve(self.cr, self.uid, task1.id)
+#         activity1 = self.get_activity1()
+#         data = self.activity_pool.retrieve(self.cr, self.uid, activity1.id)
 #         
 #         self.assertEquals(data['val1'], 'submit_val1', 'test_submit val1')
 #         self.assertEquals(data['val2'], 'submit_val2', 'test_submit val2')
@@ -117,45 +117,45 @@ class TestTask(common.SingleTransactionCase):
 #             state == 'completed'
 #         """
 #         self.test_submit_retrieve()
-#         self.task_pool.complete(self.cr, self.uid, self.task1_id)
+#         self.activity_pool.complete(self.cr, self.uid, self.activity1_id)
 #         
-#         task1 = self.get_task1()
+#         activity1 = self.get_activity1()
 #         
-#         self.assertEquals(task1.state, 'completed', 'test_complete state')
-#         self.assertTrue(task1.date_terminated, 'test_complete date_terminated')
+#         self.assertEquals(activity1.state, 'completed', 'test_complete state')
+#         self.assertTrue(activity1.date_terminated, 'test_complete date_terminated')
 #         
 #         
 #     def test_recurrence_minute(self):
 #         """
 #         if
-#             task_count == x
+#             activity_count == x
 #             and
 #             rec_pool.cron(now)
 #         then
-#             task_count > x
+#             activity_count > x
 #             and
-#             last task by id: summary == 'test'
+#             last activity by id: summary == 'test'
 #             and
-#             task.data_res_id
+#             activity.data_res_id
 #             and 
-#             task.data_model == observation.test
+#             activity.data_model == observation.test
 #             and
-#             (observation.test, task.data_res_id).val1 == 'test'
+#             (observation.test, activity.data_res_id).val1 == 'test'
 #         """
 #         
-#         task_count0 = self.task_pool.search(self.cr, self.uid, [], count=True)
+#         activity_count0 = self.activity_pool.search(self.cr, self.uid, [], count=True)
 #         self.rec_pool.cron(self.cr, self.uid, self.now)
-#         task_count1 = self.task_pool.search(self.cr, self.uid, [], count=True)
-#         last_task_id = self.task_pool.search(self.cr, self.uid, [], limit=1, order="id desc")[0]
-#         last_task = self.task_pool.browse(self.cr, self.uid, last_task_id)
-#         model_pool = self.registry(last_task.data_model)
-#         last_task_data = model_pool.browse(self.cr, self.uid, last_task.data_res_id)
+#         activity_count1 = self.activity_pool.search(self.cr, self.uid, [], count=True)
+#         last_activity_id = self.activity_pool.search(self.cr, self.uid, [], limit=1, order="id desc")[0]
+#         last_activity = self.activity_pool.browse(self.cr, self.uid, last_activity_id)
+#         model_pool = self.registry(last_activity.data_model)
+#         last_activity_data = model_pool.browse(self.cr, self.uid, last_activity.data_res_id)
 #         #import pdb; pdb.set_trace()
-#         self.assertTrue(task_count1 > task_count0, 'test_recurrence_minute count')
-#         self.assertEquals(last_task.summary,'test', 'test_recurrence_minute summary')
-#         self.assertTrue(last_task.data_res_id, 'test_recurrence_minute data_res_id')
-#         self.assertEquals(last_task.data_model,'observation.test', 'test_recurrence_minute data_model')
-#         self.assertEquals(last_task_data.val1,'test', 'test_recurrence_minute val1')
+#         self.assertTrue(activity_count1 > activity_count0, 'test_recurrence_minute count')
+#         self.assertEquals(last_activity.summary,'test', 'test_recurrence_minute summary')
+#         self.assertTrue(last_activity.data_res_id, 'test_recurrence_minute data_res_id')
+#         self.assertEquals(last_activity.data_model,'observation.test', 'test_recurrence_minute data_model')
+#         self.assertEquals(last_activity_data.val1,'test', 'test_recurrence_minute val1')
 #         
 #         
 #     def test_recurrence_replace(self):
@@ -170,7 +170,7 @@ class TestTask(common.SingleTransactionCase):
 #             last_rec.unit_qty == 2
 #         """
 #         self.rec_pool.replace(self.cr, self.uid, self.rec_id, {'unit_qty':2})
-#         last_rec_id = self.task_pool.search(self.cr, self.uid, [], limit=1, order="id desc")[0]
+#         last_rec_id = self.activity_pool.search(self.cr, self.uid, [], limit=1, order="id desc")[0]
 #         last_rec = self.rec_pool.browse(self.cr, self.uid, last_rec_id)
 #         
 # 

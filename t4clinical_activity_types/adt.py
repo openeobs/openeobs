@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields, osv
-from openerp.addons.t4clinical_base.task import except_if
+from openerp.addons.t4clinical_base.activity import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
 
 class t4_clinical_adt(orm.Model):
     _name = 't4.clinical.adt'
-    _inherit = ['t4.clinical.task.data']       
+    _inherit = ['t4.clinical.activity.data']       
     _columns = {
     }
 
 
 class t4_clinical_adt_patient_register(orm.Model):
     _name = 't4.clinical.adt.patient.register'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.activity.data']      
     _columns = { 
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         
@@ -29,7 +29,7 @@ class t4_clinical_adt_patient_register(orm.Model):
         'sex': fields.char('Sex', size=1),                
     }
     
-    def submit(self, cr, uid, task_id, vals, context=None):
+    def submit(self, cr, uid, activity_id, vals, context=None):
         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
               msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
@@ -40,13 +40,13 @@ class t4_clinical_adt_patient_register(orm.Model):
             except_if(patient_id, msg="Patient with the data submitted already exists! Data: %s" % vals)
             # handle duplicate patient here        
         patient_pool.create(cr, uid, vals, context)
-        super(t4_clinical_adt_patient_register, self).submit(cr, uid, task_id, vals, context)
+        super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals, context)
         return True
     
 
 class t4_clinical_adt_patient_admit(orm.Model):
     _name = 't4.clinical.adt.patient.admit'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.activity.data']      
 
     def _admit2location_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
@@ -68,7 +68,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         'other_identifier': fields.text("Other Identifier")              
     }
 
-    def submit(self, cr, uid, task_id, vals, context=None):
+    def submit(self, cr, uid, activity_id, vals, context=None):
 #         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
 #               msg="patient_identifier or other_identifier not found in submitted data!")
         location_pool = self.pool['t4.clinical.location']
@@ -84,41 +84,41 @@ class t4_clinical_adt_patient_admit(orm.Model):
         elif len(patient_id) > 1:
             except_if(True, msg="More than one patient found!")
         patient_id = patient_id[0]
-        super(t4_clinical_adt_patient_admit, self).submit(cr, uid, task_id, vals, context)
+        super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
         vals_copy = vals.copy()       
         vals_copy.update({'location_id': location_id})  
         vals_copy.update({'patient_id': patient_id})  
-        admission_task_id = admission_pool.create_task(cr, uid, {}, vals_copy)
-        task_pool = self.pool['t4.clinical.task']
-        task_pool.start(cr, uid, admission_task_id, context)
+        admission_activity_id = admission_pool.create_activity(cr, uid, {}, vals_copy)
+        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool.start(cr, uid, admission_activity_id, context)
 #         ctx = context and context.copy() or {}
-#         ctx.update({'parent_task_id': task_id})        
-        admission_result = task_pool.complete(cr, uid, admission_task_id, context)
-        task_pool.write(cr, uid, task_id, {'parent_id': admission_result['spell_task_id']})
+#         ctx.update({'parent_activity_id': activity_id})        
+        admission_result = activity_pool.complete(cr, uid, admission_activity_id, context)
+        activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['spell_activity_id']})
         user = self.pool['res.users'].browse(cr, uid, uid, context)
-        task_pool.set_task_trigger(cr, uid, patient_id,'t4.clinical.patient.observation.ews',
+        activity_pool.set_activity_trigger(cr, uid, patient_id,'t4.clinical.patient.observation.ews',
                                    'minute', user.pos_id.ews_init_frequency, context=None)
         return True    
 
 
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.activity.data']      
     _columns = {
     }
 
 
 class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.activity.data']      
     _columns = {
         'patient_identifier': fields.text('patientId'),
         'other_identifier': fields.text('otherId'),                
         'location': fields.text('Location'),                
     }
     
-    def submit(self, cr, uid, task_id, vals, context=None):
+    def submit(self, cr, uid, activity_id, vals, context=None):
         except_if(not ('other_identifier' in vals or 'patient_identifier' in vals), msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
         other_identifier = vals.get('other_identifier')
@@ -136,19 +136,19 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         except_if(not location_id, msg="Location not found!")
         location_id = location_id[0]
         placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_pool.create_task(cr, uid, {}, {'patient_id': patient_id}, context)
-        super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, task_id, vals, context)    
+        placement_pool.create_activity(cr, uid, {}, {'patient_id': patient_id}, context)
+        super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)    
         
 
 class t4_clinical_adt_patient_merge(orm.Model):
     _name = 't4.clinical.adt.patient.merge'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.activity.data']      
     _columns = {
         'from_identifier': fields.text('From patient Identifier'),
         'into_identifier': fields.text('Into Patient Identifier'),        
     }
     
-    def submit(self, cr, uid, task_id, vals, context=None):
+    def submit(self, cr, uid, activity_id, vals, context=None):
         except_if(not ('from_identifier' in vals and 'into_identifier' in vals), msg="from_identifier or into_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
         from_id = self.search(cr, uid, [('other_identifier', '=', vals['from_identifier'])])
@@ -172,11 +172,11 @@ class t4_clinical_adt_patient_merge(orm.Model):
                     vals_into.update({ik: fv})
         patient_pool.write(cr, uid, into_id, vals_into, context)
         patient_pool.write(cr, uid, from_id, {'active':False}, context)
-        super(t4_clinical_adt_patient_merge, self).submit(cr, uid, task_id, vals, context)
+        super(t4_clinical_adt_patient_merge, self).submit(cr, uid, activity_id, vals, context)
         
 
 class t4_clinical_adt_patient_update(orm.Model):
     _name = 't4.clinical.adt.patient.update'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.activity.data']      
     _columns = {
     }

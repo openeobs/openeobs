@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields, osv
-from openerp.addons.t4clinical_base.task import except_if
+from openerp.addons.t4clinical_base.activity import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 
 class t4_clinical_patient_move(orm.Model):
     _name = 't4.clinical.patient.move'
-    _inherit = ['t4.clinical.task.data']      
+    _inherit = ['t4.clinical.activity.data']      
     _columns = {
         #'src_location_id': fields.many2one('t4.clinical.location', 'Source Location'),
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location', required=True),
@@ -33,7 +33,7 @@ class t4_clinical_patient_move(orm.Model):
 
 class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
-    _inherit = ['t4.clinical.task.data'] 
+    _inherit = ['t4.clinical.activity.data'] 
     _transitions = {
         'draft': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
@@ -61,26 +61,26 @@ class t4_clinical_patient_placement(orm.Model):
         ids = self.search(cr, uid, domain, context=context, limit=1, order='id desc')
         return ids and self.browse(cr, uid, ids[0], context).location_id or False
     
-    def complete(self, cr, uid, task_id, context=None):
-        task_pool = self.pool['t4.clinical.task']
-        super(t4_clinical_patient_placement, self).complete(cr, uid, task_id, context)
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.clinical.activity']
+        super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
         # notify about completion
-        placement_task = task_pool.browse(cr, uid, task_id, context)
-        spell_task_id = task_pool.get_patient_spell_task_id(cr, uid, placement_task.data_ref.patient_id.id, context)
-        task_pool.submit(cr, uid, spell_task_id, {'location_id': placement_task.data_ref.location_id.id})
+        placement_activity = activity_pool.browse(cr, uid, activity_id, context)
+        spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
+        activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
      
-    def submit(self, cr, uid, task_id, vals, context=None):
+    def submit(self, cr, uid, activity_id, vals, context=None):
         if vals.get('location_id'):
-            task_pool = self.pool['t4.clinical.task']
-            available_location_ids = task_pool.get_available_bed_location_ids(cr, uid, context=context)
+            activity_pool = self.pool['t4.clinical.activity']
+            available_location_ids = activity_pool.get_available_bed_location_ids(cr, uid, context=context)
             except_if(vals['location_id'] not in available_location_ids, msg="Location id=%s is not available" % vals['location_id'])
-        super(t4_clinical_patient_placement, self).submit(cr, uid, task_id, vals, context)
+        super(t4_clinical_patient_placement, self).submit(cr, uid, activity_id, vals, context)
         return True
         
         
 class t4_clinical_patient_discharge(orm.Model):
     _name = 't4.clinical.patient.discharge'    
-    _inherit = ['t4.clinical.task.data']
+    _inherit = ['t4.clinical.activity.data']
     
     def _discharge2location_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
@@ -116,35 +116,35 @@ class t4_clinical_patient_discharge(orm.Model):
         #...
     }
 
-    def complete(self, cr, uid, task_id, context=None):
-        super(t4_clinical_patient_discharge, self).complete(cr, uid, task_id, context)
-        task_pool = self.pool['t4.clinical.task']
-        task = task_pool.browse(cr, uid, task_id, context)
-        assert task.patient_id, "Patient must be set!"
-        assert task.location_id, "Patient must be set!"
-        discharge = task.data_ref
+    def complete(self, cr, uid, activity_id, context=None):
+        super(t4_clinical_patient_discharge, self).complete(cr, uid, activity_id, context)
+        activity_pool = self.pool['t4.clinical.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context)
+        assert activity.patient_id, "Patient must be set!"
+        assert activity.location_id, "Patient must be set!"
+        discharge = activity.data_ref
         # patient
         patient_pool = self.pool['t4.clinical.patient']
         location = patient_pool.get_patient_location_browse(cr, uid, discharge.patient_id.id, context)
         #import pdb; pdb.set_trace()
         # move to discharge_lot
         move_pool = self.pool['t4.clinical.patient.move']
-        move_task_id = move_pool.create_task(cr, uid, 
-            {'parent_id': task_id}, 
+        move_activity_id = move_pool.create_activity(cr, uid, 
+            {'parent_id': activity_id}, 
             {'patient_id': discharge.patient_id.id, 
              'location_id':location.pos_id.lot_discharge_id.id or location.pos_id.location_id.id}, 
             context)
-        task_pool.start(cr, uid, move_task_id, context)
-        task_pool.complete(cr, uid, move_task_id, context)      
+        activity_pool.start(cr, uid, move_activity_id, context)
+        activity_pool.complete(cr, uid, move_activity_id, context)      
         # complete spell 
-        spell_task = task_pool.get_patient_spell_task_browse(cr, uid, discharge.patient_id.id, context)
-        task_pool.complete(cr, uid, spell_task.id, context)
+        spell_activity = activity_pool.get_patient_spell_activity_browse(cr, uid, discharge.patient_id.id, context)
+        activity_pool.complete(cr, uid, spell_activity.id, context)
         return True  
         
         
 class t4_clinical_patient_admission(orm.Model):
     _name = 't4.clinical.patient.admission'    
-    _inherit = ['t4.clinical.task.data']
+    _inherit = ['t4.clinical.activity.data']
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True), # domain=[('is_patient','=',True)])
         'location_id': fields.many2one('t4.clinical.location', 'Initial Location')
@@ -152,41 +152,41 @@ class t4_clinical_patient_admission(orm.Model):
         #...
     }
     
-    def complete(self, cr, uid, task_id, context=None):
-        super(t4_clinical_patient_admission, self).complete(cr, uid, task_id, context)
+    def complete(self, cr, uid, activity_id, context=None):
+        super(t4_clinical_patient_admission, self).complete(cr, uid, activity_id, context)
         #import pdb; pdb.set_trace()
-        task_pool = self.pool['t4.clinical.task']
-        task = task_pool.browse(cr, uid, task_id, context)
-        admission = task.data_ref
+        activity_pool = self.pool['t4.clinical.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context)
+        admission = activity.data_ref
         
         # spell
-        spell_task_data = context and context.get('parent_task_id') and {'parent_id': context['parent_task_id']} or {}
+        spell_activity_data = context and context.get('parent_activity_id') and {'parent_id': context['parent_activity_id']} or {}
         spell_pool = self.pool['t4.clinical.spell']
-        spell_task_id = spell_pool.create_task(cr, uid, 
-           spell_task_data,
+        spell_activity_id = spell_pool.create_activity(cr, uid, 
+           spell_activity_data,
            {'patient_id': admission.patient_id.id}, 
            context=None)
         #import pdb; pdb.set_trace()
-        task_pool.start(cr, uid, spell_task_id, context)
-        task_pool.write(cr, uid, admission.task_id.id, {'parent_id': spell_task_id}, context)
+        activity_pool.start(cr, uid, spell_activity_id, context)
+        activity_pool.write(cr, uid, admission.activity_id.id, {'parent_id': spell_activity_id}, context)
         # patient move
         move_pool = self.pool['t4.clinical.patient.move']
-        move_task_id = move_pool.create_task(cr, uid, 
-            {'parent_id': admission.task_id.id}, 
+        move_activity_id = move_pool.create_activity(cr, uid, 
+            {'parent_id': admission.activity_id.id}, 
             {'patient_id': admission.patient_id.id, 'location_id':admission.location_id.id}, 
             context)
-        task_pool.start(cr, uid, move_task_id, context)
-        task_pool.complete(cr, uid, move_task_id, context)
+        activity_pool.start(cr, uid, move_activity_id, context)
+        activity_pool.complete(cr, uid, move_activity_id, context)
         # patient placement
         placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_task_id = placement_pool.create_task(cr, uid, 
-           {'parent_id': admission.task_id.id}, 
+        placement_activity_id = placement_pool.create_activity(cr, uid, 
+           {'parent_id': admission.activity_id.id}, 
            {'patient_id': admission.patient_id.id}, 
            context)
-        res = {'admission_task_id': task_id,
-               'spell_task_id': spell_task_id,
-               'move_task_id': move_task_id,
-               'placement_task_id': placement_task_id}
+        res = {'admission_activity_id': activity_id,
+               'spell_activity_id': spell_activity_id,
+               'move_activity_id': move_activity_id,
+               'placement_activity_id': placement_activity_id}
         return res
     
     
@@ -239,10 +239,10 @@ class t4_clinical_patient(orm.Model):
         res = res and res.id
         return res
 
-# class t4_clinical_task(orm.Model):
-#     _inherit = 't4.clinical.task'  
+# class t4_clinical_activity(orm.Model):
+#     _inherit = 't4.clinical.activity'  
 #     
-#     def get_task_patient_id(self, cr, uid, task_id, context=None):
+#     def get_activity_patient_id(self, cr, uid, activity_id, context=None):
 #         """
 #         Data Model API call
 #         If the model is patient-related, returns patient_id, otherwise False
@@ -251,26 +251,26 @@ class t4_clinical_patient(orm.Model):
 #         #import pdb; pdb.set_trace()
 #         res = False
 #         if 'patient_id' in self._columns.keys():
-#             data = self.browse_ref(cr, uid, task_id, 'data_ref', context=None)
+#             data = self.browse_ref(cr, uid, activity_id, 'data_ref', context=None)
 #             res = data.patient_id and data.patient_id.id
 #         return res
 #     
-#     def get_task_location_id(self, cr, uid, task_id, context=None):
+#     def get_activity_location_id(self, cr, uid, activity_id, context=None):
 #         """
 #         Data Model API call
 #         If the model is location-related, returns location_id, otherwise False
 #         The location is not necessarily placed(assigned) location
 #         example: clinical.precedure data model which may happen outside of patient's ward and last for few minutes
 #         """
-# #         if task_id == 3775:
+# #         if activity_id == 3775:
 # #             import pdb; pdb.set_trace()
 #         res = False
 #         if 'location_id' in self._columns.keys():
-#             data = self.pool['t4.clinical.task'].browse_ref(cr, uid, task_id, 'data_ref', context=None)
+#             data = self.pool['t4.clinical.activity'].browse_ref(cr, uid, activity_id, 'data_ref', context=None)
 #             res = data.location_id and data.location_id.id
 #         return res        
 # 
-#     def get_task_spell_id(self, cr, uid, task_id, context=None):
+#     def get_activity_spell_id(self, cr, uid, activity_id, context=None):
 #         """
 #         Data Model API call
 #         If the model is spell-related and has parent started, not terminated spell, returns spell_id, otherwise False
@@ -278,11 +278,11 @@ class t4_clinical_patient(orm.Model):
 #         """
 #         res = False
 #         if 'patient_id' in self._columns.keys():
-#             task_pool = self.pool['t4.clinical.task']
-#             data = task_pool.browse_ref(cr, uid, task_id, 'data_ref', context=None)
+#             activity_pool = self.pool['t4.clinical.activity']
+#             data = activity_pool.browse_ref(cr, uid, activity_id, 'data_ref', context=None)
 #             if data:            
-#                 spell_task = task_pool.get_patient_spell_task_browse(cr, uid, data.patient_id.id, context)
-#                 res = spell_task.id
+#                 spell_activity = activity_pool.get_patient_spell_activity_browse(cr, uid, data.patient_id.id, context)
+#                 res = spell_activity.id
 #         return res    
     
     
@@ -291,8 +291,8 @@ class t4_clinical_location(orm.Model):
     
     def get_location_patient_ids(self, cr, uid, location_id, context=None):
         # current spells
-        task_pool = self.pool['t4.clinical.task']
-        spell_tasks = self.browse_domain(cr, uid, [('data_model','=','t4.clinical.spell'),('state','=','started')])
+        activity_pool = self.pool['t4.clinical.activity']
+        spell_Activities = self.browse_domain(cr, uid, [('data_model','=','t4.clinical.spell'),('state','=','started')])
         spell_pool = self.pool['t4.clinical.spell']
         spells = spell_pool.browse_domain(cr, uid, [('state','in',['started'])], context)        
         patients = [spell.patient_id for spell in spells]

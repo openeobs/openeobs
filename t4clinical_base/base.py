@@ -31,7 +31,7 @@ class res_users(orm.Model):
     _columns = {
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Locations of Responsibility'),
-        'task_type_ids': fields.many2many('t4.clinical.task.type', 'user_task_type_rel', 'user_id', 'type_id', 'Task Types of Responsibility'),
+        'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'user_activity_type_rel', 'user_id', 'type_id', 'activity Types of Responsibility'),
     }
     
 class t4_clinical_location(orm.Model):
@@ -77,12 +77,12 @@ class t4_clinical_location(orm.Model):
 #         return res    
     def _is_available(self, cr, uid, ids, field, args, context=None):
         #import pdb; pdb.set_trace()
-        task_pool = self.pool['t4.clinical.task']
+        activity_pool = self.pool['t4.clinical.activity']
         res = {}
         pos_ids = list(set([l.pos_id.id for l in self.browse(cr, uid, ids, context)]))
         available_location_ids = []
         for pos_id in pos_ids:
-            available_location_ids.extend(task_pool.get_available_bed_location_ids(cr, uid, pos_id, context))
+            available_location_ids.extend(activity_pool.get_available_bed_location_ids(cr, uid, pos_id, context))
         for location in self.browse(cr, uid, ids, context):
             res[location.id] = location.id in available_location_ids
         return res
@@ -120,16 +120,16 @@ class t4_clinical_location(orm.Model):
         'active': True,
     }
 
-    def get_location_task_ids(self, cr, uid, location_id, context=None):
+    def get_location_activity_ids(self, cr, uid, location_id, context=None):
         """
         """
-        location_models = self.pool['t4.clinical.task.type'].get_field_models(cr, uid, 'location_id')
-        task_ids = []
+        location_models = self.pool['t4.clinical.activity.type'].get_field_models(cr, uid, 'location_id')
+        activity_ids = []
         for m in location_models:
             data = m.browse_domain(cr, uid, [('location_id','=',location_id)], context=context)
             data = data and data[0]
-            data and data.task_id and task_ids.append(data.task_id.id)
-        return task_ids
+            data and data.activity_id and activity_ids.append(data.activity_id.id)
+        return activity_ids
 
 class hr_employee(orm.Model):
     _name = 'hr.employee'

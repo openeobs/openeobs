@@ -1,65 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-            <record model="ir.ui.view" id="view_patient_task_trigger_search">
-                <field name="name">Patient Task Trigger Search View</field>
-                <field name="model">t4.clinical.patient.task.trigger</field>
+            <record model="ir.ui.view" id="view_patient_activity_trigger_search">
+                <field name="name">Patient activity Trigger Search View</field>
+                <field name="model">t4.clinical.patient.activity.trigger</field>
                 <field name="arch" type="xml">
-                    <search string="Patient Task Trigger Search View">
+                    <search string="Patient activity Trigger Search View">
                         <group expand="1" string="Group By...">
                           <filter name="name" string="Name" domain="[]" context="{'group_by':'name'}" help="Name"/>
                         </group>
                     </search>
                 </field>
             </record>
-            <record model="ir.ui.view" id="view_patient_task_trigger_tree">
-                <field name="name">Patient Task Trigger Tree View</field>
-                <field name="model">t4.clinical.patient.task.trigger</field>
+            <record model="ir.ui.view" id="view_patient_activity_trigger_tree">
+                <field name="name">Patient activity Trigger Tree View</field>
+                <field name="model">t4.clinical.patient.activity.trigger</field>
                 <field name="arch" type="xml">
-                    <tree string="Patient Task Trigger Tree View">
+                    <tree string="Patient activity Trigger Tree View">
                        <field name="patient_id" />
                        <field name="data_model" />
                        <field name="unit" />
                        <field name="unit_qty" />
                        <field name="active" />
                        <field name="date_next" />
-                       <field name="task_ids" />
+                       <field name="activity_ids" />
                     </tree>
                 </field>
             </record>    
-            <record model="ir.ui.view" id="view_patient_task_trigger_form">
-                <field name="name">Patient Task Trigger Form View</field>
-                <field name="model">t4.clinical.patient.task.trigger</field>
+            <record model="ir.ui.view" id="view_patient_activity_trigger_form">
+                <field name="name">Patient activity Trigger Form View</field>
+                <field name="model">t4.clinical.patient.activity.trigger</field>
                 <field name="arch" type="xml">
-                    <form string="Patient Task Trigger Form View">
+                    <form string="Patient activity Trigger Form View">
                        <field name="patient_id" />
                        <field name="data_model" />
                        <field name="unit" />
                        <field name="unit_qty" />
                        <field name="active" />
                        <field name="date_next" />
-                       <field name="task_ids" />                   
+                       <field name="activity_ids" />                   
                     </form>
                 </field>
             </record>
-            <record model="ir.actions.act_window" id="action_patient_task_trigger" >
-                <field name="name">t4.clinical.patient.task.trigger</field>
-                <field name="res_model">t4.clinical.patient.task.trigger</field>
+            <record model="ir.actions.act_window" id="action_patient_activity_trigger" >
+                <field name="name">t4.clinical.patient.activity.trigger</field>
+                <field name="res_model">t4.clinical.patient.activity.trigger</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>
-                <field name="search_view_id" ref="view_patient_task_trigger_search"/>
+                <field name="search_view_id" ref="view_patient_activity_trigger_search"/>
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_patient_task_trigger_tree">
+            <record model="ir.actions.act_window.view" id="act_view_patient_activity_trigger_tree">
                 <field eval="0" name="sequence"/>
                 <field name="view_mode">tree</field>
-                <field name="view_id" ref="view_patient_task_trigger_tree"/>
-                <field name="act_window_id" ref="action_patient_task_trigger"/>
+                <field name="view_id" ref="view_patient_activity_trigger_tree"/>
+                <field name="act_window_id" ref="action_patient_activity_trigger"/>
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_patient_task_trigger_form">
+            <record model="ir.actions.act_window.view" id="act_view_patient_activity_trigger_form">
                 <field eval="1" name="sequence"/>
                 <field name="view_mode">form</field>
-                <field name="view_id" ref="view_patient_task_trigger_form"/>
-                <field name="act_window_id" ref="action_patient_task_trigger"/>
+                <field name="view_id" ref="view_patient_activity_trigger_form"/>
+                <field name="act_window_id" ref="action_patient_activity_trigger"/>
             </record>
     </data>
 </openerp>

@@ -151,13 +151,13 @@
         
         
 <!--     Users -->
-        <record id="demo_user_harold" model="res.users">
+<!--         <record id="demo_user_harold" model="res.users">
             <field name="name">Harold Bishop</field>
             <field name="login">harold</field>
             <field name="password">harold</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
-        </record>
+        </record> -->
 	
 		<record id="demo_user_hca" model="res.users">
 			<field name="name">hca</field>
@@ -167,17 +167,17 @@
             <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
         </record>        
         
-        <record id="demo_user_norah" model="res.users">
+<!--         <record id="demo_user_norah" model="res.users">
             <field name="name">Norah Miller</field>
             <field name="login">norah</field>
             <field name="password">norah</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
-			<field name="task_type_ids" eval="[[6, False,[
-												ref('t4clinical_task_types.observation_ews_data_type'),
-												ref('t4clinical_task_types.observation_height_weight_data_type')
+			<field name="activity_type_ids" eval="[[6, False,[
+												ref('t4clinical_activity_types.observation_ews_data_type'),
+												ref('t4clinical_activity_types.observation_height_weight_data_type')
 												]]]"/>                      
-        </record>
+        </record> -->
 
 	
 		<record id="demo_user_nurse" model="res.users">
@@ -186,26 +186,26 @@
 			<field name="password">nurse</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
-			<field name="task_type_ids" eval="[[6, False,[
-												ref('t4clinical_task_types.observation_ews_data_type'),
-												ref('t4clinical_task_types.observation_height_weight_data_type')
+			<field name="activity_type_ids" eval="[[6, False,[
+												ref('t4clinical_activity_types.observation_ews_data_type'),
+												ref('t4clinical_activity_types.observation_height_weight_data_type')
 												]]]"/>                      
         </record>
 
 
-        <record id="demo_user_winifred" model="res.users">
+<!--         <record id="demo_user_winifred" model="res.users">
             <field name="name">Winifred</field>
             <field name="login">winifred</field>
             <field name="password">winifred</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
 			<field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>    
-			<field name="task_type_ids" eval="[[6, False,[
-												ref('t4clinical_task_types.patient_placement_data_type'),
-												ref('t4clinical_task_types.patient_admission_data_type'),
-												ref('t4clinical_task_types.patient_move_data_type'),
-												ref('t4clinical_task_types.patient_discharge_data_type')	
+			<field name="activity_type_ids" eval="[[6, False,[
+												ref('t4clinical_activity_types.patient_placement_data_type'),
+												ref('t4clinical_activity_types.patient_admission_data_type'),
+												ref('t4clinical_activity_types.patient_move_data_type'),
+												ref('t4clinical_activity_types.patient_discharge_data_type')	
 													]]]"/>  			       
-        </record>
+        </record> -->
 
 	
 		<record id="demo_user_manager" model="res.users">
@@ -214,11 +214,11 @@
 			<field name="password">manager</field>
             <field name="groups_id" eval="[(6, False, [ref('t4clinical_base.group_t4clinical_ward_manager')])]"/>
 			<field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>    
-			<field name="task_type_ids" eval="[[6, False,[
-												ref('t4clinical_task_types.patient_placement_data_type'),
-												ref('t4clinical_task_types.patient_admission_data_type'),
-												ref('t4clinical_task_types.patient_move_data_type'),
-												ref('t4clinical_task_types.patient_discharge_data_type')	
+			<field name="activity_type_ids" eval="[[6, False,[
+												ref('t4clinical_activity_types.patient_placement_data_type'),
+												ref('t4clinical_activity_types.patient_admission_data_type'),
+												ref('t4clinical_activity_types.patient_move_data_type'),
+												ref('t4clinical_activity_types.patient_discharge_data_type')	
 													]]]"/>  			       
         </record>
 
@@ -240,7 +240,7 @@
 
 
 <!--     Employees -->
-        <record id="demo_employee_harold" model="hr.employee">
+<!--         <record id="demo_employee_harold" model="hr.employee">
             <field name="name">Harold Bishop</field>
             <field name="user_id" ref="demo_user_harold"/>
             <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_hca')]]]"/>
@@ -258,7 +258,7 @@
             <field name="name">Winifred Kirrin</field>
             <field name="user_id" ref="demo_user_winifred"/>
             <field name="category_ids" eval="[[6, False, [ref('t4clinical_base.employee_category_t4clinical_ward_manager')]]]"/>
-        </record>
+        </record> -->
 
 
         <record model="res.partner" id="base.main_partner">

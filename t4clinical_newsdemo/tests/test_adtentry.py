@@ -13,7 +13,7 @@ class TestADTEntry(common.SingleTransactionCase):
         self.now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         self.tomorrow = (dt.today() + rd(days=1)).strftime('%Y-%m-%d %H:%M:%S')
                 
-        self.task_pool = self.registry('t4.clinical.task')
+        self.activity_pool = self.registry('t4.clinical.activity')
         self.spell_pool = self.registry('t4.clinical.spell')
         self.patient_pool = self.registry('t4.clinical.patient')
         self.register_pool = self.registry('t4.clinical.adt.patient.register')
@@ -42,13 +42,13 @@ class TestADTEntry(common.SingleTransactionCase):
     def test_register_patient(self):
         cr, uid, patient_data = self.cr, self.uid, self.patient_data
 
-        reg_task_id = self.register_pool.create_task(cr, uid, {}, patient_data)
-        self.assertTrue(reg_task_id)
+        reg_activity_id = self.register_pool.create_activity(cr, uid, {}, patient_data)
+        self.assertTrue(reg_activity_id)
         patient_domain = [(k, '=', v) for k,v in patient_data.iteritems()]
         self.patient_id = self.patient_pool.search(cr, uid, patient_domain)[0]
         self.assertTrue(self.patient_id)
         #Assert cannot enter same data twice
-        self.assertRaises(orm.except_orm, self.register_pool.create_task, cr, uid, {}, patient_data)
+        self.assertRaises(orm.except_orm, self.register_pool.create_activity, cr, uid, {}, patient_data)
 
     def test_admit_patient(self):
         cr, uid = self.cr, self.uid
@@ -60,11 +60,11 @@ class TestADTEntry(common.SingleTransactionCase):
             'start_date': dt.now().strftime('%Y-%m-%d %H:%M:%S')
         }
 
-        admit_task_id = self.admission_pool.create_task(cr, uid, {}, admission_data)
-        task = self.task_pool.browse(cr, uid, admit_task_id)
+        admit_activity_id = self.admission_pool.create_activity(cr, uid, {}, admission_data)
+        activity = self.activity_pool.browse(cr, uid, admit_activity_id)
 
-        self.assertEqual(admit_task_id, task.id)
-        self.assertTrue(task.patient_id)
+        self.assertEqual(admit_activity_id, activity.id)
+        self.assertTrue(activity.patient_id)
 
     def test_place_patient_can_only_be_done_by_ward_manager(self):
         cr, uid = self.cr, self.uid
