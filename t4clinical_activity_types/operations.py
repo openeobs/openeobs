@@ -100,9 +100,9 @@ class t4_clinical_patient_placement(orm.Model):
      
     def submit(self, cr, uid, activity_id, vals, context=None):
         if vals.get('location_id'):
-            activity_pool = self.pool['t4.clinical.activity']
-            available_location_ids = activity_pool.get_available_bed_location_ids(cr, uid, context=context)
-            except_if(vals['location_id'] not in available_location_ids, msg="Location id=%s is not available" % vals['location_id'])
+            location_pool = self.pool['t4.clinical.location']
+            available_bed_location_ids = activity_pool.get_available_location_ids(cr, uid, ['bed'], context=context)
+            except_if(vals['location_id'] not in available_bed_location_ids, msg="Location id=%s is not available" % vals['location_id'])
         super(t4_clinical_patient_placement, self).submit(cr, uid, activity_id, vals, context)
         return True
         
