@@ -18,7 +18,6 @@
              'activity_type_view.xml',
              'employee_view.xml',
              'user_view.xml',
-             'recurrence_view.xml',
              'trigger_view.xml',
              
              'menuitem.xml',             

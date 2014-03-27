@@ -363,7 +363,8 @@ class t4_clinical_activity(orm.Model):
     def button_start(self, cr, uid, ids, fields, context=None):
         res = self.start(cr, uid, ids, context)
         return res
-    
+
+    # MAYBE CHANGE TO get_available_location_ids WITH LOCATION TYPE AS PARAMETER --> MOVE TO T4CLINICAL LEVEL
     def get_available_bed_location_ids(self, cr, uid, location_id=None, context=None):
         """
         beds not placed into and not in non-terminated placement Activities
@@ -383,6 +384,7 @@ class t4_clinical_activity(orm.Model):
         location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
         return location_ids
 
+    # MOVE TO PATIENT?
     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
         #import pdb; pdb.set_trace()
         domain = [('state','=','started'),('location_id','=',False)]
@@ -391,7 +393,8 @@ class t4_clinical_activity(orm.Model):
         spell_ids = spell_pool.search(cr, uid, domain)
         patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
         return patient_ids
-           
+
+    # MOVE TO PATIENT?
     def get_patient_spell_activity_id(self, cr, uid, patient_id, context=None):
         domain = [('patient_id','=',patient_id),('state','=','started'),('data_model','=','t4.clinical.spell')]
         spell_activity_id = self.search(cr, uid, domain)
@@ -400,7 +403,8 @@ class t4_clinical_activity(orm.Model):
         if len(spell_activity_id) >1:
             _logger.warn("For pateint_id=%s found more than 1 started spell_activity_ids: %s " % (patient_id, spell_activity_id))
         return spell_activity_id[0]
-    
+
+    # MOVE TO PATIENT?
     def get_patient_spell_activity_browse(self, cr, uid, patient_id, context=None):
         spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, context)
         if not spell_activity_id:
@@ -703,12 +707,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
                 user_ids.extend(user_pool.search(cr, uid, [('location_ids','child_of',location_id), ('activity_type_ids','=',activity.type_id.id)]))    
             ##print "parent_location_ids: %s" % parent_location_ids        
         return list(set(user_ids))
-    
-    
-    
+
     def get_activity_browse(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
         return activity_pool.browse(cr, uid, activity_id, context)
-    
-
-    
