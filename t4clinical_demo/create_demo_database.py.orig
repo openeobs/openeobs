@@ -1,0 +1,27 @@
+import erppeek
+
+<<<<<<< HEAD
+
+new_db = "demo_test41"
+=======
+new_db = "demo_test42"
+>>>>>>> fea208325efd8a84460d304b40a9d68075ee7465
+new_demo = False
+rollback = False
+
+user = "admin"
+<<<<<<< HEAD
+pwd = "admin"
+#current_db = "test11"
+
+ 
+
+=======
+pwd = "Trustno101"
+current_db = "test11"
+
+>>>>>>> fea208325efd8a84460d304b40a9d68075ee7465
+client = erppeek.Client("http://localhost:8069", verbose=True)
+client.create_database(pwd, new_db, new_demo, 'en_GB', pwd)
+client.install('t4clinical_demo')
+client.execute('demo', 'scenario1', rollback)
