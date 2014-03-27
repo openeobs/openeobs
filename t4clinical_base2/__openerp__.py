@@ -9,7 +9,7 @@
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
     'depends': ['project','hr'], #, 't4_base'],
-    'data': [],
+    'data': ['recurrence_view.xml'],
     'demo': [],
     'css': [],
     'js': [],

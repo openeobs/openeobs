@@ -130,18 +130,6 @@ class t4_clinical_location(orm.Model):
             data = data and data[0]
             data and data.activity_id and activity_ids.append(data.activity_id.id)
         return activity_ids
-
-class hr_employee(orm.Model):
-    _name = 'hr.employee'
-    _inherit = 'hr.employee'
-    
-    _columns = {
-        'location_ids': fields.related('user_id','location_ids',type='many2many', relation='t4.clinical.location', string='Locations of Responsibility'),
-        
-    }
-
-    
-    
     
 
 class t4_clinical_patient(osv.Model):
@@ -179,7 +167,7 @@ class t4_clinical_patient(osv.Model):
         'given_name': fields.char('Given Name', size=200),
         'middle_names': fields.char('Middle Name(s)', size=200),
         'family_name': fields.char('Family Name', size=200, select=True),
-        }
+    }
 
     _defaults = {
         'active': True,

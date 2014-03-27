@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.activity import except_if
-import logging        
+import logging
+import bisect
+
 _logger = logging.getLogger(__name__)
 
 
@@ -114,13 +116,18 @@ class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['respiration_rate', 'indirect_oxymetry_spo2', 'body_temperature', 'blood_pressure_systolic', 'pulse_rate']
+
+    _RR_RANGES = {'ranges': [8, 11, 20, 24], 'scores': {0: 3, 1: 2, 2: 0, 3: 2, 4: 3}}
     
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for ews in self.browse(cr, uid, ids, context):
             score = 0
             three_in_one = False
-    
+
+            rr = self._RR_RANGES['scores'][bisect.bisect_left(self._RR_RANGES['ranges'], ews.respiration_rate)]
+            three_in_one = three_in_one or rr == 3
+
             if ews.respiration_rate <= 8:
                 score += 3
                 three_in_one = True

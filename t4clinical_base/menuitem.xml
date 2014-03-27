@@ -64,12 +64,6 @@
           	action="action_t4_clinical_activity" 
           	groups="group_t4clinical_admin"/>
           	
-          <menuitem name="activity Recurrence" 
-          	id="menu_left_sub_activity_recurrence" 
-          	parent="menu_left_t4_clinical_activity" 
-          	action="action_activity_recurrence" 
-          	groups="group_t4clinical_admin"/>
-          	
           <menuitem name="Activities Hierarchy" 
           	id="menu_left_sub_t4_clinical_activity_hierarchy" 
           	parent="menu_left_t4_clinical_activity" 
@@ -81,11 +75,6 @@
           	parent="menu_left_t4_clinical_activity" 
           	action="action_patient_activity_trigger" 
           	groups="group_t4clinical_admin"/>
-          
-          <menuitem name="activity Recurrence" 
-          	id="menu_left_sub_activity_recurrence" 
-          	parent="menu_left_t4_clinical_activity" 
-          	action="action_activity_recurrence" 
-          	groups="group_t4clinical_admin"/>   
+
     </data>
 </openerp>
