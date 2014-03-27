@@ -2,9 +2,29 @@
 
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.activity import except_if
-import logging        
+import logging
+from datetime import datetime as dt, timedelta as td
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 _logger = logging.getLogger(__name__)
 
+
+class t4_clinical_notification(orm.Model):
+    _name = 't4.clinical.notification'
+    _inherit = ['t4.clinical.activity.data']
+    _columns = {
+        #'src_location_id': fields.many2one('t4.clinical.location', 'Source Location'),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
+        'reason': fields.text('Reason'),
+    }
+
+
+class t4_clinical_notification_hca(orm.Model):
+    _name = 't4.clinical.notification.hca'
+    _inherit = ['t4.clinical.notification']
+
+class t4_clinical_notification_nurse(orm.Model):
+    _name = 't4.clinical.notification.nurse'
+    _inherit = ['t4.clinical.notification']
 
 
 class t4_clinical_patient_move(orm.Model):
@@ -63,11 +83,20 @@ class t4_clinical_patient_placement(orm.Model):
     
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
+        ews_pool = self.pool['t4.clinical.patient.observation.ews']
+        pos_pool = self.pool['t4.clinical.pos']
         super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
         # notify about completion
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
         activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
+        frequency = placement_activity.data_ref.location_id.pos_id.ews_init_frequency
+        ews_activity_id = ews_pool.create_activity(cr, uid, {}, {'patient_id': placement_activity.data_ref.patient_id.id}, context)
+        activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
+        activity_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
+                                           't4.clinical.patient.observation.ews', 'minute',
+                                           frequency, context)
+
      
     def submit(self, cr, uid, activity_id, vals, context=None):
         if vals.get('location_id'):

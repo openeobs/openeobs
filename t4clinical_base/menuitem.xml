@@ -14,13 +14,7 @@
           	parent="t4clinical_base.menu_t4_clinical" 
           	action="" 
           	groups="group_t4clinical_admin"/>
-          
-          <menuitem name="Employees" 
-          	id="menu_left_sub_employee" 
-          	parent="menu_left_base" 
-          	action="action_employee" 
-          	groups="group_t4clinical_admin"/>
-          	
+
           <menuitem name="Locations" 
           	id="menu_left_sub_location" 
           	parent="menu_left_base" 

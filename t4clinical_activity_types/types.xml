@@ -11,6 +11,14 @@
  			<field name="cancel_view_id" ref="view_patient_move_form" />
  			
 		</record>
+        <record model="t4.clinical.activity.type" id="hca_notification_data_type">
+			<field name="summary">HCA Notification</field>
+			<field name="data_model">t4.clinical.notification.hca</field>
+		</record>
+        <record model="t4.clinical.activity.type" id="nurse_notification_data_type">
+			<field name="summary">Nurse Notification</field>
+			<field name="data_model">t4.clinical.notification.nurse</field>
+		</record>
 		<record model="t4.clinical.activity.type" id="patient_placement_data_type">
 			<field name="summary">Patient Placement</field>
 			<field name="data_model">t4.clinical.patient.placement</field>

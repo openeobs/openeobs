@@ -87,7 +87,8 @@ class t4_clinical_activity_type(orm.Model):
         'start_view_id': fields.many2one('ir.ui.view', "Submit View"),
         'submit_view_id': fields.many2one('ir.ui.view', "Submit View"),
         'complete_view_id': fields.many2one('ir.ui.view', "Submit View"),
-        'cancel_view_id': fields.many2one('ir.ui.view', "Submit View")
+        'cancel_view_id': fields.many2one('ir.ui.view', "Submit View"),
+        'form_dictionary': fields.text('Form Dictionary')
     }
     
     _defaults = {
@@ -134,7 +135,7 @@ class t4_clinical_activity(orm.Model):
     """
     
     _name = 't4.clinical.activity'
-    _name_rec = 'type_id'
+    _name_rec = 'summary'
     #_parent_name = 'activity_id' # the hierarchy will represent instruction-activity relation. 
     #_inherit = ['mail.thread']
 
@@ -193,7 +194,7 @@ class t4_clinical_activity(orm.Model):
         return res
     
     _columns = {
-        #'summary': fields.char('Summary', size=256),
+        'summary': fields.char('Summary', size=256),
         'parent_id': fields.many2one('t4.clinical.activity', 'Parent activity'), 
         'child_ids': fields.one2many('t4.clinical.activity', 'parent_id', 'Child Activities'),     
 
@@ -251,6 +252,10 @@ class t4_clinical_activity(orm.Model):
         return activity_ids
     
     def create(self, cr, uid, vals, context=None):
+        if not vals.get('summary'):
+            type_pool = self.pool['t4.clinical.activity.type']
+            type = type_pool.read(cr, uid, vals['type_id'], ['summary'], context=context)
+            vals.update({'summary': type['summary']})
         activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
         activity = self.browse(cr, uid, activity_id, context)
         _logger.info("activity '%s' created, activity.id=%s" % (activity.data_model, activity_id))

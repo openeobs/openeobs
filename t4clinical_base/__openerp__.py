@@ -16,7 +16,6 @@
              'location_view.xml',
              'patient_view.xml',
              'activity_type_view.xml',
-             'employee_view.xml',
              'user_view.xml',
              'trigger_view.xml',
              
