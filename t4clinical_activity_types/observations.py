@@ -122,6 +122,13 @@ class t4_clinical_patient_observation_ews(orm.Model):
     _BT_RANGES = {'ranges': [35.0, 36.0, 38.0, 39.0], 'scores': '31012'}
     _BP_RANGES = {'ranges': [90, 100, 110, 219], 'scores': '32103'}
     _PR_RANGES = {'ranges': [40, 50, 90, 110, 130], 'scores': '310123'}
+    """
+    Default EWS policy has 4 different scenarios:
+        case 0: no clinical risk
+        case 1: low clinical risk
+        case 2: medium clinical risk
+        case 3: high clinical risk
+    """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123', 'frequencies': [720, 240, 60, 30],
                'notifications': [[], ['Assess patient'], ['Urgently inform medical team'], ['Immediately inform medical team']]}
     
@@ -209,6 +216,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
         groups_pool = self.pool['res.groups']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
+        case = 2 if activity.data_ref.three_in_one and case < 3 else case
         hcagroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical HCA Group')])
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
