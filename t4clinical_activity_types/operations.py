@@ -80,6 +80,13 @@ class t4_clinical_patient_placement(orm.Model):
         domain = [('state','=','completed'), ('patient_id','=',patient_id)]
         ids = self.search(cr, uid, domain, context=context, limit=1, order='id desc')
         return ids and self.browse(cr, uid, ids[0], context).location_id or False
+
+    def get_activity_location_id(self, cr, uid, activity_id, context=None):
+        location_id = False
+        activity_pool = self.pool['t4.clinical.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context)
+        location_id = activity.parent_id.data_ref.location_id.id if activity.parent_id.data_ref.location_id else False
+        return location_id
     
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -101,7 +108,7 @@ class t4_clinical_patient_placement(orm.Model):
     def submit(self, cr, uid, activity_id, vals, context=None):
         if vals.get('location_id'):
             location_pool = self.pool['t4.clinical.location']
-            available_bed_location_ids = activity_pool.get_available_location_ids(cr, uid, ['bed'], context=context)
+            available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'], context=context)
             except_if(vals['location_id'] not in available_bed_location_ids, msg="Location id=%s is not available" % vals['location_id'])
         super(t4_clinical_patient_placement, self).submit(cr, uid, activity_id, vals, context)
         return True
@@ -193,7 +200,7 @@ class t4_clinical_patient_admission(orm.Model):
         spell_pool = self.pool['t4.clinical.spell']
         spell_activity_id = spell_pool.create_activity(cr, uid, 
            spell_activity_data,
-           {'patient_id': admission.patient_id.id}, 
+           {'patient_id': admission.patient_id.id, 'location_id': admission.location_id.id},
            context=None)
         #import pdb; pdb.set_trace()
         activity_pool.start(cr, uid, spell_activity_id, context)
@@ -210,7 +217,7 @@ class t4_clinical_patient_admission(orm.Model):
         placement_pool = self.pool['t4.clinical.patient.placement']
         placement_activity_id = placement_pool.create_activity(cr, uid, 
            {'parent_id': admission.activity_id.id}, 
-           {'patient_id': admission.patient_id.id}, 
+           {'patient_id': admission.patient_id.id},
            context)
         res = {'admission_activity_id': activity_id,
                'spell_activity_id': spell_activity_id,

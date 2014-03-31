@@ -136,7 +136,7 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         except_if(not location_id, msg="Location not found!")
         location_id = location_id[0]
         placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_pool.create_activity(cr, uid, {}, {'patient_id': patient_id}, context)
+        placement_pool.create_activity(cr, uid, {'parent_id': activity_id}, {'patient_id': patient_id}, context)
         super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)    
         
 
