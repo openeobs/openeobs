@@ -101,7 +101,7 @@ class t4_clinical_patient_placement(orm.Model):
         spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
         activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         frequency = placement_activity.data_ref.location_id.pos_id.ews_init_frequency
-        ews_activity_id = ews_pool.create_activity(cr, self.admin_uid(), {}, {'patient_id': placement_activity.data_ref.patient_id.id}, context)
+        ews_activity_id = ews_pool.create_activity(cr, self.admin_uid(cr), {}, {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         activity_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',

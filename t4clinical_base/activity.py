@@ -20,9 +20,11 @@ def except_if(test=True, cap="Exception!", msg="Message is not defined..."):
     if test:
         raise orm.except_orm(cap, msg)
 
-def admin_uid(self):
-    import pdb; pdb.set_trace()
-    return self.pool['ir.model.data']._get_id(self.cr, SUPERUSER_ID, "t4clinical_base", "t4clinical_admin")
+def admin_uid(self, cr):
+    #import pdb; pdb.set_trace()
+    imd_id = self.pool['ir.model.data']._get_id(cr, SUPERUSER_ID, "t4clinical_base", "t4clinical_admin")
+    imd = self.pool['ir.model.data'].browse(cr, SUPERUSER_ID, imd_id)
+    return imd.res_id
 orm.Model.admin_uid = admin_uid    
 
 class t4_clinical_patient_activity_trigger(orm.Model):
@@ -409,7 +411,10 @@ class t4_clinical_activity(orm.Model):
     # MOVE TO PATIENT?
     def get_patient_spell_activity_id(self, cr, uid, patient_id, context=None):
         domain = [('patient_id','=',patient_id),('state','=','started'),('data_model','=','t4.clinical.spell')]
-        spell_activity_id = self.search(cr, uid, domain)
+        try:
+            spell_activity_id = self.search(cr, uid, domain)
+        except:
+            import pdb; pdb.set_trace()
         if not spell_activity_id:
             return False
         if len(spell_activity_id) >1:

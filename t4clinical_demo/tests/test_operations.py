@@ -116,7 +116,7 @@ class TestOperations(common.SingleTransactionCase):
             pass
         else:
             self.assertTrue(b1_location_id not in activity_pool.get_available_bed_location_ids(cr, uid), 'location NOT in get_available_bed_location_ids()')
-            
+            #import pdb; pdb.set_trace()
             self.assertTrue(donald_patient_id in activity_pool.get_not_palced_patient_ids(cr, uid), 'patient in get_not_palced_patient_ids()')
             
             activity_pool.complete(cr, uid, placement_activity.id)
