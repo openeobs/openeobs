@@ -225,13 +225,6 @@
         </record>
 
 
-        <record id="demo_user_admin" model="res.users">
-            <field name="name">t4admin</field>
-            <field name="login">a</field>
-            <field name="password">a</field>
-            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_admin'))]"/> 			       
-        </record>
-
         <record id="demo_user_adt_uhg" model="res.users">
             <field name="name">adt</field>
             <field name="login">adt</field>

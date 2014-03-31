@@ -20,6 +20,10 @@ def except_if(test=True, cap="Exception!", msg="Message is not defined..."):
     if test:
         raise orm.except_orm(cap, msg)
 
+def admin_uid(self):
+    import pdb; pdb.set_trace()
+    return self.pool['ir.model.data']._get_id(self.cr, SUPERUSER_ID, "t4clinical_base", "t4clinical_admin")
+orm.Model.admin_uid = admin_uid    
 
 class t4_clinical_patient_activity_trigger(orm.Model):
     """
@@ -256,11 +260,10 @@ class t4_clinical_activity(orm.Model):
             type_pool = self.pool['t4.clinical.activity.type']
             type = type_pool.read(cr, uid, vals['type_id'], ['summary'], context=context)
             vals.update({'summary': type['summary']})
-        
-        try:
-            activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
-        except:
+        if uid==6:
             import pdb; pdb.set_trace()
+        activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
+            
         activity = self.browse(cr, uid, activity_id, context)
         _logger.info("activity '%s' created, activity.id=%s" % (activity.data_model, activity_id))
         return activity_id

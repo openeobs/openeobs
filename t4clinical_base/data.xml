@@ -59,6 +59,15 @@
             <field name="category_id" ref="module_category_t4clinical"/>
             <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
         </record>
+        
+ <!-- Users -->       
+        <record id="t4clinical_admin" model="res.users">
+            <field name="name">t4admin</field>
+            <field name="login">a</field>
+            <field name="password">a</field>
+            <field name="groups_id" eval="[(4, ref('group_t4clinical_admin'))]"/> 			       
+        </record>
+                
 <!-- Record Rules -->
         <record model="ir.rule" id="t4clinical_rule_user_activity">
             <field name="name">T4 Clinical User-activity Rule</field>
@@ -68,7 +77,7 @@
             							(4, ref('group_t4clinical_nurse')), 
             							(4, ref('group_t4clinical_doctor')),
             							(4, ref('group_t4clinical_ward_manager'))]"/>
-        </record>                
+        </record>
 <!-- Partner title -->
         <record id="partner_title_t4clinical_mr" model="res.partner.title">
             <field name="name">Mr</field>

@@ -1,7 +1,6 @@
 import erppeek
 
-new_db = "demo_test42"
-new_db = "demo_test41"
+new_db = "demo_test1"
 new_demo = False
 rollback = False
 

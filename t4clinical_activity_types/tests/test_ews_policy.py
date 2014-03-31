@@ -91,48 +91,50 @@ class TestEwsPolicy(common.SingleTransactionCase):
         admit_activity_id = admit_pool.create_activity(cr, adt_uid, {}, admit_data)
         self.assertTrue(admit_activity_id, msg='Error trying to admit patient')
         print "TEST - setting up EWS policy tests - " + "Patient admitted."
-
+        available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
         if admit_data['location'] == 'W8':
             location_ids = location_pool.search(cr, uid, [
-                ('code', '=', 'B'+faker.random_element(array=('1', '2', '3', '4')))])
+                ('code', '=', 'B'+faker.random_element(array=('1', '2', '3', '4'))),
+                ('id','in',available_bed_location_ids)])
         else:
             location_ids = location_pool.search(cr, uid, [
-                ('code', '=', 'B'+faker.random_element(array=('5', '6', '7', '8')))])
-        self.assertTrue(location_ids, msg='Location not found')
+                ('code', '=', 'B'+faker.random_element(array=('5', '6', '7', '8'))),
+                ('id','in',available_bed_location_ids)])
+        #self.assertTrue(location_ids, msg='Location not found')
+        if not location_ids:
+            print "No available locations found for parent location %s" % admit_data['location']
+            return
         location_id = location_ids[0]
         placement_activity_ids = placement_pool.search(cr, uid, [('patient_id', '=', patient_id)])
         self.assertTrue(placement_activity_ids, msg='Placement activity not created')
         placement_id = placement_pool.read(cr, uid, placement_activity_ids[0], ['activity_id'])
         placement_activity_id = placement_id['activity_id'][0]
-        try:
-            activity_pool.submit(cr, wm_uid, placement_activity_id, {'location_id': location_id})
-        except:
-            pass
-            #import pdb; pdb.set_trace()
-        else:
-            activity_pool.complete(cr, wm_uid, placement_activity_id)
-            print "TEST - setting up EWS policy tests - " + "Patient placement completed."
-    
-            for i in range(0, 20):
-                print "TEST - EWS policy tests - " + 'Iteration' + str(i)
-                ews_ids = ews_pool.search(cr, uid, [('patient_id', '=', patient_id), ('state', '=', 'draft')])
-                self.assertTrue(ews_ids, msg='EWS activity not created')
-                ews_id = ews_pool.read(cr, uid, ews_ids[0], ['activity_id'])
-                ews_activity_id = ews_id['activity_id'][0]
-                ews = {
-                    'respiration_rate': ews_data['RR'][i],
-                    'indirect_oxymetry_spo2': ews_data['O2'][i],
-                    'oxygen_administration_flag': ews_data['O2_flag'][i],
-                    'body_temperature': ews_data['BT'][i],
-                    'blood_pressure_systolic': ews_data['BPS'][i],
-                    'blood_pressure_diastolic': ews_data['BPD'][i],
-                    'pulse_rate': ews_data['PR'][i],
-                    'avpu_text': ews_data['AVPU'][i]
-                }
-                activity_pool.submit(cr, nur_uid, ews_activity_id, ews)
-                activity_pool.start(cr, nur_uid, ews_activity_id)
-                activity_pool.complete(cr, nur_uid, ews_activity_id)
-                ews_activity = activity_pool.browse(cr, uid, ews_activity_id)
-                self.assertTrue(ews_activity.data_ref.score == ews_data['SCORE'][i], msg='Score not matching')
-                activity_ids = activity_pool.search(cr, nur_uid, [('state', '=', 'draft')])
-                self.assertTrue(activity_ids)
+
+        activity_pool.submit(cr, wm_uid, placement_activity_id, {'location_id': location_id})
+
+        activity_pool.complete(cr, wm_uid, placement_activity_id)
+        print "TEST - setting up EWS policy tests - " + "Patient placement completed."
+
+        for i in range(0, 20):
+            print "TEST - EWS policy tests - " + 'Iteration' + str(i)
+            ews_ids = ews_pool.search(cr, uid, [('patient_id', '=', patient_id), ('state', '=', 'draft')])
+            self.assertTrue(ews_ids, msg='EWS activity not created')
+            ews_id = ews_pool.read(cr, uid, ews_ids[0], ['activity_id'])
+            ews_activity_id = ews_id['activity_id'][0]
+            ews = {
+                'respiration_rate': ews_data['RR'][i],
+                'indirect_oxymetry_spo2': ews_data['O2'][i],
+                'oxygen_administration_flag': ews_data['O2_flag'][i],
+                'body_temperature': ews_data['BT'][i],
+                'blood_pressure_systolic': ews_data['BPS'][i],
+                'blood_pressure_diastolic': ews_data['BPD'][i],
+                'pulse_rate': ews_data['PR'][i],
+                'avpu_text': ews_data['AVPU'][i]
+            }
+            activity_pool.submit(cr, nur_uid, ews_activity_id, ews)
+            activity_pool.start(cr, nur_uid, ews_activity_id)
+            activity_pool.complete(cr, nur_uid, ews_activity_id)
+            ews_activity = activity_pool.browse(cr, uid, ews_activity_id)
+            self.assertTrue(ews_activity.data_ref.score == ews_data['SCORE'][i], msg='Score not matching')
+            activity_ids = activity_pool.search(cr, nur_uid, [('state', '=', 'draft')])
+            self.assertTrue(activity_ids)
