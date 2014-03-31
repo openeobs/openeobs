@@ -256,7 +256,11 @@ class t4_clinical_activity(orm.Model):
             type_pool = self.pool['t4.clinical.activity.type']
             type = type_pool.read(cr, uid, vals['type_id'], ['summary'], context=context)
             vals.update({'summary': type['summary']})
-        activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
+        
+        try:
+            activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
+        except:
+            import pdb; pdb.set_trace()
         activity = self.browse(cr, uid, activity_id, context)
         _logger.info("activity '%s' created, activity.id=%s" % (activity.data_model, activity_id))
         return activity_id

@@ -110,63 +110,67 @@ class TestOperations(common.SingleTransactionCase):
                              [('parent_id','=',admission_activity_id), ('data_model','=','t4.clinical.patient.placement')])[0]
         activity_pool.start(cr, uid, placement_activity.id)
         #self.assertTrue(b1_location_id in activity_pool.get_available_bed_location_ids(cr, uid), 'location in get_available_bed_location_ids()')
-        activity_pool.submit(cr, uid, placement_activity.id,{'location_id': b1_location_id})
-        self.assertTrue(b1_location_id not in activity_pool.get_available_bed_location_ids(cr, uid), 'location NOT in get_available_bed_location_ids()')
-        
-        self.assertTrue(donald_patient_id in activity_pool.get_not_palced_patient_ids(cr, uid), 'patient in get_not_palced_patient_ids()')
-        
-        activity_pool.complete(cr, uid, placement_activity.id)
-        self.assertTrue(donald_patient_id not in activity_pool.get_not_palced_patient_ids(cr, uid), 'patient not in get_not_palced_patient_ids()')
-        # test spell has placement location set
-        spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id)
-        spell_activity = activity_pool.browse(cr, uid, spell_activity_id)
-        self.assertTrue(spell_activity.data_ref.location_id.id == b1_location_id, 'spell.location == placement.location')
-         
-        # tests
-        self.assertTrue(placement_activity.location_id.id == b1_location_id, 'activity.location == b1_location_id')
+        try:
+            activity_pool.submit(cr, uid, placement_activity.id,{'location_id': b1_location_id})
+        except: # not available
+            pass
+        else:
+            self.assertTrue(b1_location_id not in activity_pool.get_available_bed_location_ids(cr, uid), 'location NOT in get_available_bed_location_ids()')
+            
+            self.assertTrue(donald_patient_id in activity_pool.get_not_palced_patient_ids(cr, uid), 'patient in get_not_palced_patient_ids()')
+            
+            activity_pool.complete(cr, uid, placement_activity.id)
+            self.assertTrue(donald_patient_id not in activity_pool.get_not_palced_patient_ids(cr, uid), 'patient not in get_not_palced_patient_ids()')
+            # test spell has placement location set
+            spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id)
+            spell_activity = activity_pool.browse(cr, uid, spell_activity_id)
+            self.assertTrue(spell_activity.data_ref.location_id.id == b1_location_id, 'spell.location == placement.location')
+             
+            # tests
+            self.assertTrue(placement_activity.location_id.id == b1_location_id, 'activity.location == b1_location_id')
 
 
-        admission_activity = activity_pool.browse(cr, uid, admission_activity_id)
-        spell_activity_id = admission_activity.parent_id.id
-        
-        height_weight_activity_id = self.create_activity_test(
-                                     height_weight_pool,
-                                     activity_vals      = {'parent_id': spell_activity_id},
-                                     data_vals      = {'patient_id': donald_patient_id,'height': 180},#'weight': 80},
-                                     patient_id     = donald_patient_id, 
-                                     location_id    = b1_location_id, #implemented as latest placement location
-                                     user_id        = nurse_user_id
-                                     )          
-        height_weight_activity = activity_pool.browse(cr, uid, height_weight_activity_id)
-        # tests PARTIAL
-        self.assertTrue(height_weight_activity.data_ref.is_partial, 'partial')
-
-
-        # EWS
-        #import pdb; pdb.set_trace()
-        ews_activity_id = self.create_activity_test(
-                                     ews_pool,
-                                     activity_vals      = {},
-                                     data_vals      = {'patient_id': donald_patient_id},
-                                     patient_id     = donald_patient_id, 
-                                     location_id    = b1_location_id, # patient placement location
-                                     user_id        = nurse_user_id
-                                     )        
-        activity_pool.start(cr, uid, ews_activity_id)
-        activity_pool.complete(cr, uid, ews_activity_id)  
-         
-        # discharge
-        #import pdb; pdb.set_trace()
-        discharge_activity_id = self.create_activity_test(
-                                     discharge_pool,
-                                     activity_vals      = {},
-                                     data_vals      = {'patient_id': donald_patient_id},
-                                     patient_id     = donald_patient_id, 
-                                     location_id    = b1_location_id, # patient placement location
-                                     user_id        = manager_user_id
-                                     )        
-        activity_pool.start(cr, uid, discharge_activity_id)
-        activity_pool.complete(cr, uid, discharge_activity_id)
+            admission_activity = activity_pool.browse(cr, uid, admission_activity_id)
+            spell_activity_id = admission_activity.parent_id.id
+            
+            height_weight_activity_id = self.create_activity_test(
+                                         height_weight_pool,
+                                         activity_vals      = {'parent_id': spell_activity_id},
+                                         data_vals      = {'patient_id': donald_patient_id,'height': 180},#'weight': 80},
+                                         patient_id     = donald_patient_id, 
+                                         location_id    = b1_location_id, #implemented as latest placement location
+                                         user_id        = nurse_user_id
+                                         )          
+            height_weight_activity = activity_pool.browse(cr, uid, height_weight_activity_id)
+            # tests PARTIAL
+            self.assertTrue(height_weight_activity.data_ref.is_partial, 'partial')
+    
+    
+            # EWS
+            #import pdb; pdb.set_trace()
+            ews_activity_id = self.create_activity_test(
+                                         ews_pool,
+                                         activity_vals      = {},
+                                         data_vals      = {'patient_id': donald_patient_id},
+                                         patient_id     = donald_patient_id, 
+                                         location_id    = b1_location_id, # patient placement location
+                                         user_id        = nurse_user_id
+                                         )        
+            activity_pool.start(cr, uid, ews_activity_id)
+            activity_pool.complete(cr, uid, ews_activity_id)  
+             
+            # discharge
+            #import pdb; pdb.set_trace()
+            discharge_activity_id = self.create_activity_test(
+                                         discharge_pool,
+                                         activity_vals      = {},
+                                         data_vals      = {'patient_id': donald_patient_id},
+                                         patient_id     = donald_patient_id, 
+                                         location_id    = b1_location_id, # patient placement location
+                                         user_id        = manager_user_id
+                                         )        
+            activity_pool.start(cr, uid, discharge_activity_id)
+            activity_pool.complete(cr, uid, discharge_activity_id)
 
 
 
@@ -244,13 +248,13 @@ class TestOperations(common.SingleTransactionCase):
             self.assertTrue(patient_id == placement_activity.patient_id.id, 'patient == placement.patient')
         if location_id:
             self.assertTrue(location_id == admission_activity.location_id.id, 'location == admission.location')
-            self.assertTrue(not spell_activity.location_id.id, 'not spell.location') 
+            self.assertTrue(spell_activity.location_id.id, 'spell.location') 
             self.assertTrue(location_id == move_activity.location_id.id, 'location == move.location')
-            self.assertTrue(not placement_activity.location_id.id, 'not placement.location')   
+            self.assertTrue(placement_activity.location_id.id, 'placement.location')   
         if user_id:
             self.assertTrue(user_id in [u.id for u in admission_activity.user_ids], 'user in admission.users') 
-            self.assertTrue(not [u.id for u in spell_activity.user_ids], 'not spell.users') 
+            self.assertTrue([u.id for u in spell_activity.user_ids], 'spell.users') 
             self.assertTrue(user_id in [u.id for u in move_activity.user_ids], 'user in move.users')
-            self.assertTrue(not [u.id for u in placement_activity.user_ids], 'not placement.users')     
+            self.assertTrue([u.id for u in placement_activity.user_ids], 'placement.users')     
         if user_id:
             self.assertTrue(admission_activity.user_id.id == user_id, 'admission.user == user')
