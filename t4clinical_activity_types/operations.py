@@ -92,6 +92,9 @@ class t4_clinical_patient_placement(orm.Model):
         activity_pool = self.pool['t4.clinical.activity']
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         pos_pool = self.pool['t4.clinical.pos']
+        placement_activity = activity_pool.browse(cr, uid, activity_id, context)
+        except_if(not placement_activity.location_id, 
+                  msg="Location is not set for the placement thus the placement can't be completed! Check location availability.") 
         super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
         # notify about completion
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
