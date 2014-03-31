@@ -117,7 +117,9 @@ class TestEwsPolicy(common.SingleTransactionCase):
 
         for i in range(0, 20):
             print "TEST - EWS policy tests - " + 'Iteration' + str(i)
-            ews_ids = ews_pool.search(cr, uid, [('patient_id', '=', patient_id), ('state', '=', 'draft')])
+            ews_ids = ews_pool.search(cr, uid, [('patient_id', '=', patient_id), ('state', '=', 'scheduled')])
+#             if not ews_ids:
+#                 import pdb; pdb.set_trace()
             self.assertTrue(ews_ids, msg='EWS activity not created')
             ews_id = ews_pool.read(cr, uid, ews_ids[0], ['activity_id'])
             ews_activity_id = ews_id['activity_id'][0]
@@ -136,5 +138,5 @@ class TestEwsPolicy(common.SingleTransactionCase):
             activity_pool.complete(cr, nur_uid, ews_activity_id)
             ews_activity = activity_pool.browse(cr, uid, ews_activity_id)
             self.assertTrue(ews_activity.data_ref.score == ews_data['SCORE'][i], msg='Score not matching')
-            activity_ids = activity_pool.search(cr, nur_uid, [('state', '=', 'draft')])
+            activity_ids = activity_pool.search(cr, nur_uid, [('state', '=', 'scheduled')])
             self.assertTrue(activity_ids)

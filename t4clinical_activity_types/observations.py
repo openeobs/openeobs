@@ -204,7 +204,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
             del vals['oxygen_administration']
 
 
-        return super(t4_clinical_patient_observation_ews, self).submit(cr, uid, activity_id, data_vals, context)
+        return super(t4_clinical_patient_observation_ews, self).submit(cr, self.admin_uid(cr), activity_id, data_vals, context)
 
     def complete(self, cr, uid, activity_id, context=None):
         """
@@ -221,12 +221,12 @@ class t4_clinical_patient_observation_ews(orm.Model):
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         if group == 'hca':
-            hca_pool.create_activity(cr, uid, {'summary': 'Inform registered nurse', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-            nurse_pool.create_activity(cr, uid, {'summary': 'Informed about patient status', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            hca_pool.create_activity(cr,  self.admin_uid(cr), {'summary': 'Inform registered nurse', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, self.admin_uid(cr), {'summary': 'Informed about patient status', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         if case:
             for n in self._POLICY['notifications'][case]:
-                nurse_pool.create_activity(cr, uid, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        activity_pool.set_activity_trigger(cr, uid, activity.data_ref.patient_id.id,
+                nurse_pool.create_activity(cr, self.admin_uid(cr), {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+        activity_pool.set_activity_trigger(cr, self.admin_uid(cr), activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',
                                            self._POLICY['frequencies'][case], context)
-        return super(t4_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context)
+        return super(t4_clinical_patient_observation_ews, self).complete(cr, self.admin_uid(cr), activity_id, context)
