@@ -35,32 +35,27 @@ class t4_clinical_adt_patient_register(orm.Model):
         patient_pool = self.pool['t4.clinical.patient']
         patient_domain = [(k,'=',v) for k,v in vals.iteritems()]
         patient_id = patient_pool.search(cr, uid, patient_domain)
-        if patient_id:
-            patient_id = patient_id[0]
-            except_if(patient_id, msg="Patient with the data submitted already exists! Data: %s" % vals)
-            # handle duplicate patient here        
-        patient_pool.create(cr, uid, vals, context)
+        except_if(patient_id, msg="Patient with the data submitted already exists! Data: %s" % vals)
+        pateint_id = patient_pool.create(cr, uid, vals, context)
+        vals.update({'patient_id': patient_id})
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals, context)
         return True
     
-
+        
 class t4_clinical_adt_patient_admit(orm.Model):
     _name = 't4.clinical.adt.patient.admit'
     _inherit = ['t4.clinical.activity.data']      
 
-    def _admit2location_id(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        location_pool = self.pool['t4.clinical.location']
-        for admit in self.browse(cr, uid, ids, context):
-            location_id = location_pool.search(cr, uid, [('code','=',admit.location)])
-            res[admit.id] = location_id and location_id[0] or False
-        return res
+#     def _admit2location_id(self, cr, uid, ids, field, arg, context=None):
+#         res = {}
+#         location_pool = self.pool['t4.clinical.location']
+#         for admit in self.browse(cr, uid, ids, context):
+#             location_id = location_pool.search(cr, uid, [('code','=',admit.location)])
+#             res[admit.id] = location_id and location_id[0] or False
+#         return res
         
     _columns = {
-        'location_id': fields.function(_admit2location_id, type='many2one', relation='t4.clinical.location', string='Location', 
-                               store={
-                                      't4.clinical.adt.patient.admit':(lambda self, cr, uid, ids, c: ids, ['location'], 10)
-                                      }),
+        'location_id': fields.many2one('t4.clinical.location', 'Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         'location': fields.text('Location'),
         'code': fields.text("Code"),
@@ -75,33 +70,30 @@ class t4_clinical_adt_patient_admit(orm.Model):
         location_id = location_pool.search(cr, uid, [('code','=',vals['location'])])
         except_if(not location_id, msg="Location not found!")
         location_id = location_id[0]
-        
         patient_pool = self.pool['t4.clinical.patient']
         patient_id = patient_pool.search(cr, uid, [('other_identifier','=',vals['other_identifier'])])
         #import pdb; pdb.set_trace()
-        if not patient_id:
-            except_if(True, msg="Patient not found!")
-        elif len(patient_id) > 1:
-            except_if(True, msg="More than one patient found!")
+        except_if(not patient_id, msg="Patient not found!")
+        except_if(len(patient_id) > 1, msg="More than one patient found with 'other_identifier' = %s !" % vals['other_identifier'])
         patient_id = patient_id[0]
-        super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals, context)
-        admission_pool = self.pool['t4.clinical.patient.admission']
         vals_copy = vals.copy()       
         vals_copy.update({'location_id': location_id})  
         vals_copy.update({'patient_id': patient_id})  
-        admission_activity_id = admission_pool.create_activity(cr, uid, {}, vals_copy)
-        activity_pool = self.pool['t4.clinical.activity']
-        activity_pool.start(cr, uid, admission_activity_id, context)
-#         ctx = context and context.copy() or {}
-#         ctx.update({'parent_activity_id': activity_id})        
-        admission_result = activity_pool.complete(cr, uid, admission_activity_id, context)
-        activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['spell_activity_id']})
-        user = self.pool['res.users'].browse(cr, uid, uid, context)
-        activity_pool.set_activity_trigger(cr, uid, patient_id,'t4.clinical.patient.observation.ews',
-                                   'minute', user.pos_id.ews_init_frequency, context=None)
+        super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals_copy, context)
         return True    
 
-
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.clinical.activity']
+        admit_activity = activity_pool.browse(cr, uid, activity_id, context)
+        admission_pool = self.pool['t4.clinical.patient.admission']
+        admission_activity_id = admission_pool.create_activity(cr, uid, {}, {'location_id': admit_activity.location_id.id,
+                                                                              'patient_id': admit_activity.patient_id.id})
+        admission_result = activity_pool.complete(cr, uid, admission_activity_id, context)
+        activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['spell_activity_id']})
+        super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
+        return True
+    
+    
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
     _inherit = ['t4.clinical.activity.data']      

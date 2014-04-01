@@ -85,7 +85,7 @@ class t4_clinical_patient_placement(orm.Model):
         location_id = False
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
-        location_id = activity.parent_id.data_ref.location_id.id if activity.parent_id.data_ref.location_id else False
+        location_id = activity.data_ref.location_id.id or activity.parent_id.data_ref.location_id.id
         return location_id
     
     def complete(self, cr, uid, activity_id, context=None):
@@ -101,7 +101,10 @@ class t4_clinical_patient_placement(orm.Model):
         spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
         activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         frequency = placement_activity.data_ref.location_id.pos_id.ews_init_frequency
-        ews_activity_id = ews_pool.create_activity(cr, self.admin_uid(cr), {'location_id': placement_activity.data_ref.location_id.id}, {'patient_id': placement_activity.data_ref.patient_id.id}, context)
+        ews_activity_id = ews_pool.create_activity(cr, self.admin_uid(cr), 
+                                                   {'location_id': placement_activity.data_ref.location_id.id,
+                                                    'parent_id': spell_activity_id}, 
+                                                   {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         activity_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',
@@ -154,13 +157,13 @@ class t4_clinical_patient_discharge(orm.Model):
         
         #...
     }
-
+    # FIXME! Move location_id lookup into 'submit' and change field type to many2one
     def complete(self, cr, uid, activity_id, context=None):
         super(t4_clinical_patient_discharge, self).complete(cr, uid, activity_id, context)
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         assert activity.patient_id, "Patient must be set!"
-        assert activity.location_id, "Patient must be set!"
+        #assert activity.location_id, "Location must be set!"
         discharge = activity.data_ref
         # patient
         patient_pool = self.pool['t4.clinical.patient']
@@ -214,7 +217,7 @@ class t4_clinical_patient_admission(orm.Model):
             {'parent_id': admission.activity_id.id}, 
             {'patient_id': admission.patient_id.id, 'location_id':admission.location_id.id}, 
             context)
-        activity_pool.start(cr, uid, move_activity_id, context)
+        #activity_pool.start(cr, uid, move_activity_id, context)
         activity_pool.complete(cr, uid, move_activity_id, context)
         # patient placement
         placement_pool = self.pool['t4.clinical.patient.placement']
@@ -222,6 +225,11 @@ class t4_clinical_patient_admission(orm.Model):
            {'parent_id': admission.activity_id.id}, 
            {'patient_id': admission.patient_id.id},
            context)
+        # set EWS trigger
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        activity_pool.set_activity_trigger(cr, uid, admission.patient_id.id,
+                                           't4.clinical.patient.observation.ews',
+                                           'minute', user.pos_id.ews_init_frequency, context=None)         
         res = {'admission_activity_id': activity_id,
                'spell_activity_id': spell_activity_id,
                'move_activity_id': move_activity_id,

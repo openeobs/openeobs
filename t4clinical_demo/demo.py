@@ -21,16 +21,54 @@ class t4_clinical_pos(orm.Model):
     
 class demo(orm.AbstractModel):
     _name = 'demo'
+    
+    def get_ward_data(self, parent_id=False, qty=5):
+        data = []
+        n = 0
+        while n <= qty:
+            code = "W"+str(fake.random_int(min=1000001, max=9999999))
+            while code in [d['code'] for d in data]: 
+                code = "W"+str(fake.random_int(min=1000001, max=9999999))
+            data.append({
+                    'name': code, 
+                    'code': code,
+                    'type': 'poc', 
+                    'usage': 'ward', 
+                    'parent_id': parent_id        
+                   })
+            n += 1
+        return data
 
+    def get_bed_data(self, ward_ids=[], qty=5):
+        data = []
+        n = 0
+        while n <= qty:
+            code = "B"+str(fake.random_int(min=1000001, max=9999999))
+            while code in [d['code'] for d in data]: 
+                code = "B"+str(fake.random_int(min=1000001, max=9999999))
+            parent_id = ward_ids[fake.random_int(min=0, max=len(ward_ids)-1)]
+            data.append({
+                    'name': code, 
+                    'code': code,
+                    'type': 'poc', 
+                    'usage': 'bed', 
+                    'parent_id': parent_id        
+                   })
+            n += 1
+        return data
+    
     def get_register_data(self, qty=5):
         data = []
         n = 0
         while n <= qty:
             gender = fake.random_element(array=('M','F'))
+            other_identifier = str(fake.random_int(min=1000001, max=9999999))
+            while other_identifier in [d['other_identifier'] for d in data]: 
+                other_identifier = str(fake.random_int(min=1000001, max=9999999))
             data.append({
                     'family_name': fake.last_name(), 
                     'given_name': fake.first_name(),
-                    'other_identifier': str(fake.random_int(min=1001, max=9999)), 
+                    'other_identifier': other_identifier, 
                     'dob': fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S"), 
                     'gender': gender, 
                     'sex': gender         
@@ -130,5 +168,97 @@ class demo(orm.AbstractModel):
                 activity_pool.submit(cr, uid, ews_activity_id, ews)
                 activity_pool.start(cr, uid, ews_activity_id)
                 activity_pool.complete(cr, uid, ews_activity_id)
+        except_if(rollback, msg="Rollback")
+        return True
+    
+    
+    
+    def scenario2(self, cr, uid, rollback=True):
+        REGISTER_QTY = 2000
+        ADMIT_QTY = 1500
+        DISCHARGE_QTY = 500
+        EWS_QTY = 10
+        WARD_QTY = 100
+        BED_QTY = 500
+        
+        ews_pool = self.pool['t4.clinical.patient.observation.ews']
+        register_pool = self.pool['t4.clinical.adt.patient.register']
+        admit_pool = self.pool['t4.clinical.adt.patient.admit']
+        activity_pool = self.pool['t4.clinical.activity']
+        placement_pool = self.pool['t4.clinical.patient.placement']
+        discharge_pool = self.pool['t4.clinical.patient.discharge']
+        spell_pool = self.pool['t4.clinical.spell']
+        location_pool = self.pool['t4.clinical.location']
+        user_pool = self.pool['res.users']    
+        
+        pos = self.pool['t4.clinical.pos'].browse(cr, uid, 1) # UHG
+        # Create Locations        
+        ward_data = self.get_ward_data(pos.location_id.id, WARD_QTY)
+        ward_ids = []
+        for d in ward_data:
+            ward_ids.append(location_pool.create(cr, uid, d))
+        
+        bed_data = self.get_bed_data(ward_ids, BED_QTY)
+        bed_ids = []
+        for d in bed_data:
+            bed_ids.append(location_pool.create(cr, uid, d))        
+        
+        # Assign locations to users
+        nurse_ids = user_pool.search(cr, uid, [('login','=','nurse')])
+        for nurse_id in nurse_ids:
+            idx1 = fake.random_int(min=0, max=len(ward_ids)-1)
+            idx2 = fake.random_int(min=0, max=len(ward_ids)-1)
+            start, end = idx1 <= idx2 and (idx1, idx2) or (idx2, idx1)
+            vals = {'location_ids': [[6, False, ward_ids[start: end]]]}
+            user_pool.write(cr, uid, nurse_id, vals)
+        
+              
+        # Register Patients
+        register_data = self.get_register_data(REGISTER_QTY)
+        for d in register_data:
+            register_activity_id = register_pool.create_activity(cr, uid, {}, d)
+            activity_pool.complete(cr, uid, register_activity_id)
+             
+        # Admit Patients
+        admit_data = self.get_admit_data(register_data, ADMIT_QTY)
+        for d in admit_data:
+            admit_activity_id = admit_pool.create_activity(cr, uid, {}, d) 
+            activity_pool.complete(cr, uid, admit_activity_id)
+        
+        # Complete Placements
+        domain = [['data_model','=','t4.clinical.patient.placement'],['state','in',['draft','scheduled']]]
+        placement_activity_ids = activity_pool.search(cr, uid, domain)
+        for placement_activity in activity_pool.browse(cr, uid, placement_activity_ids):
+            available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
+            bed_location_ids = location_pool.search(cr, uid, 
+                                                    [['id', 'child_of', placement_activity.data_ref.location_id.id],
+                                                     ['id','in', available_bed_location_ids]])
+            if bed_location_ids:
+                location_id = bed_location_ids[fake.random_int(min=0, max=len(bed_location_ids)-1)]
+                activity_pool.submit(cr, uid, placement_activity.id, {'location_id': location_id})
+                activity_pool.complete(cr, uid, placement_activity.id)
+                
+                
+        # EWS loops
+        i = 0
+        while i < EWS_QTY:
+            ews_activity_ids = activity_pool.search(cr, uid,[['data_model','=','t4.clinical.patient.observation.ews'],
+                                                             ['state','in',['draft','scheduled']]])
+            for ews_activity in activity_pool.browse(cr, uid, ews_activity_ids):
+                activity_pool.complete(cr, uid, ews_activity.id)
+            i += 1
+        
+        # Discharge Patients
+        spell_ids = spell_pool.search(cr, uid, [('state','=','started')])
+        spell_to_discharge_ids = []
+        while len(spell_to_discharge_ids)< DISCHARGE_QTY:
+           spell_to_discharge_ids.append(spell_ids[fake.random_int(min=0, max=len(spell_ids)-1)])
+           spell_to_discharge_ids = list(set(spell_to_discharge_ids))
+        
+        for spell in spell_pool.browse(cr, uid, spell_to_discharge_ids):
+            discharge_activity_id = discharge_pool.create_activity(cr, uid, {}, {'patient_id': spell.patient_id.id})
+            activity_pool.complete(cr, uid, discharge_activity_id)
+            
+            
         except_if(rollback, msg="Rollback")
         return True

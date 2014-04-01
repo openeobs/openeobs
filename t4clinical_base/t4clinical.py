@@ -3,6 +3,31 @@ from openerp.osv import orm, fields, osv
 import logging        
 _logger = logging.getLogger(__name__)
 
+class t4clinical_res_partner(orm.Model):
+    _inherit = 'res.partner'
+
+    _columns = {
+        'doctor': fields.boolean('Doctor', help="Check this box if this contact is a Doctor")
+    }
+
+
+class t4_clinical_device_type(orm.Model):
+    _name = 't4.clinical.device.type'
+
+    _columns = {
+        'name': fields.text("Device Type"),
+        'flow_direction': fields.selection([('none', 'None'), ('in', 'In'), ('out', 'Out'), ('both', 'Both')], 'Flow Direction'),
+        
+    }
+
+class device_type(orm.Model):
+    _name = 't4.clinical.device'
+    _rec_name = 'type_id'
+    _columns = {
+        'type_id': fields.many2one('t4.clinical.device.type', "Device Type"),
+        'flow_direction': fields.selection([('none', 'None'), ('in', 'In'), ('out', 'Out'), ('both', 'Both')], 'Flow Direction'),
+        
+    }
 class t4_clinical_pos(orm.Model):
     """ Clinical point of service """
     _name = 't4.clinical.pos' 

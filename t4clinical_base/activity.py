@@ -262,8 +262,8 @@ class t4_clinical_activity(orm.Model):
             type_pool = self.pool['t4.clinical.activity.type']
             type = type_pool.read(cr, uid, vals['type_id'], ['summary'], context=context)
             vals.update({'summary': type['summary']})
-        if uid==6:
-            import pdb; pdb.set_trace()
+#         if uid==6:
+#             import pdb; pdb.set_trace()
         activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
             
         activity = self.browse(cr, uid, activity_id, context)
