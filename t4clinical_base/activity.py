@@ -401,7 +401,7 @@ class t4_clinical_activity(orm.Model):
     # MOVE TO PATIENT?
     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
         #import pdb; pdb.set_trace()
-        domain = [('state','=','started'),('location_id','=',False)]
+        domain = [('state','=','started'),('location_id.usage','not in', ['bed'])]
         location_id and  domain.append(('location_id','child_of',location_id))
         spell_pool = self.pool['t4.clinical.spell']
         spell_ids = spell_pool.search(cr, uid, domain)
