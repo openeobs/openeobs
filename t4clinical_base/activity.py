@@ -3,6 +3,7 @@ from openerp.osv import orm, fields, osv
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from openerp import SUPERUSER_ID
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -567,7 +568,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'start'), msg="activity of type '%s' can not be started from state '%s'" % (activity.data_model, activity.state))                  
-        activity_pool.write(cr, uid, activity_id, {'state': 'started'}, context)
+        activity_pool.write(cr, uid, activity_id, {'state': 'started', 'date_started': dt.now().strftime(DTF)}, context)
         _logger.info("activity '%s', activity.id=%s started" % (activity.data_model, activity.id))        
         return True
 
