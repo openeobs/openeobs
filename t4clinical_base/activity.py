@@ -411,10 +411,7 @@ class t4_clinical_activity(orm.Model):
     # MOVE TO PATIENT?
     def get_patient_spell_activity_id(self, cr, uid, patient_id, context=None):
         domain = [('patient_id','=',patient_id),('state','=','started'),('data_model','=','t4.clinical.spell')]
-        try:
-            spell_activity_id = self.search(cr, uid, domain)
-        except:
-            import pdb; pdb.set_trace()
+        spell_activity_id = self.search(cr, uid, domain)
         if not spell_activity_id:
             return False
         if len(spell_activity_id) >1:
