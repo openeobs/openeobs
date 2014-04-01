@@ -185,7 +185,7 @@
 			<field name="login">nurse</field>
 			<field name="password">nurse</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
-            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8')]]]"/>
+            <field name="location_ids" eval="[[6, False, [ref('demo_location_w8'), ref('demo_location_w9')]]]"/>
 			<field name="activity_type_ids" eval="[[6, False,[
 												ref('t4clinical_activity_types.observation_ews_data_type'),
 												ref('t4clinical_activity_types.observation_height_weight_data_type')
