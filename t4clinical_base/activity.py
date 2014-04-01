@@ -47,8 +47,8 @@ class t4_clinical_patient_activity_trigger(orm.Model):
         'active': fields.boolean('Is Active?'), 
         'patient_id': fields.many2one('t4.clinical.patient', 'activity'),
         'data_model': fields.text('Data Model'),
-        'unit': fields.selection(_periods, 'Recurrence Unit'),
-        'unit_qty': fields.integer('Qty of Recurrence Units'),
+        'unit': fields.selection(_periods, 'Time Unit'),
+        'unit_qty': fields.integer('Time Units Qty'),
         'activity_ids': fields.many2many('t4.clinical.activity', 'recurrence_activity_rel', 'recurrence_id', 'activity_id', 'Generated Activities'),
         'date_next': fields.function(_get_date_next, type='datetime', string='Next Date', help='Next date from now')
     }
