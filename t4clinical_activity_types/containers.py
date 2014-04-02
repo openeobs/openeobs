@@ -16,7 +16,9 @@ class t4_clinical_spell(orm.Model):
         'start_date': fields.datetime("ADT Start Date"),
         #...
     }
-    
+    _defaults = {
+         'code': lambda s, cr, uid, c: s.pool['ir.sequence'].next_by_code(cr, uid, 't4.clinical.spell', context=c) 
+     }
     def init(self, cr):
         self._events.append(['t4.clinical.patient.placement', self._name])
 

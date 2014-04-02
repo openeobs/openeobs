@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>	
+    <!-- Types -->
 		<record model="t4.clinical.activity.type" id="patient_move_data_type">
 			<field name="summary">Patient Move</field>
 			<field name="data_model">t4.clinical.patient.move</field>
@@ -68,6 +69,13 @@
 			<field name="summary">Observation EWS</field>
 			<field name="data_model">t4.clinical.patient.observation.ews</field>
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
-		</record>												
+		</record>	
+<!-- Sequences -->
+        <record id="spell_sequence" model="ir.sequence">
+            <field name="name">Spell</field>
+            <field eval="6" name="padding"/>
+            <field eval="'t4.clinical.spell'" name="padding"/>
+            <field name="prefix">SPELL/%(year)s/</field>
+        </record>													
 	</data>
 </openerp>
