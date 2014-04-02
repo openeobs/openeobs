@@ -78,7 +78,7 @@
         <record model="ir.rule" id="t4clinical_rule_user_activity">
             <field name="name">T4 Clinical User-activity Rule</field>
             <field name="model_id" ref="model_t4_clinical_activity"/>
-            <field name="domain_force">[('user_ids','in',user.id)]</field>
+            <field name="domain_force">['|',('user_id','=',user.id),('user_ids','in',user.id)]</field>
             <field name="groups" eval="[(4, ref('group_t4clinical_hca')), 
             							(4, ref('group_t4clinical_nurse')), 
             							(4, ref('group_t4clinical_doctor')),

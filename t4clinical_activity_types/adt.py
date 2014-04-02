@@ -45,31 +45,23 @@ class t4_clinical_adt_patient_register(orm.Model):
 class t4_clinical_adt_patient_admit(orm.Model):
     _name = 't4.clinical.adt.patient.admit'
     _inherit = ['t4.clinical.activity.data']      
-
-#     def _admit2location_id(self, cr, uid, ids, field, arg, context=None):
-#         res = {}
-#         location_pool = self.pool['t4.clinical.location']
-#         for admit in self.browse(cr, uid, ids, context):
-#             location_id = location_pool.search(cr, uid, [('code','=',admit.location)])
-#             res[admit.id] = location_id and location_id[0] or False
-#         return res
         
     _columns = {
-        'location_id': fields.many2one('t4.clinical.location', 'Location'),
+        'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         'location': fields.text('Location'),
         'code': fields.text("Code"),
         'start_date': fields.datetime("ADT Start Date"), 
-        'other_identifier': fields.text("Other Identifier")              
+        'other_identifier': fields.text("Other Identifier")   
     }
 
     def submit(self, cr, uid, activity_id, vals, context=None):
 #         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
 #               msg="patient_identifier or other_identifier not found in submitted data!")
         location_pool = self.pool['t4.clinical.location']
-        location_id = location_pool.search(cr, uid, [('code','=',vals['location'])])
-        except_if(not location_id, msg="Location not found!")
-        location_id = location_id[0]
+        suggested_location_id = location_pool.search(cr, uid, [('code','=',vals['location'])])
+        except_if(not suggested_location_id, msg="Suggested location not found!")
+        suggested_location_id = suggested_location_id[0]
         patient_pool = self.pool['t4.clinical.patient']
         patient_id = patient_pool.search(cr, uid, [('other_identifier','=',vals['other_identifier'])])
         #import pdb; pdb.set_trace()
@@ -77,7 +69,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         except_if(len(patient_id) > 1, msg="More than one patient found with 'other_identifier' = %s !" % vals['other_identifier'])
         patient_id = patient_id[0]
         vals_copy = vals.copy()       
-        vals_copy.update({'location_id': location_id})  
+        vals_copy.update({'suggested_location_id': suggested_location_id})  
         vals_copy.update({'patient_id': patient_id})  
         super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals_copy, context)
         return True    
@@ -86,8 +78,11 @@ class t4_clinical_adt_patient_admit(orm.Model):
         activity_pool = self.pool['t4.clinical.activity']
         admit_activity = activity_pool.browse(cr, uid, activity_id, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
-        admission_activity_id = admission_pool.create_activity(cr, uid, {}, {'location_id': admit_activity.location_id.id,
-                                                                              'patient_id': admit_activity.patient_id.id})
+        admission_activity_id = admission_pool.create_activity(cr, uid, {'creator_activity_id': activity_id}, 
+                                                               # FIXME! pos_id should be taken from adt_user.pos_id
+                                                               {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,
+                                                                'patient_id': admit_activity.patient_id.id,
+                                                                'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
         admission_result = activity_pool.complete(cr, uid, admission_activity_id, context)
         activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['spell_activity_id']})
         super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
