@@ -75,6 +75,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         return True    
 
     def complete(self, cr, uid, activity_id, context=None):
+        super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
         activity_pool = self.pool['t4.clinical.activity']
         admit_activity = activity_pool.browse(cr, uid, activity_id, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
@@ -85,7 +86,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
                                                                 'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
         admission_result = activity_pool.complete(cr, uid, admission_activity_id, context)
         activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['spell_activity_id']})
-        super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
+        
         return True
     
     

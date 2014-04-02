@@ -109,8 +109,6 @@ class t4_clinical_activity_type(orm.Model):
         
         
     def create(self, cr, uid, vals, context=None):
-        if not vals.get('act_window_xmlid'):
-            _logger.warning('Field act_window_xmlid is not found in vals during attempt to create a record for t4.clinical.activity.type!')
         if not self.pool.models.get(vals['data_model']):
             _logger.error('Model %s is not found in the model pool!' % vals['data_model'])
         res_id = super(t4_clinical_activity_type, self).create(cr, uid, vals, context)
