@@ -441,7 +441,6 @@ class t4_clinical_activity(orm.Model):
 class t4_clinical_activity_data(orm.AbstractModel):
     
     _name = 't4.clinical.activity.data'  
-    _events = [] # (event_model, handler_model)  
     _transitions = {
         'draft': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
@@ -463,21 +462,6 @@ class t4_clinical_activity_data(orm.AbstractModel):
         'data_model': fields.related('type_id','data_model',type='text',string="Data Model"),    
         'pos_id': fields.related('activity_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),        
     }
-    
-    def event(self, cr, uid, model, event, activity_id, context=None):
-        assert model in self.pool.models.keys(), "Model is not found in model pool!"
-        assert isinstance(activity_id, (int, long)), "activity_id must be int or long, found %" % type(activity_id)
-        """
-        This method may be called by any other method when it needs to notify about event
-        ex.: placement to notify about completion so interested data models can update location_id
-        """
-        # get derived models
-        print "event self:", self
-        for e in self._events:
-            if e[0] == model:
-                pool = self.pool[e[1]]
-                pool.event(cr, uid, model, event, activity_id)
-        return True
     
     def create(self, cr, uid, vals, context=None):
 #         if not context or not context.get('t4_source') == "t4.clinical.activity":
