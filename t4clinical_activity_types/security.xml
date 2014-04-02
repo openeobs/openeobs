@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<openerp>
+	<data>        
+        <record id="t4clinical_base.group_t4clinical_nurse" model="res.groups">
+			<field name="activity_type_ids" 
+				   eval="[[6, False,[
+									ref('observation_ews_data_type'),
+									ref('observation_height_weight_data_type'),
+									ref('device_disconnect_data_type')
+									]]]"/>                       
+        </record>
+        <record id="t4clinical_base.group_t4clinical_ward_manager" model="res.groups">
+			<field name="activity_type_ids" 
+				   eval="[[6, False,[
+                                    ref('spell_data_type'),
+									ref('patient_placement_data_type'),
+									ref('patient_admission_data_type'),
+									ref('patient_move_data_type'),
+									ref('patient_discharge_data_type'),
+									ref('observation_ews_data_type'),
+									ref('device_disconnect_data_type')
+										]]]"/>                           
+        </record>
+	</data>
+</openerp>

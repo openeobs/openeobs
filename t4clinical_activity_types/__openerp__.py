@@ -10,10 +10,11 @@
     'website': 'http://www.tactix4.com/',
     'depends': ['t4clinical_base','project','hr'],
     'data': [
-             'window_actions.xml',
+             'views.xml',
              'patient_placement_view.xml',
              'placement_wizard_view.xml',
              'types.xml', 
+             'security.xml',
              'menuitem.xml',
              'ir.model.access.csv'],
     'demo': [],

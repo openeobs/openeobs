@@ -28,12 +28,10 @@
 		<record model="t4.clinical.activity.type" id="patient_admission_data_type">
 			<field name="summary">Patient Admission</field>
 			<field name="data_model">t4.clinical.patient.admission</field>
-<!-- 			<field name="act_window_xmlid">action_patient_move</field> -->
 		</record>
 		<record model="t4.clinical.activity.type" id="patient_discharge_data_type">
 			<field name="summary">Patient Discharge</field>
 			<field name="data_model">t4.clinical.patient.discharge</field>
-<!-- 			<field name="act_window_xmlid">action_patient_move</field> -->
 		</record>
 		<record model="t4.clinical.activity.type" id="observation_height_weight_data_type">
 			<field name="summary">Observation Height, Weight</field>
@@ -43,33 +41,41 @@
 		<record model="t4.clinical.activity.type" id="spell_data_type">
 			<field name="summary">Spell of Care</field>
 			<field name="data_model">t4.clinical.spell</field>
-<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+
 		</record>			
 		<record model="t4.clinical.activity.type" id="adt_patient_register_data_type">
 			<field name="summary">ADT Patient Register</field>
 			<field name="data_model">t4.clinical.adt.patient.register</field>
-<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+
 		</record>
 		<record model="t4.clinical.activity.type" id="adt_patient_admit_data_type">
 			<field name="summary">ADT Patient Admit</field>
 			<field name="data_model">t4.clinical.adt.patient.admit</field>
-<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+
 		</record>
 		<record model="t4.clinical.activity.type" id="adt_patient_transfer_data_type">
 			<field name="summary">ADT Patient Transfer</field>
 			<field name="data_model">t4.clinical.adt.patient.transfer</field>
-<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+
 		</record>
 		<record model="t4.clinical.activity.type" id="adt_patient_merge_data_type">
 			<field name="summary">ADT Patient Merge</field>
 			<field name="data_model">t4.clinical.adt.patient.merge</field>
-<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+
 		</record>			
 		<record model="t4.clinical.activity.type" id="observation_ews_data_type">
 			<field name="summary">Observation EWS</field>
 			<field name="data_model">t4.clinical.patient.observation.ews</field>
-<!-- 			<field name="act_window_xmlid">action_spell</field> -->
+		</record>
+		<record model="t4.clinical.activity.type" id="device_connect_data_type">
+			<field name="summary">Device Connect</field>
+			<field name="data_model">t4.clinical.device.connect</field>
 		</record>	
+		<record model="t4.clinical.activity.type" id="device_disconnect_data_type">
+			<field name="summary">Device Disconnect</field>
+			<field name="data_model">t4.clinical.device.disconnect</field>
+		</record>	
+		
 <!-- Sequences -->
         <record id="spell_sequence_type" model="ir.sequence.type">
             <field name="name">Spell</field>
