@@ -647,8 +647,8 @@ class t4_clinical_activity_data(orm.AbstractModel):
         data_vals = vals.copy()
          
         if not activity.data_ref:
-            data_vals.update({'activity_id':activity_id})
             _logger.info("activity '%s', activity.id=%s data submitted: %s" % (activity.data_model, activity.id, str(data_vals)))
+            data_vals.update({'activity_id':activity_id})
             data_id = self.create(cr, uid, data_vals, context)
             activity_pool.write(cr, uid, activity_id, {'data_ref': "%s,%s" % (self._name,data_id)})
         else:      

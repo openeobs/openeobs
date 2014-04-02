@@ -80,38 +80,6 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
     }
 
 
-class score(object):
-    _ranges = []
-    _limit_per_one = 3
-    _limit_in_one = False
-    _score = 0
-
-    def add_range(self, key=None, value=None, min=None, max=None, selection=None, score=None):
-        assert isinstance(key, basestring), "Key must be a string"
-        assert value is not None, "Value can't be None"
-        assert score is not None, "Score can't be None"
-        assert (isinstance(min, (int, long)) or isinstance(max, (int, long))) or isinstance(selection, (list,tuple)), "min-max or selection must be set"
-
-        self._ranges.append({'key': key, 'value': value, 'min': min, 'max': max, 'selection': selection, 'score': score})
-
-    def get_score(self):
-        for r in self._ranges:
-            min_max_test = r['min'] and r['value'] >= r['min'] or not r['min'] \
-                            and r['max'] and r['value'] <= r['max'] or not r['max']
-            if min_max_test:
-                r.update({'match': True, 'reason': 'min-max'})
-            elif r['selection'] and r['value'] in r['selection']:
-                r.update({'match': True, 'reason': 'selection'})
-            else:
-                r.update({'match': False, 'reason': ''})
-        for r in self._ranges:
-            if r['match']:
-                self._score += r['score']
-                self._limit_in_one = r['score'] >= self._limit_per_one
-                
-        return self._score, self._limit_in_one
-
-
 class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
@@ -221,12 +189,28 @@ class t4_clinical_patient_observation_ews(orm.Model):
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         if group == 'hca':
-            hca_pool.create_activity(cr,  self.admin_uid(cr), {'summary': 'Inform registered nurse', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-            nurse_pool.create_activity(cr, self.admin_uid(cr), {'summary': 'Informed about patient status', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            hca_pool.create_activity(cr,  self.admin_uid(cr), {'summary': 'Inform registered nurse', 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, self.admin_uid(cr), {'summary': 'Informed about patient status', 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         if case:
             for n in self._POLICY['notifications'][case]:
-                nurse_pool.create_activity(cr, self.admin_uid(cr), {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+                nurse_pool.create_activity(cr, self.admin_uid(cr), {'summary': n, 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         activity_pool.set_activity_trigger(cr, self.admin_uid(cr), activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',
                                            self._POLICY['frequencies'][case], context)
         return super(t4_clinical_patient_observation_ews, self).complete(cr, self.admin_uid(cr), activity_id, context)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
