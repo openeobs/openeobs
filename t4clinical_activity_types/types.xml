@@ -71,10 +71,14 @@
 <!-- 			<field name="act_window_xmlid">action_spell</field> -->
 		</record>	
 <!-- Sequences -->
+        <record id="spell_sequence_type" model="ir.sequence.type">
+            <field name="name">Spell</field>
+            <field eval="'t4.clinical.spell'" name="code"/>
+        </record>	
         <record id="spell_sequence" model="ir.sequence">
             <field name="name">Spell</field>
             <field eval="6" name="padding"/>
-            <field eval="'t4.clinical.spell'" name="padding"/>
+            <field eval="'t4.clinical.spell'" name="code"/>
             <field name="prefix">SPELL/%(year)s/</field>
         </record>													
 	</data>

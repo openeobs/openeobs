@@ -691,20 +691,28 @@ class t4_clinical_activity_data(orm.AbstractModel):
     def get_activity_user_ids(self, cr, uid, activity_id, context=None):
         location_pool = self.pool['t4.clinical.location']  
         user_pool = self.pool['res.users']
+        group_pool = self.pool['res.groups']
         activity = self.pool['t4.clinical.activity'].browse(cr, uid, activity_id, context)   
         user_ids = []      
         location_id = self.get_activity_location_id(cr, uid, activity_id, context)
         location = location_pool.browse(cr, uid, location_id, context)
         if location_id:
+            # get parent locations of activity locations 
             parent_location_ids = [location_id]
             parent_id = location.parent_id and location.parent_id.id
             while parent_id:
                 parent_location_ids.append(parent_id)
-                parent_location = location_pool.browse_domain(cr, uid, [('id','=',parent_id)])[0]
+                parent_location = location_pool.browse(cr, uid, parent_id, context)
                 parent_id = parent_location.parent_id and parent_location.parent_id.id
             for location_id in parent_location_ids:
-                user_ids.extend(user_pool.search(cr, uid, [('location_ids','child_of',location_id), ('activity_type_ids','=',activity.type_id.id)]))    
-            ##print "parent_location_ids: %s" % parent_location_ids        
+                # get groups where current type is allowed
+                group_ids = group_pool.search(cr, uid, 
+                                         [('activity_type_ids','=',activity.type_id.id)])
+                # get users whose locations of responsibility are parent to activity location or activity parent location
+                user_ids.extend(user_pool.search(cr, uid, 
+                                         [('location_ids','child_of',location_id), 
+                                          ('groups_id','in',group_ids)])) 
+       
         return list(set(user_ids))
 
     def get_activity_browse(self, cr, uid, activity_id, context=None):

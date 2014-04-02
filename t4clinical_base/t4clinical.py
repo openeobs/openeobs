@@ -59,7 +59,14 @@ class res_users(orm.Model):
     _columns = {
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Locations of Responsibility'),
-        'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'user_activity_type_rel', 'user_id', 'type_id', 'activity Types of Responsibility'),
+        'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'user_activity_type_rel', 'user_id', 'type_id', 'Activity Types of Responsibility'),
+    }
+
+class res_groups(orm.Model):
+    _name = 'res.groups'
+    _inherit = 'res.groups'
+    _columns = {
+        'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'group_activity_type_rel', 'group_id', 'type_id', 'Activity Types of Responsibility'),
     }
     
 class t4_clinical_location(orm.Model):

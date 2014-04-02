@@ -8,11 +8,29 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 _logger = logging.getLogger(__name__)
 
 
-class t4_clinical_notification(orm.Model):
+class t4_clinical_device_action(orm.AbstractModel):
+    _name = 't4.clinical.device.action'
+    _inherit = ['t4.clinical.activity.data']
+    _columns = {
+        'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
+        'reason': fields.text('Reason'),
+    }
+    
+class t4_clinical_device_connect(orm.Model):
+    _name = 't4.clinical.device.connect'
+    _inherit = ['t4.clinical.device.action']
+
+
+class t4_clinical_device_disconnect(orm.Model):
+    _name = 't4.clinical.device.disconnect'
+    _inherit = ['t4.clinical.device.action']
+
+
+class t4_clinical_notification(orm.AbstractModel):
     _name = 't4.clinical.notification'
     _inherit = ['t4.clinical.activity.data']
     _columns = {
-        #'src_location_id': fields.many2one('t4.clinical.location', 'Source Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
     }
@@ -199,15 +217,6 @@ class t4_clinical_patient_admission(orm.Model):
                'move_activity_id': move_activity_id,
                'placement_activity_id': placement_activity_id}
         return res
-    
-    
-   
-class t4_clinical_location(orm.Model):
-    _inherit = 't4.clinical.location'
-    
-    def available_location_browse(self, cr, uid, parent_id=None, context=None):
-        pass
-    
     
     
 class t4_clinical_patient(orm.Model):
