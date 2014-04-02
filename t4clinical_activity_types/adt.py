@@ -79,6 +79,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         activity_pool = self.pool['t4.clinical.activity']
         admit_activity = activity_pool.browse(cr, uid, activity_id, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
+        #import pdb; pdb.set_trace()
         admission_activity_id = admission_pool.create_activity(cr, uid, {'creator_activity_id': activity_id}, 
                                                                # FIXME! pos_id should be taken from adt_user.pos_id
                                                                {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,

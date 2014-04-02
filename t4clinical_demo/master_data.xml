@@ -4,8 +4,10 @@
 		<!-- Company -->
         <record id="main_company" model="res.company">
         	<field name="name">TRUST</field>
-        </record>  
-            
+        </record> 
+
+
+
         <!-- Location - Point of Service - Hospital -->
         <record id="demo_location_uhg" model="t4.clinical.location">
             <field name="name">UHG POS Location</field>
@@ -13,23 +15,12 @@
             <field name="type">pos</field>
             <field name="usage">hospital</field>
         </record>
-
-        <!-- Location - Wards -->
-        <record id="demo_location_w8" model="t4.clinical.location">
-            <field name="name">Ward W8</field>
-            <field name="code">W8</field>
-            <field name="type">structural</field>
-            <field name="usage">ward</field>
-          <field name="parent_id" ref="demo_location_uhg"/>
-        </record>        
-        <record id="demo_location_w9" model="t4.clinical.location">
-            <field name="name">Ward W9</field>
-            <field name="code">W9</field>
-            <field name="type">structural</field>
-            <field name="usage">ward</field>
-            <field name="parent_id" ref="demo_location_uhg"/>
-        </record>
-
+<!-- POS -->
+        <record id="demo_pos_uhg" model="t4.clinical.pos">
+        	<field name="name">University Hospital Greenfield POS</field>
+            <field name="company_id" ref="main_company"/>
+            <field name="location_id" ref="demo_location_uhg"/>
+        </record>             
 <!-- Location Lots -->
         <record id="demo_location_lot_admission" model="t4.clinical.location">
             <field name="name">Admission Location</field>
@@ -49,11 +40,28 @@
 <!-- POS -->
         <record id="demo_pos_uhg" model="t4.clinical.pos">
         	<field name="name">University Hospital Greenfield POS</field>
-            <field name="location_id" ref="demo_location_uhg"/>
             <field name="company_id" ref="main_company"/>
             <field name="lot_admission_id" ref="demo_location_lot_admission"/>
             <field name="lot_discharge_id" ref="demo_location_lot_discharge"/>
-        </record>  
+        </record> 
+
+        <!-- Location - Wards -->
+        <record id="demo_location_w8" model="t4.clinical.location">
+            <field name="name">Ward W8</field>
+            <field name="code">W8</field>
+            <field name="type">structural</field>
+            <field name="usage">ward</field>
+          <field name="parent_id" ref="demo_location_uhg"/>
+        </record>        
+        <record id="demo_location_w9" model="t4.clinical.location">
+            <field name="name">Ward W9</field>
+            <field name="code">W9</field>
+            <field name="type">structural</field>
+            <field name="usage">ward</field>
+            <field name="parent_id" ref="demo_location_uhg"/>
+        </record>
+
+ 
 
         <!-- Point of Service - Beds -->
 

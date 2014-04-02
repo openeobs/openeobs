@@ -1,6 +1,6 @@
 import erppeek
 
-db = "demo_test4"
+db = "demo_test10"
 demo = False
 rollback = True
 
@@ -12,4 +12,4 @@ client.create_database(pwd, db, demo, 'en_GB', pwd)
 
 client.install('t4clinical_demo')
 
-#client.execute('demo', 'scenario1', rollback)
+client.execute('demo', 'scenario2', rollback)

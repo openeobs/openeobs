@@ -81,35 +81,22 @@ class t4_clinical_location(orm.Model):
     def _location2pos_id(self, cr, uid, ids, field, args, context=None):
         res = {}
         pos_pool = self.pool['t4.clinical.pos']
-        #pos_ids = pos_pool.search(cr, uid, [])
         #import pdb; pdb.set_trace()
-        pos_locations_map = {pos.id: pos.location_id.id for pos in pos_pool.browse_domain(cr, uid, [])}
         for location in self.browse(cr, uid, ids, context):
-            res[location.id] = False
-            for pos_id, pos_location_id in pos_locations_map.iteritems():
-                if location.id in self.search(cr, uid, ['|',('id', 'child_of', [pos_location_id]),('id','=',pos_location_id)]):
-                    res[location.id] = pos_id
-                    break
+            pos_location_id = self.search(cr, uid, [['parent_id','=',False],['child_ids','child_of',location.id]])
+            pos_location_id = pos_location_id and pos_location_id[0] or False
+            pos_id = pos_pool.search(cr, uid, [['location_id','=',pos_location_id]])
+            res[location.id] = pos_id and pos_id[0]
+            if not pos_id:
+                _logger.warning("pos_id not found for location '%s', id=%s" % (location.code, location.id))
         return res
     
-    def _location2children_id(self, cr, uid, ids, context=None):
-        res = []
-        for location in self.read(cr, uid, ids, ['child_ids']):
-            res.extend(location['child_ids'])
-            res.append(location['id'])
-        res = list(set(res))
-        return res
     def _pos2location_id(self, cr, uid, ids, context=None):
-        res = self.search(cr, uid, [])
+        res = []
+        for pos in self.browse(cr, uid, ids, context):
+            res.extend(self.pool['t4.clinical.location'].search(cr, uid, [['id','child_of',pos.location_id.id]]))
         return res          
-#     def _location2company_id(self, cr, uid, ids, field, args, context=None):
-#         res = {}
-#         company_pool = self.pool['res.company']
-#         for location in self.browse(cr, uid, ids, context):
-#             domain = [('pos_ids','in',location.pos_id)]
-#             company_id = company_pool.search(cr, uid, domain, context=context)
-#             res[location.id] = company_id and company_id[0] or False
-#         return res    
+ 
     def _is_available(self, cr, uid, ids, field, args, context=None):
         #import pdb; pdb.set_trace()
         activity_pool = self.pool['t4.clinical.activity']
@@ -137,17 +124,16 @@ class t4_clinical_location(orm.Model):
         'usage': fields.selection(_usages, 'Location Usage'),
         'active': fields.boolean('Active'),
         'pos_id': fields.function(_location2pos_id, type='many2one', relation='t4.clinical.pos', string='POS', store={
-                                  't4.clinical.location': (_location2children_id, ['parent_id'], 10),
+                                  't4.clinical.location': (lambda s, cr, uid, ids, c: s.search(cr, uid, [['id','child_of',ids]]), ['parent_id'], 10),
                                   't4.clinical.pos': (_pos2location_id, ['location_id'], 5),
                                     }),
         'company_id': fields.related('pos_id', 'company_id', type='many2one', relation='res.company', string='Company'),
         'is_available': fields.function(_is_available, type='boolean', string='Is Available?', 
                                         store={
                                                't4.clinical.location': (lambda self, cr, uid, ids, c: ids, [], 10),
-                                               't4.clinical.patient.placement': (_placement2location_id, ['location_id'], 20),
-                                                                                          })
-        #'parent_left': fields.integer('Left Parent', select=1),
-        #'parent_right': fields.integer('Right Parent', select=1),        
+                                               't4.clinical.patient.placement': (_placement2location_id, ['location_id'], 20)
+                                               })
+      
     }
 
         
