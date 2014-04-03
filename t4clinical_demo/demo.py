@@ -178,7 +178,7 @@ class demo(orm.AbstractModel):
         ADMIT_QTY = 5
         DISCHARGE_QTY = 3
         EWS_QTY = 3
-        WARD_QTY = 2
+        WARD_QTY = 1
         BED_QTY = 7
         
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
@@ -204,13 +204,13 @@ class demo(orm.AbstractModel):
             bed_ids.append(location_pool.create(cr, uid, d))        
         
         # Assign locations to users
-        nurse_ids = user_pool.search(cr, uid, [('login','=','nurse')])
-        for nurse_id in nurse_ids:
+        user_ids = user_pool.search(cr, uid, [])#[('login','=','nurse')])
+        for user_id in user_ids:
             idx1 = fake.random_int(min=0, max=len(ward_ids)-1)
             idx2 = fake.random_int(min=0, max=len(ward_ids)-1)
             start, end = idx1 <= idx2 and (idx1, idx2) or (idx2, idx1)
             vals = {'location_ids': [[6, False, ward_ids[start: end]]]}
-            user_pool.write(cr, uid, nurse_id, vals)
+            user_pool.write(cr, uid, user_id, vals)
         
               
         # Register Patients
@@ -230,9 +230,10 @@ class demo(orm.AbstractModel):
         placement_activity_ids = activity_pool.search(cr, uid, domain)
         for placement_activity in activity_pool.browse(cr, uid, placement_activity_ids):
             available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
+            only_created_available_beds = list(set(available_bed_location_ids) & set(bed_ids))
             bed_location_ids = location_pool.search(cr, uid, 
                                                     [['id', 'child_of', placement_activity.data_ref.location_id.id],
-                                                     ['id','in', available_bed_location_ids]])
+                                                     ['id','in', only_created_available_beds]])
             if bed_location_ids:
                 location_id = bed_location_ids[fake.random_int(min=0, max=len(bed_location_ids)-1)]
                 activity_pool.submit(cr, uid, placement_activity.id, {'location_id': location_id})

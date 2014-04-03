@@ -83,6 +83,6 @@ class t4_clinical_activity_recurrence(orm.Model):
             active = rec.qty2gen and rec.qty2gen > len(rec.activity_ids) and False or True
             rec_data = {'date_next':date_next, 'active':active, 'activity_ids':[(4,activity_id)]}
             self.write(cr, uid, ids, rec_data, context)
-            _logger.info('activity id=%s successfully created according to recurrence id=%s' % (activity_id, rec.id))
+            _logger.debug('activity id=%s successfully created according to recurrence id=%s' % (activity_id, rec.id))
         return True   
             

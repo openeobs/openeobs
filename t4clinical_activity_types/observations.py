@@ -132,7 +132,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
             three_in_one = True if ews.avpu_text in ['V', 'P', 'U'] else three_in_one
 
             res[ews.id] = {'score': score, 'three_in_one': three_in_one}
-            _logger.info("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
+            _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res    
     
     _columns = {
