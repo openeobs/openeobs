@@ -16,7 +16,7 @@
 <!-- POS -->
         <record id="demo_pos_uhg" model="t4.clinical.pos">
         	<field name="name">University Hospital Greenfield POS</field>
-            <field name="company_id" ref="main_company"/>
+            <field name="company_id" ref="base.main_company"/>
             <field name="location_id" ref="demo_location_uhg"/>
         </record>             
 <!-- Location Lots -->
