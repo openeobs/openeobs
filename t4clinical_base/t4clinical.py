@@ -175,7 +175,7 @@ class t4_clinical_location(orm.Model):
         placement_ids = placement_pool.search(cr, uid, domain)
         if placement_ids:
             location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
-        _logger.info("get_available_location_ids \n location_ids: %s" % (location_ids))
+        #_logger.info("get_available_location_ids \n location_ids: %s" % (location_ids))
         return location_ids
     
 

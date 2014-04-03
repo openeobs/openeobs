@@ -190,6 +190,7 @@ class demo(orm.AbstractModel):
         spell_pool = self.pool['t4.clinical.spell']
         location_pool = self.pool['t4.clinical.location']
         user_pool = self.pool['res.users']    
+        patient_pool = self.pool['t4.clinical.patient']
         
         pos = self.pool['t4.clinical.pos'].browse(cr, uid, 1) # UHG
         # Create Locations        
@@ -218,7 +219,17 @@ class demo(orm.AbstractModel):
         for d in register_data:
             register_activity_id = register_pool.create_activity(cr, uid, {}, d)
             activity_pool.complete(cr, uid, register_activity_id)
-             
+
+        # Patient Address
+        for patient_id in patient_pool.search(cr, uid, []):
+            data = {}    
+            data['street'] = fake.street_address()
+            data['street2'] = fake.street_name()
+            data['city'] = fake.city()
+            data['zip'] = fake.postcode()
+            data['mobile'] = fake.phone_number()
+            patient_pool.write(cr, uid, patient_id, data)
+  
         # Admit Patients
         admit_data = self.get_admit_data(register_data, ADMIT_QTY)
         for d in admit_data:
