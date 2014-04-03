@@ -93,6 +93,7 @@ class t4_clinical_patient_placement(orm.Model):
     
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
+        api_pool = self.pool['t4.clinical.api']
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not placement_activity.location_id, 
@@ -100,17 +101,17 @@ class t4_clinical_patient_placement(orm.Model):
         super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         # set spell location
-        spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
         activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         # create EWS
         frequency = placement_activity.data_ref.location_id.pos_id.ews_init_frequency
-        ews_activity_id = ews_pool.create_activity(cr, self.admin_uid(cr), 
+        ews_activity_id = ews_pool.create_activity(cr, self.t4suid, 
                                                    {'location_id': placement_activity.data_ref.location_id.id,
                                                     'parent_id': spell_activity_id}, 
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         # create trigger
-        activity_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
+        api_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',
                                            frequency, context)
         return True
@@ -143,8 +144,10 @@ class t4_clinical_patient_discharge(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         super(t4_clinical_patient_discharge, self).complete(cr, uid, activity_id, context)
+        api_pool = self.pool['t4.clinical.api']
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
+        
         # move
         move_pool = self.pool['t4.clinical.patient.move']
         move_activity_id = move_pool.create_activity(cr, uid, 
@@ -154,7 +157,7 @@ class t4_clinical_patient_discharge(orm.Model):
             context)
         activity_pool.complete(cr, uid, move_activity_id, context)      
         # complete spell 
-        spell_activity = activity_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context)
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context)
         activity_pool.complete(cr, uid, spell_activity.id, context)
         return True  
         
@@ -178,6 +181,7 @@ class t4_clinical_patient_admission(orm.Model):
     def complete(self, cr, uid, activity_id, context=None):
         super(t4_clinical_patient_admission, self).complete(cr, uid, activity_id, context)
         #import pdb; pdb.set_trace()
+        api_pool = self.pool['t4.clinical.api']
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         admission = activity.data_ref
@@ -209,7 +213,7 @@ class t4_clinical_patient_admission(orm.Model):
            context)
         # set EWS trigger
         user = self.pool['res.users'].browse(cr, uid, uid, context)
-        activity_pool.set_activity_trigger(cr, uid, admission.patient_id.id,
+        api_pool.set_activity_trigger(cr, uid, admission.patient_id.id,
                                            't4.clinical.patient.observation.ews',
                                            'minute', user.pos_id.ews_init_frequency, context=None)         
         res = {'admission_activity_id': activity_id,

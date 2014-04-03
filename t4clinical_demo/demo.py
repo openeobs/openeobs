@@ -135,7 +135,7 @@ class demo(orm.AbstractModel):
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
         activity_pool = self.pool['t4.clinical.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
-
+        api_pool = self.pool['t4.clinical.api']
  
         
         for rd in register_data:
@@ -161,7 +161,7 @@ class demo(orm.AbstractModel):
             ews_data = self.get_ews_data(cr, uid, patient_ids)
             for ews in ews_data:
                         # activity frequency
-                activity_pool.set_activity_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
+                api_pool.set_activity_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
                 ews_activity_id = ews_pool.create_activity(cr, uid, {}, {'patient_id': ews['patient_id']})
                 activity_pool.schedule(cr, uid, ews_activity_id, 
                    date_scheduled=fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"))

@@ -89,6 +89,7 @@ class DemoLoader(orm.AbstractModel):
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
         activity_pool = self.pool['t4.clinical.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
+        api_pool = self.pool['t4.clinical.api']
 
         for rd in register_data:
             register_pool.create_activity(cr, uid, {}, rd)
@@ -113,7 +114,7 @@ class DemoLoader(orm.AbstractModel):
             ews_data = self.get_ews_data(cr, uid, patient_ids)
             for ews in ews_data:
                         # activity frequency
-                activity_pool.set_activity_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
+                api_pool.set_activity_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
                 ews_activity_id = ews_pool.create_activity(cr, uid, {}, {'patient_id': ews['patient_id']})
                 activity_pool.schedule(cr, uid, ews_activity_id, 
                    date_scheduled=fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"))
@@ -137,7 +138,9 @@ class DemoLoader(orm.AbstractModel):
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
         activity_pool = self.pool['t4.clinical.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
-
+        location_pool = self.pool['t4.clinical.location']
+        api_pool = self.pool['t4.clinical.api']
+        
         for rd in register_data:
             register_pool.create_activity(cr, uid, {}, rd)
         for ad in admit_data:
@@ -152,8 +155,7 @@ class DemoLoader(orm.AbstractModel):
 
         #get available beds for location in placement activity (ward)
         for placement_activity in activity_pool.browse(cr, ward_manager_id, placement_activity_ids):
-            location_ids = activity_pool.get_available_bed_location_ids(cr, ward_manager_id,
-                                                                    placement_activity.parent_id.location_id.id)
+            location_ids = location_pool.get_available_location_ids(cr, ward_manager_id,['bed'])
             if location_ids:
                 #submit location to placement activity
                 activity_pool.submit(cr, ward_manager_id, placement_activity.id, {'location_id': location_ids[0] })
@@ -162,7 +164,7 @@ class DemoLoader(orm.AbstractModel):
 
 
             #assign obs frequency
-            activity_pool.set_activity_trigger(cr, uid, placement_activity.patient_id.id, 't4.clinical.patient.observation.ews',
+            api_pool.set_activity_trigger(cr, uid, placement_activity.patient_id.id, 't4.clinical.patient.observation.ews',
                                    'minute', 30)
 
         except_if(rollback, msg="Rollback")

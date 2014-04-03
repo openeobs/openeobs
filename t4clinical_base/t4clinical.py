@@ -3,6 +3,10 @@ from openerp.osv import orm, fields, osv
 import logging        
 _logger = logging.getLogger(__name__)
 
+from openerp import SUPERUSER_ID
+
+orm.BaseModel.t4suid = SUPERUSER_ID
+
 class t4clinical_res_partner(orm.Model):
     _inherit = 'res.partner'
 

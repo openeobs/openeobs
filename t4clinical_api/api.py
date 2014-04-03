@@ -7,5 +7,3 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class t4_clinical_api(orm.Model):
-    _name = 't4.clinical.api'

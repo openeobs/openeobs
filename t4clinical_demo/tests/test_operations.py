@@ -16,7 +16,7 @@ class TestOperations(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid
         global activity_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, type_pool, location_pool, patient_pool, ews_pool
+        global user_pool, type_pool, location_pool, patient_pool, ews_pool, api_pool
         global donald_patient_id, w8_location_id, b1_location_id, admission_data, admission_activity_id, discharge_activity_id
         global nurse_user_id, nurse_employee_id
         global now, tomorrow
@@ -36,6 +36,7 @@ class TestOperations(common.SingleTransactionCase):
         user_pool = self.registry('res.users')
         location_pool = self.registry('t4.clinical.location')
         patient_pool = self.registry('t4.clinical.patient')
+        api_pool = self.registry('t4.clinical.api')
         
         super(TestOperations, self).setUp()
 
@@ -50,9 +51,9 @@ class TestOperations(common.SingleTransactionCase):
         """
         global cr, uid
         global activity_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, employee_pool, type_pool, location_pool, patient_pool
+        global user_pool, type_pool, location_pool, patient_pool, ews_pool, api_pool
         global donald_patient_id, w8_location_id, b1_location_id, admission_data, admission_activity_id, discharge_activity_id
-        global nurse_user_id, nurse_employee_id, manager_user_id
+        global nurse_user_id, nurse_employee_id
         global now, tomorrow
         
         # ids from demo & base data
@@ -67,7 +68,7 @@ class TestOperations(common.SingleTransactionCase):
         
         
         # activity frequency
-        activity_pool.set_activity_trigger(cr, uid, donald_patient_id, 
+        api_pool.set_activity_trigger(cr, uid, donald_patient_id, 
                                    't4.clinical.patient.observation.ews', 
                                    'minute', 15, context=None)        
 
@@ -109,20 +110,20 @@ class TestOperations(common.SingleTransactionCase):
         placement_activity = activity_pool.browse_domain(cr, uid, 
                              [('parent_id','=',admission_activity_id), ('data_model','=','t4.clinical.patient.placement')])[0]
         activity_pool.start(cr, uid, placement_activity.id)
-        #self.assertTrue(b1_location_id in activity_pool.get_available_bed_location_ids(cr, uid), 'location in get_available_bed_location_ids()')
+        #self.assertTrue(b1_location_id in location_pool.get_available_location_ids(cr, uid), 'location in get_available_bed_location_ids()')
         try:
             activity_pool.submit(cr, uid, placement_activity.id,{'location_id': b1_location_id})
         except: # not available
             pass
         else:
-            self.assertTrue(b1_location_id not in activity_pool.get_available_bed_location_ids(cr, uid), 'location NOT in get_available_bed_location_ids()')
+            self.assertTrue(b1_location_id not in location_pool.get_available_location_ids(cr, uid), 'location NOT in get_available_bed_location_ids()')
             #import pdb; pdb.set_trace()
-            self.assertTrue(donald_patient_id in activity_pool.get_not_palced_patient_ids(cr, uid), 'patient in get_not_palced_patient_ids()')
+            self.assertTrue(donald_patient_id in api_pool.get_not_palced_patient_ids(cr, uid), 'patient in get_not_palced_patient_ids()')
             
             activity_pool.complete(cr, uid, placement_activity.id)
-            self.assertTrue(donald_patient_id not in activity_pool.get_not_palced_patient_ids(cr, uid), 'patient not in get_not_palced_patient_ids()')
+            self.assertTrue(donald_patient_id not in api_pool.get_not_palced_patient_ids(cr, uid), 'patient not in get_not_palced_patient_ids()')
             # test spell has placement location set
-            spell_activity_id = activity_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id)
+            spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id)
             spell_activity = activity_pool.browse(cr, uid, spell_activity_id)
             self.assertTrue(spell_activity.data_ref.location_id.id == b1_location_id, 'spell.location == placement.location')
              
@@ -179,8 +180,10 @@ class TestOperations(common.SingleTransactionCase):
     def create_activity_test(self, data_pool, activity_vals={}, data_vals={}, patient_id=False, location_id=False, user_id=False):
         global cr, uid
         global activity_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, type_pool, location_pool, ews_pool
-        global now, tomorrow        
+        global user_pool, type_pool, location_pool, patient_pool, ews_pool, api_pool
+        global donald_patient_id, w8_location_id, b1_location_id, admission_data, admission_activity_id, discharge_activity_id
+        global nurse_user_id, nurse_employee_id
+        global now, tomorrow       
 #         def print_vars():
 #             print "\n"
 #             print "activity_create_test vars dump header"
@@ -205,7 +208,7 @@ class TestOperations(common.SingleTransactionCase):
         patient_id and activity_domain.append(('patient_id','=',patient_id))
         location_id and activity_domain.append(('location_id','=',location_id))      
         user_id and activity_domain.append(('user_id','=',user_id))
-        activity_ids = activity_pool.get_activity_ids(cr, uid, data_pool._name, data_domain)
+        activity_ids = activity_pool.search(cr, uid, [['data_model','=',data_pool._name]])
 
         print "activity_ids: %s" % activity_ids
         print "activity_domain: %s" % activity_domain
@@ -227,7 +230,9 @@ class TestOperations(common.SingleTransactionCase):
     def admission_complete_test(self, admission_activity_id, patient_id=False, location_id=False, user_id=False):
         global cr, uid
         global activity_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
-        global user_pool, type_pool, location_pool, ews_pool
+        global user_pool, type_pool, location_pool, patient_pool, ews_pool, api_pool
+        global donald_patient_id, w8_location_id, b1_location_id, admission_data, admission_activity_id, discharge_activity_id
+        global nurse_user_id, nurse_employee_id
         global now, tomorrow
         
         admission_activity = activity_pool.browse(cr, uid, admission_activity_id)

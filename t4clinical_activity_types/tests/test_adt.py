@@ -35,7 +35,7 @@ class TestADT(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid
         global register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool
-        global activity_id
+        global activity_id, api_pool
         global ews_data
         global now, tomorrow
         
@@ -50,6 +50,7 @@ class TestADT(common.SingleTransactionCase):
         activity_pool = self.registry('t4.clinical.activity')
         transfer_pool = self.registry('t4.clinical.adt.patient.transfer')
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
+        api_pool = self.registry('t4.clinical.api')
         
         super(TestADT, self).setUp()
     
@@ -64,7 +65,7 @@ class TestADT(common.SingleTransactionCase):
         """
         global cr, uid
         global register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool
-        global activity_id
+        global activity_id, api_pool
         global ews_data        
         global now, tomorrow
         
@@ -79,7 +80,7 @@ class TestADT(common.SingleTransactionCase):
         admit_data = {'code': 'test', 'other_identifier': '30020', 'location': 'W9', 'start_date': '2014-01-01 12:00:01'}
         admit_activity_id = admit_pool.create_activity(cr, adt_uid, {}, admit_data)
         admit_activity = activity_pool.browse(cr, adt_uid, admit_activity_id)
-        spell_activity = activity_pool.get_patient_spell_activity_browse(cr, adt_uid, patient_id)
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, adt_uid, patient_id)
         transfer_activity_id = transfer_pool.create_activity(cr, adt_uid, {}, {'other_identifier': '30020', 'location': 'W8'})
         
         for data in ews_data:

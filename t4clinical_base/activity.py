@@ -21,13 +21,6 @@ def except_if(test=True, cap="Exception!", msg="Message is not defined..."):
     if test:
         raise orm.except_orm(cap, msg)
 
-def admin_uid(self, cr):
-    #import pdb; pdb.set_trace()
-    imd_id = self.pool['ir.model.data']._get_id(cr, SUPERUSER_ID, "t4clinical_base", "t4clinical_admin")
-    imd = self.pool['ir.model.data'].browse(cr, SUPERUSER_ID, imd_id)
-    return imd.res_id
-orm.Model.admin_uid = admin_uid    
-
 class t4_clinical_patient_activity_trigger(orm.Model):
     """
     """
@@ -103,6 +96,9 @@ class t4_clinical_activity_type(orm.Model):
      }
     
     def get_field_models(self, cr, uid, field):
+        """
+        returns data models having field 'field'
+        """
         all_models = [self.pool[data_type.data_model] for data_type in self.browse_domain(cr, uid, [])]
         field_models = [m for m in all_models if field in m._columns.keys()]    
         return field_models    
@@ -141,7 +137,6 @@ class t4_clinical_activity(orm.Model):
     
     _name = 't4.clinical.activity'
     _name_rec = 'summary'
-    #_parent_name = 'activity_id' # the hierarchy will represent instruction-activity relation. 
     #_inherit = ['mail.thread']
 
     _states = [('draft','Draft'), ('planned', 'Planned'), ('scheduled', 'Scheduled'), 
@@ -251,22 +246,14 @@ class t4_clinical_activity(orm.Model):
         #'summary': 'Not specified',
     }
 
-    def get_activity_ids(self, cr, uid, data_model, data_domain=[], order=None, limit=None, context=None):
-        data_pool = self.pool[data_model]
-        activity_ids = [d.activity_id.id for d in data_pool.browse_domain(cr, uid, data_domain, order=order, limit=limit)]
-        return activity_ids
     
     def create(self, cr, uid, vals, context=None):
         if not vals.get('summary'):
             type_pool = self.pool['t4.clinical.activity.type']
             type = type_pool.read(cr, uid, vals['type_id'], ['summary'], context=context)
             vals.update({'summary': type['summary']})
-#         if uid==6:
-#             import pdb; pdb.set_trace()
         activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
-            
-        activity = self.browse(cr, uid, activity_id, context)
-        _logger.debug("activity '%s' created, activity.id=%s" % (activity.data_model, activity_id))
+        _logger.debug("activity '%s' created, activity.id=%s" % (vals.get('data_model'), activity_id))
         return activity_id
         
     def write(self,cr, uid, ids, vals, context=None):
@@ -365,76 +352,7 @@ class t4_clinical_activity(orm.Model):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
         return True
 
-    def button_schedule(self, cr, uid, ids, context=None):
-        date_exception = [activity.id for activity in self.browse(cr, uid, ids, context) if not activity.date_scheduled]
-        if date_exception:
-            raise orm.except_orm("Can't schedule activity with scheduled date not set", 
-               "The following activity have no the date set: %s" % date_exception)
-        for activity in self.browse(cr, uid, ids, context):
-            pass
-            
-    def button_start(self, cr, uid, ids, fields, context=None):
-        res = self.start(cr, uid, ids, context)
-        return res
 
-    # MAYBE CHANGE TO get_available_location_ids WITH LOCATION TYPE AS PARAMETER --> MOVE TO T4CLINICAL LEVEL
-    def get_available_bed_location_ids(self, cr, uid, location_id=None, context=None):
-        """
-        beds not placed into and not in non-terminated placement Activities
-        """
-        #import pdb; pdb.set_trace()
-        domain = [('usage','=','bed')]
-        location_id and  domain.append(('id','child_of',location_id)) 
-        location_pool = self.pool['t4.clinical.location']
-        location_ids = location_pool.search(cr, uid, domain)
-        spell_pool = self.pool['t4.clinical.spell']
-        domain = [('state','=','started'),('location_id','in',location_ids)]
-        spell_ids = spell_pool.search(cr, uid, domain)
-        location_ids = list(set(location_ids) - set([s.location_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]))
-        placement_pool = self.pool['t4.clinical.patient.placement']
-        domain = [('date_terminated','=',False),('location_id','in',location_ids)]    
-        placement_ids = placement_pool.search(cr, uid, domain)
-        location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
-        return location_ids
-
-    # MOVE TO PATIENT?
-    def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
-        #import pdb; pdb.set_trace()
-        domain = [('state','=','started'),('location_id.usage','not in', ['bed'])]
-        location_id and  domain.append(('location_id','child_of',location_id))
-        spell_pool = self.pool['t4.clinical.spell']
-        spell_ids = spell_pool.search(cr, uid, domain)
-        patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
-        return patient_ids
-
-    # MOVE TO PATIENT?
-    def get_patient_spell_activity_id(self, cr, uid, patient_id, context=None):
-        domain = [('patient_id','=',patient_id),('state','=','started'),('data_model','=','t4.clinical.spell')]
-        spell_activity_id = self.search(cr, uid, domain)
-        if not spell_activity_id:
-            return False
-        if len(spell_activity_id) >1:
-            _logger.warn("For pateint_id=%s found more than 1 started spell_activity_ids: %s " % (patient_id, spell_activity_id))
-        return spell_activity_id[0]
-
-    # MOVE TO PATIENT?
-    def get_patient_spell_activity_browse(self, cr, uid, patient_id, context=None):
-        spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, context)
-        if not spell_activity_id:
-            return False
-        return self.browse(cr, uid, spell_activity_id, context)
-
-    def set_activity_trigger(self, cr, uid, patient_id, data_model, unit, unit_qty, context=None):
-        trigger_pool = self.pool['t4.clinical.patient.activity.trigger']
-        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
-        if trigger_id:
-            trigger_id = trigger_id[0]
-            trigger_pool.write(cr, uid, trigger_id, {'active': False})
-
-        trigger_data = {'patient_id': patient_id, 'data_model': data_model, 'unit': unit, 'unit_qty': unit_qty}
-        trigger_id = trigger_pool.create(cr, uid, trigger_data)        
-        _logger.debug("activity frequency for patient_id=%s data_model=%s set to %s %s(s)" % (patient_id, data_model, unit_qty, unit))
-        return trigger_id
         
 class t4_clinical_activity_data(orm.AbstractModel):
     
