@@ -2,8 +2,8 @@
 <openerp>
     <data>
 		<!-- Company -->
-        <record id="main_company" model="res.company">
-        	<field name="name">TRUST</field>
+        <record id="base.main_company" model="res.company">
+        	<field name="name">TRUST1</field>
         </record>  
             
         <!-- Location - Point of Service - Hospital -->
@@ -50,7 +50,7 @@
         <record id="demo_pos_uhg" model="t4.clinical.pos">
         	<field name="name">University Hospital Greenfield POS</field>
             <field name="location_id" ref="demo_location_uhg"/>
-            <field name="company_id" ref="main_company"/>
+            <field name="company_id" ref="base.main_company"/>
             <field name="lot_admission_id" ref="demo_location_lot_admission"/>
             <field name="lot_discharge_id" ref="demo_location_lot_discharge"/>
         </record>  
