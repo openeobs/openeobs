@@ -2,6 +2,5 @@ import operations
 import observations
 import containers
 import adt
-import patient_placement_wizard
-
+import wizards
 import t4clinical_base_extension
