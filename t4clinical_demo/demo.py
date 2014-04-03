@@ -179,7 +179,7 @@ class demo(orm.AbstractModel):
         DISCHARGE_QTY = 3
         EWS_QTY = 3
         WARD_QTY = 1
-        BED_QTY = 7
+        BED_QTY = 2
         
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         register_pool = self.pool['t4.clinical.adt.patient.register']
@@ -209,7 +209,7 @@ class demo(orm.AbstractModel):
             idx1 = fake.random_int(min=0, max=len(ward_ids)-1)
             idx2 = fake.random_int(min=0, max=len(ward_ids)-1)
             start, end = idx1 <= idx2 and (idx1, idx2) or (idx2, idx1)
-            vals = {'location_ids': [[6, False, ward_ids[start: end]]]}
+            vals = {'location_ids': [[6, False, ward_ids]]} #ward_ids[start: end]
             user_pool.write(cr, uid, user_id, vals)
         
               

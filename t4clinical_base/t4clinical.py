@@ -58,9 +58,17 @@ class res_users(orm.Model):
     _inherit = 'res.users'
     _columns = {
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
-        'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Locations of Responsibility'),
+        'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Parent Locations of Responsibility'),
         'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'user_activity_type_rel', 'user_id', 'type_id', 'Activity Types of Responsibility'),
     }
+    def get_all_responsibility_location_ids(self, cr, uid, user_id, context=None):
+        location_pool = self.pool['t4.clinical.location']
+        location_ids =[]
+        #import pdb; pdb.set_trace()
+        for user_location_id in self.browse(cr, uid, user_id, context).location_ids: 
+            location_ids.extend( location_pool.search(cr, uid, [['id', 'child_of', user_location_id.id]]) )
+        return location_ids
+
 
 class res_groups(orm.Model):
     _name = 'res.groups'
@@ -98,13 +106,8 @@ class t4_clinical_location(orm.Model):
         return res          
  
     def _is_available(self, cr, uid, ids, field, args, context=None):
-        #import pdb; pdb.set_trace()
-        activity_pool = self.pool['t4.clinical.activity']
         res = {}
-        pos_ids = list(set([l.pos_id.id for l in self.browse(cr, uid, ids, context)]))
-        available_location_ids = []
-        for pos_id in pos_ids:
-            available_location_ids.extend(activity_pool.get_available_bed_location_ids(cr, uid, pos_id, context))
+        available_location_ids = self.get_available_location_ids(cr, uid, context=context)
         for location in self.browse(cr, uid, ids, context):
             res[location.id] = location.id in available_location_ids
         return res
@@ -152,23 +155,27 @@ class t4_clinical_location(orm.Model):
             data and data.activity_id and activity_ids.append(data.activity_id.id)
         return activity_ids
 
-    def get_available_location_ids(self, cr, uid, usages, location_id=None, context=None):
+    def get_available_location_ids(self, cr, uid, usages=[], location_id=None, context=None):
         """
         beds not placed into and not in non-terminated placement Activities
         """
         #import pdb; pdb.set_trace()
-        domain = [('usage','in',usages)]
+        domain = usages and [('usage','in',usages)] or []
         location_id and  domain.append(('id','child_of',location_id)) 
         location_pool = self.pool['t4.clinical.location']
         location_ids = location_pool.search(cr, uid, domain)
+        # spell
         spell_pool = self.pool['t4.clinical.spell']
         domain = [('state','=','started'),('location_id','in',location_ids)]
         spell_ids = spell_pool.search(cr, uid, domain)
-        location_ids = list(set(location_ids) - set([s.location_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]))
+        current_patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
+        # placement
         placement_pool = self.pool['t4.clinical.patient.placement']
-        domain = [('date_terminated','=',False),('location_id','in',location_ids)]    
+        domain = [('state','=','completed'),('patient_id','in',current_patient_ids)]    
         placement_ids = placement_pool.search(cr, uid, domain)
-        location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
+        if placement_ids:
+            location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
+        _logger.info("get_available_location_ids \n location_ids: %s" % (location_ids))
         return location_ids
     
 
