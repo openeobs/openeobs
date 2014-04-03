@@ -174,12 +174,12 @@ class demo(orm.AbstractModel):
     
     
     def scenario2(self, cr, uid, rollback=True):
-        REGISTER_QTY = 2000
-        ADMIT_QTY = 1500
-        DISCHARGE_QTY = 500
+        REGISTER_QTY = 200
+        ADMIT_QTY = 15
+        DISCHARGE_QTY = 5
         EWS_QTY = 10
-        WARD_QTY = 100
-        BED_QTY = 500
+        WARD_QTY = 10
+        BED_QTY = 50
         
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         register_pool = self.pool['t4.clinical.adt.patient.register']
