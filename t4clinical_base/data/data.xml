@@ -73,6 +73,12 @@
             <field name="password">secretary</field>
             <field name="groups_id" eval="[(4, ref('group_t4clinical_admin'))]"/>
         </record>
+        <record id="t4clinical_doctor" model="res.users">
+            <field name="name">t4doctor</field>
+            <field name="login">doctor</field>
+            <field name="password">doctor</field>
+            <field name="groups_id" eval="[(4, ref('group_t4clinical_doctor'))]"/>
+        </record>
                 
 <!-- Record Rules -->
         <record model="ir.rule" id="t4clinical_rule_user_activity">
