@@ -60,7 +60,7 @@ class t4_clinical_patient_move(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
         # move from current or permanent location ??
-        location_id = self.pool['t4.clinical.patient'].get_patient_current_location_id(cr, uid, patient_id, context)
+        location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
         return location_id           
 
 
@@ -88,7 +88,7 @@ class t4_clinical_patient_placement(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
         # place from current or permanent location ??
-        location_id = self.pool['t4.clinical.patient'].get_patient_current_location_id(cr, uid, patient_id, context)
+        location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
         return location_id  
     
     def complete(self, cr, uid, activity_id, context=None):
@@ -139,7 +139,7 @@ class t4_clinical_patient_discharge(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
         # discharge from current or permanent location ??
-        location_id = self.pool['t4.clinical.patient'].get_patient_current_location_id(cr, uid, patient_id, context)
+        location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
         return location_id      
 
     def complete(self, cr, uid, activity_id, context=None):
@@ -222,63 +222,6 @@ class t4_clinical_patient_admission(orm.Model):
                'placement_activity_id': placement_activity_id}
         return res
     
-    
-class t4_clinical_patient(orm.Model):
-    _inherit = 't4.clinical.patient'
-
-   
-    def get_patient_current_location_browse(self, cr, uid, patient_id, context=None):
-        placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-        placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
-        placement = placement and placement[0]
-        move_pool = self.pool['t4.clinical.patient.move']
-        move_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-        move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated desc", context=context)
-        move = move and move[0]
-        res = False
-        if placement and move:
-            res = placement.date_terminated > move.date_terminated and placement.location_id or move.location_id
-        elif placement and not move:
-            res = placement.location_id
-        elif not placement and move:
-            res = move.location_id
-        return res
-
-    def get_patient_current_location_id(self, cr, uid, patient_id, context=None):
-        res = self.get_patient_current_location_browse(cr, uid, patient_id, context)
-        res = res and res.id
-        return res
-
-    def get_patient_permanent_location_browse(self, cr, uid, patient_id, context=None):
-        placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-        placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
-        placement = placement and placement[0]
-        res = placement and placement.location_id
-        return res    
-    
-    def get_patient_permanent_location_id(self, cr, uid, patient_id, context=None):
-        res = self.get_patient_permanent_location_browse(cr, uid, patient_id, context)
-        res = res and res.id
-        return res    
-    
-class t4_clinical_location(orm.Model):
-    _inherit = 't4.clinical.location'
-    
-    def get_location_patient_ids(self, cr, uid, location_id, context=None):
-        # current spells
-        activity_pool = self.pool['t4.clinical.activity']
-        spell_Activities = self.browse_domain(cr, uid, [('data_model','=','t4.clinical.spell'),('state','=','started')])
-        spell_pool = self.pool['t4.clinical.spell']
-        spells = spell_pool.browse_domain(cr, uid, [('state','in',['started'])], context)        
-        patients = [spell.patient_id for spell in spells]
-        patient_pool = self.pool['t4.clinical.patient']
-        patient_location_map = {patient.id: patient_pool.get_patient_location_id(cr, uid, patient.id, context) for patient in patients}
-        patients_by_location = {}.fromkeys(patient_location_map.values(),[])
-        for pat_id, loc_id in patient_location_map.iteritems():
-            patients_by_location[loc_id].append(pat_id)
-        return patients_by_location.get(location_id,[])
         
     
     
