@@ -232,12 +232,14 @@ class demo(orm.AbstractModel):
   
         # Admit Patients
         admit_data = self.get_admit_data(register_data, ADMIT_QTY)
+        admit_complete_res = []
         for d in admit_data:
             admit_activity_id = admit_pool.create_activity(cr, uid, {}, d) 
-            activity_pool.complete(cr, uid, admit_activity_id)
+            admit_complete_res.append(activity_pool.complete(cr, uid, admit_activity_id))
         
+        placement_activity_ids = [a['t4.clinical.patient.placement'] for a in admit_complete_res]
         # Complete Placements
-        domain = [['data_model','=','t4.clinical.patient.placement'],['state','in',['draft','scheduled']]]
+        domain = [['data_model','=','t4.clinical.patient.placement'],['state','in',['draft','scheduled']],['id','in',placement_activity_ids]]
         placement_activity_ids = activity_pool.search(cr, uid, domain)
         for placement_activity in activity_pool.browse(cr, uid, placement_activity_ids):
             available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
@@ -249,13 +251,17 @@ class demo(orm.AbstractModel):
                 location_id = bed_location_ids[fake.random_int(min=0, max=len(bed_location_ids)-1)]
                 activity_pool.submit(cr, uid, placement_activity.id, {'location_id': location_id})
                 activity_pool.complete(cr, uid, placement_activity.id)
+            else:
+                _logger.warn("No available beds left. Placement id=%s can't be completed and stays in '%s'" % (placement_activity.id, placement_activity.state))
                 
                 
-        # EWS loops
+        # EWS loops only for current spells
+        spell_activity_ids = [a['t4.clinical.spell'] for a in admit_complete_res]
         i = 0
         while i < EWS_QTY:
             ews_activity_ids = activity_pool.search(cr, uid,[['data_model','=','t4.clinical.patient.observation.ews'],
-                                                             ['state','in',['draft','scheduled']]])
+                                                             ['state','in',['draft','scheduled']],
+                                                             ['parent_id','in',spell_activity_ids]])
             for ews_activity in activity_pool.browse(cr, uid, ews_activity_ids):
                 activity_pool.complete(cr, uid, ews_activity.id)
             i += 1

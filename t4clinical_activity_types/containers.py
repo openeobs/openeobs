@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields
+from openerp.addons.t4clinical_base.activity import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -21,10 +22,12 @@ class t4_clinical_spell(orm.Model):
      }
 
     def create(self, cr, uid, vals, context=None):
-        current_spell = self.browse_domain(cr, uid, [('patient_id','=',vals['patient_id']),('state','in',['started'])], context)
-        if current_spell:
-            res = current_spell.id
-            _logger.warn("Attempt to admit a patient with active spell of care! Current spell ID=%s returned." % current_spell.id)
+        current_spell_id = self.search(cr, uid, [('patient_id','=',vals['patient_id']),('state','in',['started'])], context)
+        if current_spell_id:
+            import pdb; pdb.set_trace()
+        if current_spell_id:
+            res = current_spell[0]
+            _logger.warn("Started spell already exists! Current spell ID=%s returned." % current_spell_id[0])
         else:        
             res = super(t4_clinical_spell, self).create(cr, uid, vals, context)
         return res

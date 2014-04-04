@@ -210,6 +210,7 @@ class t4_clinical_patient(osv.Model):
         return result
 
     _columns = {
+        'current_location_id': fields.many2one('t4.clinical.location', 'Current Location'),    
         'partner_id': fields.many2one('res.partner', 'Partner', required=True, ondelete='restrict'),
         'dob': fields.datetime('Date Of Birth'),  # Partner birthdate is NOT a date.
         'sex': fields.char('Sex', size=1),

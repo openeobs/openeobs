@@ -30,16 +30,17 @@ class t4_clinical_adt_patient_register(orm.Model):
     }
     
     def submit(self, cr, uid, activity_id, vals, context=None):
+        res = {}
         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
               msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
         patient_domain = [(k,'=',v) for k,v in vals.iteritems()]
         patient_id = patient_pool.search(cr, uid, patient_domain)
-        except_if(patient_id, msg="Patient with the data submitted already exists! Data: %s" % vals)
+        except_if(patient_id, msg="Patient already exists! Data: %s" % vals)
         pateint_id = patient_pool.create(cr, uid, vals, context)
         vals.update({'patient_id': patient_id})
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals, context)
-        return True
+        return res
     
         
 class t4_clinical_adt_patient_admit(orm.Model):
@@ -56,6 +57,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
     }
 
     def submit(self, cr, uid, activity_id, vals, context=None):
+        res = {}
 #         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
 #               msg="patient_identifier or other_identifier not found in submitted data!")
         location_pool = self.pool['t4.clinical.location']
@@ -72,9 +74,10 @@ class t4_clinical_adt_patient_admit(orm.Model):
         vals_copy.update({'suggested_location_id': suggested_location_id})  
         vals_copy.update({'patient_id': patient_id})  
         super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals_copy, context)
-        return True    
+        return res 
 
     def complete(self, cr, uid, activity_id, context=None):
+        res = {}
         super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
         activity_pool = self.pool['t4.clinical.activity']
         admit_activity = activity_pool.browse(cr, uid, activity_id, context)
@@ -85,10 +88,11 @@ class t4_clinical_adt_patient_admit(orm.Model):
                                                                {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,
                                                                 'patient_id': admit_activity.patient_id.id,
                                                                 'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
+        res[admission_pool._name] = admission_activity_id
         admission_result = activity_pool.complete(cr, uid, admission_activity_id, context)
-        activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['spell_activity_id']})
-        
-        return True
+        res.update(admission_result)
+        activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['t4.clinical.spell']})
+        return res
     
     
 class t4_clinical_adt_patient_discharge(orm.Model):
@@ -125,7 +129,7 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         except_if(not location_id, msg="Location not found!")
         location_id = location_id[0]
         placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_pool.create_activity(cr, uid, {'parent_id': activity_id}, {'patient_id': patient_id}, context)
+        placement_pool.create_activity(cr, uid, {'parent_id': activity_id, 'creator_activity_id': activity_id}, {'patient_id': patient_id}, context)
         super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)    
         
 

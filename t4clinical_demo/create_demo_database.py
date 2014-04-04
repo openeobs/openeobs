@@ -1,6 +1,6 @@
 import erppeek
 
-db = "demo_test10"
+db = "demo_test12"
 demo = False
 rollback = True
 

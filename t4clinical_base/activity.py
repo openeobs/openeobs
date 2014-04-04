@@ -36,18 +36,19 @@ class t4_clinical_patient_activity_trigger(orm.Model):
             res[trigger.id] = (dt.now() + rd(**deltas)).strftime('%Y-%m-%d %H:%M:%S')
         return res
         
-    _columns = {       
-        'active': fields.boolean('Is Active?'), 
-        'patient_id': fields.many2one('t4.clinical.patient', 'activity'),
-        'data_model': fields.text('Data Model'),
-        'unit': fields.selection(_periods, 'Time Unit'),
-        'unit_qty': fields.integer('Time Units Qty'),
+    _columns = {        
+        'patient_id': fields.many2one('t4.clinical.patient', 'activity', required=True),
+        'data_model': fields.text('Data Model', required=True),
+        'unit': fields.selection(_periods, 'Time Unit', required=True),
+        'unit_qty': fields.integer('Time Units Qty', required=True),
         'activity_ids': fields.many2many('t4.clinical.activity', 'recurrence_activity_rel', 'recurrence_id', 'activity_id', 'Generated Activities'),
-        'date_next': fields.function(_get_date_next, type='datetime', string='Next Date', help='Next date from now')
+        'date_next': fields.function(_get_date_next, type='datetime', string='Next Date', help='Next date from now'),
+        'active': fields.boolean('Is Active?'),
     }
 
     _defaults = {
              'active': True,
+             'unit': 'minute',
      }
     
     def name_get(self, cr, uid, ids, context=None):
@@ -115,6 +116,11 @@ def data_model_event(callback=None):
         def wrapper(*args, **kwargs):
             self, cr, uid, activity_id = args[:4]
             activity_id = isinstance(activity_id, (list, tuple)) and activity_id[0] or activity_id
+#             if not activity_id:
+#                 import pdb; pdb.set_trace()
+            assert isinstance(activity_id, (int, long)) and activity_id > 0, \
+                    "activity_id must be INT or LONG and > 0, found type='%s', value=%s, f='%s'" \
+                    % (type(activity_id),activity_id, f)
             args_list = list(args)
             args_list[3] = activity_id
             args = tuple(args_list)
@@ -127,6 +133,9 @@ def data_model_event(callback=None):
             f(*args, **kwargs)
             if model_pool and callback:
                 res = eval("model_pool.%s(*args[1:], **kwargs)" % callback)
+            else:
+                _logger.error("@data_model_event() skipping call. data_model='%s', args='%s', kwargs='%s'" 
+                              % (activity.data_model, args, kwargs))
             return res
         return wrapper
     return decorator
@@ -226,7 +235,7 @@ class t4_clinical_activity(orm.Model):
         # activity type and related model/resource
         'type_id': fields.many2one('t4.clinical.activity.type', "activity Type"),
         'data_res_id': fields.function(_activity2data_res_id, type='integer', string="Data Model's ResID", help="Data Model's ResID", readonly=True),
-        'data_model': fields.related('type_id','data_model',type='text',string="Data Model"),
+        'data_model': fields.text("Data Model", required=True),
         'data_ref': fields.reference('Data Reference', _get_data_type_selection, size=256, readonly=True),
         # UI actions
         'is_schedule_allowed': fields.function(_is_schedule_allowed, type='boolean', string='Is Schedule Allowed?'),
@@ -248,10 +257,13 @@ class t4_clinical_activity(orm.Model):
 
     
     def create(self, cr, uid, vals, context=None):
-        if not vals.get('summary'):
+        if not vals.get('summary') and vals.get('data_model'):
             type_pool = self.pool['t4.clinical.activity.type']
-            type = type_pool.read(cr, uid, vals['type_id'], ['summary'], context=context)
-            vals.update({'summary': type['summary']})
+            type_id = type_pool.search(cr, uid, [['data_model','=',vals['data_model']]])
+            if type_id:
+                type = type_pool.read(cr, uid, type_id[0], ['summary'], context=context)
+                vals.update({'summary': type['summary']})
+                vals.update({'type_id': type['id']})
         activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
         _logger.debug("activity '%s' created, activity.id=%s" % (vals.get('data_model'), activity_id))
         return activity_id
@@ -392,12 +404,13 @@ class t4_clinical_activity_data(orm.AbstractModel):
         data_type_pool = self.pool['t4.clinical.activity.type']
         type_id = data_type_pool.search(cr, uid, [('data_model','=',self._name)])
         if not type_id:
-            raise orm.except_orm("Model %s is not registered as t4.clinical.activity.type!" % self._name,
-                       "Add the type!")
+            raise orm.except_orm("Model %s is not registered as t4.clinical.activity.type!" % self._name, "Add the type!")
         type_id = type_id and type_id[0] or False
+        vals_activity.update({'data_model': self._name})
         vals_activity.update({'type_id': type_id})
         new_activity_id = activity_pool.create(cr, uid, vals_activity, context)
         vals_data and activity_pool.submit(cr, uid, new_activity_id, vals_data, context)
+
         return new_activity_id
     
     def submit_ui(self, cr, uid, ids, context=None):
@@ -482,7 +495,8 @@ class t4_clinical_activity_data(orm.AbstractModel):
         api_pool = self.pool['t4.clinical.api']
         trigger = api_pool.get_activity_trigger_browse(cr, uid, activity.patient_id.id, activity.data_model, context)
         if trigger:
-            model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {}, {'patient_id': activity.patient_id.id}) 
+            model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {'creator_activity_id': activity_id}, 
+                                                                                        {'patient_id': activity.patient_id.id}) 
             activity_pool.schedule(cr, uid, model_activity_id, trigger.date_next, context)
         return True
 
