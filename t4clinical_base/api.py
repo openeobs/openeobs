@@ -47,6 +47,15 @@ class t4_clinical_api(orm.AbstractModel):
         trigger_id = trigger_pool.create(cr, uid, trigger_data)        
         _logger.debug("activity frequency for patient_id=%s data_model=%s set to %s %s(s)" % (patient_id, data_model, unit_qty, unit))
         return trigger_id
+    
+    def get_activity_trigger_browse(self, cr, uid, patient_id, data_model, context=None):
+        trigger_pool = self.pool['t4.clinical.patient.activity.trigger']
+        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
+        if not trigger_id:
+            return False
+        else:
+            return trigger_pool.browse(cr, uid, trigger_id[0], context)
+          
 
     def get_patient_current_location_browse(self, cr, uid, patient_id, context=None):
         placement_pool = self.pool['t4.clinical.patient.placement']

@@ -479,14 +479,10 @@ class t4_clinical_activity_data(orm.AbstractModel):
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S') 
         activity_pool.write(cr, uid, activity.id, {'state': 'completed', 'date_terminated': now}, context)     
         _logger.debug("activity '%s', activity.id=%s completed" % (activity.data_model, activity.id))   
-        trigger_pool = self.pool['t4.clinical.patient.activity.trigger']
-        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',activity.patient_id.id),('data_model','=',self._name)])
-        if trigger_id:
-            trigger_id = trigger_id[0]
-            trigger = trigger_pool.browse(cr, uid, trigger_id, context)
-            model_pool = self.pool[activity.data_model]
-            
-            model_activity_id = model_pool.create_activity(cr, uid, {}, {'patient_id': activity.patient_id.id})  
+        api_pool = self.pool['t4.clinical.api']
+        trigger = api_pool.get_activity_trigger_browse(cr, uid, activity.patient_id.id, activity.data_model, context)
+        if trigger:
+            model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {}, {'patient_id': activity.patient_id.id}) 
             activity_pool.schedule(cr, uid, model_activity_id, trigger.date_next, context)
         return True
 

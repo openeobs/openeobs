@@ -117,9 +117,11 @@ class t4_clinical_location(orm.Model):
         return res
     
     def _placement2location_id(self, cr, uid, ids, context=None):
-        res = [p.location_id.id for p in self.pool['t4.clinical.patient.placement'].browse(cr, uid, ids, context)]
+        res = [p.location_id.id for p in self.browse(cr, uid, ids, context)]
         return res
-        
+    
+    def _get_patient_ids (self, cr, uid, ids, field, args, context=None):
+        pass   
          
          
     _columns = {
@@ -138,8 +140,10 @@ class t4_clinical_location(orm.Model):
         'is_available': fields.function(_is_available, type='boolean', string='Is Available?', 
                                         store={
                                                't4.clinical.location': (lambda self, cr, uid, ids, c: ids, [], 10),
-                                               't4.clinical.patient.placement': (_placement2location_id, ['location_id'], 20)
-                                               })
+                                               't4.clinical.patient.placement': (_placement2location_id, ['location_id','state'], 20)
+                                               }),
+        'patient_capacity': fields.integer('Patient Capacity'),
+        'patient_ids': fields.function(_get_patient_ids, type='one2many',relation='t4.clinical.patient', string="Location Patients")
       
     }
 
