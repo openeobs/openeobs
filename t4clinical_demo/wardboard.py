@@ -5,9 +5,6 @@ _logger = logging.getLogger(__name__)
 from openerp import tools
 
 
-# class t4_clinical_wardboard_extension(orm.Model):
-#     _name = ""
-
 class t4_clinical_wardboard(orm.Model):
     _name = "t4.clinical.wardboard"
     _inherits = {'t4.clinical.patient': 'patient_id'}
@@ -16,6 +13,9 @@ class t4_clinical_wardboard(orm.Model):
     _table = "t4_clinical_wardboard"
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'spell_activity_id': fields.many2one('t4.clinical.activity', 'Spell Activity'),
+        'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
+        'spell_code': fields.text('Spell Code'),
         'full_name': fields.text("Family Name"),
         'location': fields.text("Location"),
         'sex': fields.text("Sex"),
@@ -29,6 +29,7 @@ class t4_clinical_wardboard(orm.Model):
     def init(self, cr):
         tools.drop_view_if_exists(cr, 'wardboard')
         cr.execute("""
+drop view if exists %s;
 create or replace view %s as (
 with 
 completed_ews as(
@@ -63,6 +64,9 @@ height_weight_history as(
 select 
     spell.patient_id as id,
     spell.patient_id as patient_id,
+    spell_activity.id as spell_activity_id,
+    spell.pos_id,
+    spell.code as spell_code,
     coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
     location.code as location,
     patient.sex,
@@ -83,13 +87,6 @@ left join (select date_scheduled, patient_id, rank from scheduled_ews where rank
 left join height_weight_history on height_weight_history.patient_id = patient.id
 where spell_activity.state = 'started'
 )
-        """ % self._table)
+        """ % (self._table, self._table))
         
         
-# class wardboard_extended(orm.Model):
-#     _name = 'wardboard'
-#     _columns = {
-#         'test_field': fields.text('Test Field')
-#     
-#                 
-#     }

@@ -13,9 +13,9 @@ class t4_clinical_spell(orm.Model):
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'location_id': fields.many2one('t4.clinical.location', 'Placement Location'),
+        'pos_id': fields.many2one('t4.clinical.pos', 'Placement Location', required=True),
         'code': fields.text("Code"),
         'start_date': fields.datetime("ADT Start Date"),
-        #...
     }
     _defaults = {
          'code': lambda s, cr, uid, c: s.pool['ir.sequence'].next_by_code(cr, uid, 't4.clinical.spell', context=c) 

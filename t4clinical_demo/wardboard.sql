@@ -31,6 +31,8 @@ height_weight_history as(
 select 
 	spell.patient_id as id,
 	spell.patient_id as patient_id,
+	spell_activity.id as spell_activity_id,
+	spell.pos_id,
 	spell.code as spell_code,
 	coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
 	location.code as location,
@@ -40,8 +42,7 @@ select
 	(now() - ews0.date_scheduled)::text as next_diff, 
 	trigger.unit_qty || ' ' || trigger.unit || '(s)' as frequency,
 	ews1.score as ews_score,
-	ews1.score - ews2.score as ews_trend,
-	height_weight_history.ids
+	ews1.score - ews2.score as ews_trend
 from t4_clinical_spell spell
 inner join t4_clinical_activity spell_activity on spell_activity.id = spell.activity_id
 inner join t4_clinical_patient patient on spell.patient_id = patient.id

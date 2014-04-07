@@ -216,7 +216,7 @@ class t4_clinical_patient_admission(orm.Model):
         spell_pool = self.pool['t4.clinical.spell']
         spell_activity_id = spell_pool.create_activity(cr, uid, 
            {'creator_id': activity_id},
-           {'patient_id': admission.patient_id.id, 'location_id': admission.location_id.id},
+           {'patient_id': admission.patient_id.id, 'location_id': admission.location_id.id, 'pos_id': admission.pos_id.id},
            context=None)
         res[spell_pool._name] = spell_activity_id
         activity_pool.start(cr, uid, spell_activity_id, context)

@@ -79,7 +79,10 @@
 			<field name="summary">Device Disconnect</field>
 			<field name="data_model">t4.clinical.device.disconnect</field>
 		</record>	
-		
+		<record model="t4.clinical.activity.type" id="patient_o2target">
+			<field name="summary">Patient O2 Target</field>
+			<field name="data_model">t4.clinical.patient.o2target</field>
+		</record>			
 <!-- Sequences -->
         <record id="spell_sequence_type" model="ir.sequence.type">
             <field name="name">Spell</field>

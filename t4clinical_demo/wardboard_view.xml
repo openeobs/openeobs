@@ -44,6 +44,7 @@
                        <field name="frequency" />
                        <field name="ews_score" />
                        <field name="ews_trend" />
+                       <field name="spell_ids" />
 					   </group>                       
                     </form>
                 </field>
