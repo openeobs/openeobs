@@ -103,6 +103,7 @@ class t4_clinical_patient_placement(orm.Model):
         activity_pool = self.pool['t4.clinical.activity']
         api_pool = self.pool['t4.clinical.api']
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
+        gcs_pool = self.pool['t4.clinical.patient.observation.gcs']
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not placement_activity.location_id, 
                   msg="Location is not set for the placement thus the placement can't be completed! Check location availability.") 
@@ -121,9 +122,19 @@ class t4_clinical_patient_placement(orm.Model):
                                                     'creator_activity_id': activity_id}, 
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
-        # create trigger
+        # create GCS
+        gcs_activity_id = gcs_pool.create_activity(cr, self.t4suid,
+                                                   {#'location_id': placement_activity.data_ref.location_id.id,
+                                                    'parent_id': spell_activity_id,
+                                                    'creator_activity_id': activity_id},
+                                                   {'patient_id': placement_activity.data_ref.patient_id.id}, context)
+        activity_pool.schedule(cr, uid, gcs_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
+        # create triggers
         api_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',
+                                           frequency, context)
+        api_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
+                                           't4.clinical.patient.observation.gcs', 'minute',
                                            frequency, context)
         return True
 
