@@ -206,9 +206,9 @@ class t4_clinical_activity(orm.Model):
         'summary': fields.char('Summary', size=256),
         
         # hierarchies
-        'parent_id': fields.many2one('t4.clinical.activity', 'Parent activity', readonly=True), 
+        'parent_id': fields.many2one('t4.clinical.activity', 'Parent activity', readonly=True, help="Business hierarchy"), 
         'child_ids': fields.one2many('t4.clinical.activity', 'parent_id', 'Child Activities', readonly=True),     
-        'creator_id': fields.many2one('t4.clinical.activity', 'Creator activity', readonly=True), 
+        'creator_id': fields.many2one('t4.clinical.activity', 'Creator activity', readonly=True, help="Evolution hierarchy"), 
         'created_ids': fields.one2many('t4.clinical.activity', 'creator_id', 'Created Activities', readonly=True), 
         # state
         'notes': fields.text('Notes'),
