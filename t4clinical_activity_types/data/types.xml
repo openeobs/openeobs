@@ -67,6 +67,10 @@
 			<field name="summary">Observation EWS</field>
 			<field name="data_model">t4.clinical.patient.observation.ews</field>
 		</record>
+        <record model="t4.clinical.activity.type" id="observation_gcs_data_type">
+			<field name="summary">Observation GCS</field>
+			<field name="data_model">t4.clinical.patient.observation.gcs</field>
+		</record>
 		<record model="t4.clinical.activity.type" id="device_connect_data_type">
 			<field name="summary">Device Connect</field>
 			<field name="data_model">t4.clinical.device.connect</field>

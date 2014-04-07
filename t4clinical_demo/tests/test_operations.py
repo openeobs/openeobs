@@ -227,7 +227,7 @@ class TestOperations(common.SingleTransactionCase):
              
         return activity_id
 
-    def admission_complete_test(self, admission_activity_id, patient_id=False, location_id=False, user_id=False):
+    def admission_complete_test(self, admit_activity_id, patient_id=False, location_id=False, user_id=False):
         global cr, uid
         global activity_pool, spell_pool, admission_pool, height_weight_pool, move_pool, discharge_pool
         global user_pool, type_pool, location_pool, patient_pool, ews_pool, api_pool

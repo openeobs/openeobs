@@ -419,7 +419,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             activity_pool = self.pool['t4.clinical.activity']
             activity_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             activity = activity_pool.browse(cr, uid, context['active_id'], context)
-            activity_pool.update_activity(cr, uid, activity.id, context)
+            activity_pool.update_activity(cr, self.t4suid, activity.id, context)
             _logger.debug("activity '%s', activity.id=%s data submitted via UI" % (activity.data_model, activity.id))
         return {'type': 'ir.actions.act_window_close'}
     
@@ -429,7 +429,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             activity_pool = self.pool['t4.clinical.activity']
             activity_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             activity = activity_pool.browse(cr, uid, context['active_id'], context)
-            activity_pool.update_activity(cr, uid, activity.id, context)
+            activity_pool.update_activity(cr, self.t4suid, activity.id, context)
             activity_pool.complete(cr, uid, activity.id, context)            
             _logger.debug("activity '%s', activity.id=%s data completed via UI" % (activity.data_model, activity.id))
         return {'type': 'ir.actions.act_window_close'}
@@ -582,7 +582,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             _logger.debug("activity '%s', activity.id=%s data submitted: %s" % (activity.data_model, activity.id, str(vals)))
             self.write(cr, uid, activity.data_ref.id, vals, context)
         
-        self.update_activity(cr, uid, activity_id, context)
+        self.update_activity(cr, self.t4suid, activity_id, context)
         return True 
     
     def update_activity(self, cr, uid, activity_id, context=None):

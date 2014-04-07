@@ -5,6 +5,7 @@
 			<field name="activity_type_ids" 
 				   eval="[[6, False,[
 									ref('observation_ews_data_type'),
+									ref('observation_gcs_data_type'),
 									ref('observation_height_weight_data_type'),
 									ref('device_disconnect_data_type')
 									]]]"/>                       

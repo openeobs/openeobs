@@ -233,7 +233,7 @@ class t4_clinical_patient_admission(orm.Model):
         # patient placement
         placement_pool = self.pool['t4.clinical.patient.placement']
         placement_activity_id = placement_pool.create_activity(cr, uid, 
-           {'parent_id': admission.activity_id.id, 'creator_id': activity_id}, 
+           {'parent_id': admission.activity_id.id, 'creator_id': activity_id},
            {'patient_id': admission.patient_id.id,
             'suggested_location_id': admission.suggested_location_id.id},
            context)

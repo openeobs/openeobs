@@ -73,12 +73,14 @@ class TestADT(common.SingleTransactionCase):
         
         patient_data = {'family_name': 'Bacon', 'other_identifier': '30020', 'dob': '20-12-1922 12:33', 'gender': 'M', 'sex': 'M', 'given_name': 'Andy'}
         reg_activity_id = register_pool.create_activity(cr, adt_uid, {}, patient_data)
+        patient_data.pop('patient_id')
         patient_domain = [(k,'=',v) for k,v in patient_data.iteritems()]
         patient_id = patient_pool.search(cr, adt_uid, patient_domain)[0]
         #dupl_activity_id = register_pool.create_activity(cr, uid, {}, patient_data)
 
         admit_data = {'code': 'test', 'other_identifier': '30020', 'location': 'W9', 'start_date': '2014-01-01 12:00:01'}
         admit_activity_id = admit_pool.create_activity(cr, adt_uid, {}, admit_data)
+        activity_pool.complete(cr, adt_uid, admit_activity_id)
         admit_activity = activity_pool.browse(cr, adt_uid, admit_activity_id)
         spell_activity = api_pool.get_patient_spell_activity_browse(cr, adt_uid, patient_id)
         transfer_activity_id = transfer_pool.create_activity(cr, adt_uid, {}, {'other_identifier': '30020', 'location': 'W8'})

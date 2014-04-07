@@ -75,6 +75,7 @@ class TestEwsPolicy(common.SingleTransactionCase):
             'given_name': faker.first_name()
         }
         reg_activity_id = register_pool.create_activity(cr, adt_uid, {}, patient_data)
+        patient_data.pop('patient_id')
         self.assertTrue(reg_activity_id, msg='Error trying to register patient')
         print "TEST - setting up EWS policy tests - " + "Patient registered."
 
@@ -90,6 +91,7 @@ class TestEwsPolicy(common.SingleTransactionCase):
         }
         admit_activity_id = admit_pool.create_activity(cr, adt_uid, {}, admit_data)
         self.assertTrue(admit_activity_id, msg='Error trying to admit patient')
+        activity_pool.complete(cr, adt_uid, admit_activity_id)
         print "TEST - setting up EWS policy tests - " + "Patient admitted."
         available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
         if admit_data['location'] == 'W8':
@@ -100,7 +102,7 @@ class TestEwsPolicy(common.SingleTransactionCase):
             location_ids = location_pool.search(cr, uid, [
                 ('code', '=', 'B'+faker.random_element(array=('5', '6', '7', '8'))),
                 ('id','in',available_bed_location_ids)])
-        #self.assertTrue(location_ids, msg='Location not found')
+        # self.assertTrue(location_ids, msg='Location not found')
         if not location_ids:
             print "No available locations found for parent location %s" % admit_data['location']
             return

@@ -37,7 +37,7 @@ class t4_clinical_adt_patient_register(orm.Model):
         patient_domain = [(k,'=',v) for k,v in vals.iteritems()]
         patient_id = patient_pool.search(cr, uid, patient_domain)
         except_if(patient_id, msg="Patient already exists! Data: %s" % vals)
-        pateint_id = patient_pool.create(cr, uid, vals, context)
+        patient_id = patient_pool.create(cr, uid, vals, context)
         vals.update({'patient_id': patient_id})
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals, context)
         return res
