@@ -23,13 +23,15 @@ height_weight_history as(
 		select 
 			ob.patient_id,
 			array_agg(ob.id) as ids
-		from t4_clinical_patient_observation_height_weight ob
+		from t4_clinical_patient_observation_ews ob -- height_weight
 		inner join t4_clinical_activity activity on activity.id = ob.activity_id
 		where activity.state = 'completed'
 		group by ob.patient_id
 		)
 select 
 	spell.patient_id as id,
+	spell.patient_id as patient_id,
+	spell.code as spell_code,
 	coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
 	location.code as location,
 	patient.sex,
@@ -46,7 +48,7 @@ inner join t4_clinical_patient patient on spell.patient_id = patient.id
 left join t4_clinical_location location on location.id = spell.location_id
 left join (select score, patient_id, rank from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
 left join (select score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
-left join t4_clinical_patient_activity_trigger trigger on trigger.patient_id = patient.id and data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
+left join t4_clinical_patient_activity_trigger trigger on trigger.patient_id = patient.id and trigger.data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join height_weight_history on height_weight_history.patient_id = patient.id
 where spell_activity.state = 'started'

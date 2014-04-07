@@ -190,11 +190,11 @@ class t4_clinical_patient_observation_ews(orm.Model):
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         if group == 'hca':
-            hca_pool.create_activity(cr,  self.t4suid, {'summary': 'Inform registered nurse', 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-            nurse_pool.create_activity(cr, self.t4suid, {'summary': 'Informed about patient status', 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            hca_pool.create_activity(cr,  self.t4suid, {'summary': 'Inform registered nurse', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, self.t4suid, {'summary': 'Informed about patient status', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         if case:
             for n in self._POLICY['notifications'][case]:
-                nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+                nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         api_pool.set_activity_trigger(cr, self.t4suid, activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',
                                            self._POLICY['frequencies'][case], context)

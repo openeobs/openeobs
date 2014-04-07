@@ -204,12 +204,13 @@ class t4_clinical_activity(orm.Model):
     
     _columns = {
         'summary': fields.char('Summary', size=256),
-        'parent_id': fields.many2one('t4.clinical.activity', 'Parent activity'), 
-        'child_ids': fields.one2many('t4.clinical.activity', 'parent_id', 'Child Activities'),     
-
-        'creator_activity_id': fields.many2one('t4.clinical.activity', 'Creator activity', readonly=True), 
-        'created_activity_ids': fields.one2many('t4.clinical.activity', 'creator_activity_id', 'Created Activities', readonly=True), 
-
+        
+        # hierarchies
+        'parent_id': fields.many2one('t4.clinical.activity', 'Parent activity', readonly=True), 
+        'child_ids': fields.one2many('t4.clinical.activity', 'parent_id', 'Child Activities', readonly=True),     
+        'creator_id': fields.many2one('t4.clinical.activity', 'Creator activity', readonly=True), 
+        'created_ids': fields.one2many('t4.clinical.activity', 'creator_id', 'Created Activities', readonly=True), 
+        # state
         'notes': fields.text('Notes'),
         'state': fields.selection(_states, 'State', readonly=True),
         # coordinates
@@ -495,7 +496,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         api_pool = self.pool['t4.clinical.api']
         trigger = api_pool.get_activity_trigger_browse(cr, uid, activity.patient_id.id, activity.data_model, context)
         if trigger:
-            model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {'creator_activity_id': activity_id}, 
+            model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {'creator_id': activity_id}, 
                                                                                         {'patient_id': activity.patient_id.id}) 
             activity_pool.schedule(cr, uid, model_activity_id, trigger.date_next, context)
         return True

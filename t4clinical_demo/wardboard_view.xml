@@ -3,7 +3,7 @@
     <data>
             <record model="ir.ui.view" id="view_wardboard_search">
                 <field name="name">Wardboard Search View</field>
-                <field name="model">wardboard</field>
+                <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
                     <search string="Wardboard Search View">
                         <group expand="1" string="Group By...">
@@ -14,7 +14,7 @@
             </record>
             <record model="ir.ui.view" id="view_wardboard_tree">
                 <field name="name">Wardboard Tree View</field>
-                <field name="model">wardboard</field>
+                <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
                     <tree string="Wardboard Tree View">
                        <field name="full_name" />
@@ -31,7 +31,7 @@
             </record>    
             <record model="ir.ui.view" id="view_wardboard_form">
                 <field name="name">Wardboard Form View</field>
-                <field name="model">wardboard</field>
+                <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
                     <form string="Wardboard Form View">
                        <group string="Wardboard">
@@ -50,7 +50,7 @@
             </record>
             <record model="ir.actions.act_window" id="action_wardboard" >
                 <field name="name">Wardboard</field>
-                <field name="res_model">wardboard</field>
+                <field name="res_model">t4.clinical.wardboard</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>
                 <field name="search_view_id" ref="view_wardboard_search"/>

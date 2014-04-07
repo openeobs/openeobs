@@ -118,7 +118,7 @@ class t4_clinical_patient_placement(orm.Model):
         ews_activity_id = ews_pool.create_activity(cr, self.t4suid, 
                                                    {#'location_id': placement_activity.data_ref.location_id.id,
                                                     'parent_id': spell_activity_id,
-                                                    'creator_activity_id': activity_id}, 
+                                                    'creator_id': activity_id}, 
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         # create trigger
@@ -162,7 +162,7 @@ class t4_clinical_patient_discharge(orm.Model):
         # move
         move_pool = self.pool['t4.clinical.patient.move']
         move_activity_id = move_pool.create_activity(cr, uid, 
-            {'parent_id': activity_id, 'creator_activity_id': activity_id}, 
+            {'parent_id': activity_id, 'creator_id': activity_id}, 
             {'patient_id': activity.data_ref.patient_id.id, 
              'location_id':activity.pos_id.lot_discharge_id.id or activity.pos_id.location_id.id}, 
             context)
@@ -204,7 +204,7 @@ class t4_clinical_patient_admission(orm.Model):
         except_if(spell_activity_id, msg="Patient id=%s has started spell!" % admission.patient_id.id)
         spell_pool = self.pool['t4.clinical.spell']
         spell_activity_id = spell_pool.create_activity(cr, uid, 
-           {'creator_activity_id': activity_id},
+           {'creator_id': activity_id},
            {'patient_id': admission.patient_id.id, 'location_id': admission.location_id.id},
            context=None)
         res[spell_pool._name] = spell_activity_id
@@ -213,7 +213,7 @@ class t4_clinical_patient_admission(orm.Model):
         # patient move to lot_admission !!If lot_admission isn't set access rights to see the activity will need to be set to pos.location i.e. all locations in the pos
         move_pool = self.pool['t4.clinical.patient.move']
         move_activity_id = move_pool.create_activity(cr, uid, 
-            {'parent_id': admission.activity_id.id, 'creator_activity_id': activity_id}, 
+            {'parent_id': admission.activity_id.id, 'creator_id': activity_id}, 
             {'patient_id': admission.patient_id.id, 
              'location_id': activity.pos_id.lot_admission_id.id or activity.pos_id.location_id.id}, 
             context)
@@ -222,7 +222,7 @@ class t4_clinical_patient_admission(orm.Model):
         # patient placement
         placement_pool = self.pool['t4.clinical.patient.placement']
         placement_activity_id = placement_pool.create_activity(cr, uid, 
-           {'parent_id': admission.activity_id.id, 'creator_activity_id': activity_id}, 
+           {'parent_id': admission.activity_id.id, 'creator_id': activity_id}, 
            {'patient_id': admission.patient_id.id,
             'suggested_location_id': admission.suggested_location_id.id},
            context)
