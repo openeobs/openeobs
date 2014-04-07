@@ -199,7 +199,77 @@ class t4_clinical_patient_observation_ews(orm.Model):
                                            't4.clinical.patient.observation.ews', 'minute',
                                            self._POLICY['frequencies'][case], context)
         return super(t4_clinical_patient_observation_ews, self).complete(cr, self.t4suid, activity_id, context)
-    
+
+class t4_clinical_patient_observation_gcs(orm.Model):
+    _name = 't4.clinical.patient.observation.gcs'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = ['eyes', 'verbal', 'motor']
+    _eyes = [('1', '1: Does not open eyes'),
+             ('2', '2: Opens eyes in response to painful stimuli'),
+             ('3', '3: Opens eyes in response to voice'),
+             ('4', '4: Opens eyes spontaneously'),
+             ('C', 'C: Closed by swelling')]
+    _verbal = [('1', '1: Makes no sounds'),
+               ('2', '2: Incomprehensible sounds'),
+               ('3', '3: Utters inappropiate words'),
+               ('4', '4: Confused, disoriented'),
+               ('5', '5: Oriented, converses normally'),
+               ('T', 'T: Intubated')]
+    _motor = [('1', '1: Makes no movements'),
+              ('2', '2: Extension to painful stimuli (decerebrate response)'),
+              ('3', '3: Abnormal flexion to painful stimuli (decorticate response)'),
+              ('4', '4: Flexion / Withdrawal to painful stimuli'),
+              ('5', '5: Localizes painful stimuli'),
+              ('6', '6: Obeys commands')]
+
+    """
+    Default GCS policy has 5 different scenarios:
+        case 0: 30 min frequency
+        case 1: 1 hour frequency
+        case 2: 2 hour frequency
+        case 3: 4 hour frequency
+        case 4: 12 hour frequency (no clinical risk)
+    """
+    _POLICY = {'ranges': [5, 9, 13, 14], 'case': '01234', 'frequencies': [30, 60, 120, 240, 720],
+               'notifications': [[], [], [], [], []]}
+
+    def _get_score(self, cr, uid, ids, field_names, arg, context=None):
+        res = {}
+        for gcs in self.browse(cr, uid, ids, context):
+            eyes = 1 if gcs.eyes == 'C' else int(gcs.eyes)
+            verbal = 1 if gcs.verbal == 'T' else int(gcs.verbal)
+            motor = int(gcs.motor)
+
+            res[gcs.id] = {'score': eyes+verbal+motor}
+            _logger.debug("Observation GCS activity_id=%s gcs_id=%s score: %s" % (gcs.activity_id.id, gcs.id, res[gcs.id]))
+        return res
+
+    _columns = {
+        'score': fields.function(_get_score, type='integer', multi='score', string='Score', store={
+                       't4.clinical.patient.observation.gcs': (lambda self,cr,uid,ids,ctx: ids, [], 10) # all fields of self
+        }),
+        'eyes': fields.selection(_eyes, 'Eyes'),
+        'verbal': fields.selection(_verbal, 'Verbal'),
+        'motor': fields.selection(_motor, 'Motor')
+    }
+
+    def complete(self, cr, uid, activity_id, context=None):
+        """
+        Implementation of the default GCS policy
+        """
+        activity_pool = self.pool['t4.clinical.activity']
+        hca_pool = self.pool['t4.clinical.notification.hca']
+        nurse_pool = self.pool['t4.clinical.notification.nurse']
+        groups_pool = self.pool['res.groups']
+        api_pool = self.pool['t4.clinical.api']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
+        for n in self._POLICY['notifications'][case]:
+            nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+        api_pool.set_activity_trigger(cr, self.t4suid, activity.data_ref.patient_id.id,
+                                           't4.clinical.patient.observation.gcs', 'minute',
+                                           self._POLICY['frequencies'][case], context)
+        return super(t4_clinical_patient_observation_gcs, self).complete(cr, self.t4suid, activity_id, context)
     
     
     
