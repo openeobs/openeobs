@@ -19,14 +19,27 @@ scheduled_ews as(
 		inner join t4_clinical_activity activity on ews.activity_id = activity.id
 		where activity.state = 'scheduled'
 		),
-height_weight_history as(
+completed_height as(
 		select 
-			ob.patient_id,
-			array_agg(ob.id) as ids
-		from t4_clinical_patient_observation_ews ob -- height_weight
-		inner join t4_clinical_activity activity on activity.id = ob.activity_id
+			spell.patient_id,
+			height.height,
+			rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
+		from t4_clinical_spell spell
+		left join t4_clinical_patient_observation_height height on height.patient_id = spell.patient_id
+		inner join t4_clinical_activity activity on height.activity_id = activity.id
 		where activity.state = 'completed'
-		group by ob.patient_id
+		),
+completed_o2target as(
+		select 
+			spell.patient_id,
+			level.min,
+			level.max,
+			rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
+		from t4_clinical_spell spell
+		left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
+		inner join t4_clinical_activity activity on o2target.activity_id = activity.id
+		inner join t4_clinical_patient_o2level level on level.id = o2target.level_id
+		where activity.state = 'completed'
 		)
 select 
 	spell.patient_id as id,
@@ -42,7 +55,11 @@ select
 	(now() - ews0.date_scheduled)::text as next_diff, 
 	trigger.unit_qty || ' ' || trigger.unit || '(s)' as frequency,
 	ews1.score as ews_score,
-	ews1.score - ews2.score as ews_trend
+	ews1.score - ews2.score as ews_trend,
+	height_ob.height,
+	o2target_ob.min as o2target_min,
+	o2target_ob.max as o2target_max,
+	o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string
 from t4_clinical_spell spell
 inner join t4_clinical_activity spell_activity on spell_activity.id = spell.activity_id
 inner join t4_clinical_patient patient on spell.patient_id = patient.id
@@ -51,5 +68,7 @@ left join (select score, patient_id, rank from completed_ews where rank = 1) ews
 left join (select score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
 left join t4_clinical_patient_activity_trigger trigger on trigger.patient_id = patient.id and trigger.data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
-left join height_weight_history on height_weight_history.patient_id = patient.id
+left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
+left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
+
 where spell_activity.state = 'started'

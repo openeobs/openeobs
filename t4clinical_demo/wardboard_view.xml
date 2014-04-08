@@ -44,6 +44,8 @@
                        <field name="frequency" />
                        <field name="ews_score" />
                        <field name="ews_trend" />
+                       <field name="height" />
+                       <field name="o2target_string" />
                        <field name="spell_code" />
                        <field name="spell_ids">
 	                       	<form>
@@ -64,10 +66,10 @@
                        </field>   
                        <field name="o2target_ids">
 	                       	<tree>
-	                       		<field name="o2target" />
+	                       		<field name="level_id" />
 	                       	</tree>
 	                       	<form>
-	                       		<field name="o2target" />
+	                       		<field name="level_id" />
 	                       	</form>
                        </field> 
                        <field name="weight_ids">
