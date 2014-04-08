@@ -75,7 +75,7 @@ completed_o2target as(
         from t4_clinical_spell spell
         left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
         inner join t4_clinical_activity activity on o2target.activity_id = activity.id
-        inner join t4_clinical_patient_o2level level on level.id = o2target.level_id
+        inner join t4_clinical_o2level level on level.id = o2target.level_id
         where activity.state = 'completed'
         )
 select 

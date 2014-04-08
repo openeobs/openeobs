@@ -114,6 +114,8 @@ class t4_clinical_adt_patient_transfer(orm.Model):
     def submit(self, cr, uid, activity_id, vals, context=None):
         except_if(not ('other_identifier' in vals or 'patient_identifier' in vals), msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
+        #patient_pool = self.pool['t4.clinical.activity']
+        api_pool = self.pool['t4.clinical.api']
         other_identifier = vals.get('other_identifier')
         patient_identifier = vals.get('patient_identifier')
         domain = []
@@ -123,13 +125,16 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         print "transfer domain: ", domain
         patient_id = patient_pool.search(cr, uid, domain)
         except_if(not patient_id, msg="Patient not found!")
+        #activity = activity_pool.browse(cr, uid, activity_id, context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id, context)
+        except_if(not spell_activity_id, msg="Active spell not found for patient.id=%s !" % patient_id)
         patient_id = patient_id[0]           
         location_pool = self.pool['t4.clinical.location']
         location_id = location_pool.search(cr, uid, [('code','=',vals['location'])])
         except_if(not location_id, msg="Location not found!")
         location_id = location_id[0]
         placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_pool.create_activity(cr, uid, {'parent_id': activity_id, 'creator_id': activity_id}, {'patient_id': patient_id}, context)
+        placement_pool.create_activity(cr, uid, {'parent_id': spell_activity_id, 'creator_id': activity_id}, {'patient_id': patient_id}, context)
         super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)    
         
 

@@ -213,12 +213,12 @@ class t4_clinical_activity(orm.Model):
         # state
         'notes': fields.text('Notes'),
         'state': fields.selection(_states, 'State', readonly=True),
-        # coordinates
+        # identification
         'user_id': fields.many2one('res.users', 'Assignee', readonly=True),
         'user_ids': fields.many2many('res.users', 'activity_user_rel', 'activity_id','user_id','Users', readonly=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', readonly=True),
         'location_id': fields.many2one('t4.clinical.location', 'Location', readonly=True),        
-        'pos_id': fields.related('location_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS', readonly=True),
+        'pos_id': fields.many2one('t4.clinical.pos', 'POS', readonly=True),
         # system data
         'create_date': fields.datetime('Create Date', readonly=True),
         'write_date': fields.datetime('Write Date', readonly=True),
@@ -234,7 +234,7 @@ class t4_clinical_activity(orm.Model):
         'date_deadline': fields.datetime('Deadline Time', readonly=True),
         'date_expiry': fields.datetime('Expiry Time', readonly=True),
         # activity type and related model/resource
-        'type_id': fields.many2one('t4.clinical.activity.type', "activity Type"),
+        'type_id': fields.many2one('t4.clinical.activity.type', "activity Type", required=True),
         'data_res_id': fields.function(_activity2data_res_id, type='integer', string="Data Model's ResID", help="Data Model's ResID", readonly=True),
         'data_model': fields.text("Data Model", required=True),
         'data_ref': fields.reference('Data Reference', _get_data_type_selection, size=256, readonly=True),
@@ -419,7 +419,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             activity_pool = self.pool['t4.clinical.activity']
             activity_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             activity = activity_pool.browse(cr, uid, context['active_id'], context)
-            activity_pool.update_activity(cr, self.t4suid, activity.id, context)
+            activity_pool.update_activity(cr, SUPERUSER_ID, activity.id, context)
             _logger.debug("activity '%s', activity.id=%s data submitted via UI" % (activity.data_model, activity.id))
         return {'type': 'ir.actions.act_window_close'}
     
@@ -429,7 +429,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             activity_pool = self.pool['t4.clinical.activity']
             activity_pool.write(cr,uid,context['active_id'],{'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             activity = activity_pool.browse(cr, uid, context['active_id'], context)
-            activity_pool.update_activity(cr, self.t4suid, activity.id, context)
+            activity_pool.update_activity(cr, SUPERUSER_ID, activity.id, context)
             activity_pool.complete(cr, uid, activity.id, context)            
             _logger.debug("activity '%s', activity.id=%s data completed via UI" % (activity.data_model, activity.id))
         return {'type': 'ir.actions.act_window_close'}
@@ -582,7 +582,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             _logger.debug("activity '%s', activity.id=%s data submitted: %s" % (activity.data_model, activity.id, str(vals)))
             self.write(cr, uid, activity.data_ref.id, vals, context)
         
-        self.update_activity(cr, self.t4suid, activity_id, context)
+        self.update_activity(cr, SUPERUSER_ID, activity_id, context)
         return True 
     
     def update_activity(self, cr, uid, activity_id, context=None):
@@ -591,20 +591,40 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity_vals = {}    
         location_id = self.get_activity_location_id(cr, uid, activity_id)
         patient_id = self.get_activity_patient_id(cr, uid, activity_id)
+        pos_id = self.get_activity_pos_id(cr, uid, activity_id)
         user_ids = self.get_activity_user_ids(cr, uid, activity_id)    
         activity_vals.update({'location_id': location_id})
         activity_vals.update({'patient_id': patient_id})
+        activity_vals.update({'pos_id': pos_id})
         activity_vals.update({'user_ids': [(6, 0, user_ids)]})
         activity_pool.write(cr, uid, activity_id, activity_vals)
         ##print"activity_vals: %s" % activity_vals
         _logger.debug("activity '%s', activity.id=%s updated with: %s" % (activity.data_model, activity.id, activity_vals))
         return True             
+
+    def get_activity_pos_id(self, cr, uid, activity_id, context=None):
+        pos_id = False 
+        if 'pos_id' in self._columns.keys():
+            data = self.browse_domain(cr, uid, [('activity_id','=',activity_id)])[0]
+            pos_id = data.pos_id and data.pos_id.id or False 
+            
+        if pos_id:
+            return pos_id
+        
+        location_id = self.get_activity_location_id(cr, uid, activity_id)
+        if not location_id:
+            patient_id = self.get_activity_patient_id(cr, uid, activity_id)
+            location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
+        if location_id:
+            location = self.pool['t4.clinical.location'].browse(cr, uid, location_id, context)
+            pos_id = location.pos_id and location.pos_id.id or False
+        return pos_id
         
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         location_id = False
         data = self.browse_domain(cr, uid, [('activity_id','=',activity_id)])[0]
         if 'location_id' in self._columns.keys():
-             location_id = data.location_id and data.location_id.id or False 
+            location_id = data.location_id and data.location_id.id or False 
         return location_id
 
     def get_activity_patient_id(self, cr, uid, activity_id, context=None):
@@ -612,7 +632,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         #import pdb; pdb.set_trace()
         data = self.browse_domain(cr, uid, [('activity_id','=',activity_id)])[0]
         if 'patient_id' in self._columns.keys():
-             patient_id = data.patient_id and data.patient_id.id or False    
+            patient_id = data.patient_id and data.patient_id.id or False    
         return patient_id
     
     def get_activity_user_ids(self, cr, uid, activity_id, context=None):

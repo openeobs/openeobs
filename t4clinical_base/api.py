@@ -20,9 +20,13 @@ class t4_clinical_api(orm.AbstractModel):
         return patient_ids
     
 
-    def get_patient_spell_activity_id(self, cr, uid, patient_id, context=None):
+    def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
         activity_pool = self.pool['t4.clinical.activity']
-        domain = [('patient_id','=',patient_id),('state','=','started'),('data_model','=','t4.clinical.spell')]
+        domain = [('patient_id','=',patient_id),
+                  ('state','=','started'),
+                  ('data_model','=','t4.clinical.spell')]
+        if pos_id:
+            domain.extend(('pos_id','=',pos_id))
         spell_activity_id = activity_pool.search(cr, uid, domain)
         if not spell_activity_id:
             return False

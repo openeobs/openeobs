@@ -3,6 +3,7 @@ from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.activity import except_if
 import logging
 import bisect
+from openerp import SUPERUSER_ID
 
 _logger = logging.getLogger(__name__)
 
@@ -187,7 +188,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
             del vals['oxygen_administration']
 
 
-        return super(t4_clinical_patient_observation_ews, self).submit(cr, self.t4suid, activity_id, data_vals, context)
+        return super(t4_clinical_patient_observation_ews, self).submit(cr, SUPERUSER_ID, activity_id, data_vals, context)
 
     def complete(self, cr, uid, activity_id, context=None):
         """
@@ -205,15 +206,15 @@ class t4_clinical_patient_observation_ews(orm.Model):
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         if group == 'hca':
-            hca_pool.create_activity(cr,  self.t4suid, {'summary': 'Inform registered nurse', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-            nurse_pool.create_activity(cr, self.t4suid, {'summary': 'Informed about patient status', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            hca_pool.create_activity(cr,  SUPERUSER_ID, {'summary': 'Inform registered nurse', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': 'Informed about patient status', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         if case:
             for n in self._POLICY['notifications'][case]:
-                nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.set_activity_trigger(cr, self.t4suid, activity.data_ref.patient_id.id,
+                nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+        api_pool.set_activity_trigger(cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.ews', 'minute',
                                            self._POLICY['frequencies'][case], context)
-        return super(t4_clinical_patient_observation_ews, self).complete(cr, self.t4suid, activity_id, context)
+        return super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
 class t4_clinical_patient_observation_gcs(orm.Model):
     _name = 't4.clinical.patient.observation.gcs'
@@ -278,11 +279,11 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
         for n in self._POLICY['notifications'][case]:
-            nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.set_activity_trigger(cr, self.t4suid, activity.data_ref.patient_id.id,
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+        api_pool.set_activity_trigger(cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.gcs', 'minute',
                                            self._POLICY['frequencies'][case], context)
-        return super(t4_clinical_patient_observation_gcs, self).complete(cr, self.t4suid, activity_id, context)
+        return super(t4_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
 
 class t4_clinical_patient_observation_vips(orm.Model):
@@ -349,8 +350,8 @@ class t4_clinical_patient_observation_vips(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
         for n in self._POLICY['notifications'][case]:
-            nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.set_activity_trigger(cr, self.t4suid, activity.data_ref.patient_id.id,
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+        api_pool.set_activity_trigger(cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.vips', 'minute',
                                            self._POLICY['frequencies'][case], context)
-        return super(t4_clinical_patient_observation_vips, self).complete(cr, self.t4suid, activity_id, context)
+        return super(t4_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)

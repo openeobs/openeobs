@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_wardboard,admin:access_wardboard,model_wardboard,t4clinical_base.group_t4clinical_admin,1,1,1,1
+access_wardboard,admin:access_wardboard,model_t4_clinical_wardboard,t4clinical_base.group_t4clinical_admin,1,1,1,1
