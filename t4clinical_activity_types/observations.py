@@ -258,6 +258,75 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         Implementation of the default GCS policy
         """
         activity_pool = self.pool['t4.clinical.activity']
+        nurse_pool = self.pool['t4.clinical.notification.nurse']
+        api_pool = self.pool['t4.clinical.api']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
+        for n in self._POLICY['notifications'][case]:
+            nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+        api_pool.set_activity_trigger(cr, self.t4suid, activity.data_ref.patient_id.id,
+                                           't4.clinical.patient.observation.gcs', 'minute',
+                                           self._POLICY['frequencies'][case], context)
+        return super(t4_clinical_patient_observation_gcs, self).complete(cr, self.t4suid, activity_id, context)
+
+
+class t4_clinical_patient_observation_vips(orm.Model):
+    _name = 't4.clinical.patient.observation.vips'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = ['pain', 'redness', 'swelling', 'cord', 'pyrexia']
+    _selection = [('no', 'No'), ('yes', 'Yes')]
+
+    """
+    Default VIPS policy has 4 different scenarios:
+        case 0: No plebitis
+        case 1: Early stage of plebitis --> Resite cannula
+        case 2: Advanced stage of plebitis --> Consider plebitis treatment
+        case 3: Advanced stage of thrombophlebitis --> Initiate phlebitis treatment
+    """
+    _POLICY = {'ranges': [1, 2, 4], 'case': '0123', 'frequencies': [1440, 1440, 1440, 1440],
+               'notifications': [[], ['Resite Cannula'], ['Resite Cannula', 'Consider plebitis treatment'], ['Resite Cannula', 'Initiate phlebitis treatment']]}
+
+    def _get_score(self, cr, uid, ids, field_names, arg, context=None):
+        res = {}
+        for vips in self.browse(cr, uid, ids, context):
+            score = 0
+            pain = vips.pain == 'yes'
+            redness = vips.redness == 'yes'
+            swelling = vips.swelling == 'yes'
+            cord = vips.cord == 'yes'
+            pyrexia = vips.pyrexia == 'yes'
+
+            if all([pain, redness, swelling, cord, pyrexia]):
+                score = 5
+            elif all([pain, redness, swelling, cord]):
+                score = 4
+            elif all([pain, redness, swelling]):
+                score = 3
+            elif all([pain, redness]) or all([pain, swelling]) or all([redness, swelling]):
+                score = 2
+            elif any([pain, redness]):
+                score = 1
+
+            res[vips.id] = {'score': score}
+            _logger.debug("Observation VIPS activity_id=%s vips_id=%s score: %s" % (vips.activity_id.id, vips.id, res[vips.id]))
+        return res
+
+    _columns = {
+        'score': fields.function(_get_score, type='integer', multi='score', string='Score', store={
+                       't4.clinical.patient.observation.vips': (lambda self,cr,uid,ids,ctx: ids, [], 10) # all fields of self
+        }),
+        'pain': fields.selection(_selection, 'Pain'),
+        'redness': fields.selection(_selection, 'Redness'),
+        'swelling': fields.selection(_selection, 'Swelling'),
+        'cord': fields.selection(_selection, 'Palpable venous cord'),
+        'pyrexia': fields.selection(_selection, 'Pyrexia'),
+    }
+
+    def complete(self, cr, uid, activity_id, context=None):
+        """
+        Implementation of the default VIPS policy
+        """
+        activity_pool = self.pool['t4.clinical.activity']
         hca_pool = self.pool['t4.clinical.notification.hca']
         nurse_pool = self.pool['t4.clinical.notification.nurse']
         groups_pool = self.pool['res.groups']
@@ -265,23 +334,8 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
         for n in self._POLICY['notifications'][case]:
-            nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_activity_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, self.t4suid, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         api_pool.set_activity_trigger(cr, self.t4suid, activity.data_ref.patient_id.id,
-                                           't4.clinical.patient.observation.gcs', 'minute',
+                                           't4.clinical.patient.observation.vips', 'minute',
                                            self._POLICY['frequencies'][case], context)
-        return super(t4_clinical_patient_observation_gcs, self).complete(cr, self.t4suid, activity_id, context)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        return super(t4_clinical_patient_observation_vips, self).complete(cr, self.t4suid, activity_id, context)
