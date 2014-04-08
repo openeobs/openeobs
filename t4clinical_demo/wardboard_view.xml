@@ -44,7 +44,40 @@
                        <field name="frequency" />
                        <field name="ews_score" />
                        <field name="ews_trend" />
-                       <field name="spell_ids" />
+                       <field name="spell_code" />
+                       <field name="spell_ids">
+	                       	<form>
+	                       		<field name="code" />
+	                       		<field name="date_started" />
+	                       	</form>
+                       </field>
+                       <field name="move_ids">
+	                       	<tree>
+	                       		<field name="location_id" />
+	                       		<field name="date_terminated" />
+	                       		<field name="state" />
+	                       	</tree>
+	                       	<form>
+	                       		<field name="location_id" />
+	                       		<field name="patient_id" />
+	                       	</form>
+                       </field>   
+                       <field name="o2target_ids">
+	                       	<tree>
+	                       		<field name="o2target" />
+	                       	</tree>
+	                       	<form>
+	                       		<field name="o2target" />
+	                       	</form>
+                       </field> 
+                       <field name="weight_ids">
+	                       	<tree>
+	                       		<field name="weight" />
+	                       	</tree>
+	                       	<form>
+	                       		<field name="weight" />
+	                       	</form>
+                       </field>                                                                    
 					   </group>                       
                     </form>
                 </field>

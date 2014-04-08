@@ -68,7 +68,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         location_id = placement and placement[0].location_id.id or False
         return location_id     
 
-
+# deprecated
 class t4_clinical_patient_observation_height_weight(orm.Model):
     _name = 't4.clinical.patient.observation.height_weight'
     _inherit = ['t4.clinical.patient.observation']
@@ -79,6 +79,21 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
         'weight': fields.float('Weight'),
     }
 
+class t4_clinical_patient_observation_height(orm.Model):
+    _name = 't4.clinical.patient.observation.height'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = ['height']
+    _columns = {
+        'height': fields.float('Height'),
+    }
+
+class t4_clinical_patient_observation_weight(orm.Model):
+    _name = 't4.clinical.patient.observation.weight'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = ['weight']
+    _columns = {
+        'weight': fields.float('Weight'),
+    }
 
 class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'

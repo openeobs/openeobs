@@ -37,7 +37,15 @@
 			<field name="summary">Observation Height, Weight</field>
 			<field name="data_model">t4.clinical.patient.observation.height_weight</field>
 			<field name="submit_view_id" ref="view_observation_height_weight" />
-		</record>		
+		</record>
+		<record model="t4.clinical.activity.type" id="observation_height_data_type">
+			<field name="summary">Observation Height</field>
+			<field name="data_model">t4.clinical.patient.observation.height</field>
+		</record>	
+		<record model="t4.clinical.activity.type" id="observation_weight_data_type">
+			<field name="summary">Observation Height</field>
+			<field name="data_model">t4.clinical.patient.observation.weight</field>
+		</record>							
 		<record model="t4.clinical.activity.type" id="spell_data_type">
 			<field name="summary">Spell of Care</field>
 			<field name="data_model">t4.clinical.spell</field>

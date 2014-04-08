@@ -47,13 +47,23 @@ class t4_clinical_notification_nurse(orm.Model):
 
 class t4_clinical_patient_move(orm.Model):
     _name = 't4.clinical.patient.move'
-    _inherit = ['t4.clinical.activity.data']      
+    _inherit = ['t4.clinical.activity.data']  
+    #_rec_name = 'patient_id'    
+ 
     _columns = {
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
         
     }
+    
+    def name_get(self, cr, uid, ids, context=None):
+        res = []
+        import pdb; pdb.set_trace()
+        for move in self.browse(cr, uid, ids, context):
+            res.append( [move.id, "%s to %s" % ("patient", "location")] )
+        return res   
+    
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
         patient_pool = self.pool['t4.clinical.patient']

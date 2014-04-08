@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_spell(orm.Model):
     _name = 't4.clinical.spell'
     _inherit = ['t4.clinical.activity.data']
-    
+    _rec_name = 'code'
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'location_id': fields.many2one('t4.clinical.location', 'Placement Location'),
