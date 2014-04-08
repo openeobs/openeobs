@@ -126,7 +126,7 @@ class t4_clinical_patient_placement(orm.Model):
         gcs_activity_id = gcs_pool.create_activity(cr, self.t4suid,
                                                    {#'location_id': placement_activity.data_ref.location_id.id,
                                                     'parent_id': spell_activity_id,
-                                                    'creator_activity_id': activity_id},
+                                                    'creator_id': activity_id},
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         activity_pool.schedule(cr, uid, gcs_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         # create triggers
