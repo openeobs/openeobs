@@ -2,11 +2,16 @@
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.activity import except_if
 import logging        
+from pprint import pprint as pp
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
 fake = Faker()
-
+seed = 0
+def next_seed():
+    global seed
+    seed += 1
+    return seed
 
 class t4_clinical_pos(orm.Model):
     """
@@ -22,155 +27,180 @@ class t4_clinical_pos(orm.Model):
 class demo(orm.AbstractModel):
     _name = 'demo'
     
-    def get_ward_data(self, parent_id=False, qty=5):
-        data = []
-        n = 0
-        while n <= qty:
-            code = "W"+str(fake.random_int(min=1000001, max=9999999))
-            while code in [d['code'] for d in data]: 
-                code = "W"+str(fake.random_int(min=1000001, max=9999999))
-            data.append({
-                    'name': code, 
-                    'code': code,
-                    'type': 'poc', 
-                    'usage': 'ward', 
-                    'parent_id': parent_id        
-                   })
-            n += 1
-        return data
-
-    def get_bed_data(self, ward_ids=[], qty=5):
-        data = []
-        n = 0
-        while n <= qty:
-            code = "B"+str(fake.random_int(min=1000001, max=9999999))
-            while code in [d['code'] for d in data]: 
-                code = "B"+str(fake.random_int(min=1000001, max=9999999))
-            parent_id = ward_ids[fake.random_int(min=0, max=len(ward_ids)-1)]
-            data.append({
-                    'name': code, 
-                    'code': code,
-                    'type': 'poc', 
-                    'usage': 'bed', 
-                    'parent_id': parent_id        
-                   })
-            n += 1
-        return data
-    
-    def get_register_data(self, qty=5):
-        data = []
-        n = 0
-        while n <= qty:
-            gender = fake.random_element(array=('M','F'))
-            other_identifier = str(fake.random_int(min=1000001, max=9999999))
-            while other_identifier in [d['other_identifier'] for d in data]: 
-                other_identifier = str(fake.random_int(min=1000001, max=9999999))
-            data.append({
-                    'family_name': fake.last_name(), 
-                    'given_name': fake.first_name(),
-                    'other_identifier': other_identifier, 
-                    'dob': fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S"), 
-                    'gender': gender, 
-                    'sex': gender         
-                   })
-            n += 1
-            
-        return data
-    
-    def get_admit_data(self, register_data=[], qty=5):
-        data = []
-        n = 0
-        for r in register_data:
-            if n > qty:
-                break
-            t = {}
-            t.update({'other_identifier':r['other_identifier']})
-            t.update({'code': str(fake.random_int(min=10001, max=99999)), 
-                      'location': 'W'+fake.random_element(array=('8','9')), 
-                      'start_date': fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S")
-                      })
-            data.append(t)
-            n += 1
-        return data
+    def create_ward(self, cr, uid, parent_id):
+        fake.seed(next_seed()) 
+        code = "W"+str(fake.random_int(min=1000001, max=9999999))
+        data = {
+                'name': code, 
+                'code': code,
+                'type': 'poc', 
+                'usage': 'ward', 
+                'parent_id': parent_id        
+               }
         
-    def get_placement_data(self, cr, uid, qty=5):
-        data = []
-        # must be get_available location_ids(type, usage)
-        locations = ['B'+str(n) for n in range(1,8)]
-        location_ids = self.pool['t4.clinical.location'].search(cr, uid, [('code','in',locations)])
-        n = 0
-        for location_id in location_ids:
-            if n > qty:
-                break
-            data.append({'location_id': location_id})
-            n += 1
-        return data
-    
-    
-    def get_ews_data(self, cr, uid, patient_ids):
-        data = []
-        # must be get_available location_ids(type, usage)
-        locations = ['B'+str(n) for n in range(1,8)]
-        location_ids = self.pool['t4.clinical.location'].search(cr, uid, [('code','in',locations)])
-        n = 0
-        for patient_id in patient_ids:
-                data.append({
-                            'patient_id': patient_id,
-                            'respiration_rate': fake.random_int(min=10, max=23),
-                            'indirect_oxymetry_spo2': fake.random_int(min=95, max=100),
-                            #'oxygen_administration_flag': False,
-                            'body_temperature': float(fake.random_int(min=36, max=41)),
-                            'blood_pressure_systolic': fake.random_int(min=115, max=150),
-                            'blood_pressure_diastolic': fake.random_int(min=60, max=100),
-                            'pulse_rate': fake.random_int(min=60, max=80),
-                            'avpu_text': fake.random_element(array=('A','V','P','U'))                         
-                         })
-        return data   
+        location_id = self.pool['t4.clinical.location'].create(cr, uid, data)
+        return location_id
 
+    def create_bed(self, cr, uid, parent_id):
+        fake.seed(next_seed()) 
+        code = "B"+str(fake.random_int(min=1000001, max=9999999))
+        data = {
+                'name': code, 
+                'code': code,
+                'type': 'poc', 
+                'usage': 'bed', 
+                'parent_id': parent_id        
+               }
+        location_id = self.pool['t4.clinical.location'].create(cr, uid, data)
+        return location_id
     
-    def scenario1(self, cr, uid, rollback=True):
-        register_data = self.get_register_data(10)
-        admit_data = self.get_admit_data(register_data, 5)       
+    def adt_patient_register(self, cr, uid):
+        res = {}
+        activity_pool = self.pool['t4.clinical.activity']
         register_pool = self.pool['t4.clinical.adt.patient.register']
+        fake.seed(next_seed()) 
+        gender = fake.random_element(array=('M','F'))
+        other_identifier = str(fake.random_int(min=1000001, max=9999999))
+        dob = fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S")
+        register_activity_id = register_pool.create_activity(cr, uid, {},{})
+        register_submit_res = activity_pool.submit(cr, uid, register_activity_id,
+                                                   {
+                                                    'family_name': fake.last_name(), 
+                                                    'given_name': fake.first_name(),
+                                                    'other_identifier': other_identifier, 
+                                                    'dob': dob, 
+                                                    'gender': gender, 
+                                                    'sex': gender         
+                                                    })
+        register_complete_res = activity_pool.complete(cr, uid, register_activity_id)
+        res.update({'register_activity_id': register_activity_id})
+        res.update(register_submit_res)
+        res.update(register_complete_res)
+        return res
+    
+    def adt_patient_update(self, cr, uid, patient_id):
+        # FIXME! to be done via adt.patient.update 
+        patient_pool = self.pool['t4.clinical.patient']
+        fake.seed(next_seed())
+        data = {}
+        data['street'] = fake.street_address()
+        data['street2'] = fake.street_name()
+        data['city'] = fake.city()
+        data['zip'] = fake.postcode()
+        data['mobile'] = fake.phone_number()
+        patient_pool.write(cr, uid, patient_id, data)
+        return {}
+     
+    def adt_patient_admit(self, cr, uid, patient_id, suggested_location_ids):
+        res = {}
+        patient_pool = self.pool['t4.clinical.patient']
+        location_pool = self.pool['t4.clinical.location']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
         activity_pool = self.pool['t4.clinical.activity']
-        placement_pool = self.pool['t4.clinical.patient.placement']
-        api_pool = self.pool['t4.clinical.api']
- 
-        
-        for rd in register_data:
-            register_pool.create_activity(cr, uid, {}, rd)
-        for ad in admit_data:
-            admit_pool.create_activity(cr, uid, {}, ad)    
-        placement_data = self.get_placement_data(cr, uid, qty=5)
-        placement_activity_ids = activity_pool.search(cr, uid, [('data_model','=',placement_pool._name)])
-        n = 0
-        patient_ids = []
-        #import pdb; pdb.set_trace()
-        for placement_activity_id in placement_activity_ids:
-            placement_activity = activity_pool.browse(cr, uid, placement_activity_id)
-            patient_ids.append(placement_activity.patient_id.id)
-            if n >=len(placement_data):
-                break
-            activity_pool.submit(cr, uid, placement_activity_id,  placement_data[n])
-            activity_pool.start(cr, uid, placement_activity_id) 
-            #activity_pool.complete(cr, uid, placement_activity_id) 
-            n += 1
-        ews_pool = self.pool['t4.clinical.patient.observation.ews']
-        for n in range(1,10):
-            ews_data = self.get_ews_data(cr, uid, patient_ids)
-            for ews in ews_data:
-                        # activity frequency
-                api_pool.set_activity_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
-                ews_activity_id = ews_pool.create_activity(cr, uid, {}, {'patient_id': ews['patient_id']})
-                activity_pool.schedule(cr, uid, ews_activity_id, 
-                   date_scheduled=fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"))
-                activity_pool.submit(cr, uid, ews_activity_id, ews)
-                activity_pool.start(cr, uid, ews_activity_id)
-                activity_pool.complete(cr, uid, ews_activity_id)
-        except_if(rollback, msg="Rollback")
-        return True
+        fake.seed(next_seed())
+        suggested_location_names = [location.name for location in location_pool.browse(cr, uid, suggested_location_ids)]
+        patient = patient_pool.browse(cr, uid, patient_id)
+        data = {}
+        data['other_identifier'] = patient.other_identifier
+        data['code'] = str(fake.random_int(min=10001, max=99999))
+        data['location'] = suggested_location_names[fake.random_int(min=0, max=len(suggested_location_ids)-1)]
+        data['start_date'] = fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S")
+        admit_activity_id = admit_pool.create_activity(cr, uid, {}, {})
+        admit_submit_res = activity_pool.submit(cr, uid, admit_activity_id, data)
+        admit_complete_res = activity_pool.complete(cr, uid, admit_activity_id)
+        res.update({'admit_activity_id': admit_activity_id})
+        res.update(admit_submit_res)
+        res.update(admit_complete_res)
+        return res
     
+    def complete_placement(self, cr, uid, placement_activity_id):
+        res = {}
+        patient_pool = self.pool['t4.clinical.patient']
+        activity_pool = self.pool['t4.clinical.activity']
+        location_pool = self.pool['t4.clinical.location']
+        fake.seed(next_seed())
+        placement_activity = activity_pool.browse(cr, uid, placement_activity_id)
+        available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
+        bed_location_domain = [['id','in', available_bed_location_ids]]
+        suggested_location_id = placement_activity.data_ref.suggested_location_id.id
+        if suggested_location_id:
+             bed_location_domain.append(['id', 'child_of', suggested_location_id])
+        bed_location_ids = location_pool.search(cr, uid, bed_location_domain)
+        #import pdb; pdb.set_trace()
+        if bed_location_ids:
+            location_id = bed_location_ids[fake.random_int(min=0, max=len(bed_location_ids)-1)]
+            placement_submit_res = activity_pool.submit(cr, uid, placement_activity.id, 
+                                                        {'location_id': location_id,
+                                                         'suggested_location_id': suggested_location_id})
+            placement_complete_res = activity_pool.complete(cr, uid, placement_activity.id)
+            res.update(placement_complete_res)
+            res.update(placement_submit_res)
+        else:
+            _logger.warn("No available beds left. Placement id=%s can't be completed and stays in '%s'" % (placement_activity.id, placement_activity.state))        
+        return res
+
+    def complete_ews(self, cr, uid, ews_activity_id):
+        res = {}
+        data = {}
+        activity_pool = self.pool['t4.clinical.activity']
+        fake.seed(next_seed())
+        data = {
+                'respiration_rate': fake.random_int(min=10, max=23),
+                'indirect_oxymetry_spo2': fake.random_int(min=95, max=100),
+                #'oxygen_administration_flag': False,
+                'body_temperature': float(fake.random_int(min=36, max=41)),
+                'blood_pressure_systolic': fake.random_int(min=115, max=150),
+                'blood_pressure_diastolic': fake.random_int(min=60, max=100),
+                'pulse_rate': fake.random_int(min=60, max=80),
+                'avpu_text': fake.random_element(array=('A','V','P','U'))                         
+        }
+        ews_submit_res = activity_pool.submit(cr, uid, ews_activity_id, data)
+        ews_complete_res = activity_pool.complete(cr, uid, ews_activity_id)
+        res.update(ews_submit_res)
+        res.update(ews_complete_res)
+        return res
+
+    def adt_patient_discharge(self, cr, uid, patient_id):
+        res = {}
+        activity_pool = self.pool['t4.clinical.activity']
+        discharge_pool = self.pool['t4.clinical.patient.discharge']
+        discharge_activity_id = discharge_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
+        discharge_complete_res = activity_pool.complete(cr, uid, discharge_activity_id)
+        res.update(discharge_complete_res)
+        return res
+    
+    def create_adt_user(self, cr, uid, pos_id):
+        user_pool = self.pool['res.users']
+        imd_pool = self.pool['ir.model.data']
+        fake.seed(next_seed())
+        adt_group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_adt")   
+        name = fake.first_name() 
+        data = {
+            'name': name,
+            'login': name.lower(),
+            'password': name.lower(),
+            'groups_id': [(4, adt_group.id)],
+            'pos_id': pos_id
+        }
+        user_id = user_pool.create(cr, uid, data)
+        return user_id
+    
+    def create_nurse_user(self, cr, uid, location_ids):
+        user_pool = self.pool['res.users']
+        imd_pool = self.pool['ir.model.data']
+        fake.seed(next_seed())
+        nurse_group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_nurse")   
+        name = fake.first_name() 
+        data = {
+            'name': name,
+            'login': name.lower(),
+            'password': name.lower(),
+            'groups_id': [(4, nurse_group.id)],
+            'location_ids': [(4,location_id) for location_id in location_ids]
+        }
+        #import pdb; pdb.set_trace()
+        user_id = user_pool.create(cr, uid, data)
+        return user_id    
     
     
     def scenario2(self, cr, uid, rollback=True):
@@ -180,7 +210,9 @@ class demo(orm.AbstractModel):
         EWS_QTY = 3
         WARD_QTY = 1
         BED_QTY = 2
+        BED_PER_WARD = 2
         
+        api_pool = self.pool['t4.clinical.api']
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         register_pool = self.pool['t4.clinical.adt.patient.register']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
@@ -191,92 +223,65 @@ class demo(orm.AbstractModel):
         location_pool = self.pool['t4.clinical.location']
         user_pool = self.pool['res.users']    
         patient_pool = self.pool['t4.clinical.patient']
-        
         pos = self.pool['t4.clinical.pos'].browse(cr, uid, 1) # UHG
-        # Create Locations        
-        ward_data = self.get_ward_data(pos.location_id.id, WARD_QTY)
-        ward_ids = []
-        for d in ward_data:
-            ward_ids.append(location_pool.create(cr, uid, d))
+        imd_pool = self.pool['ir.model.data']
+        adt_user = imd_pool.get_object(cr, uid, "t4clinical_demo", "demo_user_adt_uhg")   
         
-        bed_data = self.get_bed_data(ward_ids, BED_QTY)
-        bed_ids = []
-        for d in bed_data:
-            bed_ids.append(location_pool.create(cr, uid, d))        
+        # Create wards
+        ward_location_ids = [self.create_ward(cr, uid, pos.location_id.id) for i in range(WARD_QTY)]
         
-        # Assign locations to users
-        user_ids = user_pool.search(cr, uid, [])#[('login','=','nurse')])
-        for user_id in user_ids:
-            idx1 = fake.random_int(min=0, max=len(ward_ids)-1)
-            idx2 = fake.random_int(min=0, max=len(ward_ids)-1)
-            start, end = idx1 <= idx2 and (idx1, idx2) or (idx2, idx1)
-            vals = {'location_ids': [[6, False, ward_ids]]} #ward_ids[start: end]
-            user_pool.write(cr, uid, user_id, vals)
+        # Create beds 
+        bed_location_ids = []
+        for ward_location_id in ward_location_ids:
+            bed_location_ids.extend([self.create_bed(cr, uid, ward_location_id) for i in range(BED_PER_WARD)])
         
+        # Create ADT user
+        adt_user = user_pool.browse(cr, uid, self.create_adt_user(cr, uid, pos.id))
+        
+        # Create nurse users
+        nurse_user_ids = [
+             self.create_nurse_user(cr, uid, ward_location_ids),
+             self.create_nurse_user(cr, uid, ward_location_ids)
+         ]
               
         # Register Patients
-        register_data = self.get_register_data(REGISTER_QTY)
-        for d in register_data:
-            register_activity_id = register_pool.create_activity(cr, uid, {}, d)
-            activity_pool.complete(cr, uid, register_activity_id)
-
+        register_res = [self.adt_patient_register(cr, adt_user.id) for i in range(REGISTER_QTY)]
+        patient_ids = [res['patient_id'] for res in register_res]
+        
         # Patient Address
-        for patient_id in patient_pool.search(cr, uid, []):
-            data = {}    
-            data['street'] = fake.street_address()
-            data['street2'] = fake.street_name()
-            data['city'] = fake.city()
-            data['zip'] = fake.postcode()
-            data['mobile'] = fake.phone_number()
-            patient_pool.write(cr, uid, patient_id, data)
-  
+        update_res = [self.adt_patient_update(cr, adt_user.id, patient_id) for patient_id in patient_ids]
+       
         # Admit Patients
-        admit_data = self.get_admit_data(register_data, ADMIT_QTY)
-        admit_complete_res = []
-        for d in admit_data:
-            admit_activity_id = admit_pool.create_activity(cr, uid, {}, d) 
-            admit_complete_res.append(activity_pool.complete(cr, uid, admit_activity_id))
+        admit_res = [self.adt_patient_admit(cr, adt_user.id, patient_id, ward_location_ids) for patient_id in patient_ids[:ADMIT_QTY]]
+        placement_activity_ids = [res['t4.clinical.patient.placement'] for res in admit_res[:ADMIT_QTY]]
+        pp(admit_res)
         
-        placement_activity_ids = [a['t4.clinical.patient.placement'] for a in admit_complete_res]
-        # Complete Placements
-        domain = [['data_model','=','t4.clinical.patient.placement'],['state','in',['draft','scheduled']],['id','in',placement_activity_ids]]
-        placement_activity_ids = activity_pool.search(cr, uid, domain)
-        for placement_activity in activity_pool.browse(cr, uid, placement_activity_ids):
-            available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
-            only_created_available_beds = list(set(available_bed_location_ids) & set(bed_ids))
-            bed_location_ids = location_pool.search(cr, uid, 
-                                                    [['id', 'child_of', placement_activity.data_ref.location_id.id],
-                                                     ['id','in', only_created_available_beds]])
-            if bed_location_ids:
-                location_id = bed_location_ids[fake.random_int(min=0, max=len(bed_location_ids)-1)]
-                activity_pool.submit(cr, uid, placement_activity.id, {'location_id': location_id})
-                activity_pool.complete(cr, uid, placement_activity.id)
-            else:
-                _logger.warn("No available beds left. Placement id=%s can't be completed and stays in '%s'" % (placement_activity.id, placement_activity.state))
-                
-                
-        # EWS loops only for current spells
-        spell_activity_ids = [a['t4.clinical.spell'] for a in admit_complete_res]
-        i = 0
-        while i < EWS_QTY:
-            ews_activity_ids = activity_pool.search(cr, uid,[['data_model','=','t4.clinical.patient.observation.ews'],
-                                                             ['state','in',['draft','scheduled']],
-                                                             ['parent_id','in',spell_activity_ids]])
-            for ews_activity in activity_pool.browse(cr, uid, ews_activity_ids):
-                activity_pool.complete(cr, uid, ews_activity.id)
-            i += 1
+        #Complete Placements
+        placement_res = [self.complete_placement(cr, uid, activity_id) for activity_id in placement_activity_ids[:ADMIT_QTY]]
+        pp(placement_res)
         
+        # EWS
+        def ews_ids():
+            """ Generator """  
+            spell_activity_ids = [a['t4.clinical.spell'] for a in admit_res]
+            ews_domain = [['data_model','=','t4.clinical.patient.observation.ews'], 
+                          ['state','in',['new','scheduled']],
+                          ['parent_id','in',spell_activity_ids]]
+            for i in range(1, EWS_QTY): 
+                for ews_activity_id in activity_pool.search(cr, uid, ews_domain):
+                    yield ews_activity_id
+                
+        
+        ews_res = [self.complete_ews(cr, uid, ews_id) for ews_id in ews_ids()]
+            
+          
+
         # Discharge Patients
-        spell_ids = spell_pool.search(cr, uid, [('state','=','started')])
-        spell_to_discharge_ids = []
-        while len(spell_to_discharge_ids)< DISCHARGE_QTY:
-           spell_to_discharge_ids.append(spell_ids[fake.random_int(min=0, max=len(spell_ids)-1)])
-           spell_to_discharge_ids = list(set(spell_to_discharge_ids))
-        
-        for spell in spell_pool.browse(cr, uid, spell_to_discharge_ids):
-            discharge_activity_id = discharge_pool.create_activity(cr, uid, {}, {'patient_id': spell.patient_id.id})
-            activity_pool.complete(cr, uid, discharge_activity_id)
+        discharge_res = [self.adt_patient_discharge(cr, adt_user.id, res['patient_id']) for res in register_res[:DISCHARGE_QTY]]
+        pp(discharge_res)
+
             
-            
+        #import pdb; pdb.set_trace()
         except_if(rollback, msg="Rollback")
-        return True
+        
+        return True   

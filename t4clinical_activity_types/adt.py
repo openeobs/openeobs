@@ -2,6 +2,7 @@
 
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.activity import except_if
+from openerp import SUPERUSER_ID
 import logging        
 _logger = logging.getLogger(__name__)
 
@@ -40,10 +41,19 @@ class t4_clinical_adt_patient_register(orm.Model):
         patient_id = patient_pool.create(cr, uid, vals, context)
         vals.update({'patient_id': patient_id})
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals, context)
+        res.update({'patient_id': patient_id})
         return res
     
         
 class t4_clinical_adt_patient_admit(orm.Model):
+    """
+        adt.patient.admit: 
+            - validate patient(patient_id), suggested_location(location_id or false)
+            - on validation fail raise exception
+            - start admission with patient_id and suggested_location
+             
+    """
+    
     _name = 't4.clinical.adt.patient.admit'
     _inherit = ['t4.clinical.activity.data']      
         
@@ -58,17 +68,24 @@ class t4_clinical_adt_patient_admit(orm.Model):
 
     def submit(self, cr, uid, activity_id, vals, context=None):
         res = {}
-#         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
-#               msg="patient_identifier or other_identifier not found in submitted data!")
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)
+        # location validation
         location_pool = self.pool['t4.clinical.location']
-        suggested_location_id = location_pool.search(cr, uid, [('code','=',vals['location'])])
-        except_if(not suggested_location_id, msg="Suggested location not found!")
-        suggested_location_id = suggested_location_id[0]
+        suggested_location_id = location_pool.search(cr, SUPERUSER_ID, 
+                                                    [('code','=',vals['location']),
+                                                     ('id','child_of',user.pos_id.location_id.id)])
+        if not suggested_location_id:
+            _logger.error("ADT suggested_location not found! Will pass suggested_location_id = False")
+            suggested_location_id = False
+        else:
+            suggested_location_id = suggested_location_id[0]
+        # patient validation
         patient_pool = self.pool['t4.clinical.patient']
-        patient_id = patient_pool.search(cr, uid, [('other_identifier','=',vals['other_identifier'])])
-        #import pdb; pdb.set_trace()
+        patient_id = patient_pool.search(cr, SUPERUSER_ID, [('other_identifier','=',vals['other_identifier'])])
         except_if(not patient_id, msg="Patient not found!")
-        except_if(len(patient_id) > 1, msg="More than one patient found with 'other_identifier' = %s !" % vals['other_identifier'])
+        _logger.error("More than one patient found with 'other_identifier' = %s! Passed patient_id = %s" 
+                                    % (vals['other_identifier'], patient_id[0]))
         patient_id = patient_id[0]
         vals_copy = vals.copy()       
         vals_copy.update({'suggested_location_id': suggested_location_id})  
@@ -80,18 +97,19 @@ class t4_clinical_adt_patient_admit(orm.Model):
         res = {}
         super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
         activity_pool = self.pool['t4.clinical.activity']
-        admit_activity = activity_pool.browse(cr, uid, activity_id, context)
+        admit_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
         #import pdb; pdb.set_trace()
-        admission_activity_id = admission_pool.create_activity(cr, uid, {'creator_id': activity_id}, 
-                                                               # FIXME! pos_id should be taken from adt_user.pos_id
-                                                               {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,
-                                                                'patient_id': admit_activity.patient_id.id,
-                                                                'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
+        admission_activity_id = admission_pool.create_activity(cr, SUPERUSER_ID, 
+                                       {'creator_id': activity_id}, 
+                                       # FIXME! pos_id should be taken from adt_user.pos_id
+                                       {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,
+                                        'patient_id': admit_activity.patient_id.id,
+                                        'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
         res[admission_pool._name] = admission_activity_id
-        admission_result = activity_pool.complete(cr, uid, admission_activity_id, context)
+        admission_result = activity_pool.complete(cr, SUPERUSER_ID, admission_activity_id, context)
         res.update(admission_result)
-        activity_pool.write(cr, uid, activity_id, {'parent_id': admission_result['t4.clinical.spell']})
+        activity_pool.write(cr, SUPERUSER_ID, activity_id, {'parent_id': admission_result['t4.clinical.spell']})
         return res
     
     

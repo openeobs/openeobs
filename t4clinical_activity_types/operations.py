@@ -71,7 +71,7 @@ class t4_clinical_patient_move(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_pool.write(cr, uid, activity.data_ref.patient_id.id, {'current_location_id': activity.data_ref.location_id.id}, context)
         super(t4_clinical_patient_move, self).complete(cr, uid, activity_id, context)
-        return True
+        return {}
         
         
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
@@ -87,7 +87,7 @@ class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
     _inherit = ['t4.clinical.activity.data'] 
     _transitions = {
-        'draft': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'new': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'scheduled': ['start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'started': ['complete','cancel','submit','assign','unassign','retrieve','validate'],
@@ -113,20 +113,28 @@ class t4_clinical_patient_placement(orm.Model):
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
         api_pool = self.pool['t4.clinical.api']
+        move_pool = self.pool['t4.clinical.patient.move']
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         gcs_pool = self.pool['t4.clinical.patient.observation.gcs']
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
-        except_if(not placement_activity.location_id, 
-                  msg="Location is not set for the placement thus the placement can't be completed! Check location availability.") 
+        except_if(not placement_activity.data_ref.location_id, 
+                  msg="Location is not set for the placement thus the placement can't be completed!") 
         super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
         
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         # set spell location
         spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
+        # move to location
+        move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,
+                                                    {'parent_id': spell_activity_id,
+                                                     'creator_id': activity_id},
+                                                    {'patient_id': placement_activity.data_ref.patient_id.id,
+                                                     'location_id': placement_activity.data_ref.location_id.id})
+        activity_pool.complete(cr, uid, move_activity_id)
         #import pdb; pdb.set_trace()
         activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         # create EWS
-        frequency = placement_activity.data_ref.location_id.pos_id.ews_init_frequency
+        frequency = placement_activity.pos_id.ews_init_frequency
         ews_activity_id = ews_pool.create_activity(cr, SUPERUSER_ID, 
                                                    {#'location_id': placement_activity.data_ref.location_id.id,
                                                     'parent_id': spell_activity_id,
@@ -147,7 +155,7 @@ class t4_clinical_patient_placement(orm.Model):
         api_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
                                            't4.clinical.patient.observation.gcs', 'minute',
                                            frequency, context)
-        return True
+        return {}
 
      
     def submit(self, cr, uid, activity_id, vals, context=None):
@@ -156,7 +164,7 @@ class t4_clinical_patient_placement(orm.Model):
             available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'], context=context)
             except_if(vals['location_id'] not in available_bed_location_ids, msg="Location id=%s is not available" % vals['location_id'])
         super(t4_clinical_patient_placement, self).submit(cr, uid, activity_id, vals, context)
-        return True
+        return {}
         
         
 class t4_clinical_patient_discharge(orm.Model):
@@ -192,7 +200,7 @@ class t4_clinical_patient_discharge(orm.Model):
         # complete spell 
         spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context)
         activity_pool.complete(cr, uid, spell_activity.id, context)
-        return True  
+        return {}  
         
         
 class t4_clinical_patient_admission(orm.Model):

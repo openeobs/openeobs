@@ -10,7 +10,33 @@ _logger = logging.getLogger(__name__)
     
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api'
-       
+
+    def activity_info(self, cr, uid, activity_id, context={}):
+        """
+            activity diagnostic info
+        """
+        res = {}
+        activity_pool = self.pool['t4.clinical.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, {})
+        res['activity'] = activity
+        res['data_model'] = activity.data_model
+        res['parents'] = {}
+        while True:
+            parent = activity.parent_id
+            if not parent: break
+            activity = activity = activity_pool.browse(cr, uid, parent.id, context)
+            res['parents'].update({parent.data_model: parent})
+        res['creators'] = {}
+        activity = activity_pool.browse(cr, uid, activity_id, context)
+        while True:
+            creator = activity.creator_id
+            if not creator: break
+            activity = activity_pool.browse(cr, uid, creator.id, context)
+            res['creators'].update({creator.data_model: creator}) 
+        from pprint import pprint as pp
+        pp(res)
+        return res           
+            
     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
         domain = [('state','=','started'),('location_id.usage','not in', ['bed'])]
         location_id and  domain.append(('location_id','child_of',location_id))
@@ -62,38 +88,39 @@ class t4_clinical_api(orm.AbstractModel):
           
 
     def get_patient_current_location_browse(self, cr, uid, patient_id, context=None):
-        placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-        placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
-        placement = placement and placement[0]
+        # Placement doesn't create a move, so shouldn't be considered 
+#         placement_pool = self.pool['t4.clinical.patient.placement']
+#         placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
+#         placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
+#         placement = placement and placement[0]
         move_pool = self.pool['t4.clinical.patient.move']
         move_domain = [('patient_id','=',patient_id), ('state','=','completed')]
         move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated desc", context=context)
-        move = move and move[0]
-        res = False
-        if placement and move:
-            res = placement.date_terminated > move.date_terminated and placement.location_id or move.location_id
-        elif placement and not move:
-            res = placement.location_id
-        elif not placement and move:
-            res = move.location_id
-        return res
+        location_id = move and move[0].location_id or False
+#         res = False
+#         if placement and move:
+#             res = placement.date_terminated > move.date_terminated and placement.location_id or move.location_id
+#         elif placement and not move:
+#             res = placement.location_id
+#         elif not placement and move:
+#             res = move.location_id
+        return location_id
 
     def get_patient_current_location_id(self, cr, uid, patient_id, context=None):
         res = self.get_patient_current_location_browse(cr, uid, patient_id, context)
         res = res and res.id
         return res
 
-    def get_patient_permanent_location_browse(self, cr, uid, patient_id, context=None):
+    def get_patient_placement_location_browse(self, cr, uid, patient_id, context=None):
         placement_pool = self.pool['t4.clinical.patient.placement']
         placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
         placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
         placement = placement and placement[0]
-        res = placement and placement.location_id
+        res = placement and placement.location_id or False
         return res    
     
-    def get_patient_permanent_location_id(self, cr, uid, patient_id, context=None):
-        res = self.get_patient_permanent_location_browse(cr, uid, patient_id, context)
+    def get_patient_placement_location_id(self, cr, uid, patient_id, context=None):
+        res = self.get_patient_placement_location_browse(cr, uid, patient_id, context)
         res = res and res.id
         return res    
 

@@ -151,7 +151,7 @@ class DemoLoader(orm.AbstractModel):
 
         #get placements Activities for ward managers
         placement_activity_ids = activity_pool.search(cr, ward_manager_id, [('data_model', '=', placement_pool._name),
-                                                                    ('state', '=', 'draft')])
+                                                                    ('state', '=', 'new')])
 
         #get available beds for location in placement activity (ward)
         for placement_activity in activity_pool.browse(cr, ward_manager_id, placement_activity_ids):

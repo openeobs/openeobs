@@ -148,7 +148,7 @@ class t4_clinical_activity(orm.Model):
     _name_rec = 'summary'
     #_inherit = ['mail.thread']
 
-    _states = [('draft','Draft'), ('planned', 'Planned'), ('scheduled', 'Scheduled'), 
+    _states = [('new','new'), ('planned', 'Planned'), ('scheduled', 'Scheduled'), 
                ('started', 'Started'), ('completed', 'Completed'), ('cancelled', 'Cancelled'),
                 ('suspended', 'Suspended'), ('aborted', 'Aborted'),('expired', 'Expired')]
     
@@ -209,7 +209,7 @@ class t4_clinical_activity(orm.Model):
         'parent_id': fields.many2one('t4.clinical.activity', 'Parent activity', readonly=True, help="Business hierarchy"), 
         'child_ids': fields.one2many('t4.clinical.activity', 'parent_id', 'Child Activities', readonly=True),     
         'creator_id': fields.many2one('t4.clinical.activity', 'Creator activity', readonly=True, help="Evolution hierarchy"), 
-        'created_ids': fields.one2many('t4.clinical.activity', 'creator_id', 'Created Activities', readonly=True), 
+        'created_ids': fields.one2many('t4.clinical.activity', 'creator_id', 'Created Activities', readonly=True),
         # state
         'notes': fields.text('Notes'),
         'state': fields.selection(_states, 'State', readonly=True),
@@ -252,7 +252,7 @@ class t4_clinical_activity(orm.Model):
    }
     
     _defaults = {
-        'state': 'draft',
+        'state': 'new',
         #'summary': 'Not specified',
     }
 
@@ -277,45 +277,45 @@ class t4_clinical_activity(orm.Model):
     
     @data_model_event(callback="start_act_window")
     def start_act_window(self, cr, uid, activity_id, fields, context=None):
-        return True
+        return {}
     
     @data_model_event(callback="schedule_act_window")
     def schedule_act_window(self, cr, uid, activity_id, fields, context=None):
-        return True
+        return {}
     
     @data_model_event(callback="submit_act_window")
     def submit_act_window(self, cr, uid, activity_id, fields, context=None):
-        return True
+        return {}
     
     @data_model_event(callback="complete_act_window")
     def complete_act_window(self, cr, uid, activity_id, fields, context=None):
-        return True
+        return {}
     
     @data_model_event(callback="cancel_act_window")
     def cancel_act_window(self, cr, uid, activity_id, fields, context=None):
-        return True      
+        return {}      
     
     @data_model_event(callback="update_activity")
     def update_activity(self, cr, uid, activity_id, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
-        return True        
+        return {}        
     
     @data_model_event(callback="submit")
     def submit(self, cr, uid, activity_id, vals, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
         assert isinstance(vals, dict), "vals must be a dict, found to be %s" % type(vals)
-        return True    
+        return {}    
     
     @data_model_event(callback="retrieve") 
     def retrieve(self, cr, uid, activity_id, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
-        return True
+        return {}
            
  
     @data_model_event(callback="validate")          
     def validate(self, cr, uid, activity_id, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
-        return True
+        return {}
     
     # MGMT API
     @data_model_event(callback="schedule")
@@ -332,38 +332,38 @@ class t4_clinical_activity(orm.Model):
                 else:
                     res.append(True)
             #assert any(res), "date_scheduled must be one of the following types: %s. Found: %s" % (date_formats, date_scheduled) 
-        return True
+        return {}
     
     @data_model_event(callback="assign")
     def assign(self, cr, uid, activity_id, user_id, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
         assert isinstance(user_id,(int, long)), "user_id must be int or long, found to be %s" % type(user_id)
-        return True        
+        return {}        
     
     @data_model_event(callback="unassign")   
     def unassign(self, cr, uid, activity_id, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
-        return True 
+        return {} 
     
     @data_model_event(callback="start")        
     def start(self, cr, uid, activity_id, context=None): 
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)            
-        return True 
+        return {} 
     
     @data_model_event(callback="complete")
     def complete(self, cr, uid, activity_id, context=None):    
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)      
-        return True 
+        return {} 
     
     @data_model_event(callback="cancel")    
     def cancel(self, cr, uid, activity_id, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)            
-        return True 
+        return {} 
     
     @data_model_event(callback="cancel")
     def abort(self, cr, uid, activity_id, context=None):
         assert isinstance(activity_id,(int, long)), "activity_id must be int or long, found to be %s" % type(activity_id)
-        return True
+        return {}
 
 
         
@@ -371,7 +371,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
     
     _name = 't4.clinical.activity.data'  
     _transitions = {
-        'draft': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
+        'new': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'scheduled': ['start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'started': ['complete','cancel','submit','assign','unassign','retrieve','validate'],
@@ -451,7 +451,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity_id = isinstance(activity_id, (list, tuple)) and activity_id[0] or activity_id
         activity_pool = self.pool['t4.clinical.activity']  
         activity = activity_pool.browse(cr, uid, activity_id, context)
-        except_if(activity.state not in ['draft','planned', 'scheduled','started'], msg="Data can not be submitted for a activity in state %s !" % activity.state)
+        except_if(activity.state not in ['new','planned', 'scheduled','started'], msg="Data can not be submitted for a activity in state %s !" % activity.state)
         except_if(not activity.type_id,msg="Data model is not set for the activity!")
         #import pdb; pdb.set_trace()
         try:
@@ -476,7 +476,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
     
 
     def validate(self, cr, uid, activity_id, context=None):
-        return True    
+        return {}    
 
     def start(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -484,7 +484,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         except_if(not self.is_action_allowed(activity.state, 'start'), msg="activity of type '%s' can not be started from state '%s'" % (activity.data_model, activity.state))                  
         activity_pool.write(cr, uid, activity_id, {'state': 'started', 'date_started': dt.now().strftime(DTF)}, context)
         _logger.debug("activity '%s', activity.id=%s started" % (activity.data_model, activity.id))        
-        return True
+        return {}
 
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -499,7 +499,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {'creator_id': activity_id}, 
                                                                                         {'patient_id': activity.patient_id.id}) 
             activity_pool.schedule(cr, uid, model_activity_id, trigger.date_next, context)
-        return True
+        return {}
 
     def assign(self, cr, uid, activity_id, user_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -513,7 +513,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             activity_vals.update({'employee_ids': [(4, e.id) for e  in activity.user_id.employee_ids]})
         activity_pool.write(cr, uid, activity_id, activity_vals)
         _logger.debug("activity '%s', activity.id=%s assigned to user.id=%s" % (activity.data_model, activity.id, user_id)) 
-        return True
+        return {}
     
     def unassign(self, cr, uid, activity_id, user_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -522,10 +522,10 @@ class t4_clinical_activity_data(orm.AbstractModel):
         except_if(activity.user_id, msg="activity is not assigned yet!")               
         activity_pool.write(cr, uid, activity_id,{'user_id': False}, context) 
         _logger.debug("activity '%s', activity.id=%s unassigned" % (activity.data_model, activity.id))         
-        return True
+        return {}
             
     def abort(self, cr, uid, activity_id, context=None):
-        return True
+        return {}
     
     def cancel(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -534,7 +534,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         activity_pool.write(cr, uid, activity_id,{'state': 'cancelled', 'date_terminated': now}, context)
         _logger.debug("activity '%s', activity.id=%s cancelled" % (activity.data_model, activity.id))         
-        return True
+        return {}
 
     def retrieve(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -563,7 +563,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         date_scheduled = date_scheduled or activity.date_scheduled
         activity_pool.write(cr, uid, activity_id, {'date_scheduled': date_scheduled, 'state': 'scheduled'}, context)
         _logger.debug("activity '%s', activity.id=%s scheduled, date_scheduled='%s'" % (activity.data_model, activity.id, date_scheduled))        
-        return True
+        return {}
 
     def submit(self, cr, uid, activity_id, vals, context=None):
         activity_pool = self.pool['t4.clinical.activity']        
@@ -583,7 +583,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
             self.write(cr, uid, activity.data_ref.id, vals, context)
         
         self.update_activity(cr, SUPERUSER_ID, activity_id, context)
-        return True 
+        return {} 
     
     def update_activity(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']        
@@ -600,17 +600,15 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity_pool.write(cr, uid, activity_id, activity_vals)
         ##print"activity_vals: %s" % activity_vals
         _logger.debug("activity '%s', activity.id=%s updated with: %s" % (activity.data_model, activity.id, activity_vals))
-        return True             
+        return {}             
 
     def get_activity_pos_id(self, cr, uid, activity_id, context=None):
         pos_id = False 
         if 'pos_id' in self._columns.keys():
             data = self.browse_domain(cr, uid, [('activity_id','=',activity_id)])[0]
             pos_id = data.pos_id and data.pos_id.id or False 
-            
         if pos_id:
             return pos_id
-        
         location_id = self.get_activity_location_id(cr, uid, activity_id)
         if not location_id:
             patient_id = self.get_activity_patient_id(cr, uid, activity_id)

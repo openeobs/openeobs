@@ -246,7 +246,7 @@ class TestOperations(common.SingleTransactionCase):
         self.assertTrue(spell_activity.data_model == "t4.clinical.spell", "spell_activity.data_model == spell")
         self.assertTrue(spell_activity.state == "started", "spell_activity.state == started")
         self.assertTrue(move_activity.state == "completed", "move_activity.state == completed")
-        self.assertTrue(placement_activity.state == "draft", "placement_activity.state == draft")
+        self.assertTrue(placement_activity.state == 'new', "placement_activity.state == draft")
         if patient_id:
             self.assertTrue(patient_id == admission_activity.patient_id.id, 'patient == admission.patient') 
             #import pdb; pdb.set_trace()
