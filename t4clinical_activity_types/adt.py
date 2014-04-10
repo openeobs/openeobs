@@ -84,7 +84,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         patient_pool = self.pool['t4.clinical.patient']
         patient_id = patient_pool.search(cr, SUPERUSER_ID, [('other_identifier','=',vals['other_identifier'])])
         except_if(not patient_id, msg="Patient not found!")
-        _logger.error("More than one patient found with 'other_identifier' = %s! Passed patient_id = %s" 
+        _logger.warn("More than one patient found with 'other_identifier' = %s! Passed patient_id = %s" 
                                     % (vals['other_identifier'], patient_id[0]))
         patient_id = patient_id[0]
         vals_copy = vals.copy()       
