@@ -96,6 +96,61 @@ class t4_clinical_patient_observation_weight(orm.Model):
         'weight': fields.float('Weight'),
     }
 
+
+class t4_clinical_patient_observation_blood_product(orm.Model):
+    _name = 't4.clinical.patient.observation.blood_product'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = ['vol', 'product']
+    _columns = {
+        'vol': fields.float('Blood Product Vol'),
+        'product': fields.selection((('rbc', 'RBC'),
+                                    ('ffp', 'FFP'),
+                                    ('platelets', 'Platelets'),
+                                    ('has', 'Human Albumin Sol'),
+                                    ('dli', 'DLI'),
+                                    ('stem', 'Stem Cells')), 'Blood Product'),
+    }
+
+
+class t4_clinical_patient_observation_blood_sugar(orm.Model):
+    _name = 't4.clinical.patient.observation.blood_sugar'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = ['blood_sugar']
+    _columns = {
+        'blood_sugar': fields.float('Blood Sugar'),
+    }
+
+
+class t4_clinical_patient_observation_stools(orm.Model):
+    _name = 't4.clinical.patient.observation.stools'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = []
+    _columns = {
+        'bowel_open': fields.boolean('Bowel Open'),
+        'nausea': fields.boolean('Nausea'),
+        'vomiting': fields.boolean('Vomiting'),
+        'quantity': fields.selection((('large', 'Large'),
+                                    ('medium', 'Medium'),
+                                    ('small', 'Small')), 'Quantity'),
+        'colour': fields.selection((('brown', 'Brown'),
+                                    ('yellow', 'Yellow'),
+                                    ('green', 'Green'),
+                                    ('black', 'Black/Tarry'),
+                                    ('red', 'Red (fresh blood)'),
+                                    ('clay', 'Clay')), 'Colour'),
+        'bristol_type': fields.selection((('1', 'Type 1'), ('2', 'Type 2'), ('3', 'Type 3'), ('4', 'Type 4'),
+                                        ('5', 'Type 5'), ('6', 'Type 6'), ('7', 'Type 7')), 'Bristol Type'),
+        'offensive': fields.boolean('Offensive'),
+        'strain': fields.boolean('Strain'),
+        'laxatives': fields.boolean('Laxatives'),
+        'samples': fields.selection((('none', 'None'),
+                                    ('micro', 'Micro'),
+                                    ('virol', 'Virol'),
+                                    ('m+v', 'M+V')), 'Lab Samples'),
+        'rectal_exam': fields.boolean('Rectal Exam'),
+    }
+
+
 class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
@@ -343,9 +398,7 @@ class t4_clinical_patient_observation_vips(orm.Model):
         Implementation of the default VIPS policy
         """
         activity_pool = self.pool['t4.clinical.activity']
-        hca_pool = self.pool['t4.clinical.notification.hca']
         nurse_pool = self.pool['t4.clinical.notification.nurse']
-        groups_pool = self.pool['res.groups']
         api_pool = self.pool['t4.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
