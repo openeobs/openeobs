@@ -97,7 +97,7 @@ class t4_clinical_location(orm.Model):
             pos_location_id = self.search(cr, uid, [['parent_id','=',False],['child_ids','child_of',location.id]])
             pos_location_id = pos_location_id and pos_location_id[0] or False
             pos_id = pos_pool.search(cr, uid, [['location_id','=',pos_location_id]])
-            res[location.id] = pos_id and pos_id[0]
+            res[location.id] = pos_id and pos_id[0] or False
             if not pos_id:
                 _logger.warning("pos_id not found for location '%s', id=%s" % (location.code, location.id))
         return res
