@@ -7,5 +7,5 @@ fast_suite = [
     test_observations,
     test_adt,
     test_ews_policy,
-    test_gcs_policy,
+    test_gcs_policy
     ]

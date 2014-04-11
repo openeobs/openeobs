@@ -53,6 +53,32 @@ class demo(orm.AbstractModel):
                }
         location_id = self.pool['t4.clinical.location'].create(cr, uid, data)
         return location_id
+
+    def create_pos(self, cr, uid):
+        pos_pool = self.pool['t4.clinical.pos']
+        location_pool = self.pool['t4.clinical.location']
+        fake.seed(next_seed())
+        # POS location 
+        code = "POS"+str(fake.random_int(min=1, max=9))
+        data = {'name': "POS Location (%s)" % code, 'code': code, 'type': 'pos', 'usage': 'hospital'}
+        pos_location_id = location_pool.create(cr, uid, data)
+        # Admission location
+        data = {'name': "Admission Location (%s)" % code, 
+                'code': "ADML-%s" % code, 
+                'type': 'pos', 'usage': 'hospital', 'parent_id': pos_location_id}
+        lot_admission_id = location_pool.create(cr, uid, data)
+        # Discharge Location
+        data = {'name': "Discharge Location (%s)" % code, 
+                'code': "DISL-%s" % code, 
+                'type': 'pos', 'usage': 'hospital', 'parent_id': pos_location_id}
+        lot_discharge_id = location_pool.create(cr, uid, data)                
+        # POS        
+        data = {'name': "HOSPITAL"+str(fake.random_int(min=1, max=9)),
+                'location_id': pos_location_id,
+                'lot_admission_id': lot_admission_id,
+                'lot_discharge_id': lot_discharge_id}
+        pos_id = pos_pool.create(cr, uid, data)
+        return pos_id
     
     def adt_patient_register(self, cr, uid):
         res = {}
@@ -223,9 +249,13 @@ class demo(orm.AbstractModel):
         location_pool = self.pool['t4.clinical.location']
         user_pool = self.pool['res.users']    
         patient_pool = self.pool['t4.clinical.patient']
-        pos = self.pool['t4.clinical.pos'].browse(cr, uid, 1) # UHG
+        pos_pool = self.pool['t4.clinical.pos']
         imd_pool = self.pool['ir.model.data']
         adt_user = imd_pool.get_object(cr, uid, "t4clinical_demo", "demo_user_adt_uhg")   
+        
+        # Create POS
+        pos_id = self.create_pos(cr, uid)
+        pos = pos_pool.browse(cr, uid, pos_id)
         
         # Create wards
         ward_location_ids = [self.create_ward(cr, uid, pos.location_id.id) for i in range(WARD_QTY)]
