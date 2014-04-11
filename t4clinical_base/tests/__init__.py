@@ -1,7 +1,6 @@
-import test_activity
-import test_patient
+import test_base
+
 
 fast_suite = [
-    test_patient,
-    test_activity,
+    test_base
     ]

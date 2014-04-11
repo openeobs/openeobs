@@ -18,8 +18,8 @@ class t4_clinical_adt_patient_register(orm.Model):
     _name = 't4.clinical.adt.patient.register'
     _inherit = ['t4.clinical.activity.data']      
     _columns = { 
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
-        
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
+        'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
         'patient_identifier': fields.text('patientId'),
         'other_identifier': fields.text('otherId'),
         'family_name': fields.text('familyName'),
@@ -32,6 +32,8 @@ class t4_clinical_adt_patient_register(orm.Model):
     
     def submit(self, cr, uid, activity_id, vals, context=None):
         res = {}
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)        
         except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
               msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
@@ -39,12 +41,16 @@ class t4_clinical_adt_patient_register(orm.Model):
         patient_id = patient_pool.search(cr, uid, patient_domain)
         except_if(patient_id, msg="Patient already exists! Data: %s" % vals)
         patient_id = patient_pool.create(cr, uid, vals, context)
-        vals.update({'patient_id': patient_id})
+        vals.update({'patient_id': patient_id, 'pos_id': user.pos_id.id})
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals, context)
         res.update({'patient_id': patient_id})
         return res
     
-        
+    def complete(self, cr, uid, activity_id, context=None): 
+        res = {}
+        super(t4_clinical_adt_patient_register, self).complete(cr, uid, activity_id, context)
+        return res       
+    
 class t4_clinical_adt_patient_admit(orm.Model):
     """
         adt.patient.admit: 
