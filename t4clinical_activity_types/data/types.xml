@@ -43,7 +43,7 @@
 			<field name="data_model">t4.clinical.patient.observation.height</field>
 		</record>	
 		<record model="t4.clinical.activity.type" id="observation_weight_data_type">
-			<field name="summary">Observation Height</field>
+			<field name="summary">Observation Weight</field>
 			<field name="data_model">t4.clinical.patient.observation.weight</field>
 		</record>							
 		<record model="t4.clinical.activity.type" id="spell_data_type">
@@ -82,6 +82,18 @@
         <record model="t4.clinical.activity.type" id="observation_vips_data_type">
 			<field name="summary">Observation VIPS</field>
 			<field name="data_model">t4.clinical.patient.observation.vips</field>
+		</record>
+        <record model="t4.clinical.activity.type" id="observation_blood_product_data_type">
+			<field name="summary">Observation Blood Product</field>
+			<field name="data_model">t4.clinical.patient.observation.blood_product</field>
+		</record>
+        <record model="t4.clinical.activity.type" id="observation_blood_sugar_data_type">
+			<field name="summary">Observation Blood Sugar</field>
+			<field name="data_model">t4.clinical.patient.observation.blood_sugar</field>
+		</record>
+        <record model="t4.clinical.activity.type" id="observation_stools_data_type">
+			<field name="summary">Observation Stools</field>
+			<field name="data_model">t4.clinical.patient.observation.stools</field>
 		</record>
 		<record model="t4.clinical.activity.type" id="device_connect_data_type">
 			<field name="summary">Device Connect</field>
