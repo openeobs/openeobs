@@ -4,6 +4,7 @@
         <record id="t4clinical_base.group_t4clinical_nurse" model="res.groups">
 			<field name="activity_type_ids" 
 				   eval="[[6, False,[
+				                    ref('spell_data_type'),
 									ref('observation_ews_data_type'),
 									ref('observation_gcs_data_type'),
 									ref('observation_vips_data_type'),
@@ -11,6 +12,7 @@
 									ref('observation_blood_sugar_data_type'),
 									ref('observation_stools_data_type'),
 									ref('observation_height_weight_data_type'),
+									ref('observation_weight_data_type'),
 									ref('device_disconnect_data_type')
 									]]]"/>                       
         </record>
