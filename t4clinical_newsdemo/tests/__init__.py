@@ -1,7 +1,7 @@
 import test_adtentry
-import test_Activities
+import test_activities
 
 fast_suite = [
     test_adtentry,
-    test_Activities
+    test_activities
     ]

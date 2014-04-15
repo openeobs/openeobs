@@ -7,12 +7,14 @@ from openerp import SUPERUSER_ID
 
 T4SUID = SUPERUSER_ID
 
+
 class t4clinical_res_partner(orm.Model):
     _inherit = 'res.partner'
 
     _columns = {
         'doctor': fields.boolean('Doctor', help="Check this box if this contact is a Doctor")
     }
+
 
 
 class t4_clinical_device_type(orm.Model):
@@ -24,6 +26,7 @@ class t4_clinical_device_type(orm.Model):
         
     }
 
+
 class t4_clinical_device(orm.Model):
     _name = 't4.clinical.device'
     _rec_name = 'type_id'
@@ -31,6 +34,8 @@ class t4_clinical_device(orm.Model):
         'type_id': fields.many2one('t4.clinical.device.type', "Device Type"),
         
     }
+
+
 class t4_clinical_pos(orm.Model):
     """ Clinical point of service """
     _name = 't4.clinical.pos' 
@@ -49,6 +54,7 @@ class t4_clinical_pos(orm.Model):
         'ews_init_frequency': 15
     }
 
+
 class res_company(orm.Model):
     _name = 'res.company'
     _inherit = 'res.company'
@@ -56,6 +62,7 @@ class res_company(orm.Model):
         'pos_ids': fields.one2many('t4.clinical.pos', 'company_id', 'Points of Service'),
     }
     
+
 class res_users(orm.Model):
     _name = 'res.users'
     _inherit = 'res.users'
@@ -80,6 +87,7 @@ class res_groups(orm.Model):
         'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'group_activity_type_rel', 'group_id', 'type_id', 'Activity Types of Responsibility'),
     }
     
+
 class t4_clinical_location(orm.Model):
     """ Clinical LOCATION """
 
