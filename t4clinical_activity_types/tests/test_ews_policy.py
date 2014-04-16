@@ -75,7 +75,6 @@ class TestEwsPolicy(common.SingleTransactionCase):
             'given_name': faker.first_name()
         }
         reg_activity_id = register_pool.create_activity(cr, adt_uid, {}, patient_data)
-        patient_data.pop('patient_id')
         self.assertTrue(reg_activity_id, msg='Error trying to register patient')
         print "TEST - setting up EWS policy tests - " + "Patient registered."
 
