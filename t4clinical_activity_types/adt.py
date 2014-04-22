@@ -31,18 +31,20 @@ class t4_clinical_adt_patient_register(orm.Model):
     }
     
     def submit(self, cr, uid, activity_id, vals, context=None):
+        vals_copy = vals.copy()
         res = {}
         user = self.pool['res.users'].browse(cr, uid, uid, context)
         except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)        
-        except_if(not 'patient_identifier' in vals.keys() and not 'other_identifier' in vals.keys(),
+        except_if(not 'patient_identifier' in vals_copy.keys() and not 'other_identifier' in vals_copy.keys(),
               msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
-        patient_domain = [(k,'=',v) for k,v in vals.iteritems()]
+        patient_domain = [(k,'=',v) for k,v in vals_copy.iteritems()]
         patient_id = patient_pool.search(cr, uid, patient_domain)
-        except_if(patient_id, msg="Patient already exists! Data: %s" % vals)
-        patient_id = patient_pool.create(cr, uid, vals, context)
-        vals.update({'patient_id': patient_id, 'pos_id': user.pos_id.id})
-        super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals, context)
+        except_if(patient_id, msg="Patient already exists! Data: %s" % vals_copy)
+        patient_id = patient_pool.create(cr, uid, vals_copy, context)
+
+        vals_copy.update({'patient_id': patient_id, 'pos_id': user.pos_id.id})
+        super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals_copy, context)
         res.update({'patient_id': patient_id})
         return res
     
@@ -50,7 +52,8 @@ class t4_clinical_adt_patient_register(orm.Model):
         res = {}
         super(t4_clinical_adt_patient_register, self).complete(cr, uid, activity_id, context)
         return res       
-    
+
+
 class t4_clinical_adt_patient_admit(orm.Model):
     """
         adt.patient.admit: 
@@ -182,7 +185,7 @@ class t4_clinical_adt_patient_merge(orm.Model):
                 ids = model_pool.search(cr, uid, [('patient_id','=',from_id)])
                 ids and model_pool.write(cr, uid, ids, {'patient_id': into_id})
         from_data = patient_pool.read(cr, uid, from_id, context)        
-        indo_data = patient_pool.read(cr, uid, into_id, context)
+        into_data = patient_pool.read(cr, uid, into_id, context)
         vals_into = {}
         for fk, fv in from_data.iteritems():
             for ik, iv in into_data.iteritems():
@@ -193,7 +196,7 @@ class t4_clinical_adt_patient_merge(orm.Model):
                 if fv and not iv:
                     vals_into.update({ik: fv})
         patient_pool.write(cr, uid, into_id, vals_into, context)
-        patient_pool.write(cr, uid, from_id, {'active':False}, context)
+        patient_pool.write(cr, uid, from_id, {'active': False}, context)
         super(t4_clinical_adt_patient_merge, self).submit(cr, uid, activity_id, vals, context)
         
 
