@@ -146,6 +146,83 @@
                 <field name="view_mode">form</field>
                 <field name="view_id" ref="view_t4_clinical_activity_form"/>
                 <field name="act_window_id" ref="action_t4_clinical_activity"/>
-            </record>   -->          
+            </record>   -->         
+
+        <!-- Activity Workload Kanban View -->
+       <record model="ir.ui.view" id="view_activity_workload_kanban">
+            <field name="name">t4.clinical.activity.workload.kanban</field>
+            <field name="model">t4.clinical.activity</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="proximity_interval" edit="false" quick_create="false" create="false">
+                    <field name="proximity_interval"/>
+                    <field name="summary"/>
+                    <field name="state"/>
+                    <field name="user_id"/>
+                    <field name="user_ids"/>
+                    <field name="patient_id"/>
+                    <field name="location_id"/>
+                    <field name="date_scheduled"/>
+                    <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div><b><field name="summary"/></b></div>
+                                <div>
+                                    <field name="parent_id"/><br/>
+                                    <t t-if="record.date_scheduled.raw_value and record.date_scheduled.raw_value lt (new Date())" t-set="red">oe_kanban_text_red</t>
+                                    <span t-attf-class="#{red || ''}"><i><field name="date_scheduled"/></i></span>
+                                </div>
+                                <div class="oe_kanban_footer_left">
+<!--                                     <span groups="project.group_time_work_estimation_tasks" title="Remaining hours">
+                                        <span class="oe_e">N</span>
+                                        <t t-esc="Math.round(record.remaining_hours.raw_value)"/>
+                                    </span> -->
+                                </div>
+                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
+				                    <field name="state"/>
+				                    <field name="user_id"/>
+				                    <field name="user_ids"/>
+				                    <field name="patient_id"/>
+				                    <field name="location_id"/>
+				                    <field name="date_scheduled"/>
+				                    <field name="proximity_interval"/>
+                                </div>
+                            </div>
+                            <div class="oe_clear"></div>
+                        </div>
+                    </t>
+                    </templates>
+                </kanban>
+            </field>
+         </record>
+
+        <record id="view_activity_workload_search" model="ir.ui.view">
+            <field name="name">t4.clinical.activity.workload.search</field>
+            <field name="model">t4.clinical.activity</field>
+            <field name="arch" type="xml">
+               <search string="Activity">
+                    <field name="summary"/>
+                    <filter string="NEWS Observations Only" name="obsrvations_news"
+                    	domain="[('data_model','in',['t4.clinical.patient.observation.ews'])]"/>
+                    <separator/>
+                    <group expand="0" string="Group By...">
+
+                    </group>
+                </search>
+            </field>
+        </record>     
+        <record model="ir.actions.act_window" id="act_activity_workload_kanban">
+            <field name="name">Activity Workload</field>
+            <field name="res_model">t4.clinical.activity</field>
+            <field name="view_mode">kanban</field>
+			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','done']]]</field>
+              <field name="search_view_id" ref="view_activity_workload_search"/>
+        </record>  
+        <record model="ir.actions.act_window.view" id="act_activity_workload_kanban_view">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_activity_workload_kanban"/>
+            <field name="act_window_id" ref="act_activity_workload_kanban"/>
+        </record>        
      </data>
 </openerp>
