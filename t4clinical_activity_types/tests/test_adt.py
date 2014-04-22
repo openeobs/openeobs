@@ -50,23 +50,22 @@ class ADTTest(BaseTest):
     
     def test_adt(self):        
         
-        self.create_environment()
+        env = self.create_environment()
         
-        self.register_patient()
-        
-        
+        env = self.adt_patient_register()
         
         
-    def register_patient(self):
+        
+        
+    def adt_patient_register(self, activity_vals={}, data_vals={}, env={}):
         global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
-        res = {}
         fake.seed(next_seed()) 
-        gender = fake.random_element(array=('M','F'))
-        other_identifier = str(fake.random_int(min=1000001, max=9999999))
-        dob = fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S")
+        gender = data_vals.get('gender') or fake.random_element(array=('M','F'))
+        other_identifier = data_vals.get('other_identifier') or str(fake.random_int(min=1000001, max=9999999))
+        dob = data_vals.get('dob') or fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S")
         data = {
-                'family_name': fake.last_name(), 
-                'given_name': fake.first_name(),
+                'family_name': data_vals.get('family_name') or fake.last_name(), 
+                'given_name': data_vals.get('given_name') or fake.first_name(),
                 'other_identifier': other_identifier, 
                 'dob': dob, 
                 'gender': gender, 
@@ -112,16 +111,58 @@ class ADTTest(BaseTest):
         # return
         ##############
         
+        
+        env['patient_ids'].append(register_activity.patient_id.id)
+        #import pdb; pdb.set_trace()
+        return env
+    
+    def adt_patient_admit(self, activity_vals={}, data_vals={}, env={}):      
+        global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
+        res = {}
+        fake.seed(next_seed()) 
+        data = {}
+        if not data_vals.get('other_identifier'):
+            
+        data['other_identifier'] = data_vals.get('other_identifier') or other_identifier
+        data['location'] = data_vals.get('suggested_location') or suggested_location
+        data['code'] = str(fake.random_int(min=10001, max=99999))
+        data['start_date'] = fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S")
+        admit_activity_id = admit_pool.create_activity(cr, uid, {}, {})
+        admit_submit_res = activity_pool.submit(cr, uid, admit_activity_id, data)
+        admit_complete_res = activity_pool.complete(cr, uid, admit_activity_id)
+        
+        # create
+        ##############
+        duplicate_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
+        register_activity_id = self.create_activity(cr, adt_user_id, register_pool._name, {}, {})
+
+        # submit
+        ##############
+        register_submit_res = self.submit(cr, adt_user_id, register_activity_id, data)
+        register_activity = activity_pool.browse(cr, uid, register_activity_id)
+        adt_user = user_pool.browse(cr, uid, adt_user_id)
+        patient_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
+        # submit tests
+
+        # complete
+        ##############
+        register_complete_res = self.complete(cr, adt_user_id, register_activity_id)
+        
+        # return
+        ##############
+        
         res.update({'register_activity_id': register_activity_id})
         res.update(register_submit_res)
         res.update(register_complete_res)
 
         #import pdb; pdb.set_trace()
-        return res        
+        return res  
         
-    def create_environment(self): 
-        WARD_QTY = 5
-        BED_PER_WARD = 3
+    def create_environment(self, WARD_QTY=5, BED_PER_WARD=3):
+        """
+        creates 1 pos environment
+        """
+
         global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
         _logger.info("Executing create_environment()")
         # Create POS
@@ -146,5 +187,11 @@ class ADTTest(BaseTest):
              self.create_nurse_user(ward_location_ids)
          ]
         
-        
-        
+        res = {'pos_id': [pos_id],
+               'adt_user_id': [adt_user_id],
+               'bed_location_ids': bed_location_ids,
+               'ward_location_ids': ward_location_ids,
+               'nurse_user_ids': nurse_user_ids,
+               'pateint_ids': [],
+               }
+        return res

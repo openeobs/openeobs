@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 
 from faker import Faker
 fake = Faker()
-seed = 0
+seed = fake.random_int(min=1000001, max=9999999)
 def next_seed():
     global seed
     seed += 1
