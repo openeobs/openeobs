@@ -21,6 +21,9 @@ ACTIVITIES_URLS = [
     {
         'path': '/api/activities/1/assign/',
         'method': 'POST',
+        'data': {
+                'user_id': 1
+        },
         'result': {
             'params': ['1', 'assign'],
             'method': 'POST'
@@ -37,6 +40,8 @@ ACTIVITIES_URLS = [
     {
         'path': '/api/activities/1/complete/',
         'method': 'POST',
+        'data': {
+        },
         'result': {
             'params': ['1', 'complete'],
             'method': 'POST'
@@ -53,6 +58,9 @@ ACTIVITIES_URLS = [
     {
         'path': '/api/activities/1/',
         'method': 'POST',
+        'data': {
+                'location_id': 1
+        },
         'result': {
             'params': ['1', None],
             'method': 'POST'
@@ -189,7 +197,7 @@ class TestUrls(common.SingleTransactionCase):
             if u['method'] == 'GET':
                 r = requests.get(host+u['path'])
             elif u['method'] == 'POST':
-                r = requests.post(host+u['path'])
+                r = requests.post(host+u['path'], data=u['data'])
             elif u['method'] == 'PUT':
                 r = requests.put(host+u['path'])
             elif u['method'] == 'DELETE':
