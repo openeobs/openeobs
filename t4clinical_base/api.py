@@ -65,7 +65,7 @@ class t4_clinical_api(orm.AbstractModel):
         spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, context)
         if not spell_activity_id:
             return False
-        return self.browse(cr, uid, spell_activity_id, context)
+        return self.pool['t4.clinical.activity'].browse(cr, uid, spell_activity_id, context)
 
     def set_activity_trigger(self, cr, uid, patient_id, data_model, unit, unit_qty, context=None):
         trigger_pool = self.pool['t4.clinical.patient.activity.trigger']

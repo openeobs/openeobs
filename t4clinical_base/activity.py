@@ -706,6 +706,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
 
     def get_activity_pos_id(self, cr, uid, activity_id, context=None):
         pos_id = False
+        api_pool = self.pool['t4.clinical.api']
         if 'pos_id' in self._columns.keys():
             data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
             pos_id = data.pos_id and data.pos_id.id or False
@@ -714,10 +715,15 @@ class t4_clinical_activity_data(orm.AbstractModel):
         location_id = self.get_activity_location_id(cr, uid, activity_id)
         if not location_id:
             patient_id = self.get_activity_patient_id(cr, uid, activity_id)
-            location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
+            location_id = api_pool.get_patient_current_location_id(cr, uid, patient_id, context)
         if location_id:
             location = self.pool['t4.clinical.location'].browse(cr, uid, location_id, context)
             pos_id = location.pos_id and location.pos_id.id or False
+        if pos_id:
+            return pos_id
+        patient_id = self.get_activity_patient_id(cr, uid, activity_id)
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, patient_id, context=None)
+        pos_id = spell_activity and spell_activity.data_ref.pos_id.id
         return pos_id
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):

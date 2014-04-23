@@ -24,12 +24,11 @@ class ADTTest(BaseTest):
  
     def setUp(self):
         global cr, uid, \
-                register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
+               register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
                activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool
         
         cr, uid = self.cr, self.uid
-  
-        
+
         register_pool = self.registry('t4.clinical.adt.patient.register')
         patient_pool = self.registry('t4.clinical.patient')
         admit_pool = self.registry('t4.clinical.adt.patient.admit')
@@ -53,7 +52,7 @@ class ADTTest(BaseTest):
         pos1_env = self.create_pos_environment()
         
         self.adt_patient_register(env=pos1_env)
-        
+        self.adt_patient_admit(env=pos1_env)
         self.patient_discharge(data_vals={}, env=pos1_env)
         
         
@@ -78,7 +77,7 @@ class ADTTest(BaseTest):
 
         # submit
         ##############
-        register_submit_res = self.submit(cr, env['adt_user_id'], register_activity_id, data)
+        self.submit(cr, env['adt_user_id'], register_activity_id, data)
         register_activity = activity_pool.browse(cr, uid, register_activity_id)
         adt_user = user_pool.browse(cr, uid, env['adt_user_id'])
         patient_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
@@ -106,7 +105,7 @@ class ADTTest(BaseTest):
                         % (register_activity.patient_id.id, patient_ids))
         # complete
         ##############
-        register_complete_res = self.complete(cr, env['adt_user_id'], register_activity_id)
+        self.complete(cr, env['adt_user_id'], register_activity_id)
         
         # return
         ##############
@@ -132,7 +131,8 @@ class ADTTest(BaseTest):
          
         
         discharge_submit_res = self.submit(cr, uid, discharge_activity_id, data)
-        discharge_pool.get_activity_pos_id(cr, uid, discharge_activity_id)
+        #import pdb; pdb.set_trace()
+        pos_id = discharge_pool.get_activity_pos_id(cr, uid, discharge_activity_id)
         # submit tests
         discharge_activity = activity_pool.browse(cr, uid, discharge_activity_id)
         
@@ -150,38 +150,21 @@ class ADTTest(BaseTest):
     def adt_patient_admit(self, activity_vals={}, data_vals={}, env={}):      
         fake.seed(next_seed()) 
         data = {}
-        self.assertTrue(data_vals.get('other_identifier'),
-                       "other_identifier is not submitted!")              
-        data['other_identifier'] = data_vals.get('other_identifier') or other_identifier
-        data['location'] = data_vals.get('suggested_location') or suggested_location
+        self.assertTrue(data_vals.get('other_identifier') or env['other_identifiers'],
+                       "other_identifier is not submitted/available!")
+        self.assertTrue(data_vals.get('suggested_location') or env['ward_location_ids'],
+                       "suggested_location is not submitted/available!")                 
+        data['other_identifier'] = data_vals.get('other_identifier') \
+                                    or env['other_identifiers'][fake.random_int(min=0, max=len(env['other_identifiers'])-1)]
+        data['location'] = data_vals.get('suggested_location') \
+                                    or location_pool.browse(cr, uid, 
+                                        env['ward_location_ids'][fake.random_int(min=0, max=len(env['ward_location_ids'])-1)]).name
         data['code'] = str(fake.random_int(min=10001, max=99999))
         data['start_date'] = fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S")
-        
-        admit_activity_id = admit_pool.create_activity(cr, uid, {}, {})
-        admit_submit_res = activity_pool.submit(cr, uid, admit_activity_id, data)
-        admit_complete_res = activity_pool.complete(cr, uid, admit_activity_id)
-        
-        # create
-        ##############
-        #duplicate_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
-        #register_activity_id = self.create_activity(cr, env['adt_user_id'], register_pool._name, {}, {})
-
-        # submit
-        ##############
-        #register_submit_res = self.submit(cr, env['adt_user_id'], register_activity_id, data)
-        #register_activity = activity_pool.browse(cr, uid, register_activity_id)
-        #adt_user = user_pool.browse(cr, uid, env['adt_user_id'])
-        #patient_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
-        # submit tests
-
-        # complete
-        ##############
-        #register_complete_res = self.complete(cr, env['adt_user_id'], register_activity_id)
-        
-        # return
-        ##############
-        
-
+        admit_activity_id = self.create_activity(cr, env['adt_user_id'], admit_pool._name, {}, {})
         #import pdb; pdb.set_trace()
+        self.submit(cr, env['adt_user_id'], admit_activity_id, data)
+        self.complete(cr, env['adt_user_id'], admit_activity_id)
+        
         return env
 
