@@ -25,9 +25,7 @@ class ADTTest(BaseTest):
     def setUp(self):
         global cr, uid, \
                 register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
-               activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool
-               
-        global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
+               activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool
         
         cr, uid = self.cr, self.uid
   
@@ -35,6 +33,7 @@ class ADTTest(BaseTest):
         register_pool = self.registry('t4.clinical.adt.patient.register')
         patient_pool = self.registry('t4.clinical.patient')
         admit_pool = self.registry('t4.clinical.adt.patient.admit')
+        discharge_pool = self.registry('t4.clinical.patient.discharge')
         activity_pool = self.registry('t4.clinical.activity')
         transfer_pool = self.registry('t4.clinical.adt.patient.transfer')
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
@@ -44,21 +43,22 @@ class ADTTest(BaseTest):
         user_pool = self.registry('res.users')
         imd_pool = self.registry('ir.model.data')
         
+        
         super(ADTTest, self).setUp()
     
     
     
     def test_adt(self):        
         
-        env = self.create_environment()
+        pos1_env = self.create_pos_environment()
         
-        env = self.adt_patient_register()
+        self.adt_patient_register(env=pos1_env)
         
-        
+        self.patient_discharge(data_vals={}, env=pos1_env)
         
         
     def adt_patient_register(self, activity_vals={}, data_vals={}, env={}):
-        global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
+        #global pos_id, ward_location_ids, bed_location_ids, env['adt_user_id'], nurse_user_ids
         fake.seed(next_seed()) 
         gender = data_vals.get('gender') or fake.random_element(array=('M','F'))
         other_identifier = data_vals.get('other_identifier') or str(fake.random_int(min=1000001, max=9999999))
@@ -74,13 +74,13 @@ class ADTTest(BaseTest):
         # create
         ##############
         duplicate_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
-        register_activity_id = self.create_activity(cr, adt_user_id, register_pool._name, {}, {})
+        register_activity_id = self.create_activity(cr, env['adt_user_id'], register_pool._name, {}, {})
 
         # submit
         ##############
-        register_submit_res = self.submit(cr, adt_user_id, register_activity_id, data)
+        register_submit_res = self.submit(cr, env['adt_user_id'], register_activity_id, data)
         register_activity = activity_pool.browse(cr, uid, register_activity_id)
-        adt_user = user_pool.browse(cr, uid, adt_user_id)
+        adt_user = user_pool.browse(cr, uid, env['adt_user_id'])
         patient_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
         # submit tests
         self.assertTrue(register_activity.pos_id.id == adt_user.pos_id.id,
@@ -106,92 +106,82 @@ class ADTTest(BaseTest):
                         % (register_activity.patient_id.id, patient_ids))
         # complete
         ##############
-        register_complete_res = self.complete(cr, adt_user_id, register_activity_id)
+        register_complete_res = self.complete(cr, env['adt_user_id'], register_activity_id)
         
         # return
         ##############
         
-        
+        env['patient_ids'] = []
         env['patient_ids'].append(register_activity.patient_id.id)
+        env['other_identifiers'] = []
+        env['other_identifiers'].append(other_identifier)        
         #import pdb; pdb.set_trace()
         return env
     
-    def adt_patient_admit(self, activity_vals={}, data_vals={}, env={}):      
-        global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
-        res = {}
+    def patient_discharge(self, activity_vals={}, data_vals={}, env={}):      
         fake.seed(next_seed()) 
         data = {}
-        if not data_vals.get('other_identifier'):
-            
+        #if not data_vals.get('other_identifier'):
+        self.assertTrue(data_vals.get('patient_id') or env.get('patient_ids'),
+                       "patient_id is not submitted!")                
+        
+        data['patient_id'] = data_vals.get('patient_id') or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        # create
+        ##############
+        discharge_activity_id = self.create_activity(cr, uid, discharge_pool._name, {}, {})
+         
+        
+        discharge_submit_res = self.submit(cr, uid, discharge_activity_id, data)
+        discharge_pool.get_activity_pos_id(cr, uid, discharge_activity_id)
+        # submit tests
+        discharge_activity = activity_pool.browse(cr, uid, discharge_activity_id)
+        
+        self.assertTrue(discharge_activity.patient_id,
+                       "patient_id is not set after data submission!")
+        self.assertTrue(discharge_activity.pos_id,
+                       "pos_id is not set after data submission!")
+        self.assertTrue(discharge_activity.location_id,
+                       "location_id is not set after data submission!")
+        #import pdb; pdb.set_trace()
+        discharge_complete_res = activity_pool.complete(cr, uid, discharge_activity_id)
+
+        return env
+        
+    def adt_patient_admit(self, activity_vals={}, data_vals={}, env={}):      
+        fake.seed(next_seed()) 
+        data = {}
+        self.assertTrue(data_vals.get('other_identifier'),
+                       "other_identifier is not submitted!")              
         data['other_identifier'] = data_vals.get('other_identifier') or other_identifier
         data['location'] = data_vals.get('suggested_location') or suggested_location
         data['code'] = str(fake.random_int(min=10001, max=99999))
         data['start_date'] = fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S")
+        
         admit_activity_id = admit_pool.create_activity(cr, uid, {}, {})
         admit_submit_res = activity_pool.submit(cr, uid, admit_activity_id, data)
         admit_complete_res = activity_pool.complete(cr, uid, admit_activity_id)
         
         # create
         ##############
-        duplicate_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
-        register_activity_id = self.create_activity(cr, adt_user_id, register_pool._name, {}, {})
+        #duplicate_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
+        #register_activity_id = self.create_activity(cr, env['adt_user_id'], register_pool._name, {}, {})
 
         # submit
         ##############
-        register_submit_res = self.submit(cr, adt_user_id, register_activity_id, data)
-        register_activity = activity_pool.browse(cr, uid, register_activity_id)
-        adt_user = user_pool.browse(cr, uid, adt_user_id)
-        patient_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
+        #register_submit_res = self.submit(cr, env['adt_user_id'], register_activity_id, data)
+        #register_activity = activity_pool.browse(cr, uid, register_activity_id)
+        #adt_user = user_pool.browse(cr, uid, env['adt_user_id'])
+        #patient_ids = patient_pool.search(cr, uid, [['other_identifier','=',data['other_identifier']]])
         # submit tests
 
         # complete
         ##############
-        register_complete_res = self.complete(cr, adt_user_id, register_activity_id)
+        #register_complete_res = self.complete(cr, env['adt_user_id'], register_activity_id)
         
         # return
         ##############
         
-        res.update({'register_activity_id': register_activity_id})
-        res.update(register_submit_res)
-        res.update(register_complete_res)
 
         #import pdb; pdb.set_trace()
-        return res  
-        
-    def create_environment(self, WARD_QTY=5, BED_PER_WARD=3):
-        """
-        creates 1 pos environment
-        """
+        return env
 
-        global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
-        _logger.info("Executing create_environment()")
-        # Create POS
-        pos_id = self.create_pos()
-        pos = pos_pool.browse(cr, uid, pos_id)
-
-        # Create wards
-        ward_location_ids = [self.create_ward(pos.location_id.id) for i in range(WARD_QTY)]
-         
-        # Create beds 
-        bed_location_ids = []
-        for ward_location_id in ward_location_ids:
-            bed_location_ids.extend([self.create_bed(ward_location_id) for i in range(BED_PER_WARD)])
-         
-        # Create ADT user
-        adt_user = user_pool.browse(cr, uid, self.create_adt_user(pos.id))
-        adt_user_id = adt_user.id
-         
-        # Create nurse users
-        nurse_user_ids = [
-             self.create_nurse_user(ward_location_ids),
-             self.create_nurse_user(ward_location_ids)
-         ]
-        
-        res = {'pos_id': [pos_id],
-               'adt_user_id': [adt_user_id],
-               'bed_location_ids': bed_location_ids,
-               'ward_location_ids': ward_location_ids,
-               'nurse_user_ids': nurse_user_ids,
-               'pateint_ids': [],
-               }
-        return res
