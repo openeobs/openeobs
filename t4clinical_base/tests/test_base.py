@@ -68,12 +68,14 @@ class BaseTest(common.SingleTransactionCase):
     
     def complete(self, cr, uid, activity_id, context=None):    
         res = activity_pool.complete(cr, uid, activity_id, context)
-        return res       
-     
-    def create_environment(self): 
-        WARD_QTY = 5
-        BED_PER_WARD = 3
-        
+        return res    
+       
+    def create_pos_environment(self, WARD_QTY=5, BED_PER_WARD=3):
+        """
+        creates 1 pos environment
+        """
+
+        global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
         _logger.info("Executing create_environment()")
         # Create POS
         pos_id = self.create_pos()
@@ -96,6 +98,15 @@ class BaseTest(common.SingleTransactionCase):
              self.create_nurse_user(ward_location_ids),
              self.create_nurse_user(ward_location_ids)
          ]
+        
+        env = {'pos_id': pos_id,
+               'adt_user_id': adt_user_id,
+               'bed_location_ids': bed_location_ids,
+               'ward_location_ids': ward_location_ids,
+               'nurse_user_ids': nurse_user_ids}
+        return env
+    
+
 
     def create_nurse_user(self, location_ids):
         fake.seed(next_seed())
