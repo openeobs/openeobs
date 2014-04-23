@@ -14,3 +14,11 @@ class t4_clinical_api(orm.AbstractModel):
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_values = activity_pool.read(cr, uid, activity_ids, [], context=context)
         return activity_values
+
+    def cancel(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.clinical.activity']
+        domain = [('id', '=', activity_id)]
+        activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        return activity_pool.cancel(cr, uid, activity_id, context=context) if activity_ids else False
+
+    # def submit(self, cr, uid, activity_id, data, context=None):
