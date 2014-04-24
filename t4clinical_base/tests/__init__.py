@@ -4,5 +4,5 @@ import test_workload
 
 fast_suite = [
     test_base,
-    test_workload
+    #test_workload
     ]
