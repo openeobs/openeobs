@@ -705,28 +705,51 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def get_activity_pos_id(self, cr, uid, activity_id, context=None):
+        """
+        Returns pos_id for activity calculated based on activity data
+        Logic:
+        1. If data has 'pos_id' field and it is not False, returns value of the field
+        2. If get_activity_location_id() returns location_id, returns location.pos_id.id
+        3. If get_activity_patient_id() returns patient_id and api_pool.get_patient_spell_activity_browse, returns spell_activity.data_ref.pos_id.id
+        """
+        _logger.debug("Calculating pos_id for activity.id=%s" % (activity_id))        
         pos_id = False
         api_pool = self.pool['t4.clinical.api']
+        # 1
         if 'pos_id' in self._columns.keys():
             data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
             pos_id = data.pos_id and data.pos_id.id or False
         if pos_id:
+            _logger.debug("Returning self based pos_id = %s" % (pos_id))
             return pos_id
         location_id = self.get_activity_location_id(cr, uid, activity_id)
+        patient_id = self.get_activity_patient_id(cr, uid, activity_id)
+        # 2
         if not location_id:
-            patient_id = self.get_activity_patient_id(cr, uid, activity_id)
             location_id = api_pool.get_patient_current_location_id(cr, uid, patient_id, context)
-        if location_id:
-            location = self.pool['t4.clinical.location'].browse(cr, uid, location_id, context)
-            pos_id = location.pos_id and location.pos_id.id or False
-        if pos_id:
-            return pos_id
+            if location_id:
+                location = self.pool['t4.clinical.location'].browse(cr, uid, location_id, context)
+                pos_id = location.pos_id and location.pos_id.id or False
+                if pos_id:
+                    _logger.debug("Returning location_id based pos_id = %s" % (pos_id))
+                    return pos_id
+        # 3
         patient_id = self.get_activity_patient_id(cr, uid, activity_id)
         spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, patient_id, context=None)
         pos_id = spell_activity and spell_activity.data_ref.pos_id.id
+        if pos_id:
+            _logger.debug("Returning patient_id based pos_id = %s" % (pos_id))
+        else:
+            _logger.debug("Unable to calculate pos_id, returning False")
         return pos_id
 
-    def get_activity_location_id(self, cr, uid, activity_id, context=None):
+    def get_activity_location_id(self, cr, uid, activity_id, context=None):       
+        """
+        Returns pos_id for activity calculated based on activity data
+        Logic:
+        1. If activity_data has 'location_id' field and it is not False, returns value of the field
+        2. 
+        """
         location_id = False
         data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
         if 'location_id' in self._columns.keys():

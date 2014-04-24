@@ -71,17 +71,8 @@ class t4_clinical_patient_move(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_pool.write(cr, uid, activity.data_ref.patient_id.id, {'current_location_id': activity.data_ref.location_id.id}, context)
         super(t4_clinical_patient_move, self).complete(cr, uid, activity_id, context)
-        return {}
-        
-        
-    def get_activity_location_id(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
-        activity = activity_pool.browse(cr, uid, activity_id, context)
-        patient_id = activity.data_ref.patient_id.id
-        # move from current or permanent location ??
-        location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
-        return location_id           
-
+        return {}         
+    
 
 class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
@@ -95,7 +86,7 @@ class t4_clinical_patient_placement(orm.Model):
         'cancelled': ['retrieve','validate']
                     }       
     _columns = {
-        'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location'),
+        'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location', required=True),
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
@@ -105,10 +96,10 @@ class t4_clinical_patient_placement(orm.Model):
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
-        patient_id = activity.data_ref.patient_id.id
-        # place from current or permanent location ??
-        location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
-        return location_id  
+#         patient_id = activity.data_ref.patient_id.id
+#         # place from current or permanent location ??
+#         location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
+        return activity.data_ref.suggested_location_id.id
     
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
@@ -216,7 +207,7 @@ class t4_clinical_patient_admission(orm.Model):
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         #import pdb; pdb.set_trace()
-        location_id = activity.data_ref.pos_id.lot_admission_id.id or activity.data_ref.pos_id.location_id.id
+        location_id = activity.data_ref.pos_id.lot_admission_id.id #or activity.data_ref.pos_id.location_id.id
         return location_id 
     
     def complete(self, cr, uid, activity_id, context=None):
@@ -243,9 +234,9 @@ class t4_clinical_patient_admission(orm.Model):
         # patient move to lot_admission !!If lot_admission isn't set access rights to see the activity will need to be set to pos.location i.e. all locations in the pos
         move_pool = self.pool['t4.clinical.patient.move']
         move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID, 
-            {'parent_id': admission.activity_id.id, 'creator_id': activity_id}, 
+            {'parent_id': spell_activity_id, 'creator_id': activity_id}, 
             {'patient_id': admission.patient_id.id, 
-             'location_id': activity.pos_id.lot_admission_id.id or activity.pos_id.location_id.id}, 
+             'location_id': activity.pos_id.lot_admission_id.id}, 
             context)
         res[move_pool._name] = move_activity_id
         activity_pool.complete(cr, SUPERUSER_ID, move_activity_id, context)
@@ -253,7 +244,7 @@ class t4_clinical_patient_admission(orm.Model):
         placement_pool = self.pool['t4.clinical.patient.placement']
         
         placement_activity_id = placement_pool.create_activity(cr, SUPERUSER_ID, 
-           {'parent_id': admission.activity_id.id, 'creator_id': activity_id},
+           {'parent_id': spell_activity_id, 'creator_id': activity_id},
            {'patient_id': admission.patient_id.id,
             'suggested_location_id': admission.suggested_location_id.id},
            context)

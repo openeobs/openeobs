@@ -67,8 +67,9 @@ class t4_clinical_adt_patient_admit(orm.Model):
     _inherit = ['t4.clinical.activity.data']      
         
     _columns = {
-        'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location'),
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location', help="Location suggested by ADT for placement. Usually ward."),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
+        'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
         'location': fields.text('Location'),
         'code': fields.text("Code"),
         'start_date': fields.datetime("ADT Start Date"), 
@@ -98,7 +99,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         patient_id = patient_id[0]
         vals_copy = vals.copy()       
         vals_copy.update({'suggested_location_id': suggested_location_id})  
-        vals_copy.update({'patient_id': patient_id})  
+        vals_copy.update({'patient_id': patient_id, 'pos_id': user.pos_id.id})  
         super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals_copy, context)
         return res 
 

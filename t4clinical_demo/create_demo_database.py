@@ -1,6 +1,6 @@
 import erppeek
 
-full_demo = False
+full_demo = True
 demo_modules = []
 install_modules = ['t4clinical_demo']
 run_list = [{'module': 'demo', 'method': 'scenario2', 'args': [], 'kwargs':{}}]
