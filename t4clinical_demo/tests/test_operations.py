@@ -87,7 +87,7 @@ class TestOperations(common.SingleTransactionCase):
         admission_activity_id = self.create_activity_test(
                                      admission_pool,
                                      activity_vals      = {},
-                                     data_vals      = {'location_id': w8_location_id, 'patient_id': donald_patient_id},
+                                     data_vals      = {'location_id': w8_location_id, 'patient_id': donald_patient_id,'pos_id': uhg_pos_id},
                                      patient_id     = donald_patient_id, 
                                      location_id    = w8_location_id, 
                                      user_id        = manager_user_id
