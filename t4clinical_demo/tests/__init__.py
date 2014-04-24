@@ -1,5 +1,5 @@
-import test_operations
+#import test_operations
 
 fast_suite = [
-    test_operations
+#    test_operations
     ]
