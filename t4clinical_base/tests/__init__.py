@@ -1,5 +1,5 @@
 import test_base
-import test_workload
+#import test_workload
 
 
 fast_suite = [
