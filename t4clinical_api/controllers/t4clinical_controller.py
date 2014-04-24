@@ -1,4 +1,5 @@
 import openerp.addons.web.http as http
+import openerp.modules.registry
 import re
 import json
 
@@ -31,9 +32,8 @@ class T4clinicalController(http.Controller):
     @http.httprequest
     def activities(self, req, **kw):
         dbname = self.get_dbname(req)
-        import openerp.modules.registry
         registry = openerp.modules.registry.RegistryManager.get(dbname)
-        cr = registry.cursor()
+        cr = registry.db.cursor()
         uid = self.get_uid(req, registry)
         api = registry.get('t4.clinical.api')
         context = req.context
@@ -48,10 +48,9 @@ class T4clinicalController(http.Controller):
         if not params[1]:
             # /api/activities/activity_id/
             if method == 'GET':
-                result = api.getActivities(cr, uid, [activity_id], context)
+                result = api.getActivities(cr, uid, [activity_id] if activity_id else [], context)
             elif method == 'DELETE':
-                # result = api.cancel(cr, uid, activity_id, context)
-                dummy = 1
+                result = api.cancel(cr, uid, activity_id, context)
             elif method == 'POST':
                 # result = api.submit(cr, uid, activity_id, kw, context)
                 dummy = 1
@@ -69,13 +68,12 @@ class T4clinicalController(http.Controller):
                 # result = api.complete(cr, uid, activity_id, kw, context)
                 dummy = 1
 
-        json_result = json.dumps({'params': params, 'method': method})
+        json_result = json.dumps({'params': params, 'method': method, 'result': result})
         return json_result
 
     @http.httprequest
     def patients(self, req, **kw):
         dbname = self.get_dbname(req)
-        import openerp.modules.registry
         registry = openerp.modules.registry.RegistryManager.get(dbname)
         cr = registry.cursor()
         uid = self.get_uid(req, registry)
@@ -92,7 +90,7 @@ class T4clinicalController(http.Controller):
         if not params[1]:
             # /api/patients/patient_id/
             if method == 'GET':
-                # result = api.getPatients(cr, uid, [patient_id], context)
+                # result = api.getPatients(cr, uid, [patient_id] if patient_id else [], context)
                 dummy = 1
             elif method == 'PUT':
                 # result = api.update(cr, uid, patient_id, kw, context)
