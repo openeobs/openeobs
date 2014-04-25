@@ -1,6 +1,6 @@
-import test_urls
+import test_t4clinical_controller
 
 
 fast_suite = [
-    test_urls
+    test_t4clinical_controller
     ]
