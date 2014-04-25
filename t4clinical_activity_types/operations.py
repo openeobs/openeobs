@@ -179,6 +179,8 @@ class t4_clinical_patient_discharge(orm.Model):
         api_pool = self.pool['t4.clinical.api']
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context)
+        except_if(not spell_activity, msg="Patient id=%s has no started spell!" % activity.patient_id.id)
         #import pdb; pdb.set_trace()
         # move
         move_pool = self.pool['t4.clinical.patient.move']
@@ -189,7 +191,7 @@ class t4_clinical_patient_discharge(orm.Model):
             context)
         activity_pool.complete(cr, uid, move_activity_id, context)      
         # complete spell 
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context)
+
         activity_pool.complete(cr, uid, spell_activity.id, context)
         return {}  
         

@@ -100,6 +100,7 @@ class BaseTest(common.SingleTransactionCase):
          ]
         
         env = {'pos_id': pos_id,
+               'pos_location_id': pos_pool.browse(cr, uid, pos_id).location_id.id,
                'adt_user_id': adt_user_id,
                'bed_location_ids': bed_location_ids,
                'ward_location_ids': ward_location_ids,

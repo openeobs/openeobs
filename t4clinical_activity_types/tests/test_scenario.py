@@ -1,7 +1,8 @@
 from openerp.tests import common
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
-#from t4_base.tools import xml2db_id
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+
 
 from openerp import tools
 from openerp.osv import orm, fields, osv
@@ -19,6 +20,7 @@ def next_seed():
     seed += 1
     return seed
 
+    
 
 class ActivityTypesScenarioTest(BaseTest):
  
@@ -46,16 +48,33 @@ class ActivityTypesScenarioTest(BaseTest):
         super(ActivityTypesScenarioTest, self).setUp()
     
     
+    def create_pos_environment(self):
+        env = super(ActivityTypesScenarioTest, self).create_pos_environment()
+        env.update({'patient_ids': [], 'other_identifiers': []})
+        return env
     
     def test_scenario(self):        
         # environment
         pos1_env = self.create_pos_environment()
         # register
         [self.adt_patient_register(env=pos1_env) for i in range(3)]
+        print pos1_env['patient_ids']
+        print pos1_env['other_identifiers']
         # admit
-        [self.adt_patient_admit(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
-        # placement
+        [self.adt_patient_admit(data_vals={'other_identifier':other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
+
+            # api tests
+        self.assertTrue(set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) >= set(pos1_env['patient_ids']),
+                        "patient_ids not in not_placed_patient_ids before placement"
+                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])
+                        + "\n patient_ids: %s" % pos1_env['patient_ids']) 
+        # placements
         [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+            # api tests
+        self.assertTrue(not (set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) & set(pos1_env['patient_ids'])),
+                        "not_placed_patient_ids returns patients that must be placed"
+                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id']))         
+        
         # discharge
         [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
         
@@ -113,9 +132,7 @@ class ActivityTypesScenarioTest(BaseTest):
         
         # return
         ##############
-        env['patient_ids'] = []
         env['patient_ids'].append(register_activity.patient_id.id)
-        env['other_identifiers'] = []
         env['other_identifiers'].append(other_identifier)        
         #import pdb; pdb.set_trace()
         return env
@@ -203,6 +220,7 @@ class ActivityTypesScenarioTest(BaseTest):
         spell_activity_id = activity_pool.search(cr, uid, [['data_model','=','t4.clinical.spell'],
                                                            ['creator_id','=',admission_activity_id]])   
         spell_activity_id = spell_activity_id and spell_activity_id[0]
+        #api_pool.activity_info(cr, uid, spell_activity_id)
         self.assertTrue(spell_activity_id,
                        "spell_activity not found after adt.admit completion!")  
         self.assertTrue(admission_activity.parent_id.id == spell_activity_id,
@@ -216,6 +234,11 @@ class ActivityTypesScenarioTest(BaseTest):
                        "spell_activity.pos_id != admit_activity.pos_id after adt.admit completion!") 
         self.assertTrue(spell_activity.location_id.id == admission_activity.pos_id.lot_admission_id.id,
                        "spell_activity.location_id != admission_activity.pos_id.lot_admission_id after adt.admit completion!")
+        
+        self.assertTrue(api_pool.get_patient_spell_activity_id(cr, uid, 
+                                                               admit_activity.patient_id.id, 
+                                                               pos_id=admit_activity.pos_id.id) == spell_activity_id,
+                       "api.get_pateint_spell_activity_id != spell_activity_id after adt.admit completion!")        
         # move test
         move_activity_id = activity_pool.search(cr, uid, [['data_model','=','t4.clinical.patient.move'],
                                                            ['creator_id','=',admission_activity_id]])   
@@ -255,43 +278,114 @@ class ActivityTypesScenarioTest(BaseTest):
 
     def patient_placement(self, activity_vals={}, data_vals={}, env={}):
         data = {}
-        data['patient_id'] = data_vals.get('patient_id') or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
         available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
-        data['location_id'] = data_vals.get('location_id') or available_bed_location_ids[fake.random_int(min=0, max=len(available_bed_location_ids)-1)]
+        data['location_id'] = data_vals.get('location_id') \
+                              or available_bed_location_ids[fake.random_int(min=0, max=len(available_bed_location_ids)-1)]
         placement_activity_id = activity_pool.search(cr, uid, [['data_model','=','t4.clinical.patient.placement'],
-                                                               ['patient_id','=',data['patient_id']],
+                                                               ['patient_id','=',patient_id],
                                                                ['state','in',['new','started','scheduled']]])
         placement_activity_id = placement_activity_id and placement_activity_id[0]
         self.assertTrue(placement_activity_id,
-                       "placement_activity not found in patient_placement() for patient_id=%s" % (data['patient_id']))         
+                       "placement_activity not found in patient_placement() for patient_id=%s" % (patient_id))         
         placement_activity = activity_pool.browse(cr, uid, placement_activity_id)
         spell_activity = placement_activity.parent_id
         self.assertTrue(spell_activity.data_model == 't4.clinical.spell',
                        "parent_id is not spell")          
-        self.assertTrue(spell_activity.patient_id.id == data['patient_id'],
+        self.assertTrue(spell_activity.patient_id.id == patient_id,
                        "spell.patient_id != pateint_id")   
         # submit
         ##############
         activity_pool.submit(cr, uid, placement_activity_id, data)
         self.assertTrue(placement_activity.patient_id.id == spell_activity.patient_id.id,
-                       "placement_activity.patient_id != spell_activity.patient_id after")        
+                       "placement_activity.patient_id != spell_activity.patient_id after submission")        
         self.assertTrue(placement_activity.pos_id.id == spell_activity.pos_id.id,
-                       "placement_activity.pos_id != spell_activity.pos_id") 
+                       "placement_activity.pos_id != spell_activity.pos_id after submission") 
         self.assertTrue(placement_activity.location_id.id == placement_activity.data_ref.suggested_location_id.id,
-                       "placement_activity.location_id != placement_activity.data_ref.suggested_location_id") 
+                       "placement_activity.location_id != placement_activity.data_ref.suggested_location_id after submission") 
         # complete
         ##############                
         activity_pool.complete(cr, uid, placement_activity_id)
         
+        move_activity_id = activity_pool.search(cr, uid, [['data_model','=','t4.clinical.patient.move'],
+                                                          ['creator_id','=',placement_activity_id]])
+        move_activity_id = move_activity_id and move_activity_id[0]
+        self.assertTrue(move_activity_id,
+                       "move_activity not found after placement.complete()")          
+        move_activity = activity_pool.browse(cr, uid, move_activity_id)
+
+        self.assertTrue(move_activity.parent_id.id == spell_activity.id,
+                       "move_activity.parent_id != spell_activity.id after placement.complete()")         
+        self.assertTrue(move_activity.state == 'completed',
+                       "move_activity.state != 'completed' after placement.complete()")  
+        self.assertTrue(move_activity.patient_id.id == spell_activity.patient_id.id,
+                       "move_activity.patient_id != spell_activity.patient_id after placement.complete()")        
+        self.assertTrue(move_activity.pos_id.id == spell_activity.pos_id.id,
+                       "move_activity.pos_id != spell_activity.pos_id after placement.complete()") 
+        self.assertTrue(move_activity.location_id.id == data['location_id'],
+                       "move_activity.location_id != data['location_id'] after placement.complete()")         
         
         
         
+        # complete api calls test
+        self.assertTrue(api_pool.get_patient_current_location_id(cr, uid, move_activity.patient_id.id) == data['location_id'],
+                       "current_location_id != data['location_id'] after placement.complete()"
+                       + "\n current_location_id: %s" % api_pool.get_patient_current_location_id(cr, uid, move_activity.patient_id.id)
+                       + "\n move_location_id: %s" % data['location_id']) 
         
         
+         # ews test
+        ews_activity_id = activity_pool.search(cr, uid, [['data_model','=','t4.clinical.patient.observation.ews'],
+                                                         ['creator_id','=',placement_activity_id]])   
+        ews_activity_id = ews_activity_id and ews_activity_id[0]
+        #api_pool.activity_info(cr, uid, ews_activity_id)
+        self.assertTrue(ews_activity_id,
+                       "ews_activity not found after placement completion!")  
+        ews_activity = activity_pool.browse(cr, uid, ews_activity_id)
+        self.assertTrue(ews_activity.parent_id.id == spell_activity.id,
+                       "ews_activity.parent_id != spell_activity after placement completion!")
+        self.assertTrue(ews_activity.state == 'scheduled',
+                       "ews_activity.state != 'scheduled' after placement completion!")  
+        date_scheduled_diff=(dt.now()+rd(minutes=placement_activity.pos_id.ews_init_frequency) 
+                             - dt.strptime(ews_activity.date_scheduled, DTF)).total_seconds()
+        self.assertTrue(date_scheduled_diff < 5,
+                       "ews_activity.date_scheduled_diff > 5 sec after placement completion!")   
+        ews_trigger = api_pool.get_activity_trigger_browse(cr, uid, ews_activity.patient_id.id, ews_activity.data_model)
+        self.assertTrue(ews_trigger.unit == 'minute' and ews_trigger.unit_qty == placement_activity.pos_id.ews_init_frequency,
+                       "ews_trigger is not set correctly after placement completion!") 
+                        
+        self.assertTrue(ews_activity.patient_id.id == placement_activity.patient_id.id,
+                       "ews_activity.patient_id != placement_activity.patient_id after placement completion!")        
+        self.assertTrue(ews_activity.pos_id.id == placement_activity.pos_id.id,
+                       "ews_activity.pos_id != placement_activity.pos_id after placement completion!") 
+        self.assertTrue(ews_activity.location_id.id == placement_activity.data_ref.location_id.id, # placement_activity.location_id == suggested_location
+                       "ews_activity.location_id != placement_activity.data_ref.location_id.id after placement completion!")       
         
-        
-        
-        
+         # gcs test
+        gcs_activity_id = activity_pool.search(cr, uid, [['data_model','=','t4.clinical.patient.observation.gcs'],
+                                                         ['creator_id','=',placement_activity_id]])   
+        gcs_activity_id = gcs_activity_id and gcs_activity_id[0]
+        self.assertTrue(gcs_activity_id,
+                       "gcs_activity not found after placement completion!")  
+        gcs_activity = activity_pool.browse(cr, uid, gcs_activity_id)
+        self.assertTrue(gcs_activity.parent_id.id == spell_activity.id,
+                       "gcs_activity.parent_id != spell_activity after placement completion!")
+        self.assertTrue(gcs_activity.state == 'scheduled',
+                       "gcs_activity.state != 'scheduled' after placement completion!")  
+        date_scheduled_diff=(dt.now()+rd(minutes=placement_activity.pos_id.ews_init_frequency) 
+                             - dt.strptime(gcs_activity.date_scheduled, DTF)).total_seconds()
+        self.assertTrue(date_scheduled_diff < 5,
+                       "gcs_activity.date_scheduled_diff > 5 sec after placement completion!")
+        gcs_trigger = api_pool.get_activity_trigger_browse(cr, uid, gcs_activity.patient_id.id, gcs_activity.data_model)
+        self.assertTrue(gcs_trigger.unit == 'minute' and gcs_trigger.unit_qty == placement_activity.pos_id.ews_init_frequency,
+                       "gcs_trigger is not set correctly after placement completion!")         
+        self.assertTrue(gcs_activity.patient_id.id == placement_activity.patient_id.id,
+                       "gcs_activity.patient_id != placement_activity.patient_id after placement completion!")        
+        self.assertTrue(gcs_activity.pos_id.id == placement_activity.pos_id.id,
+                       "gcs_activity.pos_id != placement_activity.pos_id after placement completion!") 
+        self.assertTrue(gcs_activity.location_id.id == placement_activity.data_ref.location_id.id, # placement_activity.location_id == suggested_location
+                       "gcs_activity.location_id != placement_activity.data_ref.location_id.id after placement completion!")          
         
         
         

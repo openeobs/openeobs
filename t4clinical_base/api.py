@@ -18,8 +18,8 @@ class t4_clinical_api(orm.AbstractModel):
         res = {}
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, {})
-        res['activity'] = activity
-        res['data_model'] = activity.data_model
+        res['activity'] = activity_pool.read(cr,uid,activity_id, [])
+        res['data'] = self.pool[activity.data_model].read(cr,uid,activity.data_ref.id, [])
         res['parents'] = {}
         while True:
             parent = activity.parent_id
@@ -38,12 +38,20 @@ class t4_clinical_api(orm.AbstractModel):
         return res           
             
     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
-        domain = [('state','=','started'),('location_id.usage','not in', ['bed'])]
-        location_id and  domain.append(('location_id','child_of',location_id))
+        # all current patients
+        spell_domain = [('state','=','started')]
         spell_pool = self.pool['t4.clinical.spell']
-        spell_ids = spell_pool.search(cr, uid, domain)
-        patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
-        return patient_ids
+        spell_ids = spell_pool.search(cr, uid, spell_domain)
+        spell_patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
+        # placed current patients
+        placement_domain = [('activity_id.parent_id.state','=','started'),('state','=','completed')]
+        location_id and  placement_domain.append(('activity_id.location_id','child_of',location_id))
+        placement_pool = self.pool['t4.clinical.patient.placement']
+        placement_ids = placement_pool.search(cr, uid, placement_domain)
+        placed_patient_ids = [p.patient_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]       
+        patient_ids = set(spell_patient_ids) - set(placed_patient_ids)
+        #import pdb; pdb.set_trace()
+        return list(patient_ids)
     
 
     def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
@@ -52,7 +60,7 @@ class t4_clinical_api(orm.AbstractModel):
                   ('state','=','started'),
                   ('data_model','=','t4.clinical.spell')]
         if pos_id:
-            domain.extend(('pos_id','=',pos_id))
+            domain.append(('pos_id','=',pos_id))
         spell_activity_id = activity_pool.search(cr, uid, domain)
         if not spell_activity_id:
             return False
@@ -61,8 +69,8 @@ class t4_clinical_api(orm.AbstractModel):
         return spell_activity_id[0]
 
 
-    def get_patient_spell_activity_browse(self, cr, uid, patient_id, context=None):
-        spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, context)
+    def get_patient_spell_activity_browse(self, cr, uid, patient_id, pos_id=None, context=None):
+        spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, pos_id, context)
         if not spell_activity_id:
             return False
         return self.pool['t4.clinical.activity'].browse(cr, uid, spell_activity_id, context)
@@ -88,22 +96,11 @@ class t4_clinical_api(orm.AbstractModel):
           
 
     def get_patient_current_location_browse(self, cr, uid, patient_id, context=None):
-        # Placement doesn't create a move, so shouldn't be considered 
-#         placement_pool = self.pool['t4.clinical.patient.placement']
-#         placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-#         placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
-#         placement = placement and placement[0]
         move_pool = self.pool['t4.clinical.patient.move']
         move_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-        move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated desc", context=context)
+        # sort parameter includes 'id' to resolve situation with equal values in 'date_terminated'
+        move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated, id desc", context=context)
         location_id = move and move[0].location_id or False
-#         res = False
-#         if placement and move:
-#             res = placement.date_terminated > move.date_terminated and placement.location_id or move.location_id
-#         elif placement and not move:
-#             res = placement.location_id
-#         elif not placement and move:
-#             res = move.location_id
         return location_id
 
     def get_patient_current_location_id(self, cr, uid, patient_id, context=None):
