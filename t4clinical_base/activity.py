@@ -222,12 +222,7 @@ class t4_clinical_activity(orm.Model):
                                and activity.type_id.cancel_view_id.id
         return res
 
-    _proximity_intervals = [(10, '46- minutes'),
-                           (20, '45-31 minutes remain'),
-                           (30, '30-16 minutes remain'),
-                           (40, '15-0 minutes remain'),
-                           (50, '1-15 minutes late'),
-                           (60, '16+ minutes late')]
+
     
     _columns = {
         'summary': fields.char('Summary', size=256),
@@ -275,40 +270,9 @@ class t4_clinical_activity(orm.Model):
         'is_submit_allowed': fields.function(_is_submit_allowed, type='boolean', string='Is Submit Allowed?'),
         'is_complete_allowed': fields.function(_is_complete_allowed, type='boolean', string='Is Complete Allowed?'),
         'is_cancel_allowed': fields.function(_is_cancel_allowed, type='boolean', string='Is Cancel Allowed?'),
-        # aux
-        'proximity_interval': fields.selection(_proximity_intervals, 'Proximity Interval', readonly=True),
+
 
     }
-    def _get_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
-        pi_copy =  [(pi[0],pi[1]) for pi in self._proximity_intervals]
-        groups = pi_copy
-        fold = {pi[0]: False for pi in pi_copy}
-        return groups, fold
-       
-    _group_by_full = {'proximity_interval': _get_groups}   
-        
-    def read_group(self, cr, uid, domain, fields, groupby, offset=0, limit=None, context=None, orderby=False):
-        for i in range(1,5):
-            try:
-                cr.execute("""
-                update t4_clinical_activity
-                set proximity_interval = case
-                    when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 < -46 then 10
-                    when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 between -45 and -31 then 20
-                    when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 between -30 and -16 then 30
-                    when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 between -15 and 0 then 40
-                    when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 between 1 and 15 then 50
-                    when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 > 16 then 60
-                    else null end
-                """)
-            except Exception, psycopg2.extensions.TransactionRollbackError:
-                print "Exception attempt %s" % (i)
-                cr.rollback()
-                time.sleep(.2)
-            else:
-                cr.commit()
-                break
-        return super(t4_clinical_activity, self).read_group(cr, uid, domain, fields, groupby, offset, limit, context, orderby)
 
     _sql_constrints = {
         ('data_ref_unique', 'unique(data_ref)', 'Data reference must be unique!'),

@@ -68,13 +68,7 @@
           	id="menu_left_sub_patient_activity_trigger" 
           	parent="menu_left_t4_clinical_activity" 
           	action="action_patient_activity_trigger" 
-          	groups="group_t4clinical_admin"/>
-
-        <menuitem name="Activity Workload" 
-        	id="menu_left_sub_activity_workload"
-        	parent="menu_left_t4_clinical_activity" 
-            action="act_activity_workload_kanban" 
-            groups="group_t4clinical_admin"/>          	
+          	groups="group_t4clinical_admin"/>        	
 
     </data>
 </openerp>

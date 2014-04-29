@@ -14,5 +14,11 @@
           	action="action_wardboard"
           	groups="t4clinical_base.group_t4clinical_nurse,base.user_root"/>    	
 
+        <menuitem name="Activity Workload" 
+        	id="menu_left_sub_activity_workload"
+        	parent="menu_left_wardboard" 
+            action="act_activity_workload_kanban" 
+            groups="t4clinical_base.group_t4clinical_admin"/>            	
+
     </data>
 </openerp>
