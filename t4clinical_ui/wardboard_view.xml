@@ -26,6 +26,7 @@
                        <field name="frequency" />
                        <field name="ews_score" />
                        <field name="ews_trend" />
+                       <field name="ews_trend_string" />
                     </tree>
                 </field>
             </record>    

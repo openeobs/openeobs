@@ -20,10 +20,7 @@ def next_seed():
     seed += 1
     return seed
 
-    
-
-class ActivityTypesScenarioTest(BaseTest):
- 
+class ActivityTypesTest(BaseTest):    
     def setUp(self):
         global cr, uid, \
                register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
@@ -45,40 +42,13 @@ class ActivityTypesScenarioTest(BaseTest):
         imd_pool = self.registry('ir.model.data')
         
         
-        super(ActivityTypesScenarioTest, self).setUp()
-    
-    
+        super(ActivityTypesTest, self).setUp()
+        
     def create_pos_environment(self):
-        env = super(ActivityTypesScenarioTest, self).create_pos_environment()
+        env = super(ActivityTypesTest, self).create_pos_environment()
         env.update({'patient_ids': [], 'other_identifiers': []})
-        return env
+        return env        
     
-    def test_scenario(self):        
-        # environment
-        pos1_env = self.create_pos_environment()
-        # register
-        [self.adt_patient_register(env=pos1_env) for i in range(3)]
-        print pos1_env['patient_ids']
-        print pos1_env['other_identifiers']
-        # admit
-        [self.adt_patient_admit(data_vals={'other_identifier':other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
-
-            # api tests
-        self.assertTrue(set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) >= set(pos1_env['patient_ids']),
-                        "patient_ids not in not_placed_patient_ids before placement"
-                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])
-                        + "\n patient_ids: %s" % pos1_env['patient_ids']) 
-        # placements
-        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
-            # api tests
-        self.assertTrue(not (set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) & set(pos1_env['patient_ids'])),
-                        "not_placed_patient_ids returns patients that must be placed"
-                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id']))         
-        
-        # discharge
-        [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
-        
-        
     def adt_patient_register(self, activity_vals={}, data_vals={}, env={}):
         #global pos_id, ward_location_ids, bed_location_ids, env['adt_user_id'], nurse_user_ids
         fake.seed(next_seed()) 
@@ -130,12 +100,12 @@ class ActivityTypesScenarioTest(BaseTest):
         ##############
         self.complete(cr, env['adt_user_id'], register_activity_id)
         
-        # return
+        # env
         ##############
         env['patient_ids'].append(register_activity.patient_id.id)
         env['other_identifiers'].append(other_identifier)        
         #import pdb; pdb.set_trace()
-        return env
+        return register_activity_id
     
     def patient_discharge(self, activity_vals={}, data_vals={}, env={}):      
         fake.seed(next_seed()) 
@@ -386,7 +356,37 @@ class ActivityTypesScenarioTest(BaseTest):
                        "gcs_activity.pos_id != placement_activity.pos_id after placement completion!") 
         self.assertTrue(gcs_activity.location_id.id == placement_activity.data_ref.location_id.id, # placement_activity.location_id == suggested_location
                        "gcs_activity.location_id != placement_activity.data_ref.location_id.id after placement completion!")          
+            
+    
         
+class ActivityTypesScenarioTest(ActivityTypesTest):
+
+    def test_scenario(self):        
+        # environment
+        pos1_env = self.create_pos_environment()
+        # register
+        [self.adt_patient_register(env=pos1_env) for i in range(3)]
+
+        # admit
+        [self.adt_patient_admit(data_vals={'other_identifier':other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
+
+            # api tests
+        self.assertTrue(set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) >= set(pos1_env['patient_ids']),
+                        "patient_ids not in not_placed_patient_ids before placement"
+                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])
+                        + "\n patient_ids: %s" % pos1_env['patient_ids']) 
+        # placements
+        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+            # api tests
+        self.assertTrue(not (set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) & set(pos1_env['patient_ids'])),
+                        "not_placed_patient_ids returns patients that must be placed"
+                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id']))         
+        
+        # discharge
+        [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+        
+        
+
         
         
         
