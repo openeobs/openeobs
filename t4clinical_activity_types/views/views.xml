@@ -22,10 +22,11 @@
                 <field name="arch" type="xml">
                     <form string="Patient Placement" version="7.0">
                        <label for="patient_id" string="Patient"/>
-                       <field name="patient_id" />
+                       <field name="patient_id" readonly="1"/>
                        <label for="location_id" string="Location"/>
-                       <field name="location_id" domain="[('is_available','=',True)]"/>                     
-						<button name="complete_ui" type="object" string="Confirm Placement"/>
+                       <field name="suggested_location_id" invisible="1"/>
+                       <field name="location_id" domain="[('is_available','=',True),('usage','=','bed'),('parent_id','=',suggested_location_id)]"/>
+					    <button name="complete_ui" type="object" string="Confirm Placement"/>
                     </form>
                 </field>
             </record>              
