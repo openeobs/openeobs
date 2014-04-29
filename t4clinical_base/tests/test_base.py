@@ -110,17 +110,7 @@ class BaseTest(common.SingleTransactionCase):
 
 
     def create_nurse_user(self, location_ids):
-        fake.seed(next_seed())
-        nurse_group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_nurse")   
-        name = fake.first_name() 
-        data = {
-            'name': "Nurse %s" % name,
-            'login': name.lower(),
-            'password': name.lower(),
-            'groups_id': [(4, nurse_group.id)],
-            'location_ids': [(4,location_id) for location_id in location_ids]
-        }
-        #import pdb; pdb.set_trace()
+        data = self.data_nurse_user(location_ids)
         user_id = user_pool.create(cr, uid, data)
         _logger.info("Nurse user created id=%s\n data: %s" % (user_id, data))
         return user_id  
@@ -129,61 +119,53 @@ class BaseTest(common.SingleTransactionCase):
         fake.seed(next_seed())
         adt_group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_adt")  
         pos = pos_pool.browse(cr, uid, pos_id) 
-        data = {
-            'name': "ADT user for %s" % pos.name,
-            'login': "adt_%s" % pos.location_id.code.lower(),
-            'password': "adt_%s" % pos.location_id.code.lower(),
-            'groups_id': [(4, adt_group.id)],
-            'pos_id': pos_id
-        }
+        data = self.data_adt_user({'pos_id': pos_id})
         user_id = user_pool.create(cr, uid, data)
         _logger.info("ADT user created id=%s\n data: %s" % (user_id, data))
         return user_id
 
     def create_bed(self, parent_id):
-        fake.seed(next_seed()) 
-        code = "B"+str(fake.random_int(min=100, max=999))
-        data = {'name': code, 'code': code, 'type': 'poc', 'usage': 'bed', 'parent_id': parent_id}
+        data = self.data_bed_location(parent_id)
         location_id = location_pool.create(cr, uid, data)
         _logger.info("Bed location created id=%s\n data: %s" % (location_id, data))
         return location_id
         
     def create_ward(self, parent_id):
-        fake.seed(next_seed()) 
-        code = "W"+str(fake.random_int(min=100, max=999))
-        data = {'name': code, 'code': code, 'type': 'poc', 'usage': 'ward', 'parent_id': parent_id}
+        data = self.data_ward_location(parent_id)
         location_id = location_pool.create(cr, uid, data)
         _logger.info("Ward location created id=%s\n data: %s" % (location_id, data))
         return location_id        
     
     def create_pos(self):
         fake.seed(next_seed())
-        # POS location 
-        code = "POS"+str(fake.random_int(min=1, max=9))
-        data = {'name': "POS Location (%s)" % code, 'code': code, 'type': 'pos', 'usage': 'hospital'}
-        pos_location_id = location_pool.create(cr, uid, data)
-        _logger.info("POS location created id=%s\n data: %s" % (pos_location_id, data))
-        # Admission location
-        data = {'name': "Admission Location (%s)" % code, 
-                'code': "ADML-%s" % code, 
-                'type': 'pos', 'usage': 'hospital', 'parent_id': pos_location_id}
-        lot_admission_id = location_pool.create(cr, uid, data)
-        _logger.info("Admission location created id=%s\n data: %s" % (lot_admission_id, data))
-        # Discharge Location
-        data = {'name': "Discharge Location (%s)" % code, 
-                'code': "DISL-%s" % code, 
-                'type': 'pos', 'usage': 'hospital', 'parent_id': pos_location_id}
-        lot_discharge_id = location_pool.create(cr, uid, data)   
-        _logger.info("Discharge location created id=%s\n data: %s" % (lot_discharge_id, data))             
-        # POS        
-        data = {'name': "HOSPITAL"+str(fake.random_int(min=1, max=9)),
-                'location_id': pos_location_id,
-                'lot_admission_id': lot_admission_id,
-                'lot_discharge_id': lot_discharge_id}
+        data = self.data_pos()
         pos_id = pos_pool.create(cr, uid, data)
         _logger.info("POS created id=%s\n data: %s" % (pos_id, data))
+#         from pprint import pprint as pp
+#         location_ids = location_pool.search(cr, uid, [['id','>',25]])
+#         records = location_pool.read(cr, uid, location_ids, 
+#                                      ['name', 'parent_id', 'pos_id'])
+#         pp(records)
         return pos_id
+
+    def create_pos_location(self):
+        data = self.data_pos_location()
+        location_id = location_pool.create(cr, uid, data)
+        _logger.info("POS location created id=%s\n data: %s" % (location_id, data))
+        return location_id 
     
+    def create_admission_location(self, parent_id=None):
+        data = self.data_admission_location(parent_id and {'parent_id': parent_id} or {})
+        location_id = location_pool.create(cr, uid, data)
+        _logger.info("Admission location created id=%s\n data: %s" % (location_id, data))
+        return location_id     
+    
+    def create_discharge_location(self, parent_id=None):
+        data = self.data_discharge_location(parent_id and {'parent_id': parent_id} or {})
+        location_id = location_pool.create(cr, uid, data)
+        _logger.info("Discharge location created id=%s\n data: %s" % (location_id, data))
+        return location_id 
+
     def data_patient(self, data={}):
         fake.seed(next_seed())
         family_name = data.get('family_name') or fake.last_name()
@@ -199,4 +181,112 @@ class BaseTest(common.SingleTransactionCase):
                 'gender': gender, 
                 'sex': gender         
                 }    
+        return res
+    
+    def data_adt_user(self, data={}):
+        fake.seed(next_seed())
+        adt_group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_adt")  
+        pos = pos_pool.browse(cr, uid, pos_id) 
+        res = {
+            'name': data.get('name') or "ADT user for %s" % pos.name,
+            'login': data.get('login') or "adt_%s" % pos.location_id.code.lower(),
+            'password': data.get('password') or "adt_%s" % pos.location_id.code.lower(),
+            'groups_id': data.get('groups_id') or [(4, adt_group.id)],
+            'pos_id': data.get('pos_id') or self.create_pos()
+        }  
+        return res
+    
+    def data_bed_location(self, parent_id, data={}):
+        fake.seed(next_seed()) 
+        code = "BED_"+str(fake.random_int(min=100, max=999))
+        res = {
+               'name': data.get('name') or code, 
+               'code': data.get('code') or code, 
+               'type': data.get('type') or 'poc', 
+               'usage': data.get('usage') or 'bed', 
+               'parent_id': parent_id
+               }
+        return res               
+    
+    def data_ward_location(self, parent_id, data={}):
+        fake.seed(next_seed()) 
+        code = "WARD_"+str(fake.random_int(min=100, max=999))
+        res = {
+               'name': data.get('name') or code, 
+               'code': data.get('code') or code, 
+               'type': data.get('type') or 'structural', 
+               'usage': data.get('usage') or 'ward', 
+               'parent_id': parent_id
+               }
+        return res            
+    
+    
+    def data_nurse_user(self, location_ids, data={}):
+        fake.seed(next_seed())
+        nurse_group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_nurse")
+        name = fake.first_name()
+        res = {
+            'name': data.get('name') or "Nurse %s" % name,
+            'login': data.get('login') or name.lower(),
+            'password': data.get('password') or name.lower(),
+            'groups_id': data.get('groups_id') and [(4, group_id) for group_id in data['groups_id']] or [(4, nurse_group.id)],
+            'location_ids': [(4,location_id) for location_id in location_ids]
+        }
+        return res      
+
+    def data_pos_location(self, data={}):
+        fake.seed(next_seed()) 
+        code = "POS_"+str(fake.random_int(min=100, max=999))
+        res = {
+               'name': data.get('name') or "POS Location (%s)" % code, 
+               'code': data.get('code') or code, 
+               'type': data.get('type') or 'structural', 
+               'usage': data.get('usage') or 'hospital', 
+               'parent_id': data.get('parent_id')
+               }
+        return res 
+
+    def data_admission_location(self, data={}):
+        fake.seed(next_seed()) 
+        code = "ADMISSION_LOCATION_"+str(fake.random_int(min=100, max=999))
+        res = {
+               'name': data.get('name') or code, 
+               'code': data.get('code') or code, 
+               'type': data.get('type') or 'structural', 
+               'usage': data.get('usage') or 'room', 
+               'parent_id': data.get('parent_id')
+               }
+        return res      
+
+    def data_discharge_location(self, data={}):
+        fake.seed(next_seed()) 
+        code = "DISCHARGE_LOCATION_"+str(fake.random_int(min=100, max=999))
+        res = {
+               'name': data.get('name') or code, 
+               'code': data.get('code') or code, 
+               'type': data.get('type') or 'structural', 
+               'usage': data.get('usage') or 'room', 
+               'parent_id': data.get('parent_id')
+               }
+        return res  
+
+    def data_pos(self, data={}):
+        fake.seed(next_seed())
+        location_id = data.get('location_id') or self.create_pos_location()
+        res = {
+                'name': "HOSPITAL_"+str(fake.random_int(min=100, max=999)),
+                'location_id': location_id,
+                'lot_admission_id': data.get('lot_admission_id') or self.create_admission_location(location_id),
+                'lot_discharge_id': data.get('lot_discharge_id') or self.create_discharge_location(location_id)
+                }
         return res    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
