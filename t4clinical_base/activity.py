@@ -437,7 +437,7 @@ class t4_clinical_activity(orm.Model):
             activity_id)
         return {}
 
-    @data_model_event(callback="cancel")
+    @data_model_event(callback="abort")
     def abort(self, cr, uid, activity_id, context=None):
         assert isinstance(activity_id, (int, long)), "activity_id must be int or long, found to be %s" % type(
             activity_id)
