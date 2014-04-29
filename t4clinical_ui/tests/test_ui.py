@@ -23,7 +23,7 @@ class TestUI(ActivityTypesTest):
         #create activities
         pos_env = self.create_pos_environment()
         register_pool = self.registry('t4.clinical.adt.patient.register')
-        [d.update({'id': register_pool.create_activity(cr, pos_env['adt_user_id'], {'name': d['name']}, self.data_patient())}) for d in data]
+        [d.update({'id': register_pool.create_activity(cr, pos_env['adt_user_id'], {'summary': d['name']}, self.data_patient())}) for d in data]
 
         #tests
         activity_pool = self.registry('t4.clinical.activity')
