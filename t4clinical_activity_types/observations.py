@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.activity import except_if
+from datetime import datetime as dt
+from dateutil.relativedelta import relativedelta as rd
 import logging
 import bisect
 from openerp import SUPERUSER_ID
@@ -243,8 +245,8 @@ class t4_clinical_patient_observation_ews(orm.Model):
             del vals['oxygen_administration']
 
 
-        return super(t4_clinical_patient_observation_ews, self).submit(cr, SUPERUSER_ID, activity_id, data_vals, context)
-
+        return super(t4_clinical_patient_observation_ews, self).submit(cr, SUPERUSER_ID, activity_id, data_vals, context)      
+    
     def complete(self, cr, uid, activity_id, context=None):
         """
         Implementation of the default EWS policy
@@ -266,9 +268,11 @@ class t4_clinical_patient_observation_ews(orm.Model):
         if case:
             for n in self._POLICY['notifications'][case]:
                 nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.set_activity_trigger(cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
-                                           't4.clinical.patient.observation.ews', 'minute',
-                                           self._POLICY['frequencies'][case], context)
+        # create next EWS
+        next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
+                             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
+                             {'patient_id': activity.data_ref.patient_id.id})
+        activity_pool.schedule(cr, SUPERUSER_ID, next_activity_id, dt.today()+rd(minutes=self._POLICY['frequencies'][case]))
         return super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
 class t4_clinical_patient_observation_gcs(orm.Model):
@@ -335,9 +339,11 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
         for n in self._POLICY['notifications'][case]:
             nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.set_activity_trigger(cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
-                                           't4.clinical.patient.observation.gcs', 'minute',
-                                           self._POLICY['frequencies'][case], context)
+        # create next GCS
+        next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
+                             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
+                             {'patient_id': activity.data_ref.patient_id.id})
+        self.schedule(cr, SUPERUSER_ID, next_activity_id, dt.today()+rd(minutes=self._POLICY['frequencies'][case]))
         return super(t4_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
 
@@ -404,7 +410,10 @@ class t4_clinical_patient_observation_vips(orm.Model):
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
         for n in self._POLICY['notifications'][case]:
             nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.set_activity_trigger(cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
-                                           't4.clinical.patient.observation.vips', 'minute',
-                                           self._POLICY['frequencies'][case], context)
+
+        # create next VIPS
+        next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
+                             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
+                             {'patient_id': activity.data_ref.patient_id.id})
+        activity_pool.schedule(cr, SUPERUSER_ID, next_activity_id, dt.today()+rd(minutes=self._POLICY['frequencies'][case]))        
         return super(t4_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)

@@ -10,7 +10,7 @@ class TestUI(ActivityTypesTest):
 
         self.activity_pool = self.registry('t4.clinical.activity')
 
-    def test_intervals(self):
+    def test_workload(self):
         cr, uid = self.cr, self.uid
         data = [
             {'name': '46-', 'date_scheduled': (dt.today()+rd(minutes=48)).strftime("%Y-%m-%d %H:%M:%S"), 'expected_value': 10},
@@ -36,3 +36,14 @@ class TestUI(ActivityTypesTest):
             self.assertTrue(activity_workload.proximity_interval == d['expected_value'], 
                             "workload_interval expected to be %s but is %s" 
                             % (str(d['expected_value']), str(activity_workload.proximity_interval)))
+
+
+    def test_wardboard(self):
+        from pprint import pprint as pp
+        cr, uid = self.cr, self.uid
+        pos_env = self.create_pos_environment()
+        self.adt_patient_register(data_vals={'other_identifier': "test_workload"}, env=pos_env)
+        pp(pos_env)
+        #self.adt_patient_admit()
+        #self.patient_placement(pos_env['pateint_ids'][0])
+        

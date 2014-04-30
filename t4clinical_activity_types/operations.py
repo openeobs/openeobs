@@ -139,13 +139,6 @@ class t4_clinical_patient_placement(orm.Model):
                                                     'creator_id': activity_id},
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         activity_pool.schedule(cr, uid, gcs_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
-        # create triggers
-        api_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
-                                           't4.clinical.patient.observation.ews', 'minute',
-                                           frequency, context)
-        api_pool.set_activity_trigger(cr, uid, placement_activity.data_ref.patient_id.id,
-                                           't4.clinical.patient.observation.gcs', 'minute',
-                                           frequency, context)
         return {}
 
      
@@ -251,10 +244,7 @@ class t4_clinical_patient_admission(orm.Model):
             'suggested_location_id': admission.suggested_location_id.id},
            context)
         res[placement_pool._name] = placement_activity_id
-        # set EWS trigger
-        api_pool.set_activity_trigger(cr, SUPERUSER_ID, admission.patient_id.id,
-                                           't4.clinical.patient.observation.ews',
-                                           'minute', activity.pos_id.ews_init_frequency, context=None)         
+       
         return res
     
         

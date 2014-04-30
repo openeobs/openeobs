@@ -75,24 +75,38 @@ class t4_clinical_api(orm.AbstractModel):
             return False
         return self.pool['t4.clinical.activity'].browse(cr, uid, spell_activity_id, context)
 
-    def set_activity_trigger(self, cr, uid, patient_id, data_model, unit, unit_qty, context=None):
-        trigger_pool = self.pool['t4.clinical.patient.activity.trigger']
-        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
-        if trigger_id:
-            trigger_id = trigger_id[0]
-            trigger_pool.write(cr, uid, trigger_id, {'active': False})
-        trigger_data = {'patient_id': patient_id, 'data_model': data_model, 'unit': unit, 'unit_qty': unit_qty}
-        trigger_id = trigger_pool.create(cr, uid, trigger_data)        
-        _logger.debug("activity frequency for patient_id=%s data_model=%s set to %s %s(s)" % (patient_id, data_model, unit_qty, unit))
-        return trigger_id
-    
-    def get_activity_trigger_browse(self, cr, uid, patient_id, data_model, context=None):
-        trigger_pool = self.pool['t4.clinical.patient.activity.trigger']
-        trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
-        if not trigger_id:
-            return False
-        else:
-            return trigger_pool.browse(cr, uid, trigger_id[0], context)
+#     def set_activity_trigger(self, cr, uid, activity_id, event, data_model, data, unit, unit_qty, context=None):
+#         
+#         trigger_pool = self.pool['t4.clinical.patient.activity.trigger']
+#         assert event in [k for k,v in trigger_pool._events], "event '%s' is not found in allowed events %s" % (event, trigger_pool._events)
+#         trigger_id = trigger_pool.search(cr, uid, [('activity_id','=',activity_id),
+#                                                    ('event','=',event),
+#                                                    ('data_model','=',data_model)])
+#         if trigger_id:
+#             trigger_id = trigger_id[0]
+#             trigger_pool.write(cr, uid, trigger_id, {'active': False})
+#         trigger_data = {
+#                         'activity_id': activity_id,  
+#                         'event': event,
+#                         'data_model': data_model,
+#                         'data': data,
+#                         'unit': unit, 
+#                         'unit_qty': unit_qty
+#                         }
+#         trigger_id = trigger_pool.create(cr, uid, trigger_data)        
+#         _logger.debug("activity frequency for activity_id=%s event: '%s' set to %s %s(s), data_model: '%s', with data: %s" 
+#                       % (activity_id, event, unit_qty, unit, data_model, data))
+#         return trigger_id
+#     def execute_activity_triggers(self, cr, uid, patient_id, data_model, event, new_data_model, new_data, unit, unit_qty, context=None):
+#         pass
+#         
+#     def get_activity_trigger_browse(self, cr, uid, patient_id, data_model, context=None):
+#         trigger_pool = self.pool['t4.clinical.patient.activity.trigger']
+#         trigger_id = trigger_pool.search(cr, uid, [('patient_id','=',patient_id),('data_model','=',data_model)])
+#         if not trigger_id:
+#             return False
+#         else:
+#             return trigger_pool.browse(cr, uid, trigger_id[0], context)
           
 
     def get_patient_current_location_browse(self, cr, uid, patient_id, context=None):

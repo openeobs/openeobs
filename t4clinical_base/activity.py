@@ -31,40 +31,42 @@ def except_if(test=True, cap="Exception!", msg="Message is not defined..."):
         raise orm.except_orm(cap, msg)
 
 
-class t4_clinical_patient_activity_trigger(orm.Model):
-    """
-    """
-    _name = 't4.clinical.patient.activity.trigger'
-    _periods = [('minute', 'Minute'), ('hour', 'Hour'), ('day', 'Day'), ('month', 'Month'), ('year', 'Year')]
-
-    def _get_date_next(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        for trigger in self.browse(cr, uid, ids, context):
-            deltas = {}.fromkeys([item[0] for item in self._periods], 0)
-            deltas[trigger.unit] = trigger.unit_qty
-            deltas = {k + 's': v for k, v in deltas.iteritems()}  # relativedelta requires years, not year
-            res[trigger.id] = (dt.now() + rd(**deltas)).strftime('%Y-%m-%d %H:%M:%S')
-        return res
-
-    _columns = {
-        'patient_id': fields.many2one('t4.clinical.patient', 'activity', required=True),
-        'data_model': fields.text('Data Model', required=True),
-        'unit': fields.selection(_periods, 'Time Unit', required=True),
-        'unit_qty': fields.integer('Time Units Qty', required=True),
-        'activity_ids': fields.many2many('t4.clinical.activity', 'recurrence_activity_rel', 'recurrence_id',
-                                         'activity_id', 'Generated Activities'),
-        'date_next': fields.function(_get_date_next, type='datetime', string='Next Date', help='Next date from now'),
-        'active': fields.boolean('Is Active?'),
-    }
-
-    _defaults = {
-        'active': True,
-        'unit': 'minute',
-    }
-
-    def name_get(self, cr, uid, ids, context=None):
-        res = [(t.id, "%s %s(s)" % (t.unit_qty, t.unit)) for t in self.browse(cr, uid, ids, context)]
-        return res
+# class t4_clinical_activity_trigger(orm.Model):
+#     """
+#     """
+#     _name = 't4.clinical.activity.trigger'
+#     _periods = [('minute', 'Minute'), ('hour', 'Hour'), ('day', 'Day'), ('month', 'Month'), ('year', 'Year')]
+# 
+#     def _get_date_next(self, cr, uid, ids, field, arg, context=None):
+#         res = {}
+#         for trigger in self.browse(cr, uid, ids, context):
+#             deltas = {}.fromkeys([item[0] for item in self._periods], 0)
+#             deltas[trigger.unit] = trigger.unit_qty
+#             deltas = {k + 's': v for k, v in deltas.iteritems()}  # relativedelta requires years, not year
+#             res[trigger.id] = (dt.now() + rd(**deltas)).strftime('%Y-%m-%d %H:%M:%S')
+#         return res
+#     _events = [('complete','Complete'),('cancel','Cancel')]
+#     _columns = {
+#         'activity_id': fields.many2one('t4.clinical.activity', 'Activity', required=True),
+#         'event': fields.selection(_events, 'Event', required=True),
+#         'data_model': fields.text('Data Model', required=True),
+#         'data': fields.text('Data'),
+#         #'test': fields.text(),
+#         'unit': fields.selection(_periods, 'Time Unit', required=True),
+#         'unit_qty': fields.integer('Time Units Qty', required=True),
+#         'date_next': fields.function(_get_date_next, type='datetime', string='Next Date', help='Next date from now'),
+#         'active': fields.boolean('Is Active?'),
+#     }
+# 
+#     _defaults = {
+#         'active': True,
+#         'unit': 'minute',
+#         'event': 'complete'
+#     }
+# 
+#     def name_get(self, cr, uid, ids, context=None):
+#         res = [(t.id, "%s %s(s)" % (t.unit_qty, t.unit)) for t in self.browse(cr, uid, ids, context)]
+#         return res
 
 
 class t4_clinical_activity_type(orm.Model):
@@ -445,9 +447,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity_pool = self.pool['t4.clinical.activity']
         data_type_pool = self.pool['t4.clinical.activity.type']
         type_id = data_type_pool.search(cr, uid, [('data_model', '=', self._name)])
-        if not type_id:
-            raise orm.except_orm("Model %s is not registered as t4.clinical.activity.type!" % self._name,
-                                 "Add the type!")
+        except_if(not type_id, msg="Model %s is not registered as t4.clinical.activity.type!" % self._name)
         type_id = type_id and type_id[0] or False
         vals_activity.update({'data_model': self._name})
         vals_activity.update({'type_id': type_id})
@@ -543,12 +543,12 @@ class t4_clinical_activity_data(orm.AbstractModel):
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         activity_pool.write(cr, uid, activity.id, {'state': 'completed', 'date_terminated': now}, context)
         _logger.debug("activity '%s', activity.id=%s completed" % (activity.data_model, activity.id))
-        api_pool = self.pool['t4.clinical.api']
-        trigger = api_pool.get_activity_trigger_browse(cr, uid, activity.patient_id.id, activity.data_model, context)
-        if trigger:
-            model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {'creator_id': activity_id},
-                                                                               {'patient_id': activity.patient_id.id})
-            activity_pool.schedule(cr, uid, model_activity_id, trigger.date_next, context)
+#         api_pool = self.pool['t4.clinical.api']
+#         trigger = api_pool.get_activity_trigger_browse(cr, uid, activity.patient_id.id, activity.data_model, context)
+#         if trigger:
+#             model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {'creator_id': activity_id},
+#                                                                                {'patient_id': activity.patient_id.id})
+#             activity_pool.schedule(cr, uid, model_activity_id, trigger.date_next, context)
         return {}
 
     def assign(self, cr, uid, activity_id, user_id, context=None):

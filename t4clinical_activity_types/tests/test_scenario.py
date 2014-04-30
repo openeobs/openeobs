@@ -141,7 +141,7 @@ class ActivityTypesTest(BaseTest):
     def adt_patient_admit(self, activity_vals={}, data_vals={}, env={}):      
         fake.seed(next_seed()) 
         data = {}
-        self.assertTrue(data_vals.get('other_identifier') or env['other_identifiers'],
+        self.assertTrue(data_vals.get('other_identifier') or env.get('other_identifiers'),
                        "other_identifier is not submitted/available!")
         self.assertTrue(data_vals.get('suggested_location') or env['ward_location_ids'],
                        "suggested_location is not submitted/available!")                 
@@ -321,9 +321,9 @@ class ActivityTypesTest(BaseTest):
                              - dt.strptime(ews_activity.date_scheduled, DTF)).total_seconds()
         self.assertTrue(date_scheduled_diff < 5,
                        "ews_activity.date_scheduled_diff > 5 sec after placement completion!")   
-        ews_trigger = api_pool.get_activity_trigger_browse(cr, uid, ews_activity.patient_id.id, ews_activity.data_model)
-        self.assertTrue(ews_trigger.unit == 'minute' and ews_trigger.unit_qty == placement_activity.pos_id.ews_init_frequency,
-                       "ews_trigger is not set correctly after placement completion!") 
+#         ews_trigger = api_pool.get_activity_trigger_browse(cr, uid, ews_activity.patient_id.id, ews_activity.data_model)
+#         self.assertTrue(ews_trigger.unit == 'minute' and ews_trigger.unit_qty == placement_activity.pos_id.ews_init_frequency,
+#                        "ews_trigger is not set correctly after placement completion!") 
                         
         self.assertTrue(ews_activity.patient_id.id == placement_activity.patient_id.id,
                        "ews_activity.patient_id != placement_activity.patient_id after placement completion!")        
@@ -347,9 +347,9 @@ class ActivityTypesTest(BaseTest):
                              - dt.strptime(gcs_activity.date_scheduled, DTF)).total_seconds()
         self.assertTrue(date_scheduled_diff < 5,
                        "gcs_activity.date_scheduled_diff > 5 sec after placement completion!")
-        gcs_trigger = api_pool.get_activity_trigger_browse(cr, uid, gcs_activity.patient_id.id, gcs_activity.data_model)
-        self.assertTrue(gcs_trigger.unit == 'minute' and gcs_trigger.unit_qty == placement_activity.pos_id.ews_init_frequency,
-                       "gcs_trigger is not set correctly after placement completion!")         
+#         gcs_trigger = api_pool.get_activity_trigger_browse(cr, uid, gcs_activity.patient_id.id, gcs_activity.data_model)
+#         self.assertTrue(gcs_trigger.unit == 'minute' and gcs_trigger.unit_qty == placement_activity.pos_id.ews_init_frequency,
+#                        "gcs_trigger is not set correctly after placement completion!")         
         self.assertTrue(gcs_activity.patient_id.id == placement_activity.patient_id.id,
                        "gcs_activity.patient_id != placement_activity.patient_id after placement completion!")        
         self.assertTrue(gcs_activity.pos_id.id == placement_activity.pos_id.id,
