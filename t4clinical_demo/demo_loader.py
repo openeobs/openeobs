@@ -112,12 +112,10 @@ class DemoLoader(orm.AbstractModel):
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         for n in range(1,100):
             ews_data = self.get_ews_data(cr, uid, patient_ids)
-            for ews in ews_data:
-                        # activity frequency
-                api_pool.set_activity_trigger(cr, uid, ews['patient_id'],'t4.clinical.patient.observation.ews','minute', 15, context=None)  
+            for ews in ews_data:                           
                 ews_activity_id = ews_pool.create_activity(cr, uid, {}, {'patient_id': ews['patient_id']})
                 activity_pool.schedule(cr, uid, ews_activity_id, 
-                   date_scheduled=fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"))
+                                        fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"))
                 activity_pool.submit(cr, uid, ews_activity_id, ews)
                 activity_pool.start(cr, uid, ews_activity_id)
                 activity_pool.complete(cr, uid, ews_activity_id)
@@ -160,12 +158,7 @@ class DemoLoader(orm.AbstractModel):
                 #submit location to placement activity
                 activity_pool.submit(cr, ward_manager_id, placement_activity.id, {'location_id': location_ids[0] })
                 #complete placement activity
-                activity_pool.complete(cr, ward_manager_id, placement_activity.id)
-
-
-            #assign obs frequency
-            api_pool.set_activity_trigger(cr, uid, placement_activity.patient_id.id, 't4.clinical.patient.observation.ews',
-                                   'minute', 30)
+                activity_pool.complete(cr, ward_manager_id, placement_activity.id)         
 
         except_if(rollback, msg="Rollback")
         return True

@@ -63,14 +63,8 @@ class TestOperations(common.SingleTransactionCase):
         w8_location_id = self.xml2db_id("demo_location_w8")
         b1_location_id = self.xml2db_id("demo_location_b1")
         nurse_user_id = self.xml2db_id("demo_user_nurse")
-        manager_user_id = self.xml2db_id("demo_user_manager")
-
-        
-        
-        # activity frequency
-        api_pool.set_activity_trigger(cr, uid, donald_patient_id, 
-                                   't4.clinical.patient.observation.ews', 
-                                   'minute', 15, context=None)        
+        manager_user_id = self.xml2db_id("demo_user_manager")       
+       
 
         nurse_user = user_pool.browse(cr, uid, nurse_user_id)
         # base data tests

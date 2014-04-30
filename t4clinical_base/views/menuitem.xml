@@ -64,11 +64,11 @@
           	action="action_t4_clinical_activity_hierarchy" 
           	groups="group_t4clinical_admin"/>
           	
-          <menuitem name="Patient activity Trigger" 
+<!--           <menuitem name="Patient activity Trigger" 
           	id="menu_left_sub_patient_activity_trigger" 
           	parent="menu_left_t4_clinical_activity" 
           	action="action_patient_activity_trigger" 
-          	groups="group_t4clinical_admin"/>        	
+          	groups="group_t4clinical_admin"/> -->        	
 
     </data>
 </openerp>
