@@ -46,11 +46,11 @@
           	action="" 
           	groups="group_t4clinical_admin"/>
           
-          <menuitem name="activity Data Types" 
+<!--           <menuitem name="activity Data Types" 
           	id="menu_left_sub_t4_clinical_activity_type" 
           	parent="menu_left_t4_clinical_activity" 
           	action="action_t4_clinical_activity_type" 
-          	groups="group_t4clinical_admin"/>
+          	groups="group_t4clinical_admin"/> -->
           	
           <menuitem name="Activities" 
           	id="menu_left_sub_t4_clinical_activity" 

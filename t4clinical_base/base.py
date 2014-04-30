@@ -7,6 +7,11 @@ from openerp import SUPERUSER_ID
 
 T4SUID = SUPERUSER_ID
 
+class ir_model_access(orm.Model):
+    _inherit = 'ir.model.access'
+    _columns = {
+        'perm_responsibility': fields.boolean('T4 Clinical Activity Responsibility'),
+    }
 
 class t4clinical_res_partner(orm.Model):
     _inherit = 'res.partner'
@@ -69,7 +74,6 @@ class res_users(orm.Model):
     _columns = {
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Parent Locations of Responsibility'),
-        'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'user_activity_type_rel', 'user_id', 'type_id', 'Activity Types of Responsibility'),
     }
     def get_all_responsibility_location_ids(self, cr, uid, user_id, context=None):
         location_pool = self.pool['t4.clinical.location']
@@ -79,14 +83,7 @@ class res_users(orm.Model):
             location_ids.extend( location_pool.search(cr, uid, [['id', 'child_of', user_location_id.id]]) )
         return location_ids
 
-
-class res_groups(orm.Model):
-    _name = 'res.groups'
-    _inherit = 'res.groups'
-    _columns = {
-        'activity_type_ids': fields.many2many('t4.clinical.activity.type', 'group_activity_type_rel', 'group_id', 'type_id', 'Activity Types of Responsibility'),
-    }
-    
+ 
 
 class t4_clinical_location(orm.Model):
     """ Clinical LOCATION """
@@ -162,7 +159,9 @@ class t4_clinical_location(orm.Model):
     def get_location_activity_ids(self, cr, uid, location_id, context=None):
         """
         """
-        location_models = self.pool['t4.clinical.activity.type'].get_field_models(cr, uid, 'location_id')
+        location_models = [model for model_name, model in self.pool.models.items() 
+                           if 'location_id' in model._columns.keys()
+                           and model._columns['location_id']._obj == 't4.clinical.location']
         activity_ids = []
         for m in location_models:
             data = m.browse_domain(cr, uid, [('location_id','=',location_id)], context=context)

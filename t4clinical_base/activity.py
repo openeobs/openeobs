@@ -31,105 +31,6 @@ def except_if(test=True, cap="Exception!", msg="Message is not defined..."):
         raise orm.except_orm(cap, msg)
 
 
-# class t4_clinical_activity_trigger(orm.Model):
-#     """
-#     """
-#     _name = 't4.clinical.activity.trigger'
-#     _periods = [('minute', 'Minute'), ('hour', 'Hour'), ('day', 'Day'), ('month', 'Month'), ('year', 'Year')]
-# 
-#     def _get_date_next(self, cr, uid, ids, field, arg, context=None):
-#         res = {}
-#         for trigger in self.browse(cr, uid, ids, context):
-#             deltas = {}.fromkeys([item[0] for item in self._periods], 0)
-#             deltas[trigger.unit] = trigger.unit_qty
-#             deltas = {k + 's': v for k, v in deltas.iteritems()}  # relativedelta requires years, not year
-#             res[trigger.id] = (dt.now() + rd(**deltas)).strftime('%Y-%m-%d %H:%M:%S')
-#         return res
-#     _events = [('complete','Complete'),('cancel','Cancel')]
-#     _columns = {
-#         'activity_id': fields.many2one('t4.clinical.activity', 'Activity', required=True),
-#         'event': fields.selection(_events, 'Event', required=True),
-#         'data_model': fields.text('Data Model', required=True),
-#         'data': fields.text('Data'),
-#         #'test': fields.text(),
-#         'unit': fields.selection(_periods, 'Time Unit', required=True),
-#         'unit_qty': fields.integer('Time Units Qty', required=True),
-#         'date_next': fields.function(_get_date_next, type='datetime', string='Next Date', help='Next date from now'),
-#         'active': fields.boolean('Is Active?'),
-#     }
-# 
-#     _defaults = {
-#         'active': True,
-#         'unit': 'minute',
-#         'event': 'complete'
-#     }
-# 
-#     def name_get(self, cr, uid, ids, context=None):
-#         res = [(t.id, "%s %s(s)" % (t.unit_qty, t.unit)) for t in self.browse(cr, uid, ids, context)]
-#         return res
-
-
-class t4_clinical_activity_type(orm.Model):
-    # resources of this model should be created as pre-defined data when creating new data model
-    _name = 't4.clinical.activity.type'
-
-    def _aw_xmlid2id(self, cr, uid, ids, field, arg, context=None):
-        res = {}
-        imd_pool = self.pool['ir.model.data']
-        for dm in self.browse(cr, uid, ids, context):
-            if not dm.act_window_xmlid:
-                res[dm.id] = False
-                continue
-            imd_id = \
-            imd_pool.search(cr, uid, [('name', '=', dm.act_window_xmlid), ('model', '=', 'ir.actions.act_window')],
-                            context=context)[0]
-            imd = imd_pool.browse(cr, uid, imd_id, context)
-            res[dm.id] = imd.res_id
-        return res
-
-    _rec_name = 'summary'
-    _types = [('clinical', 'Clinical'), ('admin', 'Administrative')]
-    _columns = {
-        'summary': fields.text('activity Summary'),
-        'type': fields.selection(_types, 'Type',
-                                 help="Clinical: patient-related activity, Administrative: general, non-patient-related activity"),
-        'data_model': fields.text('Model name', help='model name', required=True),
-        'act_window_xmlid': fields.text('Window Action XMLID'),
-        'act_window_id': fields.function(_aw_xmlid2id, type='many2one', relation='ir.actions.act_window',
-                                         string='Window Action'),
-        'active': fields.boolean('Is Active?',
-                                 help='When we don\'t need the model anymore we may hide it instead of deleting'),
-        'parent_rule': fields.text('Parent Rule', help='Type domain for parent activity'),
-        'children_rule': fields.text('Children Rule', help='Type domain for children Activities'),
-
-        'schedule_view_id': fields.many2one('ir.ui.view', "Submit View"),
-        'start_view_id': fields.many2one('ir.ui.view', "Submit View"),
-        'submit_view_id': fields.many2one('ir.ui.view', "Submit View"),
-        'complete_view_id': fields.many2one('ir.ui.view', "Submit View"),
-        'cancel_view_id': fields.many2one('ir.ui.view', "Submit View"),
-        'form_dictionary': fields.text('Form Dictionary')
-    }
-
-    _defaults = {
-        'active': True,
-    }
-
-    def get_field_models(self, cr, uid, field):
-        """
-        returns data models having field 'field'
-        """
-        all_models = [self.pool[data_type.data_model] for data_type in self.browse_domain(cr, uid, [])]
-        field_models = [m for m in all_models if field in m._columns.keys()]
-        return field_models
-
-
-    def create(self, cr, uid, vals, context=None):
-        if not self.pool.models.get(vals['data_model']):
-            _logger.error('Model %s is not found in the model pool!' % vals['data_model'])
-        res_id = super(t4_clinical_activity_type, self).create(cr, uid, vals, context)
-        return res_id
-
-
 def data_model_event(callback=None):
     def decorator(f):
         def wrapper(*args, **kwargs):
@@ -176,9 +77,11 @@ class t4_clinical_activity(orm.Model):
 
 
     def _get_data_type_selection(self, cr, uid, context=None):
-        sql = "select data_model, summary from t4_clinical_activity_type"
-        cr.execute(sql)
-        return cr.fetchall()
+#         sql = "select data_model, summary from t4_clinical_activity_type"
+#         cr.execute(sql)
+        res = [(model_name, model._description) for model_name, model in self.pool.models.items()
+                           if hasattr(model, '_description') and 't4.clinical' in model_name]        
+        return res
 
     def _activity2data_res_id(self, cr, uid, ids, field, arg, context=None):
         res = {}
@@ -193,35 +96,35 @@ class t4_clinical_activity(orm.Model):
         res = {}
         for activity in self.browse(cr, uid, ids, context):
             res[activity.id] = self.pool[activity.data_model].is_action_allowed(activity.state, 'schedule') \
-                               and activity.type_id.schedule_view_id.id
+                               and activity.data_ref._schedule_view_xmlid
         return res
 
     def _is_start_allowed(self, cr, uid, ids, field, arg, context=None):
         res = {}
         for activity in self.browse(cr, uid, ids, context):
             res[activity.id] = self.pool[activity.data_model].is_action_allowed(activity.state, 'start') \
-                               and activity.type_id.start_view_id.id
+                               and activity.data_ref._start_view_xmlid
         return res
 
     def _is_submit_allowed(self, cr, uid, ids, field, arg, context=None):
         res = {}
         for activity in self.browse(cr, uid, ids, context):
             res[activity.id] = self.pool[activity.data_model].is_action_allowed(activity.state, 'submit') \
-                               and activity.type_id.submit_view_id.id
+                               and activity.data_ref._submit_view_xmlid
         return res
 
     def _is_complete_allowed(self, cr, uid, ids, field, arg, context=None):
         res = {}
         for activity in self.browse(cr, uid, ids, context):
             res[activity.id] = self.pool[activity.data_model].is_action_allowed(activity.state, 'complete') \
-                               and activity.type_id.complete_view_id.id
+                               and activity.data_ref._complete_view_xmlid
         return res
 
     def _is_cancel_allowed(self, cr, uid, ids, field, arg, context=None):
         res = {}
         for activity in self.browse(cr, uid, ids, context):
             res[activity.id] = self.pool[activity.data_model].is_action_allowed(activity.state, 'cancel') \
-                               and activity.type_id.cancel_view_id.id
+                               and activity.data_ref._cancel_view_xmlid
         return res
 
 
@@ -261,7 +164,6 @@ class t4_clinical_activity(orm.Model):
         'date_deadline': fields.datetime('Deadline Time', readonly=True),
         'date_expiry': fields.datetime('Expiry Time', readonly=True),
         # activity type and related model/resource
-        'type_id': fields.many2one('t4.clinical.activity.type', "activity Type", required=True),
         'data_res_id': fields.function(_activity2data_res_id, type='integer', string="Data Model's ResID",
                                        help="Data Model's ResID", readonly=True),
         'data_model': fields.text("Data Model", required=True),
@@ -288,16 +190,9 @@ class t4_clinical_activity(orm.Model):
 
     def create(self, cr, uid, vals, context=None):
         except_if(not vals.get('data_model'), msg="data_model is not defined!")
-        if not vals.get('summary') or not vals.get('type_id'):
-            type_pool = self.pool['t4.clinical.activity.type']
-            type_id = type_pool.search(cr, uid, [['data_model', '=', vals['data_model']]])
-            except_if(not type_id, msg="type_id is not defined!")
-            not vals.get('type_id') and vals.update({'type_id': type['id']}) 
-            if not vals.get('summary'):
-                type = type_pool.read(cr, uid, type_id[0], ['summary'], context=context)
-                vals.update({'summary': type['summary']})
-
-            
+        data_model_pool = self.pool.get(vals['data_model'])
+        except_if(not data_model_pool, msg="data_model does not exist in the model pool!")
+        not vals.get('summary') and vals.update({'summary': data_model_pool._description})           
         activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
         _logger.debug("activity '%s' created, activity.id=%s" % (vals.get('data_model'), activity_id))
         return activity_id
@@ -421,19 +316,22 @@ class t4_clinical_activity_data(orm.AbstractModel):
         'completed': ['retrieve', 'validate'],
         'cancelled': ['retrieve', 'validate']
     }
-
+    _description = "Activity Data Base Model"
+    _start_view_xmlid = None
+    _schedule_view_xmlid = None
+    _submit_view_xmlid = None
+    _complete_view_xmlid = None
+    _cancel_view_xmlid = None
+    
     def is_action_allowed(self, state, action):
         return action in self._transitions[state]
 
     _columns = {
         'name': fields.char('Name', size=256),
-        'type_id': fields.related('activity_id', 'type_id', type='many2one', relation='t4.clinical.activity.type',
-                                  string="activity Data Type"),
         'activity_id': fields.many2one('t4.clinical.activity', "activity"),
         'date_started': fields.related('activity_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('activity_id', 'date_terminated', string='Terminated Time', type='datetime'),
         'state': fields.related('activity_id', 'state', string='State', type='char', size=64),
-        'data_model': fields.related('type_id', 'data_model', type='text', string="Data Model"),
         'pos_id': fields.related('activity_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
     }
 
@@ -445,12 +343,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         assert isinstance(vals_activity, dict), "vals_activity must be a dict, found %" % type(vals_activity)
         assert isinstance(vals_data, dict), "vals_data must be a dict, found %" % type(vals_data)
         activity_pool = self.pool['t4.clinical.activity']
-        data_type_pool = self.pool['t4.clinical.activity.type']
-        type_id = data_type_pool.search(cr, uid, [('data_model', '=', self._name)])
-        except_if(not type_id, msg="Model %s is not registered as t4.clinical.activity.type!" % self._name)
-        type_id = type_id and type_id[0] or False
         vals_activity.update({'data_model': self._name})
-        vals_activity.update({'type_id': type_id})
         new_activity_id = activity_pool.create(cr, uid, vals_activity, context)
         vals_data and activity_pool.submit(cr, uid, new_activity_id, vals_data, context)
 
@@ -493,25 +386,20 @@ class t4_clinical_activity_data(orm.AbstractModel):
 
 
     def act_window(self, cr, uid, activity_id, command, context=None):
-        activity_id = isinstance(activity_id, (list, tuple)) and activity_id[0] or activity_id
+        activity_id = isinstance(activity_id, (list, tuple)) and activity_id[0] or activity_id      
         activity_pool = self.pool['t4.clinical.activity']
-        activity = activity_pool.browse(cr, uid, activity_id, context)
-        except_if(activity.state not in ['new', 'planned', 'scheduled', 'started'],
-                  msg="Data can not be submitted for a activity in state %s !" % activity.state)
-        except_if(not activity.type_id, msg="Data model is not set for the activity!")
-        # import pdb; pdb.set_trace()
-        try:
-            view = eval("activity.type_id.%s_view_id" % command)
-        except:
-            except_if(True, msg="Command '%s' is not recognized!" % command)
-        except_if(not view, msg="Command '%s' view is not set for data model '%s'" % (command, activity.data_model))
+        activity = activity_pool.browse(cr, uid, activity_id, context)        
+        imd_pool = self.pool['ir.model.data']
+        view_xmlid = eval("activity.data_ref._%s_view_xmlid" % command)
+        view = imd_pool.get_object(cr, uid, "base", view_xmlid, context)
+        except_if(not view, msg="View with xmlid='%s' not found" % view_xmlid)
         ctx = context or {}
         ctx.update({'t4_source': 't4.clinical.activity'})
         aw = {
             'type': 'ir.actions.act_window',
             'view_id': view.id,
             'res_model': view.model,
-            'res_id': activity.data_res_id,  # must always be there
+            'res_id': activity.data_ref.id,
             'view_type': view.type,
             'view_mode': view.type,
             'target': "new",
@@ -543,12 +431,6 @@ class t4_clinical_activity_data(orm.AbstractModel):
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         activity_pool.write(cr, uid, activity.id, {'state': 'completed', 'date_terminated': now}, context)
         _logger.debug("activity '%s', activity.id=%s completed" % (activity.data_model, activity.id))
-#         api_pool = self.pool['t4.clinical.api']
-#         trigger = api_pool.get_activity_trigger_browse(cr, uid, activity.patient_id.id, activity.data_model, context)
-#         if trigger:
-#             model_activity_id = self.pool[activity.data_model].create_activity(cr, uid, {'creator_id': activity_id},
-#                                                                                {'patient_id': activity.patient_id.id})
-#             activity_pool.schedule(cr, uid, model_activity_id, trigger.date_next, context)
         return {}
 
     def assign(self, cr, uid, activity_id, user_id, context=None):
@@ -629,11 +511,9 @@ class t4_clinical_activity_data(orm.AbstractModel):
     def submit(self, cr, uid, activity_id, vals, context=None):
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
-        except_if(not activity.type_id, msg="Data type is not set for this activity")
         except_if(not self.is_action_allowed(activity.state, 'submit'),
                   msg="Data can't be submitted to activity of type '%s' in state '%s'" % (
                   activity.data_model, activity.state))
-
         data_vals = vals.copy()
 
         if not activity.data_ref:
@@ -734,7 +614,9 @@ class t4_clinical_activity_data(orm.AbstractModel):
         user_pool = self.pool['res.users']
         activity = self.pool['t4.clinical.activity'].browse(cr, uid, activity_id, context)
         # get groups where current type is allowed
-        group_ids = group_pool.search(cr, uid, [('activity_type_ids', '=', activity.type_id.id)])
+        ima_pool = self.pool['ir.model.access']
+        ima_ids = ima_pool.search(cr, uid, [('model_id.name','=',activity.data_ref._name),('perm_responsibility','=',1)])
+        group_ids = [ima.group_id.id for ima in ima_pool.browse(cr, uid, ima_ids)]
         location_id = self.get_activity_location_id(cr, uid, activity_id, context)
         user_ids = []
         if location_id:

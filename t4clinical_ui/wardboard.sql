@@ -54,7 +54,8 @@ select
 	patient.dob,
 	extract(year from age(now(), patient.dob)) as age,
 	(now() - ews0.date_scheduled)::text as next_diff, 
-	trigger.unit_qty || ' ' || trigger.unit || '(s)' as frequency,
+	--trigger.unit_qty || ' ' || trigger.unit || '(s)' as frequency,
+	spell.current_ews_frequency as frequency,
 	ews1.score as ews_score,
 	case
 		when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
@@ -75,7 +76,7 @@ inner join t4_clinical_patient patient on spell.patient_id = patient.id
 left join t4_clinical_location location on location.id = spell.location_id
 left join (select id, score, patient_id, rank from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
 left join (select id, score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
-left join t4_clinical_patient_activity_trigger trigger on trigger.patient_id = patient.id and trigger.data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
+--left join t4_clinical_patient_activity_trigger trigger on trigger.patient_id = patient.id and trigger.data_model = 't4.clinical.patient.observation.ews' and trigger.active = 't'
 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id

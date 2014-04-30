@@ -19,7 +19,7 @@ def next_seed():
 class BaseTest(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid, seed
-        global patient_pool, location_pool, pos_pool, user_pool, imd_pool, activity_pool, type_pool
+        global patient_pool, location_pool, pos_pool, user_pool, imd_pool, activity_pool
         global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
     
         cr, uid = self.cr, self.uid
@@ -28,7 +28,6 @@ class BaseTest(common.SingleTransactionCase):
         location_pool = self.registry('t4.clinical.location')
         pos_pool = self.registry('t4.clinical.pos')
         activity_pool = self.registry('t4.clinical.activity')
-        type_pool = self.registry('t4.clinical.activity.type')
         user_pool = self.registry('res.users')
         imd_pool = self.registry('ir.model.data')
         
@@ -40,7 +39,6 @@ class BaseTest(common.SingleTransactionCase):
         _logger.info("Activity created id=%s, data_model=%s\n vals_activity: %s\n vals_data: %s" 
                      % (activity_id, data_model, vals_activity, vals_data))
         activity = activity_pool.browse(cr, uid, activity_id)
-        activity_type_id = type_pool.search(cr, uid, [['data_model','=',data_model]])[0]
 
         # tests
         self.assertTrue(activity.state == "new", 
@@ -49,9 +47,6 @@ class BaseTest(common.SingleTransactionCase):
         self.assertTrue(activity.data_model == model_pool._name, 
                         "activity.data_model (%s) != model_pool._name (%s)" 
                         % (activity.data_model, model_pool._name))        
-        self.assertTrue(activity.type_id != activity_type_id, 
-                        "activity.type_id (%s) != type.id (%s)" 
-                        % (activity.type_id, activity_type_id))
         return activity_id
     
     def submit(self, cr, uid, activity_id, vals, context=None):

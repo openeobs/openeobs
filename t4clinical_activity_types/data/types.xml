@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data>	
+    <data>
+<!-- Sequences -->
+        <record id="spell_sequence_type" model="ir.sequence.type">
+            <field name="name">Spell</field>
+            <field eval="'t4.clinical.spell'" name="code"/>
+        </record>	
+        <record id="spell_sequence" model="ir.sequence">
+            <field name="name">Spell</field>
+            <field eval="6" name="padding"/>
+            <field eval="'t4.clinical.spell'" name="code"/>
+            <field name="prefix">SPELL/%(year)s/</field>
+        </record>	    
     <!-- Types -->
-		<record model="t4.clinical.activity.type" id="patient_move_data_type">
+<!-- 		<record model="t4.clinical.activity.type" id="patient_move_data_type">
 			<field name="summary">Patient Move</field>
 			<field name="data_model">t4.clinical.patient.move</field>
  			<field name="start_view_id" ref="view_patient_move_form" />
@@ -106,17 +117,7 @@
 		<record model="t4.clinical.activity.type" id="patient_o2target">
 			<field name="summary">Patient O2 Target</field>
 			<field name="data_model">t4.clinical.patient.o2target</field>
-		</record>			
-<!-- Sequences -->
-        <record id="spell_sequence_type" model="ir.sequence.type">
-            <field name="name">Spell</field>
-            <field eval="'t4.clinical.spell'" name="code"/>
-        </record>	
-        <record id="spell_sequence" model="ir.sequence">
-            <field name="name">Spell</field>
-            <field eval="6" name="padding"/>
-            <field eval="'t4.clinical.spell'" name="code"/>
-            <field name="prefix">SPELL/%(year)s/</field>
-        </record>													
+		</record> -->			
+												
 	</data>
 </openerp>
