@@ -155,7 +155,7 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         patient_id = patient_pool.search(cr, uid, domain)
         except_if(not patient_id, msg="Patient not found!")
         #activity = activity_pool.browse(cr, uid, activity_id, context)
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id, context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
         except_if(not spell_activity_id, msg="Active spell not found for patient.id=%s !" % patient_id)
         patient_id = patient_id[0]           
         location_pool = self.pool['t4.clinical.location']

@@ -16,11 +16,11 @@
                 <field name="name">Wardboard Tree View</field>
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
-                    <tree string="Wardboard Tree View">
+                    <tree string="Wardboard Tree View" version="7.0" create="0">
                        <field name="full_name" />
                        <field name="location" />
                        <field name="sex" />
-                       <field name="dob" />
+                       <field name="dob" widget="date"/>
                        <field name="age" />
 					   <field name="next_diff" />
                        <field name="frequency" />
@@ -34,62 +34,149 @@
                 <field name="name">Wardboard Form View</field>
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
-                    <form string="Wardboard Form View">
-                       <group string="Wardboard">
-                       <field name="full_name" />
-                       <field name="location" />
-                       <field name="sex" />
-                       <field name="dob" />
-                       <field name="age" />
-					   <field name="next_diff" />
-                       <field name="frequency" />
-                       <field name="ews_score" />
-                       <field name="ews_trend" />
-                       <field name="height" />
-                       <field name="o2target_string" />
-                       <field name="spell_code" />
-                       <field name="spell_ids">
-	                       	<form>
-	                       		<field name="code" />
-	                       		<field name="date_started" />
-	                       	</form>
-                       </field>
-                       <field name="move_ids">
-	                       	<tree>
-	                       		<field name="location_id" />
-	                       		<field name="date_terminated" />
-	                       		<field name="state" />
-	                       	</tree>
-	                       	<form>
-	                       		<field name="location_id" />
-	                       		<field name="patient_id" />
-	                       	</form>
-                       </field>   
-                       <field name="o2target_ids">
-	                       	<tree>
-	                       		<field name="level_id" />
-	                       	</tree>
-	                       	<form>
-	                       		<field name="level_id" />
-	                       	</form>
-                       </field> 
-                       <field name="weight_ids">
-	                       	<tree>
-	                       		<field name="weight" />
-	                       	</tree>
-	                       	<form>
-	                       		<field name="weight" />
-	                       	</form>
-                       </field>                                                                    
-					   </group>                       
+                    <form string="Wardboard Form View" version="7.0" create="0">
+                        <sheet>
+                            <div class="oe_title">
+                                <label string="Name" for="full_name"/>
+                                <h1><field name="full_name" readonly="True"/></h1>
+                            </div>
+                            <group>
+                                <group string="Personal Information">
+                                    <field name="dob" readonly="True" widget="date"/>
+                                    <field name="age" readonly="True"/>
+                                    <field name="sex" readonly="True"/>
+                                </group>
+                                <group string="Hospital Information">
+                                    <field name="location" readonly="True"/>
+                                </group>
+                                <group string="Early Warning Score">
+                                    <field name="next_diff" readonly="1"/>
+                                    <field name="frequency" readonly="1"/>
+                                    <field name="ews_score" readonly="1"/>
+                                    <field name="ews_trend" readonly="1"/>
+                                    <field name="o2target_string" readonly="1"/>
+                                </group>
+                            </group>
+                            <notebook>
+                                <page string="Admission Details">
+                                    <group>
+                                        <field name="spell_code" readonly="1"/>
+                                    </group>
+                                    <label string="Previous admissions:" for="spell_ids"/>
+                                    <field name="spell_ids" readonly="1">
+                                        <tree>
+                                            <field name="code"/>
+                                            <field name="date_started"/>
+                                            <field name="location_id"/>
+                                        </tree>
+                                        <form>
+                                            <field name="code" />
+                                            <field name="date_started" />
+                                            <field name="location_id"/>
+                                        </form>
+                                   </field>
+                                </page>
+                                <page string="Medical Details">
+                                    <group>
+                                        <field name="height" string="Height (m)" readonly="1"/>
+                                    </group>
+                                    <div>
+                                        <label for="weight_ids" string="Weights:"/>
+                                        <field name="weight_ids" readonly="1">
+                                            <tree>
+                                                <field name="weight" />
+                                            </tree>
+                                            <form>
+                                                <field name="weight" />
+                                            </form>
+                                       </field>
+                                    </div>
+                                    <div>
+                                        <label for="o2target_ids" string="O2 Target History:"/>
+                                        <field name="o2target_ids" readonly="1">
+                                            <tree>
+                                                <field name="level_id" />
+                                            </tree>
+                                            <form>
+                                                <field name="level_id" />
+                                            </form>
+                                       </field>
+                                    </div>
+                                </page>
+                                <page string="Movements">
+                                    <field name="move_ids" readonly="1">
+                                        <tree>
+                                            <field name="location_id" />
+                                            <field name="date_terminated" />
+                                            <field name="state" />
+                                        </tree>
+                                        <form>
+                                            <field name="location_id" />
+                                            <field name="patient_id" />
+                                        </form>
+                                   </field>
+                                </page>
+                                <page string="Devices">
+                                </page>
+                            </notebook>
+                        </sheet>
+                       <!--<group string="Wardboard">-->
+                       <!--<field name="full_name" />-->
+                       <!--<field name="location" />-->
+                       <!--<field name="sex" />-->
+                       <!--<field name="dob" widget="date"/>-->
+                       <!--<field name="age" />-->
+					   <!--<field name="next_diff" />-->
+                       <!--<field name="frequency" />-->
+                       <!--<field name="ews_score" />-->
+                       <!--<field name="ews_trend" />-->
+                       <!--<field name="height" />-->
+                       <!--<field name="o2target_string" />-->
+                       <!--<field name="spell_code" />-->
+                       <!--<field name="spell_ids">-->
+	                       	<!--<form>-->
+	                       		<!--<field name="code" />-->
+	                       		<!--<field name="date_started" />-->
+	                       	<!--</form>-->
+                       <!--</field>-->
+                       <!--<field name="move_ids">-->
+	                       	<!--<tree>-->
+	                       		<!--<field name="location_id" />-->
+	                       		<!--<field name="date_terminated" />-->
+	                       		<!--<field name="state" />-->
+	                       	<!--</tree>-->
+	                       	<!--<form>-->
+	                       		<!--<field name="location_id" />-->
+	                       		<!--<field name="patient_id" />-->
+	                       	<!--</form>-->
+                       <!--</field>   -->
+                       <!--<field name="o2target_ids">-->
+	                       	<!--<tree>-->
+	                       		<!--<field name="level_id" />-->
+	                       	<!--</tree>-->
+	                       	<!--<form>-->
+	                       		<!--<field name="level_id" />-->
+	                       	<!--</form>-->
+                       <!--</field> -->
+                       <!--<field name="weight_ids">-->
+	                       	<!--<tree>-->
+	                       		<!--<field name="weight" />-->
+	                       	<!--</tree>-->
+	                       	<!--<form>-->
+	                       		<!--<field name="weight" />-->
+	                       	<!--</form>-->
+                       <!--</field>                                                                    -->
+					   <!--</group>                       -->
                     </form>
                 </field>
             </record>
+
             <record model="ir.actions.act_window" id="action_wardboard" >
                 <field name="name">Wardboard</field>
                 <field name="res_model">t4.clinical.wardboard</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>
+                <field name="domain">[('next_diff','!=',False)]</field>
                 <field name="search_view_id" ref="view_wardboard_search"/>
             </record>
             <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">

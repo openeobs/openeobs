@@ -51,15 +51,15 @@
         
         <!-- Location - Wards -->
         <record id="t4c_def_conf_location_w8" model="t4.clinical.location">
-            <field name="name">Ward W8</field>
-            <field name="code">W8</field>
+            <field name="name">Ward E8</field>
+            <field name="code">E8</field>
             <field name="type">poc</field>
             <field name="usage">ward</field>
           <field name="parent_id" ref="t4c_def_conf_location_guh"/>
         </record>        
         <record id="t4c_def_conf_location_w9" model="t4.clinical.location">
-            <field name="name">Ward W9</field>
-            <field name="code">W9</field>
+            <field name="name">Ward E9</field>
+            <field name="code">E9</field>
             <field name="type">poc</field>
             <field name="usage">ward</field>
             <field name="parent_id" ref="t4c_def_conf_location_guh"/>
