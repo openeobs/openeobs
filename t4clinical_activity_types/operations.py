@@ -114,7 +114,7 @@ class t4_clinical_patient_placement(orm.Model):
         
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         # set spell location
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context=context)
         # move to location
         move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,
                                                     {'parent_id': spell_activity_id,
@@ -123,7 +123,7 @@ class t4_clinical_patient_placement(orm.Model):
                                                      'location_id': placement_activity.data_ref.location_id.id})
         activity_pool.complete(cr, uid, move_activity_id)
         #import pdb; pdb.set_trace()
-        activity_pool.submit(cr, uid, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
+        activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         # create EWS
         frequency = placement_activity.pos_id.ews_init_frequency
         ews_activity_id = ews_pool.create_activity(cr, SUPERUSER_ID, 
@@ -179,7 +179,7 @@ class t4_clinical_patient_discharge(orm.Model):
         api_pool = self.pool['t4.clinical.api']
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context)
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context=context)
         except_if(not spell_activity, msg="Patient id=%s has no started spell!" % activity.patient_id.id)
         #import pdb; pdb.set_trace()
         # move
@@ -222,7 +222,7 @@ class t4_clinical_patient_admission(orm.Model):
         admission = activity.data_ref
         
         # spell
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, admission.patient_id.id, context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, admission.patient_id.id, context=context)
         # FIXME! hadle multiple POS
         except_if(spell_activity_id, msg="Patient id=%s has started spell!" % admission.patient_id.id)
         spell_pool = self.pool['t4.clinical.spell']

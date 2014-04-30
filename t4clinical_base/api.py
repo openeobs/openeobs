@@ -56,16 +56,16 @@ class t4_clinical_api(orm.AbstractModel):
 
     def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
         activity_pool = self.pool['t4.clinical.activity']
-        domain = [('patient_id','=',patient_id),
-                  ('state','=','started'),
-                  ('data_model','=','t4.clinical.spell')]
+        domain = [('patient_id', '=', patient_id),
+                  ('state', '=', 'started'),
+                  ('data_model', '=', 't4.clinical.spell')]
         if pos_id:
-            domain.append(('pos_id','=',pos_id))
-        spell_activity_id = activity_pool.search(cr, uid, domain)
+            domain.append(('pos_id', '=', pos_id))
+        spell_activity_id = activity_pool.search(cr, SUPERUSER_ID, domain)
         if not spell_activity_id:
             return False
-        if len(spell_activity_id) >1:
-            _logger.warn("For pateint_id=%s found more than 1 started spell_activity_ids: %s " % (patient_id, spell_activity_id))
+        if len(spell_activity_id) > 1:
+            _logger.warn("For patient_id=%s found more than 1 started spell_activity_ids: %s " % (patient_id, spell_activity_id))
         return spell_activity_id[0]
 
 

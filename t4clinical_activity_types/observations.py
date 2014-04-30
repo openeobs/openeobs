@@ -42,7 +42,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     def create_activity(self, cr, uid, activity_vals={}, data_vals={}, context=None):
         activity_pool = self.pool['t4.clinical.activity']
         api_pool = self.pool['t4.clinical.api']
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, data_vals['patient_id'], context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, data_vals['patient_id'], context=context)
         except_if(not spell_activity_id, msg="Current spell is not found for patient_id: %s" %  data_vals['patient_id'])
         activity_vals.update({'parent_id': spell_activity_id})
         return super(t4_clinical_patient_observation, self).create_activity(cr, uid, activity_vals, data_vals, context)      
