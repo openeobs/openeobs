@@ -50,17 +50,17 @@
                                     <field name="location" readonly="True"/>
                                 </group>
                                 <group string="Early Warning Score">
-                                    <field name="next_diff"/>
-                                    <field name="frequency"/>
-                                    <field name="ews_score"/>
-                                    <field name="ews_trend"/>
-                                    <field name="o2target_string"/>
+                                    <field name="next_diff" readonly="1"/>
+                                    <field name="frequency" readonly="1"/>
+                                    <field name="ews_score" readonly="1"/>
+                                    <field name="ews_trend" readonly="1"/>
+                                    <field name="o2target_string" readonly="1"/>
                                 </group>
                             </group>
                             <notebook>
                                 <page string="Admission Details">
                                     <group>
-                                        <field name="spell_code"/>
+                                        <field name="spell_code" readonly="1"/>
                                     </group>
                                     <label string="Previous admissions:" for="spell_ids"/>
                                     <field name="spell_ids" readonly="1">
@@ -78,7 +78,7 @@
                                 </page>
                                 <page string="Medical Details">
                                     <group>
-                                        <field name="height" string="Height (m)"/>
+                                        <field name="height" string="Height (m)" readonly="1"/>
                                     </group>
                                     <div>
                                         <label for="weight_ids" string="Weights:"/>
