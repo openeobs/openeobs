@@ -16,11 +16,11 @@
                 <field name="name">Wardboard Tree View</field>
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
-                    <tree string="Wardboard Tree View">
+                    <tree string="Wardboard Tree View" version="7.0" create="0">
                        <field name="full_name" />
                        <field name="location" />
                        <field name="sex" />
-                       <field name="dob" />
+                       <field name="dob" widget="date"/>
                        <field name="age" />
 					   <field name="next_diff" />
                        <field name="frequency" />
@@ -90,6 +90,7 @@
                 <field name="res_model">t4.clinical.wardboard</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>
+                <field name="domain">[('next_diff','!=',False)]</field>
                 <field name="search_view_id" ref="view_wardboard_search"/>
             </record>
             <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">

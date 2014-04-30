@@ -1,0 +1,30 @@
+<templates>
+
+    <t t-name="WebClient" t-extend="WebClient">
+        <t t-jquery=".announcement_bar" t-operation="replace">
+        </t>
+        <t t-jquery=".oe_footer" t-operation="replace">
+            <div class="oe_footer">
+                Powered by <a href="http://www.tactix4.net" target="_blank"><span>T4Clinical / OpenERP</span></a>
+            </div>
+        </t>
+    </t>
+
+    <t t-extend="UserMenu">
+        <t t-jquery=".oe_dropdown_menu" t-operation="replace">
+            <ul class="oe_dropdown_menu">
+                <li><a href="#" data-menu="settings">Preferences</a></li>
+                <li><a href="#" data-menu="about">About OpenERP</a></li>
+                <li><a href="#" data-menu="help">Help</a></li>
+                <li><a href="#" data-menu="logout">Log out</a></li>
+            </ul>
+        </t>
+    </t>
+
+    <button t-name="t4.ListView.row.button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
+            t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
+        <img t-if="widget.t4_icon" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/#{widget.t4_icon}.png" t-att-alt="widget.string"/>
+        <img t-if="widget.icon" t-attf-src="#{prefix}/web/static/src/img/icons/#{widget.icon}.png" t-att-alt="widget.string"/>
+    </button>
+
+</templates>
