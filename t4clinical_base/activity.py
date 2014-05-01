@@ -89,7 +89,7 @@ class t4_clinical_activity(orm.Model):
             return res
         ids = isinstance(ids, (list, tuple)) and ids or [ids]
         for activity in self.read(cr, uid, ids, ['data_ref'], context):
-            res[activity['id']] = activity['data_ref'].split(",")[1]
+            res[activity['id']] = activity['data_ref'].split(",")[1] if activity['data_ref'] else False
         return res
 
     def _is_schedule_allowed(self, cr, uid, ids, field, arg, context=None):
