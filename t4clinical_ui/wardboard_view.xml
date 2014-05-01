@@ -42,12 +42,17 @@
                             </div>
                             <group>
                                 <group string="Personal Information">
+                                    <field name="middle_names" readonly="True"/>
                                     <field name="dob" readonly="True" widget="date"/>
                                     <field name="age" readonly="True"/>
                                     <field name="sex" readonly="True"/>
                                 </group>
                                 <group string="Hospital Information">
+                                	<field name="spell_date_started" readonly="True"/>
                                     <field name="location" readonly="True"/>
+                                    <field name="location_id" readonly="True"/>
+                                    <field name="other_identifier" readonly="True"/>
+                                    <field name="patient_identifier" readonly="True"/>
                                 </group>
                                 <group string="Early Warning Score">
                                     <field name="next_diff" readonly="1"/>
