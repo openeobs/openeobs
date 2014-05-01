@@ -15,18 +15,21 @@ class T4clinicalController(http.Controller):
                     <title>T4Clinical API</title>
                 </head>
                 <body>
-                    <p>meh!</p>
+                    <p>T4Clinical API:</p>
+                    <p>GET /api/activities/activity_id/ = get activity/ies</p>
+                    <p>DELETE /api/activities/activity_id/ = cancel activity</p>
+                    <p>POST /api/activities/activity_id/ = submit activity</p>
                 </body>
             </html>
         """
         return SIMPLE_TEMPLATE
 
     def get_dbname(self, req):
-        dbname = 't4clinical_default_config'
+        dbname = filter(lambda x: x != False, [req.httprequest.session[k]._db for k in req.httprequest.session.keys()])[0]
         return dbname
 
-    def get_uid(self, req, registry):
-        uid = 1
+    def get_uid(self, req):
+        uid = filter(lambda x: x != False, [req.httprequest.session[k]._uid for k in req.httprequest.session.keys()])[0]
         return uid
 
     @http.httprequest
@@ -34,7 +37,7 @@ class T4clinicalController(http.Controller):
         dbname = self.get_dbname(req)
         registry = openerp.modules.registry.RegistryManager.get(dbname)
         cr = registry.db.cursor()
-        uid = self.get_uid(req, registry)
+        uid = self.get_uid(req)
         api = registry.get('t4.clinical.api')
         context = req.context
 
@@ -52,21 +55,17 @@ class T4clinicalController(http.Controller):
             elif method == 'DELETE':
                 result = api.cancel(cr, uid, activity_id, context)
             elif method == 'POST':
-                # result = api.submit(cr, uid, activity_id, kw, context)
-                dummy = 1
+                result = api.submit(cr, uid, activity_id, kw, context)
         elif params[1] == 'assign':
             # /api/activities/activity_id/assign/
             if method == 'DELETE':
-                # result = api.unassign(cr, uid, activity_id, context)
-                dummy = 1
+                result = api.unassign(cr, uid, activity_id, context)
             elif method == 'POST':
-                # result = api.assign(cr, uid, activity_id, kw, context)
-                dummy = 1
+                result = api.assign(cr, uid, activity_id, kw, context)
         elif params[1] == 'complete':
             # /api/activities/activity_id/complete/
             if method == 'POST':
-                # result = api.complete(cr, uid, activity_id, kw, context)
-                dummy = 1
+                result = api.complete(cr, uid, activity_id, kw, context)
 
         json_result = json.dumps({'params': params, 'method': method, 'result': result})
         return json_result

@@ -27,4 +27,12 @@
         <img t-if="widget.icon" t-attf-src="#{prefix}/web/static/src/img/icons/#{widget.icon}.png" t-att-alt="widget.string"/>
     </button>
 
+    <t t-name="t4_maleCell"
+        ><img t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="t4_femaleCell"
+        ><img t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+    </t>
+
 </templates>

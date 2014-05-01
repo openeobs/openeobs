@@ -321,5 +321,10 @@
             <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_w9')]]]"/>
         </record>
 
+        <record id="base.user_root" model="res.users">
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_admin'))]"/>
+        </record>
+
     </data>
 </openerp>

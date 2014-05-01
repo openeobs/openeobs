@@ -103,7 +103,7 @@ openerp.t4clinical_ui = function (instance) {
         select_record: function (index, view) {
             view = view || index == null ? 'form' : 'form';
             this.dataset.index = index;
-            if (this.name != "Patients without bed"){
+            if (this.fields_view.name != "T4 Clinical patient placement activity Tree View"){
                 _.delay(_.bind(function () {
                     this.do_switch_view(view);
                 }, this));
@@ -155,4 +155,24 @@ openerp.t4clinical_ui = function (instance) {
     });
 
     instance.web.form.widgets.add('t4_many2one', 'instance.t4clinical_ui.T4Many2One');
+
+    instance.t4clinical_ui.GenderWidget = instance.web.list.Column.extend({
+        _format: function (row_data, options) {
+            if (row_data.sex.value == 'M'){
+                return QWeb.render('t4_maleCell', {
+                    'widget': this,
+                    'prefix': instance.session.prefix,
+                });
+            } else if (row_data.sex.value == 'F'){
+                return QWeb.render('t4_femaleCell', {
+                    'widget': this,
+                    'prefix': instance.session.prefix,
+                });
+            } else {
+                return 'Not Given';
+            };
+        },
+    });
+
+    instance.web.list.columns.add('field.t4_gender', 'instance.t4clinical_ui.GenderWidget');
 }
