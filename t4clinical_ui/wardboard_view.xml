@@ -107,6 +107,9 @@
                                             </form>
                                        </field>
                                     </div>
+                                    <group string="Blood Sugar">
+                                    	<field name="blood_sugar_ids" readonly="1" nolabel="1"/>
+                                   	</group>
                                 </page>
                                 <page string="Movements">
                                     <field name="move_ids" readonly="1">
