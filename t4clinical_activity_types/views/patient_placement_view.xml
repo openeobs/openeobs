@@ -20,7 +20,7 @@
                        <field name="name" />
                        <field name="patient_id" />
                        <field name="location_id"/>
-                       <field name="pos_id" />   
+                       <field name="pos_id" />    
                     </tree>
                 </field>
             </record>    

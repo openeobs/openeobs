@@ -316,7 +316,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         'completed': ['retrieve', 'validate'],
         'cancelled': ['retrieve', 'validate']
     }
-    _description = "Activity Data Base Model"
+    _description = _name #"Activity Data Base Model"
     _start_view_xmlid = None
     _schedule_view_xmlid = None
     _submit_view_xmlid = None
@@ -620,9 +620,11 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity = self.pool['t4.clinical.activity'].browse(cr, uid, activity_id, context)
         # get groups where current type is allowed
         ima_pool = self.pool['ir.model.access']
-        ima_ids = ima_pool.search(cr, uid, [('model_id.name','=',activity.data_ref._name),('perm_responsibility','=',1)])
+        ima_ids = ima_pool.search(cr, uid, [('model_id.model','=',activity.data_ref._name),('perm_responsibility','=',1)])
         group_ids = [ima.group_id.id for ima in ima_pool.browse(cr, uid, ima_ids)]
         location_id = self.get_activity_location_id(cr, uid, activity_id, context)
+#         if'placement' in activity.data_ref._name:
+#             import pdb; pdb.set_trace()
         user_ids = []
         if location_id:
             ids = user_pool.search(cr, uid, [['location_ids', '!=', False], ['groups_id', 'in', group_ids]])

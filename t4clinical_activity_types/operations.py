@@ -108,9 +108,6 @@ class t4_clinical_patient_placement(orm.Model):
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.clinical.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
-#         patient_id = activity.data_ref.patient_id.id
-#         # place from current or permanent location ??
-#         location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
         return activity.data_ref.suggested_location_id.id
     
     def complete(self, cr, uid, activity_id, context=None):

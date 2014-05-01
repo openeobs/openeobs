@@ -48,6 +48,7 @@
                        <field name="date_terminated" />
 					   <field name="state" />
 					   <field name="pos_id" />
+					   <field name="user_ids" />
 					   
 					   <field name="is_schedule_allowed" invisible="1"/>
 					   <field name="is_start_allowed" invisible="1"/>
