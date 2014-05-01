@@ -629,14 +629,14 @@ class t4_clinical_activity_data(orm.AbstractModel):
             for user in user_pool.browse(cr, uid, ids):
                 if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
                     user_ids.append(user.id)
-                    # _logger.info("""get_activity_user_ids() \n
-                #                             user_pool.get_all_responsibility_location_ids(cr, uid, user.id): % s \n
-                #                             user.location_ids: %s \n
-                #                             user_ids: %s \n
-                #                         """ % (user_pool.get_all_responsibility_location_ids(cr, uid, user.id),
-                #                                user.location_ids,
-                #                                user_ids
-                #                                ))
+                    _logger.info("""get_activity_user_ids() \n
+                                             user_pool.get_all_responsibility_location_ids(cr, uid, user.id): % s \n
+                                             user.location_ids: %s \n
+                                             user_ids: %s \n
+                                         """ % (user_pool.get_all_responsibility_location_ids(cr, uid, user.id),
+                                                user.location_ids,
+                                                user_ids
+                                                ))
                 #import pdb; pdb.set_trace()
         return list(set(user_ids))
 

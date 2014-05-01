@@ -90,6 +90,13 @@ class t4_clinical_patient_placement(orm.Model):
         'completed': ['retrieve','validate'],
         'cancelled': ['retrieve','validate']
                     }       
+    _description = "Patient Placement"
+    _start_view_xmlid = "view_patient_placement_form"
+    _schedule_view_xmlid = "view_patient_placement_form"
+    _submit_view_xmlid = "view_patient_placement_form"
+    _complete_view_xmlid = "view_patient_placement_form"
+    _cancel_view_xmlid = "view_patient_placement_form"
+    
     _columns = {
         'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location', required=True),
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location'),
