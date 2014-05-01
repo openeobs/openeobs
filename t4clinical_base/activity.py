@@ -391,7 +391,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity = activity_pool.browse(cr, uid, activity_id, context)        
         imd_pool = self.pool['ir.model.data']
         view_xmlid = eval("activity.data_ref._%s_view_xmlid" % command)
-        view = imd_pool.get_object(cr, uid, "base", view_xmlid, context)
+        view = imd_pool.get_object(cr, uid, "t4clinical_activity_types", view_xmlid, context)
         except_if(not view, msg="View with xmlid='%s' not found" % view_xmlid)
         ctx = context or {}
         ctx.update({'t4_source': 't4.clinical.activity'})

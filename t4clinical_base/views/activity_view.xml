@@ -19,6 +19,7 @@
                 <field name="field_parent">child_ids</field>
                 <field name="arch" type="xml">
                     <tree string="T4 Clinical activity Tree View">
+                       <field name="summary" />
                        <field name="user_id" />
                        <field name="user_ids" />
                        <field name="location_id" />
@@ -36,7 +37,8 @@
                 <field name="name">T4 Clinical activity Tree View</field>
                 <field name="model">t4.clinical.activity</field>
                 <field name="arch" type="xml">
-                    <tree string="T4 Clinical activity Tree View">                    
+                    <tree string="T4 Clinical activity Tree View">      
+                       <field name="summary" />	              
                        <field name="user_id" />
                        <field name="user_ids" />
                        <field name="location_id" />
@@ -83,6 +85,7 @@
                       </header>
                       <sheet>
                       	    <group string="activity">
+			                   <field name="summary" />
 			                   <field name="create_date" />
 		                       <field name="user_id" />
 <!-- 		                       <field name="employee_id" /> -->

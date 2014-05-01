@@ -50,7 +50,12 @@ class t4_clinical_patient_move(orm.Model):
     _name = 't4.clinical.patient.move'
     _inherit = ['t4.clinical.activity.data']  
     #_rec_name = 'patient_id'    
- 
+    _description = "Patient Move"
+    _start_view_xmlid = "view_patient_move_form"
+    _schedule_view_xmlid = "view_patient_move_form"
+    _submit_view_xmlid = "view_patient_move_form"
+    _complete_view_xmlid = "view_patient_move_form"
+    _cancel_view_xmlid = "view_patient_move_form"
     _columns = {
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),

@@ -14,7 +14,6 @@
              'views/patient_placement_view.xml',
              'wizards/placement_wizard_view.xml',
              'data/types.xml', 
-             'security/security.xml',
              'views/menuitem.xml',
              'security/ir.model.access.csv'],
     'demo': [],
