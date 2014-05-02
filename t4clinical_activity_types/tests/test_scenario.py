@@ -375,7 +375,21 @@ class ActivityTypesTest(BaseTest):
                                                                    })
         # Complete
         activity_pool.complete(cr, uid, connect_activity_id)   
-        
+
+        connect_activity = activity_pool.browse(cr, uid, connect_activity_id)
+        self.assertTrue(connect_activity.state == 'completed',
+                       "connect_activity.state != 'completed' after completion!")
+        session_activity_id = activity_pool.search(cr, uid, [('creator_id','=',connect_activity.id),
+                                                             ('data_model','=','t4.clinical.device.session')])
+        session_activity_id = session_activity_id and session_activity_id[0]
+        self.assertTrue(session_activity_id,
+                       "session activity not found after device.connect completion!")        
+        session_activity = activity_pool.browse(cr, uid, session_activity_id)
+        self.assertTrue(session_activity.patient_id.id == session_activity.patient_id.id,
+                       "session.patient_id != connect.patient_id!")         
+        self.assertTrue(session_activity.device_id.id == session_activity.device_id.id,
+                       "session.device_id != connect.device_id!")  
+
         return connect_activity_id          
                
     def device_disconnect(self, activity_vals={}, data_vals={}, env={}):
@@ -392,8 +406,11 @@ class ActivityTypesTest(BaseTest):
                                                                    'device_id': device_id
                                                                    })
         # Complete
+        session_activity_id = api_pool.get_device_session_activity_id(cr, uid, device_id)
         activity_pool.complete(cr, uid, disconnect_activity_id)   
-        
+        session_activity = activity_pool.browse(cr, uid, session_activity_id)
+        self.assertTrue(session_activity.state == 'completed',
+                       "session_activity.state != 'completed' after device.disconnect completion!")  
         return disconnect_activity_id             
         
                 
@@ -425,7 +442,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         # device connect
         connect_activity_id = self.device_connect(env=pos1_env)
         connect_activity = activity_pool.browse(cr, uid, connect_activity_id)
-        
+
         # disconnect
         disconnect_activity_id = self.device_disconnect(data_vals={
                                                                    'patient_id': connect_activity.patient_id.id,
