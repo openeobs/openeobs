@@ -27,8 +27,7 @@ class t4_clinical_device_type(orm.Model):
 
     _columns = {
         'name': fields.text("Device Type"),
-        'flow_direction': fields.selection([('none', 'None'), ('in', 'In'), ('out', 'Out'), ('both', 'Both')], 'Flow Direction'),
-        
+        'flow_direction': fields.selection([('none', 'None'), ('in', 'In'), ('out', 'Out'), ('both', 'Both')], 'Flow Direction')
     }
 
 

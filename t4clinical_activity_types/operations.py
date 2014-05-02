@@ -8,33 +8,6 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import SUPERUSER_ID
 _logger = logging.getLogger(__name__)
 
-class t4_clinical_device_session(orm.AbstractModel):
-    _name = 't4.clinical.device.session'
-    _description = 'Device Session'
-    _inherit = ['t4.clinical.activity.data']
-    _columns = {
-        'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
-    }
-    
-class t4_clinical_device_connect(orm.Model):
-    _name = 't4.clinical.device.connect'
-    _inherit = ['t4.clinical.activity.data']
-    _description = 'Connect Device'
-    _columns = {
-        'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
-    }
-
-class t4_clinical_device_disconnect(orm.Model):
-    _name = 't4.clinical.device.disconnect'
-    _inherit = ['t4.clinical.activity.data']
-    _description = 'Disconnect Device'
-    _columns = {
-        'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
-    }
-
 
 class t4_clinical_notification(orm.AbstractModel):
     _name = 't4.clinical.notification'

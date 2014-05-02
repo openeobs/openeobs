@@ -116,6 +116,9 @@
                                    	<group string="Diabetes">
                                     	<field name="diabetes_ids" readonly="1" nolabel="1"/>
                                    	</group> 
+                                   	<group string="Device Sessions">
+                                    	<field name="device_session_ids" readonly="1" nolabel="1"/>
+                                   	</group>                                   
                                 </page>
                                 <page string="Movements">
                                     <field name="move_ids" readonly="1">

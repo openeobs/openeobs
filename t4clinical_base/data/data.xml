@@ -60,7 +60,12 @@
             <field name="implied_ids" eval="[(4, ref('group_t4clinical_base'))]"/>            
         </record>
         
- <!-- Users -->       
+ <!-- Users -->    
+         <record model="res.users" id="base.user_root">
+            <field name="groups_id" eval="[ (4, ref('group_t4clinical_dev')),
+	            							(4, ref('group_t4clinical_admin')),
+	            							 (4, ref('base.group_no_one'))]"/>
+        </record>   
         <record id="t4clinical_admin" model="res.users">
             <field name="name">t4admin</field>
             <field name="login">a</field>

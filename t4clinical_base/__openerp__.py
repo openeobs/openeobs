@@ -16,7 +16,7 @@
              'views/patient_view.xml',
              #'views/activity_type_view.xml',
              'views/user_view.xml',
-             #'views/trigger_view.xml',
+             'views/device_view.xml',
              'views/menuitem.xml',             
              'security/ir.model.access.csv'],
     'demo': [],

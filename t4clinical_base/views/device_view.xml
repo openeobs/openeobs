@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+            <record model="ir.ui.view" id="view_device_search">
+                <field name="name">Device Search View</field>
+                <field name="model">t4.clinical.device</field>
+                <field name="arch" type="xml">
+                    <search string="Patient activity Trigger Search View">
+                        <group expand="1" string="Group By...">
+                          <filter name="name" string="Name" domain="[]" context="{'group_by':'name'}" help="Name"/>
+                        </group>
+                    </search>
+                </field>
+            </record>
+            <record model="ir.ui.view" id="view_device_tree">
+                <field name="name">Device Tree View</field>
+                <field name="model">t4.clinical.device</field>
+                <field name="arch" type="xml">
+                    <tree string="Device">
+                       <field name="type_id" />  
+                    </tree>
+                </field>
+            </record>    
+            <record model="ir.ui.view" id="view_device_form">
+                <field name="name">Device Form View</field>
+                <field name="model">t4.clinical.device</field>
+                <field name="arch" type="xml">
+                    <form string="Device">
+                       <field name="type_id" />                 
+                    </form>
+                </field>
+            </record>
+            <record model="ir.actions.act_window" id="action_device" >
+                <field name="name">t4.clinical.device</field>
+                <field name="res_model">t4.clinical.device</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="search_view_id" ref="view_device_search"/>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_device_tree">
+                <field eval="0" name="sequence"/>
+                <field name="view_mode">tree</field>
+                <field name="view_id" ref="view_device_tree"/>
+                <field name="act_window_id" ref="action_device"/>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_device_form">
+                <field eval="1" name="sequence"/>
+                <field name="view_mode">form</field>
+                <field name="view_id" ref="view_device_form"/>
+                <field name="act_window_id" ref="action_device"/>
+            </record>
+    </data>
+</openerp>

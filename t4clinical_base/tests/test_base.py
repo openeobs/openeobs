@@ -19,7 +19,7 @@ def next_seed():
 class BaseTest(common.SingleTransactionCase):
     def setUp(self):
         global cr, uid, seed
-        global patient_pool, location_pool, pos_pool, user_pool, imd_pool, activity_pool
+        global patient_pool, location_pool, pos_pool, user_pool, imd_pool, activity_pool, device_type_pool, device_pool
         global pos_id, ward_location_ids, bed_location_ids, adt_user_id, nurse_user_ids
     
         cr, uid = self.cr, self.uid
@@ -30,7 +30,8 @@ class BaseTest(common.SingleTransactionCase):
         activity_pool = self.registry('t4.clinical.activity')
         user_pool = self.registry('res.users')
         imd_pool = self.registry('ir.model.data')
-        
+        device_type_pool = self.registry('t4.clinical.device.type')
+        device_pool = self.registry('t4.clinical.device')
         super(BaseTest, self).setUp()
         
     def create_activity(self, cr, uid, data_model, vals_activity={}, vals_data={}, context=None):
@@ -65,7 +66,7 @@ class BaseTest(common.SingleTransactionCase):
         res = activity_pool.complete(cr, uid, activity_id, context)
         return res    
        
-    def create_pos_environment(self, WARD_QTY=5, BED_PER_WARD=3):
+    def create_pos_environment(self, WARD_QTY=5, BED_PER_WARD=3, DEVICES=5):
         """
         creates 1 pos environment
         """
@@ -94,12 +95,17 @@ class BaseTest(common.SingleTransactionCase):
              self.create_nurse_user(ward_location_ids)
          ]
         
+        # Create devices
+        device_ids = [self.create_device() for i in range(DEVICES)]
+               
         env = {'pos_id': pos_id,
                'pos_location_id': pos_pool.browse(cr, uid, pos_id).location_id.id,
                'adt_user_id': adt_user_id,
                'bed_location_ids': bed_location_ids,
                'ward_location_ids': ward_location_ids,
-               'nurse_user_ids': nurse_user_ids}
+               'nurse_user_ids': nurse_user_ids,
+               'device_ids': device_ids,
+               }
         return env
     
 
@@ -160,6 +166,16 @@ class BaseTest(common.SingleTransactionCase):
         location_id = location_pool.create(cr, uid, data)
         _logger.info("Discharge location created id=%s\n data: %s" % (location_id, data))
         return location_id 
+
+    def create_device_type(self, data={}):
+        device_type_id = device_type_pool.create(cr, uid, self.data_device_type())
+        _logger.info("Device type created id=%s" % (device_type_id))
+        return device_type_id
+    
+    def create_device(self, data={}):
+        device_id = device_pool.create(cr, uid, self.data_device())
+        _logger.info("Device created id=%s" % (device_id))
+        return device_id
 
     def data_patient(self, data={}):
         fake.seed(next_seed())
@@ -276,9 +292,22 @@ class BaseTest(common.SingleTransactionCase):
                 }
         return res    
     
+    def data_device_type(self, data={}):
+        fake.seed(next_seed())
+        flow_directions = ['none', 'in', 'out', 'both']
+        res = {
+                'name': data.get('name') or "DEVICE_TYPE_"+str(fake.random_int(min=100, max=999)),
+                'flow_direction': data.get('flow_direction') or flow_directions[fake.random_int(min=0, max=3)],
+                }
+        return res     
     
-    
-    
+    def data_device(self, data={}):
+        fake.seed(next_seed())
+        type_id = data.get('type_id') or device_type_pool.create(cr, uid, self.data_device_type())
+        res = {
+               'type_id': type_id
+               }
+        return res     
     
     
     

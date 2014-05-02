@@ -16,5 +16,6 @@ class t4_clinical_patient_extension(osv.Model):
         'blood_sugar_ids': fields.one2many('t4.clinical.patient.observation.blood_sugar', 'patient_id', 'Blood Sugar'),
         'mrsa_ids': fields.one2many('t4.clinical.patient.mrsa', 'patient_id', 'MRSA'),
         'diabetes_ids': fields.one2many('t4.clinical.patient.diabetes', 'patient_id', 'Diabetes'),
+        'device_session_ids': fields.one2many('t4.clinical.device.session', 'patient_id', 'Device Sessions'),
         
     }

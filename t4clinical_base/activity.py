@@ -147,6 +147,7 @@ class t4_clinical_activity(orm.Model):
         'user_ids': fields.many2many('res.users', 'activity_user_rel', 'activity_id', 'user_id', 'Users',
                                      readonly=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', readonly=True),
+        'device_id': fields.many2one('t4.clinical.device', 'Device', readonly=True),
         'location_id': fields.many2one('t4.clinical.location', 'Location', readonly=True),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', readonly=True),
         # system data
@@ -541,12 +542,14 @@ class t4_clinical_activity_data(orm.AbstractModel):
         activity_vals = {}
         location_id = self.get_activity_location_id(cr, uid, activity_id)
         patient_id = self.get_activity_patient_id(cr, uid, activity_id)
+        device_id = self.get_activity_device_id(cr, uid, activity_id)
         pos_id = self.get_activity_pos_id(cr, uid, activity_id)
         user_ids = self.get_activity_user_ids(cr, uid, activity_id)
-        activity_vals.update({'location_id': location_id})
-        activity_vals.update({'patient_id': patient_id})
-        activity_vals.update({'pos_id': pos_id})
-        activity_vals.update({'user_ids': [(6, 0, user_ids)]})
+        activity_vals.update({'location_id': location_id,
+                              'patient_id': patient_id,
+                              'device_id': device_id,
+                              'pos_id': pos_id,
+                              'user_ids': [(6, 0, user_ids)]})
         activity_pool.write(cr, uid, activity_id, activity_vals)
         # #print"activity_vals: %s" % activity_vals
         _logger.debug(
@@ -592,6 +595,15 @@ class t4_clinical_activity_data(orm.AbstractModel):
             _logger.debug("Unable to calculate pos_id, returning False")
         return pos_id
 
+    def get_activity_device_id(self, cr, uid, activity_id, context=None):       
+        """
+        """
+        device_id = False
+        data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
+        if 'device_id' in self._columns.keys():
+            device_id = data.device_id and data.device_id.id or False
+        return device_id
+
     def get_activity_location_id(self, cr, uid, activity_id, context=None):       
         """
         Returns pos_id for activity calculated based on activity data
@@ -632,14 +644,14 @@ class t4_clinical_activity_data(orm.AbstractModel):
             for user in user_pool.browse(cr, uid, ids):
                 if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
                     user_ids.append(user.id)
-                    _logger.info("""get_activity_user_ids() \n
-                                             user_pool.get_all_responsibility_location_ids(cr, uid, user.id): % s \n
-                                             user.location_ids: %s \n
-                                             user_ids: %s \n
-                                         """ % (user_pool.get_all_responsibility_location_ids(cr, uid, user.id),
-                                                user.location_ids,
-                                                user_ids
-                                                ))
+#                     _logger.info("""get_activity_user_ids() \n
+#                                              user_pool.get_all_responsibility_location_ids(cr, uid, user.id): % s \n
+#                                              user.location_ids: %s \n
+#                                              user_ids: %s \n
+#                                          """ % (user_pool.get_all_responsibility_location_ids(cr, uid, user.id),
+#                                                 user.location_ids,
+#                                                 user_ids
+#                                                 ))
                 #import pdb; pdb.set_trace()
         return list(set(user_ids))
 

@@ -24,7 +24,8 @@ class ActivityTypesTest(BaseTest):
     def setUp(self):
         global cr, uid, \
                register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
-               activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool
+               activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool, \
+               device_connect_pool, device_disconnect_pool
         
         cr, uid = self.cr, self.uid
 
@@ -40,7 +41,8 @@ class ActivityTypesTest(BaseTest):
         pos_pool = self.registry('t4.clinical.pos')
         user_pool = self.registry('res.users')
         imd_pool = self.registry('ir.model.data')
-        
+        device_connect_pool = self.registry('t4.clinical.device.connect')
+        device_disconnect_pool = self.registry('t4.clinical.device.disconnect')
         
         super(ActivityTypesTest, self).setUp()
         
@@ -358,7 +360,43 @@ class ActivityTypesTest(BaseTest):
                        "gcs_activity.location_id != placement_activity.data_ref.location_id.id after placement completion!")          
             
     
+    def device_connect(self, activity_vals={}, data_vals={}, env={}):
+        data = {}
+        device_id = data_vals.get('device_id') \
+                     or env['device_ids'][fake.random_int(min=0, max=len(env['device_ids'])-1)]
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)] 
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        connect_activity_id = device_connect_pool.create_activity(cr, uid, {'parent_id': spell_activity_id},
+                                                                  {
+                                                                   'patient_id': patient_id,
+                                                                   'device_id': device_id
+                                                                   })
+        # Complete
+        activity_pool.complete(cr, uid, connect_activity_id)   
         
+        return connect_activity_id          
+               
+    def device_disconnect(self, activity_vals={}, data_vals={}, env={}):
+        data = {}
+        device_id = data_vals.get('device_id') \
+                     or env['device_ids'][fake.random_int(min=0, max=len(env['device_ids'])-1)]
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)] 
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        disconnect_activity_id = device_disconnect_pool.create_activity(cr, uid, {'parent_id': spell_activity_id},
+                                                                  {
+                                                                   'patient_id': patient_id,
+                                                                   'device_id': device_id
+                                                                   })
+        # Complete
+        activity_pool.complete(cr, uid, disconnect_activity_id)   
+        
+        return disconnect_activity_id             
+        
+                
 class ActivityTypesScenarioTest(ActivityTypesTest):
 
     def test_scenario(self):        
@@ -377,10 +415,22 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
                         + "\n patient_ids: %s" % pos1_env['patient_ids']) 
         # placements
         [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
-            # api tests
+        
+        
+        # api tests
         self.assertTrue(not (set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) & set(pos1_env['patient_ids'])),
                         "not_placed_patient_ids returns patients that must be placed"
                         + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id']))         
+        
+        # device connect
+        connect_activity_id = self.device_connect(env=pos1_env)
+        connect_activity = activity_pool.browse(cr, uid, connect_activity_id)
+        
+        # disconnect
+        disconnect_activity_id = self.device_disconnect(data_vals={
+                                                                   'patient_id': connect_activity.patient_id.id,
+                                                                   'device_id': connect_activity.device_id.id 
+                                                                   }, env=pos1_env)
         
         # discharge
         [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
