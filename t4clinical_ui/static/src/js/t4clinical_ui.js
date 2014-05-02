@@ -67,18 +67,18 @@ openerp.t4clinical_ui = function (instance) {
                         clearInterval(timing);
                     }
                     timing = window.setInterval(function(){
-                        var button =  $("a[data-menu=195]");
+                        var button =  $("a:contains('Wardboard')");
                         if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('oe_active') && $(".oe_view_manager_view_list").css('display') != 'none'){
                             button.click();
                         }
                     }, 300000);
                 }
-                if (options.action.name == "Patients Placements"){
+                if (options.action.name == "Patient Placements"){
                     if (typeof(timing2) != 'undefined'){
                         clearInterval(timing2);
                     }
                     timing2 = window.setInterval(function(){
-                        var button =  $("a[data-menu=193]");
+                        var button =  $("a:contains('Patient Placements')");
                         if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none'){
                             if (refresh_placement){
                                 button.click();
@@ -175,4 +175,21 @@ openerp.t4clinical_ui = function (instance) {
     });
 
     instance.web.list.columns.add('field.t4_gender', 'instance.t4clinical_ui.GenderWidget');
+
+    instance.t4clinical_ui.WidgetButton = instance.web.form.WidgetButton.extend({
+        on_click: function() {
+            var self = this;
+            this.force_disabled = true;
+            this.check_disable();
+            this.execute_action().always(function() {
+                self.force_disabled = false;
+                self.check_disable();
+            });
+            if (this.string == "Confirm Placement"){
+                refresh_placement = true;
+                console.log(this);
+            }
+        },
+    });
+    instance.web.form.tags.add('button', 'instance.t4clinical_ui.WidgetButton');
 }

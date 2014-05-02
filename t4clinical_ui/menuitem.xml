@@ -19,7 +19,7 @@
           	
           <menuitem name="Wardboard" 
           	id="menu_left_sub_wardboard" 
-          	parent="menu_left_wardboard" 
+          	parent="menu_left_wardboard"
           	action="action_wardboard"
           	groups="t4clinical_base.group_t4clinical_nurse,base.user_root"/>    	
 
