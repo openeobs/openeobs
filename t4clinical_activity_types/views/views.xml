@@ -25,7 +25,7 @@
                        <field name="patient_id" readonly="1"/>
                        <label for="location_id" string="Location"/>
                        <field name="suggested_location_id" invisible="1"/>
-                       <field name="location_id" domain="[('is_available','=',True),('usage','=','bed'),('parent_id','=',suggested_location_id)]" widget="t4_many2one"/>
+                       <field name="location_id" required="True" domain="[('is_available','=',True),('usage','=','bed'),('parent_id','=',suggested_location_id)]" widget="t4_many2one"/>
 					    <button name="complete_ui" type="object" string="Confirm Placement"/>
                     </form>
                 </field>
