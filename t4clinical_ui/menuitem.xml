@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <menuitem name="Default T4Clinical" id="menu_t4_top_root" groups="t4clinical_base.group_t4clinical_base"/>
-        <menuitem name="Patient Management" id="menu_t4_left_patient" parent="menu_t4_top_root" groups="t4clinical_base.group_t4clinical_base"/>
+        <menuitem name="Default T4Clinical" id="menu_t4_top_root" groups="t4clinical_base.group_t4clinical_base,base.user_root"/>
+        <menuitem name="Patient Management"
+                  id="menu_t4_left_patient"
+                  parent="menu_t4_top_root"
+                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Patient Placements"
                   id="menu_t4_left_placement"
                   parent="menu_t4_left_patient"
                   action="action_show_patient_placements"
-                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev"/>
+                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
     	<!-- WARDBOARD -->
           <menuitem name="Wardboard" 
