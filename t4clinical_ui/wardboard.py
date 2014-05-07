@@ -34,6 +34,42 @@ class t4_clinical_wardboard(orm.Model):
         'o2target_max': fields.integer("O2 Target Max"),
         'o2target_string': fields.text("O2 Target"),
     }
+
+    def wardboard_chart(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+
+        model_data_pool = self.pool['ir.model.data']
+        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_chart_form')], context=context)
+        if not model_data_ids:
+            pass
+        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
+        print view_id
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.clinical.wardboard',
+            'res_id': ids[0],
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': int(view_id)
+        }
+
+    def wardboard_ews(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.clinical.patient.observation.ews',
+            'view_mode': 'tree',
+            'view_type': 'tree',
+            'domain': [('patient_id', '=', wardboard.patient_id.id)],
+            'target': 'new',
+            'context': context
+        }
+
     def init(self, cr):
         tools.drop_view_if_exists(cr, 'wardboard')
         cr.execute("""

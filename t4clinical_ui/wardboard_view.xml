@@ -17,6 +17,8 @@
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
                     <tree string="Wardboard Tree View" version="7.0" create="0">
+                       <button name="wardboard_chart" string="Chart" type="object" class="oe_highlight" t4_icon="chart"/>
+                       <button name="wardboard_ews" string="EWS" type="object" class="oe_highlight" t4_icon="observation"/>
                        <field name="full_name" />
                        <field name="location" />
                        <field name="sex" widget="t4_gender"/>
@@ -29,10 +31,12 @@
                        <field name="ews_trend_string" />
                     </tree>
                 </field>
-            </record>    
+            </record>
+
             <record model="ir.ui.view" id="view_wardboard_form">
                 <field name="name">Wardboard Form View</field>
                 <field name="model">t4.clinical.wardboard</field>
+                <field name="priority">1</field>
                 <field name="arch" type="xml">
                     <form string="Wardboard Form View" version="7.0" create="0">
                         <sheet>
@@ -184,6 +188,21 @@
 	                       	<!--</form>-->
                        <!--</field>                                                                    -->
 					   <!--</group>                       -->
+                    </form>
+                </field>
+            </record>
+
+            <record model="ir.ui.view" id="view_wardboard_chart_form">
+                <field name="name">Wardboard Chart Form View</field>
+                <field name="model">t4.clinical.wardboard</field>
+                <field name="arch" type="xml">
+                    <form string="Wardboard Form View" version="7.0" create="0">
+                        <sheet>
+                            <div class="oe_title">
+                                <label string="Name" for="full_name"/>
+                                <h1><field name="full_name" readonly="True"/></h1>
+                            </div>
+                        </sheet>
                     </form>
                 </field>
             </record>
