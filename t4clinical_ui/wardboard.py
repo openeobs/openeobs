@@ -65,7 +65,7 @@ class t4_clinical_wardboard(orm.Model):
             'res_model': 't4.clinical.patient.observation.ews',
             'view_mode': 'tree',
             'view_type': 'tree',
-            'domain': [('patient_id', '=', wardboard.patient_id.id)],
+            'domain': [('patient_id', '=', wardboard.patient_id.id), ('state', '=', 'completed')],
             'target': 'new',
             'context': context
         }
