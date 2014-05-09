@@ -190,6 +190,13 @@ class t4_clinical_location(orm.Model):
             location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
         #_logger.info("get_available_location_ids \n location_ids: %s" % (location_ids))
         return location_ids
+
+    def activate_deactivate(self, cr, uid, location_id, context=None):
+        location = self.browse(cr, uid, location_id[0], context=context)
+        data = {'active': False} if location.active and location.is_available else {'active': True}
+        if location.active and not location.is_available:
+            raise osv.except_osv('Error!', "Can't deactivate a location that is being used.")
+        return self.write(cr, uid, location.id, data, context=context)
     
 
 class t4_clinical_patient(osv.Model):
