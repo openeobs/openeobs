@@ -151,10 +151,8 @@
                 <field name="arch" type="xml">
                     <form string="Wardboard Form View" version="7.0" create="0">
                         <sheet>
-                            <div class="oe_title">
-                                <label string="Name" for="full_name"/>
-                                <h1><field name="full_name" readonly="True"/></h1>
-                            </div>
+                            <!--<button name="print_chart" string="Print" type="object" class="oe_highlight"/>-->
+                            <!--<field name="ews_ids" widget="t4_ewschart"/>-->
                         </sheet>
                     </form>
                 </field>

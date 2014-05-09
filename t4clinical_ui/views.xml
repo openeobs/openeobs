@@ -1,6 +1,7 @@
 <openerp>
     <data>
 
+        <!--Patient Placement View-->
         <record model="ir.ui.view" id="view_t4_clinical_patient_placement_activity_tree">
             <field name="name">T4 Clinical patient placement activity Tree View</field>
             <field name="model">t4.clinical.activity</field>
@@ -23,6 +24,67 @@
             <field name="domain">[('data_model','=','t4.clinical.patient.placement'),('state','not in',['completed','cancelled'])]</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_t4_clinical_patient_placement_activity_tree"/>
+        </record>
+
+        <!--Active/Inactive Points of Care View-->
+        <record model="ir.ui.view" id="view_active_locations_search">
+            <field name="name">Active Locations Search View</field>
+            <field name="model">t4.clinical.location</field>
+            <field name="arch" type="xml">
+                <search string="Active Locations">
+                    <field name="parent_id"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="is_available"/>
+                    <group expand="1" string="Filters">
+                        <filter name="active" string="Active Locations" domain="[('active','=',True)]"/>
+                        <filter name="inactive" string="Inactive Locations" domain="[('active','=',False)]"/>
+                    </group>
+                    <group expand="1" string="Group By...">
+                        <filter name="group_by_parent" string="Ward" domain="[]" context="{'group_by':'parent_id'}" help="Group by Ward"/>
+                        <filter name="group_by_type" string="Type" domain="[]" context="{'group_by':'type'}" help="Group by Type"/>
+                        <filter name="group_by_usage" string="Usage" domain="[]" context="{'group_by':'usage'}" help="Group by Usage"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_active_locations_tree">
+            <field name="name">Active Locations Tree View</field>
+            <field name="model">t4.clinical.location</field>
+            <field name="arch" type="xml">
+                <tree string="Location Tree View" version="7.0" create="0">
+                    <field name="active" invisible="1"/>
+                    <button name="activate_deactivate" type="object" string="Activate/Deactivate" widget="act_button"/>
+                    <field name="parent_id"/>
+                    <field name="name"/>
+                    <field name="code" />
+                    <field name="is_available"/>
+                    <field name="pos_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_active_locations" >
+            <field name="name">Active Points of Care</field>
+            <field name="res_model">t4.clinical.location</field>
+            <field name="view_type">form</field>
+            <field name="search_view_id" ref="view_active_locations_search"/>
+            <field name="domain">[('type','=','poc'), ('usage','=','bed')]</field>
+            <field name="context">{'search_default_active': 1, 'search_default_inactive': 0}</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_active_locations_tree"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_inactive_locations" >
+            <field name="name">Inactive Points of Care</field>
+            <field name="res_model">t4.clinical.location</field>
+            <field name="view_type">form</field>
+            <field name="search_view_id" ref="view_active_locations_search"/>
+            <field name="domain">[('type','=','poc'), ('usage','=','bed')]</field>
+            <field name="context">{'search_default_active': 0, 'search_default_inactive': 1}</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_active_locations_tree"/>
         </record>
     </data>
 </openerp>

@@ -27,6 +27,12 @@
         <img t-if="widget.icon" t-attf-src="#{prefix}/web/static/src/img/icons/#{widget.icon}.png" t-att-alt="widget.string"/>
     </button>
 
+    <button t-name="t4.ListView.row.act_button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
+            t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
+        <img t-if="active" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/times.png" t-att-alt="widget.string"/>
+        <img t-if="inactive" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/check.png" t-att-alt="widget.string"/>
+    </button>
+
     <t t-name="t4_maleCell"
         ><img t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/male.png" t-att-alt="widget.string"/>
     </t>

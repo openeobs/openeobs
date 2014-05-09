@@ -13,13 +13,26 @@ openerp.t4clinical_ui = function (instance) {
                 attrs = this.modifiers_for(row_data);
             }
             if (attrs.invisible) { return ''; }
-            return QWeb.render('t4.ListView.row.button', {
-                widget: this,
-                prefix: instance.session.prefix,
-                disabled: attrs.readonly
-                    || isNaN(row_data.id.value)
-                    || instance.web.BufferedDataSet.virtual_id_regex.test(row_data.id.value)
-            });
+            if (this.widget == 'act_button'){
+                return QWeb.render('t4.ListView.row.act_button', {
+                    widget: this,
+                    prefix: instance.session.prefix,
+                    active: row_data.active.value,
+                    inactive: !row_data.active.value,
+                    disabled: attrs.readonly
+                        || isNaN(row_data.id.value)
+                        || instance.web.BufferedDataSet.virtual_id_regex.test(row_data.id.value)
+                })
+            }
+            else{
+                return QWeb.render('t4.ListView.row.button', {
+                    widget: this,
+                    prefix: instance.session.prefix,
+                    disabled: attrs.readonly
+                        || isNaN(row_data.id.value)
+                        || instance.web.BufferedDataSet.virtual_id_regex.test(row_data.id.value)
+                })
+            }
         }
     });
 
@@ -59,7 +72,7 @@ openerp.t4clinical_ui = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (options.action.name == "Patient Placements" || options.action.name == "Wardboard"){
+                if (options.action.name == "Patient Placements" || options.action.name == "Wardboard" || options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
                     options.selectable = false;
                 };
                 if (options.action.name == "Wardboard"){
