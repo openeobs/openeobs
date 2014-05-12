@@ -11,7 +11,7 @@ class TestT4clinicalController(common.SingleTransactionCase):
         cr = self.cr
         uid = self.uid
 
-        activity_pool = self.registry('t4.clinical.activity')
+        activity_pool = self.registry('t4.activity')
         self.t4controller = t4clinical_controller.T4clinicalController(httpController)
 
         host = 'http://localhost:8069'

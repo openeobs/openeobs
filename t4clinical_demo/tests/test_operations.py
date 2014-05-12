@@ -26,7 +26,7 @@ class TestOperations(common.SingleTransactionCase):
         now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         tomorrow = (dt.today() + rd(days=1)).strftime('%Y-%m-%d %H:%M:%S')
                 
-        activity_pool = self.registry('t4.clinical.activity')
+        activity_pool = self.registry('t4.activity')
         spell_pool = self.registry('t4.clinical.spell')
         admission_pool = self.registry('t4.clinical.patient.admission')
         move_pool = self.registry('t4.clinical.patient.move')

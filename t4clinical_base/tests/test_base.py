@@ -27,7 +27,7 @@ class BaseTest(common.SingleTransactionCase):
         patient_pool = self.registry('t4.clinical.patient')
         location_pool = self.registry('t4.clinical.location')
         pos_pool = self.registry('t4.clinical.pos')
-        activity_pool = self.registry('t4.clinical.activity')
+        activity_pool = self.registry('t4.activity')
         user_pool = self.registry('res.users')
         imd_pool = self.registry('ir.model.data')
         device_type_pool = self.registry('t4.clinical.device.type')

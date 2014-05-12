@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 
 class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
-    _inherit = ['t4.clinical.activity.data']    
+    _inherit = ['t4.activity.data']    
     _required = [] # fields required for complete observation
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):
@@ -42,7 +42,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)        
     
     def create_activity(self, cr, uid, activity_vals={}, data_vals={}, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, data_vals['patient_id'], context=context)
         except_if(not spell_activity_id, msg="Current spell is not found for patient_id: %s" %  data_vals['patient_id'])
@@ -61,7 +61,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         return True
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
         placement_pool = self.pool['t4.clinical.patient.placement']
@@ -251,7 +251,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
         """
         Implementation of the default EWS policy
         """
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         hca_pool = self.pool['t4.clinical.notification.hca']
         nurse_pool = self.pool['t4.clinical.notification.nurse']
         groups_pool = self.pool['res.groups']
@@ -332,7 +332,7 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         """
         Implementation of the default GCS policy
         """
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         nurse_pool = self.pool['t4.clinical.notification.nurse']
         api_pool = self.pool['t4.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
@@ -403,7 +403,7 @@ class t4_clinical_patient_observation_vips(orm.Model):
         """
         Implementation of the default VIPS policy
         """
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         nurse_pool = self.pool['t4.clinical.notification.nurse']
         api_pool = self.pool['t4.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)

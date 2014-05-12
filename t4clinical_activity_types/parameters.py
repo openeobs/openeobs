@@ -16,7 +16,7 @@ class t4_clinical_o2level(orm.Model):
     
 class t4_clinical_patient_o2target(orm.Model):
     _name = 't4.clinical.patient.o2target'
-    _inherit = ['t4.clinical.activity.data']       
+    _inherit = ['t4.activity.data']       
     _rec_name = 'level_id'
     _columns = {
         'level_id': fields.many2one('t4.clinical.o2level', 'O2 Level', required=True),                
@@ -25,7 +25,7 @@ class t4_clinical_patient_o2target(orm.Model):
     
 class t4_clinical_patient_mrsa(orm.Model):
     _name = 't4.clinical.patient.mrsa'
-    _inherit = ['t4.clinical.activity.data'] 
+    _inherit = ['t4.activity.data'] 
     _columns = {
         'mrsa': fields.boolean('MRSA', required=True),                
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
@@ -33,7 +33,7 @@ class t4_clinical_patient_mrsa(orm.Model):
 
 class t4_clinical_patient_diabetes(orm.Model):
     _name = 't4.clinical.patient.diabetes'
-    _inherit = ['t4.clinical.activity.data'] 
+    _inherit = ['t4.activity.data'] 
     _columns = {
         'diabetes': fields.boolean('Diabetes', required=True),                
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),

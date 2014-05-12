@@ -2,9 +2,9 @@
 <openerp>
     <data>
 
-            <record model="ir.ui.view" id="view_t4_clinical_activity_search">
+            <record model="ir.ui.view" id="view_t4_activity_search">
                 <field name="name">T4 Clinical activity Search View</field>
-                <field name="model">t4.clinical.activity</field>
+                <field name="model">t4.activity</field>
                 <field name="arch" type="xml">
                     <search string="T4 Clinical activity Search View">
                         <group expand="0" string="Group By...">
@@ -13,42 +13,33 @@
                     </search>
                 </field>
             </record>
-            <record model="ir.ui.view" id="view_t4_clinical_activity_tree_hierarchy">
+            <record model="ir.ui.view" id="view_t4_activity_tree_hierarchy">
                 <field name="name">T4 Clinical activity Tree View Hierarchy</field>
-                <field name="model">t4.clinical.activity</field>
+                <field name="model">t4.activity</field>
                 <field name="field_parent">child_ids</field>
                 <field name="arch" type="xml">
                     <tree string="T4 Clinical activity Tree View">
                        <field name="summary" />
                        <field name="user_id" />
-                       <field name="user_ids" />
-                       <field name="location_id" />
-                       <field name="patient_id" />
                        <field name="date_scheduled" />
                        <field name="date_started" />
                        <field name="date_terminated" />
 					   <field name="state" />
 					   <field name="parent_id" />
-					   <field name="pos_id" />
                     </tree>
                 </field>
             </record>    
-            <record model="ir.ui.view" id="view_t4_clinical_activity_tree">
+            <record model="ir.ui.view" id="view_t4_activity_tree">
                 <field name="name">T4 Clinical activity Tree View</field>
-                <field name="model">t4.clinical.activity</field>
+                <field name="model">t4.activity</field>
                 <field name="arch" type="xml">
                     <tree string="T4 Clinical activity Tree View">      
                        <field name="summary" />	              
                        <field name="user_id" />
-                       <field name="user_ids" />
-                       <field name="location_id" />
-                       <field name="patient_id" />
                        <field name="date_scheduled" />
                        <field name="date_started" />
                        <field name="date_terminated" />
 					   <field name="state" />
-					   <field name="pos_id" />
-					   <field name="user_ids" />
 					   
 					   <field name="is_schedule_allowed" invisible="1"/>
 					   <field name="is_start_allowed" invisible="1"/>
@@ -64,9 +55,9 @@
                     </tree>
                 </field>
             </record>              
-            <record model="ir.ui.view" id="view_t4_clinical_activity_form">
+            <record model="ir.ui.view" id="view_t4_activity_form">
                 <field name="name">T4 Clinical activity Form View</field>
-                <field name="model">t4.clinical.activity</field>
+                <field name="model">t4.activity</field>
                 <field name="arch" type="xml">
                     <form string="T4 Clinical activity Form View" version="7.0">
                       <header>        
@@ -89,9 +80,6 @@
 			                   <field name="summary" />
 			                   <field name="create_date" />
 		                       <field name="user_id" />
-<!-- 		                       <field name="employee_id" /> -->
-		                       <field name="location_id" />
-		                       <field name="patient_id" />
 		                       <field name="date_deadline" />
 		                       <field name="date_expiry" />
 		                       <field name="date_planned" />
@@ -104,31 +92,31 @@
                 </field>
             </record>
             <!-- activity Tree -->
-            <record model="ir.actions.act_window" id="action_t4_clinical_activity" >
+            <record model="ir.actions.act_window" id="action_t4_activity" >
                 <field name="name">T4 Clinical activity Window Action</field>
-                <field name="res_model">t4.clinical.activity</field>
+                <field name="res_model">t4.activity</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>
-                <field name="search_view_id" ref="view_t4_clinical_activity_search"/>               
+                <field name="search_view_id" ref="view_t4_activity_search"/>               
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_t4_clinical_activity_tree">
+            <record model="ir.actions.act_window.view" id="act_view_t4_activity_tree">
                 <field eval="0" name="sequence"/>
                 <field name="view_mode">tree</field>
-                <field name="view_id" ref="view_t4_clinical_activity_tree"/>
-                <field name="act_window_id" ref="action_t4_clinical_activity"/>                
+                <field name="view_id" ref="view_t4_activity_tree"/>
+                <field name="act_window_id" ref="action_t4_activity"/>                
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_t4_clinical_activity_form">
+            <record model="ir.actions.act_window.view" id="act_view_t4_activity_form">
                 <field eval="1" name="sequence"/>
                 <field name="view_mode">form</field>
-                <field name="view_id" ref="view_t4_clinical_activity_form"/>
-                <field name="act_window_id" ref="action_t4_clinical_activity"/>
+                <field name="view_id" ref="view_t4_activity_form"/>
+                <field name="act_window_id" ref="action_t4_activity"/>
             </record>
             <!-- activity Hierarchy -->
-            <record model="ir.actions.act_window" id="action_t4_clinical_activity_hierarchy" >
+            <record model="ir.actions.act_window" id="action_t4_activity_hierarchy" >
                 <field name="name">T4 Clinical activity Window Action</field>
-                <field name="res_model">t4.clinical.activity</field>
+                <field name="res_model">t4.activity</field>
 	            <field name="view_type">tree</field>
-	            <field name="view_id" ref="view_t4_clinical_activity_tree_hierarchy"/>
+	            <field name="view_id" ref="view_t4_activity_tree_hierarchy"/>
 	            <field name="domain">[('parent_id','=',False)]</field>                
             </record>       
 

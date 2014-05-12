@@ -16,7 +16,7 @@ class t4_clinical_api(orm.AbstractModel):
             activity diagnostic info
         """
         res = {}
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, {})
         res['activity'] = activity_pool.read(cr,uid,activity_id, [])
         res['data'] = self.pool[activity.data_model].read(cr,uid,activity.data_ref.id, [])
@@ -56,7 +56,7 @@ class t4_clinical_api(orm.AbstractModel):
 
 
     def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         domain = [('patient_id', '=', patient_id),
                   ('state', '=', 'started'),
                   ('data_model', '=', 't4.clinical.spell')]
@@ -74,11 +74,11 @@ class t4_clinical_api(orm.AbstractModel):
         spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, pos_id, context)
         if not spell_activity_id:
             return False
-        return self.pool['t4.clinical.activity'].browse(cr, uid, spell_activity_id, context)
+        return self.pool['t4.activity'].browse(cr, uid, spell_activity_id, context)
 
     
     def get_device_session_activity_id(self, cr, uid, device_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         domain = [('device_id', '=', device_id),
                   ('state', '=', 'started'),
                   ('data_model', '=', 't4.clinical.device.session')]

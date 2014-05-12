@@ -13,7 +13,7 @@ class TestADTEntry(common.SingleTransactionCase):
         self.now = dt.today().strftime('%Y-%m-%d %H:%M:%S')
         self.tomorrow = (dt.today() + rd(days=1)).strftime('%Y-%m-%d %H:%M:%S')
                 
-        self.activity_pool = self.registry('t4.clinical.activity')
+        self.activity_pool = self.registry('t4.activity')
         self.spell_pool = self.registry('t4.clinical.spell')
         self.patient_pool = self.registry('t4.clinical.patient')
         self.register_pool = self.registry('t4.clinical.adt.patient.register')

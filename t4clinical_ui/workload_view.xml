@@ -3,15 +3,15 @@
     <data>
         <!-- Activity Workload Kanban View -->
        <record model="ir.ui.view" id="view_activity_workload_kanban">
-            <field name="name">t4.clinical.activity.workload.kanban</field>
-            <field name="model">t4.clinical.activity.workload</field>
+            <field name="name">t4.activity.workload.kanban</field>
+            <field name="model">t4.activity.workload</field>
             <field name="arch" type="xml">
                 <kanban default_group_by="proximity_interval" edit="false" quick_create="false" create="false">
                     <field name="proximity_interval"/>
                     <field name="summary"/>
                     <field name="state"/>
                     <field name="user_id"/>
-                    <field name="user_ids"/>
+                    <!-- <field name="user_ids"/> -->
                     <field name="patient_id"/>
                     <field name="location_id"/>
                     <field name="date_scheduled"/>
@@ -28,7 +28,7 @@
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
 				                    <field name="state"/>
 				                    <field name="user_id"/>
-				                    <field name="user_ids"/>
+				                   <!--  <field name="user_ids"/> -->
 				                    <field name="patient_id"/>
 				                    <field name="location_id"/>
 				                    <field name="date_scheduled"/>
@@ -44,8 +44,8 @@
          </record>
 
         <record id="view_activity_workload_search" model="ir.ui.view">
-            <field name="name">t4.clinical.activity.workload.search</field>
-            <field name="model">t4.clinical.activity.workload</field>
+            <field name="name">t4.activity.workload.search</field>
+            <field name="model">t4.activity.workload</field>
             <field name="arch" type="xml">
                <search string="Activity">
                     <field name="summary"/>
@@ -60,7 +60,7 @@
         </record>     
         <record model="ir.actions.act_window" id="act_activity_workload_kanban">
             <field name="name">Activity Workload</field>
-            <field name="res_model">t4.clinical.activity.workload</field>
+            <field name="res_model">t4.activity.workload</field>
             <field name="view_mode">kanban</field>
 			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','done']]]</field>
               <field name="search_view_id" ref="view_activity_workload_search"/>

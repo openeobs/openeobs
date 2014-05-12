@@ -63,11 +63,11 @@ def data_model_event(callback=None):
     return decorator
 
 
-class t4_clinical_activity(orm.Model):
+class t4_activity(orm.Model):
     """ activity
     """
 
-    _name = 't4.clinical.activity'
+    _name = 't4.activity'
     _rec_name = 'summary'
     # _inherit = ['mail.thread']
 
@@ -77,7 +77,7 @@ class t4_clinical_activity(orm.Model):
 
 
     def _get_data_type_selection(self, cr, uid, context=None):
-#         sql = "select data_model, summary from t4_clinical_activity_type"
+#         sql = "select data_model, summary from t4_activity_type"
 #         cr.execute(sql)
         res = [(model_name, model._description) for model_name, model in self.pool.models.items()
                            if hasattr(model, '_description') and 't4.clinical' in model_name]        
@@ -133,23 +133,17 @@ class t4_clinical_activity(orm.Model):
         'summary': fields.char('Summary', size=256),
 
         # hierarchies
-        'parent_id': fields.many2one('t4.clinical.activity', 'Parent activity', readonly=True,
+        'parent_id': fields.many2one('t4.activity', 'Parent activity', readonly=True,
                                      help="Business hierarchy"),
-        'child_ids': fields.one2many('t4.clinical.activity', 'parent_id', 'Child Activities', readonly=True),
-        'creator_id': fields.many2one('t4.clinical.activity', 'Creator activity', readonly=True,
+        'child_ids': fields.one2many('t4.activity', 'parent_id', 'Child Activities', readonly=True),
+        'creator_id': fields.many2one('t4.activity', 'Creator activity', readonly=True,
                                       help="Evolution hierarchy"),
-        'created_ids': fields.one2many('t4.clinical.activity', 'creator_id', 'Created Activities', readonly=True),
+        'created_ids': fields.one2many('t4.activity', 'creator_id', 'Created Activities', readonly=True),
         # state
         'notes': fields.text('Notes'),
         'state': fields.selection(_states, 'State', readonly=True),
         # identification
         'user_id': fields.many2one('res.users', 'Assignee', readonly=True),
-        'user_ids': fields.many2many('res.users', 'activity_user_rel', 'activity_id', 'user_id', 'Users',
-                                     readonly=True),
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', readonly=True),
-        'device_id': fields.many2one('t4.clinical.device', 'Device', readonly=True),
-        'location_id': fields.many2one('t4.clinical.location', 'Location', readonly=True),
-        'pos_id': fields.many2one('t4.clinical.pos', 'POS', readonly=True),
         # system data
         'create_date': fields.datetime('Create Date', readonly=True),
         'write_date': fields.datetime('Write Date', readonly=True),
@@ -194,12 +188,12 @@ class t4_clinical_activity(orm.Model):
         data_model_pool = self.pool.get(vals['data_model'])
         except_if(not data_model_pool, msg="data_model does not exist in the model pool!")
         not vals.get('summary') and vals.update({'summary': data_model_pool._description})           
-        activity_id = super(t4_clinical_activity, self).create(cr, uid, vals, context)
+        activity_id = super(t4_activity, self).create(cr, uid, vals, context)
         _logger.debug("activity '%s' created, activity.id=%s" % (vals.get('data_model'), activity_id))
         return activity_id
 
     def write(self, cr, uid, ids, vals, context=None):
-        res = super(t4_clinical_activity, self).write(cr, uid, ids, vals, context)
+        res = super(t4_activity, self).write(cr, uid, ids, vals, context)
         return res
 
     # DATA API
@@ -306,8 +300,8 @@ class t4_clinical_activity(orm.Model):
         return {}
 
 
-class t4_clinical_activity_data(orm.AbstractModel):
-    _name = 't4.clinical.activity.data'
+class t4_activity_data(orm.AbstractModel):
+    _name = 't4.activity.data'
     _transitions = {
         'new': ['schedule', 'plan', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve',
                 'validate'],
@@ -329,7 +323,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
 
     _columns = {
         'name': fields.char('Name', size=256),
-        'activity_id': fields.many2one('t4.clinical.activity', "activity"),
+        'activity_id': fields.many2one('t4.activity', "activity"),
         'date_started': fields.related('activity_id', 'date_started', string='Start Time', type='datetime'),
         'date_terminated': fields.related('activity_id', 'date_terminated', string='Terminated Time', type='datetime'),
         'state': fields.related('activity_id', 'state', string='State', type='char', size=64),
@@ -337,13 +331,13 @@ class t4_clinical_activity_data(orm.AbstractModel):
     }
 
     def create(self, cr, uid, vals, context=None):
-        rec_id = super(t4_clinical_activity_data, self).create(cr, uid, vals, context)
+        rec_id = super(t4_activity_data, self).create(cr, uid, vals, context)
         return rec_id
 
     def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
         assert isinstance(vals_activity, dict), "vals_activity must be a dict, found %" % type(vals_activity)
         assert isinstance(vals_data, dict), "vals_data must be a dict, found %" % type(vals_data)
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         vals_activity.update({'data_model': self._name})
         new_activity_id = activity_pool.create(cr, uid, vals_activity, context)
         vals_data and activity_pool.submit(cr, uid, new_activity_id, vals_data, context)
@@ -352,7 +346,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
 
     def submit_ui(self, cr, uid, ids, context=None):
         if context.get('active_id'):
-            activity_pool = self.pool['t4.clinical.activity']
+            activity_pool = self.pool['t4.activity']
             activity_pool.write(cr, uid, context['active_id'], {'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             activity = activity_pool.browse(cr, uid, context['active_id'], context)
             activity_pool.update_activity(cr, SUPERUSER_ID, activity.id, context)
@@ -362,7 +356,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
     def complete_ui(self, cr, uid, ids, context=None):
         print context
         if context.get('active_id'):
-            activity_pool = self.pool['t4.clinical.activity']
+            activity_pool = self.pool['t4.activity']
             activity_pool.write(cr, uid, context['active_id'], {'data_ref': "%s,%s" % (self._name, str(ids[0]))})
             activity = activity_pool.browse(cr, uid, context['active_id'], context)
             activity_pool.update_activity(cr, SUPERUSER_ID, activity.id, context)
@@ -388,7 +382,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
 
     def act_window(self, cr, uid, activity_id, command, context=None):
         activity_id = isinstance(activity_id, (list, tuple)) and activity_id[0] or activity_id      
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)        
         imd_pool = self.pool['ir.model.data']
         model_xmlid = "model_%s" % activity.data_ref._name.replace(".","_")
@@ -400,7 +394,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         view = imd_pool.get_object(cr, uid, model_imd.module, view_xmlid, context)
         except_if(not view, msg="View with xmlid='%s' not found" % view_xmlid)
         ctx = context or {}
-        ctx.update({'t4_source': 't4.clinical.activity'})
+        ctx.update({'t4_source': 't4.activity'})
         aw = {
             'type': 'ir.actions.act_window',
             'view_id': view.id,
@@ -419,7 +413,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def start(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'start'),
                   msg="activity of type '%s' can not be started from state '%s'" % (
@@ -429,7 +423,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def complete(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'complete'),
                   msg="activity of type '%s' can not be completed from state '%s'" % (
@@ -440,7 +434,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def assign(self, cr, uid, activity_id, user_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'assign'),
                   msg="activity of type '%s' can not be assigned in state '%s'" % (activity.data_model, activity.state))
@@ -456,7 +450,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def unassign(self, cr, uid, activity_id, user_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'unassign'),
                   msg="activity of type '%s' can not be unassigned in state '%s'" % (
@@ -470,7 +464,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def cancel(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'cancel'),
                   msg="activity of type '%s' can not be cancelled in state '%s'" % (
@@ -481,7 +475,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def retrieve(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'retrieve'),
                   msg="Data can't be retrieved from activity of type '%s' in state '%s'" % (
@@ -490,19 +484,19 @@ class t4_clinical_activity_data(orm.AbstractModel):
 
 
     def retrieve_read(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         model_pool = self.pool[activity.data_model]
         return model_pool.read(cr, uid, activity.data_res_id, [], context)
 
 
     def retrieve_browse(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         return activity.data_ref
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=None)
         except_if(not self.is_action_allowed(activity.state, 'schedule'),
                   msg="activity of type '%s' can't be scheduled in state '%s'" % (activity.data_model, activity.state))
@@ -515,7 +509,7 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def submit(self, cr, uid, activity_id, vals, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not self.is_action_allowed(activity.state, 'submit'),
                   msg="Data can't be submitted to activity of type '%s' in state '%s'" % (
@@ -537,125 +531,9 @@ class t4_clinical_activity_data(orm.AbstractModel):
         return {}
 
     def update_activity(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
-        activity = activity_pool.browse(cr, uid, activity_id, context)
-        activity_vals = {}
-        location_id = self.get_activity_location_id(cr, uid, activity_id)
-        patient_id = self.get_activity_patient_id(cr, uid, activity_id)
-        device_id = self.get_activity_device_id(cr, uid, activity_id)
-        pos_id = self.get_activity_pos_id(cr, uid, activity_id)
-        user_ids = self.get_activity_user_ids(cr, uid, activity_id)
-        activity_vals.update({'location_id': location_id,
-                              'patient_id': patient_id,
-                              'device_id': device_id,
-                              'pos_id': pos_id,
-                              'user_ids': [(6, 0, user_ids)]})
-        activity_pool.write(cr, uid, activity_id, activity_vals)
-        # #print"activity_vals: %s" % activity_vals
-        _logger.debug(
-            "activity '%s', activity.id=%s updated with: %s" % (activity.data_model, activity.id, activity_vals))
+        """
+            Hook for data-driven activity update
+            Should be called on methods that change activity data
+        """
         return {}
 
-    def get_activity_pos_id(self, cr, uid, activity_id, context=None):
-        """
-        Returns pos_id for activity calculated based on activity data
-        Logic:
-        1. If data has 'pos_id' field and it is not False, returns value of the field
-        2. If get_activity_location_id() returns location_id, returns location.pos_id.id
-        3. If get_activity_patient_id() returns patient_id and api_pool.get_patient_spell_activity_browse, returns spell_activity.data_ref.pos_id.id
-        """
-        _logger.debug("Calculating pos_id for activity.id=%s" % (activity_id))        
-        pos_id = False
-        api_pool = self.pool['t4.clinical.api']
-        # 1
-        if 'pos_id' in self._columns.keys():
-            data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
-            pos_id = data.pos_id and data.pos_id.id or False
-        if pos_id:
-            _logger.debug("Returning self based pos_id = %s" % (pos_id))
-            return pos_id
-        location_id = self.get_activity_location_id(cr, uid, activity_id)
-        patient_id = self.get_activity_patient_id(cr, uid, activity_id)
-        # 2
-        if not location_id:
-            location_id = api_pool.get_patient_current_location_id(cr, uid, patient_id, context)
-            if location_id:
-                location = self.pool['t4.clinical.location'].browse(cr, uid, location_id, context)
-                pos_id = location.pos_id and location.pos_id.id or False
-                if pos_id:
-                    _logger.debug("Returning location_id based pos_id = %s" % (pos_id))
-                    return pos_id
-        # 3
-        patient_id = self.get_activity_patient_id(cr, uid, activity_id)
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, patient_id, context=None)
-        pos_id = spell_activity and spell_activity.data_ref.pos_id.id
-        if pos_id:
-            _logger.debug("Returning patient_id based pos_id = %s" % (pos_id))
-        else:
-            _logger.debug("Unable to calculate pos_id, returning False")
-        return pos_id
-
-    def get_activity_device_id(self, cr, uid, activity_id, context=None):       
-        """
-        """
-        device_id = False
-        data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
-        if 'device_id' in self._columns.keys():
-            device_id = data.device_id and data.device_id.id or False
-        return device_id
-
-    def get_activity_location_id(self, cr, uid, activity_id, context=None):       
-        """
-        Returns pos_id for activity calculated based on activity data
-        Logic:
-        1. If activity_data has 'location_id' field and it is not False, returns value of the field
-        2. 
-        """
-        location_id = False
-        data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
-        if 'location_id' in self._columns.keys():
-            location_id = data.location_id and data.location_id.id or False
-        return location_id
-
-    def get_activity_patient_id(self, cr, uid, activity_id, context=None):
-        patient_id = False
-        # import pdb; pdb.set_trace()
-        data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
-        if 'patient_id' in self._columns.keys():
-            patient_id = data.patient_id and data.patient_id.id or False
-        return patient_id
-
-    def get_activity_user_ids(self, cr, uid, activity_id, context=None):
-        group_pool = self.pool['res.groups']
-        location_pool = self.pool['t4.clinical.location']
-        user_pool = self.pool['res.users']
-        activity = self.pool['t4.clinical.activity'].browse(cr, uid, activity_id, context)
-        # get groups where current type is allowed
-        ima_pool = self.pool['ir.model.access']
-        ima_ids = ima_pool.search(cr, uid, [('model_id.model','=',activity.data_ref._name),
-                                            ('perm_responsibility','=',1)])
-        group_ids = [ima.group_id.id for ima in ima_pool.browse(cr, uid, ima_ids)]
-        location_id = self.get_activity_location_id(cr, uid, activity_id, context)
-#         if'placement' in activity.data_ref._name:
-#             import pdb; pdb.set_trace()
-        user_ids = []
-        if location_id:
-            ids = user_pool.search(cr, uid, [['location_ids', '!=', False], ['groups_id', 'in', group_ids]])
-            for user in user_pool.browse(cr, uid, ids):
-                if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
-                    user_ids.append(user.id)
-#                     _logger.info("""get_activity_user_ids() \n
-#                                              user_pool.get_all_responsibility_location_ids(cr, uid, user.id): % s \n
-#                                              user.location_ids: %s \n
-#                                              user_ids: %s \n
-#                                          """ % (user_pool.get_all_responsibility_location_ids(cr, uid, user.id),
-#                                                 user.location_ids,
-#                                                 user_ids
-#                                                 ))
-                #import pdb; pdb.set_trace()
-        return list(set(user_ids))
-
-
-    def get_activity_browse(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
-        return activity_pool.browse(cr, uid, activity_id, context)

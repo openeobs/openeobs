@@ -33,7 +33,7 @@ class ActivityTypesTest(BaseTest):
         patient_pool = self.registry('t4.clinical.patient')
         admit_pool = self.registry('t4.clinical.adt.patient.admit')
         discharge_pool = self.registry('t4.clinical.patient.discharge')
-        activity_pool = self.registry('t4.clinical.activity')
+        activity_pool = self.registry('t4.activity')
         transfer_pool = self.registry('t4.clinical.adt.patient.transfer')
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
         api_pool = self.registry('t4.clinical.api')

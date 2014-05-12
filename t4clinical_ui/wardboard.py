@@ -14,7 +14,7 @@ class t4_clinical_wardboard(orm.Model):
     _trend_strings = [('up','up'), ('down','down'), ('same','same'), ('none','none'), ('one','one')]
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
-        'spell_activity_id': fields.many2one('t4.clinical.activity', 'Spell Activity'),
+        'spell_activity_id': fields.many2one('t4.activity', 'Spell Activity'),
         'spell_date_started': fields.datetime('Spell Start Date'),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'spell_code': fields.text('Spell Code'),
@@ -84,7 +84,7 @@ completed_ews as(
             rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-        inner join t4_clinical_activity activity on ews.activity_id = activity.id
+        inner join t4_activity activity on ews.activity_id = activity.id
         where activity.state = 'completed'
         ),
 scheduled_ews as(
@@ -94,7 +94,7 @@ scheduled_ews as(
             rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-        inner join t4_clinical_activity activity on ews.activity_id = activity.id
+        inner join t4_activity activity on ews.activity_id = activity.id
         where activity.state = 'scheduled'
         ),
 completed_height as(
@@ -104,7 +104,7 @@ completed_height as(
             rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_height height on height.patient_id = spell.patient_id
-        inner join t4_clinical_activity activity on height.activity_id = activity.id
+        inner join t4_activity activity on height.activity_id = activity.id
         where activity.state = 'completed'
         ),
 completed_o2target as(
@@ -115,7 +115,7 @@ completed_o2target as(
             rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
-        inner join t4_clinical_activity activity on o2target.activity_id = activity.id
+        inner join t4_activity activity on o2target.activity_id = activity.id
         inner join t4_clinical_o2level level on level.id = o2target.level_id
         where activity.state = 'completed'
         )
@@ -150,7 +150,7 @@ select
     o2target_ob.max as o2target_max,
     o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string
 from t4_clinical_spell spell
-inner join t4_clinical_activity spell_activity on spell_activity.id = spell.activity_id
+inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
 inner join t4_clinical_patient patient on spell.patient_id = patient.id
 left join t4_clinical_location location on location.id = spell.location_id
 left join (select id, score, patient_id, rank from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id

@@ -15,13 +15,13 @@ class t4_clinical_api(orm.AbstractModel):
 
     def getActivities(self, cr, uid, ids, context=None):
         domain = [('id', 'in', ids)] if ids else []
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_values = activity_pool.read(cr, uid, activity_ids, [], context=context)
         return activity_values
 
     def cancel(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         domain = [('id', '=', activity_id)]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         if not activity_ids:
@@ -29,7 +29,7 @@ class t4_clinical_api(orm.AbstractModel):
         return activity_pool.cancel(cr, uid, activity_id, context=context)
 
     def submit(self, cr, uid, activity_id, data, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         domain = [('id', '=', activity_id)]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         if not activity_ids:
@@ -37,7 +37,7 @@ class t4_clinical_api(orm.AbstractModel):
         return activity_pool.submit(cr, uid, activity_id, data, context=context)
 
     def unassign(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         domain = [('id', '=', activity_id)]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         if not activity_ids:
@@ -45,7 +45,7 @@ class t4_clinical_api(orm.AbstractModel):
         return activity_pool.unassign(cr, uid, activity_id, context=context)
 
     def assign(self, cr, uid, activity_id, data, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         user_pool = self.pool['res.users']
         user_id = uid
         domain = [('id', '=', activity_id)]
@@ -61,7 +61,7 @@ class t4_clinical_api(orm.AbstractModel):
         return activity_pool.assign(cr, uid, activity_id, user_id, context=context)
 
     def complete(self, cr, uid, activity_id, data, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         domain = [('id', '=', activity_id)]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         if not activity_ids:

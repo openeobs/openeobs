@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 class t4_clinical_notification(orm.AbstractModel):
     _name = 't4.clinical.notification'
-    _inherit = ['t4.clinical.activity.data']
+    _inherit = ['t4.activity.data']
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
@@ -29,7 +29,7 @@ class t4_clinical_notification_nurse(orm.Model):
 
 class t4_clinical_patient_move(orm.Model):
     _name = 't4.clinical.patient.move'
-    _inherit = ['t4.clinical.activity.data']  
+    _inherit = ['t4.activity.data']  
     #_rec_name = 'patient_id'    
     _description = "Patient Move"
     _start_view_xmlid = "view_patient_move_form"
@@ -52,7 +52,7 @@ class t4_clinical_patient_move(orm.Model):
         return res   
     
     def complete(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         patient_pool = self.pool['t4.clinical.patient']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_pool.write(cr, uid, activity.data_ref.patient_id.id, {'current_location_id': activity.data_ref.location_id.id}, context)
@@ -62,7 +62,7 @@ class t4_clinical_patient_move(orm.Model):
 
 class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
-    _inherit = ['t4.clinical.activity.data'] 
+    _inherit = ['t4.activity.data'] 
     _transitions = {
         'new': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
         'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
@@ -87,12 +87,12 @@ class t4_clinical_patient_placement(orm.Model):
     }
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         return activity.data_ref.suggested_location_id.id
     
     def complete(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         move_pool = self.pool['t4.clinical.patient.move']
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
@@ -143,14 +143,14 @@ class t4_clinical_patient_placement(orm.Model):
         
 class t4_clinical_patient_discharge(orm.Model):
     _name = 't4.clinical.patient.discharge'    
-    _inherit = ['t4.clinical.activity.data']
+    _inherit = ['t4.activity.data']
         
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'location_id': fields.related('activity_id','location_id', type='many2one', relation='t4.clinical.location', string='Location')
     }
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
         # discharge from current or permanent location ??
@@ -160,7 +160,7 @@ class t4_clinical_patient_discharge(orm.Model):
     def complete(self, cr, uid, activity_id, context=None):
         super(t4_clinical_patient_discharge, self).complete(cr, uid, activity_id, context)
         api_pool = self.pool['t4.clinical.api']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
         spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, activity.data_ref.patient_id.id, context=context)
         except_if(not spell_activity, msg="Patient id=%s has no started spell!" % activity.patient_id.id)
@@ -181,7 +181,7 @@ class t4_clinical_patient_discharge(orm.Model):
         
 class t4_clinical_patient_admission(orm.Model):
     _name = 't4.clinical.patient.admission'    
-    _inherit = ['t4.clinical.activity.data']
+    _inherit = ['t4.activity.data']
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True), 
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
@@ -189,7 +189,7 @@ class t4_clinical_patient_admission(orm.Model):
         'location_id': fields.related('activity_id','location_id', type='many2one', relation='t4.clinical.location', string='Location')
     }
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         #import pdb; pdb.set_trace()
         location_id = activity.data_ref.pos_id.lot_admission_id.id #or activity.data_ref.pos_id.location_id.id
@@ -200,7 +200,7 @@ class t4_clinical_patient_admission(orm.Model):
         super(t4_clinical_patient_admission, self).complete(cr, uid, activity_id, context)
         #import pdb; pdb.set_trace()
         api_pool = self.pool['t4.clinical.api']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
         admission = activity.data_ref
         
