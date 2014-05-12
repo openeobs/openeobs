@@ -8,7 +8,7 @@ class TestUI(ActivityTypesTest):
     def setUp(self):
         super(TestUI, self).setUp()
 
-        self.activity_pool = self.registry('t4.clinical.activity')
+        self.activity_pool = self.registry('t4.activity')
 
     def test_workload(self):
         cr, uid = self.cr, self.uid
@@ -26,8 +26,8 @@ class TestUI(ActivityTypesTest):
         [d.update({'id': register_pool.create_activity(cr, pos_env['adt_user_id'], {'summary': d['name']}, self.data_patient())}) for d in data]
 
         #tests
-        activity_pool = self.registry('t4.clinical.activity')
-        activity_workload_pool = self.registry('t4.clinical.activity.workload')
+        activity_pool = self.registry('t4.activity')
+        activity_workload_pool = self.registry('t4.activity.workload')
         for d in data:
             activity_pool.schedule(cr, uid, d['id'], d['date_scheduled'])
             activity_workload = activity_workload_pool.browse(cr, uid, d['id'])

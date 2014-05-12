@@ -9,7 +9,7 @@ class activityAPI(orm.AbstractModel):
 
     def set_patient_to_placement(self, cr, uid, rollback=True):
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
 
         except_if(rollback, msg="Rollback")
@@ -17,7 +17,7 @@ class activityAPI(orm.AbstractModel):
 
     def getPatients(self, cr, uid, rollback=True):
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
 
         except_if(rollback, msg="Rollback")

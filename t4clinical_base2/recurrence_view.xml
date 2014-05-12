@@ -3,7 +3,7 @@
     <data>
             <record model="ir.ui.view" id="view_activity_recurrence_search">
                 <field name="name">activity Recurrence Search View</field>
-                <field name="model">t4.clinical.activity.recurrence</field>
+                <field name="model">t4.activity.recurrence</field>
                 <field name="arch" type="xml">
                     <search string="activity Recurrence Search View">
                         <group expand="1" string="Group By...">
@@ -14,7 +14,7 @@
             </record>
             <record model="ir.ui.view" id="view_activity_recurrence_tree">
                 <field name="name">activity Recurrence Tree View</field>
-                <field name="model">t4.clinical.activity.recurrence</field>
+                <field name="model">t4.activity.recurrence</field>
                 <field name="arch" type="xml">
                     <tree string="activity Recurrence Tree View">
                        <field name="name" />
@@ -33,7 +33,7 @@
             </record>    
             <record model="ir.ui.view" id="view_activity_recurrence_form">
                 <field name="name">activity Recurrence Form View</field>
-                <field name="model">t4.clinical.activity.recurrence</field>
+                <field name="model">t4.activity.recurrence</field>
                 <field name="arch" type="xml">
                     <form string="activity Recurrence Form View">
                        <field name="name" />
@@ -51,8 +51,8 @@
                 </field>
             </record>
             <record model="ir.actions.act_window" id="action_activity_recurrence" >
-                <field name="name">t4.clinical.activity.recurrence</field>
-                <field name="res_model">t4.clinical.activity.recurrence</field>
+                <field name="name">t4.activity.recurrence</field>
+                <field name="res_model">t4.activity.recurrence</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form</field>
                 <field name="search_view_id" ref="view_activity_recurrence_search"/>

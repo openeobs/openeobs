@@ -6,11 +6,11 @@ from openerp import tools
 
 
 class t4_clinical_workload(orm.Model):
-    _name = "t4.clinical.activity.workload"
-    _inherits = {'t4.clinical.activity': 'activity_id'}
-    _description = "Wardboard"
+    _name = "t4.activity.workload"
+    _inherits = {'t4.activity': 'activity_id'}
+    _description = "Workload"
     _auto = False
-    _table = "t4_clinical_activity_workload"
+    _table = "t4_activity_workload"
     _proximity_intervals = [(10, '46- minutes'),
                            (20, '45-31 minutes remain'),
                            (30, '30-16 minutes remain'),
@@ -18,7 +18,7 @@ class t4_clinical_workload(orm.Model):
                            (50, '1-15 minutes late'),
                            (60, '16+ minutes late')]    
     _columns = {
-        'activity_id': fields.many2one('t4.clinical.activity', 'Activity'),
+        'activity_id': fields.many2one('t4.activity', 'Activity'),
         'proximity_interval': fields.selection(_proximity_intervals, 'Proximity Interval', readonly=True),
     }
     def init(self, cr):
@@ -37,7 +37,7 @@ class t4_clinical_workload(orm.Model):
                             when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 between 1 and 15 then 50
                             when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 > 16 then 60
                         else null end as proximity_interval
-                    from t4_clinical_activity
+                    from t4_activity
                 )
         """ % (self._table, self._table))
         

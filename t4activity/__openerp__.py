@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'T4 Clinical Improved',
+    'name': 'T4 Activity',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
@@ -8,15 +8,9 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['t4activity', 'project','hr'],
-    'data': ['data/data.xml', 
-             #'views/activity_view.xml',
-             'views/pos_view.xml',
-             'views/location_view.xml',
-             'views/patient_view.xml',
-             'views/user_view.xml',
-             'views/device_view.xml',
-             'views/menuitem.xml',             
+    'depends': [],
+    'data': [
+             'views/activity_view.xml',           
              'security/ir.model.access.csv'],
     'demo': [],
     'css': [],

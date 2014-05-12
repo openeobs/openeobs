@@ -82,7 +82,7 @@ class demo(orm.AbstractModel):
     
     def adt_patient_register(self, cr, uid):
         res = {}
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         register_pool = self.pool['t4.clinical.adt.patient.register']
         fake.seed(next_seed()) 
         gender = fake.random_element(array=('M','F'))
@@ -122,7 +122,7 @@ class demo(orm.AbstractModel):
         patient_pool = self.pool['t4.clinical.patient']
         location_pool = self.pool['t4.clinical.location']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         fake.seed(next_seed())
         suggested_location_names = [location.name for location in location_pool.browse(cr, uid, suggested_location_ids)]
         patient = patient_pool.browse(cr, uid, patient_id)
@@ -142,7 +142,7 @@ class demo(orm.AbstractModel):
     def complete_placement(self, cr, uid, placement_activity_id):
         res = {}
         patient_pool = self.pool['t4.clinical.patient']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         location_pool = self.pool['t4.clinical.location']
         fake.seed(next_seed())
         placement_activity = activity_pool.browse(cr, uid, placement_activity_id)
@@ -168,7 +168,7 @@ class demo(orm.AbstractModel):
     def complete_ews(self, cr, uid, ews_activity_id):
         res = {}
         data = {}
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         fake.seed(next_seed())
         data = {
                 'respiration_rate': fake.random_int(min=10, max=23),
@@ -188,7 +188,7 @@ class demo(orm.AbstractModel):
 
     def adt_patient_discharge(self, cr, uid, patient_id):
         res = {}
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         discharge_pool = self.pool['t4.clinical.patient.discharge']
         discharge_activity_id = discharge_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
         discharge_complete_res = activity_pool.complete(cr, uid, discharge_activity_id)
@@ -242,7 +242,7 @@ class demo(orm.AbstractModel):
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         register_pool = self.pool['t4.clinical.adt.patient.register']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
         discharge_pool = self.pool['t4.clinical.patient.discharge']
         spell_pool = self.pool['t4.clinical.spell']

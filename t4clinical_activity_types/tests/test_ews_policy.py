@@ -39,11 +39,11 @@ class TestEwsPolicy(common.SingleTransactionCase):
         cr, uid = self.cr, self.uid
 
         patient_pool = self.registry('t4.clinical.patient')
-        activity_pool = self.registry('t4.clinical.activity')
+        activity_pool = self.registry('t4.activity')
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
         register_pool = self.registry('t4.clinical.adt.patient.register')
         admit_pool = self.registry('t4.clinical.adt.patient.admit')
-        activity_pool = self.registry('t4.clinical.activity')
+        activity_pool = self.registry('t4.activity')
         placement_pool = self.registry('t4.clinical.patient.placement')
         location_pool = self.registry('t4.clinical.location')
 

@@ -87,7 +87,7 @@ class DemoLoader(orm.AbstractModel):
         admit_data = self.get_admit_data(register_data, 800)
         register_pool = self.pool['t4.clinical.adt.patient.register']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
         api_pool = self.pool['t4.clinical.api']
 
@@ -134,7 +134,7 @@ class DemoLoader(orm.AbstractModel):
         admit_data = self.get_admit_data(register_data, 0)
         register_pool = self.pool['t4.clinical.adt.patient.register']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         placement_pool = self.pool['t4.clinical.patient.placement']
         location_pool = self.pool['t4.clinical.location']
         api_pool = self.pool['t4.clinical.api']

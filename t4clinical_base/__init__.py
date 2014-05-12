@@ -1,5 +1,3 @@
 import base
-import activity
+import activity_extension
 import api
-
-import test_models

@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_device_session(orm.Model):
     _name = 't4.clinical.device.session'
     _description = 'Device Session'
-    _inherit = ['t4.clinical.activity.data']
+    _inherit = ['t4.activity.data']
     _columns = {
         'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
@@ -19,7 +19,7 @@ class t4_clinical_device_session(orm.Model):
     
 class t4_clinical_device_connect(orm.Model):
     _name = 't4.clinical.device.connect'
-    _inherit = ['t4.clinical.activity.data']
+    _inherit = ['t4.activity.data']
     _description = 'Connect Device'
     _columns = {
         'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
@@ -27,7 +27,7 @@ class t4_clinical_device_connect(orm.Model):
     }
 
     def complete(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         device_session_pool = self.pool['t4.clinical.device.session']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
@@ -41,14 +41,14 @@ class t4_clinical_device_connect(orm.Model):
 
 class t4_clinical_device_disconnect(orm.Model):
     _name = 't4.clinical.device.disconnect'
-    _inherit = ['t4.clinical.activity.data']
+    _inherit = ['t4.activity.data']
     _description = 'Disconnect Device'
     _columns = {
         'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
     }
     def complete(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         device_session_pool = self.pool['t4.clinical.device.session']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
@@ -62,7 +62,7 @@ class t4_clinical_device_disconnect(orm.Model):
     
 class t4_clinical_device_observation(orm.Model):
     _name = 't4.clinical.device.observation'
-    _inherit = ['t4.clinical.activity.data']
+    _inherit = ['t4.activity.data']
     _description = 'Device Observation'
     _columns = {
         'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),

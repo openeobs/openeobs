@@ -17,7 +17,7 @@ class TestAdmission(common.SingleTransactionCase):
         self.tomorrow = (dt.today() + rd(days=1)).strftime('%Y-%m-%d %H:%M:%S')
         
                 
-        self.activity_pool = self.registry('t4.clinical.activity')
+        self.activity_pool = self.registry('t4.activity')
         self.hw_pool = self.registry('t4.clinical.patient.observation.height_weight')
         self.patient_id = self.xml2db_id("demo_patient_donald")
         self.location_id = self.xml2db_id("demo_location_uhg")

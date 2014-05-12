@@ -7,7 +7,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
       
-class t4_clinical_activity_recurrence(orm.Model):
+class t4_activity_recurrence(orm.Model):
     """
     To be able to track generation flow changing frequency would be 
     best through replacement of current recurrence with a new one and deactivating the old one.
@@ -19,7 +19,7 @@ class t4_clinical_activity_recurrence(orm.Model):
     
     date_next trigger: 
     """
-    _name = 't4.clinical.activity.recurrence'
+    _name = 't4.activity.recurrence'
     _periods = [('minute','Minute'), ('hour', 'Hour'), ('day', 'Day'), ('month', 'Month'), ('year', 'Year')]
     _columns = {
         'name': fields.char('Name', size=256),
@@ -31,7 +31,7 @@ class t4_clinical_activity_recurrence(orm.Model):
         'active': fields.boolean('Is Active?'),     
         'unit': fields.selection(_periods, 'Recurrence Unit'),
         'unit_qty': fields.integer('Qty of Recurrence Units'),
-        'activity_ids': fields.many2many('t4.clinical.activity', 'recurrence_activity_rel', 'recurrence_id', 'activity_id', 'Generated Activities'),
+        'activity_ids': fields.many2many('t4.activity', 'recurrence_activity_rel', 'recurrence_id', 'activity_id', 'Generated Activities'),
         'date_next': fields.datetime('Next Date', readonly=True), # =date_start in create 
     }
     
@@ -41,7 +41,7 @@ class t4_clinical_activity_recurrence(orm.Model):
     
     def create(self, cr, uid, vals, context=None):
         vals.get('date_start') and vals.update({'date_next': vals['date_start']})
-        rec_id = super(t4_clinical_activity_recurrence, self).create(cr, uid, vals, context)
+        rec_id = super(t4_activity_recurrence, self).create(cr, uid, vals, context)
         return rec_id
     
     def replace(self, cr, uid, ids, vals, context=None):
@@ -75,7 +75,7 @@ class t4_clinical_activity_recurrence(orm.Model):
         if not ids:
             return True
         context = None
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         for rec in self.browse(cr, uid, ids, context):
             date_next = self.date_next(rec.date_next, rec.unit, rec.unit_qty, dt.strptime(now,"%Y-%m-%d %H:%M:%S"))
             activity_id = activity_pool.create(cr, uid, eval(str(rec.vals_activity)) or {}, context)

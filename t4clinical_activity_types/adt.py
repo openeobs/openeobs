@@ -9,14 +9,14 @@ _logger = logging.getLogger(__name__)
 
 class t4_clinical_adt(orm.Model):
     _name = 't4.clinical.adt'
-    _inherit = ['t4.clinical.activity.data']       
+    _inherit = ['t4.activity.data']       
     _columns = {
     }
 
 
 class t4_clinical_adt_patient_register(orm.Model):
     _name = 't4.clinical.adt.patient.register'
-    _inherit = ['t4.clinical.activity.data']      
+    _inherit = ['t4.activity.data']      
     _columns = { 
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
@@ -64,7 +64,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
     """
     
     _name = 't4.clinical.adt.patient.admit'
-    _inherit = ['t4.clinical.activity.data']      
+    _inherit = ['t4.activity.data']      
         
     _columns = {
         'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location', help="Location suggested by ADT for placement. Usually ward."),
@@ -107,7 +107,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
     def complete(self, cr, uid, activity_id, context=None):
         res = {}
         super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
-        activity_pool = self.pool['t4.clinical.activity']
+        activity_pool = self.pool['t4.activity']
         admit_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
         #import pdb; pdb.set_trace()
@@ -126,14 +126,14 @@ class t4_clinical_adt_patient_admit(orm.Model):
     
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
-    _inherit = ['t4.clinical.activity.data']      
+    _inherit = ['t4.activity.data']      
     _columns = {
     }
 
 
 class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
-    _inherit = ['t4.clinical.activity.data']      
+    _inherit = ['t4.activity.data']      
     _columns = {
         'patient_identifier': fields.text('patientId'),
         'other_identifier': fields.text('otherId'),                
@@ -143,7 +143,7 @@ class t4_clinical_adt_patient_transfer(orm.Model):
     def submit(self, cr, uid, activity_id, vals, context=None):
         except_if(not ('other_identifier' in vals or 'patient_identifier' in vals), msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
-        #patient_pool = self.pool['t4.clinical.activity']
+        #patient_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         other_identifier = vals.get('other_identifier')
         patient_identifier = vals.get('patient_identifier')
@@ -169,7 +169,7 @@ class t4_clinical_adt_patient_transfer(orm.Model):
 
 class t4_clinical_adt_patient_merge(orm.Model):
     _name = 't4.clinical.adt.patient.merge'
-    _inherit = ['t4.clinical.activity.data']      
+    _inherit = ['t4.activity.data']      
     _columns = {
         'from_identifier': fields.text('From patient Identifier'),
         'into_identifier': fields.text('Into Patient Identifier'),        
@@ -204,6 +204,6 @@ class t4_clinical_adt_patient_merge(orm.Model):
 
 class t4_clinical_adt_patient_update(orm.Model):
     _name = 't4.clinical.adt.patient.update'
-    _inherit = ['t4.clinical.activity.data']      
+    _inherit = ['t4.activity.data']      
     _columns = {
     }

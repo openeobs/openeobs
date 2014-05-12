@@ -9,4 +9,4 @@ case
     when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 between 1 and 15 then 50
     when extract (epoch from  now() at time zone 'UTC' - date_scheduled)::int/60 > 16 then 60
 else null end as proximity_interval
-from t4_clinical_activity
+from t4_activity
