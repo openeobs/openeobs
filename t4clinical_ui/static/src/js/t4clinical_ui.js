@@ -111,11 +111,9 @@ openerp.t4clinical_ui = function (instance) {
                         } else {
                             var button =  $("a:contains('Inactive Points of Care')");
                         }
-                        if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none'){
-                            if (refresh_active_poc){
-                                button.click();
-                                refresh_active_poc = false;
-                            }
+                        if (refresh_active_poc){
+                            button.click();
+                            refresh_active_poc = false;
                         }
                     }, 10);
                 }
