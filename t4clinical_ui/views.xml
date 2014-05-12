@@ -70,7 +70,7 @@
             <field name="res_model">t4.clinical.location</field>
             <field name="view_type">form</field>
             <field name="search_view_id" ref="view_active_locations_search"/>
-            <field name="domain">[('type','=','poc'), ('usage','=','bed')]</field>
+            <field name="domain">[('type','=','poc'), ('usage','=','bed'), ('parent_id.user_ids', 'in', uid)]</field>
             <field name="context">{'search_default_active': 1, 'search_default_inactive': 0}</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_active_locations_tree"/>
@@ -81,7 +81,7 @@
             <field name="res_model">t4.clinical.location</field>
             <field name="view_type">form</field>
             <field name="search_view_id" ref="view_active_locations_search"/>
-            <field name="domain">[('type','=','poc'), ('usage','=','bed')]</field>
+            <field name="domain">[('type','=','poc'), ('usage','=','bed'), ('parent_id.user_ids', 'in', uid)]</field>
             <field name="context">{'search_default_active': 0, 'search_default_inactive': 1}</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_active_locations_tree"/>
