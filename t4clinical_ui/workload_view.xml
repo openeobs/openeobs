@@ -11,7 +11,7 @@
                     <field name="summary"/>
                     <field name="state"/>
                     <field name="user_id"/>
-                    <!-- <field name="user_ids"/> -->
+                    <field name="user_ids"/>
                     <field name="patient_id"/>
                     <field name="location_id"/>
                     <field name="date_scheduled"/>
@@ -28,7 +28,7 @@
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
 				                    <field name="state"/>
 				                    <field name="user_id"/>
-				                   <!--  <field name="user_ids"/> -->
+				                    <field name="user_ids"/>
 				                    <field name="patient_id"/>
 				                    <field name="location_id"/>
 				                    <field name="date_scheduled"/>

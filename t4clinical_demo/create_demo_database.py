@@ -2,7 +2,7 @@ import erppeek
 
 full_demo = False
 demo_modules = []
-install_modules = ['t4clinical_base']#, 't4clinical_ui']
+install_modules = ['t4clinical_demo']
 run_list = [{'module': 'demo', 'method': 'scenario2', 'args': [], 'kwargs':{}}]
 
 rollback = False

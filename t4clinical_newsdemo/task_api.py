@@ -1,5 +1,5 @@
 from openerp.osv import orm, fields, osv
-from openerp.addons.t4clinical_base.activity import except_if
+from openerp.addons.t4activity.activity import except_if
 import logging
 _logger = logging.getLogger(__name__)
 
