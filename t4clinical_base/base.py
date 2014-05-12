@@ -146,7 +146,8 @@ class t4_clinical_location(orm.Model):
                                                't4.clinical.patient.placement': (_placement2location_id, ['location_id','state'], 20)
                                                }),
         'patient_capacity': fields.integer('Patient Capacity'),
-        'patient_ids': fields.function(_get_patient_ids, type='one2many',relation='t4.clinical.patient', string="Location Patients")
+        'patient_ids': fields.function(_get_patient_ids, type='one2many',relation='t4.clinical.patient', string="Location Patients"),
+        'user_ids': fields.many2many('res.users', 'user_location_rel', 'location_id', 'user_id', 'Responsible Users'),
       
     }
 
