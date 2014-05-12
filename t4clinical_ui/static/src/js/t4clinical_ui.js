@@ -1,8 +1,9 @@
 openerp.t4clinical_ui = function (instance) {
 
     var QWeb = instance.web.qweb;
-    var timing, timing2;
+    var timing, timing2, timing3;
     var refresh_placement = false;
+    var refresh_active_poc = false;
     var _t = instance.web._t;
 
     instance.t4clinical_ui.Button = instance.web.list.Column.extend({
@@ -86,7 +87,7 @@ openerp.t4clinical_ui = function (instance) {
                         }
                     }, 300000);
                 }
-                if (options.action.name == "Patient Placements"){
+                else if (options.action.name == "Patient Placements"){
                     if (typeof(timing2) != 'undefined'){
                         clearInterval(timing2);
                     }
@@ -100,12 +101,33 @@ openerp.t4clinical_ui = function (instance) {
                         }
                     }, 10);
                 }
+                else if (options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
+                    if (typeof(timing3) != 'undefined'){
+                        clearInterval(timing3);
+                    }
+                    timing3 = window.setInterval(function(){
+                        if (options.action.name == "Active Points of Care"){
+                            var button =  $("a:contains('Active Points of Care')");
+                        } else {
+                            var button =  $("a:contains('Inactive Points of Care')");
+                        }
+                        if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none'){
+                            if (refresh_active_poc){
+                                button.click();
+                                refresh_active_poc = false;
+                            }
+                        }
+                    }, 10);
+                }
                 else{
                     if (typeof(timing) != 'undefined'){
                         clearInterval(timing);
                     }
                     if (typeof(timing2) != 'undefined'){
                         clearInterval(timing2);
+                    }
+                    if (typeof(timing3) != 'undefined'){
+                        clearInterval(timing3);
                     }
                 }
             };
@@ -120,6 +142,13 @@ openerp.t4clinical_ui = function (instance) {
                 _.delay(_.bind(function () {
                     this.do_switch_view(view);
                 }, this));
+            }
+        },
+
+        do_button_action: function (name, id, callback) {
+            this.handle_button(name, id, callback);
+            if (name == "activate_deactivate"){
+                refresh_active_poc = true;
             }
         },
 
