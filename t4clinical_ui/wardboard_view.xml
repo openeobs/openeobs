@@ -159,12 +159,49 @@
                     </form>
                 </field>
             </record>
-
+	        <!-- Wardboard Kanban View -->
+	       <record model="ir.ui.view" id="view_wardboard_kanban">
+	            <field name="name">t4.clinical.wardboard.kanban</field>
+	            <field name="model">t4.clinical.wardboard</field>
+	            <field name="arch" type="xml">
+	                <kanban edit="false" quick_create="false" create="false">
+	                       <field name="full_name" />
+	                       <field name="location" />
+	                       <field name="sex" widget="t4_gender"/>
+	                       <field name="dob" widget="date"/>
+	                       <field name="age" />
+						   <field name="next_diff" />
+	                       <field name="frequency" />
+	                       <field name="ews_score_string" />
+	                       <field name="ews_trend_string" />
+	                    <templates>
+	                    <t t-name="kanban-box">
+	                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+	                            <div class="oe_kanban_content">
+	                                <div>
+	                                	<b><field name="full_name"/>, <field name="age"/>, <field name="sex" widget="t4_gender"/></b>
+	                                </div>
+	                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
+				                       <field name="location" />
+				                       <field name="dob" widget="date"/>
+									   <field name="next_diff" />
+				                       <field name="frequency" />
+				                       <field name="ews_score_string" />
+				                       <field name="ews_trend_string" />
+	                                </div>
+	                            </div>
+	                            <div class="oe_clear"></div>
+	                        </div>
+	                    </t>
+	                    </templates>
+	                </kanban>
+	            </field>
+	         </record>
             <record model="ir.actions.act_window" id="action_wardboard" >
                 <field name="name">Wardboard</field>
                 <field name="res_model">t4.clinical.wardboard</field>
                 <field name="view_type">form</field>
-                <field name="view_mode">tree,form</field>
+                <field name="view_mode">tree,form,kanban</field>
                 <field name="domain">[('next_diff','!=',False)]</field>
                 <field name="search_view_id" ref="view_wardboard_search"/>
             </record>
@@ -180,5 +217,11 @@
                 <field name="view_id" ref="view_wardboard_form"/>
                 <field name="act_window_id" ref="action_wardboard"/>
             </record>
+            <record model="ir.actions.act_window.view" id="act_view_wardboard_kanban">
+                <field eval="2" name="sequence"/>
+                <field name="view_mode">kanban</field>
+                <field name="view_id" ref="view_wardboard_kanban"/>
+                <field name="act_window_id" ref="action_wardboard"/>
+            </record>            
     </data>
 </openerp>
