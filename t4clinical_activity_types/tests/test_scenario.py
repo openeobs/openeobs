@@ -332,7 +332,7 @@ class ActivityTypesTest(BaseTest):
                        "ews_activity.parent_id != spell_activity after placement completion!")
         self.assertTrue(ews_activity.state == 'scheduled',
                        "ews_activity.state != 'scheduled' after placement completion!")  
-        date_scheduled_diff=(dt.now()+rd(minutes=placement_activity.pos_id.ews_init_frequency) 
+        date_scheduled_diff=(dt.now()+rd(minutes=spell_activity.data_ref.ews_frequency) 
                              - dt.strptime(ews_activity.date_scheduled, DTF)).total_seconds()
         self.assertTrue(date_scheduled_diff < 5,
                        "ews_activity.date_scheduled_diff > 5 sec after placement completion!")   
@@ -358,7 +358,7 @@ class ActivityTypesTest(BaseTest):
                        "gcs_activity.parent_id != spell_activity after placement completion!")
         self.assertTrue(gcs_activity.state == 'scheduled',
                        "gcs_activity.state != 'scheduled' after placement completion!")  
-        date_scheduled_diff=(dt.now()+rd(minutes=placement_activity.pos_id.ews_init_frequency) 
+        date_scheduled_diff=(dt.now()+rd(minutes=spell_activity.data_ref.ews_frequency) 
                              - dt.strptime(gcs_activity.date_scheduled, DTF)).total_seconds()
         self.assertTrue(date_scheduled_diff < 5,
                        "gcs_activity.date_scheduled_diff > 5 sec after placement completion!")

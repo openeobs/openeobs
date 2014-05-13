@@ -52,11 +52,11 @@ class t4_clinical_pos(orm.Model):
         'company_id': fields.many2one('res.company', 'Company'),
         'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
         'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),
-        'ews_init_frequency': fields.integer('EWS Initial Frequency in Minutes')
+        #'ews_init_frequency': fields.integer('EWS Initial Frequency in Minutes')
     }
 
     _defaults = {
-        'ews_init_frequency': 15
+        #'ews_init_frequency': 15
     }
 
 

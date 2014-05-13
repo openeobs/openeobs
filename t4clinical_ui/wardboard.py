@@ -134,7 +134,7 @@ select
     patient.dob,
     extract(year from age(now(), patient.dob)) as age,
     (now() - ews0.date_scheduled)::text as next_diff, 
-    spell.current_ews_frequency as frequency,
+    spell.ews_frequency as frequency,
     case
         when ews1.id is null then 'none'
         else ews1.id::text

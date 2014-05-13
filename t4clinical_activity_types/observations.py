@@ -269,10 +269,14 @@ class t4_clinical_patient_observation_ews(orm.Model):
             for n in self._POLICY['notifications'][case]:
                 nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         # create next EWS
+        spell_activity_id = activity.parent_id.id
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
-                             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
+                             {'creator_id': activity_id, 'parent_id': spell_activity_id},
                              {'patient_id': activity.data_ref.patient_id.id})
         activity_pool.schedule(cr, SUPERUSER_ID, next_activity_id, dt.today()+rd(minutes=self._POLICY['frequencies'][case]))
+        activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, 
+                             {'ews_frequency':self._POLICY['frequencies'][case]},
+                             context)
         return super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
 class t4_clinical_patient_observation_gcs(orm.Model):
