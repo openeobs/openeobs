@@ -54,8 +54,8 @@ select
 	location.id as location_id,
 	patient.sex,
 	patient.dob,
-	extract(year from age(now(), patient.dob)) as age,
-	(now() - ews0.date_scheduled)::text as next_diff, 
+	extract(year from age(now(), patient.dob)) as age, 
+	justify_interval((date_part('epoch', now() - ews0.date_scheduled)::int || ' seconds')::interval)::text as next_diff,
 	spell.ews_frequency as frequency,
 	case
 		when ews1.id is null then 'none'
