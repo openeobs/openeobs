@@ -121,7 +121,7 @@ class t4_clinical_location(orm.Model):
     
     def _placement2location_id(self, cr, uid, ids, context=None):
         placement_ids = self.search(cr, uid, [('data_model', '=', 't4.clinical.patient.placement')], context=context)
-        res = [p.data_ref.location_id.id for p in self.browse(cr, uid, placement_ids, context)]
+        res = [p.data_ref.location_id.id if p.data_ref.location_id else False for p in self.browse(cr, uid, placement_ids, context)]
         return res
     
     def _get_patient_ids (self, cr, uid, ids, field, args, context=None):
