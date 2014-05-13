@@ -154,6 +154,19 @@ class ActivityTypesTest(BaseTest):
                                         env['ward_location_ids'][fake.random_int(min=0, max=len(env['ward_location_ids'])-1)]).name
         data['code'] = str(fake.random_int(min=10001, max=99999))
         data['start_date'] = fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S")
+        
+        if not data.get('doctors'):
+            d = [{
+                    'code': str(fake.random_int(min=10001, max=99999)),
+                    'type': fake.random_element(array=('r','c')),
+                    'title': fake.random_element(array=('Mr','Mrs','Ms','Dr')),
+                    'family_name': fake.last_name(),
+                    'given_name': fake.first_name()
+                    },
+                   ]
+            data['doctors'] = d
+            
+        
         admit_activity_id = self.create_activity(cr, env['adt_user_id'], admit_pool._name, {}, {})
         #import pdb; pdb.set_trace()
         # submit

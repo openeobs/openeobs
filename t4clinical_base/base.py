@@ -17,7 +17,8 @@ class t4clinical_res_partner(orm.Model):
     _inherit = 'res.partner'
 
     _columns = {
-        'doctor': fields.boolean('Doctor', help="Check this box if this contact is a Doctor")
+        'doctor': fields.boolean('Doctor', help="Check this box if this contact is a Doctor"),
+        'code': fields.char('Code', size=256),
     }
 
 
