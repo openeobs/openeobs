@@ -13,14 +13,14 @@ def next_seed():
     seed += 1
     return seed
 
-class t4_clinical_pos(orm.Model):
+class t4_clinical_spell(orm.Model):
     """
-    POS Configuration
+    SPELL Configuration
     """
-    _inherit = 't4.clinical.pos'
+    _inherit = 't4.clinical.spell'
     
     _defaults = {
-         'ews_init_frequency': 30,
+         'ews_frequency': 30,
      }
     
     

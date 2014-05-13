@@ -17,7 +17,8 @@ class t4clinical_res_partner(orm.Model):
     _inherit = 'res.partner'
 
     _columns = {
-        'doctor': fields.boolean('Doctor', help="Check this box if this contact is a Doctor")
+        'doctor': fields.boolean('Doctor', help="Check this box if this contact is a Doctor"),
+        'code': fields.char('Code', size=256),
     }
 
 
@@ -51,11 +52,11 @@ class t4_clinical_pos(orm.Model):
         'company_id': fields.many2one('res.company', 'Company'),
         'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
         'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),
-        'ews_init_frequency': fields.integer('EWS Initial Frequency in Minutes')
+        #'ews_init_frequency': fields.integer('EWS Initial Frequency in Minutes')
     }
 
     _defaults = {
-        'ews_init_frequency': 15
+        #'ews_init_frequency': 15
     }
 
 

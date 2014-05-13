@@ -16,10 +16,11 @@ class t4_clinical_spell(orm.Model):
         'pos_id': fields.many2one('t4.clinical.pos', 'Placement Location', required=True),
         'code': fields.text("Code"),
         'start_date': fields.datetime("ADT Start Date"),
-        'current_ews_frequency': fields.text("Current EWS Frequency")
+        'ews_frequency': fields.integer("EWS Frequency", help="EWS frequency in minutes")
     }
     _defaults = {
-         'code': lambda s, cr, uid, c: s.pool['ir.sequence'].next_by_code(cr, uid, 't4.clinical.spell', context=c) 
+         'code': lambda s, cr, uid, c: s.pool['ir.sequence'].next_by_code(cr, uid, 't4.clinical.spell', context=c),
+         'ews_frequency': 15
      }
 
     def create(self, cr, uid, vals, context=None):

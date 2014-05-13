@@ -115,7 +115,7 @@ class t4_clinical_patient_placement(orm.Model):
         #import pdb; pdb.set_trace()
         activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         # create EWS
-        frequency = placement_activity.pos_id.ews_init_frequency
+        frequency = placement_activity.parent_id.data_ref.ews_frequency
         ews_activity_id = ews_pool.create_activity(cr, SUPERUSER_ID, 
                                                    {#'location_id': placement_activity.data_ref.location_id.id,
                                                     'parent_id': spell_activity_id,
