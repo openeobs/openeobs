@@ -121,7 +121,8 @@ class t4_clinical_location(orm.Model):
         return res
     
     def _placement2location_id(self, cr, uid, ids, context=None):
-        res = [p.location_id.id for p in self.browse(cr, uid, ids, context)]
+        placement_ids = self.search(cr, uid, [('data_model', '=', 't4.clinical.patient.placement')], context=context)
+        res = [p.data_ref.location_id.id if p.data_ref.location_id else False for p in self.browse(cr, uid, placement_ids, context)]
         return res
     
     def _get_patient_ids (self, cr, uid, ids, field, args, context=None):
@@ -144,8 +145,8 @@ class t4_clinical_location(orm.Model):
         'is_available': fields.function(_is_available, type='boolean', string='Is Available?', 
                                         store={
                                                't4.clinical.location': (lambda self, cr, uid, ids, c: ids, [], 10),
-                                               't4.clinical.patient.placement': (_placement2location_id, ['location_id','state'], 20)
-                                               }),
+                                               't4.activity': (_placement2location_id, ['state'], 20)
+                                        }),
         'patient_capacity': fields.integer('Patient Capacity'),
         'patient_ids': fields.function(_get_patient_ids, type='one2many',relation='t4.clinical.patient', string="Location Patients"),
         'user_ids': fields.many2many('res.users', 'user_location_rel', 'location_id', 'user_id', 'Responsible Users'),
