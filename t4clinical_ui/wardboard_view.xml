@@ -26,8 +26,7 @@
                        <field name="age" />
 					   <field name="next_diff" />
                        <field name="frequency" />
-                       <field name="ews_score" />
-                       <field name="ews_trend" />
+                       <field name="ews_score_string" />
                        <field name="ews_trend_string" />
                     </tree>
                 </field>
