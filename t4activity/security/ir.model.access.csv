@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-root_access_t4_activity,root_access_t4_activity,model_t4_activity,base.user_root,1,1,1,1
-root_access_t4_activity_data,root_access_t4_activity_data,model_t4_activity_data,base.user_root,1,1,1,1

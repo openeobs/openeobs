@@ -100,6 +100,9 @@
                                             </form>
                                        </field>
                                     </div>
+                                    <group string="EWS">
+                                    	<field name="ews_ids" readonly="1" nolabel="1"/>
+                                   	</group>
                                     <div>
                                         <label for="o2target_ids" string="O2 Target History:"/>
                                         <field name="o2target_ids" readonly="1">

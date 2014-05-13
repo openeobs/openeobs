@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields, osv
-from openerp.addons.t4clinical_base.activity import except_if
+from openerp.addons.t4activity.activity import except_if
 import logging
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
