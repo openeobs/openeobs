@@ -448,7 +448,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         # environment
         pos1_env = self.create_pos_environment()
         # register
-        [self.adt_patient_register(env=pos1_env) for i in range(3)]
+        [self.adt_patient_register(env=pos1_env) for i in range(8)]
 
         # admit
         [self.adt_patient_admit(data_vals={'other_identifier':other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
@@ -459,13 +459,14 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
                         + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])
                         + "\n patient_ids: %s" % pos1_env['patient_ids']) 
         # placements
-        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']
+                                                                                    if fake.random_element(array=(True, False))]
         
         
         # api tests
-        self.assertTrue(not (set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) & set(pos1_env['patient_ids'])),
-                        "not_placed_patient_ids returns patients that must be placed"
-                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id']))         
+#         self.assertTrue(not (set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) & set(pos1_env['patient_ids'])),
+#                         "not_placed_patient_ids returns patients that must be placed"
+#                         + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id']))         
         
         # device connect
         connect_activity_id = self.device_connect(env=pos1_env)
@@ -478,7 +479,8 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
                                                                    }, env=pos1_env)
         
         # discharge
-        [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+        [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids'] 
+                                                                                   if fake.random_element(array=(True, False))]
         
         
 
