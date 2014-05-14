@@ -2,6 +2,7 @@ from openerp.tests import common
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from openerp import tools
+from openerp.tools import config 
 from openerp.osv import orm, fields, osv
 
 import logging        
@@ -17,6 +18,16 @@ def next_seed():
     return seed
 
 class BaseTest(common.SingleTransactionCase):
+    @classmethod
+    def tearDownClass(cls):
+        if config['test_commit']:
+            cls.cr.commit()
+            print "COMMIT"
+        else:
+            cls.cr.rollback()
+            print "ROLLBACK"
+        cls.cr.close()
+        
     def setUp(self):
         global cr, uid, seed
         global patient_pool, location_pool, pos_pool, user_pool, imd_pool, activity_pool, device_type_pool, device_pool
