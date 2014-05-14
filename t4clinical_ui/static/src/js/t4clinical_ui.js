@@ -199,14 +199,18 @@ openerp.t4clinical_ui = function (instance) {
     instance.t4clinical_ui.GenderWidget = instance.web.list.Column.extend({
         _format: function (row_data, options) {
             if (row_data.sex.value == 'M'){
-                return QWeb.render('t4_maleCell', {
+                return QWeb.render('t4_genderCell', {
                     'widget': this,
                     'prefix': instance.session.prefix,
+                    'male': true,
+                    'female': false,
                 });
             } else if (row_data.sex.value == 'F'){
-                return QWeb.render('t4_femaleCell', {
+                return QWeb.render('t4_genderCell', {
                     'widget': this,
                     'prefix': instance.session.prefix,
+                    'male': false,
+                    'female': true,
                 });
             } else {
                 return 'Not Given';
@@ -215,6 +219,44 @@ openerp.t4clinical_ui = function (instance) {
     });
 
     instance.web.list.columns.add('field.t4_gender', 'instance.t4clinical_ui.GenderWidget');
+
+    instance.t4clinical_ui.ScoreTrendWidget = instance.web.list.Column.extend({
+        _format: function (row_data, options) {
+            if (row_data.ews_trend_string.value == 'up'){
+                return QWeb.render('t4_trendCell', {
+                    'widget': this,
+                    'prefix': instance.session.prefix,
+                    'up': true,
+                    'down': false,
+                    'same': false,
+                });
+            } else if (row_data.ews_trend_string.value == 'down') {
+                return QWeb.render('t4_trendCell', {
+                    'widget': this,
+                    'prefix': instance.session.prefix,
+                    'up': false,
+                    'down': true,
+                    'same': false,
+                });
+            } else if (row_data.ews_trend_string.value == 'same'){
+                return QWeb.render('t4_trendCell', {
+                    'widget': this,
+                    'prefix': instance.session.prefix,
+                    'up': false,
+                    'down': false,
+                    'same': true,
+                });
+            } else {
+                return row_data.ews_trend_string.value;
+                if (row_data.ews_score_string.value !== 'none'){
+                    return "Initial Value";
+                }
+                return "Waiting 1st Observation";
+            };
+        },
+    });
+
+    instance.web.list.columns.add('field.t4_scoretrend', 'instance.t4clinical_ui.ScoreTrendWidget');
 
     instance.t4clinical_ui.WidgetButton = instance.web.form.WidgetButton.extend({
         on_click: function() {

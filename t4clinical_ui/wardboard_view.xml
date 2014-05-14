@@ -27,7 +27,7 @@
 					   <field name="next_diff" />
                        <field name="frequency" />
                        <field name="ews_score_string" />
-                       <field name="ews_trend_string" />
+                       <field name="ews_trend_string"  widget="t4_scoretrend"/>
                     </tree>
                 </field>
             </record>
@@ -173,7 +173,7 @@
 						   <field name="next_diff" />
 	                       <field name="frequency" />
 	                       <field name="ews_score_string" />
-	                       <field name="ews_trend_string" />
+	                       <field name="ews_trend_string"/>
 	                    <templates>
 	                    <t t-name="kanban-box">
 	                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
