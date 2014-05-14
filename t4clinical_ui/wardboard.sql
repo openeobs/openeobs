@@ -54,8 +54,16 @@ select
 	location.id as location_id,
 	patient.sex,
 	patient.dob,
-	extract(year from age(now(), patient.dob)) as age, 
-	justify_interval((date_part('epoch', now() - ews0.date_scheduled)::int || ' seconds')::interval)::text as next_diff,
+	extract(year from age(now(), patient.dob)) as age,
+	case
+		when extract('epoch' from (now() - ews0.date_scheduled)) > 0 then
+			coalesce( nullif( extract('day' from (now() - ews0.date_scheduled))::text || ' day(s) ','0 day(s) '),'' ) ||
+			to_char((now() - ews0.date_scheduled), 'HH24:MI')
+		else
+			'overdue: ' ||
+			coalesce( nullif( extract('day' from (now() - ews0.date_scheduled))::text || ' day(s) ','0 day(s) '),'' ) ||
+			to_char(now() - ews0.date_scheduled, 'HH24:MI')			
+		end as next_diff,
 	spell.ews_frequency as frequency,
 	case
 		when ews1.id is null then 'none'
