@@ -1,11 +1,10 @@
 import erppeek
 
 full_demo = False
-demo_modules = []
-install_modules = ['t4clinical_demo']
-run_list = [{'module': 'demo', 'method': 'scenario2', 'args': [], 'kwargs':{}}]
+demo_modules = ['t4clinical_activity_types']
+install_modules = ['t4clinical_demo', 't4clinical_ui']
+run_list = [{'module': 'demo', 'method': 'scenario2', 'args': [], 'kwargs':{'rollback': False}}]
 
-rollback = False
 
 user = "admin"
 pwd = "admin"
@@ -36,7 +35,6 @@ demo_module_ids = client.search('ir.module.module', [['name','in',demo_modules]]
 client.write('ir.module.module', demo_module_ids, {'demo': 1})
 
 # run list FIXME: ignoring rollback argument...
-for run in run_list:
-    run['kwargs'].update({'rollback': rollback})
-    client.execute(run['module'], run['method'], *run['args'], **run['kwargs'])
-
+for r in run_list:
+    #r['kwargs'].update({'rollback': rollback})
+    client.execute(r['module'], r['method'], *r['args'], **r['kwargs'])

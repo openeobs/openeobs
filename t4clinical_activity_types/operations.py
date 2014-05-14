@@ -105,6 +105,9 @@ class t4_clinical_patient_placement(orm.Model):
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         # set spell location
         spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context=context)
+        except_if(not spell_activity_id, 
+                  cap="Spell in state 'started' is not found for pateint_id=%s" % placement_activity.data_ref.patient_id.id,
+                  msg="Placement can not be completed")
         # move to location
         move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,
                                                     {'parent_id': spell_activity_id,
@@ -112,7 +115,6 @@ class t4_clinical_patient_placement(orm.Model):
                                                     {'patient_id': placement_activity.data_ref.patient_id.id,
                                                      'location_id': placement_activity.data_ref.location_id.id})
         activity_pool.complete(cr, uid, move_activity_id)
-        #import pdb; pdb.set_trace()
         activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         # create EWS
         frequency = placement_activity.parent_id.data_ref.ews_frequency
