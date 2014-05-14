@@ -41,4 +41,15 @@
         ><img t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/female.png" t-att-alt="widget.string"/>
     </t>
 
+    <t t-name="t4_genderCell"
+        ><img t-if="male" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+        <img t-if="female" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="t4_trendCell"
+        ><img t-if="up" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/level-up.png" t-att-alt="widget.string"/>
+        <img t-if="down" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/level-down.png" t-att-alt="widget.string"/>
+        <img t-if="same" t-attf-src="#{prefix}/t4clinical_ui/static/src/img/icons/level-same.png" t-att-alt="widget.string"/>
+    </t>
+
 </templates>

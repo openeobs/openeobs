@@ -171,7 +171,8 @@ class t4_clinical_patient_observation_ews(orm.Model):
         case 3: high clinical risk
     """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123', 'frequencies': [720, 240, 60, 30],
-               'notifications': [[], ['Assess patient'], ['Urgently inform medical team'], ['Immediately inform medical team']]}
+               'notifications': [[], ['Assess patient'], ['Urgently inform medical team'], ['Immediately inform medical team']],
+               'risk': ['None', 'Low', 'Medium', 'High']}
     
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
@@ -206,7 +207,15 @@ class t4_clinical_patient_observation_ews(orm.Model):
 
             res[ews.id] = {'score': score, 'three_in_one': three_in_one}
             _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
-        return res    
+        return res
+
+    def _get_clinical_risk(self, cr, uid, ids, field_names, arg, context=None):
+        res = {}
+        for ews in self.browse(cr, uid, ids, context=context):
+            case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], ews.score)])
+            case = 2 if ews.three_in_one and case < 3 else case
+            res[ews.id] = self._POLICY['risk'][case]
+        return res
     
     _columns = {
         #'duration': fields.integer('Duration'),
@@ -235,7 +244,10 @@ class t4_clinical_patient_observation_ews(orm.Model):
         'niv_backup': fields.integer('NIV: Back-up rate (br/min)'),
         'niv_ipap': fields.integer('NIV: IPAP (cmH2O)'),
         'niv_epap': fields.integer('NIV: EPAP (cmH2O)'),
-        #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),        
+        #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),
+        'clinical_risk': fields.function(_get_clinical_risk, type='char', string='Clinical Risk', store={
+            't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['score', 'three_in_one'], 10)
+        })
     }
 
     def submit(self, cr, uid, activity_id, data_vals={}, context=None):
