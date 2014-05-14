@@ -25,7 +25,7 @@ class ActivityTypesTest(BaseTest):
         global cr, uid, \
                register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
                activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool, \
-               device_connect_pool, device_disconnect_pool
+               device_connect_pool, device_disconnect_pool, partner_pool
         
         cr, uid = self.cr, self.uid
 
@@ -40,6 +40,7 @@ class ActivityTypesTest(BaseTest):
         location_pool = self.registry('t4.clinical.location')
         pos_pool = self.registry('t4.clinical.pos')
         user_pool = self.registry('res.users')
+        partner_pool = self.registry('res.partner')
         imd_pool = self.registry('ir.model.data')
         device_connect_pool = self.registry('t4.clinical.device.connect')
         device_disconnect_pool = self.registry('t4.clinical.device.disconnect')
@@ -181,7 +182,14 @@ class ActivityTypesTest(BaseTest):
         self.assertTrue(admit_activity.pos_id,
                        "pos_id is not set after data submission!")
         self.assertTrue(not admit_activity.location_id,
-                       "location_id is set after data submission, but must be False!")        
+                       "location_id is set after data submission, but must be False!")   
+        for doctor in data['doctors']:
+            partner_ids = partner_pool.search(cr, uid, [['code','=',doctor['code']]])
+            self.assertTrue(len(partner_ids) == 1, "0 or more than 1 doctor with code. partner_ids = %s" % partner_ids)
+            if doctor['type'] == 'c':
+                self.assertTrue(admit_activity.data_ref.con_doctor_ids, "admit consultant ids")                 
+            else:
+                self.assertTrue(admit_activity.data_ref.ref_doctor_ids, "admit referrer ids")              
         # complete
         ##############
         self.complete(cr, env['adt_user_id'], admit_activity_id)
@@ -211,6 +219,13 @@ class ActivityTypesTest(BaseTest):
         self.assertTrue(admission_activity.parent_id.id == spell_activity_id,
                        "admission_activity.parent_id != spell_activity_id after adt.admit completion!")
         spell_activity = activity_pool.browse(cr, uid, spell_activity_id)
+        for doctor in data['doctors']:
+            if doctor['type']== 'c':
+                self.assertTrue(spell_activity.data_ref.con_doctor_ids,
+                                "consultant ids")                 
+            else:
+                self.assertTrue(spell_activity.data_ref.ref_doctor_ids,
+                                "referrer ids") 
         self.assertTrue(spell_activity.state == 'started',
                        "spell_activity.state != 'started' after adt.admit completion!")             
         self.assertTrue(spell_activity.patient_id.id == admit_activity.patient_id.id,

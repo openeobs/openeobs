@@ -7,7 +7,8 @@ from openerp import tools
 
 class t4_clinical_wardboard(orm.Model):
     _name = "t4.clinical.wardboard"
-    _inherits = {'t4.clinical.patient': 'patient_id'}
+    _inherits = {'t4.clinical.patient': 'patient_id',
+                 't4.clinical.spell': 'spell_activity_id'}
     _description = "Wardboard"
     _auto = False
     _table = "t4_clinical_wardboard"

@@ -16,7 +16,9 @@ class t4_clinical_spell(orm.Model):
         'pos_id': fields.many2one('t4.clinical.pos', 'Placement Location', required=True),
         'code': fields.text("Code"),
         'start_date': fields.datetime("ADT Start Date"),
-        'ews_frequency': fields.integer("EWS Frequency", help="EWS frequency in minutes")
+        'ews_frequency': fields.integer("EWS Frequency", help="EWS frequency in minutes"),
+        'ref_doctor_ids': fields.many2many('res.partner', 'ref_doctor_spell_rel', 'spell_id', 'doctor_id', "Referring Doctors"),
+        'con_doctor_ids': fields.many2many('res.partner', 'con_doctor_spell_rel', 'spell_id', 'doctor_id', "Consulting Doctors"),        
     }
     _defaults = {
          'code': lambda s, cr, uid, c: s.pool['ir.sequence'].next_by_code(cr, uid, 't4.clinical.spell', context=c),

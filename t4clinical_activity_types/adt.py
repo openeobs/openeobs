@@ -141,12 +141,17 @@ class t4_clinical_adt_patient_admit(orm.Model):
                         doctor_id > 1 and _logger.warn("More than one doctor found with code '%s' passed id=%s" 
                                                        % (d['code'], doctor_id[0]))
                         doctor_id = doctor_id[0]
-                    d['type'] == 'r' and ref_doctor_ids.append(doctor_id) or con_doctor_ids.append(doctor_id)
-                ref_doctor_ids and vals_copy.update({'ref_doctor_ids': [6, 0, [id for id in ref_doctor_ids]]})
-                con_doctor_ids and vals_copy.update({'con_doctor_ids': [6, 0, [id for id in con_doctor_ids]]})
+                    d['type'] == 'r' and ref_doctor_ids.append(doctor_id)
+                    d['type'] == 'c' and con_doctor_ids.append(doctor_id)
+                ref_doctor_ids and vals_copy.update({'ref_doctor_ids': [[4, id] for id in ref_doctor_ids]})
+                con_doctor_ids and vals_copy.update({'con_doctor_ids': [[4, id] for id in con_doctor_ids]})
             except:
-               _logger.warn("Can't evaluate 'doctors': %s" % (vals['doctors']))       
+                _logger.warn("Can't evaluate 'doctors': %s" % (vals['doctors']))   
+        activity_pool = self.pool['t4.activity']
+        activity = activity_pool.browse(cr, uid, activity_id)
+          
         super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals_copy, context)
+        self.write(cr, uid, activity.data_ref.id, vals_copy) 
         return res 
 
     def complete(self, cr, uid, activity_id, context=None):

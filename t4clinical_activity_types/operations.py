@@ -215,6 +215,16 @@ class t4_clinical_patient_admission(orm.Model):
            {'creator_id': activity_id},
            {'patient_id': admission.patient_id.id, 'location_id': admission.location_id.id, 'pos_id': admission.pos_id.id},
            context=None)
+        # copy doctors
+        #import pdb; pdb.set_trace()
+        if activity.creator_id.data_model == "t4.clinical.adt.patient.admit":
+            doctor_data = {
+                           'con_doctor_ids': [[4, d.id] for d in activity.creator_id.data_ref.con_doctor_ids],
+                           'ref_doctor_ids': [[4, d.id] for d in activity.creator_id.data_ref.ref_doctor_ids]
+                           }
+            print doctor_data
+            activity_pool.submit(cr, uid, spell_activity_id, doctor_data, context)
+            
         res[spell_pool._name] = spell_activity_id
         activity_pool.start(cr, SUPERUSER_ID, spell_activity_id, context)
         activity_pool.write(cr, SUPERUSER_ID, admission.activity_id.id, {'parent_id': spell_activity_id}, context)
