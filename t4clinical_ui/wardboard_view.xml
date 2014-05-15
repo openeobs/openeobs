@@ -163,7 +163,7 @@
                     <form string="Wardboard Form View" version="7.0" create="0">
                         <sheet>
                             <!--<button name="print_chart" string="Print" type="object" class="oe_highlight"/>-->
-                            <!--<field name="ews_ids" widget="t4_ewschart"/>-->
+                            <field name="ews_ids" widget="t4_ewschart"/>
                         </sheet>
                     </form>
                 </field>

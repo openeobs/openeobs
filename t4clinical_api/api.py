@@ -1,8 +1,20 @@
-from openerp.osv import orm, osv
+from openerp.osv import orm, osv, fields
+from datetime import datetime as dt, timedelta as td
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tools.translate import _
 import logging
 
 _logger = logging.getLogger(__name__)
+
+
+class t4_clinical_apikey(orm.Model):
+    _name = 't4.clinical.apikey'
+
+    _columns = {
+        'username': fields.char('Username', size=150, required=True),
+        'database': fields.char('Database', size=150, required=True),
+
+    }
 
 
 class t4_clinical_api(orm.AbstractModel):
@@ -71,3 +83,14 @@ class t4_clinical_api(orm.AbstractModel):
     # # # # # # #
     #  PATIENTS #
     # # # # # # #
+
+    def getActivitiesForPatient(self, cr, uid, patient_id, activity_type, start_date=dt.now()+td(days=-30),
+                                end_date=dt.now(), context=None):
+        if activity_type == 'ews':
+            model_pool = self.pool['t4.clinical.patient.observation.ews']
+        ids = model_pool.search(cr, uid, [
+            ('patient_id', '=', patient_id),
+            ('state', '=', 'completed'),
+            ('date_terminated', '>=', start_date.strftime(DTF)),
+            ('date_terminated', '<=', end_date.strftime(DTF))], context=context)
+        return model_pool.read(cr, uid, ids, [], context=context)
