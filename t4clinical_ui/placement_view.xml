@@ -1,0 +1,34 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_t4_clinical_placement_tree">
+            <field name="name">T4 Clinical Placement Tree View</field>
+            <field name="model">t4.clinical.placement</field>
+            <field name="arch" type="xml">
+                <tree string="T4 Clinical Placement Tree View" version="7.0" create="0">
+                    <button name="complete" type="object" string="Complete" class="oe_highlight" t4_icon="down-caret-1"/>
+                    <field name="location_id" />
+                    <field name="patient_id" />
+                    <field name="hospital_number" />
+                    <field name="pos_id" />
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_placements" >
+            <field name="name">Patient Placements</field>
+            <field name="res_model">t4.clinical.placement</field>
+            <field name="view_type">form</field>
+            <!--<field name="search_view_id" ref="t4activity.view_t4_activity_search"/>-->
+            <!--<field name="domain">[('data_model','=','t4.clinical.patient.placement'),('state','not in',['completed','cancelled'])]</field>-->
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_t4_clinical_placement_tree"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_wardboard_tree"/>
+            <field name="act_window_id" ref="action_wardboard"/>
+        </record>
+    </data>
+</openerp>

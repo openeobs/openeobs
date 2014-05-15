@@ -12,6 +12,7 @@
     'data': [
              'wardboard_view.xml',
              'workload_view.xml',
+             'placement_view.xml',
              'views.xml',
              'menuitem.xml',
              'ir.model.access.csv'],
