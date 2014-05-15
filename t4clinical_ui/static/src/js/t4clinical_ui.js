@@ -6,6 +6,28 @@ openerp.t4clinical_ui = function (instance) {
     var refresh_active_poc = false;
     var _t = instance.web._t;
 
+    instance.web.T4TreeView = instance.web.TreeView.extend({
+
+        activate: function (id) {
+            var self = this;
+            if ('t4_open_form' in this.dataset.context) {
+                var form_id = this.dataset.context['t4_open_form'];
+                return self.do_action({
+                    type: 'ir.actions.act_window',
+                    res_model: self.dataset.model,
+                    res_id: id,
+                    views: [[form_id, 'form']],
+                    target: 'current',
+                    view_id: form_id,
+                    context: this.dataset.context
+                });
+            }
+            return this._super(id);
+        }
+    });
+
+    instance.web.views.add('tree', 'instance.web.T4TreeView');
+
     instance.t4clinical_ui.Button = instance.web.list.Column.extend({
         format: function (row_data, options) {
             options = options || {};
