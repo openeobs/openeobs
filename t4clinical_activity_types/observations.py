@@ -216,6 +216,11 @@ class t4_clinical_patient_observation_ews(orm.Model):
             case = 2 if ews.three_in_one and case < 3 else case
             res[ews.id] = self._POLICY['risk'][case]
         return res
+
+    def _data2ews_ids(self, cr, uid, ids, context=None):
+        ews_pool = self.pool['t4.clinical.patient.observation.ews']
+        ews_ids = ews_pool.search(cr, uid, [('activity_id', 'in', ids)], context=context)
+        return ews_ids
     
     _columns = {
         #'duration': fields.integer('Duration'),
@@ -247,8 +252,14 @@ class t4_clinical_patient_observation_ews(orm.Model):
         #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),
         'clinical_risk': fields.function(_get_clinical_risk, type='char', string='Clinical Risk', store={
             't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['score', 'three_in_one'], 10)
+        }),
+        'order_by': fields.related('activity_id', 'date_terminated', type='datetime', string='Date Terminated', store={
+            't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['activity_id'], 10),
+            't4.activity.data': (_data2ews_ids, ['date_terminated'], 20)
         })
     }
+
+    _order = "order_by desc, id desc"
 
     def submit(self, cr, uid, activity_id, data_vals={}, context=None):
         vals = data_vals.copy()
