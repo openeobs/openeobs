@@ -86,8 +86,7 @@ class t4_clinical_api(orm.AbstractModel):
 
     def getActivitiesForPatient(self, cr, uid, patient_id, activity_type, start_date=dt.now()+td(days=-30),
                                 end_date=dt.now(), context=None):
-        if activity_type == 'ews':
-            model_pool = self.pool['t4.clinical.patient.observation.ews']
+        model_pool = self.pool['t4.clinical.patient.observation.'+activity_type]
         ids = model_pool.search(cr, uid, [
             ('patient_id', '=', patient_id),
             ('state', '=', 'completed'),
