@@ -448,7 +448,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         # environment
         pos1_env = self.create_pos_environment()
         # register
-        [self.adt_patient_register(env=pos1_env) for i in range(2)]
+        [self.adt_patient_register(env=pos1_env) for i in range(5)]
 
         # admit
         [self.adt_patient_admit(data_vals={'other_identifier':other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
@@ -479,8 +479,8 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
                                                                    }, env=pos1_env)
         
         # discharge
-        [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids'] 
-                                                                                   if fake.random_element(array=(True, False))]
+#         [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids'] 
+#                                                                                    if fake.random_element(array=(True, False))]
         
         
 

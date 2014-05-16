@@ -36,7 +36,63 @@ class t4_clinical_api(orm.AbstractModel):
         from pprint import pprint as pp
         pp(res)
         return res           
-            
+
+    def location_availability_map(self, cr, uid, 
+                                  ids=[], types=[], usages=[], codes=[],
+                                  occupied_range=[], capacity_range=[], available_range=[]):  
+        conditions = (ids, types, usages, codes)
+        where_list = []
+        ids and where_list.append("id in (%s)" % ','.join(ids))
+        types and where_list.append("type in ('%s')" % "','".join(types))
+        usages and where_list.append("usage in ('%s')" % "','".join(usages))
+        codes and where_list.append("code in ('%s')" % "','".join(codes))
+        occupied_range and where_list.append("occupied between %s and %s" % (occupied_range[0], occupied_range[1]))
+        capacity_range and where_list.append("capacity between %s and %s" % (capacity_range[0], capacity_range[1]))
+        available_range and where_list.append("available between %s and %s" % (available_range[0], available_range[1]))
+        where_clause = where_list and "where %s" % ' and '.join(where_list) or ""
+        #print where_clause     
+        sql = """
+            with
+                move_patient_date as (
+                    select 
+                        max(date_terminated) as max_date_terminated,
+                        m.patient_id
+                    from t4_clinical_patient_move m
+                    inner join t4_activity a on m.activity_id = a.id
+                    where a.state = 'completed'
+                    group by m.patient_id
+                ),
+                patient_per_location as (
+                    select 
+                        m.location_id,
+                        count(m.patient_id) as patient_qty
+                        
+                    from t4_clinical_patient_move m
+                    inner join t4_activity ma on m.activity_id = ma.id
+                    inner join move_patient_date ppd on ma.date_terminated = ppd.max_date_terminated and m.patient_id = ppd.patient_id
+                    inner join t4_activity sa on ma.parent_id = sa.id
+                    where sa.state = 'started'
+                    group by m.location_id
+                ),
+                avalibility_map as (
+                    select 
+                        l.id,
+                        l.code,
+                        l.type,
+                        l.usage,
+                        coalesce(ppl.patient_qty, 0) as occupied,
+                        coalesce(l.patient_capacity, 0) as capacity,
+                        coalesce(l.patient_capacity, 0) - coalesce(ppl.patient_qty, 0) as available
+                    from t4_clinical_location l
+                    left join patient_per_location ppl on l.id = ppl.location_id
+                )
+                
+            select * from avalibility_map %s """ % where_clause
+        cr.execute(sql)
+        res = {location['id']: location for location in cr.dictfetchall()}
+        return res
+        
+        
     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
         # all current patients
         spell_domain = [('state','=','started')]

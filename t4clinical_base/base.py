@@ -121,9 +121,15 @@ class t4_clinical_location(orm.Model):
         return res
     
     def _placement2location_id(self, cr, uid, ids, context=None):
-        placement_ids = self.search(cr, uid, [('data_model', '=', 't4.clinical.patient.placement')], context=context)
-        res = [p.data_ref.location_id.id for p in self.browse(cr, uid, placement_ids, context) if p.data_ref.location_id]
+        sql = """
+            select distinct m.location_id from t4_activity a
+            inner join t4_clinical_patient_move m on a.data_model = 't4.clinical.patient.move' and m.activity_id = a.id
+            where a.state = 'completed'     
+        """
+        cr.execute(sql)
+        res = [rec['location_id'] for rec in cr.dictfetchall()]
         return res
+
     
     def _get_patient_ids (self, cr, uid, ids, field, args, context=None):
         pass   
@@ -156,6 +162,7 @@ class t4_clinical_location(orm.Model):
         
     _defaults = {
         'active': True,
+        'patient_capacity': 1
     }
 
     def get_location_activity_ids(self, cr, uid, location_id, context=None):
@@ -170,39 +177,16 @@ class t4_clinical_location(orm.Model):
             data = data and data[0]
             data and data.activity_id and activity_ids.append(data.activity_id.id)
         return activity_ids
-
+    
+    
     def get_available_location_ids(self, cr, uid, usages=[], location_id=None, context=None):
-        """
-        beds not placed into and not in non-terminated placement Activities
-        """
-        #import pdb; pdb.set_trace()
-        domain = usages and [('usage','in',usages)] or []
-        location_id and  domain.append(('id','child_of',location_id)) 
-        location_pool = self.pool['t4.clinical.location']
-        location_ids = location_pool.search(cr, uid, domain)
-        # spell
-        spell_pool = self.pool['t4.clinical.spell']
-        domain = [('state','=','started'),('location_id','in',location_ids)]
-        spell_ids = spell_pool.search(cr, uid, domain)
-        current_patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
-        # placement
-        placement_pool = self.pool['t4.activity']
-   
-        # occupied: for each current patient last completed placement location
-        placement_ids = []
-        for patient_id in current_patient_ids:
-            placement_ids.extend(placement_pool.search(cr, uid, [('state','=','completed'),
-                                                                 ('patient_id','=',patient_id),
-                                                                 ('data_model', '=', 't4.clinical.patient.placement')],
-                                                  order="date_terminated desc", limit=1))
-        #import pdb; pdb.set_trace()
-        location_ids = placement_ids \
-                        and list(set(location_ids) - set([p.data_ref.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)])) \
-                        or []
-        _logger.info("get_available_location_ids \n location_ids: %s" % (location_ids))
-        _logger.info("get_available_location_ids \n occupied location_ids: %s" % ([p.data_ref.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
-        _logger.info("get_available_location_ids \n placement_ids: %s" % (placement_ids))
-        return location_ids
+          api_pool = self.pool['t4.clinical.api']  
+          location_map = api_pool.location_availability_map(cr, uid, 
+                                                            ids=[], types=[], usages=[], codes=[],
+                                                            occupied_range=[], capacity_range=[], available_range=[1,1])
+          res = [k for k,v in location_map.items()]
+          return res
+
 
     def activate_deactivate(self, cr, uid, location_id, context=None):
         location = self.browse(cr, uid, location_id[0], context=context)
