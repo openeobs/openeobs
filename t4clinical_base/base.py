@@ -34,9 +34,10 @@ class t4_clinical_device_type(orm.Model):
 
 class t4_clinical_device(orm.Model):
     _name = 't4.clinical.device'
-    _rec_name = 'type_id'
+    #_rec_name = 'type_id'
     _columns = {
         'type_id': fields.many2one('t4.clinical.device.type', "Device Type"),
+        'name': fields.related('type_id', 'name', type='text')
         
     }
 

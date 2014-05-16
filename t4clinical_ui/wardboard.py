@@ -24,7 +24,23 @@ class wardboard_patient_placement(orm.TransientModel):
                                                             'patient_id': wiz.patient_id.id
                                                            })
         self.pool['t4.activity'].complete(cr, uid, placement_activity_id, context)
-        
+
+class wardboard_device_session(orm.TransientModel):
+    _name = "wardboard.device.session"
+    _columns = {
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'device_id':  fields.many2one('t4.clinical.device',"Device"),
+    }
+    def do_start(self, cr, uid, ids, context=None):
+        wiz = self.browse(cr, uid, ids[0])
+        spell_activity_id = self.pool['t4.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
+        device_activity_id = self.pool['t4.clinical.device.session']\
+                                .create_activity(cr, uid, {'parent_id': spell_activity_id}, 
+                                                           {
+                                                            'patient_id': wiz.patient_id.id,
+                                                            'device_id': wiz.device_id.id
+                                                           })
+        self.pool['t4.activity'].start(cr, uid, device_activity_id, context)        
 
 class t4_clinical_wardboard(orm.Model):
     _name = "t4.clinical.wardboard"
@@ -70,9 +86,30 @@ class t4_clinical_wardboard(orm.Model):
         'o2target_string': fields.text("O2 Target"),
         'consultant_names': fields.text("Consulting Doctors"),
     }
-    def wardboard_patient_placement(self, cr, uid, ids, context=None):
+    
+    def start_device_session(self, cr, uid, ids, context=None):
         from pprint import pprint as pp
         print "ids: %s" % ids
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+        res_id = self.pool['wardboard.device.session'].create(cr, uid, 
+                                                        {
+                                                         'patient_id': wardboard.patient_id.id,
+                                                         'device_id': None
+                                                         })
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_device_session_form')[1]
+        return {
+            'name': "Start Device Session: %s" % wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'wardboard.device.session',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': view_id
+        }
+    
+    def wardboard_patient_placement(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
         # assumed that patient's placement is completed
         # parent location of bed is taken as ward
@@ -85,7 +122,6 @@ class t4_clinical_wardboard(orm.Model):
                                                          'bed_dst_location_id': None
                                                          })
         view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_patient_placement_form')[1]
-        print "view_id: ", view_id
         return {
             'name': "Move Patient: %s" % wardboard.full_name,
             'type': 'ir.actions.act_window',

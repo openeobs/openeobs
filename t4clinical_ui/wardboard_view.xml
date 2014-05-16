@@ -20,6 +20,17 @@
                     </form>
                 </field>
             </record>    
+            <record model="ir.ui.view" id="view_wardboard_device_session_form">
+                <field name="name">Wardboard Device Session</field>
+                <field name="model">wardboard.device.session</field>
+                <field name="arch" type="xml">
+                    <form string="Wardboard Device Session">
+							<field name="patient_id" readonly="1"/>
+							<field name="device_id" />
+						<button name="do_start" type="object" string="Start"/>
+                    </form>
+                </field>
+            </record>  
             <record model="ir.ui.view" id="view_wardboard_search">
                 <field name="name">Wardboard Search View</field>
                 <field name="model">t4.clinical.wardboard</field>
@@ -172,9 +183,27 @@
                                    </field>
                                 </page>
                                 <page string="Devices">
-                                    <group string="Device Sessions">
-                                    	<field name="device_session_ids" readonly="1" nolabel="1"/>
-                                   	</group>
+                                    	<group string="Active Device Sessions">
+                                    		<button name="start_device_session" type="object" string="Start Device Session"/>
+                                    		<newline/>
+	                                    	<field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
+ 	                                    		<tree>
+		                                    		<field name="device_id"/>
+		                                    		<field name="date_started"/>
+	                                    		</tree>
+	                                    	</field>
+	                                    </group>
+	                                    <newline/>
+	                                    <group string="Device Sessions History">
+	                                    	<field name="terminated_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','completed')]">
+	                                    		<tree>
+		                                    		<field name="device_id"/>
+		                                    		<field name="date_started"/>
+		                                    		<field name="date_terminated"/>
+		                                    		<field name="state"/>
+	                                    		</tree>
+	                                    	</field>
+	                                    </group>
                                 </page>
                             </notebook>
                         </sheet>
