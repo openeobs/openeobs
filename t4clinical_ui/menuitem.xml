@@ -10,7 +10,7 @@
         <menuitem name="Patient Placements"
                   id="menu_t4ui_left_placement"
                   parent="menu_t4ui_left_patient"
-                  action="action_show_patient_placements"
+                  action="action_show_placements"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Ward Management"
@@ -28,6 +28,12 @@
                   id="menu_t4ui_left_inactive_poc"
                   parent="menu_t4ui_left_ward"
                   action="action_show_inactive_locations"
+                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
+
+        <menuitem name="Points of Care Management"
+                  id="menu_t4ui_left_poc_management"
+                  parent="menu_t4ui_left_ward"
+                  action="action_show_poc_management"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
         
         <menuitem name="Administration"

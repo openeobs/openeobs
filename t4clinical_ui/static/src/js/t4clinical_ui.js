@@ -1,10 +1,33 @@
 openerp.t4clinical_ui = function (instance) {
 
     var QWeb = instance.web.qweb;
+    var printing = false;
     var timing, timing2, timing3;
     var refresh_placement = false;
     var refresh_active_poc = false;
     var _t = instance.web._t;
+
+    instance.web.T4TreeView = instance.web.TreeView.extend({
+
+        activate: function (id) {
+            var self = this;
+            if ('t4_open_form' in this.dataset.context) {
+                var form_id = this.dataset.context['t4_open_form'];
+                return self.do_action({
+                    type: 'ir.actions.act_window',
+                    res_model: self.dataset.model,
+                    res_id: id,
+                    views: [[form_id, 'form']],
+                    target: 'current',
+                    view_id: form_id,
+                    context: this.dataset.context
+                });
+            }
+            return this._super(id);
+        }
+    });
+
+    instance.web.views.add('tree', 'instance.web.T4TreeView');
 
     instance.t4clinical_ui.Button = instance.web.list.Column.extend({
         format: function (row_data, options) {
@@ -274,4 +297,123 @@ openerp.t4clinical_ui = function (instance) {
         },
     });
     instance.web.form.tags.add('button', 'instance.t4clinical_ui.WidgetButton');
+
+    instance.t4clinical_ui.EwsChartWidget = instance.web.form.AbstractField.extend({
+        template: 't4_ewschart',
+        className: 't4_ewschart',
+
+        init: function (field_manager, node) {
+            console.log("EWSCHART INIT");
+        	this._super(field_manager, node);
+            this.dataset = new instance.web.form.One2ManyDataSet(this, this.field.relation);
+            this.dataset.o2m = this;
+            this.dataset.parent_view = this.view;
+            this.dataset.child_name = this.name;
+            var self = this
+        },
+        start: function() {
+        	this._super();
+        	var self = this;
+
+            var svg = graph_lib.svg,
+                focus = graph_lib.focus,
+                context = graph_lib.context;
+            svg.focusOnly = false;
+
+            if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
+                printing = true;
+                graph_lib.svg.printing = true;
+            }
+
+
+            if(printing){
+                $(".oe_form_sheetbg").attr({"style": "display: inline; background : none;"});
+
+                $(".oe_form_sheet.oe_form_sheet_width").attr({"style" : "display : inline-block;"});
+
+                $(".oe_form_group>.oe_form_group_row:first-child").append($(".oe_form_group>.oe_form_group_row:last-child td:first-child"));
+                $(".oe_form_group>.oe_form_group_row:last-child").remove();
+                $(".oe_form_group>.oe_form_group_row td").attr({"style" : "width: 33%;"});
+
+                $(".oe_title label").remove();
+                $(".oe_title h1:first-child").attr({"style" : "display: inline;"});
+                $(".oe_title h1:first-child .oe_form_field").attr({"style" : "float: left; width: auto;"});
+                $(".oe_title h1:last-child span").attr({"style": "width: auto;"});
+            }
+            focus.graphs = null;
+            focus.graphs = new Array();
+            focus.tables = null;
+            focus.tables = new Array();
+
+            this.model = new instance.web.Model('t4.clinical.api');
+
+            var vid = this.view.dataset.context.active_id;
+            var plotO2 = false;
+            var start_date = new Date(0);
+            var end_date = new Date();
+            var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
+            var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
+
+            var recData = this.model.call('getActivitiesForPatient',[this.view.dataset.ids[0],'ews'], {context: this.view.dataset.context}).done(function(records){
+                if(records.length > 0){
+                    records = records.reverse();
+                    context.earliestDate = svg.startParse(records[0].date_terminated);
+                    context.now = svg.startParse(records[records.length-1].date_terminated);
+
+                    context.scoreRange = [  {"class": "green",s: 0,e: 5},
+                                {"class": "amber",s: 5,e: 7},
+                                {"class": "red",s: 7,e: 18} ];
+                    records.forEach(function(d){
+                        d.date_start = svg.startParse(d.date_terminated);
+                        if (d.flow_rate > -1){
+                            plotO2 = true;
+                            d.inspired_oxygen = "";
+                            d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
+                            d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
+                            if(d.cpap_peep > -1){
+                                d.inspired_oxygen += "CPAP PEEP: " + d.cpap_peep + "<br>";
+                            }else if(d.niv_backup > -1){
+                                d.inspired_oxygen += "NIV Backup Rate: " + d.niv_backup + "<br>";
+                                d.inspired_oxygen += "NIV EPAP: " + d.niv_epap + "<br>";
+                                d.inspired_oxygen += "NIV IPAP: " + d.niv_ipap + "<br>";
+                            }
+                        }
+                        if (d.indirect_oxymetry_spo2) {
+                                d.indirect_oxymetry_spo2_label = d.indirect_oxymetry_spo2 + "%";
+                        }
+                    });
+
+                    svg.data = records;
+                    focus.graphs.push({key: "respiration_rate",label: "RR",measurement: "/min",max: 60,min: 0,normMax: 20,normMin: 12});
+                    focus.graphs.push({key: "indirect_oxymetry_spo2",label: "Spo2",measurement: "%",max: 100,min: 70,normMax: 100,normMin: 96});
+                    focus.graphs.push({key: "body_temperature",label: "Temp",measurement: "°C",max: 50,min: 15,normMax: 37.1,normMin: 35});
+                    focus.graphs.push({key: "pulse_rate",label: "HR",measurement: "/min",max: 200,min: 30,normMax: 100,normMin: 50});
+                    focus.graphs.push({key: "blood_pressure",label: "BP",measurement: "mmHg",max: 260,min: 30,normMax: 150,normMin: 50});
+                    focus.tables.push({
+                        key: "avpu_text",
+                        label: "AVPU"
+                    });
+                    focus.tables.push({
+                        key: "indirect_oxymetry_spo2_label",
+                        label: "Oxygen saturation"
+                    });
+                    graph_lib.initGraph(18);
+                    if (plotO2==true){
+                        focus.tables.push({key:"inspired_oxygen", label:"Inspired oxygen"});
+                    }
+                    graph_lib.initTable();
+                    if(printing){
+                        window.print();
+                    }
+                    printing = false;
+                    graph_lib.svg.printing = false;
+
+                }else{
+                    d3.select(svg.el).append("text").text("No data available for this patient");
+                }
+            });
+        },
+    });
+
+    instance.web.form.widgets.add('t4_ewschart', 'instance.t4clinical_ui.EwsChartWidget');
 }

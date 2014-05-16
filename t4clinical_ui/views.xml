@@ -1,31 +1,6 @@
 <openerp>
     <data>
 
-        <!--Patient Placement View-->
-        <record model="ir.ui.view" id="view_t4_clinical_patient_placement_activity_tree">
-            <field name="name">T4 Clinical patient placement activity Tree View</field>
-            <field name="model">t4.activity</field>
-            <field name="arch" type="xml">
-                <tree string="T4 Clinical activity Tree View" version="7.0" create="0">
-                   <button name="complete_act_window" type="object" string="Complete" class="oe_highlight" t4_icon="down-caret-1"/>
-                   <field name="location_id" />
-                   <field name="patient_id" />
-                   <field name="pos_id" />
-                   <field name="user_ids"/>
-                </tree>
-            </field>
-        </record>
-
-        <record model="ir.actions.act_window" id="action_show_patient_placements" >
-            <field name="name">Patient Placements</field>
-            <field name="res_model">t4.activity</field>
-            <field name="view_type">form</field>
-            <field name="search_view_id" ref="t4activity.view_t4_activity_search"/>
-            <field name="domain">[('data_model','=','t4.clinical.patient.placement'),('state','not in',['completed','cancelled'])]</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_t4_clinical_patient_placement_activity_tree"/>
-        </record>
-
         <!--Active/Inactive Points of Care View-->
         <record model="ir.ui.view" id="view_active_locations_search">
             <field name="name">Active Locations Search View</field>
@@ -123,6 +98,45 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="base.view_users_form"/>
             <field name="act_window_id" ref="action_show_t4clinical_users"/>
+        </record>
+
+        <!--POC Management View-->
+        <record id="poc_management_tree_view" model="ir.ui.view">
+            <field name="name">Points of Care Management Tree View</field>
+            <field name="model">t4.clinical.location</field>
+            <field name="field_parent">child_ids</field>
+            <field name="arch" type="xml">
+                <tree toolbar="True" string="Points of Care Management">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="poc_management_form_view" model="ir.ui.view">
+            <field name="name">Points of Care Management Form View</field>
+            <field name="model">t4.clinical.location</field>
+            <field name="arch" type="xml">
+                <form string="Points of Care Management" version="7.0" create="0">
+                    <sheet>
+                        <group string="Point of Care Management">
+                            <field name="name" readonly="1"/>
+                            <field name="code" readonly="1"/>
+                        </group>
+                        <label for="user_ids" string="Responsible Users"/>
+                        <field name="user_ids"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_show_poc_management" model="ir.actions.act_window">
+            <field name="name">Points of Care Management</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">t4.clinical.location</field>
+            <field name="domain">[('parent_id','=',False)]</field>
+            <field name="view_type">tree</field>
+            <field name="view_id" ref="poc_management_tree_view"/>
+            <field name="context" eval="{'t4_open_form': ref('poc_management_form_view')}"/>
         </record>
     </data>
 </openerp>
