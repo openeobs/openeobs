@@ -3,16 +3,40 @@ from openerp.osv import orm, fields, osv
 import logging        
 _logger = logging.getLogger(__name__)
 from openerp import tools
+from openerp.addons.t4activity.activity import except_if
 
+class wardboard_patient_placement(orm.TransientModel):
+    _name = "wardboard.patient.placement"
+    _columns = {
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'ward_location_id':  fields.many2one('t4.clinical.location',"Ward"),
+        'bed_src_location_id':  fields.many2one('t4.clinical.location',"Source Bed"),
+        'bed_dst_location_id':  fields.many2one('t4.clinical.location',"Destination Bed")
+    }
+    def do_move(self, cr, uid, ids, context=None):
+        wiz = self.browse(cr, uid, ids[0])
+        spell_activity_id = self.pool['t4.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
+        placement_activity_id = self.pool['t4.clinical.patient.placement']\
+                                .create_activity(cr, uid, {'parent_id': spell_activity_id}, 
+                                                           {
+                                                            'suggested_location_id': wiz.bed_dst_location_id.id,
+                                                            'location_id': wiz.bed_dst_location_id.id,
+                                                            'patient_id': wiz.patient_id.id
+                                                           })
+        self.pool['t4.activity'].complete(cr, uid, placement_activity_id, context)
+        
 
 class t4_clinical_wardboard(orm.Model):
     _name = "t4.clinical.wardboard"
-    _inherits = {'t4.clinical.patient': 'patient_id',
-                 't4.clinical.spell': 'spell_activity_id'}
+    _inherits = {
+                 't4.clinical.patient': 'patient_id',
+#                 't4.clinical.spell': 'spell_activity_id'
+    }
     _description = "Wardboard"
     _auto = False
     _table = "t4_clinical_wardboard"
     _trend_strings = [('up','up'), ('down','down'), ('same','same'), ('none','none'), ('one','one')]
+    _rec_name = 'full_name'
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         'spell_activity_id': fields.many2one('t4.activity', 'Spell Activity'),
@@ -36,8 +60,36 @@ class t4_clinical_wardboard(orm.Model):
         'o2target_min': fields.integer("O2 Target Min"),
         'o2target_max': fields.integer("O2 Target Max"),
         'o2target_string': fields.text("O2 Target"),
+        'consultant_names': fields.text("Consulting Doctors"),
     }
-
+    def wardboard_patient_placement(self, cr, uid, ids, context=None):
+        from pprint import pprint as pp
+        print "ids: %s" % ids
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+        # assumed that patient's placement is completed
+        # parent location of bed is taken as ward
+        except_if(wardboard.location_id.usage != 'bed', msg="Patient must be placed to bed before moving!")
+        res_id = self.pool['wardboard.patient.placement'].create(cr, uid, 
+                                                        {
+                                                         'patient_id': wardboard.patient_id.id,
+                                                         'ward_location_id': wardboard.location_id.parent_id.id,
+                                                         'bed_src_location_id': wardboard.location_id.id,
+                                                         'bed_dst_location_id': None
+                                                         })
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_patient_placement_form')[1]
+        print "view_id: ", view_id
+        return {
+            'name': "Move Patient: %s" % wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'wardboard.patient.placement',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': view_id
+        }
+        
     def wardboard_chart(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
@@ -61,7 +113,7 @@ class t4_clinical_wardboard(orm.Model):
 
     def wardboard_ews(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
-
+        import pdb; pdb.set_trace()
         return {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -122,6 +174,15 @@ completed_o2target as(
         inner join t4_activity activity on o2target.activity_id = activity.id
         inner join t4_clinical_o2level level on level.id = o2target.level_id
         where activity.state = 'completed'
+        ),
+cosulting_doctors as(
+        select 
+            spell.id as spell_id,
+            array_to_string(array_agg(doctor.name), ' / ') as names    
+        from t4_clinical_spell spell
+        inner join con_doctor_spell_rel on con_doctor_spell_rel.spell_id = spell.id
+        inner join res_partner doctor on con_doctor_spell_rel.doctor_id = doctor.id
+        group by spell.id
         )
 select 
     spell.patient_id as id,
@@ -167,7 +228,8 @@ select
     height_ob.height,
     o2target_ob.min as o2target_min,
     o2target_ob.max as o2target_max,
-    o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string
+    o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string,
+    cosulting_doctors.names as consultant_names
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
 inner join t4_clinical_patient patient on spell.patient_id = patient.id
@@ -177,7 +239,7 @@ left join (select id, score, patient_id, rank from completed_ews where rank = 2)
 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
-
+left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
 where spell_activity.state = 'started'
 )
         """ % (self._table, self._table))

@@ -122,7 +122,7 @@ class t4_clinical_location(orm.Model):
     
     def _placement2location_id(self, cr, uid, ids, context=None):
         placement_ids = self.search(cr, uid, [('data_model', '=', 't4.clinical.patient.placement')], context=context)
-        res = [p.data_ref.location_id.id if p.data_ref.location_id else False for p in self.browse(cr, uid, placement_ids, context)]
+        res = [p.data_ref.location_id.id for p in self.browse(cr, uid, placement_ids, context) if p.data_ref.location_id]
         return res
     
     def _get_patient_ids (self, cr, uid, ids, field, args, context=None):
@@ -186,12 +186,22 @@ class t4_clinical_location(orm.Model):
         spell_ids = spell_pool.search(cr, uid, domain)
         current_patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
         # placement
-        placement_pool = self.pool['t4.clinical.patient.placement']
-        domain = [('state','=','completed'),('patient_id','in',current_patient_ids)]    
-        placement_ids = placement_pool.search(cr, uid, domain)
-        if placement_ids:
-            location_ids = list(set(location_ids) - set([p.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
-        #_logger.info("get_available_location_ids \n location_ids: %s" % (location_ids))
+        placement_pool = self.pool['t4.activity']
+   
+        # occupied: for each current patient last completed placement location
+        placement_ids = []
+        for patient_id in current_patient_ids:
+            placement_ids.extend(placement_pool.search(cr, uid, [('state','=','completed'),
+                                                                 ('patient_id','=',patient_id),
+                                                                 ('data_model', '=', 't4.clinical.patient.placement')],
+                                                  order="date_terminated desc", limit=1))
+        #import pdb; pdb.set_trace()
+        location_ids = placement_ids \
+                        and list(set(location_ids) - set([p.data_ref.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)])) \
+                        or []
+        _logger.info("get_available_location_ids \n location_ids: %s" % (location_ids))
+        _logger.info("get_available_location_ids \n occupied location_ids: %s" % ([p.data_ref.location_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]))
+        _logger.info("get_available_location_ids \n placement_ids: %s" % (placement_ids))
         return location_ids
 
     def activate_deactivate(self, cr, uid, location_id, context=None):

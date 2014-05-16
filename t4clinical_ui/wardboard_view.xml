@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+            <record model="ir.ui.view" id="view_wardboard_patient_placement_form">
+                <field name="name">Wardboard Patient Palcement</field>
+                <field name="model">wardboard.patient.placement</field>
+                <field name="arch" type="xml">
+                    <form string="Wardboard Patient Placement">
+						<!-- <field name="patient_id" readonly="1"/> -->
+						<group string="From" colspan="4" col="2">
+							<field name="ward_location_id" readonly="1"/>
+							<field name="bed_src_location_id" readonly="1" />
+						</group>
+						<group string="To" colspan="4" col="2">
+							<field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
+									                                             ('id','!=',ward_location_id),
+									                                             ('id','!=',bed_src_location_id)]"/>
+						</group>
+						<button name="do_move" type="object" string="Move"/>
+                    </form>
+                </field>
+            </record>    
             <record model="ir.ui.view" id="view_wardboard_search">
                 <field name="name">Wardboard Search View</field>
                 <field name="model">t4.clinical.wardboard</field>
@@ -36,7 +55,7 @@
                        <field name="ews_score_string" />
                        <field name="clinical_risk" invisible="1"/>
                        <field name="ews_trend_string"  widget="t4_scoretrend"/>
-                       <field name="con_doctor_ids" />
+                       <field name="consultant_names" />
                     </tree>
                 </field>
             </record>
@@ -51,13 +70,16 @@
                             <div class="oe_title">
                                 <label string="Name" for="full_name"/>
                                 <h1><field name="full_name" readonly="True"/></h1>
+                            	<button name="wardboard_patient_placement" string="Move Patient"  type="object" class="oe_highlight" />
                             </div>
+                            
                             <group>
                                 <group string="Personal Information">
                                     <field name="middle_names" readonly="True"/>
                                     <field name="dob" readonly="True" widget="date"/>
                                     <field name="age" readonly="True"/>
                                     <field name="sex" readonly="True"/>
+                            		
                                 </group>
                                 <group string="Hospital Information">
                                 	<field name="spell_date_started" readonly="True"/>

@@ -448,7 +448,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         # environment
         pos1_env = self.create_pos_environment()
         # register
-        [self.adt_patient_register(env=pos1_env) for i in range(8)]
+        [self.adt_patient_register(env=pos1_env) for i in range(2)]
 
         # admit
         [self.adt_patient_admit(data_vals={'other_identifier':other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]

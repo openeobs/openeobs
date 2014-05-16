@@ -106,7 +106,7 @@ class t4_clinical_patient_placement(orm.Model):
         # set spell location
         spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context=context)
         except_if(not spell_activity_id, 
-                  cap="Spell in state 'started' is not found for pateint_id=%s" % placement_activity.data_ref.patient_id.id,
+                  cap="Spell in state 'started' is not found for patient_id=%s" % placement_activity.data_ref.patient_id.id,
                   msg="Placement can not be completed")
         # move to location
         move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,

@@ -42,6 +42,15 @@ completed_o2target as(
 		inner join t4_activity activity on o2target.activity_id = activity.id
 		inner join t4_clinical_o2level level on level.id = o2target.level_id
 		where activity.state = 'completed'
+		),
+cosulting_doctors as(
+		select 
+			spell.id as spell_id,
+			array_to_string(array_agg(doctor.name), ' / ') as names	
+		from t4_clinical_spell spell
+		inner join con_doctor_spell_rel on con_doctor_spell_rel.spell_id = spell.id
+		inner join res_partner doctor on con_doctor_spell_rel.doctor_id = doctor.id
+		group by spell.id
 		)
 select 
 	spell.patient_id as id,
@@ -87,7 +96,8 @@ select
 	height_ob.height,
 	o2target_ob.min as o2target_min,
 	o2target_ob.max as o2target_max,
-	o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string
+	o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string,
+	cosulting_doctors.names as consultant_names
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
 inner join t4_clinical_patient patient on spell.patient_id = patient.id
@@ -97,5 +107,5 @@ left join (select id, score, patient_id, rank from completed_ews where rank = 2)
 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
-
+left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
 where spell_activity.state = 'started'
