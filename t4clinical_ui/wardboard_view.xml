@@ -69,6 +69,8 @@
                         <header>
                             <button name="wardboard_patient_placement" string="Move Patient"  type="object"/>
                             <button name="print_report" string="Print Report" type="object"/>
+                            <button name="wardboard_weight_chart" string="Weight Chart" type="object"/>
+                            <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object"/>
                         </header>
                         <sheet>
                             <div class="oe_title">
@@ -134,9 +136,6 @@
                                             </form>
                                        </field>
                                     </div>
-                                    <group string="EWS">
-                                    	<field name="ews_ids" readonly="1" nolabel="1"/>
-                                   	</group>
                                     <div>
                                         <label for="o2target_ids" string="O2 Target History:"/>
                                         <field name="o2target_ids" readonly="1">
@@ -187,10 +186,34 @@
                 <field name="name">Wardboard Chart Form View</field>
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
-                    <form string="Wardboard Form View" version="7.0" create="0">
+                    <form string="Wardboard EWS Chart Form View" version="7.0" create="0">
                         <sheet>
                             <button name="print_chart" string="Print" type="object" class="oe_highlight"/>
                             <field name="ews_ids" widget="t4_ewschart"/>
+                        </sheet>
+                    </form>
+                </field>
+            </record>
+
+            <record model="ir.ui.view" id="view_wardboard_weight_chart_form">
+                <field name="name">Wardboard Weight Chart Form View</field>
+                <field name="model">t4.clinical.wardboard</field>
+                <field name="arch" type="xml">
+                    <form string="Wardboard Weight Chart Form View" version="7.0" create="0">
+                        <sheet>
+                            <field name="weight_ids" widget="t4_weightchart"/>
+                        </sheet>
+                    </form>
+                </field>
+            </record>
+
+            <record model="ir.ui.view" id="view_wardboard_bs_chart_form">
+                <field name="name">Wardboard Blood Sugar Chart Form View</field>
+                <field name="model">t4.clinical.wardboard</field>
+                <field name="arch" type="xml">
+                    <form string="Wardboard Blood Sugar Chart Form View" version="7.0" create="0">
+                        <sheet>
+                            <field name="blood_sugar_ids" widget="t4_bschart"/>
                         </sheet>
                     </form>
                 </field>

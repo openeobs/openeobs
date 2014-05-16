@@ -65,4 +65,14 @@
         </div>
     </div>
 
+    <div t-name="t4_bschart" class="t4_ewschart">
+        <h3 id="chartTitle">Blood Sugar</h3>
+        <div id="focusChart" class="chart"></div>
+    </div>
+
+    <div t-name="t4_weightchart" class="t4_ewschart">
+        <h3 id="chartTitle">Weight</h3>
+        <div id="focusChart" class="chart"></div>
+    </div>
+
 </templates>
