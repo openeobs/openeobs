@@ -1,3 +1,8 @@
 .openerp .oe_list_content > tbody > tr > td.oe_list_field_cell {
     white-space: inherit !important;
 }
+
+.oe_company_logo {
+    float: right;
+    width: 40%;
+}

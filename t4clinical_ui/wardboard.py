@@ -37,8 +37,16 @@ class t4_clinical_wardboard(orm.Model):
     _table = "t4_clinical_wardboard"
     _trend_strings = [('up','up'), ('down','down'), ('same','same'), ('none','none'), ('one','one')]
     _rec_name = 'full_name'
+
+    def _get_logo(self, cr, uid, ids, fields_name, arg, context=None):
+        res = {}
+        for board in self.browse(cr, uid, ids, context=context):
+            res[board.id] = board.patient_id.partner_id.company_id.logo
+        return res
+
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
         'spell_activity_id': fields.many2one('t4.activity', 'Spell Activity'),
         'spell_date_started': fields.datetime('Spell Start Date'),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
@@ -98,7 +106,6 @@ class t4_clinical_wardboard(orm.Model):
         if not model_data_ids:
             pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
-        print view_id
         return {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -113,7 +120,6 @@ class t4_clinical_wardboard(orm.Model):
 
     def wardboard_ews(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
-        import pdb; pdb.set_trace()
         return {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -123,6 +129,48 @@ class t4_clinical_wardboard(orm.Model):
             'domain': [('patient_id', '=', wardboard.patient_id.id), ('state', '=', 'completed')],
             'target': 'new',
             'context': context
+        }
+
+    def print_chart(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+
+        model_data_pool = self.pool['ir.model.data']
+        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_print_chart_form')], context=context)
+        if not model_data_ids:
+            pass
+        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
+        context.update({'printing': 'true'})
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.clinical.wardboard',
+            'res_id': ids[0],
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'inline',
+            'context': context,
+            'view_id': int(view_id)
+        }
+
+    def print_report(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+
+        model_data_pool = self.pool['ir.model.data']
+        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_print_report_form')], context=context)
+        if not model_data_ids:
+            pass
+        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
+        context.update({'printing': 'true'})
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.clinical.wardboard',
+            'res_id': ids[0],
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'inline',
+            'context': context,
+            'view_id': int(view_id)
         }
 
     def init(self, cr):
