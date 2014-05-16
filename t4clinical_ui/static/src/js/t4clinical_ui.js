@@ -416,4 +416,131 @@ openerp.t4clinical_ui = function (instance) {
     });
 
     instance.web.form.widgets.add('t4_ewschart', 'instance.t4clinical_ui.EwsChartWidget');
+
+    instance.t4clinical_ui.BloodSugarChartWidget = instance.web.form.AbstractField.extend({
+        template: 't4_bschart',
+        className: 't4_ewschart',
+
+
+        init: function (field_manager, node) {
+            console.log("SUGARCHART INIT");
+        	this._super(field_manager, node);
+            this.dataset = new instance.web.form.One2ManyDataSet(this, this.field.relation);
+            this.dataset.o2m = this;
+            this.dataset.parent_view = this.view;
+            this.dataset.child_name = this.name;
+            var self = this
+        },
+        start: function() {
+        	this._super();
+        	var self = this;
+
+            var svg = graph_lib.svg,
+                focus = graph_lib.focus,
+                context = graph_lib.context;
+
+            focus.graphs = null;
+            focus.graphs = new Array();
+            focus.tables = null;
+            focus.tables = new Array();
+
+            var vid = this.view.dataset.context.active_id;
+            var start_date = new Date(0);
+            var end_date = new Date();
+            this.model = new instance.web.Model('t4.clinical.api');
+            var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
+            var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
+
+            var recData = this.model.call('getActivitiesForPatient',[this.view.dataset.ids[0],'blood_sugar'], {context: this.view.dataset.context}).done(function(records){
+                if(records.length > 0){
+                    //records = records.reverse();
+                    context.earliestDate = svg.startParse(records[0].date_terminated);
+                    context.now = svg.startParse(records[records.length-1].date_terminated);
+                    context.scoreRange = [];
+
+                    records.forEach(function(d){
+                        d.date_start = svg.startParse(d.date_terminated);
+                        d.score = d.blood_sugar;
+                        d.blood_sugar_null = false;
+                    });
+
+                    svg.data = records;
+                    svg.focusOnly = true;
+                    svg.el = '#focusChart'
+                    focus.graphs.push({key: "blood_sugar",label: "BS",measurement: "mmol/L",max: 8,min: 0,normMax: 7,normMin: 4});
+                    graph_lib.initGraph(18);
+                }else{
+                    d3.select(svg.el).append("text").text("No data available for this patient");
+                }
+            });
+        },
+    });
+
+    instance.web.form.widgets.add('t4_bschart', 'instance.t4clinical_ui.BloodSugarChartWidget');
+
+    instance.t4clinical_ui.WeightChartWidget = instance.web.form.AbstractField.extend({
+        template: 't4_weightchart',
+        className: 't4_ewschart',
+
+
+        init: function (field_manager, node) {
+            console.log("WEIGHTCHART INIT");
+        	this._super(field_manager, node);
+            this.dataset = new instance.web.form.One2ManyDataSet(this, this.field.relation);
+            this.dataset.o2m = this;
+            this.dataset.parent_view = this.view;
+            this.dataset.child_name = this.name;
+            var self = this
+        },
+        start: function() {
+        	this._super();
+        	var self = this;
+
+            var svg = graph_lib.svg,
+                focus = graph_lib.focus,
+                context = graph_lib.context;
+
+            focus.graphs = null;
+            focus.graphs = new Array();
+            focus.tables = null;
+            focus.tables = new Array();
+
+            var vid = this.view.dataset.context.active_id;
+            var height = this.view.dataset.context.height;
+            var start_date = new Date(0);
+            var end_date = new Date();
+            this.model = new instance.web.Model('t4.clinical.api');
+            var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
+            var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
+
+            var recData = this.model.call('getActivitiesForPatient',[this.view.dataset.ids[0],'weight'], {context: this.view.dataset.context}).done(function(records){
+                if(records.length > 0){
+                    //records = records.reverse();
+                    context.earliestDate = svg.startParse(records[0].date_terminated);
+                    context.now = svg.startParse(records[records.length-1].date_terminated);
+                    context.scoreRange = [];
+
+                    records.forEach(function(d){
+                        d.date_start = svg.startParse(d.date_terminated);
+                        d.score = d.weight;
+                        d.weight_null = false;
+                    });
+
+                    var wmin = (18*(height*height)).toFixed(0);
+                    var wmax = (25*(height*height)).toFixed(0);
+                    var wmax2 = (50*(height*height)).toFixed(0);
+
+                    svg.data = records;
+                    svg.focusOnly = true;
+                    svg.el = '#focusChart'
+                    focus.graphs.push({key: "weight",label: "W",measurement: "kg",max: wmax2,min: 2,normMax: wmax,normMin: wmin});
+                    graph_lib.initGraph(18);
+                }else{
+                    d3.select(svg.el).append("text").text("No data available for this patient");
+                }
+            });
+        },
+    });
+
+    instance.web.form.widgets.add('t4_weightchart', 'instance.t4clinical_ui.WeightChartWidget');
 }

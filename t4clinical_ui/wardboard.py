@@ -154,6 +154,48 @@ class t4_clinical_wardboard(orm.Model):
             'view_id': int(view_id)
         }
 
+    def wardboard_weight_chart(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+
+        model_data_pool = self.pool['ir.model.data']
+        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_weight_chart_form')], context=context)
+        if not model_data_ids:
+            pass
+        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
+
+        context.update({'height': wardboard.height})
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.clinical.wardboard',
+            'res_id': ids[0],
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': int(view_id)
+        }
+
+    def wardboard_bs_chart(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+
+        model_data_pool = self.pool['ir.model.data']
+        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_bs_chart_form')], context=context)
+        if not model_data_ids:
+            pass
+        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.clinical.wardboard',
+            'res_id': ids[0],
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': int(view_id)
+        }
+
     def wardboard_ews(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
         return {
