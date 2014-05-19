@@ -8,16 +8,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class t4_clinical_apikey(orm.Model):
-    _name = 't4.clinical.apikey'
-
-    _columns = {
-        'username': fields.char('Username', size=150, required=True),
-        'database': fields.char('Database', size=150, required=True),
-
-    }
-
-
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api'
     _inherit = 't4.clinical.api'
@@ -42,11 +32,33 @@ class t4_clinical_api(orm.AbstractModel):
         domain = [('other_identifier', '=', hospital_number)]
         return patient_pool.search(cr, uid, domain, context=context)
 
+    def _cancel_activity(self, cr, uid, patient_id, activity_type, context=None):
+        if not self._check_hospital_number(cr, uid, patient_id, context=context):
+            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        activity_pool = self.pool['t4.activity']
+        domain = [('data_model', '=', activity_type), ('state', '=', 'completed')]
+        admit_activity = activity_pool.search(cr, uid, domain, order='date_terminated desc', context=context)
+        return activity_pool.cancel(cr, uid, admit_activity[0], context=context)
+
+    def _frequency(self, cr, uid, patient_id, activity_type, operation, data=None, context=None):
+        if not activity_type:
+            raise osv.except_osv(_('Error!'), 'Activity type not valid')
+        field_name = activity_type+'_frequency'
+        spell_pool = self.pool['t4.clinical.spell']
+        domain = [('patient_id', '=', patient_id), ('state', 'not in', ['completed', 'cancelled'])]
+        spell_ids = spell_pool.search(cr, SUPERUSER_ID, domain, context=context)
+        if not spell_ids:
+            raise osv.except_osv(_('Error!'), 'Spell not found')
+        if operation == 'get':
+            return spell_pool.read(cr, SUPERUSER_ID, spell_ids, [field_name], context=context)
+        else:
+            return spell_pool.write(cr, SUPERUSER_ID, spell_ids, {field_name: data['frequency']}, context=context)
+
     # # # # # # # #
     #  ACTIVITIES #
     # # # # # # # #
 
-    def getActivities(self, cr, uid, ids, context=None):
+    def get_activities(self, cr, uid, ids, context=None):
         """
         Return a list of activities in dictionary format (containing every field from the table)
         :param ids: ids of the activities we want. If empty returns all activities.
@@ -94,7 +106,7 @@ class t4_clinical_api(orm.AbstractModel):
     #  PATIENTS #
     # # # # # # #
 
-    def getPatients(self, cr, uid, ids, context=None):
+    def get_patients(self, cr, uid, ids, context=None):
         """
         Return a list of patients in dictionary format (containing every field from the table)
         :param ids: ids of the patients we want. If empty returns all patients.
@@ -138,6 +150,9 @@ class t4_clinical_api(orm.AbstractModel):
         _logger.info("Patient admitted\n data: %s" % data)
         return True
 
+    def cancel_admit(self, cr, uid, patient_id, context=None):
+        return self._cancel_activity(cr, uid, patient_id, 't4.clinical.adt.patient.admit', context=context)
+
     def discharge(self, cr, uid, patient_id, context=None):
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
@@ -146,6 +161,9 @@ class t4_clinical_api(orm.AbstractModel):
         activity_pool.complete(cr, uid, discharge_activity, context=context)
         _logger.info("Patient discharged: %s" % patient_id)
         return True
+
+    def cancel_discharge(self, cr, uid, patient_id, context=None):
+        return self._cancel_activity(cr, uid, patient_id, 't4.clinical.adt.patient.discharge', context=context)
 
     def merge(self, cr, uid, patient_id, data, context=None):
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
@@ -169,7 +187,10 @@ class t4_clinical_api(orm.AbstractModel):
         _logger.info("Patient transferred\n data: %s" % data)
         return True
 
-    def getActivitiesForPatient(self, cr, uid, patient_id, activity_type, start_date=dt.now()+td(days=-30),
+    def cancel_transfer(self, cr, uid, patient_id, context=None):
+        return self._cancel_activity(cr, uid, patient_id, 't4.clinical.adt.patient.transfer', context=context)
+
+    def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=dt.now()+td(days=-30),
                                 end_date=dt.now(), context=None):
         """
         Returns a list of activities in dictionary format (containing every field from the table)
@@ -188,7 +209,7 @@ class t4_clinical_api(orm.AbstractModel):
         ids = model_pool.search(cr, uid, domain, context=context)
         return model_pool.read(cr, uid, ids, [], context=context)
 
-    def createActivity(self, cr, uid, patient_id, activity_type, context=None):
+    def create_activity_for_patient(self, cr, uid, patient_id, activity_type, context=None):
         if not activity_type:
             raise osv.except_osv(_('Error!'), 'Activity type not valid')
         model_name = 't4.clinical.patient.observation.'+activity_type
@@ -202,4 +223,12 @@ class t4_clinical_api(orm.AbstractModel):
         if not any([r['perm_responsibility'] for r in rules_values]):
             raise osv.except_osv(_('Error!'), 'Access denied, the user is not responsible for this activity type')
         return self._create_activity(cr, SUPERUSER_ID, model_name, {}, {'patient_id': patient_id}, context=context)
+
+    def get_frequency(self, cr, uid, patient_id, activity_type, context=None):
+        return self._frequency(cr, uid, patient_id, activity_type, 'get', context=context)
+
+    def set_frequency(self, cr, uid, patient_id, activity_type, data, context=None):
+        return self._frequency(cr, uid, patient_id, activity_type, 'set', data=data, context=context)
+
+
 
