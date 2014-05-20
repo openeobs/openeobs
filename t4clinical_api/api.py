@@ -63,7 +63,7 @@ class t4_clinical_api(orm.AbstractModel):
         Return a list of activities in dictionary format (containing every field from the table)
         :param ids: ids of the activities we want. If empty returns all activities.
         """
-        domain = [('id', 'in', ids)] if ids else []
+        domain = [('id', 'in', ids)] if ids else [('state', 'not in', ['completed', 'cancelled'])]
         activity_pool = self.pool['t4.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_values = activity_pool.read(cr, uid, activity_ids, [], context=context)

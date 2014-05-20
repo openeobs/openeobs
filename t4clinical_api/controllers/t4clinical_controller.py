@@ -1,5 +1,6 @@
 import openerp.addons.web.http as http
 import openerp.modules.registry
+from openerp.service.http_server import OpenERPAuthProvider
 from openerp import SUPERUSER_ID
 from openerp.osv import osv
 from openerp.tools.translate import _
@@ -115,8 +116,8 @@ class T4clinicalController(http.Controller):
     def patients(self, req, **kw):
         dbname = self.get_dbname(req)
         registry = openerp.modules.registry.RegistryManager.get(dbname)
-        cr = registry.cursor()
-        uid = self.get_uid(req, registry)
+        cr = registry.db.cursor()
+        uid = self.get_uid(req)
         api = registry.get('t4.clinical.api')
         context = req.context
 
@@ -162,14 +163,16 @@ class T4clinicalController(http.Controller):
             if not params[3]:
                 # /api/patients/patient_id/activities/ or /api/patients/patient_id/activities/activity_type/
                 if method == 'GET':
-                    result = api.get_activities_for_patient(cr, uid, patient_id, activity_type, context)
+                    result = api.get_activities_for_patient(cr, uid, patient_id, activity_type, context=context)
                 elif method == 'POST':
                     result = api.create_activity_for_patient(cr, uid, patient_id, activity_type, context)
             elif params[3] == 'view':
+                # /api/patients/patient_id/activities/activity_type/view/
                 if method == 'GET':
                     # result = api.formDescription(cr, uid, patient_id, activity_type, context)
                     result = 1
             elif params[3] == 'frequency':
+                # /api/patients/patient_id/activities/activity_type/frequency/
                 if method == 'GET':
                     result = api.get_frequency(cr, uid, patient_id, activity_type, context)
                 elif method == 'POST':
