@@ -160,8 +160,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
         activity_pool = self.pool['t4.activity']
         admit_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
         admission_pool = self.pool['t4.clinical.patient.admission']
-        #import pdb; pdb.set_trace()
-        admission_activity_id = admission_pool.create_activity(cr, SUPERUSER_ID, 
+        admission_activity_id = admission_pool.create_activity(cr, SUPERUSER_ID,
                                        {'creator_id': activity_id}, 
                                        # FIXME! pos_id should be taken from adt_user.pos_id
                                        {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,
@@ -179,8 +178,26 @@ class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
     _inherit = ['t4.activity.data']      
     _columns = {
+        'other_identifier': fields.text('otherId', required=True),
     }
 
+    def complete(self, cr, uid, activity_id, context=None):
+        res = {}
+        super(t4_clinical_adt_patient_discharge, self).complete(cr, uid, activity_id, context)
+        activity_pool = self.pool['t4.activity']
+        patient_pool = self.pool['t4.clinical.patient']
+        discharge_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
+        patient_id = patient_pool.search(cr, SUPERUSER_ID, [('other_identifier', '=', discharge_activity.data_ref.other_identifier)], context=context)
+        except_if(not patient_id, msg="Patient not found!")
+        discharge_pool = self.pool['t4.clinical.patient.discharge']
+        discharge_activity_id = discharge_pool.create_activity(
+            cr, SUPERUSER_ID,
+            {'creator_id': activity_id},
+            {'patient_id': patient_id}, context=context)
+        res[discharge_pool._name] = discharge_activity_id
+        discharge_result = activity_pool.complete(cr, SUPERUSER_ID, discharge_activity_id, context=context)
+        res.update(discharge_result)
+        return res
 
 class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
