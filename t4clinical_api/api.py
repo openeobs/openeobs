@@ -124,10 +124,10 @@ class t4_clinical_api(orm.AbstractModel):
             self.register(cr, uid, patient_id, data, context=context)
         data.update({'other_identifier': patient_id})
         update_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.update', {}, {}, context=context)
-        activity_pool.submit(cr, uid, update_activity, data, context=context)
+        res = activity_pool.submit(cr, uid, update_activity, data, context=context)
         activity_pool.complete(cr, uid, update_activity, context=context)
         _logger.info("Patient updated\n data: %s" % data)
-        return True
+        return res
 
     def register(self, cr, uid, patient_id, data, context=None):
         activity_pool = self.pool['t4.activity']

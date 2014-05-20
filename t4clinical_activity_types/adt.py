@@ -257,4 +257,35 @@ class t4_clinical_adt_patient_update(orm.Model):
     _name = 't4.clinical.adt.patient.update'
     _inherit = ['t4.activity.data']      
     _columns = {
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
+        'patient_identifier': fields.text('patientId'),
+        'other_identifier': fields.text('otherId'),
+        'family_name': fields.text('familyName'),
+        'given_name': fields.text('givenName'),
+        'middle_names': fields.text('middleName'),
+        'dob': fields.datetime('DOB'),
+        'gender': fields.char('Gender', size=1),
+        'sex': fields.char('Sex', size=1),
     }
+
+    def submit(self, cr, uid, activity_id, vals, context=None):
+        vals_copy = vals.copy()
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)
+        except_if(not 'patient_identifier' in vals_copy.keys() and not 'other_identifier' in vals_copy.keys(),
+              msg="patient_identifier or other_identifier not found in submitted data!")
+        patient_pool = self.pool['t4.clinical.patient']
+        hospital_number = vals_copy.get('other_identifier')
+        nhs_number = vals_copy.get('patient_identifier')
+        if hospital_number:
+            patient_domain = [('other_identifier', '=', hospital_number)]
+            del vals_copy['other_identifier']
+        else:
+            patient_domain = [('patient_identifier', '=', nhs_number)]
+            del vals_copy['patient_identifier']
+        patient_id = patient_pool.search(cr, uid, patient_domain, context=context)
+        except_if(not patient_id, msg="Patient doesn't exist! Data: %s" % patient_domain)
+        res = patient_pool.write(cr, uid, patient_id, vals_copy, context=context)
+        vals_copy.update({'patient_id': patient_id, 'other_identifier': hospital_number, 'patient_identifier': nhs_number})
+        super(t4_clinical_adt_patient_update, self).submit(cr, uid, activity_id, vals_copy, context)
+        return res
