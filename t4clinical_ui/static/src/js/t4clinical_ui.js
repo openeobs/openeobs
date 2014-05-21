@@ -5,7 +5,9 @@ openerp.t4clinical_ui = function (instance) {
     var timing, timing2, timing3, timing4;
     var refresh_placement = false;
     var refresh_active_poc = false;
+    var wardboard_refreshed = false;
     var _t = instance.web._t;
+    var logout_timeout, session;
 
     instance.web.T4TreeView = instance.web.TreeView.extend({
 
@@ -106,6 +108,7 @@ openerp.t4clinical_ui = function (instance) {
                     timing = window.setInterval(function(){
                         var button =  $("a:contains('Wardboard')");
                         if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('oe_active') && $(".oe_view_manager_view_list").css('display') != 'none'){
+                            wardboard_refreshed = true;
                             button.click();
                         }
                     }, 300000);
@@ -153,6 +156,20 @@ openerp.t4clinical_ui = function (instance) {
                 }
             };
             this._super.apply(this, [parent, dataset, view_id, options]);
+
+            if (!wardboard_refreshed){
+                if (typeof(logout_timeout) != 'undefined'){
+                    clearInterval(logout_timeout);
+                }
+                session = this.session;
+                logout_timeout = window.setInterval(function(){
+                    session.session_logout().done(function(){
+                        location.reload();
+                    });
+                }, 1200000);
+            } else {
+                wardboard_refreshed = false;
+            }
 
         },
 
@@ -553,20 +570,21 @@ openerp.t4clinical_ui = function (instance) {
 
     instance.web.form.widgets.add('t4_weightchart', 'instance.t4clinical_ui.WeightChartWidget');
 
-    /*instance.t4clinical_ui.FormView = instance.web.FormView.extend({
+    instance.t4clinical_ui.FormView = instance.web.FormView.extend({
         init: function(parent, dataset, view_id, options) {
             this._super(parent, dataset, view_id, options);
-            if (typeof(this.ViewManager.dataset.context.printing) !== "undefined" && this.ViewManager.dataset.context.printing === "true"){
-                printing = true;
+            if (typeof(logout_timeout) != 'undefined'){
+                clearInterval(logout_timeout);
             }
-            this.has_been_loaded.then(function() {
-               if (printing === true) {
-                    window.print();
-                    printing = false;
-               }
-            });
+            session = this.session;
+            logout_timeout = window.setInterval(function(){
+                session.session_logout().done(function(){
+                    location.reload();
+                });
+            }, 1200000);
         }
     });
 
-    instance.web.views.add('form', 'instance.t4clinical_ui.FormView');*/
+    instance.web.views.add('form', 'instance.t4clinical_ui.FormView');
+
 }
