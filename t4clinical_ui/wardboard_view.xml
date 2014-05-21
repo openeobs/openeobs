@@ -76,7 +76,7 @@
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="priority">1</field>
                 <field name="arch" type="xml">
-                    <form string="Wardboard Form View" version="7.0" create="0">
+                    <form string="Wardboard Form View" version="7.0" create="0" delete="0">
                         <header>
                             <button name="wardboard_patient_placement" string="Move Patient"  type="object"/>
                             <button name="print_report" string="Print Report" type="object"/>
@@ -100,7 +100,7 @@
                                 </group>
                                 <group string="Hospital Information">
                                     <field name="location" readonly="True"/>
-                                    <field name="location_id" readonly="True"/>
+                                    <field name="location_id" readonly="True" invisible="1"/>
                                     <field name="other_identifier" readonly="True"/>
                                     <field name="patient_identifier" readonly="True"/>
                                 </group>
@@ -133,34 +133,43 @@
                                    </field>
                                 </page>
                                 <page string="Medical Details">
-                                    <group>
+                                    <group string="Height and Weight">
                                         <field name="height" string="Height (m)" readonly="1"/>
                                     </group>
-                                    <div>
-                                        <label for="weight_ids" string="Weights:"/>
-                                        <field name="weight_ids" readonly="1">
+                                    <group>
+                                        <field name="weight_ids" readonly="1" nolabel="1">
                                             <tree>
                                                 <field name="weight" />
+                                                <field name="date_terminated" string="Date"/>
                                             </tree>
                                             <form>
                                                 <field name="weight" />
+                                                <field name="date_terminated" string="Date"/>
                                             </form>
-                                       </field>
-                                    </div>
-                                    <div>
-                                        <label for="o2target_ids" string="O2 Target History:"/>
-                                        <field name="o2target_ids" readonly="1">
-                                            <tree>
-                                                <field name="level_id" />
-                                            </tree>
-                                            <form>
-                                                <field name="level_id" />
-                                            </form>
-                                       </field>
-                                    </div>
+                                        </field>
+                                    </group>
                                     <group string="Blood Sugar">
-                                    	<field name="blood_sugar_ids" readonly="1" nolabel="1"/>
+                                    	<field name="blood_sugar_ids" readonly="1" nolabel="1">
+                                            <tree>
+                                                <field name="blood_sugar"/>
+                                                <field name="date_terminated" string="Date"/>
+                                            </tree>
+                                            <form>
+                                                <field name="blood_sugar"/>
+                                                <field name="date_terminated" string="Date"/>
+                                            </form>
+                                        </field>
                                    	</group>
+                                    <group string="O2 Target History">
+                                        <field name="o2target_ids" nolabel="1" readonly="1">
+                                            <tree>
+                                                <field name="level_id" />
+                                            </tree>
+                                            <form>
+                                                <field name="level_id" />
+                                            </form>
+                                       </field>
+                                    </group>
                                     <group string="MRSA">
                                     	<field name="mrsa_ids" readonly="1" nolabel="1"/>
                                    	</group>
@@ -269,7 +278,7 @@
                                 </group>
                                 <group string="Hospital Information">
                                     <field name="location" readonly="1"/>
-                                    <field name="location_id" readonly="1"/>
+                                    <field name="location_id" readonly="1" invisible="1"/>
                                     <field name="other_identifier" readonly="1"/>
                                     <field name="patient_identifier" readonly="1"/>
                                 </group>
@@ -311,7 +320,7 @@
                                 </group>
                                 <group string="Hospital Information">
                                     <field name="location" readonly="1"/>
-                                    <field name="location_id" readonly="1"/>
+                                    <field name="location_id" readonly="1" invisible="1"/>
                                     <field name="other_identifier" readonly="1"/>
                                     <field name="patient_identifier" readonly="1"/>
                                 </group>
@@ -327,9 +336,20 @@
                                     <field name="spell_code" readonly="1"/>
                                 </group>
                             </group>
-                            <field name="ews_ids" widget="t4_ewschart"/>
-                            <!--ews list-->
-                            <!--devices historic log-->
+                            <field name="ews_ids" widget="t4_ewschart" nolabel="1"/>
+                            <group string="EWS List">
+                                <field name="ews_list_ids" nolabel="1" readonly="1"/>
+                            </group>
+                            <group string="Device Sessions History">
+                                <field name="terminated_device_session_ids" readonly="1" nolabel="1">
+                                    <tree>
+                                        <field name="device_id"/>
+                                        <field name="date_started"/>
+                                        <field name="date_terminated"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </group>
                         </sheet>
                     </form>
                 </field>

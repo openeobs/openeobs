@@ -2,7 +2,7 @@ openerp.t4clinical_ui = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing3;
+    var timing, timing2, timing3, timing4;
     var refresh_placement = false;
     var refresh_active_poc = false;
     var _t = instance.web._t;
@@ -325,7 +325,6 @@ openerp.t4clinical_ui = function (instance) {
                 graph_lib.svg.printing = true;
             }
 
-
             if(printing){
                 $(".oe_form_sheetbg").attr({"style": "display: inline; background : none;"});
 
@@ -403,10 +402,20 @@ openerp.t4clinical_ui = function (instance) {
                     }
                     graph_lib.initTable();
                     if(printing){
-                        window.print();
+                        if (typeof(timing4) != 'undefined'){
+                            clearInterval(timing4);
+                        }
+                        timing4 = window.setInterval(function(){
+                            if (printing){
+                                window.print();
+                                printing = false;
+                                graph_lib.svg.printing = false;
+                                clearInterval(timing4);
+                            }
+                        }, 1000);
                     }
-                    printing = false;
-                    graph_lib.svg.printing = false;
+                    /*printing = false;
+                    graph_lib.svg.printing = false;*/
 
                 }else{
                     d3.select(svg.el).append("text").text("No data available for this patient");
@@ -543,4 +552,21 @@ openerp.t4clinical_ui = function (instance) {
     });
 
     instance.web.form.widgets.add('t4_weightchart', 'instance.t4clinical_ui.WeightChartWidget');
+
+    /*instance.t4clinical_ui.FormView = instance.web.FormView.extend({
+        init: function(parent, dataset, view_id, options) {
+            this._super(parent, dataset, view_id, options);
+            if (typeof(this.ViewManager.dataset.context.printing) !== "undefined" && this.ViewManager.dataset.context.printing === "true"){
+                printing = true;
+            }
+            this.has_been_loaded.then(function() {
+               if (printing === true) {
+                    window.print();
+                    printing = false;
+               }
+            });
+        }
+    });
+
+    instance.web.views.add('form', 'instance.t4clinical_ui.FormView');*/
 }

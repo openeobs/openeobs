@@ -19,4 +19,5 @@ class t4_clinical_patient_extension(osv.Model):
         'terminated_device_session_ids': fields.one2many('t4.clinical.device.session', 'patient_id', 'Device Session History', domain=[('state','=','completed')]),
         'started_device_session_ids': fields.one2many('t4.clinical.device.session', 'patient_id', 'Active Device Sessions', domain=[('state','=','started')]),
         'ews_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS'),
+        'ews_list_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS List', domain=[('state','=','completed')])
     }
