@@ -205,16 +205,12 @@ class t4_clinical_patient_observation_ews(orm.Model):
             score += 3 if ews.avpu_text in ['V', 'P', 'U'] else 0
             three_in_one = True if ews.avpu_text in ['V', 'P', 'U'] else three_in_one
 
-            res[ews.id] = {'score': score, 'three_in_one': three_in_one}
-            _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
-        return res
+            case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], score)])
+            case = 2 if three_in_one and case < 3 else case
+            clinical_risk = self._POLICY['risk'][case]
 
-    def _get_clinical_risk(self, cr, uid, ids, field_names, arg, context=None):
-        res = {}
-        for ews in self.browse(cr, uid, ids, context=context):
-            case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], ews.score)])
-            case = 2 if ews.three_in_one and case < 3 else case
-            res[ews.id] = self._POLICY['risk'][case]
+            res[ews.id] = {'score': score, 'three_in_one': three_in_one, 'clinical_risk': clinical_risk}
+            _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res
 
     def _data2ews_ids(self, cr, uid, ids, context=None):
@@ -230,6 +226,9 @@ class t4_clinical_patient_observation_ews(orm.Model):
         'three_in_one': fields.function(_get_score, type='boolean', multi='score', string='3 in 1 flag', store= {
                        't4.clinical.patient.observation.ews': (lambda self,cr,uid,ids,ctx: ids, [], 10) # all fields of self
                          }),
+        'clinical_risk': fields.function(_get_score, type='char', multi='score', string='Clinical Risk', store={
+            't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, [], 10)
+        }),
         'respiration_rate': fields.integer('Respiration Rate'),
         'indirect_oxymetry_spo2': fields.integer('O2 Saturation'),
         'oxygen_administration_flag': fields.boolean('Oxygen Administration Flag'),
@@ -250,9 +249,6 @@ class t4_clinical_patient_observation_ews(orm.Model):
         'niv_ipap': fields.integer('NIV: IPAP (cmH2O)'),
         'niv_epap': fields.integer('NIV: EPAP (cmH2O)'),
         #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),
-        'clinical_risk': fields.function(_get_clinical_risk, type='char', string='Clinical Risk', store={
-            't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['score', 'three_in_one'], 10)
-        }),
         'order_by': fields.related('activity_id', 'date_terminated', type='datetime', string='Date Terminated', store={
             't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['activity_id'], 10),
             't4.activity.data': (_data2ews_ids, ['date_terminated'], 20)

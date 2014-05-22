@@ -263,38 +263,38 @@ completed_ews as(
             spell.patient_id,
             ews.score,
             ews.clinical_risk,
-            rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
         inner join t4_activity activity on ews.activity_id = activity.id
         where activity.state = 'completed'
         ),
 scheduled_ews as(
-        select 
+        select
             spell.patient_id,
             activity.date_scheduled,
-            rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
         inner join t4_activity activity on ews.activity_id = activity.id
         where activity.state = 'scheduled'
         ),
 completed_height as(
-        select 
+        select
             spell.patient_id,
             height.height,
-            rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_height height on height.patient_id = spell.patient_id
         inner join t4_activity activity on height.activity_id = activity.id
         where activity.state = 'completed'
         ),
 completed_o2target as(
-        select 
+        select
             spell.patient_id,
             level.min,
             level.max,
-            rank() over (partition by spell.patient_id order by activity.date_terminated, activity.id desc)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
         from t4_clinical_spell spell
         left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
         inner join t4_activity activity on o2target.activity_id = activity.id
@@ -347,8 +347,8 @@ select
         when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen. 
     end as ews_trend_string,
     case
-        when ews1.clinical_risk is not null then ews1.clinical_risk
-        when ews1.clinical_risk is null then 'None'
+        when ews1.id is null then 'None'
+        else ews1.clinical_risk
     end as clinical_risk,
     ews1.score - ews2.score as ews_trend,
     height_ob.height,
