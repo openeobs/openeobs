@@ -3,6 +3,7 @@
     <data>
         <menuitem name="Default T4Clinical" id="menu_t4ui_top_root" groups="t4clinical_base.group_t4clinical_base,base.user_root"/>
         <menuitem name="Patient Management"
+                  sequence="2"
                   id="menu_t4ui_left_patient"
                   parent="menu_t4ui_top_root"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
@@ -14,6 +15,7 @@
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Ward Management"
+                  sequence="3"
                   id="menu_t4ui_left_ward"
                   parent="menu_t4ui_top_root"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
@@ -48,7 +50,8 @@
                   groups="t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
     	<!-- WARDBOARD -->
-          <menuitem name="Wardboard" 
+          <menuitem name="Wardboard"
+            sequence="1"
           	id="menu_left_wardboard" 
           	parent="menu_t4ui_top_root"
           	action=""
