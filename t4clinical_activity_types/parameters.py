@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_o2level(orm.Model):
     _name = 't4.clinical.o2level'      
     _columns = {
-        'name': fields.integer("O2 Target Name"),
+        'name': fields.char("O2 Target Name", size=5),
         'min': fields.integer("Min"),
         'max': fields.integer("Max"),               
     }
