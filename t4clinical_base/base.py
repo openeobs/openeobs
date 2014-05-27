@@ -34,13 +34,23 @@ class t4_clinical_device_type(orm.Model):
 
 class t4_clinical_device(orm.Model):
     _name = 't4.clinical.device'
-    #_rec_name = 'type_id'
+    _rec_name = 'type_id'
     _columns = {
         'type_id': fields.many2one('t4.clinical.device.type', "Device Type"),
-        'name': fields.related('type_id', 'name', type='text')
+        'name': fields.related('type_id', 'name', type='text'),
+        'is_available': fields.boolean('Is Available?'),
         
     }
-
+    
+    _defaults = {
+         'is_available': True
+     }
+    
+    def name_get(self, cr, uid, ids, context=None):
+        res = []
+        for device in self.browse(cr, uid, ids, context):
+            res.append((device.id, device.type_id.name))
+        return res
 
 class t4_clinical_pos(orm.Model):
     """ Clinical point of service """

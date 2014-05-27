@@ -20,17 +20,34 @@
                     </form>
                 </field>
             </record>    
-            <record model="ir.ui.view" id="view_wardboard_device_session_form">
-                <field name="name">Wardboard Device Session</field>
-                <field name="model">wardboard.device.session</field>
+            <record model="ir.ui.view" id="view_wardboard_device_session_start_form">
+                <field name="name">Wardboard Device Session Start</field>
+                <field name="model">wardboard.device.session.start</field>
                 <field name="arch" type="xml">
                     <form string="Wardboard Device Session">
 							<field name="patient_id" readonly="1"/>
-							<field name="device_id" />
+							<field name="device_id" domain="[('is_available','=',1)]"/>
 						<button name="do_start" type="object" string="Start"/>
                     </form>
                 </field>
-            </record>  
+            </record>
+            <record model="ir.ui.view" id="view_wardboard_device_session_complete_form">
+                <field name="name">Wardboard Device Session Complete</field>
+                <field name="model">wardboard.device.session.complete</field>
+                <field name="arch" type="xml">
+                    <form string="Wardboard Device Session Compplete" version="7.0">
+                    	<field name="patient_id" invisible="1"/>
+                    	<group string="Select Device Sessions to Complete">
+							<field name="session_ids" domain="[('state','=','started'),('patient_id','=', patient_id)]" nolabel="1" nocreate="1">
+								<tree  nocreate="1">
+									<field name="device_id" />
+								</tree> 
+							</field>	   
+						</group>
+						<button name="do_complete" type="object" string="Complete"/>
+                    </form>
+                </field>
+            </record>            
             <record model="ir.ui.view" id="view_wardboard_search">
                 <field name="name">Wardboard Search View</field>
                 <field name="model">t4.clinical.wardboard</field>
@@ -118,25 +135,27 @@
                                         <field name="spell_code" readonly="1"/>
                                         <field name="spell_date_started" readonly="True"/>
                                     </group>
-                                    <label string="Previous admissions:" for="spell_ids"/>
-                                    <field name="spell_ids" readonly="1">
-                                        <tree>
-                                            <field name="code"/>
-                                            <field name="date_started"/>
-                                            <field name="location_id"/>
-                                        </tree>
-                                        <form>
-                                            <field name="code" />
-                                            <field name="date_started" />
-                                            <field name="location_id"/>
-                                        </form>
-                                   </field>
+                                    <group string="Previous admissions">
+	                                    <field name="spell_ids" readonly="1" nolabel="1">
+	                                        <tree>
+	                                            <field name="code"/>
+	                                            <field name="date_started"/>
+	                                            <field name="location_id"/>
+	                                        </tree>
+	                                        <form>
+	                                            <field name="code" />
+	                                            <field name="date_started" />
+	                                            <field name="location_id"/>
+	                                        </form>
+	                                   </field>
+                                   </group>
                                 </page>
                                 <page string="Medical Details">
-                                    <group string="Height and Weight">
-                                        <field name="height" string="Height (m)" readonly="1"/>
-                                    </group>
                                     <group>
+                                        <field name="height" string="Height (m)" readonly="1"/>
+                                        <field name="mrsa" readonly="1"/>
+                                    </group>                                    
+                                    <group string="Weight">
                                         <field name="weight_ids" readonly="1" nolabel="1">
                                             <tree>
                                                 <field name="weight" />
@@ -170,9 +189,6 @@
                                             </form>
                                        </field>
                                     </group>
-                                    <group string="MRSA">
-                                    	<field name="mrsa_ids" readonly="1" nolabel="1"/>
-                                   	</group>
                                    	<group string="Diabetes">
                                     	<field name="diabetes_ids" readonly="1" nolabel="1"/>
                                    	</group>
@@ -192,7 +208,10 @@
                                 </page>
                                 <page string="Devices">
                                     	<group string="Active Device Sessions">
-                                    		<button name="start_device_session" type="object" string="Start Device Session"/>
+                                    		<group>
+	                                    		<button name="device_session_start" type="object" string="Start Device Session"/>
+	                                    		<button name="device_session_complete" type="object" string="Complete Device Session"/>
+                                    		</group>
                                     		<newline/>
 	                                    	<field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
  	                                    		<tree>

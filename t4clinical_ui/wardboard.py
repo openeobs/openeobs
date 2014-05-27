@@ -25,8 +25,8 @@ class wardboard_patient_placement(orm.TransientModel):
                                                            })
         self.pool['t4.activity'].complete(cr, uid, placement_activity_id, context)
 
-class wardboard_device_session(orm.TransientModel):
-    _name = "wardboard.device.session"
+class wardboard_device_session_start(orm.TransientModel):
+    _name = "wardboard.device.session.start"
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
         'device_id':  fields.many2one('t4.clinical.device',"Device"),
@@ -41,6 +41,21 @@ class wardboard_device_session(orm.TransientModel):
                                                             'device_id': wiz.device_id.id
                                                            })
         self.pool['t4.activity'].start(cr, uid, device_activity_id, context)        
+
+class wardboard_device_session_complete(orm.TransientModel):
+    _name = "wardboard.device.session.complete"
+
+    _columns = {
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'session_ids': fields.many2many('t4.clinical.device.session', 'wiz_session_coplete_rel', 'wiz_id', 'session_id', 'Sessions'),
+    }   
+    
+    def do_complete(self, cr, uid, ids, context=None):
+        activity_pool = self.pool['t4.activity']
+        wiz = self.browse(cr, uid, ids[0])
+        for session in wiz.session_ids:
+            activity_pool.complete(cr, uid, session.activity_id.id, context)
+            
 
 class t4_clinical_wardboard(orm.Model):
     _name = "t4.clinical.wardboard"
@@ -80,6 +95,7 @@ class t4_clinical_wardboard(orm.Model):
         'ews_score': fields.integer("Latest Score"),
         'ews_trend_string': fields.selection(_trend_strings, "Score Trend String"),
         'ews_trend': fields.integer("Score Trend"),
+        'mrsa': fields.boolean("MRSA"),
         'height': fields.float("Height"),
         'o2target_min': fields.integer("O2 Target Min"),
         'o2target_max': fields.integer("O2 Target Max"),
@@ -87,20 +103,20 @@ class t4_clinical_wardboard(orm.Model):
         'consultant_names': fields.text("Consulting Doctors"),
     }
     
-    def start_device_session(self, cr, uid, ids, context=None):
+    def device_session_start(self, cr, uid, ids, context=None):
         from pprint import pprint as pp
         print "ids: %s" % ids
         wardboard = self.browse(cr, uid, ids[0], context=context)
-        res_id = self.pool['wardboard.device.session'].create(cr, uid, 
+        res_id = self.pool['wardboard.device.session.start'].create(cr, uid, 
                                                         {
                                                          'patient_id': wardboard.patient_id.id,
                                                          'device_id': None
                                                          })
-        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_device_session_form')[1]
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_device_session_start_form')[1]
         return {
             'name': "Start Device Session: %s" % wardboard.full_name,
             'type': 'ir.actions.act_window',
-            'res_model': 'wardboard.device.session',
+            'res_model': 'wardboard.device.session.start',
             'res_id': res_id,
             'view_mode': 'form',
             'view_type': 'form',
@@ -108,6 +124,23 @@ class t4_clinical_wardboard(orm.Model):
             'context': context,
             'view_id': view_id
         }
+
+    def device_session_complete(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+        res_id = self.pool['wardboard.device.session.complete'].create(cr, uid, {'patient_id': wardboard.patient_id.id})
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_device_session_complete_form')[1]
+        return {
+            'name': "Complete Device Session: %s" % wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'wardboard.device.session.complete',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': view_id
+        }
+
     
     def wardboard_patient_placement(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
@@ -270,7 +303,7 @@ completed_ews as(
         where activity.state = 'completed'
         ),
 scheduled_ews as(
-        select
+        select 
             spell.patient_id,
             activity.date_scheduled,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
@@ -279,8 +312,19 @@ scheduled_ews as(
         inner join t4_activity activity on ews.activity_id = activity.id
         where activity.state = 'scheduled'
         ),
-completed_height as(
+completed_mrsa as(
         select
+            mrsa.id,
+            spell.patient_id,
+            mrsa.mrsa,
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+        from t4_clinical_spell spell
+        left join t4_clinical_patient_mrsa mrsa on mrsa.patient_id = spell.patient_id
+        inner join t4_activity activity on mrsa.activity_id = activity.id
+        where activity.state = 'completed'
+        ),
+completed_height as(
+        select 
             spell.patient_id,
             height.height,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
@@ -290,7 +334,7 @@ completed_height as(
         where activity.state = 'completed'
         ),
 completed_o2target as(
-        select
+        select 
             spell.patient_id,
             level.min,
             level.max,
@@ -355,6 +399,7 @@ select
     o2target_ob.min as o2target_min,
     o2target_ob.max as o2target_max,
     o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string,
+    mrsa.mrsa,
     cosulting_doctors.names as consultant_names
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
@@ -363,6 +408,7 @@ left join t4_clinical_location location on location.id = spell.location_id
 left join (select id, score, patient_id, rank, clinical_risk from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
 left join (select id, score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
 left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
+left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id

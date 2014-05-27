@@ -12,10 +12,32 @@ class t4_clinical_device_session(orm.Model):
     _name = 't4.clinical.device.session'
     _description = 'Device Session'
     _inherit = ['t4.activity.data']
+    _rec_name = 'device_id'
     _columns = {
         'device_id': fields.many2one('t4.clinical.device', 'Device', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
     }
+    
+    def name_get(self, cr, uid, ids, context):
+        res = []
+        for session in self.browse(cr, uid, ids, context):
+            res.append((session.id, session.device_id.type_id.name))
+        return res
+    
+    def start(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context)
+        device_pool = self.pool['t4.clinical.device']
+        device_pool.write(cr, uid, activity.data_ref.device_id.id, {'is_available': False})
+        super(t4_clinical_device_session, self).start(cr, uid, activity_id, context)
+        
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context)
+        device_pool = self.pool['t4.clinical.device']
+        device_pool.write(cr, uid, activity.data_ref.device_id.id, {'is_available': True})
+        super(t4_clinical_device_session, self).complete(cr, uid, activity_id, context)        
+        
     
 class t4_clinical_device_connect(orm.Model):
     _name = 't4.clinical.device.connect'
