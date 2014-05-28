@@ -281,14 +281,26 @@ class t4_clinical_patient_observation_ews(orm.Model):
         hcagroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical HCA Group')])
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
+        spell_activity_id = activity.parent_id.id
+
+        # TRIGGER NOTIFICATIONS
         if group == 'hca':
-            hca_pool.create_activity(cr,  SUPERUSER_ID, {'summary': 'Inform registered nurse', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': 'Informed about patient status', 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            hca_pool.create_activity(cr,  SUPERUSER_ID, {
+                'summary': 'Inform registered nurse',
+                'parent_id': spell_activity_id,
+                'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {
+                'summary': 'Informed about patient status',
+                'parent_id': spell_activity_id,
+                'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
         if case:
             for n in self._POLICY['notifications'][case]:
-                nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+                nurse_pool.create_activity(cr, SUPERUSER_ID, {
+                    'summary': n,
+                    'parent_id': spell_activity_id,
+                    'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+
         # create next EWS
-        spell_activity_id = activity.parent_id.id
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': spell_activity_id},
                              {'patient_id': activity.data_ref.patient_id.id})
@@ -361,7 +373,11 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
         for n in self._POLICY['notifications'][case]:
-            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {
+                'summary': n,
+                'parent_id': activity.parent_id.id,
+                'creator_id': activity_id
+            }, {'patient_id': activity.data_ref.patient_id.id})
         # create next GCS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
@@ -432,7 +448,11 @@ class t4_clinical_patient_observation_vips(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
         for n in self._POLICY['notifications'][case]:
-            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {
+                'summary': n,
+                'parent_id': activity.parent_id.id,
+                'creator_id': activity_id
+            }, {'patient_id': activity.data_ref.patient_id.id})
 
         # create next VIPS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
