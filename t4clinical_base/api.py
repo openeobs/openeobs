@@ -152,7 +152,7 @@ class t4_clinical_api(orm.AbstractModel):
         move_pool = self.pool['t4.clinical.patient.move']
         move_domain = [('patient_id','=',patient_id), ('state','=','completed')]
         # sort parameter includes 'id' to resolve situation with equal values in 'date_terminated'
-        move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated, id desc", context=context)
+        move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated desc, id desc", context=context)
         location_id = move and move[0].location_id or False
         return location_id
 
@@ -164,7 +164,7 @@ class t4_clinical_api(orm.AbstractModel):
     def get_patient_placement_location_browse(self, cr, uid, patient_id, context=None):
         placement_pool = self.pool['t4.clinical.patient.placement']
         placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-        placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc", context=context)
+        placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc, id desc", context=context)
         placement = placement and placement[0]
         res = placement and placement.location_id or False
         return res    

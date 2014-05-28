@@ -46,16 +46,55 @@ class wardboard_device_session_complete(orm.TransientModel):
     _name = "wardboard.device.session.complete"
 
     _columns = {
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
-        'session_ids': fields.many2many('t4.clinical.device.session', 'wiz_session_coplete_rel', 'wiz_id', 'session_id', 'Sessions'),
+
+        'session_id': fields.many2one('t4.clinical.device.session', 'Session'),
     }   
     
     def do_complete(self, cr, uid, ids, context=None):
         activity_pool = self.pool['t4.activity']
         wiz = self.browse(cr, uid, ids[0])
-        for session in wiz.session_ids:
-            activity_pool.complete(cr, uid, session.activity_id.id, context)
-            
+        activity_pool.complete(cr, uid, wiz.session_id.activity_id.id, context)
+        # refreshing view
+        spell_activity_id = wiz.session_id.activity_id.parent_id.id
+        wardboard_pool = self.pool['t4.clinical.wardboard']
+        wardboard_id = wardboard_pool.search(cr, uid, [['spell_activity_id','=',spell_activity_id]])[0]
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_form')[1]
+        #FIXME should be done more elegantly on client side
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 't4.clinical.wardboard',
+            'res_id': wardboard_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'inline',
+            'context': context,
+            'view_id': view_id
+        }
+        
+        context.update({'active_model': 't4.clinical.wardboard', 'active_id': wardboard_id, 'active_ids': [wardboard_id]})        
+
+class t4_clinical_device_session(orm.TransientModel):
+    _inherit = "t4.clinical.device.session"            
+
+    def device_session_complete(self, cr, uid, ids, context=None):
+
+        device_session = self.browse(cr, uid, ids[0], context=context)
+        res_id = self.pool['wardboard.device.session.complete'].create(cr, uid, {'session_id': device_session.id})
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_device_session_complete_form')[1]
+
+        return {
+            'name': "Complete Device Session: %s" % device_session.patient_id.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'wardboard.device.session.complete',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': view_id
+        }
+
+
 
 class t4_clinical_wardboard(orm.Model):
     _name = "t4.clinical.wardboard"
@@ -125,21 +164,7 @@ class t4_clinical_wardboard(orm.Model):
             'view_id': view_id
         }
 
-    def device_session_complete(self, cr, uid, ids, context=None):
-        wardboard = self.browse(cr, uid, ids[0], context=context)
-        res_id = self.pool['wardboard.device.session.complete'].create(cr, uid, {'patient_id': wardboard.patient_id.id})
-        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_device_session_complete_form')[1]
-        return {
-            'name': "Complete Device Session: %s" % wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 'wardboard.device.session.complete',
-            'res_id': res_id,
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'new',
-            'context': context,
-            'view_id': view_id
-        }
+
 
     
     def wardboard_patient_placement(self, cr, uid, ids, context=None):
@@ -296,7 +321,7 @@ completed_ews as(
             spell.patient_id,
             ews.score,
             ews.clinical_risk,
-            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
         inner join t4_activity activity on ews.activity_id = activity.id
@@ -306,7 +331,7 @@ scheduled_ews as(
         select 
             spell.patient_id,
             activity.date_scheduled,
-            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
         inner join t4_activity activity on ews.activity_id = activity.id
@@ -317,7 +342,7 @@ completed_mrsa as(
             mrsa.id,
             spell.patient_id,
             mrsa.mrsa,
-            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_mrsa mrsa on mrsa.patient_id = spell.patient_id
         inner join t4_activity activity on mrsa.activity_id = activity.id
@@ -327,7 +352,7 @@ completed_height as(
         select 
             spell.patient_id,
             height.height,
-            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_height height on height.patient_id = spell.patient_id
         inner join t4_activity activity on height.activity_id = activity.id
@@ -338,7 +363,7 @@ completed_o2target as(
             spell.patient_id,
             level.min,
             level.max,
-            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
         inner join t4_activity activity on o2target.activity_id = activity.id

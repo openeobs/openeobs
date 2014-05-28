@@ -5,7 +5,7 @@ completed_ews as(
 			spell.patient_id,
 			ews.score,
 			ews.clinical_risk,
-			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
 		from t4_clinical_spell spell
 		left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
 		inner join t4_activity activity on ews.activity_id = activity.id
@@ -15,7 +15,7 @@ scheduled_ews as(
 		select 
 			spell.patient_id,
 			activity.date_scheduled,
-			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
 		from t4_clinical_spell spell
 		left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
 		inner join t4_activity activity on ews.activity_id = activity.id
@@ -26,7 +26,7 @@ completed_mrsa as(
 			mrsa.id,
 			spell.patient_id,
 			mrsa.mrsa,
-			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
 		from t4_clinical_spell spell
 		left join t4_clinical_patient_mrsa mrsa on mrsa.patient_id = spell.patient_id
 		inner join t4_activity activity on mrsa.activity_id = activity.id
@@ -36,7 +36,7 @@ completed_height as(
 		select 
 			spell.patient_id,
 			height.height,
-			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
 		from t4_clinical_spell spell
 		left join t4_clinical_patient_observation_height height on height.patient_id = spell.patient_id
 		inner join t4_activity activity on height.activity_id = activity.id
@@ -47,7 +47,7 @@ completed_o2target as(
 			spell.patient_id,
 			level.min,
 			level.max,
-			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id)
+			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
 		from t4_clinical_spell spell
 		left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
 		inner join t4_activity activity on o2target.activity_id = activity.id
