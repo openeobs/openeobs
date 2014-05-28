@@ -21,7 +21,7 @@ class t4_clinical_device_session(orm.Model):
     def name_get(self, cr, uid, ids, context):
         res = []
         for session in self.browse(cr, uid, ids, context):
-            res.append((session.id, session.device_id.type_id.name))
+            res.append((session.id, "%s/%s" % (session.patient_id.full_name, session.device_id.type_id.name)))
         return res
     
     def start(self, cr, uid, activity_id, context=None):

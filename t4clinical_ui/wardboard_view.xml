@@ -36,14 +36,8 @@
                 <field name="model">wardboard.device.session.complete</field>
                 <field name="arch" type="xml">
                     <form string="Wardboard Device Session Compplete" version="7.0">
-                    	<field name="patient_id" invisible="1"/>
-                    	<group string="Select Device Sessions to Complete">
-							<field name="session_ids" domain="[('state','=','started'),('patient_id','=', patient_id)]" nolabel="1" nocreate="1">
-								<tree  nocreate="1">
-									<field name="device_id" />
-								</tree> 
-							</field>	   
-						</group>
+                    	<label for="session_id" string="You are about to complete session: "/>
+						<field name="session_id" readonly="1"/>
 						<button name="do_complete" type="object" string="Complete"/>
                     </form>
                 </field>
@@ -208,17 +202,19 @@
                                 </page>
                                 <page string="Devices">
                                     	<group string="Active Device Sessions">
+                                    	<div>
                                     		<group>
 	                                    		<button name="device_session_start" type="object" string="Start Device Session"/>
-	                                    		<button name="device_session_complete" type="object" string="Complete Device Session"/>
                                     		</group>
                                     		<newline/>
 	                                    	<field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
  	                                    		<tree>
 		                                    		<field name="device_id"/>
 		                                    		<field name="date_started"/>
+		                                    		<button name="device_session_complete" type="object" icon="gtk-cancel" string="Complete Device Session"/>
 	                                    		</tree>
 	                                    	</field>
+	                                    </div>
 	                                    </group>
 	                                    <newline/>
 	                                    <group string="Device Sessions History">
@@ -228,6 +224,7 @@
 		                                    		<field name="date_started"/>
 		                                    		<field name="date_terminated"/>
 		                                    		<field name="state"/>
+		                                    		
 	                                    		</tree>
 	                                    	</field>
 	                                    </group>
