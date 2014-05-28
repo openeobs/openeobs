@@ -109,6 +109,8 @@ class t4_activity_data(orm.AbstractModel):
         data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
         if 'location_id' in self._columns.keys():
             location_id = data.location_id and data.location_id.id or False
+        if not location_id:
+            location_id = data.activity_id.parent_id and data.activity_id.parent_id.location_id.id or False
         return location_id
 
     def get_activity_patient_id(self, cr, uid, activity_id, context=None):
