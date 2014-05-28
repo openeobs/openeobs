@@ -83,6 +83,7 @@ class t4_clinical_patient_placement(orm.Model):
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
+        'pos_id': fields.related('activity_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
         
     }
 
