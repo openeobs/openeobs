@@ -220,12 +220,12 @@ class t4_clinical_patient_observation_ews(orm.Model):
     
     _columns = {
         #'duration': fields.integer('Duration'),
-        'score': fields.function(_get_score, type='integer', multi='score', string='Score', store= {
-                       't4.clinical.patient.observation.ews': (lambda self,cr,uid,ids,ctx: ids, [], 10) # all fields of self
-                         }),
-        'three_in_one': fields.function(_get_score, type='boolean', multi='score', string='3 in 1 flag', store= {
-                       't4.clinical.patient.observation.ews': (lambda self,cr,uid,ids,ctx: ids, [], 10) # all fields of self
-                         }),
+        'score': fields.function(_get_score, type='integer', multi='score', string='Score', store={
+            't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, [], 10) # all fields of self
+        }),
+        'three_in_one': fields.function(_get_score, type='boolean', multi='score', string='3 in 1 flag', store={
+            't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, [], 10) # all fields of self
+        }),
         'clinical_risk': fields.function(_get_score, type='char', multi='score', string='Clinical Risk', store={
             't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, [], 10)
         }),
