@@ -1,4 +1,5 @@
-from openerp.osv import fields, osv
+from openerp.osv import orm, fields, osv
+from openerp import SUPERUSER_ID
 
 
 class t4_clinical_patient_extension(osv.Model):
@@ -21,3 +22,31 @@ class t4_clinical_patient_extension(osv.Model):
         'ews_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS'),
         'ews_list_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS List', domain=[('state','=','completed')])
     }
+
+
+class t4_clinical_api_extension(orm.AbstractModel):
+    _name = 't4.clinical.api'
+    _inherit = 't4.clinical.api'
+
+    def change_activity_frequency(self, cr, uid, patient_id, activity_type, frequency, context=None):
+        activity_pool = self.pool['t4.activity']
+        change_freq_pool = self.pool['t4.clinical.notification.frequency']
+        domain = [
+            ('patient_id', '=', patient_id),
+            ('state', '=', 'completed'),
+            ('data_model', '=', activity_type)
+        ]
+        activity_ids = activity_pool.search(cr, uid, domain, order='create_date desc, id desc', context=context)
+        spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
+        if not activity_ids:
+            creator_id = False
+        else:
+            creator_id = activity_ids[0]
+        frequency_activity_id = change_freq_pool.create_activity(cr, SUPERUSER_ID, {
+            'creator_id': creator_id, 'parent_id': spell_activity_id
+        }, {
+            'patient_id': patient_id,
+            'observation': activity_type,
+            'frequency': frequency
+        })
+        return activity_pool.complete(cr, uid, frequency_activity_id, context=context)

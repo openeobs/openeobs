@@ -15,6 +15,7 @@ scheduled_ews as(
 		select 
 			spell.patient_id,
 			activity.date_scheduled,
+			ews.frequency
 			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
 		from t4_clinical_spell spell
 		left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
@@ -85,7 +86,7 @@ select
 			coalesce( nullif( extract('day' from (now() - ews0.date_scheduled))::text || ' day(s) ','0 day(s) '),'' ) ||
 			to_char(now() - ews0.date_scheduled, 'HH24:MI')			
 		end as next_diff,
-	spell.ews_frequency as frequency,
+	ews0.frequency as frequency,
 	case
 		when ews1.id is null then 'none'
 		else ews1.score::text
@@ -116,7 +117,7 @@ inner join t4_clinical_patient patient on spell.patient_id = patient.id
 left join t4_clinical_location location on location.id = spell.location_id
 left join (select id, score, patient_id, rank, clinical_risk from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
 left join (select id, score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
-left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
+left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id

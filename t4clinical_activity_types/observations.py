@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4activity.activity import except_if
-from datetime import datetime as dt
+from openerp.addons.t4clinical_activity_types.parameters import frequencies
+from datetime import datetime as dt, timedelta as td
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from dateutil.relativedelta import relativedelta as rd
 import logging
 import bisect
@@ -12,7 +14,16 @@ _logger = logging.getLogger(__name__)
 
 class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
-    _inherit = ['t4.activity.data']    
+    _inherit = ['t4.activity.data']
+    _transitions = {
+        'new': ['schedule', 'plan', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve',
+                'validate'],
+        'planned': ['schedule', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
+        'scheduled': ['schedule', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
+        'started': ['complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
+        'completed': ['retrieve', 'validate'],
+        'cancelled': ['retrieve', 'validate']
+    }
     _required = [] # fields required for complete observation
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):
@@ -28,18 +39,17 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'is_partial': fields.function(_is_partial, type='boolean', string='Is Partial?'),
         'none_values': fields.text('Non-updated fields'),
-        
-        
+        'frequency': fields.selection(frequencies, 'Frequency')
     }
     _defaults = {
 
-     }
+    }
     
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))
         vals.update({'none_values': none_values})
         #print "create none_values: %s" % none_values
-        return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)        
+        return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)
     
     def create_activity(self, cr, uid, activity_vals={}, data_vals={}, context=None):
         activity_pool = self.pool['t4.activity']
@@ -58,6 +68,11 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             vals.update({'none_values': none_values})
             print "write none_values: %s" % none_values
             super(t4_clinical_patient_observation, self).write(cr, uid, obs['id'], vals, context)
+        if 'frequency' in vals:
+            activity_pool = self.pool['t4.activity']
+            for obs in self.browse(cr, uid, ids, context=context):
+                scheduled = (dt.strptime(obs.activity_id.create_date, DTF)+td(minutes=vals['frequency'])).strftime(DTF)
+                activity_pool.schedule(cr, uid, obs.activity_id.id, date_scheduled=scheduled, context=context)
         return True
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
@@ -255,6 +270,10 @@ class t4_clinical_patient_observation_ews(orm.Model):
         })
     }
 
+    _defaults = {
+        'frequency': 15
+    }
+
     _order = "order_by desc, id desc"
 
     def submit(self, cr, uid, activity_id, data_vals={}, context=None):
@@ -300,15 +319,18 @@ class t4_clinical_patient_observation_ews(orm.Model):
                     'parent_id': spell_activity_id,
                     'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
 
+        res = super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
+
         # create next EWS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': spell_activity_id},
                              {'patient_id': activity.data_ref.patient_id.id})
-        activity_pool.schedule(cr, SUPERUSER_ID, next_activity_id, dt.today()+rd(minutes=self._POLICY['frequencies'][case]))
-        activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, 
-                             {'ews_frequency':self._POLICY['frequencies'][case]},
-                             context)
-        return super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        api_pool.change_activity_frequency(cr, SUPERUSER_ID,
+                                           activity.data_ref.patient_id.id,
+                                           self._name,
+                                           self._POLICY['frequencies'][case], context=context)
+        return res
+
 
 class t4_clinical_patient_observation_gcs(orm.Model):
     _name = 't4.clinical.patient.observation.gcs'
@@ -363,6 +385,10 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         'motor': fields.selection(_motor, 'Motor')
     }
 
+    _defaults = {
+        'frequency': 60
+    }
+
     def complete(self, cr, uid, activity_id, context=None):
         """
         Implementation of the default GCS policy
@@ -378,12 +404,17 @@ class t4_clinical_patient_observation_gcs(orm.Model):
                 'parent_id': activity.parent_id.id,
                 'creator_id': activity_id
             }, {'patient_id': activity.data_ref.patient_id.id})
+
+        res = super(t4_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
         # create next GCS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
                              {'patient_id': activity.data_ref.patient_id.id})
-        self.schedule(cr, SUPERUSER_ID, next_activity_id, dt.today()+rd(minutes=self._POLICY['frequencies'][case]))
-        return super(t4_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        api_pool.change_activity_frequency(cr, SUPERUSER_ID,
+                                           activity.data_ref.patient_id.id,
+                                           self._name,
+                                           self._POLICY['frequencies'][case], context=context)
+        return res
 
 
 class t4_clinical_patient_observation_vips(orm.Model):
@@ -438,6 +469,10 @@ class t4_clinical_patient_observation_vips(orm.Model):
         'pyrexia': fields.selection(_selection, 'Pyrexia'),
     }
 
+    _defaults = {
+        'frequency': 1440
+    }
+
     def complete(self, cr, uid, activity_id, context=None):
         """
         Implementation of the default VIPS policy
@@ -454,9 +489,13 @@ class t4_clinical_patient_observation_vips(orm.Model):
                 'creator_id': activity_id
             }, {'patient_id': activity.data_ref.patient_id.id})
 
+        res = super(t4_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)
         # create next VIPS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
                              {'patient_id': activity.data_ref.patient_id.id})
-        activity_pool.schedule(cr, SUPERUSER_ID, next_activity_id, dt.today()+rd(minutes=self._POLICY['frequencies'][case]))        
-        return super(t4_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        api_pool.change_activity_frequency(cr, SUPERUSER_ID,
+                                           activity.data_ref.patient_id.id,
+                                           self._name,
+                                           self._POLICY['frequencies'][case], context=context)
+        return res
