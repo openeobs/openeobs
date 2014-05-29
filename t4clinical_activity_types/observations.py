@@ -186,7 +186,12 @@ class t4_clinical_patient_observation_ews(orm.Model):
         case 3: high clinical risk
     """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123', 'frequencies': [720, 240, 60, 30],
-               'notifications': [[], ['Assess patient'], ['Urgently inform medical team'], ['Immediately inform medical team']],
+               'notifications': [
+                   {'nurse': [], 'assessment': False, 'frequency': False},
+                   {'nurse': [], 'assessment': True, 'frequency': False},
+                   {'nurse': ['Urgently inform medical team'], 'assessment': False, 'frequency': False},
+                   {'nurse': ['Immediately inform medical team'], 'assessment': False, 'frequency': False}
+               ],
                'risk': ['None', 'Low', 'Medium', 'High']}
     
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
@@ -312,12 +317,10 @@ class t4_clinical_patient_observation_ews(orm.Model):
                 'summary': 'Informed about patient status',
                 'parent_id': spell_activity_id,
                 'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
-        if case:
-            for n in self._POLICY['notifications'][case]:
-                nurse_pool.create_activity(cr, SUPERUSER_ID, {
-                    'summary': n,
-                    'parent_id': spell_activity_id,
-                    'creator_id': activity_id}, {'patient_id': activity.data_ref.patient_id.id})
+
+        notifications = self._POLICY['notifications'][case]
+        api_pool.trigger_notifications(cr, uid, notifications, spell_activity_id, activity_id,
+                                       activity.data_ref.patient_id.id, self._name, context=context)
 
         res = super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
@@ -363,7 +366,12 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         case 4: 12 hour frequency (no clinical risk)
     """
     _POLICY = {'ranges': [5, 9, 13, 14], 'case': '01234', 'frequencies': [30, 60, 120, 240, 720],
-               'notifications': [[], [], [], [], []]}
+               'notifications': [
+                   {'nurse': [], 'assessment': False, 'frequency': False},
+                   {'nurse': [], 'assessment': False, 'frequency': False},
+                   {'nurse': [], 'assessment': False, 'frequency': False},
+                   {'nurse': [], 'assessment': False, 'frequency': False}
+               ]}
 
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
@@ -398,12 +406,9 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         api_pool = self.pool['t4.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
-        for n in self._POLICY['notifications'][case]:
-            nurse_pool.create_activity(cr, SUPERUSER_ID, {
-                'summary': n,
-                'parent_id': activity.parent_id.id,
-                'creator_id': activity_id
-            }, {'patient_id': activity.data_ref.patient_id.id})
+        notifications = self._POLICY['notifications'][case]
+        api_pool.trigger_notifications(cr, uid, notifications, activity.parent_id.id, activity_id,
+                                       activity.data_ref.patient_id.id, self._name, context=context)
 
         res = super(t4_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
         # create next GCS
@@ -431,7 +436,12 @@ class t4_clinical_patient_observation_vips(orm.Model):
         case 3: Advanced stage of thrombophlebitis --> Initiate phlebitis treatment
     """
     _POLICY = {'ranges': [1, 2, 4], 'case': '0123', 'frequencies': [1440, 1440, 1440, 1440],
-               'notifications': [[], ['Resite Cannula'], ['Resite Cannula', 'Consider plebitis treatment'], ['Resite Cannula', 'Initiate phlebitis treatment']]}
+               'notifications': [
+                   {'nurse': [], 'assessment': False, 'frequency': False},
+                   {'nurse': ['Resite Cannula'], 'assessment': False, 'frequency': False},
+                   {'nurse': ['Resite Cannula', 'Consider plebitis treatment'], 'assessment': False, 'frequency': False},
+                   {'nurse': ['Resite Cannula', 'Initiate phlebitis treatment'], 'assessment': False, 'frequency': False}
+               ]}
 
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
@@ -482,12 +492,9 @@ class t4_clinical_patient_observation_vips(orm.Model):
         api_pool = self.pool['t4.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
-        for n in self._POLICY['notifications'][case]:
-            nurse_pool.create_activity(cr, SUPERUSER_ID, {
-                'summary': n,
-                'parent_id': activity.parent_id.id,
-                'creator_id': activity_id
-            }, {'patient_id': activity.data_ref.patient_id.id})
+        notifications = self._POLICY['notifications'][case]
+        api_pool.trigger_notifications(cr, uid, notifications, activity.parent_id.id, activity_id,
+                                       activity.data_ref.patient_id.id, self._name, context=context)
 
         res = super(t4_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)
         # create next VIPS

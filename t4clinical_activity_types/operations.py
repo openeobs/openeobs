@@ -51,6 +51,21 @@ class t4_clinical_notification_frequency(orm.Model):
         return obs_pool.write(cr, uid, obs.data_ref.id, {'frequency': review_frequency.data_ref.frequency}, context=context)
 
 
+class t4_clinical_notification_assessment(orm.Model):
+    _name = 't4.clinical.notification.assessment'
+    _inherit = ['t4.clinical.notification']
+    _description = 'Assess Patient'
+
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        api_pool = self.pool['t4.clinical.api']
+        notifications = {'nurse': [], 'assessment': False, 'frequency': True}
+        api_pool.trigger_notifications(cr, uid, notifications, activity.parent_id.id, activity_id,
+                                       activity.patient_id.id, 't4.clinical.patient.observation.ews', context=context)
+        return super(t4_clinical_notification_assessment, self).complete(cr, uid, activity_id, context=context)
+
+
 class t4_clinical_patient_move(orm.Model):
     _name = 't4.clinical.patient.move'
     _inherit = ['t4.activity.data']  
