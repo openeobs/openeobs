@@ -2,6 +2,7 @@
 
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4activity.activity import except_if
+from openerp.addons.t4clinical_activity_types.parameters import frequencies
 import logging
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -25,6 +26,44 @@ class t4_clinical_notification_hca(orm.Model):
 class t4_clinical_notification_nurse(orm.Model):
     _name = 't4.clinical.notification.nurse'
     _inherit = ['t4.clinical.notification']
+
+
+class t4_clinical_notification_frequency(orm.Model):
+    _name = 't4.clinical.notification.frequency'
+    _inherit = ['t4.clinical.notification']
+    _description = 'Review Frequency'
+    _columns = {
+        'observation': fields.text('Observation Model', required=True),
+        'frequency': fields.selection(frequencies, 'Frequency')
+    }
+
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        review_frequency = activity_pool.browse(cr, uid, activity_id, context=context)
+        domain = [
+            ('patient_id', '=', review_frequency.data_ref.patient_id.id),
+            ('data_model', '=', review_frequency.data_ref.observation),
+            ('state', 'not in', ['completed', 'cancelled'])
+        ]
+        obs_ids = activity_pool.search(cr, uid, domain, order='create_date desc, id desc', context=context)
+        obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
+        obs_pool = self.pool[review_frequency.data_ref.observation]
+        return obs_pool.write(cr, uid, obs.data_ref.id, {'frequency': review_frequency.data_ref.frequency}, context=context)
+
+
+class t4_clinical_notification_assessment(orm.Model):
+    _name = 't4.clinical.notification.assessment'
+    _inherit = ['t4.clinical.notification']
+    _description = 'Assess Patient'
+
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        api_pool = self.pool['t4.clinical.api']
+        notifications = {'nurse': [], 'assessment': False, 'frequency': True}
+        api_pool.trigger_notifications(cr, uid, notifications, activity.parent_id.id, activity_id,
+                                       activity.patient_id.id, 't4.clinical.patient.observation.ews', context=context)
+        return super(t4_clinical_notification_assessment, self).complete(cr, uid, activity_id, context=context)
 
 
 class t4_clinical_patient_move(orm.Model):
@@ -118,12 +157,12 @@ class t4_clinical_patient_placement(orm.Model):
         activity_pool.complete(cr, uid, move_activity_id)
         activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         # create EWS
-        frequency = placement_activity.parent_id.data_ref.ews_frequency
         ews_activity_id = ews_pool.create_activity(cr, SUPERUSER_ID, 
                                                    {#'location_id': placement_activity.data_ref.location_id.id,
                                                     'parent_id': spell_activity_id,
                                                     'creator_id': activity_id}, 
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
+        frequency = activity_pool.browse(cr, uid, ews_activity_id, context=context).data_ref.frequency
         activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         # create GCS
         gcs_activity_id = gcs_pool.create_activity(cr, SUPERUSER_ID,
@@ -131,6 +170,7 @@ class t4_clinical_patient_placement(orm.Model):
                                                     'parent_id': spell_activity_id,
                                                     'creator_id': activity_id},
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
+        frequency = activity_pool.browse(cr, uid, gcs_activity_id, context=context).data_ref.frequency
         activity_pool.schedule(cr, uid, gcs_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         return {}
 

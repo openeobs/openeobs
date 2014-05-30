@@ -5,6 +5,16 @@ from openerp.addons.t4activity.activity import except_if
 import logging        
 _logger = logging.getLogger(__name__)
 
+frequencies = [
+    (15, 'Every 15 Minutes'),
+    (30, 'Every 30 Minutes'),
+    (60, 'Every Hour'),
+    (120, 'Every 2 Hours'),
+    (240, 'Every 4 Hours'),
+    (360, 'Every 6 Hours'),
+    (720, 'Every 12 Hours'),
+    (1440, 'Every Day')
+]
 
 class t4_clinical_o2level(orm.Model):
     _name = 't4.clinical.o2level'      

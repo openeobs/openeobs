@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['t4clinical_base','t4clinical_activity_types', 't4clinical_api', ],
+    'depends': ['t4clinical_base','t4clinical_activity_types', 't4clinical_api', 't4base'],
     'data': [
              'wardboard_view.xml',
              'workload_view.xml',

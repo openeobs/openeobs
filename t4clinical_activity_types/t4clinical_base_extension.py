@@ -1,4 +1,5 @@
-from openerp.osv import fields, osv
+from openerp.osv import orm, fields, osv
+from openerp import SUPERUSER_ID
 
 
 class t4_clinical_patient_extension(osv.Model):
@@ -21,3 +22,60 @@ class t4_clinical_patient_extension(osv.Model):
         'ews_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS'),
         'ews_list_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS List', domain=[('state','=','completed')])
     }
+
+
+class t4_clinical_api_extension(orm.AbstractModel):
+    _name = 't4.clinical.api'
+    _inherit = 't4.clinical.api'
+
+    def change_activity_frequency(self, cr, uid, patient_id, activity_type, frequency, context=None):
+        activity_pool = self.pool['t4.activity']
+        change_freq_pool = self.pool['t4.clinical.notification.frequency']
+        domain = [
+            ('patient_id', '=', patient_id),
+            ('state', '=', 'completed'),
+            ('data_model', '=', activity_type)
+        ]
+        activity_ids = activity_pool.search(cr, uid, domain, order='create_date desc, id desc', context=context)
+        spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
+        if not activity_ids:
+            creator_id = False
+        else:
+            creator_id = activity_ids[0]
+        frequency_activity_id = change_freq_pool.create_activity(cr, SUPERUSER_ID, {
+            'creator_id': creator_id, 'parent_id': spell_activity_id
+        }, {
+            'patient_id': patient_id,
+            'observation': activity_type,
+            'frequency': frequency
+        })
+        return activity_pool.complete(cr, uid, frequency_activity_id, context=context)
+
+    def trigger_notifications(self, cr, uid, notifications, parent_id, creator_id, patient_id, model, context=None):
+        nurse_pool = self.pool['t4.clinical.notification.nurse']
+        for n in notifications['nurse']:
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'parent_id': parent_id, 'creator_id': creator_id}, {'patient_id': patient_id})
+        if notifications['assessment']:
+            assessment_pool = self.pool['t4.clinical.notification.assessment']
+            assessment_pool.create_activity(cr, SUPERUSER_ID, {'parent_id': parent_id, 'creator_id': creator_id}, {'patient_id': patient_id})
+        if notifications['frequency']:
+            activity_pool = self.pool['t4.activity']
+            domain = [
+                ('patient_id', '=', patient_id),
+                ('state', 'not in', ['completed', 'cancelled']),
+                ('data_model', '=', 't4.clinical.notification.frequency')]
+            frequency_activity_ids = activity_pool.search(cr, uid, domain, context=context)
+            for f in activity_pool.browse(cr, uid, frequency_activity_ids, context=context):
+                if f.data_ref.observation == model:
+                    activity_pool.cancel(cr, uid, f.id, context=context)
+            frequency_pool = self.pool['t4.clinical.notification.frequency']
+            frequency_pool.create_activity(cr, SUPERUSER_ID, {'parent_id': parent_id, 'creator_id': creator_id
+            }, {'patient_id': patient_id, 'observation': model})
+
+    def cancel_open_activities(self, cr, uid, parent_id, model, context=None):
+        activity_pool = self.pool['t4.activity']
+        domain = [('parent_id', '=', parent_id),
+                  ('data_model', '=', model),
+                  ('state', 'not in', ['completed', 'cancelled'])]
+        open_activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        return all([activity_pool.cancel(cr, uid, a, context=context) for a in open_activity_ids])

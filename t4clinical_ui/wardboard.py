@@ -328,9 +328,10 @@ completed_ews as(
         where activity.state = 'completed'
         ),
 scheduled_ews as(
-        select 
+        select
             spell.patient_id,
             activity.date_scheduled,
+            ews.frequency,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
@@ -349,7 +350,7 @@ completed_mrsa as(
         where activity.state = 'completed'
         ),
 completed_height as(
-        select 
+        select
             spell.patient_id,
             height.height,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
@@ -359,7 +360,7 @@ completed_height as(
         where activity.state = 'completed'
         ),
 completed_o2target as(
-        select 
+        select
             spell.patient_id,
             level.min,
             level.max,
@@ -371,19 +372,19 @@ completed_o2target as(
         where activity.state = 'completed'
         ),
 cosulting_doctors as(
-        select 
+        select
             spell.id as spell_id,
-            array_to_string(array_agg(doctor.name), ' / ') as names    
+            array_to_string(array_agg(doctor.name), ' / ') as names
         from t4_clinical_spell spell
         inner join con_doctor_spell_rel on con_doctor_spell_rel.spell_id = spell.id
         inner join res_partner doctor on con_doctor_spell_rel.doctor_id = doctor.id
         group by spell.id
         )
-select 
+select
     spell.patient_id as id,
     spell.patient_id as patient_id,
     spell_activity.id as spell_activity_id,
-    spell_activity.date_started as spell_date_started,    
+    spell_activity.date_started as spell_date_started,
     spell.pos_id,
     spell.code as spell_code,
     coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
@@ -399,13 +400,13 @@ select
         else
             'overdue: ' ||
             coalesce( nullif( extract('day' from (now() - ews0.date_scheduled))::text || ' day(s) ','0 day(s) '),'' ) ||
-            to_char(now() - ews0.date_scheduled, 'HH24:MI')            
+            to_char(now() - ews0.date_scheduled, 'HH24:MI')
         end as next_diff,
-    spell.ews_frequency as frequency,
+    ews0.frequency as frequency,
     case
         when ews1.id is null then 'none'
         else ews1.score::text
-    end as ews_score_string,    
+    end as ews_score_string,
     ews1.score as ews_score,
     case
         when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
@@ -413,7 +414,7 @@ select
         when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'up'
         when ews1.id is null and ews2.id is null then 'none'
         when ews1.id is not null and ews2.id is null then 'one'
-        when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen. 
+        when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen.
     end as ews_trend_string,
     case
         when ews1.id is null then 'None'
@@ -432,7 +433,7 @@ inner join t4_clinical_patient patient on spell.patient_id = patient.id
 left join t4_clinical_location location on location.id = spell.location_id
 left join (select id, score, patient_id, rank, clinical_risk from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
 left join (select id, score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
-left join (select date_scheduled, patient_id, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
+left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
