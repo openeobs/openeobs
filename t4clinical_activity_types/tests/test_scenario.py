@@ -25,7 +25,8 @@ class ActivityTypesTest(BaseTest):
         global cr, uid, \
                register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
                activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool, \
-               device_connect_pool, device_disconnect_pool, partner_pool
+               device_connect_pool, device_disconnect_pool, partner_pool, height_pool, blood_sugar_pool, \
+               blood_product_pool, weight_pool, stools_pool, gcs_pool, vips_pool
         
         cr, uid = self.cr, self.uid
 
@@ -36,6 +37,13 @@ class ActivityTypesTest(BaseTest):
         activity_pool = self.registry('t4.activity')
         transfer_pool = self.registry('t4.clinical.adt.patient.transfer')
         ews_pool = self.registry('t4.clinical.patient.observation.ews')
+        height_pool = self.registry('t4.clinical.patient.observation.height')
+        weight_pool = self.registry('t4.clinical.patient.observation.weight')
+        blood_sugar_pool = self.registry('t4.clinical.patient.observation.blood_sugar')
+        blood_product_pool = self.registry('t4.clinical.patient.observation.blood_product')
+        stools_pool = self.registry('t4.clinical.patient.observation.stools')
+        gcs_pool = self.registry('t4.clinical.patient.observation.gcs')
+        vips_pool = self.registry('t4.clinical.patient.observation.vips')
         api_pool = self.registry('t4.clinical.api')
         location_pool = self.registry('t4.clinical.location')
         pos_pool = self.registry('t4.clinical.pos')
@@ -44,6 +52,7 @@ class ActivityTypesTest(BaseTest):
         imd_pool = self.registry('ir.model.data')
         device_connect_pool = self.registry('t4.clinical.device.connect')
         device_disconnect_pool = self.registry('t4.clinical.device.disconnect')
+
         
         super(ActivityTypesTest, self).setUp()
         
@@ -439,9 +448,138 @@ class ActivityTypesTest(BaseTest):
         session_activity = activity_pool.browse(cr, uid, session_activity_id)
         self.assertTrue(session_activity.state == 'completed',
                        "session_activity.state != 'completed' after device.disconnect completion!")  
-        return disconnect_activity_id             
-        
-                
+        return disconnect_activity_id
+
+    def observation_height(self, activity_vals={}, data_vals={}, env={}):        
+        height = data_vals.get('height') or float(fake.random_int(min=160, max=200))/100.0
+        print "TEST - observation Height - %s" % height
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        height_activity_id = height_pool.create_activity(cr, uid, {'parent_id': spell_activity_id},
+                                                         {'patient_id': patient_id, 'height': height})
+        # Complete
+        activity_pool.complete(cr, uid, height_activity_id)
+        height_activity = activity_pool.browse(cr, uid, height_activity_id)
+        self.assertTrue(height_activity.data_ref.height == height)
+        return height_activity_id
+
+    def observation_weight(self, activity_vals={}, data_vals={}, env={}):
+        weight = data_vals.get('weight') or float(fake.random_int(min=40, max=200))
+        print "TEST - observation Weight - %s" % weight
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        weight_activity_id = weight_pool.create_activity(cr, uid, {'parent_id': spell_activity_id},
+                                                         {'patient_id': patient_id, 'weight': weight})
+        # Complete
+        activity_pool.complete(cr, uid, weight_activity_id)
+        weight_activity = activity_pool.browse(cr, uid, weight_activity_id)
+        self.assertTrue(weight_activity.data_ref.weight == weight)
+        return weight_activity_id
+
+    def observation_blood_sugar(self, activity_vals={}, data_vals={}, env={}):
+        blood_sugar = data_vals.get('blood_sugar') or float(fake.random_int(min=1, max=100))
+        print "TEST - observation Blood Sugar - %s" % blood_sugar
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        bs_activity_id = blood_sugar_pool.create_activity(cr, uid, {'parent_id': spell_activity_id}, 
+                                                          {'patient_id': patient_id, 'blood_sugar': blood_sugar})
+        # Complete
+        activity_pool.complete(cr, uid, bs_activity_id)
+        bs_activity = activity_pool.browse(cr, uid, bs_activity_id)
+        self.assertTrue(bs_activity.data_ref.blood_sugar == blood_sugar)
+        return bs_activity_id
+    
+    def observation_blood_product(self, activity_vals={}, data_vals={}, env={}):
+        vol = data_vals.get('vol') or float(fake.random_int(min=1, max=10))
+        product = data_vals.get('product') or fake.random_element(array=('rbc', 'ffp', 'platelets', 'has', 'dli', 'stem'))
+        print "TEST - observation Blood Product - %s %s" % (vol, product)
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        bp_activity_id = blood_product_pool.create_activity(cr, uid, {'parent_id': spell_activity_id},
+                                                            {
+                                                                'patient_id': patient_id,
+                                                                'product': product,
+                                                                'vol': vol
+                                                            })
+        # Complete
+        activity_pool.complete(cr, uid, bp_activity_id)
+        bp_activity = activity_pool.browse(cr, uid, bp_activity_id)
+        self.assertTrue(bp_activity.data_ref.product == product)
+        self.assertTrue(bp_activity.data_ref.vol == vol)
+        return bp_activity_id
+    
+    def observation_stools(self, activity_vals={}, data_vals={}, env={}):
+        data = {
+            'bowel_open': data_vals.get('bowel_open') or fake.random_int(min=0, max=1),
+            'nausea': data_vals.get('nausea') or fake.random_int(min=0, max=1),
+            'vomiting': data_vals.get('vomiting') or fake.random_int(min=0, max=1),
+            'quantity': data_vals.get('quantity') or fake.random_element(array=('large', 'medium', 'small')),
+            'colour': data_vals.get('colour') or fake.random_element(array=('brown', 'yellow', 'green', 'black', 'red', 'clay')),
+            'bristol_type': data_vals.get('bristol_type') or str(fake.random_int(min=1, max=7)),
+            'offensive': data_vals.get('offensive') or fake.random_int(min=0, max=1),
+            'strain': data_vals.get('strain') or fake.random_int(min=0, max=1),
+            'laxatives': data_vals.get('laxatives') or fake.random_int(min=0, max=1),
+            'samples': data_vals.get('samples') or fake.random_element(array=('none', 'micro', 'virol', 'm+v')),
+            'rectal_exam': data_vals.get('rectal_exam') or fake.random_int(min=0, max=1),
+        }
+        print "TEST - observation Stools - %s" % data
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        data['patient_id'] = patient_id
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        stools_activity_id = stools_pool.create_activity(cr, uid, {'parent_id': spell_activity_id}, data)
+        # Complete
+        activity_pool.complete(cr, uid, stools_activity_id)
+        stools_activity = activity_pool.browse(cr, uid, stools_activity_id)
+        [self.assertTrue(eval('stools_activity.data_ref.'+k) == data[k]) for k in data.keys() if k != 'patient_id']
+        return stools_activity_id
+
+    def observation_ews(self, activity_vals={}, data_vals={}, env={}):
+        data = {
+            'respiration_rate': data_vals.get('respiration_rate') or fake.random_int(min=5, max=34),
+            'indirect_oxymetry_spo2': data_vals.get('indirect_oxymetry_spo2') or fake.random_int(min=85, max=100),
+            'body_temperature': data_vals.get('body_temperature') or float(fake.random_int(min=350, max=391))/10.0,
+            'blood_pressure_systolic': data_vals.get('blood_pressure_systolic') or fake.random_int(min=65, max=206),
+            'pulse_rate': data_vals.get('pulse_rate') or fake.random_int(min=35, max=136),
+            'avpu_text': data_vals.get('avpu_text') or fake.random_element(array=('A', 'V', 'P', 'U')),
+        }
+        if isinstance(data_vals.get('oxygen_administration_flag'), bool):
+            data['oxygen_administration_flag'] = fake.random_element(array=(True, False))
+        else:
+            data['oxygen_administration_flag'] = data_vals.get('oxygen_administration_flag')
+        data['blood_pressure_diastolic'] = data_vals.get('blood_pressure_diastolic') or data['blood_pressure_systolic']-30
+        if data['oxygen_administration_flag']:
+            data.update({
+                'flow_rate': data_vals.get('flow_rate') or fake.random_int(min=40, max=60),
+                'concentration': data_vals.get('concentration') or fake.random_int(min=50, max=100),
+                'cpap_peep': data_vals.get('cpap_peep') or fake.random_int(min=1, max=100),
+                'niv_backup': data_vals.get('niv_backup') or fake.random_int(min=1, max=100),
+                'niv_ipap': data_vals.get('niv_ipap') or fake.random_int(min=1, max=100),
+                'niv_epap': data_vals.get('niv_epap') or fake.random_int(min=1, max=100),
+            })
+        print "TEST - observation EWS - %s" % data
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        data['patient_id'] = patient_id
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        ews_activity_id = ews_pool.create_activity(cr, uid, {'parent_id': spell_activity_id}, data)
+        # Complete
+        activity_pool.complete(cr, uid, ews_activity_id)
+        ews_activity = activity_pool.browse(cr, uid, ews_activity_id)
+        [self.assertTrue(eval('ews_activity.data_ref.'+k) == data[k]) for k in data.keys() if k != 'patient_id']
+        return ews_activity_id
+
+
 class ActivityTypesScenarioTest(ActivityTypesTest):
 
     def test_scenario(self):        
@@ -481,12 +619,73 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         # discharge
 #         [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids'] 
 #                                                                                    if fake.random_element(array=(True, False))]
-        
-        
 
-        
-        
-        
-        
-        
-        
+    def test_no_policy_observations(self):
+        # environment
+        pos1_env = self.create_pos_environment()
+        # register
+        [self.adt_patient_register(env=pos1_env) for i in range(5)]
+
+        # admit
+        [self.adt_patient_admit(data_vals={'other_identifier': other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
+
+        # placements
+        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+
+        # heights
+        [self.observation_height(env=pos1_env) for i in range(5)]
+
+        # weights
+        [self.observation_weight(env=pos1_env) for i in range(5)]
+
+        # blood sugar
+        [self.observation_blood_sugar(env=pos1_env) for i in range(5)]
+
+        # blood product
+        [self.observation_blood_product(env=pos1_env) for i in range(8)]
+
+        # stools
+        [self.observation_stools(env=pos1_env) for i in range(10)]
+
+    def test_ews_observations_policy(self):
+        ews_test_data = {
+            'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],
+            'CASE':     [   0,    1,    1,    1,    1,    2,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    2,    2,    3],
+            'RR':       [  18,   11,   11,   11,   11,   11,   24,   24,   24,   24,   25,   25,   25,   25,   25,   25,   24,   25,   18,   11,   25],
+            'O2':       [  99,   97,   95,   95,   95,   95,   95,   93,   93,   93,   93,   91,   91,   91,   91,   91,   91,   91,   99,   99,   91],
+            'O2_flag':  [   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    0,    0,    1],
+            'BT':       [37.5, 36.5, 36.5, 36.0, 36.0, 36.0, 38.5, 38.5, 38.5, 38.5, 38.5, 35.5, 39.5, 35.0, 35.0, 35.0, 35.0, 35.0, 37.5, 37.5, 35.0],
+            'BPS':      [ 120,  115,  115,  115,  110,  110,  110,  110,  100,  100,  100,  100,  100,  100,   90,  220,  220,  220,  120,  120,  220],
+            'BPD':      [  80,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   80,   80,   70],
+            'PR':       [  65,   55,   55,   55,   55,   50,  110,   50,   50,  130,  130,  130,  130,  130,  130,  135,  135,  135,   65,   65,  135],
+            'AVPU':     [ 'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'V',  'P',  'U']
+        }
+
+        # environment
+        pos1_env = self.create_pos_environment()
+        # register
+        [self.adt_patient_register(env=pos1_env) for i in range(5)]
+
+        # admit
+        [self.adt_patient_admit(data_vals={'other_identifier': other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
+
+        # placements
+        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+
+        # ews
+        for i in range(0, 21):
+            ews_id = self.observation_ews(data_vals={
+                'respiration_rate': ews_test_data['RR'][i],
+                'indirect_oxymetry_spo2': ews_test_data['O2'][i],
+                'oxygen_administration_flag': ews_test_data['O2_flag'][i],
+                'body_temperature': ews_test_data['BT'][i],
+                'blood_pressure_systolic': ews_test_data['BPS'][i],
+                'blood_pressure_diastolic': ews_test_data['BPD'][i],
+                'pulse_rate': ews_test_data['PR'][i],
+                'avpu_text': ews_test_data['AVPU'][i]
+            }, env=pos1_env)
+
+            ews_activity = activity_pool.browse(cr, uid, ews_id)
+            self.assertTrue(ews_activity.data_ref.score == ews_test_data['SCORE'][i], msg='Score not matching')
+            ews_activity_ids = activity_pool.search(cr, uid, [('creator_id', '=', ews_id), ('state', 'not in', ['completed', 'cancelled'])])
+            self.assertTrue(ews_activity_ids, msg='Next EWS activity was not triggered')
