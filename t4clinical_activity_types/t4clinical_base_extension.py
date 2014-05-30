@@ -71,3 +71,11 @@ class t4_clinical_api_extension(orm.AbstractModel):
             frequency_pool = self.pool['t4.clinical.notification.frequency']
             frequency_pool.create_activity(cr, SUPERUSER_ID, {'parent_id': parent_id, 'creator_id': creator_id
             }, {'patient_id': patient_id, 'observation': model})
+
+    def cancel_open_activities(self, cr, uid, parent_id, model, context=None):
+        activity_pool = self.pool['t4.activity']
+        domain = [('parent_id', '=', parent_id),
+                  ('data_model', '=', model),
+                  ('state', 'not in', ['completed', 'cancelled'])]
+        open_activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        return all([activity_pool.cancel(cr, uid, a, context=context) for a in open_activity_ids])

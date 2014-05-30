@@ -251,7 +251,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
         }),
         'respiration_rate': fields.integer('Respiration Rate'),
         'indirect_oxymetry_spo2': fields.integer('O2 Saturation'),
-        'oxygen_administration_flag': fields.boolean('Oxygen Administration Flag'),
+        'oxygen_administration_flag': fields.boolean('Patient on supplemental O2'),
         'body_temperature': fields.float('Body Temperature', digits=(3, 1)),
         'blood_pressure_systolic': fields.integer('Blood Pressure Systolic'),
         'blood_pressure_diastolic': fields.integer('Blood Pressure Diastolic'),
@@ -323,6 +323,9 @@ class t4_clinical_patient_observation_ews(orm.Model):
                                        activity.data_ref.patient_id.id, self._name, context=context)
 
         res = super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
+
+        # cancel open EWS
+        api_pool.cancel_open_activities(cr, uid, spell_activity_id, self._name, context=context)
 
         # create next EWS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
@@ -411,6 +414,10 @@ class t4_clinical_patient_observation_gcs(orm.Model):
                                        activity.data_ref.patient_id.id, self._name, context=context)
 
         res = super(t4_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
+
+        # cancel open GCS
+        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
+
         # create next GCS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
@@ -497,6 +504,10 @@ class t4_clinical_patient_observation_vips(orm.Model):
                                        activity.data_ref.patient_id.id, self._name, context=context)
 
         res = super(t4_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)
+
+        # cancel open VIPS
+        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
+
         # create next VIPS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
