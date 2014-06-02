@@ -48,7 +48,8 @@ class t4_clinical_notification_frequency(orm.Model):
         obs_ids = activity_pool.search(cr, uid, domain, order='create_date desc, id desc', context=context)
         obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
         obs_pool = self.pool[review_frequency.data_ref.observation]
-        return obs_pool.write(cr, uid, obs.data_ref.id, {'frequency': review_frequency.data_ref.frequency}, context=context)
+        obs_pool.write(cr, uid, obs.data_ref.id, {'frequency': review_frequency.data_ref.frequency}, context=context)
+        return super(t4_clinical_notification_frequency, self).complete(cr, uid, activity_id, context=context)
 
 
 class t4_clinical_notification_assessment(orm.Model):
