@@ -15,10 +15,13 @@ _logger = logging.getLogger(__name__)
 from faker import Faker
 fake = Faker()
 seed = fake.random_int(min=0, max=9999999)
+
+
 def next_seed():
     global seed
     seed += 1
     return seed
+
 
 class ActivityTypesTest(BaseTest):    
     def setUp(self):
@@ -26,7 +29,7 @@ class ActivityTypesTest(BaseTest):
                register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
                activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool, \
                device_connect_pool, device_disconnect_pool, partner_pool, height_pool, blood_sugar_pool, \
-               blood_product_pool, weight_pool, stools_pool, gcs_pool, vips_pool
+               blood_product_pool, weight_pool, stools_pool, gcs_pool, vips_pool, o2target_pool, o2target_activity_pool
         
         cr, uid = self.cr, self.uid
 
@@ -52,8 +55,9 @@ class ActivityTypesTest(BaseTest):
         imd_pool = self.registry('ir.model.data')
         device_connect_pool = self.registry('t4.clinical.device.connect')
         device_disconnect_pool = self.registry('t4.clinical.device.disconnect')
+        o2target_pool = self.registry('t4.clinical.o2level')
+        o2target_activity_pool = self.registry('t4.clinical.patient.o2target')
 
-        
         super(ActivityTypesTest, self).setUp()
         
     def create_pos_environment(self):
@@ -597,6 +601,18 @@ class ActivityTypesTest(BaseTest):
         gcs_activity = activity_pool.browse(cr, uid, gcs_activity_id)
         [self.assertTrue(eval('gcs_activity.data_ref.'+k) == data[k]) for k in data.keys() if k != 'patient_id']
         return gcs_activity_id
+
+    def o2target(self, activity_vals={}, data_vals={}, env={}):
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        o2target_ids = o2target_pool.search(cr, uid, [])
+        o2level_id = data_vals.get('level_id') or fake.random_element(array=o2target_ids) if o2target_ids else False
+        if not o2level_id:
+            return False
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        o2target_activity_id = o2target_activity_pool.create_activity(cr, uid, {'parent_id': spell_activity_id}, {'level_id': o2level_id, 'patient_id': patient_id})
+        activity_pool.complete(cr, uid, o2target_activity_id)
+        return o2target_activity_id
 
 class ActivityTypesScenarioTest(ActivityTypesTest):
 
