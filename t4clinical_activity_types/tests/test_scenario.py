@@ -15,10 +15,13 @@ _logger = logging.getLogger(__name__)
 from faker import Faker
 fake = Faker()
 seed = fake.random_int(min=0, max=9999999)
+
+
 def next_seed():
     global seed
     seed += 1
     return seed
+
 
 class ActivityTypesTest(BaseTest):    
     def setUp(self):
@@ -26,7 +29,7 @@ class ActivityTypesTest(BaseTest):
                register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
                activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool, \
                device_connect_pool, device_disconnect_pool, partner_pool, height_pool, blood_sugar_pool, \
-               blood_product_pool, weight_pool, stools_pool, gcs_pool, vips_pool
+               blood_product_pool, weight_pool, stools_pool, gcs_pool, vips_pool, o2target_pool, o2target_activity_pool
         
         cr, uid = self.cr, self.uid
 
@@ -52,8 +55,9 @@ class ActivityTypesTest(BaseTest):
         imd_pool = self.registry('ir.model.data')
         device_connect_pool = self.registry('t4.clinical.device.connect')
         device_disconnect_pool = self.registry('t4.clinical.device.disconnect')
+        o2target_pool = self.registry('t4.clinical.o2level')
+        o2target_activity_pool = self.registry('t4.clinical.patient.o2target')
 
-        
         super(ActivityTypesTest, self).setUp()
         
     def create_pos_environment(self):
@@ -578,7 +582,37 @@ class ActivityTypesTest(BaseTest):
         ews_activity = activity_pool.browse(cr, uid, ews_activity_id)
         [self.assertTrue(eval('ews_activity.data_ref.'+k) == data[k]) for k in data.keys() if k != 'patient_id']
         return ews_activity_id
+    
+    def observation_gcs(self, activity_vals={}, data_vals={}, env={}):
+        data = {
+            'eyes': data_vals.get('eyes') or fake.random_element(array=('1', '2', '3', '4', 'C')),
+            'verbal': data_vals.get('verbal') or fake.random_element(array=('1', '2', '3', '4', '5', 'T')),
+            'motor': data_vals.get('motor') or fake.random_element(array=('1', '2', '3', '4', '5', '6')),
+        }
+        print "TEST - observation GCS - %s" % data
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        data['patient_id'] = patient_id
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        # Create
+        gcs_activity_id = gcs_pool.create_activity(cr, uid, {'parent_id': spell_activity_id}, data)
+        # Complete
+        activity_pool.complete(cr, uid, gcs_activity_id)
+        gcs_activity = activity_pool.browse(cr, uid, gcs_activity_id)
+        [self.assertTrue(eval('gcs_activity.data_ref.'+k) == data[k]) for k in data.keys() if k != 'patient_id']
+        return gcs_activity_id
 
+    def o2target(self, activity_vals={}, data_vals={}, env={}):
+        patient_id = data_vals.get('patient_id') \
+                     or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
+        o2target_ids = o2target_pool.search(cr, uid, [])
+        o2level_id = data_vals.get('level_id') or fake.random_element(array=o2target_ids) if o2target_ids else False
+        if not o2level_id:
+            return False
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id)
+        o2target_activity_id = o2target_activity_pool.create_activity(cr, uid, {'parent_id': spell_activity_id}, {'level_id': o2level_id, 'patient_id': patient_id})
+        activity_pool.complete(cr, uid, o2target_activity_id)
+        return o2target_activity_id
 
 class ActivityTypesScenarioTest(ActivityTypesTest):
 
@@ -660,6 +694,16 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
             'PR':       [  65,   55,   55,   55,   55,   50,  110,   50,   50,  130,  130,  130,  130,  130,  130,  135,  135,  135,   65,   65,  135],
             'AVPU':     [ 'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'V',  'P',  'U']
         }
+        ews_policy = {
+            'frequencies': [720, 240, 60, 30],
+            'risk': ['None', 'Low', 'Medium', 'High'],
+            'notifications': [
+                {'nurse': [], 'assessment': False, 'frequency': False},
+                {'nurse': [], 'assessment': True, 'frequency': False},
+                {'nurse': ['Urgently inform medical team'], 'assessment': False, 'frequency': False},
+                {'nurse': ['Immediately inform medical team'], 'assessment': False, 'frequency': False}
+            ]
+        }
 
         # environment
         pos1_env = self.create_pos_environment()
@@ -685,7 +729,123 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
                 'avpu_text': ews_test_data['AVPU'][i]
             }, env=pos1_env)
 
+            frequency = ews_policy['frequencies'][ews_test_data['CASE'][i]]
+            clinical_risk = ews_policy['risk'][ews_test_data['CASE'][i]]
+            nurse_notifications = ews_policy['notifications'][ews_test_data['CASE'][i]]['nurse']
+            assessment = ews_policy['notifications'][ews_test_data['CASE'][i]]['assessment']
+            review_frequency = ews_policy['notifications'][ews_test_data['CASE'][i]]['frequency']
+
+            print "TEST - observation EWS: expecting score %s, frequency %s, risk %s" % (ews_test_data['SCORE'][i], frequency, clinical_risk)
             ews_activity = activity_pool.browse(cr, uid, ews_id)
-            self.assertTrue(ews_activity.data_ref.score == ews_test_data['SCORE'][i], msg='Score not matching')
-            ews_activity_ids = activity_pool.search(cr, uid, [('creator_id', '=', ews_id), ('state', 'not in', ['completed', 'cancelled'])])
+
+            # # # # # # # # # # # # # # # # # # # # # # # # #
+            # Check the score, frequency and clinical risk  #
+            # # # # # # # # # # # # # # # # # # # # # # # # #
+            self.assertEqual(ews_activity.data_ref.score, ews_test_data['SCORE'][i], msg='Score not matching')
+            self.assertEqual(ews_activity.data_ref.clinical_risk, clinical_risk, msg='Risk not matching')
+            domain = [
+                ('creator_id', '=', ews_id),
+                ('state', 'not in', ['completed', 'cancelled']),
+                ('data_model', '=', ews_pool._name)]
+            ews_activity_ids = activity_pool.search(cr, uid, domain)
             self.assertTrue(ews_activity_ids, msg='Next EWS activity was not triggered')
+            next_ews_activity = activity_pool.browse(cr, uid, ews_activity_ids[0])
+            self.assertEqual(next_ews_activity.data_ref.frequency, frequency, msg='Frequency not matching')
+
+            # # # # # # # # # # # # # # # #
+            # Check notification triggers #
+            # # # # # # # # # # # # # # # #
+            domain = [
+                ('creator_id', '=', ews_id),
+                ('state', 'not in', ['completed', 'cancelled']),
+                ('data_model', '=', 't4.clinical.notification.assessment')]
+            assessment_ids = activity_pool.search(cr, uid, domain)
+            if assessment:
+                self.assertTrue(assessment_ids, msg='Assessment notification not triggered')
+                activity_pool.complete(cr, uid, assessment_ids[0])
+                domain = [
+                    ('creator_id', '=', assessment_ids[0]),
+                    ('state', 'not in', ['completed', 'cancelled']),
+                    ('data_model', '=', 't4.clinical.notification.frequency')]
+                frequency_ids = activity_pool.search(cr, uid, domain)
+                self.assertTrue(frequency_ids, msg='Review frequency not triggered after Assessment complete')
+                activity_pool.cancel(cr, uid, frequency_ids[0])
+            else:
+                self.assertFalse(assessment_ids, msg='Assessment notification triggered')
+
+            domain = [
+                ('creator_id', '=', ews_id),
+                ('state', 'not in', ['completed', 'cancelled']),
+                ('data_model', '=', 't4.clinical.notification.frequency')]
+            frequency_ids = activity_pool.search(cr, uid, domain)
+            if review_frequency:
+                self.assertTrue(frequency_ids, msg='Review frequency notification not triggered')
+                activity_pool.cancel(cr, uid, frequency_ids[0])
+            else:
+                self.assertFalse(frequency_ids, msg='Review frequency notification triggered')
+
+            domain = [
+                ('creator_id', '=', ews_id),
+                ('state', 'not in', ['completed', 'cancelled']),
+                ('data_model', '=', 't4.clinical.notification.nurse')]
+            notification_ids = activity_pool.search(cr, uid, domain)
+            self.assertEqual(len(notification_ids), len(nurse_notifications), msg='Wrong notifications triggered')
+            
+    def test_gcs_observations_policy(self):
+        gcs_test_data = {
+            'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
+            'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
+            'EYES':     [ '1',  'C',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '4',  '4',  '4',  '4'],
+            'VERBAL':   [ '1',  'T',  '1',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '5',  '5',  '5'],
+            'MOTOR':    [ '1',  '2',  '2',  '2',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '5',  '6'],
+        }
+        
+        gcs_policy = {
+            'frequencies': [30, 60, 120, 240, 720],
+            'notifications': [
+                {'nurse': [], 'assessment': False, 'frequency': False},
+                {'nurse': [], 'assessment': False, 'frequency': False},
+                {'nurse': [], 'assessment': False, 'frequency': False},
+                {'nurse': [], 'assessment': False, 'frequency': False},
+                {'nurse': [], 'assessment': False, 'frequency': False}
+            ]
+        }
+        # environment
+        pos1_env = self.create_pos_environment()
+        # register
+        [self.adt_patient_register(env=pos1_env) for i in range(5)]
+
+        # admit
+        [self.adt_patient_admit(data_vals={'other_identifier': other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
+
+        # placements
+        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
+
+        # gcs
+        for i in range(0, 13):
+            gcs_id = self.observation_gcs(data_vals={
+                'eyes': gcs_test_data['EYES'][i],
+                'verbal': gcs_test_data['VERBAL'][i],
+                'motor': gcs_test_data['MOTOR'][i],
+            }, env=pos1_env)
+
+            frequency = gcs_policy['frequencies'][gcs_test_data['CASE'][i]]
+            nurse_notifications = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['nurse']
+            assessment = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['assessment']
+            review_frequency = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['frequency']
+
+            print "TEST - observation GCS: expecting score %s, frequency %s" % (gcs_test_data['SCORE'][i], frequency)
+            gcs_activity = activity_pool.browse(cr, uid, gcs_id)
+            
+            # # # # # # # # # # # # # # # # #
+            # Check the score and frequency #
+            # # # # # # # # # # # # # # # # #
+            self.assertEqual(gcs_activity.data_ref.score, gcs_test_data['SCORE'][i], msg='Score not matching')
+            domain = [
+                ('creator_id', '=', gcs_id),
+                ('state', 'not in', ['completed', 'cancelled']),
+                ('data_model', '=', gcs_pool._name)]
+            gcs_activity_ids = activity_pool.search(cr, uid, domain)
+            self.assertTrue(gcs_activity_ids, msg='Next GCS activity was not triggered')
+            next_gcs_activity = activity_pool.browse(cr, uid, gcs_activity_ids[0])
+            self.assertEqual(next_gcs_activity.data_ref.frequency, frequency, msg='Frequency not matching')
