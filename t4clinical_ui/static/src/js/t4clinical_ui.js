@@ -176,7 +176,7 @@ openerp.t4clinical_ui = function (instance) {
         select_record: function (index, view) {
             view = view || index == null ? 'form' : 'form';
             this.dataset.index = index;
-            if (this.fields_view.name != "T4 Clinical patient placement activity Tree View"){
+            if (this.fields_view.name != "T4 Clinical Placement Tree View"){
                 _.delay(_.bind(function () {
                     this.do_switch_view(view);
                 }, this));
