@@ -373,6 +373,7 @@ class t4_clinical_patient_observation_gcs(orm.Model):
                    {'nurse': [], 'assessment': False, 'frequency': False},
                    {'nurse': [], 'assessment': False, 'frequency': False},
                    {'nurse': [], 'assessment': False, 'frequency': False},
+                   {'nurse': [], 'assessment': False, 'frequency': False},
                    {'nurse': [], 'assessment': False, 'frequency': False}
                ]}
 
