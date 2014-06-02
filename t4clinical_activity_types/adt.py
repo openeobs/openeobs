@@ -61,7 +61,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
             - on validation fail raise exception
             - start admission with patient_id and suggested_location
             
-       consultanting and referring doctors are expected in the submitted values on key='doctors' in format:
+       consulting and referring doctors are expected in the submitted values on key='doctors' in format:
        [...
        {
        'type': 'c' or 'r',
@@ -173,7 +173,17 @@ class t4_clinical_adt_patient_admit(orm.Model):
         activity_pool.write(cr, SUPERUSER_ID, activity_id, {'parent_id': admission_result['t4.clinical.spell']})
         return res
     
-    
+class t4_clinical_adt_cancel_admit(orm.Model):
+    _name = 't4.clinical.adt.cancel_admit'
+    _inherit = ['t4.activity.data']      
+    _columns = {
+        'other_identifier': fields.text('otherId', required=True),
+        'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
+    }
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.clinical']
+        
+        super(t4_clinical_adt_patient_discharge, self).complete(cr, uid, activity_id, context)
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
     _inherit = ['t4.activity.data']      
