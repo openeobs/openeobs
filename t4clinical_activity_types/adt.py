@@ -100,7 +100,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
                                                     [('code','=',vals['location']),
                                                      ('id','child_of',user.pos_id.location_id.id)])
         if not suggested_location_id:
-            _logger.warn("ADT suggested_location not found! Will pass suggested_location_id = False")
+            _logger.warn("ADT suggested_location '%s' not found! Will pass suggested_location_id = False" % vals['location'])
             suggested_location_id = False
         else:
             suggested_location_id = suggested_location_id[0]
