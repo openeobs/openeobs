@@ -6,13 +6,13 @@
                   sequence="2"
                   id="menu_t4ui_left_patient"
                   parent="menu_t4ui_top_root"
-                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
+                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_hca,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Patient Placements"
                   id="menu_t4ui_left_placement"
                   parent="menu_t4ui_left_patient"
                   action="action_show_placements"
-                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
+                  groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Ward Management"
                   sequence="3"
