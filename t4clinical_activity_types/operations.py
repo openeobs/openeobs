@@ -165,14 +165,6 @@ class t4_clinical_patient_placement(orm.Model):
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
         frequency = activity_pool.browse(cr, uid, ews_activity_id, context=context).data_ref.frequency
         activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
-        # create GCS
-        gcs_activity_id = gcs_pool.create_activity(cr, SUPERUSER_ID,
-                                                   {#'location_id': placement_activity.data_ref.location_id.id,
-                                                    'parent_id': spell_activity_id,
-                                                    'creator_id': activity_id},
-                                                   {'patient_id': placement_activity.data_ref.patient_id.id}, context)
-        frequency = activity_pool.browse(cr, uid, gcs_activity_id, context=context).data_ref.frequency
-        activity_pool.schedule(cr, uid, gcs_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         return {}
 
      

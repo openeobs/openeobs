@@ -55,13 +55,13 @@
           	id="menu_left_wardboard" 
           	parent="menu_t4ui_top_root"
           	action=""
-          	groups="t4clinical_base.group_t4clinical_nurse,base.user_root"/>
+          	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
           	
           <menuitem name="Wardboard" 
           	id="menu_left_sub_wardboard" 
           	parent="menu_left_wardboard"
           	action="action_wardboard"
-          	groups="t4clinical_base.group_t4clinical_nurse,base.user_root"/>    	
+          	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Activity Workload" 
         	id="menu_left_sub_activity_workload"
