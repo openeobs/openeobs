@@ -33,6 +33,7 @@ class t4_clinical_api(orm.AbstractModel):
         return patient_pool.search(cr, uid, domain, context=context)
 
     def _cancel_activity(self, cr, uid, patient_id, activity_type, context=None):
+        # Y: what if more than one activities of the type for the patient exist?
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['t4.activity']
