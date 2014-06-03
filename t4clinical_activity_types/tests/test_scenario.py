@@ -373,34 +373,8 @@ class ActivityTypesTest(BaseTest):
         self.assertTrue(ews_activity.pos_id.id == placement_activity.pos_id.id,
                        "ews_activity.pos_id != placement_activity.pos_id after placement completion!") 
         self.assertTrue(ews_activity.location_id.id == placement_activity.data_ref.location_id.id, # placement_activity.location_id == suggested_location
-                       "ews_activity.location_id != placement_activity.data_ref.location_id.id after placement completion!")       
-        
-         # gcs test
-        gcs_activity_id = activity_pool.search(cr, uid, [['data_model','=','t4.clinical.patient.observation.gcs'],
-                                                         ['creator_id','=',placement_activity_id]])   
-        gcs_activity_id = gcs_activity_id and gcs_activity_id[0]
-        self.assertTrue(gcs_activity_id,
-                       "gcs_activity not found after placement completion!")  
-        gcs_activity = activity_pool.browse(cr, uid, gcs_activity_id)
-        self.assertTrue(gcs_activity.parent_id.id == spell_activity.id,
-                       "gcs_activity.parent_id != spell_activity after placement completion!")
-        self.assertTrue(gcs_activity.state == 'scheduled',
-                       "gcs_activity.state != 'scheduled' after placement completion!")  
-        date_scheduled_diff=(dt.now()+rd(minutes=spell_activity.data_ref.ews_frequency) 
-                             - dt.strptime(gcs_activity.date_scheduled, DTF)).total_seconds()
-        self.assertTrue(date_scheduled_diff < 5,
-                       "gcs_activity.date_scheduled_diff > 5 sec after placement completion!")
-#         gcs_trigger = api_pool.get_activity_trigger_browse(cr, uid, gcs_activity.patient_id.id, gcs_activity.data_model)
-#         self.assertTrue(gcs_trigger.unit == 'minute' and gcs_trigger.unit_qty == placement_activity.pos_id.ews_init_frequency,
-#                        "gcs_trigger is not set correctly after placement completion!")         
-        self.assertTrue(gcs_activity.patient_id.id == placement_activity.patient_id.id,
-                       "gcs_activity.patient_id != placement_activity.patient_id after placement completion!")        
-        self.assertTrue(gcs_activity.pos_id.id == placement_activity.pos_id.id,
-                       "gcs_activity.pos_id != placement_activity.pos_id after placement completion!") 
-        self.assertTrue(gcs_activity.location_id.id == placement_activity.data_ref.location_id.id, # placement_activity.location_id == suggested_location
-                       "gcs_activity.location_id != placement_activity.data_ref.location_id.id after placement completion!")          
-            
-    
+                       "ews_activity.location_id != placement_activity.data_ref.location_id.id after placement completion!")
+
     def device_connect(self, activity_vals={}, data_vals={}, env={}):
         data = {}
         device_id = data_vals.get('device_id') \
