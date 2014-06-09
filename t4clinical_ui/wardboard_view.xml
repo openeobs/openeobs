@@ -54,8 +54,9 @@
                             <filter name="high_risk" string="High Risk" domain="[('clinical_risk','=','High')]"/>
                         </group>
                         <group expand="1" string="Group By...">
-                            <filter name="age" string="Age" domain="[]" context="{'group_by':'age'}" help="Age"/>
+                            <!--<filter name="age" string="Age" domain="[]" context="{'group_by':'age'}" help="Age"/>-->
                             <filter name="clinical_risk" string="Clinical Risk" domain="[]" context="{'group_by':'clinical_risk'}" help="Clinical Risk"/>
+                            <filter name="group_by_ward" string="Ward" domain="[]" context="{'group_by':'ward_id'}" help="Group by Ward"/>
                         </group>
                     </search>
                 </field>
@@ -414,6 +415,7 @@
                 <field name="view_type">form</field>
                 <field name="view_mode">tree,form,kanban</field>
                 <field name="domain">[('next_diff','!=',False)]</field>
+                <field name="context">{'search_default_group_by_ward':1}</field>
                 <field name="search_view_id" ref="view_wardboard_search"/>
             </record>
             <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">

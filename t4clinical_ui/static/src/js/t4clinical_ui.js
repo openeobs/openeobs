@@ -2,12 +2,13 @@ openerp.t4clinical_ui = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing3, timing4;
+    var timing, timing2, timing3, timing4, timing5;
     var refresh_placement = false;
     var refresh_active_poc = false;
     var wardboard_refreshed = false;
     var _t = instance.web._t;
     var logout_timeout, session;
+    var wardboard_groups_opened = false;
 
     instance.web.T4TreeView = instance.web.TreeView.extend({
 
@@ -101,6 +102,10 @@ openerp.t4clinical_ui = function (instance) {
                 if (options.action.name == "Patient Placements" || options.action.name == "Wardboard" || options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
                     options.selectable = false;
                 };
+                if (typeof(timing5) != 'undefined'){
+                    clearInterval(timing5);
+                }
+                wardboard_groups_opened = false;
                 if (options.action.name == "Wardboard"){
                     if (typeof(timing) != 'undefined'){
                         clearInterval(timing);
@@ -112,6 +117,13 @@ openerp.t4clinical_ui = function (instance) {
                             button.click();
                         }
                     }, 300000);
+                    timing5 = window.setInterval(function(){
+                        var groups =  $(".oe_group_header");
+                        if (!wardboard_groups_opened && groups){
+                            wardboard_groups_opened = true;
+                            groups.click();
+                        }
+                    }, 700);
                 }
                 else if (options.action.name == "Patient Placements"){
                     if (typeof(timing2) != 'undefined'){
