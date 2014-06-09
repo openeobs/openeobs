@@ -1,5 +1,7 @@
 from openerp.osv import orm, fields, osv
 from openerp import SUPERUSER_ID
+from datetime import datetime as dt, timedelta as td
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class t4_clinical_patient_extension(osv.Model):
@@ -54,10 +56,15 @@ class t4_clinical_api_extension(orm.AbstractModel):
     def trigger_notifications(self, cr, uid, notifications, parent_id, creator_id, patient_id, model, context=None):
         nurse_pool = self.pool['t4.clinical.notification.nurse']
         for n in notifications['nurse']:
-            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n, 'parent_id': parent_id, 'creator_id': creator_id}, {'patient_id': patient_id})
+            nurse_pool.create_activity(cr, SUPERUSER_ID, {'summary': n,
+                                                          'parent_id': parent_id,
+                                                          'date_deadline': (dt.now()+td(minutes=5)).strftime(DTF),
+                                                          'creator_id': creator_id}, {'patient_id': patient_id})
         if notifications['assessment']:
             assessment_pool = self.pool['t4.clinical.notification.assessment']
-            assessment_pool.create_activity(cr, SUPERUSER_ID, {'parent_id': parent_id, 'creator_id': creator_id}, {'patient_id': patient_id})
+            assessment_pool.create_activity(cr, SUPERUSER_ID, {'parent_id': parent_id,
+                                                               'date_deadline': (dt.now()+td(minutes=5)).strftime(DTF),
+                                                               'creator_id': creator_id}, {'patient_id': patient_id})
         if notifications['frequency']:
             activity_pool = self.pool['t4.activity']
             domain = [
@@ -69,8 +76,10 @@ class t4_clinical_api_extension(orm.AbstractModel):
                 if f.data_ref.observation == model:
                     activity_pool.cancel(cr, uid, f.id, context=context)
             frequency_pool = self.pool['t4.clinical.notification.frequency']
-            frequency_pool.create_activity(cr, SUPERUSER_ID, {'parent_id': parent_id, 'creator_id': creator_id
-            }, {'patient_id': patient_id, 'observation': model})
+            frequency_pool.create_activity(cr, SUPERUSER_ID, {'parent_id': parent_id,
+                                                              'creator_id': creator_id,
+                                                              'date_deadline': (dt.now()+td(minutes=5)).strftime(DTF)},
+                                           {'patient_id': patient_id, 'observation': model})
 
     def cancel_open_activities(self, cr, uid, parent_id, model, context=None):
         activity_pool = self.pool['t4.activity']

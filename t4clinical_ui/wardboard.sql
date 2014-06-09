@@ -74,6 +74,7 @@ select
 	coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
 	location.code as location,
 	location.id as location_id,
+	location.parent_id as ward_id,
 	patient.sex,
 	patient.dob,
 	extract(year from age(now(), patient.dob)) as age,
