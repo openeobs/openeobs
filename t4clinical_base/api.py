@@ -40,6 +40,10 @@ class t4_clinical_api(orm.AbstractModel):
     def location_availability_map(self, cr, uid, 
                                   ids=[], types=[], usages=[], codes=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):  
+        """
+        returns dict of dicts for location model of the following format:
+        {id: {id, code, type, usage, occupied, capacity, available}}
+        """
         conditions = (ids, types, usages, codes)
         where_list = []
         ids and where_list.append("id in (%s)" % ','.join(ids))
@@ -118,7 +122,7 @@ class t4_clinical_api(orm.AbstractModel):
                   ('data_model', '=', 't4.clinical.spell')]
         if pos_id:
             domain.append(('pos_id', '=', pos_id))
-        spell_activity_id = activity_pool.search(cr, SUPERUSER_ID, domain)
+        spell_activity_id = activity_pool.search(cr, uid, domain)
         if not spell_activity_id:
             return False
         if len(spell_activity_id) > 1:
@@ -138,7 +142,7 @@ class t4_clinical_api(orm.AbstractModel):
         domain = [('device_id', '=', device_id),
                   ('state', '=', 'started'),
                   ('data_model', '=', 't4.clinical.device.session')]
-        session_activity_id = activity_pool.search(cr, SUPERUSER_ID, domain)
+        session_activity_id = activity_pool.search(cr, uid, domain)
         if not session_activity_id:
             return False
         if len(session_activity_id) > 1:

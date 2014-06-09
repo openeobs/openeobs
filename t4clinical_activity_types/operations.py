@@ -145,7 +145,7 @@ class t4_clinical_patient_placement(orm.Model):
         
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         # set spell location
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, placement_activity.data_ref.patient_id.id, context=context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, placement_activity.data_ref.patient_id.id, context=context)
         except_if(not spell_activity_id, 
                   cap="Spell in state 'started' is not found for patient_id=%s" % placement_activity.data_ref.patient_id.id,
                   msg="Placement can not be completed")
@@ -155,7 +155,7 @@ class t4_clinical_patient_placement(orm.Model):
                                                      'creator_id': activity_id},
                                                     {'patient_id': placement_activity.data_ref.patient_id.id,
                                                      'location_id': placement_activity.data_ref.location_id.id})
-        activity_pool.complete(cr, uid, move_activity_id)
+        activity_pool.complete(cr, SUPERUSER_ID, move_activity_id)
         activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
         # create EWS
         ews_activity_id = ews_pool.create_activity(cr, SUPERUSER_ID, 
@@ -163,8 +163,8 @@ class t4_clinical_patient_placement(orm.Model):
                                                     'parent_id': spell_activity_id,
                                                     'creator_id': activity_id}, 
                                                    {'patient_id': placement_activity.data_ref.patient_id.id}, context)
-        frequency = activity_pool.browse(cr, uid, ews_activity_id, context=context).data_ref.frequency
-        activity_pool.schedule(cr, uid, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
+        frequency = activity_pool.browse(cr, SUPERUSER_ID, ews_activity_id, context=context).data_ref.frequency
+        activity_pool.schedule(cr, SUPERUSER_ID, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
         return {}
 
      

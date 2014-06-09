@@ -54,23 +54,26 @@ class t4_activity_data(orm.AbstractModel):
         """
         Returns pos_id for activity calculated based on activity data
         Logic:
-        1. If data has 'pos_id' field and it is not False, returns value of the field
-        2. If get_activity_location_id() returns location_id, returns location.pos_id.id
-        3. If get_activity_patient_id() returns patient_id and api_pool.get_patient_spell_activity_browse, returns spell_activity.data_ref.pos_id.id
+        10. If data has 'pos_id' field and it is not False, returns value of the field
+        20. If get_activity_location_id() returns location_id, returns location.pos_id.id
+        30. If get_activity_patient_id() returns patient_id and api_pool.get_patient_spell_activity_browse, returns spell_activity.data_ref.pos_id.id
         """
         _logger.debug("Calculating pos_id for activity.id=%s" % (activity_id))        
         pos_id = False
         api_pool = self.pool['t4.clinical.api']
-        # 1
+        data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
+        # 10
         if 'pos_id' in self._columns.keys():
-            data = self.browse_domain(cr, uid, [('activity_id', '=', activity_id)])[0]
             pos_id = data.pos_id and data.pos_id.id or False
         if pos_id:
             _logger.debug("Returning self based pos_id = %s" % (pos_id))
             return pos_id
         location_id = self.get_activity_location_id(cr, uid, activity_id)
         patient_id = self.get_activity_patient_id(cr, uid, activity_id)
-        # 2
+#         # 15
+#         if data.activity_id.parent_id:
+#             pos_id = data.activity_id.parent_id.pos_id.id
+        # 20
         if not location_id:
             location_id = api_pool.get_patient_current_location_id(cr, uid, patient_id, context)
             if location_id:
@@ -79,7 +82,7 @@ class t4_activity_data(orm.AbstractModel):
                 if pos_id:
                     _logger.debug("Returning location_id based pos_id = %s" % (pos_id))
                     return pos_id
-        # 3
+        # 30
         patient_id = self.get_activity_patient_id(cr, uid, activity_id)
         spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, patient_id, context=None)
         pos_id = spell_activity and spell_activity.data_ref.pos_id.id
