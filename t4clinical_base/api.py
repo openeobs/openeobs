@@ -46,7 +46,7 @@ class t4_clinical_api(orm.AbstractModel):
         """
         conditions = (ids, types, usages, codes)
         where_list = []
-        ids and where_list.append("id in (%s)" % ','.join(ids))
+        ids and where_list.append("id in (%s)" % ','.join([str(id) for id in ids]))
         types and where_list.append("type in ('%s')" % "','".join(types))
         usages and where_list.append("usage in ('%s')" % "','".join(usages))
         codes and where_list.append("code in ('%s')" % "','".join(codes))

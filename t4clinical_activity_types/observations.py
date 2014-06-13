@@ -52,6 +52,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)
     
     def create_activity(self, cr, uid, activity_vals={}, data_vals={}, context=None):
+        assert data_vals.get('patient_id'), "patient_id is a required field!"
         activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, data_vals['patient_id'], context=context)
@@ -324,9 +325,6 @@ class t4_clinical_patient_observation_ews(orm.Model):
 
         res = super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
-        # cancel open EWS
-        api_pool.cancel_open_activities(cr, uid, spell_activity_id, self._name, context=context)
-
         # create next EWS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': spell_activity_id},
@@ -336,7 +334,16 @@ class t4_clinical_patient_observation_ews(orm.Model):
                                            self._name,
                                            self._POLICY['frequencies'][case], context=context)
         return res
-
+    
+    def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
+        activity_pool = self.pool['t4.activity']
+        domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]
+        ids = activity_pool.search(cr, SUPERUSER_ID, domain)
+        except_if(len(ids),
+                  msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
+                  % (self._name, str(ids)))
+        res = super(t4_clinical_patient_observation_ews, self).create_activity(cr, uid, vals_activity, vals_data, context)
+        return res
 
 class t4_clinical_patient_observation_gcs(orm.Model):
     _name = 't4.clinical.patient.observation.gcs'
@@ -416,9 +423,6 @@ class t4_clinical_patient_observation_gcs(orm.Model):
 
         res = super(t4_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
-        # cancel open GCS
-        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
-
         # create next GCS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
@@ -429,6 +433,16 @@ class t4_clinical_patient_observation_gcs(orm.Model):
                                            self._POLICY['frequencies'][case], context=context)
         return res
 
+    def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
+        assert vals_data.get('patient_id'), "patient_id is a required field!"
+        activity_pool = self.pool['t4.activity']
+        domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]
+        ids = activity_pool.search(cr, SUPERUSER_ID, domain)
+        except_if(len(ids),
+                  msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
+                  % (self._name, str(ids)))
+        res = super(t4_clinical_patient_observation_gcs, self).create_activity(cr, uid, vals_activity, vals_data, context)
+        return res
 
 class t4_clinical_patient_observation_vips(orm.Model):
     _name = 't4.clinical.patient.observation.vips'
@@ -506,9 +520,6 @@ class t4_clinical_patient_observation_vips(orm.Model):
 
         res = super(t4_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
-        # cancel open VIPS
-        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
-
         # create next VIPS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
                              {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
@@ -517,4 +528,14 @@ class t4_clinical_patient_observation_vips(orm.Model):
                                            activity.data_ref.patient_id.id,
                                            self._name,
                                            self._POLICY['frequencies'][case], context=context)
+        return res
+    
+    def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
+        activity_pool = self.pool['t4.activity']
+        domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]
+        ids = activity_pool.search(cr, SUPERUSER_ID, domain)
+        except_if(len(ids),
+                  msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
+                  % (self._name, str(ids)))
+        res = super(t4_clinical_patient_observation_vips, self).create_activity(cr, uid, vals_activity, vals_data, context)
         return res
