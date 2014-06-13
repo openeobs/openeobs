@@ -102,7 +102,7 @@ select
         when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen. 
     end as ews_trend_string,
     case
-        when ews1.id is null then 'None'
+        when ews1.id is null then 'NoScore'
         else ews1.clinical_risk
     end as clinical_risk,
 	ews1.score - ews2.score as ews_trend,

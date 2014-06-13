@@ -142,6 +142,15 @@ class t4_clinical_wardboard(orm.Model):
         'o2target_string': fields.text("O2 Target"),
         'consultant_names': fields.text("Consulting Doctors"),
     }
+
+    def _get_cr_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
+        res = [['NoScore', 'No Score Yet'], ['None', 'No Risk'], ['Low', 'Low Risk'], ['Medium', 'Medium Risk'], ['High', 'High Risk']]
+        fold = {r[0]: False for r in res}
+        return res, fold
+
+    _group_by_full = {
+        'clinical_risk': _get_cr_groups,
+    }
     
     def device_session_start(self, cr, uid, ids, context=None):
         from pprint import pprint as pp
@@ -419,7 +428,7 @@ select
         when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen.
     end as ews_trend_string,
     case
-        when ews1.id is null then 'None'
+        when ews1.id is null then 'NoScore'
         else ews1.clinical_risk
     end as clinical_risk,
     ews1.score - ews2.score as ews_trend,
