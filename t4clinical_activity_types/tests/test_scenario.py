@@ -609,7 +609,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         env_pool.adt_patient_register(cr, adt_user_id, env_id)
 
         # Admit
-        env_pool.adt_patient_admit(cr, adt_user_id, env_id)
+        admit_activity_id = env_pool.adt_patient_admit(cr, adt_user_id, env_id)
         
 #         # Register-Admit-Placement shortcut # breaks on 'more than 1 ews at a time' 
 #         env_pool.force_patient_placement(cr, adt_user_id, env_id)
@@ -624,6 +624,10 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         
         # Complete Placement shortcut
         env_pool.complete_placement(cr, uid, env_id)
+        
+
+        
+        
         
         # Complete observation.ews managed option
         ews_activity_ids = env_pool.get_activity_ids(cr, uid, env_id, 't4.clinical.patient.observation.ews')
@@ -660,6 +664,13 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         # Complete observation.stools shortcut
         env_pool.create_observation_stools(cr, uid, env_id)
         env_pool.complete_observation_stools(cr, uid, env_id)
+
+        # calcel adt.admit.cancel
+        activity_pool = self.registry('t4.activity')
+        admit_activity = activity_pool.browse(cr, adt_user_id, admit_activity_id)
+        cancel_admit_pool = self.registry('t4.clinical.adt.patient.cancel_admit')
+        cancel_admit_activity_id = cancel_admit_pool.create_activity(cr, adt_user_id, {}, {'other_identifier': admit_activity.data_ref.other_identifier})
+        activity_pool.complete(cr, adt_user_id, cancel_admit_activity_id)
 
     def test_gcs_observations_policy_static__2(self):
 
@@ -726,6 +737,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
             self.assertEqual(next_gcs_activity.data_ref.frequency, frequency, msg='Frequency not matching')
 
     def test_ews_observations_policy_static__2(self):
+       
         ews_test_data = {
             'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],
             'CASE':     [   0,    1,    1,    1,    1,    2,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    2,    2,    3],
@@ -1018,7 +1030,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
             self.assertEqual(len(notification_ids), len(nurse_notifications), msg='Wrong notifications triggered')
             
     def test_gcs_observations_policy(self):
-        return
+        return 
         gcs_test_data = {
             'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
             'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],

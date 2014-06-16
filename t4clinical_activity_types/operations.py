@@ -102,15 +102,7 @@ class t4_clinical_patient_move(orm.Model):
 
 class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
-    _inherit = ['t4.activity.data'] 
-    _transitions = {
-        'new': ['schedule', 'plan','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
-        'planned': ['schedule','start','complete','cancel','submit','assign','unassign','retrieve','validate'],
-        'scheduled': ['start','complete','cancel','submit','assign','unassign','retrieve','validate'],
-        'started': ['complete','cancel','submit','assign','unassign','retrieve','validate'],
-        'completed': ['retrieve','validate'],
-        'cancelled': ['retrieve','validate']
-                    }       
+    _inherit = ['t4.activity.data']       
     _description = "Patient Placement"
     _start_view_xmlid = "view_patient_placement_form"
     _schedule_view_xmlid = "view_patient_placement_form"

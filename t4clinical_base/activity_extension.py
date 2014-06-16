@@ -29,7 +29,15 @@ class t4_activity(orm.Model):
     
 class t4_activity_data(orm.AbstractModel):
     _inherit = 't4.activity.data'
-    
+    _transitions = {
+        'new': ['schedule', 'plan', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve',
+                'validate'],
+        'planned': ['schedule', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
+        'scheduled': ['schedule', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
+        'started': ['complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
+        'completed': ['retrieve', 'validate','cancel'],
+        'cancelled': ['retrieve', 'validate']
+    }      
     def update_activity(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)

@@ -15,15 +15,6 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
     _inherit = ['t4.activity.data']
-    _transitions = {
-        'new': ['schedule', 'plan', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve',
-                'validate'],
-        'planned': ['schedule', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
-        'scheduled': ['schedule', 'start', 'complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
-        'started': ['complete', 'cancel', 'submit', 'assign', 'unassign', 'retrieve', 'validate'],
-        'completed': ['retrieve', 'validate'],
-        'cancelled': ['retrieve', 'validate']
-    }
     _required = [] # fields required for complete observation
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):

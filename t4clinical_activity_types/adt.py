@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 
 class t4_clinical_adt(orm.Model):
     _name = 't4.clinical.adt'
-    _inherit = ['t4.activity.data']       
+    _inherit = ['t4.activity.data']     
     _columns = {
     }
 
@@ -173,17 +173,69 @@ class t4_clinical_adt_patient_admit(orm.Model):
         activity_pool.write(cr, SUPERUSER_ID, activity_id, {'parent_id': admission_result['t4.clinical.spell']})
         return res
     
-class t4_clinical_adt_cancel_admit(orm.Model):
-    _name = 't4.clinical.adt.cancel_admit'
+class t4_clinical_adt_patient_cancel_admit(orm.Model):
+    _name = 't4.clinical.adt.patient.cancel_admit'
     _inherit = ['t4.activity.data']      
     _columns = {
         'other_identifier': fields.text('otherId', required=True),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
     }
-    def complete(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.clinical']
+
+    def submit(self, cr, uid, activity_id, vals, context=None):
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)
+        patient_pool = self.pool['t4.clinical.patient']
+        patient_id = patient_pool.search(cr, SUPERUSER_ID, [('other_identifier','=',vals['other_identifier'])])
+        except_if(not patient_id, msg="Patient not found!")
+        if len(patient_id) > 1:
+            _logger.warn("More than one patient found with 'other_identifier' = %s! Passed patient_id = %s" 
+                                    % (vals['other_identifier'], patient_id[0]))
+        patient_id = patient_id[0]        
+        vals_copy = vals.copy()
+        vals_copy.update({'pos_id': user.pos_id.id, 'patient_id':patient_id})
+        res = super(t4_clinical_adt_patient_cancel_admit, self).submit(cr, uid, activity_id, vals_copy, context)
+        return res
         
-        super(t4_clinical_adt_patient_discharge, self).complete(cr, uid, activity_id, context)
+        
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        admit_cancel_activity = activity_pool.browse(cr, uid, activity_id)
+        # get admit activity
+        api_pool = self.pool['t4.clinical.api']
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, SUPERUSER_ID, admit_cancel_activity.data_ref.patient_id.id, context=context)
+        except_if(not spell_activity, msg="Patient id=%s has no started spell!" % admit_cancel_activity.data_ref.patient_id.id)
+        # admit-admission-spell
+        admit_activity_id = spell_activity.creator_id \
+                            and spell_activity.creator_id.creator_id\
+                            and spell_activity.creator_id.creator_id.id \
+                            or False
+        except_if(not admit_activity_id, msg="adt.admit activity is not found!")
+        admit_activity = activity_pool.browse(cr, uid, admit_activity_id)
+        # get all children and created activity_ids
+        activity_ids = []
+        next_level_activity_ids = []
+
+        next_level_activity_ids.extend([child.id for child in admit_activity.child_ids])
+        next_level_activity_ids.extend([created.id for created in admit_activity.created_ids])
+        activity_ids.extend(next_level_activity_ids)
+        #import pdb; pdb.set_trace()
+        while next_level_activity_ids:
+            for activity in activity_pool.browse(cr, uid, next_level_activity_ids):
+                next_level_activity_ids = [child.id for child in activity.child_ids]
+                next_level_activity_ids.extend([created.id for created in activity.created_ids])            
+                activity_ids.extend(next_level_activity_ids)
+        activity_ids = list(set(activity_ids)) 
+        _logger.info("Starting activities cancellation due to adt.pateint.cancel_admit activity completion...")       
+        for activity in activity_pool.browse(cr, uid, activity_ids):
+            activity_pool.cancel(cr, uid, activity.id)
+        
+        
+        
+        
+        super(t4_clinical_adt_patient_cancel_admit, self).complete(cr, uid, activity_id, context)
+        
+
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
     _inherit = ['t4.activity.data']      
