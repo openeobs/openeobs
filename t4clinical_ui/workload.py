@@ -18,7 +18,7 @@ class t4_clinical_workload(orm.Model):
                            (50, '1-15 minutes late'),
                            (60, '16+ minutes late')]    
     _columns = {
-        'activity_id': fields.many2one('t4.activity', 'Activity'),
+        'activity_id': fields.many2one('t4.activity', 'Activity', required=1, ondelete='restrict'),
         'proximity_interval': fields.selection(_proximity_intervals, 'Proximity Interval', readonly=True),
     }
     def init(self, cr):

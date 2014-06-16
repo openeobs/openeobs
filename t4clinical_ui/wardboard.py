@@ -9,9 +9,9 @@ class wardboard_patient_placement(orm.TransientModel):
     _name = "wardboard.patient.placement"
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
-        'ward_location_id':  fields.many2one('t4.clinical.location',"Ward"),
-        'bed_src_location_id':  fields.many2one('t4.clinical.location',"Source Bed"),
-        'bed_dst_location_id':  fields.many2one('t4.clinical.location',"Destination Bed")
+        'ward_location_id':  fields.many2one('t4.clinical.location', "Ward"),
+        'bed_src_location_id':  fields.many2one('t4.clinical.location', "Source Bed"),
+        'bed_dst_location_id':  fields.many2one('t4.clinical.location', "Destination Bed")
     }
     def do_move(self, cr, uid, ids, context=None):
         wiz = self.browse(cr, uid, ids[0])
@@ -115,7 +115,7 @@ class t4_clinical_wardboard(orm.Model):
         return res
 
     _columns = {
-        'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=1, ondelete='restrict'),
         'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
         'spell_activity_id': fields.many2one('t4.activity', 'Spell Activity'),
         'spell_date_started': fields.datetime('Spell Start Date'),
