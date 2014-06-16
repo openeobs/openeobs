@@ -47,11 +47,15 @@
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
                     <search string="Wardboard Search View">
+                    	<field name="ews_trend" />
                         <group expand="1" string="Filters">
                             <filter name="no_risk" string="No Risk" domain="[('clinical_risk','=','None')]"/>
                             <filter name="low_risk" string="Low Risk" domain="[('clinical_risk','=','Low')]"/>
                             <filter name="medium_risk" string="Medium Risk" domain="[('clinical_risk','=','Medium')]"/>
                             <filter name="high_risk" string="High Risk" domain="[('clinical_risk','=','High')]"/>
+                            <filter name="ews_trend_down" string="Deteriorating Trend" domain="[('ews_trend','&lt;',0)]"/>
+                            <filter name="ews_trend_up" string="Improving Trend" domain="[('ews_trend','&gt;',0)]"/>
+                            <filter name="ews_trend_same" string="Unchanged Trend" domain="[('ews_trend','=',0)]"/>
                         </group>
                         <group expand="1" string="Group By...">
                             <!--<filter name="age" string="Age" domain="[]" context="{'group_by':'age'}" help="Age"/>-->
