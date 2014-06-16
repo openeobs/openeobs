@@ -30,7 +30,7 @@ class t4_clinical_spell(orm.Model):
 #         if current_spell_id:
 #             import pdb; pdb.set_trace()
         if current_spell_id:
-            res = current_spell[0]
+            res = current_spell_id[0]
             _logger.warn("Started spell already exists! Current spell ID=%s returned." % current_spell_id[0])
         else:        
             res = super(t4_clinical_spell, self).create(cr, uid, vals, context)
