@@ -13,7 +13,7 @@ class t4_clinical_placement(orm.Model):
     _auto = False
     _table = "t4_clinical_placement"
     _columns = {
-        'activity_id': fields.many2one('t4.activity', 'Activity'),
+        'activity_id': fields.many2one('t4.activity', 'Activity', required=1, ondelete='restrict'),
         'location_id': fields.many2one('t4.clinical.location', 'Ward'),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient'),
