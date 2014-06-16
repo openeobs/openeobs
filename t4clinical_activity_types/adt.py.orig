@@ -184,6 +184,7 @@ class t4_clinical_adt_patient_cancel_admit(orm.Model):
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
     }
 
+<<<<<<< HEAD
     def submit(self, cr, uid, activity_id, vals, context=None):
         user = self.pool['res.users'].browse(cr, uid, uid, context)
         except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)
@@ -200,6 +201,8 @@ class t4_clinical_adt_patient_cancel_admit(orm.Model):
         return res
         
         
+=======
+>>>>>>> 952b6d69d6348f72cd924ddb92ff4843dd45405f
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
         admit_cancel_activity = activity_pool.browse(cr, uid, activity_id)
@@ -232,12 +235,16 @@ class t4_clinical_adt_patient_cancel_admit(orm.Model):
         for activity in activity_pool.browse(cr, uid, activity_ids):
             activity_pool.cancel(cr, uid, activity.id)
         
+<<<<<<< HEAD
         
         
         
-        res = super(t4_clinical_adt_patient_cancel_admit, self).complete(cr, uid, activity_id, context)
-        return res
+        super(t4_clinical_adt_patient_cancel_admit, self).complete(cr, uid, activity_id, context)
+        
+=======
+        super(t4_clinical_adt_cancel_admit, self).complete(cr, uid, activity_id, context)
 
+>>>>>>> 952b6d69d6348f72cd924ddb92ff4843dd45405f
 
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
