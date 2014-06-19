@@ -24,7 +24,7 @@ def next_seed():
 
 
 class t4_clinical_demo_env(orm.Model):
-    _name = 't4.clinical.demo.pos.env'
+    _name = 't4.clinical.demo.env'
     
     _columns = {
         'bed_qty': fields.integer('Bed Qty'),
@@ -67,6 +67,32 @@ class t4_clinical_demo_env(orm.Model):
         admit_pool.complete(cr, uid, activity_id)
         return activity_id
 
+    def data_adt_patient_cancel_admit(self, cr, uid, env_id, data={}):
+        fake.seed(next_seed())
+        env = self.browse(cr, uid, env_id)
+        patient_ids = self.get_patient_ids(cr, uid, env_id, 't4.clinical.spell', [['activity_id.date_terminated','=',False]])
+        patient = self.pool['t4.clinical.patient'].browse(cr, uid, fake.random_element(patient_ids))
+        d = {
+            'other_identifier': patient.other_identifier,
+            'pos_id': env.pos_id.id
+        }
+        d.update(data)
+        return d
+    
+    def create_adt_patient_cancel_admit(self, cr, uid, env_id, vals_activity={}, vals_data={}):
+        activity_id = self._create(cr, uid, env_id, 
+                         't4.clinical.adt.patient.cancel_admit', 
+                         'data_adt_patient_cancel_admit', 
+                         vals_activity, vals_data)        
+        return activity_id   
+
+    def complete_adt_patient_cancel_admit(self, cr, uid, env_id, data={}):
+        activity_id = self._complete(cr, uid, env_id, 
+                                     't4.clinical.adt.patient.cancel_admit', 
+                                     'data_adt_patient_cancel_admit', 
+                                     data)
+        return activity_id
+
     def data_adt_patient_admit(self, cr, uid, env_id, data={}):
         """
         """
@@ -102,7 +128,7 @@ class t4_clinical_demo_env(orm.Model):
         return d
 
 
-    def data_adt_patient_register(self, cr, uid, data={}):
+    def data_adt_patient_register(self, cr, uid, env_id, data={}):
         fake.seed(next_seed())
         gender = fake.random_element(array=('M','F'))
         d = {
@@ -147,7 +173,7 @@ class t4_clinical_demo_env(orm.Model):
         
     def adt_patient_register(self, cr, uid, env_id, data={}):
         fake.seed(next_seed())    
-        d = self.data_adt_patient_register(cr, uid, data)
+        d = self.data_adt_patient_register(cr, uid, env_id, data)
         reg_pool = self.pool['t4.clinical.adt.patient.register']
         activity_id = reg_pool.create_activity(cr, uid, {}, d)
         reg_pool.complete(cr, uid, activity_id)
@@ -164,14 +190,10 @@ class t4_clinical_demo_env(orm.Model):
 #         return reg_activity.patient_id.id
 
     def create_observation_stools(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        vd = vals_data.copy()
-        va = vals_activity.copy()
-        vd = self.data_observation_stools(cr, uid, env_id, vd)
-        api_pool = self.pool['t4.clinical.api']
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, vd.get('patient_id'))
-        spell_activity and va.update({'parent_id': spell_activity.id})
-        stools_pool = self.pool['t4.clinical.patient.observation.stools']
-        activity_id = stools_pool.create_activity(cr, uid, va, vd)
+        activity_id = self._create(cr, uid, env_id, 
+                         't4.clinical.patient.observation.stools', 
+                         'data_observation_stools', 
+                         vals_activity, vals_data)        
         return activity_id       
              
     def complete_observation_stools(self, cr, uid, env_id, data={}):
@@ -202,14 +224,10 @@ class t4_clinical_demo_env(orm.Model):
 
 
     def create_observation_blood_sugar(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        vd = vals_data.copy()
-        va = vals_activity.copy()
-        vd = self.data_observation_blood_sugar(cr, uid, env_id, vd)
-        api_pool = self.pool['t4.clinical.api']
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, vd.get('patient_id'))
-        spell_activity and va.update({'parent_id': spell_activity.id})
-        blood_sugar_pool = self.pool['t4.clinical.patient.observation.blood_sugar']
-        activity_id = blood_sugar_pool.create_activity(cr, uid, va, vd)
+        activity_id = self._create(cr, uid, env_id, 
+                         't4.clinical.patient.observation.blood_sugar', 
+                         'data_observation_blood_sugar', 
+                         vals_activity, vals_data)        
         return activity_id       
              
     def complete_observation_blood_sugar(self, cr, uid, env_id, data={}):
@@ -229,6 +247,17 @@ class t4_clinical_demo_env(orm.Model):
         d.update(data)
         return d
 
+    def _create(self, cr, uid, env_id, data_model, data_meth, vals_activity={}, vals_data={}):
+        vd = vals_data.copy()
+        va = vals_activity.copy()
+        vd = eval("self.%s(cr, uid, env_id, vd)" % data_meth)
+        api_pool = self.pool['t4.clinical.api']
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, vd.get('patient_id'))
+        spell_activity and va.update({'parent_id': spell_activity.id})
+        model_pool = self.pool[data_model]
+        activity_id = model_pool.create_activity(cr, uid, va, vd)
+        return activity_id 
+
     def _complete(self, cr, uid, env_id, data_model, data_meth, data={}):
         d = data.copy()
         patient_ids = self.get_current_patient_ids(cr, uid, env_id)
@@ -243,14 +272,11 @@ class t4_clinical_demo_env(orm.Model):
         return activity.id
 
     def create_observation_blood_product(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        vd = vals_data.copy()
-        va = vals_activity.copy()
-        vd = self.data_observation_blood_product(cr, uid, env_id, vd)
-        api_pool = self.pool['t4.clinical.api']
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, vd.get('patient_id'))
-        spell_activity and va.update({'parent_id': spell_activity.id})
-        blood_product_pool = self.pool['t4.clinical.patient.observation.blood_product']
-        activity_id = blood_product_pool.create_activity(cr, uid, va, vd)
+        activity_id = self._create(cr, uid, env_id, 
+                         't4.clinical.patient.observation.blood_product', 
+                         'data_observation_blood_product', 
+                         vals_activity, vals_data)
+        
         return activity_id       
              
     def complete_observation_blood_product(self, cr, uid, env_id, data={}):
@@ -271,14 +297,10 @@ class t4_clinical_demo_env(orm.Model):
         return d
     
     def create_observation_weight(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        vd = vals_data.copy()
-        va = vals_activity.copy()
-        vd = self.data_observation_weight(cr, uid, env_id, vd)
-        api_pool = self.pool['t4.clinical.api']
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, vd.get('patient_id'))
-        spell_activity and va.update({'parent_id': spell_activity.id})
-        weight_pool = self.pool['t4.clinical.patient.observation.weight']
-        activity_id = weight_pool.create_activity(cr, uid, va, vd)
+        activity_id = self._create(cr, uid, env_id, 
+                         't4.clinical.patient.observation.weight', 
+                         'data_observation_weight', 
+                         vals_activity, vals_data)        
         return activity_id       
              
     def complete_observation_weight(self, cr, uid, env_id, data={}):
@@ -298,14 +320,10 @@ class t4_clinical_demo_env(orm.Model):
         return d
 
     def create_observation_height(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        vd = vals_data.copy()
-        va = vals_activity.copy()
-        vd = self.data_observation_height(cr, uid, env_id, vd)
-        api_pool = self.pool['t4.clinical.api']
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, vd.get('patient_id'))
-        spell_activity and va.update({'parent_id': spell_activity.id})
-        height_pool = self.pool['t4.clinical.patient.observation.height']
-        activity_id = height_pool.create_activity(cr, uid, va, vd)
+        activity_id = self._create(cr, uid, env_id, 
+                         't4.clinical.patient.observation.height', 
+                         'data_observation_height', 
+                         vals_activity, vals_data)        
         return activity_id       
              
     def complete_observation_height(self, cr, uid, env_id, data={}):
@@ -359,14 +377,10 @@ class t4_clinical_demo_env(orm.Model):
         return d                
                 
     def create_observation_gcs(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        vd = vals_data.copy()
-        va = vals_activity.copy()
-        vd = self.data_observation_gcs(cr, uid, env_id, vd)
-        api_pool = self.pool['t4.clinical.api']
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, uid, vd.get('patient_id'))
-        spell_activity and va.update({'parent_id': spell_activity.id})
-        gcs_pool = self.pool['t4.clinical.patient.observation.gcs']
-        activity_id = gcs_pool.create_activity(cr, uid, va, vd)
+        activity_id = self._create(cr, uid, env_id, 
+                         't4.clinical.patient.observation.gcs', 
+                         'data_observation_gcs', 
+                         vals_activity, vals_data)
         return activity_id       
              
     def complete_observation_gcs(self, cr, uid, env_id, data={}):
@@ -636,75 +650,6 @@ class t4_clinical_demo_env(orm.Model):
         _logger.info("Env updated pos_id=%s" % (pos_id))
         return pos_id 
  
-        
-class t4_clinical_demo_patient(orm.Model):
-    _name = 't4.clinical.demo.patient'
-    
-    def _get_name(self, cr, uid, ids, fn, args, context=None):
-        result = dict.fromkeys(ids, False)
-        for r in self.read(cr, uid, ids, ['family_name', 'given_name', 'middle_name'], context=context):
-            #TODO This needs to be manipulable depending on locale
-            result[r['id']] = self._get_fullname(r)
-        return result
-        
-    _columns = {
-        'dob': fields.datetime('Date Of Birth'),
-        'sex': fields.char('Sex', size=1),
-        'gender': fields.char('Gender', size=1),
-        'ethnicity': fields.char('Ethnicity', size=20),
-        'patient_identifier': fields.char('Patient Identifier', size=100, select=True, help="NHS Number"),
-        'other_identifier': fields.char('Other Identifier', size=100, required=True, select=True,
-                                        help="Hospital Number"),
-
-        'given_name': fields.char('Given Name', size=200),
-        'middle_names': fields.char('Middle Name(s)', size=200),
-        'family_name': fields.char('Family Name', size=200, select=True),
-        'full_name': fields.function(_get_name, type='text', string="Full Name"),    
-    }
-    _defaults = {
-        'family_name': fake.last_name(),
-        'given_name': fake.first_name(),
-        'gender': fake.random_element(array=('M','F')),
-        'other_identifier': str(fake.random_int(min=1000001, max=9999999)),
-        'dob': fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S"),
-    }
-    
-
-#     def create(self, cr, uid, vals={},context=None):
-#         env_id = super(t4_clinical_demo_env, self).create(cr, uid, vals, context)
-#         data = self._defaults.copy()
-#         data.update(vals)
-#         _logger.info("Env created id=%s data: %s" % (env_id, data))
-#         return env_id
-    
-    
-    def adt_register(self, cr, uid):
-        user_pool = self.pool['res.users']
-        user = user_pool.browse(cr, uid, uid)
-        assert user.pos_id, "pos_id is not set on user id=%s" % uid
-        reg_pool = self.pool['t4.clinical.adt.patient.register']
-        activity_pool = self.activity['t4.activity']
-        patient = patient_pool.browse(cr, uid, patient_id)
-        data = {
-            'family_name': patient.family_name,
-            'given_name': patient.given_name,
-            'gender': patient.gender,
-            'other_identifier': patient.other_identifier,
-            'dob': patient.dob
-        }
-
-#     
-#     def is_adt_registered(self, cr, uid):
-#         pass
-#     
-#     def adt_admit(self, cr, uid):
-#         pass
-#     
-#     def placement(self, cr, uid):
-#         pass
-#     
-#     def get_activity_ids(self, cr, uid, data_model, states=None):
-#         pass
 
 class t4_clinical_demo(orm.AbstractModel):
     _name = 't4.clinical.demo'

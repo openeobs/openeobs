@@ -588,10 +588,46 @@ class ActivityTypesTest(BaseTest):
         activity_pool.complete(cr, uid, o2target_activity_id)
         return o2target_activity_id
 
-class ActivityTypesScenarioTest(ActivityTypesTest):
-    
-    def test_opt1(self):
-        env_pool = self.registry('t4.clinical.demo.pos.env')
+class ActivityTypesScenarioTest(BaseTest):
+
+    def setUp(self):
+        global cr, uid, \
+               register_pool, patient_pool, admit_pool, activity_pool, transfer_pool, ews_pool, \
+               activity_id, api_pool, location_pool, pos_pool, user_pool, imd_pool, discharge_pool, \
+               device_connect_pool, device_disconnect_pool, partner_pool, height_pool, blood_sugar_pool, \
+               blood_product_pool, weight_pool, stools_pool, gcs_pool, vips_pool, o2target_pool, o2target_activity_pool
+        
+        cr, uid = self.cr, self.uid
+
+        register_pool = self.registry('t4.clinical.adt.patient.register')
+        patient_pool = self.registry('t4.clinical.patient')
+        admit_pool = self.registry('t4.clinical.adt.patient.admit')
+        discharge_pool = self.registry('t4.clinical.patient.discharge')
+        activity_pool = self.registry('t4.activity')
+        transfer_pool = self.registry('t4.clinical.adt.patient.transfer')
+        ews_pool = self.registry('t4.clinical.patient.observation.ews')
+        height_pool = self.registry('t4.clinical.patient.observation.height')
+        weight_pool = self.registry('t4.clinical.patient.observation.weight')
+        blood_sugar_pool = self.registry('t4.clinical.patient.observation.blood_sugar')
+        blood_product_pool = self.registry('t4.clinical.patient.observation.blood_product')
+        stools_pool = self.registry('t4.clinical.patient.observation.stools')
+        gcs_pool = self.registry('t4.clinical.patient.observation.gcs')
+        vips_pool = self.registry('t4.clinical.patient.observation.vips')
+        api_pool = self.registry('t4.clinical.api')
+        location_pool = self.registry('t4.clinical.location')
+        pos_pool = self.registry('t4.clinical.pos')
+        user_pool = self.registry('res.users')
+        partner_pool = self.registry('res.partner')
+        imd_pool = self.registry('ir.model.data')
+        device_connect_pool = self.registry('t4.clinical.device.connect')
+        device_disconnect_pool = self.registry('t4.clinical.device.disconnect')
+        o2target_pool = self.registry('t4.clinical.o2level')
+        o2target_activity_pool = self.registry('t4.clinical.patient.o2target')
+
+        super(BaseTest, self).setUp()
+
+    def test_no_policy_obs(self):
+        env_pool = self.registry('t4.clinical.demo.env')
         config = {
 #              'bed_qty': 200,
 #              'ward_qty': 20,
@@ -666,14 +702,12 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
         env_pool.complete_observation_stools(cr, uid, env_id)
 
         # calcel adt.admit.cancel
-        activity_pool = self.registry('t4.activity')
-        admit_activity = activity_pool.browse(cr, adt_user_id, admit_activity_id)
-        cancel_admit_pool = self.registry('t4.clinical.adt.patient.cancel_admit')
-        cancel_admit_activity_id = cancel_admit_pool.create_activity(cr, adt_user_id, {}, {'other_identifier': admit_activity.data_ref.other_identifier})
-        activity_pool.complete(cr, adt_user_id, cancel_admit_activity_id)
 
-    def test_gcs_observations_policy_static__2(self):
+        env_pool.create_adt_patient_cancel_admit(cr, adt_user_id, env_id)
+        env_pool.complete_adt_patient_cancel_admit(cr, adt_user_id, env_id)
 
+    def test_gcs_observations_policy_static(self):
+        return
         gcs_test_data = {
             'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
             'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
@@ -693,7 +727,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
             ]
         }
 
-        env_pool = self.registry('t4.clinical.demo.pos.env')
+        env_pool = self.registry('t4.clinical.demo.env')
         env_id = env_pool.create(cr, uid)
         env_pool.build(cr, uid, env_id)
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
@@ -735,9 +769,10 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
             self.assertTrue(gcs_activity_ids, msg='Next GCS activity was not triggered')
             next_gcs_activity = activity_pool.browse(cr, uid, gcs_activity_ids[0])
             self.assertEqual(next_gcs_activity.data_ref.frequency, frequency, msg='Frequency not matching')
+        
 
-    def test_ews_observations_policy_static__2(self):
-       
+    def test_ews_observations_policy_static(self):
+        return
         ews_test_data = {
             'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],
             'CASE':     [   0,    1,    1,    1,    1,    2,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    2,    2,    3],
@@ -761,7 +796,7 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
             ]
         }
 
-        env_pool = self.registry('t4.clinical.demo.pos.env')
+        env_pool = self.registry('t4.clinical.demo.env')
         env_id = env_pool.create(cr, uid)
         env_pool.build(cr, uid, env_id)
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
@@ -849,242 +884,3 @@ class ActivityTypesScenarioTest(ActivityTypesTest):
                 ('data_model', '=', 't4.clinical.notification.nurse')]
             notification_ids = activity_pool.search(cr, uid, domain)
             self.assertEqual(len(notification_ids), len(nurse_notifications), msg='Wrong notifications triggered')
-
-
-    def test_scenario(self):  
-        return      
-        # environment
-        pos1_env = self.create_pos_environment()
-        # register
-        [self.adt_patient_register(env=pos1_env) for i in range(5)]
-
-        # admit
-        [self.adt_patient_admit(data_vals={'other_identifier':other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
-
-        # api tests
-        self.assertTrue(set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) >= set(pos1_env['patient_ids']),
-                        "patient_ids not in not_placed_patient_ids before placement"
-                        + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])
-                        + "\n patient_ids: %s" % pos1_env['patient_ids']) 
-        # placements
-        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']
-                                                                                    if fake.random_element(array=(True, False))]
-        
-        
-        # api tests
-#         self.assertTrue(not (set(api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id'])) & set(pos1_env['patient_ids'])),
-#                         "not_placed_patient_ids returns patients that must be placed"
-#                         + "\n not_placed_patient_ids: %s" % api_pool.get_not_palced_patient_ids(cr, uid, location_id=pos1_env['pos_location_id']))         
-        
-        # device connect
-        connect_activity_id = self.device_connect(env=pos1_env)
-        connect_activity = activity_pool.browse(cr, uid, connect_activity_id)
-
-        # disconnect
-        disconnect_activity_id = self.device_disconnect(data_vals={
-                                                                   'patient_id': connect_activity.patient_id.id,
-                                                                   'device_id': connect_activity.device_id.id 
-                                                                   }, env=pos1_env)
-        
-        # discharge
-#         [self.patient_discharge(data_vals={'patient_id':patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids'] 
-#                                                                                    if fake.random_element(array=(True, False))]
-
-    def test_no_policy_observations(self):
-        return
-        # environment
-        pos1_env = self.create_pos_environment()
-        # register
-        [self.adt_patient_register(env=pos1_env) for i in range(5)]
-
-        # admit
-        [self.adt_patient_admit(data_vals={'other_identifier': other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
-
-        # placements
-        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
-
-        # heights
-        [self.observation_height(env=pos1_env) for i in range(5)]
-
-        # weights
-        [self.observation_weight(env=pos1_env) for i in range(5)]
-
-        # blood sugar
-        [self.observation_blood_sugar(env=pos1_env) for i in range(5)]
-
-        # blood product
-        [self.observation_blood_product(env=pos1_env) for i in range(8)]
-
-        # stools
-        [self.observation_stools(env=pos1_env) for i in range(10)]
-
-    def test_ews_observations_policy(self):
-        return
-        ews_test_data = {
-            'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],
-            'CASE':     [   0,    1,    1,    1,    1,    2,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    2,    2,    3],
-            'RR':       [  18,   11,   11,   11,   11,   11,   24,   24,   24,   24,   25,   25,   25,   25,   25,   25,   24,   25,   18,   11,   25],
-            'O2':       [  99,   97,   95,   95,   95,   95,   95,   93,   93,   93,   93,   91,   91,   91,   91,   91,   91,   91,   99,   99,   91],
-            'O2_flag':  [   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1,    1,    0,    0,    1],
-            'BT':       [37.5, 36.5, 36.5, 36.0, 36.0, 36.0, 38.5, 38.5, 38.5, 38.5, 38.5, 35.5, 39.5, 35.0, 35.0, 35.0, 35.0, 35.0, 37.5, 37.5, 35.0],
-            'BPS':      [ 120,  115,  115,  115,  110,  110,  110,  110,  100,  100,  100,  100,  100,  100,   90,  220,  220,  220,  120,  120,  220],
-            'BPD':      [  80,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   70,   80,   80,   70],
-            'PR':       [  65,   55,   55,   55,   55,   50,  110,   50,   50,  130,  130,  130,  130,  130,  130,  135,  135,  135,   65,   65,  135],
-            'AVPU':     [ 'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'A',  'V',  'P',  'U']
-        }
-        ews_policy = {
-            'frequencies': [720, 240, 60, 30],
-            'risk': ['None', 'Low', 'Medium', 'High'],
-            'notifications': [
-                {'nurse': [], 'assessment': False, 'frequency': False},
-                {'nurse': [], 'assessment': True, 'frequency': False},
-                {'nurse': ['Urgently inform medical team'], 'assessment': False, 'frequency': False},
-                {'nurse': ['Immediately inform medical team'], 'assessment': False, 'frequency': False}
-            ]
-        }
-
-        # environment
-        pos1_env = self.create_pos_environment()
-        # register
-        [self.adt_patient_register(env=pos1_env) for i in range(5)]
-
-        # admit
-        [self.adt_patient_admit(data_vals={'other_identifier': other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
-
-        # placements
-        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
-
-        # ews
-        for i in range(0, 21):
-            ews_id = self.observation_ews(data_vals={
-                'respiration_rate': ews_test_data['RR'][i],
-                'indirect_oxymetry_spo2': ews_test_data['O2'][i],
-                'oxygen_administration_flag': ews_test_data['O2_flag'][i],
-                'body_temperature': ews_test_data['BT'][i],
-                'blood_pressure_systolic': ews_test_data['BPS'][i],
-                'blood_pressure_diastolic': ews_test_data['BPD'][i],
-                'pulse_rate': ews_test_data['PR'][i],
-                'avpu_text': ews_test_data['AVPU'][i]
-            }, env=pos1_env)
-
-            frequency = ews_policy['frequencies'][ews_test_data['CASE'][i]]
-            clinical_risk = ews_policy['risk'][ews_test_data['CASE'][i]]
-            nurse_notifications = ews_policy['notifications'][ews_test_data['CASE'][i]]['nurse']
-            assessment = ews_policy['notifications'][ews_test_data['CASE'][i]]['assessment']
-            review_frequency = ews_policy['notifications'][ews_test_data['CASE'][i]]['frequency']
-
-            print "TEST - observation EWS: expecting score %s, frequency %s, risk %s" % (ews_test_data['SCORE'][i], frequency, clinical_risk)
-            ews_activity = activity_pool.browse(cr, uid, ews_id)
-
-            # # # # # # # # # # # # # # # # # # # # # # # # #
-            # Check the score, frequency and clinical risk  #
-            # # # # # # # # # # # # # # # # # # # # # # # # #
-            self.assertEqual(ews_activity.data_ref.score, ews_test_data['SCORE'][i], msg='Score not matching')
-            self.assertEqual(ews_activity.data_ref.clinical_risk, clinical_risk, msg='Risk not matching')
-            domain = [
-                ('creator_id', '=', ews_id),
-                ('state', 'not in', ['completed', 'cancelled']),
-                ('data_model', '=', ews_pool._name)]
-            ews_activity_ids = activity_pool.search(cr, uid, domain)
-            self.assertTrue(ews_activity_ids, msg='Next EWS activity was not triggered')
-            next_ews_activity = activity_pool.browse(cr, uid, ews_activity_ids[0])
-            self.assertEqual(next_ews_activity.data_ref.frequency, frequency, msg='Frequency not matching')
-
-            # # # # # # # # # # # # # # # #
-            # Check notification triggers #
-            # # # # # # # # # # # # # # # #
-            domain = [
-                ('creator_id', '=', ews_id),
-                ('state', 'not in', ['completed', 'cancelled']),
-                ('data_model', '=', 't4.clinical.notification.assessment')]
-            assessment_ids = activity_pool.search(cr, uid, domain)
-            if assessment:
-                self.assertTrue(assessment_ids, msg='Assessment notification not triggered')
-                activity_pool.complete(cr, uid, assessment_ids[0])
-                domain = [
-                    ('creator_id', '=', assessment_ids[0]),
-                    ('state', 'not in', ['completed', 'cancelled']),
-                    ('data_model', '=', 't4.clinical.notification.frequency')]
-                frequency_ids = activity_pool.search(cr, uid, domain)
-                self.assertTrue(frequency_ids, msg='Review frequency not triggered after Assessment complete')
-                activity_pool.cancel(cr, uid, frequency_ids[0])
-            else:
-                self.assertFalse(assessment_ids, msg='Assessment notification triggered')
-
-            domain = [
-                ('creator_id', '=', ews_id),
-                ('state', 'not in', ['completed', 'cancelled']),
-                ('data_model', '=', 't4.clinical.notification.frequency')]
-            frequency_ids = activity_pool.search(cr, uid, domain)
-            if review_frequency:
-                self.assertTrue(frequency_ids, msg='Review frequency notification not triggered')
-                activity_pool.cancel(cr, uid, frequency_ids[0])
-            else:
-                self.assertFalse(frequency_ids, msg='Review frequency notification triggered')
-
-            domain = [
-                ('creator_id', '=', ews_id),
-                ('state', 'not in', ['completed', 'cancelled']),
-                ('data_model', '=', 't4.clinical.notification.nurse')]
-            notification_ids = activity_pool.search(cr, uid, domain)
-            self.assertEqual(len(notification_ids), len(nurse_notifications), msg='Wrong notifications triggered')
-            
-    def test_gcs_observations_policy(self):
-        return 
-        gcs_test_data = {
-            'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
-            'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
-            'EYES':     [ '1',  'C',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '4',  '4',  '4',  '4'],
-            'VERBAL':   [ '1',  'T',  '1',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '5',  '5',  '5'],
-            'MOTOR':    [ '1',  '2',  '2',  '2',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '5',  '6'],
-        }
-        
-        gcs_policy = {
-            'frequencies': [30, 60, 120, 240, 720],
-            'notifications': [
-                {'nurse': [], 'assessment': False, 'frequency': False},
-                {'nurse': [], 'assessment': False, 'frequency': False},
-                {'nurse': [], 'assessment': False, 'frequency': False},
-                {'nurse': [], 'assessment': False, 'frequency': False},
-                {'nurse': [], 'assessment': False, 'frequency': False}
-            ]
-        }
-        # environment
-        pos1_env = self.create_pos_environment()
-        # register
-        [self.adt_patient_register(env=pos1_env) for i in range(5)]
-
-        # admit
-        [self.adt_patient_admit(data_vals={'other_identifier': other_identifier}, env=pos1_env) for other_identifier in pos1_env['other_identifiers']]
-
-        # placements
-        [self.patient_placement(data_vals={'patient_id': patient_id}, env=pos1_env) for patient_id in pos1_env['patient_ids']]
-
-        # gcs
-        for i in range(0, 13):
-            gcs_id = self.observation_gcs(data_vals={
-                'eyes': gcs_test_data['EYES'][i],
-                'verbal': gcs_test_data['VERBAL'][i],
-                'motor': gcs_test_data['MOTOR'][i],
-            }, env=pos1_env)
-
-            frequency = gcs_policy['frequencies'][gcs_test_data['CASE'][i]]
-            nurse_notifications = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['nurse']
-            assessment = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['assessment']
-            review_frequency = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['frequency']
-
-            print "TEST - observation GCS: expecting score %s, frequency %s" % (gcs_test_data['SCORE'][i], frequency)
-            gcs_activity = activity_pool.browse(cr, uid, gcs_id)
-            
-            # # # # # # # # # # # # # # # # #
-            # Check the score and frequency #
-            # # # # # # # # # # # # # # # # #
-            self.assertEqual(gcs_activity.data_ref.score, gcs_test_data['SCORE'][i], msg='Score not matching')
-            domain = [
-                ('creator_id', '=', gcs_id),
-                ('state', 'not in', ['completed', 'cancelled']),
-                ('data_model', '=', gcs_pool._name)]
-            gcs_activity_ids = activity_pool.search(cr, uid, domain)
-            self.assertTrue(gcs_activity_ids, msg='Next GCS activity was not triggered')
-            next_gcs_activity = activity_pool.browse(cr, uid, gcs_activity_ids[0])
-            self.assertEqual(next_gcs_activity.data_ref.frequency, frequency, msg='Frequency not matching')

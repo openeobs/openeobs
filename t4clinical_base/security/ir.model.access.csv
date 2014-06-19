@@ -7,6 +7,7 @@ base_group_access_t4_activity_data,admin:access_t4_activity_data,model_t4_activi
 base_group_access_res_users,admin:access_res_users,model_res_users,t4clinical_base.group_t4clinical_base,1,0,0,0
 base_group_access_res_partner,admin:access_res_partner,model_res_partner,t4clinical_base.group_t4clinical_base,1,0,0,0
 base_group_access_t4_clinical_device,admin:access_t4_clinical_device,model_t4_clinical_device,t4clinical_base.group_t4clinical_base,1,0,0,0
+base_group_access_demo_env,admin:access_demo_env,model_t4_clinical_demo_env,t4clinical_base.group_t4clinical_base,1,0,0,0
 ,,,,,,,
 admin_group_access_t4_clinical_pos,admin:access_t4_clinical_pos,model_t4_clinical_pos,t4clinical_base.group_t4clinical_admin,1,1,1,1
 admin_group_access_t4_clinical_location,admin:access_t4_clinical_location,model_t4_clinical_location,t4clinical_base.group_t4clinical_admin,1,1,1,1
@@ -16,6 +17,7 @@ admin_group_access_t4_activity_data,admin:access_t4_activity_data,model_t4_activ
 admin_group_access_res_users,admin:access_res_users,model_res_users,t4clinical_base.group_t4clinical_admin,1,1,1,1
 admin_group_access_res_partner,admin:access_res_partner,model_res_partner,t4clinical_base.group_t4clinical_admin,1,1,1,1
 admin_group_access_t4_clinical_device,admin:access_t4_clinical_device,model_t4_clinical_device,t4clinical_base.group_t4clinical_admin,1,1,1,1
+admin_group_access_demo_env,admin:access_demo_env,model_t4_clinical_demo_env,t4clinical_base.group_t4clinical_base,1,1,1,1
 ,,,,,,,
 dev_group_access_t4_clinical_pos,admin:access_t4_clinical_pos,model_t4_clinical_pos,t4clinical_base.group_t4clinical_dev,1,1,1,1
 dev_group_access_t4_clinical_location,admin:access_t4_clinical_location,model_t4_clinical_location,t4clinical_base.group_t4clinical_dev,1,1,1,1
@@ -25,6 +27,7 @@ dev_group_access_t4_activity_data,admin:access_t4_activity_data,model_t4_activit
 dev_group_access_res_users,admin:access_res_users,model_res_users,t4clinical_base.group_t4clinical_dev,1,1,1,1
 dev_group_access_res_partner,admin:access_res_partner,model_res_partner,t4clinical_base.group_t4clinical_dev,1,1,1,1
 dev_group_access_t4_clinical_device,admin:access_t4_clinical_device,model_t4_clinical_device,t4clinical_base.group_t4clinical_dev,1,1,1,1
+dev_group_access_demo_env,admin:access_demo_env,model_t4_clinical_demo_env,t4clinical_base.group_t4clinical_dev,1,1,1,1
 ,,,,,,,
 adt_group_access_t4_clinical_pos,admin:access_t4_clinical_pos,model_t4_clinical_pos,t4clinical_base.group_t4clinical_adt,1,1,1,1
 adt_group_access_t4_clinical_location,admin:access_t4_clinical_location,model_t4_clinical_location,t4clinical_base.group_t4clinical_adt,1,1,1,1
@@ -34,6 +37,7 @@ adt_group_access_t4_activity_data,admin:access_t4_activity_data,model_t4_activit
 adt_group_access_res_users,admin:access_res_users,model_res_users,t4clinical_base.group_t4clinical_adt,1,1,1,1
 adt_group_access_res_partner,admin:access_res_partner,model_res_partner,t4clinical_base.group_t4clinical_adt,1,1,1,1
 adt_group_access_t4_clinical_device,admin:access_t4_clinical_device,model_t4_clinical_device,t4clinical_base.group_t4clinical_adt,1,1,1,1
+adt_group_access_demo_env,admin:access_demo_env,model_t4_clinical_demo_env,t4clinical_base.group_t4clinical_adt,1,1,1,1
 ,,,,,,,
 ward_manager_group_access_t4_clinical_pos,ward_manager:access_t4_clinical_pos,model_t4_clinical_pos,t4clinical_base.group_t4clinical_ward_manager,1,1,1,0
 ward_manager_group_access_t4_clinical_location,ward_manager:access_t4_clinical_location,model_t4_clinical_location,t4clinical_base.group_t4clinical_ward_manager,1,1,1,0
