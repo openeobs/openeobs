@@ -269,13 +269,15 @@ class t4_clinical_adt_patient_transfer(orm.Model):
     _columns = {
         'patient_identifier': fields.text('patientId'),
         'other_identifier': fields.text('otherId'),                
-        'location': fields.text('Location'),                
+        'location': fields.text('Location'),
+        'from_location_id': fields.many2one('t4.clinical.location', 'Origin Location'),
+        'location_id': fields.many2one('t4.clinical.location', 'Transfer Location'),
     }
     
     def submit(self, cr, uid, activity_id, vals, context=None):
         except_if(not ('other_identifier' in vals or 'patient_identifier' in vals), msg="patient_identifier or other_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
-        #patient_pool = self.pool['t4.activity']
+        activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         other_identifier = vals.get('other_identifier')
         patient_identifier = vals.get('patient_identifier')
@@ -289,14 +291,47 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         #activity = activity_pool.browse(cr, uid, activity_id, context)
         spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
         except_if(not spell_activity_id, msg="Active spell not found for patient.id=%s !" % patient_id)
+        spell_activity = activity_pool.browse(cr, uid, spell_activity_id, context=context)
         patient_id = patient_id[0]           
         location_pool = self.pool['t4.clinical.location']
-        location_id = location_pool.search(cr, uid, [('code','=',vals['location'])])
+        location_id = location_pool.search(cr, uid, [('code', '=', vals['location'])], context=context)
         except_if(not location_id, msg="Location not found!")
         location_id = location_id[0]
+        vals.update({'location_id': location_id, 'from_location_id': spell_activity.location_id.id})
+        super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)
+
+    def complete(self, cr, uid, activity_id, context=None):
+        res = {}
+        super(t4_clinical_adt_patient_transfer, self).complete(cr, uid, activity_id, context=context)
+        activity_pool = self.pool['t4.activity']
+        api_pool = self.pool['t4.clinical.api']
+        move_pool = self.pool['t4.clinical.patient.move']
+        transfer_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
+        # patient move
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, transfer_activity.data_ref.patient_id.id, context=context)
+        except_if(not spell_activity_id, msg="Spell not found!")
+        move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,{
+            'parent_id': spell_activity_id,
+            'creator_id': activity_id
+        }, {
+            'patient_id': transfer_activity.data_ref.patient_id.id,
+            'location_id': transfer_activity.data_ref.location_id.pos_id.lot_admission_id.id},
+            context=context)
+        res[move_pool._name] = move_activity_id
+        activity_pool.complete(cr, SUPERUSER_ID, move_activity_id, context)
+        # patient placement
+        api_pool.cancel_open_activities(cr, uid, spell_activity_id, 't4.clinical.patient.placement', context=context)
         placement_pool = self.pool['t4.clinical.patient.placement']
-        placement_pool.create_activity(cr, uid, {'parent_id': spell_activity_id, 'creator_id': activity_id}, {'patient_id': patient_id}, context)
-        super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)    
+
+        placement_activity_id = placement_pool.create_activity(cr, SUPERUSER_ID, {
+            'parent_id': spell_activity_id, 'date_deadline': (dt.now()+td(minutes=5)).strftime(DTF),
+            'creator_id': activity_id
+        }, {
+            'patient_id': transfer_activity.data_ref.patient_id.id,
+            'suggested_location_id': transfer_activity.data_ref.location_id.id
+        }, context=context)
+        res[placement_pool._name] = placement_activity_id
+        return res
         
 
 class t4_clinical_adt_patient_merge(orm.Model):
@@ -492,6 +527,7 @@ class t4_clinical_adt_spell_update(orm.Model):
             'patient_id': update_activity.data_ref.patient_id.id,
             'suggested_location_id': update_activity.data_ref.suggested_location_id.id
         }, context=context)
+        res[placement_pool._name] = placement_activity_id
         return res
 
 
@@ -521,6 +557,7 @@ class t4_clinical_adt_patient_cancel_discharge(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = {}
+        super(t4_clinical_adt_patient_cancel_discharge, self).complete(cr, uid, activity_id, context=context)
         activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         move_pool = self.pool['t4.clinical.patient.move']
@@ -568,4 +605,69 @@ class t4_clinical_adt_patient_cancel_discharge(orm.Model):
                     'patient_id': cancel_activity.data_ref.patient_id.id,
                     'suggested_location_id': move_activity.location_id.parent_id.id
                 }, context=context)
+                res[placement_pool._name] = placement_activity_id
+        return res
+
+
+class t4_clinical_adt_patient_cancel_transfer(orm.Model):
+    _name = 't4.clinical.adt.patient.cancel_transfer'
+    _inherit = ['t4.activity.data']
+    _columns = {
+        'other_identifier': fields.text('otherId', required=True),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
+    }
+
+    def submit(self, cr, uid, activity_id, vals, context=None):
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)
+        patient_pool = self.pool['t4.clinical.patient']
+        patient_id = patient_pool.search(cr, SUPERUSER_ID, [('other_identifier', '=', vals['other_identifier'])])
+        except_if(not patient_id, msg="Patient not found!")
+        if len(patient_id) > 1:
+            _logger.warn("More than one patient found with 'other_identifier' = %s! Passed patient_id = %s"
+                                    % (vals['other_identifier'], patient_id[0]))
+        patient_id = patient_id[0]
+        vals_copy = vals.copy()
+        vals_copy.update({'patient_id': patient_id})
+        res = super(t4_clinical_adt_patient_cancel_transfer, self).submit(cr, uid, activity_id, vals_copy, context)
+        return res
+
+    def complete(self, cr, uid, activity_id, context=None):
+        res = {}
+        super(t4_clinical_adt_patient_cancel_transfer, self).complete(cr, uid, activity_id, context=context)
+        activity_pool = self.pool['t4.activity']
+        api_pool = self.pool['t4.clinical.api']
+        move_pool = self.pool['t4.clinical.patient.move']
+        cancel_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
+        domain = [('data_model', '=', 't4.clinical.adt.patient.transfer'),
+                  ('state', '=', 'completed'),
+                  ('patient_id', '=', cancel_activity.data_ref.patient_id.id)]
+        transfer_activity_ids = activity_pool.search(cr, uid, domain, order='date_terminated desc', context=context)
+        except_if(not transfer_activity_ids, msg='Patient was not transfered!')
+        transfer_activity = activity_pool.browse(cr, uid, transfer_activity_ids[0], context=context)
+
+        # patient move
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, cancel_activity.data_ref.patient_id.id, context=context)
+        except_if(not spell_activity_id, msg="Spell not found!")
+        move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,{
+            'parent_id': spell_activity_id,
+            'creator_id': activity_id
+        }, {
+            'patient_id': cancel_activity.data_ref.patient_id.id,
+            'location_id': transfer_activity.data_ref.from_location_id.pos_id.lot_admission_id.id},
+            context=context)
+        res[move_pool._name] = move_activity_id
+        activity_pool.complete(cr, SUPERUSER_ID, move_activity_id, context)
+        # patient placement
+        api_pool.cancel_open_activities(cr, uid, spell_activity_id, 't4.clinical.patient.placement', context=context)
+        placement_pool = self.pool['t4.clinical.patient.placement']
+
+        placement_activity_id = placement_pool.create_activity(cr, SUPERUSER_ID, {
+            'parent_id': spell_activity_id, 'date_deadline': (dt.now()+td(minutes=5)).strftime(DTF),
+            'creator_id': activity_id
+        }, {
+            'patient_id': cancel_activity.data_ref.patient_id.id,
+            'suggested_location_id': transfer_activity.data_ref.from_location_id.id
+        }, context=context)
+        res[placement_pool._name] = placement_activity_id
         return res
