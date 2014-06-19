@@ -6,3 +6,22 @@
     float: right;
     width: 40%;
 }
+
+.t4clinical_kanban_card_clinical_risk {
+  background: #f0eeee !important;
+}
+.t4clinical_kanban_column_clinical_risk_none {
+  background-color: #cccccc !important;
+}
+.t4clinical_kanban_column_clinical_risk_high {
+  background-color: #ffc7c7 !important;
+}
+.t4clinical_kanban_column_clinical_risk_medium {
+  background-color: #fff1c7 !important;
+}
+.t4clinical_kanban_column_clinical_risk_low {
+  background-color: #e3ffc7 !important;
+}
+.t4clinical_kanban_column_clinical_risk_no {
+  background-color: #c7ffd5 !important;
+}

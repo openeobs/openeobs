@@ -599,4 +599,32 @@ openerp.t4clinical_ui = function (instance) {
 
     instance.web.views.add('form', 'instance.t4clinical_ui.FormView');
 
+    instance.t4skr.KanbanView = instance.web_kanban.KanbanView.extend({
+    	
+    	on_groups_started: function() {
+            if (this.group_by == 'clinical_risk'){
+            	var cols = this.$el.find('td.oe_kanban_column');
+            	var heads = this.$el.find('td.oe_kanban_group_header');
+            	var titles = this.$el.find('span.oe_kanban_group_title_vertical');
+            	var cards = this.$el.find('div.oe_kanban_card');
+            	console.log($(cards));
+            	class_map = {"No Score Yet": "none", "High Risk": "high", "Medium Risk": "medium", "Low Risk": "low", "No Risk": "no"}
+            	for (i=0; i < heads.length; i++){
+            		column_string = $(titles[i]).text().trim();
+            		console.log(column_string);
+            		col_class ='t4clinical_kanban_column_clinical_risk_' + class_map[column_string];
+            		$(heads[i]).addClass(col_class);
+            		$(cols[i]).addClass(col_class);
+            	}
+            	for (i=0; i < cards.length; i++){
+            		$(cards[i]).addClass("t4clinical_kanban_card_clinical_risk");
+            	}
+            	
+            }    		
+    		this._super();
+    	}
+    });
+
+    instance.web.views.add('kanban', 'instance.t4skr.KanbanView');
+
 }

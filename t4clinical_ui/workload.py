@@ -45,6 +45,7 @@ class t4_clinical_workload(orm.Model):
     def _get_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         pi_copy =  [(pi[0],pi[1]) for pi in self._proximity_intervals]
         groups = pi_copy
+        groups.reverse()
         fold = {pi[0]: False for pi in pi_copy}
         return groups, fold
        
