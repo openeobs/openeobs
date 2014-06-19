@@ -141,30 +141,56 @@ class t4_clinical_api(orm.AbstractModel):
 
     def admit(self, cr, uid, patient_id, data, context=None):
         activity_pool = self.pool['t4.activity']
-        if not self._check_hospital_number(cr, uid, patient_id, context=context):
-            _logger.warn("Patient registered from an admit call")
-            self.register(cr, uid, patient_id, {}, context=context)
+        # if not self._check_hospital_number(cr, uid, patient_id, context=context):
+        #     _logger.warn("Patient registered from an admit call")
+        #     self.register(cr, uid, patient_id, {}, context=context)
         data.update({'other_identifier': patient_id})
         admit_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, admit_activity, data, context=context)
         activity_pool.complete(cr, uid, admit_activity, context=context)
         _logger.info("Patient admitted\n data: %s" % data)
         return True
-
+    
+    def admit_update(self, cr, uid, patient_id, data, context=None):
+        activity_pool = self.pool['t4.activity']
+        data.update({'other_identifier': patient_id})
+        update_activity = self._create_activity(cr, uid, 't4.clinical.adt.spell.update', {}, {}, context=context)
+        activity_pool.submit(cr, uid, update_activity, data, context=context)
+        activity_pool.complete(cr, uid, update_activity, context=context)
+        _logger.info("Admission updated\n data: %s" % data)
+        return True
+        
     def cancel_admit(self, cr, uid, patient_id, context=None):
-        return self._cancel_activity(cr, uid, patient_id, 't4.clinical.adt.patient.admit', context=context)
+        activity_pool = self.pool['t4.activity']
+        data = {'other_identifier': patient_id}
+        cancel_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.cancel_admit', {}, {}, context=context)
+        activity_pool.submit(cr, uid, cancel_activity, data, context=context)
+        activity_pool.complete(cr, uid, cancel_activity, context=context)
+        _logger.info("Admission cancelled\n data: %s" % data)
+        return True
 
-    def discharge(self, cr, uid, patient_id, context=None):
+    def discharge(self, cr, uid, patient_id, data, context=None):
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['t4.activity']
-        discharge_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.discharge', {}, {'other_identifier': patient_id}, context=context)
+        patient_pool = self.pool['t4.clinical.patient']
+        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
+        discharge_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.discharge', {'patient_id': patientdb_id[0]}, {'other_identifier': patient_id, 'discharge_date': data.get('discharge_date')}, context=context)
         activity_pool.complete(cr, uid, discharge_activity, context=context)
         _logger.info("Patient discharged: %s" % patient_id)
         return True
 
     def cancel_discharge(self, cr, uid, patient_id, context=None):
-        return self._cancel_activity(cr, uid, patient_id, 't4.clinical.adt.patient.discharge', context=context)
+        if not self._check_hospital_number(cr, uid, patient_id, context=context):
+            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        activity_pool = self.pool['t4.activity']
+        patient_pool = self.pool['t4.clinical.patient']
+        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
+        cancel_discharge_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.cancel_discharge', {'patient_id': patientdb_id[0]}, {}, context=context)
+        activity_pool.submit(cr, uid, cancel_discharge_activity, {'other_identifier': patient_id}, context=context)
+        activity_pool.complete(cr, uid, cancel_discharge_activity, context=context)
+        _logger.info("Discharge cancelled for patient: %s" % patient_id)
+        return True
 
     def merge(self, cr, uid, patient_id, data, context=None):
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
