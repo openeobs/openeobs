@@ -96,7 +96,6 @@ class t4_clinical_api(orm.AbstractModel):
         res = {location['id']: location for location in cr.dictfetchall()}
         return res
         
-        
     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
         # all current patients
         spell_domain = [('state','=','started')]
@@ -112,8 +111,6 @@ class t4_clinical_api(orm.AbstractModel):
         patient_ids = set(spell_patient_ids) - set(placed_patient_ids)
         #import pdb; pdb.set_trace()
         return list(patient_ids)
-    
-
 
     def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
         activity_pool = self.pool['t4.activity']
@@ -122,20 +119,30 @@ class t4_clinical_api(orm.AbstractModel):
                   ('data_model', '=', 't4.clinical.spell')]
         if pos_id:
             domain.append(('pos_id', '=', pos_id))
-        spell_activity_id = activity_pool.search(cr, uid, domain)
+        spell_activity_id = activity_pool.search(cr, uid, domain, context=context)
         if not spell_activity_id:
             return False
         if len(spell_activity_id) > 1:
             _logger.warn("For patient_id=%s found more than 1 started spell_activity_ids: %s " % (patient_id, spell_activity_id))
         return spell_activity_id[0]
 
+    def get_patient_last_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
+        activity_pool = self.pool['t4.activity']
+        domain = [('patient_id', '=', patient_id),
+                  ('state', '=', 'completed'),
+                  ('data_model', '=', 't4.clinical.spell')]
+        if pos_id:
+            domain.append(('pos_id', '=', pos_id))
+        spell_activity_id = activity_pool.search(cr, uid, domain, order='date_terminated desc', context=context)
+        if not spell_activity_id:
+            return False
+        return spell_activity_id[0]
 
     def get_patient_spell_activity_browse(self, cr, uid, patient_id, pos_id=None, context=None):
         spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, pos_id, context)
         if not spell_activity_id:
             return False
         return self.pool['t4.activity'].browse(cr, uid, spell_activity_id, context)
-
     
     def get_device_session_activity_id(self, cr, uid, device_id, context=None):
         activity_pool = self.pool['t4.activity']
@@ -149,8 +156,6 @@ class t4_clinical_api(orm.AbstractModel):
             _logger.warn("For device_id=%s found more than 1 started device session activity_ids: %s " 
                          % (device_id, session_activity_id))
         return session_activity_id[0]
-
-          
 
     def get_patient_current_location_browse(self, cr, uid, patient_id, context=None):
         move_pool = self.pool['t4.clinical.patient.move']
@@ -178,10 +183,9 @@ class t4_clinical_api(orm.AbstractModel):
         res = res and res.id
         return res    
 
+
 class t4_clinical_api_adt(orm.AbstractModel):
     _name = 't4.clinical.api.adt'
-    
-
 
     
 class t4_clinical_api_frontend(orm.AbstractModel):
