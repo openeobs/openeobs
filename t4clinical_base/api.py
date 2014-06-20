@@ -41,10 +41,10 @@ class t4_clinical_api(orm.AbstractModel):
                                   ids=[], types=[], usages=[], codes=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):  
         """
-        returns dict of dicts for location model of the following format:
+        returns dict of dicts for location model of format:
         {id: {id, code, type, usage, occupied, capacity, available}}
         """
-        conditions = (ids, types, usages, codes)
+        print "api: map args: ids: %s, available_range: %s, usages: %s" % (ids,available_range,usages)
         where_list = []
         ids and where_list.append("id in (%s)" % ','.join([str(id) for id in ids]))
         types and where_list.append("type in ('%s')" % "','".join(types))
@@ -53,8 +53,8 @@ class t4_clinical_api(orm.AbstractModel):
         occupied_range and where_list.append("occupied between %s and %s" % (occupied_range[0], occupied_range[1]))
         capacity_range and where_list.append("capacity between %s and %s" % (capacity_range[0], capacity_range[1]))
         available_range and where_list.append("available between %s and %s" % (available_range[0], available_range[1]))
-        where_clause = where_list and "where %s" % ' and '.join(where_list) or ""
-        #print where_clause     
+        where_clause = where_list and "where %s" % " and ".join(where_list) or ""
+        print where_clause     
         sql = """
             with
                 move_patient_date as (

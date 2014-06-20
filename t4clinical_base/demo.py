@@ -46,28 +46,60 @@ class t4_clinical_demo_env(orm.Model):
 
 
 
-    def random_available_location_id(self, cr, uid, env_id, parent_id=None, usages=['bed'], available_range=[1,1]):
+    def random_available_location(self, cr, uid, env_id, parent_id=None, usages=['bed'], available_range=[1,1]):
         fake.seed(next_seed())
         bed_location_ids = self.get_bed_location_ids(cr, uid, env_id)
+        print "demo: map args: ids: %s, available_range: %s, usages: %s" % (bed_location_ids,available_range,usages)
         location_ids = self.pool['t4.clinical.api'].location_availability_map(cr, uid, 
                                                                                   ids=bed_location_ids, 
                                                                                   available_range=available_range,
-                                                                                  usages=usages).keys()
+                                                                                  usages=usages)
+        
+        location_pool = self.pool['t4.clinical.location']
         if parent_id:
             domain = [['id', 'child_of', parent_id]]
-            location_ids = self.pool['t4.clinical.location'].search(cr, uid, domain)
-        location_id = fake.random_element(array=location_ids)
-        return location_id
+            location_ids = location_pool.search(cr, uid, domain)
+        location_id = location_ids and fake.random_element(location_ids) or False
+        return location_pool.browse(cr, uid, location_id)
 
     def adt_patient_admit(self, cr, uid, env_id, data={}):
         d = data.copy()
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
+        activity_pool = self.pool['t4.activity']
         d = self.data_adt_patient_admit(cr, uid, env_id, d)
         activity_id = admit_pool.create_activity(cr, uid, {}, d)
         admit_pool.complete(cr, uid, activity_id)
-        return activity_id
+        return activity_pool.browse(cr, uid, activity_id)
 
-    def data_adt_patient_cancel_admit(self, cr, uid, env_id, data={}):
+    def data_adt_patient_discharge(self, cr, uid, env_id, activity_id=None, data={}):
+        fake.seed(next_seed())
+        env = self.browse(cr, uid, env_id)
+        patient_ids = self.get_patient_ids(cr, uid, env_id, 't4.clinical.spell', [['activity_id.date_terminated','=',False]])
+        patient = self.pool['t4.clinical.patient'].browse(cr, uid, fake.random_element(patient_ids))
+        d = {
+            'other_identifier': patient.other_identifier,
+            'pos_id': env.pos_id.id
+        }
+        d.update(data)
+        return d
+    
+    def create_adt_patient_discharge(self, cr, uid, env_id, vals_activity={}, vals_data={}):
+        activity = self._create(cr, uid, env_id, 
+                         't4.clinical.adt.patient.discharge', 
+                         'data_adt_patient_discharge', 
+                         vals_activity, vals_data)     
+        return activity   
+
+    def complete_adt_patient_discharge(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
+                                     't4.clinical.adt.patient.discharge', 
+                                     'data_adt_patient_discharge', 
+                                     activity_id,
+                                     data)         
+        return activity
+
+
+    def data_adt_patient_cancel_admit(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         env = self.browse(cr, uid, env_id)
         patient_ids = self.get_patient_ids(cr, uid, env_id, 't4.clinical.spell', [['activity_id.date_terminated','=',False]])
@@ -80,20 +112,21 @@ class t4_clinical_demo_env(orm.Model):
         return d
     
     def create_adt_patient_cancel_admit(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        activity_id = self._create(cr, uid, env_id, 
+        activity = self._create(cr, uid, env_id, 
                          't4.clinical.adt.patient.cancel_admit', 
                          'data_adt_patient_cancel_admit', 
-                         vals_activity, vals_data)        
-        return activity_id   
+                         vals_activity, vals_data)     
+        return activity   
 
-    def complete_adt_patient_cancel_admit(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_adt_patient_cancel_admit(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.adt.patient.cancel_admit', 
                                      'data_adt_patient_cancel_admit', 
-                                     data)
-        return activity_id
+                                     activity_id,
+                                     data)         
+        return activity
 
-    def data_adt_patient_admit(self, cr, uid, env_id, data={}):
+    def data_adt_patient_admit(self, cr, uid, env_id, activity_id=None, data={}):
         """
         """
         fake.seed(next_seed())
@@ -128,7 +161,7 @@ class t4_clinical_demo_env(orm.Model):
         return d
 
 
-    def data_adt_patient_register(self, cr, uid, env_id, data={}):
+    def data_adt_patient_register(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         gender = fake.random_element(array=('M','F'))
         d = {
@@ -144,7 +177,11 @@ class t4_clinical_demo_env(orm.Model):
         
         
         
-    def data_observation_ews(self, cr, uid, env_id, data={}):
+    def data_observation_ews(self, cr, uid, env_id, activity_id=None, data={}):
+        all_patient_ids = self.get_current_patient_ids(cr, SUPERUSER_ID, env_id)
+        ews_patient_ids = self.get_patient_ids(cr, SUPERUSER_ID, env_id,  data_model='t4.clinical.patient.observation.ews', domain=[['activity_id.date_terminated','=',False]])
+        patient_ids = list(set(all_patient_ids)-set(ews_patient_ids))
+        #import pdb; pdb.set_trace()
         fake.seed(next_seed())
         d = {
             'respiration_rate': fake.random_int(min=5, max=34),
@@ -155,7 +192,7 @@ class t4_clinical_demo_env(orm.Model):
             'avpu_text': fake.random_element(array=('A', 'V', 'P', 'U')),
             'oxygen_administration_flag': fake.random_element(array=(True, False)),
             'blood_pressure_diastolic': fake.random_int(min=35, max=176),
-            'patient_id': fake.random_element(self.get_current_patient_ids(cr, SUPERUSER_ID, env_id))
+            'patient_id': patient_ids and fake.random_element(patient_ids) or False
         }
         if d['oxygen_administration_flag']:
             d.update({
@@ -166,6 +203,8 @@ class t4_clinical_demo_env(orm.Model):
                 'niv_ipap': fake.random_int(min=1, max=100),
                 'niv_epap': fake.random_int(min=1, max=100),
             })
+        if not d['patient_id']:
+            _logger.warn("No patients available for ews!")
         d.update(data)
         return d    
     
@@ -177,7 +216,8 @@ class t4_clinical_demo_env(orm.Model):
         reg_pool = self.pool['t4.clinical.adt.patient.register']
         activity_id = reg_pool.create_activity(cr, uid, {}, d)
         reg_pool.complete(cr, uid, activity_id)
-        return activity_id   
+        activity_pool = self.pool['t4.activity']        
+        return activity_pool.browse(cr, uid, activity_id) 
         
 #     def force_patient_placement(self, cr, uid, env_id, bed_location_id=None):
 #         # Ragister
@@ -190,20 +230,21 @@ class t4_clinical_demo_env(orm.Model):
 #         return reg_activity.patient_id.id
 
     def create_observation_stools(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        activity_id = self._create(cr, uid, env_id, 
+        activity = self._create(cr, uid, env_id, 
                          't4.clinical.patient.observation.stools', 
                          'data_observation_stools', 
-                         vals_activity, vals_data)        
-        return activity_id       
+                         vals_activity, vals_data)               
+        return activity       
              
-    def complete_observation_stools(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_observation_stools(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.observation.stools', 
                                      'data_observation_stools', 
+                                     activity_id,
                                      data=data)
-        return activity_id
+        return activity
 
-    def data_observation_stools(self, cr, uid, env_id, data={}):
+    def data_observation_stools(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed()) 
         d = {
             'bowel_open': fake.random_int(min=0, max=1),
@@ -224,24 +265,26 @@ class t4_clinical_demo_env(orm.Model):
 
 
     def create_observation_blood_sugar(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        activity_id = self._create(cr, uid, env_id, 
+        activity = self._create(cr, uid, env_id, 
                          't4.clinical.patient.observation.blood_sugar', 
                          'data_observation_blood_sugar', 
                          vals_activity, vals_data)        
-        return activity_id       
+      
+        return activity        
              
-    def complete_observation_blood_sugar(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_observation_blood_sugar(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.observation.blood_sugar', 
                                      'data_observation_blood_sugar', 
+                                     activity_id,
                                      data=data)
-        return activity_id
+        return activity
 
-    def data_observation_blood_sugar(self, cr, uid, env_id, data={}):
+    def data_observation_blood_sugar(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         d = data.copy()
         d = {
-             'bllod_sugar': float(fake.random_int(min=1, max=100)),
+             'blood_sugar': float(fake.random_int(min=1, max=100)),
              'patient_id': fake.random_element(self.get_current_patient_ids(cr, SUPERUSER_ID, env_id))
         }
         d.update(data)
@@ -256,37 +299,63 @@ class t4_clinical_demo_env(orm.Model):
         spell_activity and va.update({'parent_id': spell_activity.id})
         model_pool = self.pool[data_model]
         activity_id = model_pool.create_activity(cr, uid, va, vd)
-        return activity_id 
+        activity_pool = self.pool['t4.activity']        
+        return activity_pool.browse(cr, uid, activity_id) 
 
-    def _complete(self, cr, uid, env_id, data_model, data_meth, data={}):
+    def _complete(self, cr, uid, env_id, data_model, data_meth, activity_id=None, data={}):
         d = data.copy()
-        patient_ids = self.get_current_patient_ids(cr, uid, env_id)
-
-        activities = self.get_activity_browse(cr, uid, env_id, 
-                                              data_model, 
-                                              [['patient_id','in',patient_ids],['activity_id.date_terminated','=',False]])
+        activity_pool = self.pool['t4.activity']
+        if activity_id:
+            activity = activity_pool.browse(cr, uid, activity_id)
+        else:
+            patient_ids = self.get_current_patient_ids(cr, uid, env_id)
+            activities = self.get_activities(cr, uid, env_id, [['data_model','=',data_model],
+                                                           ['patient_id','in',patient_ids],
+                                                           ['date_terminated','=',False]])
         activity = fake.random_element(activities)
-        d = eval("self.%s(cr, uid, env_id, d)" % data_meth)
-        self.submit(cr, uid, env_id, activity.id, d)
-        self.complete(cr, uid, env_id, activity.id)
-        return activity.id
+        if not activity:
+            return False
+        
+        d = eval("self.%s(cr, uid, env_id, activity.id, d)" % data_meth)
+        # get existing data
+        activity_data = self.pool[activity.data_model].read(cr, uid, activity.data_ref.id)
+        activity_data = activity_pool.read(cr, uid, activity.id, [])
+        # normalize many2one fields
+        #import pdb; pdb.set_trace()
+        for k, v in activity_data.items():
+            if isinstance(v, (list, tuple)) and len(v)>0:
+                activity_data[k] = v[0]
+        # update with existing data keeping priority to passed data 'data'
+        for k, v in d.items():
+            d[k] = k not in data and activity_data[k] or d[k]
+        #import pdb; pdb.set_trace() 
+        print "data: %s" % d 
+        if d.get('location_id'):
+            print "location.is_available: %s" % self.pool['t4.clinical.location'].read(cr, uid, d['location_id'], ['is_available'])
+            print "location.is_availablity_map: %s" % self.pool['t4.clinical.api'].location_availability_map(cr, uid, [d['location_id']]) 
+        try:
+            activity_pool.submit(cr, uid, activity.id, d)
+        except:
+            import pdb; pdb.set_trace()
+        activity_pool.complete(cr, uid, activity.id)
+        return activity
 
     def create_observation_blood_product(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        activity_id = self._create(cr, uid, env_id, 
+        activity = self._create(cr, uid, env_id, 
                          't4.clinical.patient.observation.blood_product', 
                          'data_observation_blood_product', 
-                         vals_activity, vals_data)
-        
-        return activity_id       
+                         vals_activity, vals_data)      
+        return activity  
              
-    def complete_observation_blood_product(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_observation_blood_product(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.observation.blood_product', 
                                      'data_observation_blood_product', 
+                                     activity_id,
                                      data=data)
-        return activity_id
+        return activity
 
-    def data_observation_blood_product(self, cr, uid, env_id, data={}):
+    def data_observation_blood_product(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         d = {
              'product': fake.random_element(array=('rbc', 'ffp', 'platelets', 'has', 'dli', 'stem')),
@@ -297,20 +366,21 @@ class t4_clinical_demo_env(orm.Model):
         return d
     
     def create_observation_weight(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        activity_id = self._create(cr, uid, env_id, 
+        activity = self._create(cr, uid, env_id, 
                          't4.clinical.patient.observation.weight', 
                          'data_observation_weight', 
                          vals_activity, vals_data)        
-        return activity_id       
+        return activity      
              
-    def complete_observation_weight(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_observation_weight(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.observation.weight', 
                                      'data_observation_weight', 
+                                     activity_id,
                                      data=data)
-        return activity_id
+        return activity
     
-    def data_observation_weight(self, cr, uid, env_id, data={}):
+    def data_observation_weight(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         d = {
              'weight': float(fake.random_int(min=40, max=200)),
@@ -320,20 +390,21 @@ class t4_clinical_demo_env(orm.Model):
         return d
 
     def create_observation_height(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        activity_id = self._create(cr, uid, env_id, 
+        activity = self._create(cr, uid, env_id, 
                          't4.clinical.patient.observation.height', 
                          'data_observation_height', 
                          vals_activity, vals_data)        
-        return activity_id       
+        return activity      
              
-    def complete_observation_height(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_observation_height(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.observation.height', 
                                      'data_observation_height', 
+                                     activity_id,
                                      data=data)
-        return activity_id
+        return activity
 
-    def data_observation_height(self, cr, uid, env_id, data={}):
+    def data_observation_height(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         d = {
              'height': float(fake.random_int(min=160, max=200))/100.0,
@@ -342,30 +413,34 @@ class t4_clinical_demo_env(orm.Model):
         d.update(data)
         return d
 
-    def complete_placement(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_placement(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.placement', 
                                      'data_placement', 
+                                     activity_id,
                                      data)
-        return activity_id
+        return activity
     
-    def data_placement(self, cr, uid, env_id, data={}):
+    def data_placement(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
-  
+        #import pdb; pdb.set_trace()
         d = {
-             'location_id': self.random_available_location_id(cr, uid, env_id)
+             'location_id': self.random_available_location(cr, uid, env_id).id
         }
+        if not d['location_id']:
+            _logger.warn("No available locations left!")
         d.update(data)
         return d
     
-    def complete_observation_ews(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_observation_ews(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.observation.ews', 
                                      'data_observation_ews', 
+                                     activity_id,
                                      data=data)
-        return activity_id
+        return activity
                 
-    def data_observation_gcs(self, cr, uid, env_id, data={}):
+    def data_observation_gcs(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         d = {
             'eyes': fake.random_element(array=('1', '2', '3', '4', 'C')),
@@ -377,46 +452,46 @@ class t4_clinical_demo_env(orm.Model):
         return d                
                 
     def create_observation_gcs(self, cr, uid, env_id, vals_activity={}, vals_data={}):
-        activity_id = self._create(cr, uid, env_id, 
+        activity = self._create(cr, uid, env_id, 
                          't4.clinical.patient.observation.gcs', 
                          'data_observation_gcs', 
                          vals_activity, vals_data)
-        return activity_id       
+        return activity  
              
-    def complete_observation_gcs(self, cr, uid, env_id, data={}):
-        activity_id = self._complete(cr, uid, env_id, 
+    def complete_observation_gcs(self, cr, uid, env_id, activity_id=None, data={}):
+        activity = self._complete(cr, uid, env_id, 
                                      't4.clinical.patient.observation.gcs', 
                                      'data_observation_gcs', 
+                                     activity_id,
                                      data=data)
-        return activity_id
+        return activity
 
             
-    def complete(self, cr, uid, env_id, activity_id):
-        activity_pool = self.pool['t4.activity']
-        res = activity_pool.complete(cr, uid, activity_id)
-        return res
-    
-    def submit(self, cr, uid, env_id, activity_id, data={}):
-        activity_pool = self.pool['t4.activity']
-        res = activity_pool.submit(cr, uid, activity_id, data)
-        return res    
+#     def complete(self, cr, uid, env_id, activity_id):
+#         activity_pool = self.pool['t4.activity']
+#         res = activity_pool.complete(cr, uid, activity_id)
+#         return res
+#     
+#     def submit(self, cr, uid, env_id, activity_id, data={}):
+#         activity_pool = self.pool['t4.activity']
+#         res = activity_pool.submit(cr, uid, activity_id, data)
+#         return res    
 
-    def get_activity_browse(self, cr, uid, env_id, data_model, domain=[]):        
-        env = self.browse(cr, SUPERUSER_ID, env_id)
-        assert env.pos_id, "POS is not created/set in the env id=%s" % env_id
-        activity_ids = self.get_activity_ids(cr, uid, env_id, data_model, domain)
-        activity_browse = self.pool['t4.activity'].browse(cr, uid, activity_ids)     
-        return activity_browse
+#     def get_activity(self, cr, uid, env_id, data_model, domain=[]):        
+#         env = self.browse(cr, SUPERUSER_ID, env_id)
+#         assert env.pos_id, "POS is not created/set in the env id=%s" % env_id
+#         activity_ids = self.get_activity_ids(cr, uid, env_id, data_model, domain)
+#         activity = self.pool['t4.activity'].browse(cr, uid, activity_ids)     
+#         return activity
     
-    def get_activity_ids(self, cr, uid, env_id, data_model, domain=[]):  
+    def get_activities(self, cr, uid, env_id, domain=[]):  
         domain_copy = domain[:]
         env = self.browse(cr, SUPERUSER_ID, env_id)
         assert env.pos_id, "POS is not created/set in the env id=%s" % env_id
-        model_pool = self.pool[data_model]
-        domain_copy.append(['activity_id.pos_id','=',env.pos_id.id])
-        model_ids = model_pool.search(cr, uid, domain_copy)
-        patient_ids = [m.activity_id.id for m in model_pool.browse(cr, uid, model_ids)]      
-        return patient_ids
+        activity_pool = self.pool['t4.activity']
+        domain_copy.append(['pos_id','=',env.pos_id.id])
+        activity_ids = activity_pool.search(cr, uid, domain_copy)   
+        return activity_pool.browse(cr, uid, activity_ids)
 
     def get_patient_ids(self, cr, uid, env_id, data_model='t4.clinical.adt.patient.register', domain=[]):
         domain_copy = domain[:]     

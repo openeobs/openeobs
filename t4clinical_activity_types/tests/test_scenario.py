@@ -629,7 +629,7 @@ class ActivityTypesScenarioTest(BaseTest):
     def test_no_policy_obs(self):
         env_pool = self.registry('t4.clinical.demo.env')
         config = {
-#              'bed_qty': 200,
+              'bed_qty': 7,
 #              'ward_qty': 20,
 #              'adt_user_qty': 1,
 #              'nurse_user_qty': 10,
@@ -642,62 +642,48 @@ class ActivityTypesScenarioTest(BaseTest):
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
         
         # Register
-        env_pool.adt_patient_register(cr, adt_user_id, env_id)
+        [env_pool.adt_patient_register(cr, adt_user_id, env_id) for i in range(2)]
 
         # Admit
-        admit_activity_id = env_pool.adt_patient_admit(cr, adt_user_id, env_id)
+        [env_pool.adt_patient_admit(cr, adt_user_id, env_id) for i in range(2)]
+
+        placement_activities = env_pool.get_activities(cr, uid, env_id, domain=[['data_model','=','t4.clinical.patient.placement']])
+        for pa in placement_activities:
+            print "pa.location_id: %s, pa.data_ref.location_id: %s" %(pa.location_id, pa.data_ref.location_id)
+
+        # Admit
+        [env_pool.complete_placement(cr, adt_user_id, env_id) for i in range(2)]
         
 #         # Register-Admit-Placement shortcut # breaks on 'more than 1 ews at a time' 
 #         env_pool.force_patient_placement(cr, adt_user_id, env_id)
-        
-        
-        # Complete Placement managed option
-#         placement_activity_ids = env_pool.get_activity_ids(cr, uid, env_id, 't4.clinical.patient.placement')
-#         for id in placement_activity_ids:
-#             location_id = env_pool.random_available_location_id(cr, uid, env_id)
-#             env_pool.submit(cr, uid, env_id, id, {'location_id': location_id})
-#             env_pool.complete(cr, uid, env_id, id)
-        
-        # Complete Placement shortcut
-        env_pool.complete_placement(cr, uid, env_id)
-        
 
+        # Complete observation.ews
         
-        
-        
-        # Complete observation.ews managed option
-        ews_activity_ids = env_pool.get_activity_ids(cr, uid, env_id, 't4.clinical.patient.observation.ews')
-        for id in ews_activity_ids:
-            data = env_pool.data_observation_ews(cr, uid, env_id)
-            env_pool.submit(cr, uid, env_id, id, data)
-            env_pool.complete(cr, uid, env_id, id)
-            
-        # Complete observation.ews shortcut
-        env_pool.complete_observation_ews(cr, uid, env_id)
+        [env_pool.complete_observation_ews(cr, uid, env_id) for i in range(3)]
                
-        # Complete observation.gcs shortcut
+        # Complete observation.gcs
         env_pool.create_observation_gcs(cr, uid, env_id)
         env_pool.complete_observation_gcs(cr, uid, env_id)
 
 
-        # Complete observation.height shortcut
+        # Complete observation.height
         env_pool.create_observation_height(cr, uid, env_id)
         env_pool.complete_observation_height(cr, uid, env_id)
 
 
-        # Complete observation.weight shortcut
+        # Complete observation.weight
         env_pool.create_observation_weight(cr, uid, env_id)
         env_pool.complete_observation_weight(cr, uid, env_id)
 
-        # Complete observation.blood_sugar shortcut
+        # Complete observation.blood_sugar
         env_pool.create_observation_blood_sugar(cr, uid, env_id)
         env_pool.complete_observation_blood_sugar(cr, uid, env_id)
 
-        # Complete observation.blood_product shortcut
+        # Complete observation.blood_product
         env_pool.create_observation_blood_product(cr, uid, env_id)
         env_pool.complete_observation_blood_product(cr, uid, env_id)
 
-        # Complete observation.stools shortcut
+        # Complete observation.stools
         env_pool.create_observation_stools(cr, uid, env_id)
         env_pool.complete_observation_stools(cr, uid, env_id)
 
