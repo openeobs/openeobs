@@ -1,4 +1,4 @@
-import test_t4clinical_controller
+#import test_t4clinical_controller
 
 
 fast_suite = [

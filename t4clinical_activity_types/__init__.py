@@ -7,5 +7,3 @@ import devices
 
 import wizards
 import t4clinical_base_extension
-
-import demo

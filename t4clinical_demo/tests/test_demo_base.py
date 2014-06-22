@@ -17,10 +17,6 @@ def next_seed():
     seed += 1
     return seed
 
-class aaa(openerp.addons.t4clinical_demo.api_demo.t4_clinical_demo):
-    # configuration
-    pass
-
 class test_test_base(common.SingleTransactionCase):
     @classmethod
     def tearDownClass(cls):

@@ -626,7 +626,8 @@ class ActivityTypesScenarioTest(BaseTest):
 
         super(BaseTest, self).setUp()
 
-    def test_no_policy_obs(self):
+    def test_new(self):
+        return
         env_pool = self.registry('t4.clinical.demo.env')
         config = {
               'bed_qty': 7,
@@ -634,66 +635,63 @@ class ActivityTypesScenarioTest(BaseTest):
 #              'adt_user_qty': 1,
 #              'nurse_user_qty': 10,
 #              'ward_manager_user_qty': 3
-        }
+#              'patient_qty': 2,
+#              'admission_method': 'adt_admit' 
+        }       
         env_id = env_pool.create(cr, uid, config)
-        
         env_pool.build(cr, uid, env_id)
         
+        
+        
+    def test_no_policy_obs(self):
+        env_pool = self.registry('t4.clinical.demo.env')
+        api_pool = self.registry('t4.clinical.api')
+        activity_pool = self.registry('t4.activity')
+        config = {
+              'bed_qty': 7,
+#              'ward_qty': 20,
+#              'adt_user_qty': 1,
+#              'nurse_user_qty': 10,
+#              'ward_manager_user_qty': 3
+#              'patient_qty': 2,
+#              'admission_method': 'adt_admit'         
+        }
+        env_id = env_pool.create(cr, uid, config)
+        env = env_pool.build(cr, uid, env_id)
+        pos = env.pos_id
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
         
-        # Register
-        [env_pool.adt_patient_register(cr, adt_user_id, env_id) for i in range(2)]
-
-        # Admit
-        [env_pool.adt_patient_admit(cr, adt_user_id, env_id) for i in range(2)]
-
-        placement_activities = env_pool.get_activities(cr, uid, env_id, domain=[['data_model','=','t4.clinical.patient.placement']])
-        for pa in placement_activities:
-            print "pa.location_id: %s, pa.data_ref.location_id: %s" %(pa.location_id, pa.data_ref.location_id)
-
-        # Admit
-        [env_pool.complete_placement(cr, adt_user_id, env_id) for i in range(2)]
         
-#         # Register-Admit-Placement shortcut # breaks on 'more than 1 ews at a time' 
-#         env_pool.force_patient_placement(cr, adt_user_id, env_id)
+        #Complete observation.ews
+        ews_activities = api_pool.get_activities(cr, uid, pos_ids=[pos.id], data_models=['t4.clinical.patient.observation.ews'])
+        assert len(ews_activities) == env.patient_qty, "len(ews_activities) = %s, env.patient_qty = %s, pos.id = %s" % (len(ews_activities), env.patient_qty, pos.id)
+        for activity in ews_activities:
+            env_pool.submit_complete(cr, uid, env_id, activity.id)
 
-        # Complete observation.ews
-        
-        [env_pool.complete_observation_ews(cr, uid, env_id) for i in range(3)]
-               
-        # Complete observation.gcs
-        env_pool.create_observation_gcs(cr, uid, env_id)
-        env_pool.complete_observation_gcs(cr, uid, env_id)
-
-
+                
+        # Complete observation.gcs       
+        [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.gcs') for i in range(env.patient_qty)]
+# 
         # Complete observation.height
-        env_pool.create_observation_height(cr, uid, env_id)
-        env_pool.complete_observation_height(cr, uid, env_id)
-
+        [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.height') for i in range(env.patient_qty)]
 
         # Complete observation.weight
-        env_pool.create_observation_weight(cr, uid, env_id)
-        env_pool.complete_observation_weight(cr, uid, env_id)
+        [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.weight') for i in range(env.patient_qty)]
 
         # Complete observation.blood_sugar
-        env_pool.create_observation_blood_sugar(cr, uid, env_id)
-        env_pool.complete_observation_blood_sugar(cr, uid, env_id)
-
+        [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.blood_sugar') for i in range(env.patient_qty)]
+ 
         # Complete observation.blood_product
-        env_pool.create_observation_blood_product(cr, uid, env_id)
-        env_pool.complete_observation_blood_product(cr, uid, env_id)
-
+        [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.blood_product') for i in range(env.patient_qty)]
+ 
         # Complete observation.stools
-        env_pool.create_observation_stools(cr, uid, env_id)
-        env_pool.complete_observation_stools(cr, uid, env_id)
+        [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.stools') for i in range(env.patient_qty)]
 
-        # calcel adt.admit.cancel
-
-        env_pool.create_adt_patient_cancel_admit(cr, adt_user_id, env_id)
-        env_pool.complete_adt_patient_cancel_admit(cr, adt_user_id, env_id)
+ 
+        # calcel adt.cancel_admit
+        [env_pool.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.cancel_admit') for i in range(1)]
 
     def test_gcs_observations_policy_static(self):
-        return
         gcs_test_data = {
             'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
             'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
@@ -714,41 +712,33 @@ class ActivityTypesScenarioTest(BaseTest):
         }
 
         env_pool = self.registry('t4.clinical.demo.env')
+        api_pool = self.registry('t4.clinical.api')
+        activity_pool = self.registry('t4.activity')
         env_id = env_pool.create(cr, uid)
-        env_pool.build(cr, uid, env_id)
-        adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        # Register
-        env_pool.adt_patient_register(cr, adt_user_id, env_id)
-        # Admit
-        env_pool.adt_patient_admit(cr, adt_user_id, env_id)
-        # Complete Placement shortcut
-        env_pool.complete_placement(cr, uid, env_id)
-        
+        env = env_pool.build(cr, uid, env_id)
+
         # gcs
-        env_pool.create_observation_gcs(cr, uid, env_id)
+        gcs_activity = env_pool.create_complete(cr, uid, env_id,'t4.clinical.patient.observation.gcs')
         for i in range(13):
             data = {
                 'eyes': gcs_test_data['EYES'][i],
                 'verbal': gcs_test_data['VERBAL'][i],
                 'motor': gcs_test_data['MOTOR'][i],
             }
-            gcs_id = env_pool.complete_observation_gcs(cr, uid, env_id, data)
-            gcs_activity = activity_pool.browse(cr, uid, gcs_id)
-            
+            gcs_activity = env_pool.submit_complete(cr, uid, env_id, gcs_activity.created_ids[0].id, data)
             frequency = gcs_policy['frequencies'][gcs_test_data['CASE'][i]]
             nurse_notifications = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['nurse']
             assessment = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['assessment']
             review_frequency = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['frequency']
 
             print "TEST - observation GCS: expecting score %s, frequency %s" % (gcs_test_data['SCORE'][i], frequency)
-
             
             # # # # # # # # # # # # # # # # #
             # Check the score and frequency #
             # # # # # # # # # # # # # # # # #
             self.assertEqual(gcs_activity.data_ref.score, gcs_test_data['SCORE'][i], msg='Score not matching')
             domain = [
-                ('creator_id', '=', gcs_id),
+                ('creator_id', '=', gcs_activity.id),
                 ('state', 'not in', ['completed', 'cancelled']),
                 ('data_model', '=', gcs_pool._name)]
             gcs_activity_ids = activity_pool.search(cr, uid, domain)
@@ -758,7 +748,6 @@ class ActivityTypesScenarioTest(BaseTest):
         
 
     def test_ews_observations_policy_static(self):
-        return
         ews_test_data = {
             'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],
             'CASE':     [   0,    1,    1,    1,    1,    2,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    2,    2,    3],
@@ -783,16 +772,12 @@ class ActivityTypesScenarioTest(BaseTest):
         }
 
         env_pool = self.registry('t4.clinical.demo.env')
+        api_pool = self.registry('t4.clinical.api')
+        activity_pool = self.registry('t4.activity')
         env_id = env_pool.create(cr, uid)
-        env_pool.build(cr, uid, env_id)
-        adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        # Register
-        env_pool.adt_patient_register(cr, adt_user_id, env_id)
-        # Admit
-        env_pool.adt_patient_admit(cr, adt_user_id, env_id)
-        # Complete Placement shortcut
-        env_pool.complete_placement(cr, uid, env_id)
+        env = env_pool.build(cr, uid, env_id)
         # ews
+        ews_activity = api_pool.get_activities(cr, uid, pos_ids=[env.pos_id.id], data_models=['t4.clinical.patient.observation.ews'])[0]
         for i in range(21):
             
             data={
@@ -805,8 +790,8 @@ class ActivityTypesScenarioTest(BaseTest):
                 'pulse_rate': ews_test_data['PR'][i],
                 'avpu_text': ews_test_data['AVPU'][i]
             }
-            ews_id = env_pool.complete_observation_ews(cr, uid, env_id, data)
-            ews_activity = activity_pool.browse(cr, uid, ews_id)
+            
+            ews_activity = env_pool.submit_complete(cr, uid, env_id, ews_activity.id, data)
             
             frequency = ews_policy['frequencies'][ews_test_data['CASE'][i]]
             clinical_risk = ews_policy['risk'][ews_test_data['CASE'][i]]
@@ -824,7 +809,7 @@ class ActivityTypesScenarioTest(BaseTest):
             self.assertEqual(ews_activity.data_ref.score, ews_test_data['SCORE'][i], msg='Score not matching')
             self.assertEqual(ews_activity.data_ref.clinical_risk, clinical_risk, msg='Risk not matching')
             domain = [
-                ('creator_id', '=', ews_id),
+                ('creator_id', '=', ews_activity.id),
                 ('state', 'not in', ['completed', 'cancelled']),
                 ('data_model', '=', ews_pool._name)]
             ews_activity_ids = activity_pool.search(cr, uid, domain)
@@ -836,7 +821,7 @@ class ActivityTypesScenarioTest(BaseTest):
             # Check notification triggers #
             # # # # # # # # # # # # # # # #
             domain = [
-                ('creator_id', '=', ews_id),
+                ('creator_id', '=', ews_activity.id),
                 ('state', 'not in', ['completed', 'cancelled']),
                 ('data_model', '=', 't4.clinical.notification.assessment')]
             assessment_ids = activity_pool.search(cr, uid, domain)
@@ -854,7 +839,7 @@ class ActivityTypesScenarioTest(BaseTest):
                 self.assertFalse(assessment_ids, msg='Assessment notification triggered')
 
             domain = [
-                ('creator_id', '=', ews_id),
+                ('creator_id', '=', ews_activity.id),
                 ('state', 'not in', ['completed', 'cancelled']),
                 ('data_model', '=', 't4.clinical.notification.frequency')]
             frequency_ids = activity_pool.search(cr, uid, domain)
@@ -865,8 +850,11 @@ class ActivityTypesScenarioTest(BaseTest):
                 self.assertFalse(frequency_ids, msg='Review frequency notification triggered')
 
             domain = [
-                ('creator_id', '=', ews_id),
+                ('creator_id', '=', ews_activity.id),
                 ('state', 'not in', ['completed', 'cancelled']),
                 ('data_model', '=', 't4.clinical.notification.nurse')]
             notification_ids = activity_pool.search(cr, uid, domain)
             self.assertEqual(len(notification_ids), len(nurse_notifications), msg='Wrong notifications triggered')
+            ews_activity = api_pool.get_activities(cr, uid, pos_ids=[env.pos_id.id], 
+                                                   data_models=['t4.clinical.patient.observation.ews'],
+                                                   states=['new','scheduled','started'])[0]

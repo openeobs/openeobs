@@ -35,8 +35,45 @@ class t4_clinical_api(orm.AbstractModel):
             res['creators'].update({creator.data_model: creator}) 
         from pprint import pprint as pp
         pp(res)
-        return res           
-
+        return res       
+    def get_activity_ids(self, cr, uid,
+                       pos_ids=[], location_ids=[], patient_ids=[],
+                       device_ids=[], data_models=[], states=[]):
+        """
+        returns browse list of t4.activity 
+        """
+        where_list = []
+        if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))    
+        if location_ids: where_list.append("location_id in (%s)" % ','.join([str(id) for id in location_ids])) 
+        if patient_ids: where_list.append("patient_id in (%s)" % ','.join([str(id) for id in patient_ids]))
+        if device_ids: where_list.append("device_id in (%s)" % ','.join([str(id) for id in device_ids]))
+        if data_models: where_list.append("data_model in ('%s')" % "','".join(data_models))
+        if states: where_list.append("state in ('%s')" % "','".join(states))
+        where_clause = where_list and "where %s" % " and ".join(where_list) or ""
+        sql = "select id from t4_activity %s" % where_clause
+        cr.execute(sql)
+        activity_ids = [r['id'] for r in cr.dictfetchall()]
+        return activity_ids
+    
+    def get_activities(self, cr, uid,
+                       pos_ids=[], location_ids=[], patient_ids=[],
+                       device_ids=[], data_models=[], states=[]):
+        activity_ids = self.get_activity_ids(cr, uid, pos_ids, location_ids, patient_ids, device_ids, data_models,states)
+        return self.pool['t4.activity'].browse(cr, uid, activity_ids)
+        
+    
+    def get_activity_data(self, cr, uid, activity_id):
+        activity = self.pool['t4.activity'].browse(cr, uid, activity_id)
+        data_pool = self.pool[activity.data_model]
+        data = data_pool.read(cr, uid, activity.data_ref.id, [])
+        for field_name, field in data_pool._columns.items():
+            if field._type == 'many2one' and data.get(field_name):
+                data[field_name] = data[field_name][0]
+        del data['id']
+        return data
+                
+        
+        
     def location_availability_map(self, cr, uid, 
                                   ids=[], types=[], usages=[], codes=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):  

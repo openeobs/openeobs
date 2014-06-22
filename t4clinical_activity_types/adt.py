@@ -227,6 +227,7 @@ class t4_clinical_adt_patient_cancel_admit(orm.Model):
                 next_level_activity_ids.extend([created.id for created in activity.created_ids])            
                 activity_ids.extend(next_level_activity_ids)
         activity_ids = list(set(activity_ids)) 
+        activity_id in activity_ids and activity_ids.remove(activity_id)
         _logger.info("Starting activities cancellation due to adt.pateint.cancel_admit activity completion...")       
         for activity in activity_pool.browse(cr, uid, activity_ids):
             activity_pool.cancel(cr, uid, activity.id)
