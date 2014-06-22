@@ -79,6 +79,7 @@ class t4_clinical_demo_env(orm.Model):
     
     def create_activity(self, cr, uid, env_id, data_model, activity_vals={}, data_vals={}, no_fake=False):
         activity_pool = self.pool['t4.activity']
+        data_pool = self.pool[data_model]
         if not no_fake:
             dvals = self.fake_data(cr, uid, env_id, data_model, data_vals)
         else:
