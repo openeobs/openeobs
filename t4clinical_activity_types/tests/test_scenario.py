@@ -2,7 +2,7 @@ from openerp.tests import common
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-
+from pprint import pprint as pp
 
 from openerp import tools
 from openerp.osv import orm, fields, osv
@@ -699,6 +699,7 @@ class ActivityTypesScenarioTest(BaseTest):
             assert False, "Unexpected reaction to registration attempt of existing patient!"
 
     def test_adt_admit(self):
+        return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -752,7 +753,66 @@ class ActivityTypesScenarioTest(BaseTest):
         placement_activity = placement_activity[0]
         assert placement_activity.state == 'new'        
         
+    def test_placement(self):
+        return
+        env_pool = self.registry('t4.clinical.demo.env')
+        api_pool = self.registry('t4.clinical.api')
+        config = {
+            'patient_qty': 0,
+        }       
+        env_id = env_pool.create(cr, uid, config)
+        env = env_pool.build(cr, uid, env_id)
+        env_pool.build(cr, uid, env_id)
+        adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
+        register_activity = env_pool.create_complete(cr, adt_user_id, env_id,'t4.clinical.adt.patient.register')
+        admit_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.admit')
+        admit_data['other_identifier'] = register_activity.data_ref.other_identifier
+        admit_activity = env_pool.create_complete(cr, adt_user_id, env_id,'t4.clinical.adt.patient.admit', {}, admit_data)
+        # test admission
+        admission_activity = [a for a in admit_activity.created_ids if a.data_model == 't4.clinical.patient.admission']
+        assert len(admission_activity) == 1, "Created admission activity: %s" % admission_activity
+        admission_activity = admission_activity[0]
+        assert admission_activity.state == 'completed'
+        #test placement        
+        placement_activity = [a for a in admission_activity.created_ids if a.data_model == 't4.clinical.patient.placement']
+        assert len(placement_activity) == 1, "Created patient.placement activity: %s" % placement_activity    
+        placement_activity = placement_activity[0]
+        assert placement_activity.state == 'new'   
+        assert placement_activity.pos_id.id == register_activity.pos_id.id
+        assert placement_activity.patient_id.id == register_activity.patient_id.id
+        assert placement_activity.data_ref.patient_id.id == placement_activity.patient_id.id
+        assert placement_activity.data_ref.suggested_location_id
+        assert placement_activity.location_id.id == placement_activity.data_ref.suggested_location_id.id
         
+    def test_availability_map(self):
+        env_pool = self.registry('t4.clinical.demo.env')
+        api_pool = self.registry('t4.clinical.api')
+        config = {
+            'bed_qty': 5,
+            'patient_qty': 3
+        }       
+        env_id = env_pool.create(cr, uid, config)
+        env_pool.build(cr, uid, env_id)
+        env = env_pool.build(cr, uid, env_id)
+        # get patients
+        spell_activities = api_pool.get_activities(cr, uid, data_models=['t4.clinical.spell'], states=['started'], pos_ids=[env.pos_id.id])
+        assert len(spell_activities) == env.patient_qty
+        patients = [a.patient_id for a in spell_activities]
+        bed_locations = api_pool.get_locations(cr, uid, pos_ids=[env.pos_id.id], usages=['bed'])
+        assert len(bed_locations) == env.bed_qty
+        amap = api_pool.location_availability_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
+        pp(amap)
+        available_ids = [k for k, v in amap.items() if amap[k]['available']>0]
+        unavailable_ids = list(set(amap.keys()) - set(available_ids))
+        import pdb; pdb.set_trace()
+        assert not unavailable_ids, "unavailable_ids = %s" % unavailable_ids
+        
+        assert available_ids
+        move = api_pool.create_complete(cr, uid, 't4.clinical.patient.move', 
+                                        {'patient_id': patients[0].id, 'location_id': bed_locations[0].id})
+        amap = api_pool.location_availability_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
+        pp(amap)
+        assert not amap[bed_locations[0].id]['available']
         
     def test_no_policy_obs(self):
         return

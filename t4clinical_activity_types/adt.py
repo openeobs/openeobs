@@ -44,7 +44,6 @@ class t4_clinical_adt_patient_register(orm.Model):
         patient_id = patient_pool.search(cr, uid, patient_domain)
         except_if(patient_id, msg="Patient already exists! Data: %s" % vals_copy)
         patient_id = patient_pool.create(cr, uid, vals_copy, context)
-
         vals_copy.update({'patient_id': patient_id, 'pos_id': user.pos_id.id})
         super(t4_clinical_adt_patient_register, self).submit(cr, uid, activity_id, vals_copy, context)
         res.update({'patient_id': patient_id})
@@ -94,18 +93,16 @@ class t4_clinical_adt_patient_admit(orm.Model):
 
     def submit(self, cr, uid, activity_id, vals, context=None):
         res = {}
+        api_pool = self.pool['t4.clinical.api']
         user = self.pool['res.users'].browse(cr, uid, uid, context)
         except_if(not user.pos_id or not user.pos_id.location_id, msg="POS location is not set for user.login = %s!" % user.login)
         # location validation
-        location_pool = self.pool['t4.clinical.location']
-        suggested_location_id = location_pool.search(cr, SUPERUSER_ID, 
-                                                    [('code','=',vals['location']),
-                                                     ('id','child_of',user.pos_id.location_id.id)])
-        if not suggested_location_id:
+        suggested_location = api_pool.get_locations(cr, SUPERUSER_ID, codes=[vals['location']], pos_ids=[user.pos_id.id])
+        if not suggested_location:
             _logger.warn("ADT suggested_location '%s' not found! Will pass suggested_location_id = False" % vals['location'])
             suggested_location_id = False
         else:
-            suggested_location_id = suggested_location_id[0]
+            suggested_location_id = suggested_location[0].id
         # patient validation
         patient_pool = self.pool['t4.clinical.patient']
         patient_id = patient_pool.search(cr, SUPERUSER_ID, [('other_identifier','=',vals['other_identifier'])])
@@ -115,8 +112,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
                                     % (vals['other_identifier'], patient_id[0]))
         patient_id = patient_id[0]
         vals_copy = vals.copy()       
-        vals_copy.update({'suggested_location_id': suggested_location_id})  
-        vals_copy.update({'patient_id': patient_id, 'pos_id': user.pos_id.id})
+        vals_copy.update({'suggested_location_id': suggested_location_id, 'patient_id': patient_id, 'pos_id': user.pos_id.id})  
         # doctors
         if vals.get('doctors'):
             try:
@@ -149,30 +145,22 @@ class t4_clinical_adt_patient_admit(orm.Model):
                 con_doctor_ids and vals_copy.update({'con_doctor_ids': [[4, id] for id in con_doctor_ids]})
             except:
                 _logger.warn("Can't evaluate 'doctors': %s" % (vals['doctors']))   
-        activity_pool = self.pool['t4.activity']
-        activity = activity_pool.browse(cr, uid, activity_id)
-          
         super(t4_clinical_adt_patient_admit, self).submit(cr, uid, activity_id, vals_copy, context)
-        self.write(cr, uid, activity.data_ref.id, vals_copy) 
         return res 
 
     def complete(self, cr, uid, activity_id, context=None):
         res = {}
         super(t4_clinical_adt_patient_admit, self).complete(cr, uid, activity_id, context)
-        activity_pool = self.pool['t4.activity']
-        admit_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context)
-        admission_pool = self.pool['t4.clinical.patient.admission']
-        admission_activity_id = admission_pool.create_activity(cr, SUPERUSER_ID,
+        api_pool = self.pool['t4.clinical.api']
+        admit_activity = api_pool.get_activity(cr, uid, activity_id)        
+        admission_activity = api_pool.create_complete(cr, SUPERUSER_ID, 't4.clinical.patient.admission',
                                        {'creator_id': activity_id}, 
                                        # FIXME! pos_id should be taken from adt_user.pos_id
                                        {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,
                                         'patient_id': admit_activity.patient_id.id,
                                         'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
-        res[admission_pool._name] = admission_activity_id
-            
-        admission_result = activity_pool.complete(cr, SUPERUSER_ID, admission_activity_id, context)
-        res.update(admission_result)
-        activity_pool.write(cr, SUPERUSER_ID, activity_id, {'parent_id': admission_result['t4.clinical.spell']})
+        spell_activity = [a for a in admission_activity.created_ids if a.data_model == 't4.clinical.spell'][0]
+        api_pool.write_activity(cr, SUPERUSER_ID, activity_id, {'parent_id': spell_activity.id})
         return res
     
 class t4_clinical_adt_patient_cancel_admit(orm.Model):

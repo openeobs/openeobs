@@ -10,6 +10,63 @@ _logger = logging.getLogger(__name__)
     
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api'
+    
+    def get_activity(self, cr, uid, activity_id):
+        activity_pool = self.pool['t4.activity']
+        return activity_pool.browse(cr, uid, activity_id)
+                
+    def create_activity(self, cr, uid, data_model, vals_activity, vals_data):
+        activity_pool = self.pool['t4.activity']
+        data_pool = self.pool[data_model]        
+        activity_id = data_pool.create_activity(cr, uid, vals_activity, vals_data)        
+        return activity_pool.browse(cr, uid, activity_id)        
+
+    def write_activity(self, cr, uid, activity_id, vals_activity):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.write(cr, uid, activity_id, vals_activity)        
+        return activity_pool.browse(cr, uid, activity_id) 
+
+    def create_complete(self, cr, uid, data_model, activity_vals={}, data_vals={}):
+        data_pool = self.pool[data_model]
+        activity_pool = self.pool['t4.activity']
+        activity_id = data_pool.create_activity(cr, uid, activity_vals, data_vals)
+        activity_pool.complete(cr, uid, activity_id)       
+        return activity_pool.browse(cr, uid, activity_id)
+
+    def schedule(self, cr, uid, activity_id, date_scheduled):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.schedule(cr, uid, activity_id, date_scheduled)        
+        return activity_pool.browse(cr, uid, activity_id)     
+            
+    def start(self, cr, uid, activity_id):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.start(cr, uid, activity_id)        
+        return activity_pool.browse(cr, uid, activity_id)       
+    
+    def complete(self, cr, uid, activity_id):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.complete(cr, uid, activity_id)        
+        return activity_pool.browse(cr, uid, activity_id) 
+    
+    def cancel(self, cr, uid, activity_id):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.cancel(cr, uid, activity_id)        
+        return activity_pool.browse(cr, uid, activity_id) 
+
+    def submit(self, cr, uid, activity_id, vals_data):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.submit(cr, uid, activity_id, vals_data)        
+        return activity_pool.browse(cr, uid, activity_id) 
+    
+    def assign(self, cr, uid, activity_id, user_id):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.assign(cr, uid, activity_id, user_id)        
+        return activity_pool.browse(cr, uid, activity_id) 
+    
+    def unassign(self, cr, uid, activity_id):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.unassign(cr, uid, activity_id)        
+        return activity_pool.browse(cr, uid, activity_id) 
 
     def activity_info(self, cr, uid, activity_id, context={}):
         """
@@ -36,13 +93,70 @@ class t4_clinical_api(orm.AbstractModel):
         from pprint import pprint as pp
         pp(res)
         return res       
-    def get_activity_ids(self, cr, uid,
+
+    def patient_location_map(self, cr, uid, ids=[], types=[], usages=[], codes=[]):  
+        """
+        returns dict for patient model of format:
+        {patient_id: location_id, ...}
+        """
+        print "api: map args: ids: %s, available_range: %s, usages: %s" % (ids,available_range,usages)
+        where_list = []
+        ids and where_list.append("patient_id in (%s)" % ','.join([str(id) for id in ids]))
+        types and where_list.append("type in ('%s')" % "','".join(types))
+        usages and where_list.append("usage in ('%s')" % "','".join(usages))
+        codes and where_list.append("code in ('%s')" % "','".join(codes))
+        where_clause = where_list and "where %s" % " and ".join(where_list) or ""
+        print where_clause     
+        sql = """
+            with
+                move_patient_date as (
+                    select 
+                        max(date_terminated) as max_date_terminated,
+                        m.patient_id
+                    from t4_clinical_patient_move m
+                    inner join t4_activity a on m.activity_id = a.id
+                    where a.state = 'completed'
+                    group by m.patient_id
+                ),
+                patient_location as (
+                    select 
+                        m.patient_id,
+                        m.location_id
+                    from t4_clinical_patient_move m
+                    inner join t4_activity ma on m.activity_id = ma.id
+                    inner join move_patient_date ppd on ma.date_terminated = ppd.max_date_terminated and m.patient_id = ppd.patient_id
+                    inner join t4_activity sa on ma.parent_id = sa.id
+                    where sa.state = 'started'
+                )
+            select * from patient_location %s """ % where_clause
+        cr.execute(sql)
+        res = {r['patient_id']: r['location_id'] for r in cr.dictfetchall()}
+        return res
+    def get_location_ids(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
+                                  occupied_range=[], capacity_range=[], available_range=[]):    
+        location_ids = self.location_availability_map(cr, uid, pos_ids=pos_ids,
+                                  location_ids=location_ids, types=types, usages=usages, codes=codes,
+                                  occupied_range=occupied_range, capacity_range=capacity_range, 
+                                  available_range=available_range).keys()
+        return location_ids
+
+    def get_locations(self, cr, uid, 
+                                  location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
+                                  occupied_range=[], capacity_range=[], available_range=[]):
+        location_ids = self.get_location_ids(cr, uid, pos_ids=pos_ids,
+                                  location_ids=location_ids, types=types, usages=usages, codes=codes,
+                                  occupied_range=occupied_range, capacity_range=capacity_range, 
+                                  available_range=available_range)
+        return self.pool['t4.clinical.location'].browse(cr, uid, location_ids)     
+
+    def get_activity_ids(self, cr, uid, activity_ids=[],
                        pos_ids=[], location_ids=[], patient_ids=[],
                        device_ids=[], data_models=[], states=[]):
         """
         returns browse list of t4.activity 
         """
         where_list = []
+        if activity_ids: where_list.append("id in (%s)" % ','.join([str(id) for id in activity_ids]))
         if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))    
         if location_ids: where_list.append("location_id in (%s)" % ','.join([str(id) for id in location_ids])) 
         if patient_ids: where_list.append("patient_id in (%s)" % ','.join([str(id) for id in patient_ids]))
@@ -55,12 +169,14 @@ class t4_clinical_api(orm.AbstractModel):
         activity_ids = [r['id'] for r in cr.dictfetchall()]
         return activity_ids
     
-    def get_activities(self, cr, uid,
+    def get_activities(self, cr, uid, activity_ids=[],
                        pos_ids=[], location_ids=[], patient_ids=[],
                        device_ids=[], data_models=[], states=[]):
-        activity_ids = self.get_activity_ids(cr, uid, pos_ids, location_ids, patient_ids, device_ids, data_models,states)
+        activity_ids = self.get_activity_ids(cr, uid, pos_ids=pos_ids, location_ids=location_ids, 
+                                             patient_ids=patient_ids, device_ids=device_ids, 
+                                             data_models=data_models, states=states)
         return self.pool['t4.activity'].browse(cr, uid, activity_ids)
-        
+     
     
     def get_activity_data(self, cr, uid, activity_id):
         activity = self.pool['t4.activity'].browse(cr, uid, activity_id)
@@ -75,21 +191,22 @@ class t4_clinical_api(orm.AbstractModel):
         
         
     def location_availability_map(self, cr, uid, 
-                                  ids=[], types=[], usages=[], codes=[],
+                                  location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):  
         """
         returns dict of dicts for location model of format:
         {id: {id, code, type, usage, occupied, capacity, available}}
         """
-        print "api: map args: ids: %s, available_range: %s, usages: %s" % (ids,available_range,usages)
+        print "api: map args: location_ids: %s, available_range: %s, usages: %s" % (location_ids,available_range,usages)
         where_list = []
-        ids and where_list.append("id in (%s)" % ','.join([str(id) for id in ids]))
-        types and where_list.append("type in ('%s')" % "','".join(types))
-        usages and where_list.append("usage in ('%s')" % "','".join(usages))
-        codes and where_list.append("code in ('%s')" % "','".join(codes))
-        occupied_range and where_list.append("occupied between %s and %s" % (occupied_range[0], occupied_range[1]))
-        capacity_range and where_list.append("capacity between %s and %s" % (capacity_range[0], capacity_range[1]))
-        available_range and where_list.append("available between %s and %s" % (available_range[0], available_range[1]))
+        if location_ids: where_list.append("id in (%s)" % ','.join([str(id) for id in location_ids]))
+        if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))
+        if types: where_list.append("type in ('%s')" % "','".join([str(t) for t in types]))
+        if usages: where_list.append("usage in ('%s')" % "','".join([str(u) for u in usages]))
+        if codes: where_list.append("code in ('%s')" % "','".join([str(c) for c in codes]))                       
+        if occupied_range: where_list.append("occupied between %s and %s" % (occupied_range[0], occupied_range[1]))
+        if capacity_range: where_list.append("capacity between %s and %s" % (capacity_range[0], capacity_range[1]))
+        if available_range: where_list.append("available between %s and %s" % (available_range[0], available_range[1]))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
         print where_clause     
         sql = """
@@ -121,6 +238,7 @@ class t4_clinical_api(orm.AbstractModel):
                         l.code,
                         l.type,
                         l.usage,
+                        l.pos_id,
                         coalesce(ppl.patient_qty, 0) as occupied,
                         coalesce(l.patient_capacity, 0) as capacity,
                         coalesce(l.patient_capacity, 0) - coalesce(ppl.patient_qty, 0) as available

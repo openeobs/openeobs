@@ -124,7 +124,7 @@ class t4_clinical_demo_env(orm.Model):
         bed_location_ids = self.get_bed_location_ids(cr, uid, env_id)
         print "demo: map args: ids: %s, available_range: %s, usages: %s" % (bed_location_ids,available_range,usages)
         location_ids = self.pool['t4.clinical.api'].location_availability_map(cr, uid, 
-                                                                                  ids=bed_location_ids, 
+                                                                                  location_ids=bed_location_ids, 
                                                                                   available_range=available_range,
                                                                                   usages=usages)
         

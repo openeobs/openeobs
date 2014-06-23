@@ -192,10 +192,9 @@ class t4_clinical_location(orm.Model):
     
     def get_available_location_ids(self, cr, uid, usages=[], location_id=None, context=None):
           api_pool = self.pool['t4.clinical.api']  
-          location_map = api_pool.location_availability_map(cr, uid, 
-                                                            ids=[], types=[], usages=[], codes=[],
-                                                            occupied_range=[], capacity_range=[], available_range=[1,1])
-          res = [k for k,v in location_map.items()]
+          res = api_pool.location_availability_map(cr, uid, 
+                                                    location_ids=[], types=[], usages=[], codes=[],
+                                                    occupied_range=[], capacity_range=[], available_range=[1,1]).keys()
           return res
 
 
