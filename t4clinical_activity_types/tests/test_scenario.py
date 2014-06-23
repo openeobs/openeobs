@@ -626,7 +626,7 @@ class ActivityTypesScenarioTest(BaseTest):
 
         super(BaseTest, self).setUp()
 
-    def test_new(self):
+    def test_build_env(self):
         return
         env_pool = self.registry('t4.clinical.demo.env')
         config = {
@@ -642,6 +642,7 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool.build(cr, uid, env_id)
         
     def test_adt_register(self):
+        return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -652,16 +653,24 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool.build(cr, uid, env_id)
         register_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.register')
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        # test data
+        # test fake data
         assert register_data['family_name']
         assert register_data['given_name']
         assert register_data['other_identifier']
         assert register_data['dob']
         assert register_data['gender']
         assert register_data['sex']
+        # Create
         register_activity = env_pool.create_activity(cr, adt_user_id, env_id,'t4.clinical.adt.patient.register', {}, register_data, no_fake=True)
-        # test after create+submit
+        # activity test
+        assert register_activity.data_ref.patient_id == register_activity.patient_id
         assert register_activity.state == 'new'
+        assert not register_activity.creator_id
+        assert not register_activity.parent_id
+        assert register_activity.patient_id
+        assert register_activity.pos_id
+        
+        # data test
         assert register_activity.data_ref.family_name == register_data['family_name']
         assert register_activity.data_ref.given_name == register_data['given_name']
         assert register_activity.data_ref.other_identifier == register_data['other_identifier']
@@ -670,16 +679,80 @@ class ActivityTypesScenarioTest(BaseTest):
         assert register_activity.data_ref.sex == register_data['sex']
         assert register_activity.data_ref.pos_id.id == env.pos_id.id
         # patient test
-        assert register_activity.data_ref.patient_id
         assert register_activity.data_ref.patient_id.family_name == register_data['family_name']  
         assert register_activity.data_ref.patient_id.given_name == register_data['given_name']
         assert register_activity.data_ref.patient_id.other_identifier == register_data['other_identifier']
         assert register_activity.data_ref.patient_id.dob == register_data['dob']
         assert register_activity.data_ref.patient_id.gender == register_data['gender']
         assert register_activity.data_ref.patient_id.sex == register_data['sex']
+        # Complete
+        register_activity = env_pool.complete(cr, uid, env_id, register_activity.id)
+        assert register_activity.state == 'completed'
+        assert register_activity.date_terminated
         
-        # Existing patient test 
+        # Existing patient test
+        try:
+            register_activity = env_pool.create_activity(cr, adt_user_id, env_id,'t4.clinical.adt.patient.register', {}, register_data, no_fake=True)
+        except Exception as e:
+            assert e.args[1].startswith("Patient already exists!"), "Unexpected reaction to attempt to register existing patient!"
+        else:
+            assert False, "Unexpected reaction to registration attempt of existing patient!"
 
+    def test_adt_admit(self):
+        env_pool = self.registry('t4.clinical.demo.env')
+        api_pool = self.registry('t4.clinical.api')
+        config = {
+            'patient_qty': 0,
+        }       
+        env_id = env_pool.create(cr, uid, config)
+        env = env_pool.build(cr, uid, env_id)
+        env_pool.build(cr, uid, env_id)
+        adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
+        register_activity = env_pool.create_complete(cr, adt_user_id, env_id,'t4.clinical.adt.patient.register')
+        admit_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.admit')
+        admit_data['other_identifier'] = register_activity.data_ref.other_identifier
+        # test data
+        assert admit_data['other_identifier']
+        assert admit_data['location']
+        assert admit_data['code']
+        assert admit_data['start_date']
+        assert admit_data['doctors']
+        # Create
+        admit_activity = env_pool.create_activity(cr, adt_user_id, env_id,'t4.clinical.adt.patient.admit', {}, admit_data, no_fake=True)
+        # activity test
+        assert admit_activity.data_ref.patient_id == register_activity.patient_id
+        assert admit_activity.state == 'new'
+        assert not admit_activity.parent_id         
+        assert admit_activity.patient_id.id == register_activity.patient_id.id
+        # data test
+        assert admit_activity.data_ref.other_identifier == register_activity.data_ref.other_identifier
+        assert admit_activity.data_ref.patient_id.id == register_activity.patient_id.id
+        assert admit_activity.data_ref.location == admit_data['location']
+        assert int(admit_activity.data_ref.code) == int(admit_data['code']), "code = %s, [code] = %s" % (admit_activity.data_ref.code, admit_data['code'])
+        # test patient
+        # test doctors
+        # test policy
+        # test suggested location
+        
+        # Complete
+        admit_activity = env_pool.complete(cr, uid, env_id, admit_activity.id)
+        # test admission
+        admission_activity = [a for a in admit_activity.created_ids if a.data_model == 't4.clinical.patient.admission']
+        assert len(admission_activity) == 1, "Created admission activity: %s" % admission_activity
+        admission_activity = admission_activity[0]
+        assert admission_activity.state == 'completed'
+        # test spell
+        spell_activity = [a for a in admission_activity.created_ids if a.data_model == 't4.clinical.spell']
+        assert len(spell_activity) == 1, "Created spell activity: %s" % spell_activity    
+        spell_activity = spell_activity[0]
+        assert spell_activity.state == 'started'
+        # test placement
+        placement_activity = [a for a in admission_activity.created_ids if a.data_model == 't4.clinical.patient.placement']
+        assert len(placement_activity) == 1, "Created patient.placement activity: %s" % placement_activity    
+        placement_activity = placement_activity[0]
+        assert placement_activity.state == 'new'        
+        
+        
         
     def test_no_policy_obs(self):
         return

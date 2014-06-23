@@ -97,6 +97,12 @@ class t4_clinical_demo_env(orm.Model):
         activity_id = data_pool.create_activity(cr, uid, activity_vals, dvals)
         activity_pool.complete(cr, uid, activity_id)       
         return activity_pool.browse(cr, uid, activity_id)
+
+    def complete(self, cr, uid, env_id, activity_id):  
+        assert activity_id
+        activity_pool = self.pool['t4.activity']
+        activity_pool.complete(cr, uid, activity_id)
+        return activity_pool.browse(cr, uid, activity_id)
     
     def submit_complete(self, cr, uid, env_id, activity_id, data_vals={}, no_fake=False):  
         assert activity_id
