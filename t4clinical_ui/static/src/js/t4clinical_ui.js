@@ -599,7 +599,7 @@ openerp.t4clinical_ui = function (instance) {
 
     instance.web.views.add('form', 'instance.t4clinical_ui.FormView');
 
-    instance.t4skr.KanbanView = instance.web_kanban.KanbanView.extend({
+    instance.t4clinical_ui.KanbanView = instance.web_kanban.KanbanView.extend({
     	
     	on_groups_started: function() {
             if (this.group_by == 'clinical_risk'){
@@ -625,6 +625,6 @@ openerp.t4clinical_ui = function (instance) {
     	}
     });
 
-    instance.web.views.add('kanban', 'instance.t4skr.KanbanView');
+    instance.web.views.add('kanban', 'instance.t4clinical_ui.KanbanView');
 
 }
