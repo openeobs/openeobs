@@ -239,18 +239,17 @@ class t4_clinical_adt_patient_discharge(orm.Model):
         discharge_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
         patient_id = patient_pool.search(cr, SUPERUSER_ID, [('other_identifier', '=', discharge_activity.data_ref.other_identifier)], context=context)
         except_if(not patient_id, msg="Patient not found!")
-        spell_activity = api_pool.get_patient_spell_activity_browse(cr, SUPERUSER_ID, patient_id[0], context=context)
+        patient_id = patient_id[0]
+        spell_activity = api_pool.get_patient_spell_activity_browse(cr, SUPERUSER_ID, patient_id, context=context)
         except_if(not spell_activity.id, msg="Patient was not admitted!")
-        super(t4_clinical_adt_patient_discharge, self).complete(cr, uid, activity_id, context)
+        res = super(t4_clinical_adt_patient_discharge, self).complete(cr, uid, activity_id, context)
         discharge_pool = self.pool['t4.clinical.patient.discharge']
         discharge_activity_id = discharge_pool.create_activity(
             cr, SUPERUSER_ID,
             {'creator_id': activity_id},
             {'patient_id': patient_id}, context=context)
-        res[discharge_pool._name] = discharge_activity_id
-        discharge_result = activity_pool.complete(cr, SUPERUSER_ID, discharge_activity_id, context=context)
-        res.update(discharge_result)
-        return res
+        activity_pool.complete(cr, SUPERUSER_ID, discharge_activity_id, context=context)
+        return res 
 
 class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
