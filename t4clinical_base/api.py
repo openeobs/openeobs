@@ -188,6 +188,27 @@ class t4_clinical_api(orm.AbstractModel):
         del data['id']
         return data
                 
+    def patient_route_map(self, cr, uid, patient_ids=[]):
+        """
+        {patient_id: [{location_id, termination_seq, location_code, date_terminated}, ... ]
+        """
+        where_list = []
+        if patient_ids: where_list.append("id in (%s)" % ','.join([str(id) for id in patient_ids]))          
+        where_clause = where_list and "where %s" % " and ".join(where_list) or ""
+        sql = """
+        select 
+            m.patient_id,
+            m.location_id,
+            a.termination_seq,
+            l.code,
+            a.date_terminated
+        from t4_activity a
+        inner join t4_clinical_location l on l.id = a.location_id
+        inner join t4_clinical_patient p on p.id = a.patient_id
+        inner join t4_clinical_patient_move m on m.activity_id = a.id
+        {where clause} and data_model = 't4.clinical.patient.move' 
+        """.format(where_clause=where_clause)
+        
         
         
     def location_availability_map(self, cr, uid, 
@@ -214,6 +235,7 @@ class t4_clinical_api(orm.AbstractModel):
                 move_patient_date as (
                     select 
                         max(date_terminated) as max_date_terminated,
+                        max(termination_seq) as max_termination_seq,
                         m.patient_id
                     from t4_clinical_patient_move m
                     inner join t4_activity a on m.activity_id = a.id
@@ -227,8 +249,9 @@ class t4_clinical_api(orm.AbstractModel):
                         
                     from t4_clinical_patient_move m
                     inner join t4_activity ma on m.activity_id = ma.id
-                    inner join move_patient_date ppd on ma.date_terminated = ppd.max_date_terminated and m.patient_id = ppd.patient_id
-                    inner join t4_activity sa on ma.parent_id = sa.id
+                    inner join move_patient_date ppd on m.patient_id = ppd.patient_id
+                                                        and ma.termination_seq = ppd.max_termination_seq
+                    inner join t4_activity sa on sa.data_model='t4.clinical.spell' and m.patient_id = sa.patient_id
                     where sa.state = 'started'
                     group by m.location_id
                 ),

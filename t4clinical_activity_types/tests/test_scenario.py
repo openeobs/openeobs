@@ -788,8 +788,8 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
-            'bed_qty': 5,
-            'patient_qty': 3
+            'bed_qty': 6,
+            'patient_qty': 2
         }       
         env_id = env_pool.create(cr, uid, config)
         env_pool.build(cr, uid, env_id)
@@ -801,18 +801,19 @@ class ActivityTypesScenarioTest(BaseTest):
         bed_locations = api_pool.get_locations(cr, uid, pos_ids=[env.pos_id.id], usages=['bed'])
         assert len(bed_locations) == env.bed_qty
         amap = api_pool.location_availability_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
-        pp(amap)
         available_ids = [k for k, v in amap.items() if amap[k]['available']>0]
         unavailable_ids = list(set(amap.keys()) - set(available_ids))
-        import pdb; pdb.set_trace()
-        assert not unavailable_ids, "unavailable_ids = %s" % unavailable_ids
-        
-        assert available_ids
-        move = api_pool.create_complete(cr, uid, 't4.clinical.patient.move', 
-                                        {'patient_id': patients[0].id, 'location_id': bed_locations[0].id})
-        amap = api_pool.location_availability_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
-        pp(amap)
-        assert not amap[bed_locations[0].id]['available']
+        assert len(unavailable_ids) == env.patient_qty, "unavailable_ids = %s" % unavailable_ids
+        assert available_ids, "This test needs more beds than patients!"
+        for i in range(len(available_ids)):
+            move = api_pool.create_complete(cr, uid, 't4.clinical.patient.move', {},
+                                            {'patient_id': patients[0].id, 'location_id': available_ids[i]})
+            amap = api_pool.location_availability_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
+            #pp(amap)
+            #import pdb; pdb.set_trace()
+            assert not amap[available_ids[i]]['available']
+            if i > 0:
+                assert amap[available_ids[i-1]]['available']
         
     def test_no_policy_obs(self):
         return

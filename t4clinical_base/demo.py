@@ -122,14 +122,16 @@ class t4_clinical_demo_env(orm.Model):
     def random_available_location(self, cr, uid, env_id, parent_id=None, usages=['bed'], available_range=[1,1]):
         fake.seed(next_seed())
         bed_location_ids = self.get_bed_location_ids(cr, uid, env_id)
+        env = self.browse(cr, uid, env_id)
         print "demo: map args: ids: %s, available_range: %s, usages: %s" % (bed_location_ids,available_range,usages)
         location_ids = self.pool['t4.clinical.api'].location_availability_map(cr, uid, 
                                                                                   location_ids=bed_location_ids, 
                                                                                   available_range=available_range,
-                                                                                  usages=usages)
+                                                                                  usages=usages,
+                                                                                  pos_ids=[env.pos_id.id])
         
         location_pool = self.pool['t4.clinical.location']
-        location_ids = location_pool.search(cr, uid, [['usage','=','bed'],['is_available','=',True]])
+#         location_ids = location_pool.search(cr, uid, [['usage','=','bed'],['is_available','=',True]])
         if parent_id:
             domain = [['id', 'child_of', parent_id]]
             location_ids = location_pool.search(cr, uid, domain)
@@ -477,7 +479,7 @@ class t4_clinical_demo_env(orm.Model):
         api_pool = self.pool['t4.clinical.api']
         register_pool = self.pool['t4.clinical.adt.patient.register']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
-#         import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         adt_user_id = self.get_adt_user_ids(cr, uid, env_id)[0]
         for i in range(env.patient_qty):
             register_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.register')
