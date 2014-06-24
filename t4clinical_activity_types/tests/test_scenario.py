@@ -627,7 +627,7 @@ class ActivityTypesScenarioTest(BaseTest):
         super(BaseTest, self).setUp()
 
     def test_build_env(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         config = {
               'bed_qty': 7,
@@ -642,7 +642,7 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool.build(cr, uid, env_id)
         
     def test_adt_register(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -699,7 +699,7 @@ class ActivityTypesScenarioTest(BaseTest):
             assert False, "Unexpected reaction to registration attempt of existing patient!"
 
     def test_adt_admit(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -754,7 +754,7 @@ class ActivityTypesScenarioTest(BaseTest):
         assert placement_activity.state == 'new'        
         
     def test_placement(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -805,6 +805,7 @@ class ActivityTypesScenarioTest(BaseTest):
         unavailable_ids = list(set(amap.keys()) - set(available_ids))
         assert len(unavailable_ids) == env.patient_qty, "unavailable_ids = %s" % unavailable_ids
         assert available_ids, "This test needs more beds than patients!"
+        # test moves 0->1->2->3 ....
         for i in range(len(available_ids)):
             move = api_pool.create_complete(cr, uid, 't4.clinical.patient.move', {},
                                             {'patient_id': patients[0].id, 'location_id': available_ids[i]})
@@ -812,11 +813,10 @@ class ActivityTypesScenarioTest(BaseTest):
             #pp(amap)
             #import pdb; pdb.set_trace()
             assert not amap[available_ids[i]]['available']
-            if i > 0:
-                assert amap[available_ids[i-1]]['available']
+            if i > 0: assert amap[available_ids[i-1]]['available']
         
     def test_no_policy_obs(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         activity_pool = self.registry('t4.activity')
@@ -865,7 +865,7 @@ class ActivityTypesScenarioTest(BaseTest):
         [env_pool.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.cancel_admit') for i in range(1)]
 
     def test_gcs_observations_policy_static(self):
-        return
+        #return
         gcs_test_data = {
             'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
             'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
@@ -922,7 +922,7 @@ class ActivityTypesScenarioTest(BaseTest):
         
 
     def test_ews_observations_policy_static(self):
-        return
+        #return
         ews_test_data = {
             'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],
             'CASE':     [   0,    1,    1,    1,    1,    2,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    2,    2,    3],

@@ -8,6 +8,7 @@ from pprint import pprint as pp
 from openerp import SUPERUSER_ID
 import logging
 from pprint import pprint as pp
+from openerp.addons.t4activity.activity import except_if
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
@@ -46,6 +47,18 @@ class t4_clinical_demo_env(orm.Model):
          'patient_qty': 2,
     }
     
+    def data_unique_login(self, cr, uid, initial_login=None):
+        fake.seed(next_seed())
+        login = initial_login or fake.first_name().lower()
+        sql = "select 1 from res_users where login='%s'"
+        cr.execute(sql % login) 
+        i = 0
+        while cr.fetchone():
+           i += 1
+           login = fake.first_name().lower() 
+           cr.execute(sql % login)
+           except_if(i > 100, msg="Can't get unique login after 100 iterations!")
+        return login
     
     def fake_data(self, cr, uid, env_id, model, data={}):
         """
@@ -551,7 +564,7 @@ class t4_clinical_demo_env(orm.Model):
             name = fake.first_name()          
             data = {
                 'name': "Ward Manager %s" % name,
-                'login': name.lower(),
+                'login': self.data_unique_login(cr, uid, name.lower()),
                 'password': name.lower(),
                 'groups_id': [(4, group.id)],
                 'location_ids': [(4,location_id) for location_id in location_ids]
@@ -578,7 +591,7 @@ class t4_clinical_demo_env(orm.Model):
             name = fake.first_name()          
             data = {
                 'name': "Nurse %s" % name,
-                'login': name.lower(),
+                'login': self.data_unique_login(cr, uid, name.lower()),
                 'password': name.lower(),
                 'groups_id': [(4, group.id)],
                 'location_ids': [(4,location_id) for location_id in location_ids]
@@ -599,7 +612,7 @@ class t4_clinical_demo_env(orm.Model):
         for i in range(env.adt_user_qty):
             data = {
                 'name': env.pos_id.name,
-                'login': env.pos_id.location_id.code.lower(),
+                'login': self.data_unique_login(cr, uid, env.pos_id.location_id.code.lower()),
                 'password': env.pos_id.location_id.code.lower(),
                 'groups_id': [(4, group.id)],
                 'pos_id': env.pos_id.id
