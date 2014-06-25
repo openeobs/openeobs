@@ -33,6 +33,12 @@ class t4_clinical_api(orm.AbstractModel):
         activity_pool.complete(cr, uid, activity_id)       
         return activity_pool.browse(cr, uid, activity_id)
 
+    def submit_complete(self, cr, uid, activity_id, data_vals={}):
+        activity_pool = self.pool['t4.activity']
+        activity_pool.submit(cr, uid, activity_id, data_vals)
+        activity_pool.complete(cr, uid, activity_id)       
+        return activity_pool.browse(cr, uid, activity_id)
+
     def schedule(self, cr, uid, activity_id, date_scheduled):
         activity_pool = self.pool['t4.activity']
         activity_pool.schedule(cr, uid, activity_id, date_scheduled)        
@@ -119,7 +125,7 @@ class t4_clinical_api(orm.AbstractModel):
                     group by m.patient_id
                 ),
                 patient_location as (
-                    select 
+                    select distinct
                         m.patient_id,
                         m.location_id
                     from t4_clinical_patient_move m
@@ -132,6 +138,18 @@ class t4_clinical_api(orm.AbstractModel):
         cr.execute(sql)
         res = {r['patient_id']: r['location_id'] for r in cr.dictfetchall()}
         return res
+    
+    def user_map(self, cr,uid, group_xmlids=[], assigned_activity_ids=[]):
+        """
+        returns:
+        {user_id: {group_xmlids, assigned_activity_ids, responsible_activity_ids}}
+        """
+        where_list = []
+        if activity_ids: where_list.append("assigned_activity_id in (%s)" % ','.join([str(id) for id in activity_ids]))
+        if group_xmlids: where_list.append("group_xmlids in ('%s')" % "','".join(group_xmlids))
+        where_clause = where_list and "where %s" % " and ".join(where_list) or ""       
+        pass
+    
     def get_location_ids(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):    
         location_ids = self.location_availability_map(cr, uid, pos_ids=pos_ids,
@@ -188,37 +206,39 @@ class t4_clinical_api(orm.AbstractModel):
         del data['id']
         return data
                 
-    def patient_route_map(self, cr, uid, patient_ids=[]):
-        """
-        {patient_id: [{location_id, termination_seq, location_code, date_terminated}, ... ]
-        """
-        where_list = []
-        if patient_ids: where_list.append("id in (%s)" % ','.join([str(id) for id in patient_ids]))          
-        where_clause = where_list and "where %s" % " and ".join(where_list) or ""
-        sql = """
-        select 
-            m.patient_id,
-            m.location_id,
-            a.termination_seq,
-            l.code,
-            a.date_terminated
-        from t4_activity a
-        inner join t4_clinical_location l on l.id = a.location_id
-        inner join t4_clinical_patient p on p.id = a.patient_id
-        inner join t4_clinical_patient_move m on m.activity_id = a.id
-        {where clause} and data_model = 't4.clinical.patient.move' 
-        """.format(where_clause=where_clause)
+#     def patient_route_map(self, cr, uid, patient_ids=[]):
+#         """
+#         {patient_id: [{location_id, termination_seq, location_code, date_terminated}, ... ]
+#         """
+#         where_list = []
+#         if patient_ids: where_list.append("id in (%s)" % ','.join([str(id) for id in patient_ids]))          
+#         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
+#         sql = """
+#         select 
+#             m.patient_id,
+#             m.location_id,
+#             a.termination_seq,
+#             l.code,
+#             a.date_terminated
+#         from t4_activity a
+#         inner join t4_clinical_location l on l.id = a.location_id
+#         inner join t4_clinical_patient p on p.id = a.patient_id
+#         inner join t4_clinical_patient_move m on m.activity_id = a.id
+#         {where clause} and data_model = 't4.clinical.patient.move' 
+#         """.format(where_clause=where_clause)
+#         
+#         # not finished. 
         
         
-        
-    def location_availability_map(self, cr, uid, 
+    def location_availability_map(self, cr, uid, #FIXME: add 'data_models' by which location is not occupied, 
+                                                 #'states' if location in activity and state in states, location is occupied  
                                   location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):  
         """
         returns dict of dicts for location model of format:
         {id: {id, code, type, usage, occupied, capacity, available}}
         """
-        print "api: map args: location_ids: %s, available_range: %s, usages: %s" % (location_ids,available_range,usages)
+        #print "api: map args: location_ids: %s, available_range: %s, usages: %s" % (location_ids,available_range,usages)
         where_list = []
         if location_ids: where_list.append("id in (%s)" % ','.join([str(id) for id in location_ids]))
         if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))
@@ -229,7 +249,7 @@ class t4_clinical_api(orm.AbstractModel):
         if capacity_range: where_list.append("capacity between %s and %s" % (capacity_range[0], capacity_range[1]))
         if available_range: where_list.append("available between %s and %s" % (available_range[0], available_range[1]))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
-        print where_clause     
+        #print where_clause     
         sql = """
             with
                 move_patient_date as (

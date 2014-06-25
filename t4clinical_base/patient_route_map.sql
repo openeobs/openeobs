@@ -9,3 +9,4 @@
         inner join t4_clinical_patient p on p.id = a.patient_id
         inner join t4_clinical_patient_move m on m.activity_id = a.id
         where data_model = 't4.clinical.patient.move'
+        order by patient_id, termination_seq desc
