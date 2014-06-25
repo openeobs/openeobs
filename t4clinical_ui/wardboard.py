@@ -105,7 +105,7 @@ class t4_clinical_wardboard(orm.Model):
     _description = "Wardboard"
     _auto = False
     _table = "t4_clinical_wardboard"
-    _trend_strings = [('up','up'), ('down','down'), ('same','same'), ('none','none'), ('one','one')]
+    _trend_strings = [('up', 'up'), ('down', 'down'), ('same', 'same'), ('none', 'none'), ('one', 'one')]
     _rec_name = 'full_name'
 
     def _get_logo(self, cr, uid, ids, fields_name, arg, context=None):

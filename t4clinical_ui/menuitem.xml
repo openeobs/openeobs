@@ -50,17 +50,25 @@
                   groups="t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
     	<!-- WARDBOARD -->
-          <menuitem name="Wardboard"
+        <menuitem name="Wardboard"
             sequence="1"
           	id="menu_left_wardboard" 
           	parent="menu_t4ui_top_root"
           	action=""
           	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
           	
-          <menuitem name="Wardboard" 
+        <menuitem name="Wardboard"
           	id="menu_left_sub_wardboard" 
           	parent="menu_left_wardboard"
           	action="action_wardboard"
+            sequence="1"
+          	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
+
+        <menuitem name="Patients by Ward"
+          	id="menu_left_patients_by_ward"
+          	parent="menu_left_wardboard"
+          	action="action_patients_by_ward"
+            sequence="2"
           	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Activity Workload" 

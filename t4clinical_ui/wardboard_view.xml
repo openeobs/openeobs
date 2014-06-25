@@ -2,7 +2,7 @@
 <openerp>
     <data>
             <record model="ir.ui.view" id="view_wardboard_patient_placement_form">
-                <field name="name">Wardboard Patient Palcement</field>
+                <field name="name">Wardboard Patient Placement</field>
                 <field name="model">wardboard.patient.placement</field>
                 <field name="arch" type="xml">
                     <form string="Wardboard Patient Placement">
@@ -69,20 +69,17 @@
                 <field name="name">Wardboard Tree View</field>
                 <field name="model">t4.clinical.wardboard</field>
                 <field name="arch" type="xml">
-                    <tree string="Wardboard Tree View" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
+                    <tree string="Wardboard Tree View" class="t4c_wardboard" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
                        <button name="wardboard_chart" string="Chart" type="object" class="oe_highlight" t4_icon="chart"/>
                        <button name="wardboard_ews" string="EWS" type="object" class="oe_highlight" t4_icon="observation"/>
-                       <field name="full_name" />
-                       <field name="location" />
-                       <field name="sex" widget="t4_gender"/>
-                       <field name="dob" widget="date"/>
-                       <field name="age" />
-					   <field name="next_diff" />
-                       <field name="frequency" />
-                       <field name="ews_score_string" />
+                        <field name="sex" widget="t4_gender" string=""/>
+                       <field name="full_name" string="Patient"/>
+                       <field name="location"/>
+					   <field name="next_diff"/>
+                       <field name="frequency" string="NEWS Frequency"/>
+                       <field name="ews_score_string" string="Latest NEWS Score"/>
                        <field name="clinical_risk" invisible="1"/>
-                       <field name="ews_trend_string"  widget="t4_scoretrend"/>
-                       <field name="consultant_names" />
+                       <field name="ews_trend_string"  widget="t4_scoretrend" string="Score Trend"/>
                     </tree>
                 </field>
             </record>
@@ -96,30 +93,14 @@
                         <header>
                             <button name="wardboard_patient_placement" string="Move Patient"  type="object"/>
                             <button name="print_report" string="Print Report" type="object"/>
+                            <button name="wardboard_chart" string="NEWS Chart" type="object"/>
+                            <button name="wardboard_ews" string="NEWS List" type="object"/>
                             <button name="wardboard_weight_chart" string="Weight Chart" type="object"/>
                             <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object"/>
                         </header>
                         <sheet>
-                            <div class="oe_title">
-                                <label string="Name" for="full_name"/>
-                                <h1><field name="full_name" readonly="True"/></h1>
-                            	<!--<button name="wardboard_patient_placement" string="Move Patient"  type="object" class="oe_highlight" />-->
-                            </div>
-                            
+
                             <group>
-                                <group string="Personal Information">
-                                    <field name="middle_names" readonly="True"/>
-                                    <field name="dob" readonly="True" widget="date"/>
-                                    <field name="age" readonly="True"/>
-                                    <field name="sex" readonly="True"/>
-                            		
-                                </group>
-                                <group string="Hospital Information">
-                                    <field name="location" readonly="True"/>
-                                    <field name="location_id" readonly="True" invisible="1"/>
-                                    <field name="other_identifier" readonly="True"/>
-                                    <field name="patient_identifier" readonly="True"/>
-                                </group>
                                 <group string="Early Warning Score">
                                     <field name="next_diff" readonly="1"/>
                                     <field name="frequency" readonly="1"/>
@@ -131,8 +112,8 @@
                             <notebook>
                                 <page string="Admission Details">
                                     <group>
-                                        <field name="spell_code" readonly="1"/>
-                                        <field name="spell_date_started" readonly="True"/>
+                                        <field name="spell_code" readonly="1" string="Code"/>
+                                        <field name="spell_date_started" readonly="True" string="Admission Date"/>
                                     </group>
                                     <group string="Previous admissions">
 	                                    <field name="spell_ids" readonly="1" nolabel="1">
@@ -149,16 +130,26 @@
 	                                   </field>
                                    </group>
                                 </page>
+                                <page string="Demographics">
+                                    <group>
+                                        <field name="middle_names" readonly="True"/>
+                                        <field name="dob" readonly="True" widget="date"/>
+                                        <field name="age" readonly="True"/>
+                                        <field name="sex" readonly="True"/>
+                                    </group>
+                                </page>
                                 <page string="Medical Details">
                                     <group>
+                                        <field name="other_identifier" readonly="True" string="Hospital Number"/>
+                                        <field name="patient_identifier" readonly="True" string="NHS Number"/>
                                         <field name="height" string="Height (m)" readonly="1"/>
                                         <field name="mrsa" readonly="1"/>
                                     </group>                                    
                                     <group string="Weight">
                                         <field name="weight_ids" readonly="1" nolabel="1">
                                             <tree>
-                                                <field name="weight" />
                                                 <field name="date_terminated" string="Date"/>
+                                                <field name="weight" />
                                             </tree>
                                             <form>
                                                 <field name="weight" />
@@ -169,8 +160,8 @@
                                     <group string="Blood Sugar">
                                     	<field name="blood_sugar_ids" readonly="1" nolabel="1">
                                             <tree>
-                                                <field name="blood_sugar"/>
                                                 <field name="date_terminated" string="Date"/>
+                                                <field name="blood_sugar"/>
                                             </tree>
                                             <form>
                                                 <field name="blood_sugar"/>
@@ -181,10 +172,10 @@
                                     <group string="O2 Target History">
                                         <field name="o2target_ids" nolabel="1" readonly="1">
                                             <tree>
-                                                <field name="level_id" />
+                                                <field name="level_id"/>
                                             </tree>
                                             <form>
-                                                <field name="level_id" />
+                                                <field name="level_id"/>
                                             </form>
                                        </field>
                                     </group>
@@ -376,44 +367,90 @@
                 </field>
             </record>
 	        <!-- Wardboard Kanban View -->
-	       <record model="ir.ui.view" id="view_wardboard_kanban">
+	        <record model="ir.ui.view" id="view_wardboard_kanban">
 	            <field name="name">t4.clinical.wardboard.kanban</field>
 	            <field name="model">t4.clinical.wardboard</field>
 	            <field name="arch" type="xml">
 	                <kanban edit="false" quick_create="false" create="false">
-	                       <field name="full_name" />
-	                       <field name="location" />
-	                       <field name="sex" widget="t4_gender"/>
-	                       <field name="dob" widget="date"/>
-	                       <field name="age" />
-						   <field name="next_diff" />
-	                       <field name="frequency" />
-	                       <field name="ews_score_string" />
-	                       <field name="ews_trend_string"/>
-	                    <templates>
-	                    <t t-name="kanban-box">
-	                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
-	                            <div class="oe_kanban_content">
-	                                <div>
-	                                	<b><field name="full_name"/>, <field name="age"/>, <field name="sex" widget="t4_gender"/></b>
-	                                </div>
-	                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
-				                       <field name="location" />
-				                       <field name="dob" widget="date"/>
-									   <field name="next_diff" />
-				                       <field name="frequency" />
-				                       <field name="ews_score_string" />
-				                       <field name="ews_trend_string" />
-	                                </div>
-	                            </div>
-	                            <div class="oe_clear"></div>
-	                        </div>
-	                    </t>
-	                    </templates>
+                        <field name="full_name" />
+                        <field name="location" />
+                        <field name="sex"/>
+                        <field name="dob"/>
+                        <field name="age" />
+                        <field name="next_diff" />
+                        <field name="frequency" />
+                        <field name="ews_score_string" />
+                        <field name="ews_trend_string"/>
+                        <templates>
+                            <t t-name="kanban-box">
+                                <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                    <div class="oe_kanban_content">
+                                        <div><field name="location"/></div>
+                                        <div><field name="full_name"/> (<field name="age"/>)
+                                            <t t-if="record.sex.raw_value === 'M'">
+                                                <img t-attf-src="/t4clinical_ui/static/src/img/icons/male.png" t-att-alt="Male"/>
+                                            </t>
+                                            <t t-if="record.sex.raw_value === 'F'">
+                                                <img t-attf-src="/t4clinical_ui/static/src/img/icons/female.png" t-att-alt="Female"/>
+                                            </t>
+                                        </div>
+                                        <div>Score: <field name="ews_score_string"/>
+                                            <t t-if="record.ews_trend_string.raw_value === 'up'">
+                                                <img t-attf-src="/t4clinical_ui/static/src/img/icons/level-up.png" t-att-alt="up"/>
+                                            </t>
+                                            <t t-if="record.ews_trend_string.raw_value === 'down'">
+                                                <img t-attf-src="/t4clinical_ui/static/src/img/icons/level-down.png" t-att-alt="down"/>
+                                            </t>
+                                            <t t-if="record.ews_trend_string.raw_value === 'same'">
+                                                <img t-attf-src="/t4clinical_ui/static/src/img/icons/level-same.png" t-att-alt="same"/>
+                                            </t>
+                                            <t t-if="record.ews_trend_string.raw_value === 'one'">
+                                                n/a
+                                            </t>
+                                            <t t-if="record.ews_trend_string.raw_value === 'none'">
+                                                n/a
+                                            </t>
+                                        </div>
+                                        <li>Time to next observation:<field name="next_diff"/></li>
+                                        <!--<t t-if="record.patient_identifier.raw_value != ''">-->
+                                            <!--<div>NHS Number: <field name="patient_identifier"/></div>-->
+                                        <!--</t>-->
+                                    </div>
+                                </div>
+                            </t>
+                        </templates>
 	                </kanban>
 	            </field>
-	         </record>
+	        </record>
             <record model="ir.actions.act_window" id="action_wardboard" >
+                <field name="name">Wardboard</field>
+                <field name="res_model">t4.clinical.wardboard</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">kanban,tree,form</field>
+                <field name="domain">[('next_diff','!=',False)]</field>
+                <field name="context">{'search_default_clinical_risk':1}</field>
+                <field name="search_view_id" ref="view_wardboard_search"/>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">
+                <field eval="1" name="sequence"/>
+                <field name="view_mode">tree</field>
+                <field name="view_id" ref="view_wardboard_tree"/>
+                <field name="act_window_id" ref="action_wardboard"/>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_wardboard_form">
+                <field eval="2" name="sequence"/>
+                <field name="view_mode">form</field>
+                <field name="view_id" ref="view_wardboard_form"/>
+                <field name="act_window_id" ref="action_wardboard"/>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_wardboard_kanban">
+                <field eval="0" name="sequence"/>
+                <field name="view_mode">kanban</field>
+                <field name="view_id" ref="view_wardboard_kanban"/>
+                <field name="act_window_id" ref="action_wardboard"/>
+            </record>
+
+            <record model="ir.actions.act_window" id="action_patients_by_ward" >
                 <field name="name">Wardboard</field>
                 <field name="res_model">t4.clinical.wardboard</field>
                 <field name="view_type">form</field>
@@ -422,23 +459,23 @@
                 <field name="context">{'search_default_group_by_ward':1}</field>
                 <field name="search_view_id" ref="view_wardboard_search"/>
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">
+            <record model="ir.actions.act_window.view" id="act_view_patients_by_ward_tree">
                 <field eval="0" name="sequence"/>
                 <field name="view_mode">tree</field>
                 <field name="view_id" ref="view_wardboard_tree"/>
-                <field name="act_window_id" ref="action_wardboard"/>
+                <field name="act_window_id" ref="action_patients_by_ward"/>
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_wardboard_form">
+            <record model="ir.actions.act_window.view" id="act_view_patients_by_ward_form">
                 <field eval="1" name="sequence"/>
                 <field name="view_mode">form</field>
                 <field name="view_id" ref="view_wardboard_form"/>
-                <field name="act_window_id" ref="action_wardboard"/>
+                <field name="act_window_id" ref="action_patients_by_ward"/>
             </record>
-            <record model="ir.actions.act_window.view" id="act_view_wardboard_kanban">
+            <record model="ir.actions.act_window.view" id="act_view_patients_by_ward_kanban">
                 <field eval="2" name="sequence"/>
                 <field name="view_mode">kanban</field>
                 <field name="view_id" ref="view_wardboard_kanban"/>
-                <field name="act_window_id" ref="action_wardboard"/>
-            </record>            
+                <field name="act_window_id" ref="action_patients_by_ward"/>
+            </record>
     </data>
 </openerp>
