@@ -125,7 +125,7 @@ class t4_clinical_api(orm.AbstractModel):
                     group by m.patient_id
                 ),
                 patient_location as (
-                    select 
+                    select distinct
                         m.patient_id,
                         m.location_id
                     from t4_clinical_patient_move m
@@ -138,6 +138,18 @@ class t4_clinical_api(orm.AbstractModel):
         cr.execute(sql)
         res = {r['patient_id']: r['location_id'] for r in cr.dictfetchall()}
         return res
+    
+    def user_map(self, cr,uid, group_xmlids=[], assigned_activity_ids=[]):
+        """
+        returns:
+        {user_id: {group_xmlids, assigned_activity_ids, responsible_activity_ids}}
+        """
+        where_list = []
+        if activity_ids: where_list.append("assigned_activity_id in (%s)" % ','.join([str(id) for id in activity_ids]))
+        if group_xmlids: where_list.append("group_xmlids in ('%s')" % "','".join(group_xmlids))
+        where_clause = where_list and "where %s" % " and ".join(where_list) or ""       
+        pass
+    
     def get_location_ids(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):    
         location_ids = self.location_availability_map(cr, uid, pos_ids=pos_ids,
@@ -218,7 +230,8 @@ class t4_clinical_api(orm.AbstractModel):
 #         # not finished. 
         
         
-    def location_availability_map(self, cr, uid, 
+    def location_availability_map(self, cr, uid, #FIXME: add 'data_models' by which location is not occupied, 
+                                                 #'states' if location in activity and state in states, location is occupied  
                                   location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):  
         """

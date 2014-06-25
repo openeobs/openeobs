@@ -176,7 +176,7 @@ class t4_clinical_patient_placement(orm.Model):
         gcs_pool = self.pool['t4.clinical.patient.observation.gcs']
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not placement_activity.data_ref.location_id, 
-                  msg="Location is not set for the placement thus the placement can't be completed!") 
+                  msg="Location is not set, placement can't be completed! activity.id = %s" % placement_activity.id) 
         super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
         
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)

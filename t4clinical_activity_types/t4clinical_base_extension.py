@@ -54,6 +54,7 @@ class t4_clinical_api_extension(orm.AbstractModel):
         return activity_pool.complete(cr, uid, frequency_activity_id, context=context)
 
     def trigger_notifications(self, cr, uid, values, context=None):
+        #import pdb; pdb.set_trace()
         for n in values['notifications']:
             # notifications: [{'summary','model','groups'}]
             if values.get('group') in n['groups']:

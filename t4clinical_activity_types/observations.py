@@ -302,7 +302,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         spell_activity_id = activity.parent_id.id
-
+        except_if(not group, cap="Are you sure you are supposed to complete this activity?", msg="Current user is not found in groups Nurse, HCA")
         # TRIGGER NOTIFICATIONS
         api_pool.trigger_notifications(cr, uid, {
             'notifications': self._POLICY['notifications'][case],
