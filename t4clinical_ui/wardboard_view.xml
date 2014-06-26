@@ -140,8 +140,8 @@
                                 </page>
                                 <page string="Medical Details">
                                     <group>
-                                        <field name="other_identifier" readonly="True" string="Hospital Number"/>
-                                        <field name="patient_identifier" readonly="True" string="NHS Number"/>
+                                        <field name="hospital_number" readonly="True" string="Hospital Number"/>
+                                        <field name="nhs_number" readonly="True" string="NHS Number"/>
                                         <field name="height" string="Height (m)" readonly="1"/>
                                         <field name="mrsa" readonly="1"/>
                                     </group>                                    
@@ -291,8 +291,8 @@
                                 <group string="Hospital Information">
                                     <field name="location" readonly="1"/>
                                     <field name="location_id" readonly="1" invisible="1"/>
-                                    <field name="other_identifier" readonly="1"/>
-                                    <field name="patient_identifier" readonly="1"/>
+                                    <field name="hospital_number" readonly="1"/>
+                                    <field name="nhs_number" readonly="1"/>
                                 </group>
                                 <group string="Early Warning Score">
                                     <field name="next_diff" readonly="1"/>
@@ -333,8 +333,8 @@
                                 <group string="Hospital Information">
                                     <field name="location" readonly="1"/>
                                     <field name="location_id" readonly="1" invisible="1"/>
-                                    <field name="other_identifier" readonly="1"/>
-                                    <field name="patient_identifier" readonly="1"/>
+                                    <field name="hospital_number" readonly="1"/>
+                                    <field name="nhs_number" readonly="1"/>
                                 </group>
                                 <group string="Early Warning Score">
                                     <field name="next_diff" readonly="1"/>
@@ -386,7 +386,7 @@
                                 <div t-attf-class="oe_kanban_card oe_kanban_global_click">
                                     <div class="oe_kanban_content">
                                         <div><field name="location"/></div>
-                                        <div><field name="full_name"/> (<field name="age"/>)
+                                        <div><b><field name="full_name"/></b> (<field name="age"/>)
                                             <t t-if="record.sex.raw_value === 'M'">
                                                 <img t-attf-src="/t4clinical_ui/static/src/img/icons/male.png" t-att-alt="Male"/>
                                             </t>
@@ -412,9 +412,12 @@
                                             </t>
                                         </div>
                                         <li>Time to next observation:<field name="next_diff"/></li>
-                                        <!--<t t-if="record.patient_identifier.raw_value != ''">-->
-                                            <!--<div>NHS Number: <field name="patient_identifier"/></div>-->
-                                        <!--</t>-->
+                                        <t t-if="record.hospital_number.raw_value != ''">
+                                            <div>Hospital Number: <field name="hospital_number"/></div>
+                                        </t>
+                                        <t t-if="record.nhs_number.raw_value != ''">
+                                            <div>NHS Number: <field name="nhs_number"/></div>
+                                        </t>
                                     </div>
                                 </div>
                             </t>

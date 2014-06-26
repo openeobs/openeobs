@@ -128,6 +128,8 @@ class t4_clinical_wardboard(orm.Model):
         'location_id': fields.many2one('t4.clinical.location', "Location"),
         'sex': fields.text("Sex"),
         'dob': fields.datetime("DOB"),
+        'hospital_number': fields.text('Hospital Number'),
+        'nhs_number': fields.text('NHS Number'),
         'age': fields.integer("Age"),
         'next_diff': fields.text("Time to Next Obs"),
         'frequency': fields.text("Frequency"),
@@ -403,6 +405,8 @@ select
     location.parent_id as ward_id,
     patient.sex,
     patient.dob,
+    patient.other_identifier as hospital_number,
+    patient.patient_identifier as nhs_number,
     extract(year from age(now(), patient.dob)) as age,
     case
         when extract('epoch' from (now() - ews0.date_scheduled)) > 0 then
