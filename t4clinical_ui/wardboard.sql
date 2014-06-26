@@ -77,6 +77,8 @@ select
 	location.parent_id as ward_id,
 	patient.sex,
 	patient.dob,
+	patient.other_identifier as hospital_number,
+	patient.patient_identifier as nhs_number,
 	extract(year from age(now(), patient.dob)) as age,
 	case
 		when extract('epoch' from (now() - ews0.date_scheduled)) > 0 then

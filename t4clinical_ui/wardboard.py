@@ -105,7 +105,7 @@ class t4_clinical_wardboard(orm.Model):
     _description = "Wardboard"
     _auto = False
     _table = "t4_clinical_wardboard"
-    _trend_strings = [('up','up'), ('down','down'), ('same','same'), ('none','none'), ('one','one')]
+    _trend_strings = [('up', 'up'), ('down', 'down'), ('same', 'same'), ('none', 'none'), ('one', 'one')]
     _rec_name = 'full_name'
 
     def _get_logo(self, cr, uid, ids, fields_name, arg, context=None):
@@ -128,6 +128,8 @@ class t4_clinical_wardboard(orm.Model):
         'location_id': fields.many2one('t4.clinical.location', "Location"),
         'sex': fields.text("Sex"),
         'dob': fields.datetime("DOB"),
+        'hospital_number': fields.text('Hospital Number'),
+        'nhs_number': fields.text('NHS Number'),
         'age': fields.integer("Age"),
         'next_diff': fields.text("Time to Next Obs"),
         'frequency': fields.text("Frequency"),
@@ -144,7 +146,7 @@ class t4_clinical_wardboard(orm.Model):
     }
 
     def _get_cr_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
-        res = [['NoScore', 'No Score Yet'], ['None', 'No Risk'], ['Low', 'Low Risk'], ['Medium', 'Medium Risk'], ['High', 'High Risk']]
+        res = [['NoScore', 'No Score Yet'], ['High', 'High Risk'], ['Medium', 'Medium Risk'], ['Low', 'Low Risk'], ['None', 'No Risk']]
         fold = {r[0]: False for r in res}
         return res, fold
 
@@ -403,6 +405,8 @@ select
     location.parent_id as ward_id,
     patient.sex,
     patient.dob,
+    patient.other_identifier as hospital_number,
+    patient.patient_identifier as nhs_number,
     extract(year from age(now(), patient.dob)) as age,
     case
         when extract('epoch' from (now() - ews0.date_scheduled)) > 0 then

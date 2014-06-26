@@ -121,9 +121,24 @@
                         <group string="Point of Care Management">
                             <field name="name" readonly="1"/>
                             <field name="code" readonly="1"/>
+                            <field name="parent_id" readonly="1" string="Upper Point of Care"/>
+                            <field name="type" readonly="1" string="Type"/>
+                            <field name="usage" readonly="1" string="Usage"/>
+                            <field name="user_ids" widget="many2many_tags"/>
                         </group>
-                        <label for="user_ids" string="Responsible Users"/>
-                        <field name="user_ids"/>
+                        <notebook>
+                            <page string="Lower level">
+                                <field name="child_ids">
+                                    <tree version="7.0" editable="1" create="0">
+                                        <field name="name" readonly="1"/>
+                                        <field name="user_ids" widget="many2many_tags"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <!--<page string="Patients">-->
+                                <!--<field name="patient_ids" readonly="1"/>-->
+                            <!--</page>-->
+                        </notebook>
                     </sheet>
                 </form>
             </field>

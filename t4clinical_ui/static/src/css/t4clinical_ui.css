@@ -25,3 +25,16 @@
 .t4clinical_kanban_column_clinical_risk_no {
   background-color: #c7ffd5 !important;
 }
+
+.t4c_wardboard [data-id="full_name"]{
+    width: 250px;
+}
+.t4c_wardboard [data-field="ews_score_string"]{
+    text-align: center;
+}
+.t4c_wardboard .oe_list_content > tbody > tr {
+    height: 50px;
+}
+.t4c_wardboard .oe_list_content .oe_group_header {
+    height: 25px;
+}

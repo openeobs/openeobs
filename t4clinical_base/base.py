@@ -3,15 +3,13 @@ from openerp.osv import orm, fields, osv
 import logging        
 _logger = logging.getLogger(__name__)
 
-from openerp import SUPERUSER_ID
-
-T4SUID = SUPERUSER_ID
 
 class ir_model_access(orm.Model):
     _inherit = 'ir.model.access'
     _columns = {
         'perm_responsibility': fields.boolean('T4 Clinical Activity Responsibility'),
     }
+
 
 class t4clinical_res_partner(orm.Model):
     _inherit = 'res.partner'
@@ -20,7 +18,6 @@ class t4clinical_res_partner(orm.Model):
         'doctor': fields.boolean('Doctor', help="Check this box if this contact is a Doctor"),
         'code': fields.char('Code', size=256),
     }
-
 
 
 class t4_clinical_device_type(orm.Model):
@@ -39,18 +36,18 @@ class t4_clinical_device(orm.Model):
         'type_id': fields.many2one('t4.clinical.device.type', "Device Type"),
         'name': fields.related('type_id', 'name', type='text'),
         'is_available': fields.boolean('Is Available?'),
-        
     }
     
     _defaults = {
-         'is_available': True
-     }
+        'is_available': True
+    }
     
     def name_get(self, cr, uid, ids, context=None):
         res = []
         for device in self.browse(cr, uid, ids, context):
             res.append((device.id, device.type_id.name))
         return res
+
 
 class t4_clinical_pos(orm.Model):
     """ Clinical point of service """
@@ -63,11 +60,6 @@ class t4_clinical_pos(orm.Model):
         'company_id': fields.many2one('res.company', 'Company'),
         'lot_admission_id': fields.many2one('t4.clinical.location', 'Admission Location'),
         'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),
-        #'ews_init_frequency': fields.integer('EWS Initial Frequency in Minutes')
-    }
-
-    _defaults = {
-        #'ews_init_frequency': 15
     }
 
 
@@ -86,14 +78,13 @@ class res_users(orm.Model):
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'location_ids': fields.many2many('t4.clinical.location', 'user_location_rel', 'user_id', 'location_id', 'Parent Locations of Responsibility'),
     }
+
     def get_all_responsibility_location_ids(self, cr, uid, user_id, context=None):
         location_pool = self.pool['t4.clinical.location']
         location_ids =[]
-        #import pdb; pdb.set_trace()
-        for user_location_id in self.browse(cr, uid, user_id, context).location_ids: 
+        for user_location_id in self.browse(cr, uid, user_id, context).location_ids:
             location_ids.extend( location_pool.search(cr, uid, [['id', 'child_of', user_location_id.id]]) )
         return location_ids
-
  
 
 class t4_clinical_location(orm.Model):
@@ -141,11 +132,9 @@ class t4_clinical_location(orm.Model):
         res = [rec['location_id'] for rec in cr.dictfetchall()]
         return res
 
-    
     def _get_patient_ids (self, cr, uid, ids, field, args, context=None):
         pass   
-         
-         
+
     _columns = {
         'name': fields.char('Location', size=100, required=True, select=True),
         'code': fields.char('Code', size=256),
@@ -165,12 +154,11 @@ class t4_clinical_location(orm.Model):
                                                't4.activity': (_placement2location_id, ['state'], 20)
                                         }),
         'patient_capacity': fields.integer('Patient Capacity'),
-        'patient_ids': fields.function(_get_patient_ids, type='one2many',relation='t4.clinical.patient', string="Location Patients"),
+        'patient_ids': fields.function(_get_patient_ids, type='one2many', relation='t4.clinical.patient', string="Location Patients"),
         'user_ids': fields.many2many('res.users', 'user_location_rel', 'location_id', 'user_id', 'Responsible Users'),
       
     }
 
-        
     _defaults = {
         'active': True,
         'patient_capacity': 1
@@ -188,15 +176,13 @@ class t4_clinical_location(orm.Model):
             data = data and data[0]
             data and data.activity_id and activity_ids.append(data.activity_id.id)
         return activity_ids
-    
-    
+
     def get_available_location_ids(self, cr, uid, usages=[], location_id=None, context=None):
           api_pool = self.pool['t4.clinical.api']  
           res = api_pool.location_map(cr, uid, 
                                                     location_ids=[], types=[], usages=[], codes=[],
                                                     occupied_range=[], capacity_range=[], available_range=[1,1]).keys()
           return res
-
 
     def activate_deactivate(self, cr, uid, location_id, context=None):
         location = self.browse(cr, uid, location_id[0], context=context)
