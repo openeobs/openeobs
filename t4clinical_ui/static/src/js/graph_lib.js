@@ -116,6 +116,7 @@ graph_lib = (function() {
             if(svg.printing){
                 earliestDate.setMinutes(earliestDate.getMinutes() - 20);
                 now.setMinutes(now.getMinutes() + 20);
+                svg.obj.context.attr("printing", "true");
             }
 
             context.now = now;
@@ -141,18 +142,16 @@ graph_lib = (function() {
             el.attr("y", "-" + (words.length * textHeight + textHeight));
         },
 
-        contextMouseOver: function(text) {
+        contextMouseOver: function(text, position) {
             var context = this.context, focus = this.focus, svg = this.svg;
             var popupMargins = {
             top: 0,
             left: 3,
             right: 0,
-            bottom: 90
+            bottom: 20
             };
-            var dialogOffsetx = parseFloat($(".ui-dialog.oe_act_window").css("left").replace("px", ""));
-            var dialogOffsety = parseFloat($(".ui-dialog.oe_act_window").css("top").replace("px", ""));
 
-            svg.popup.style("left", (d3.event.pageX - dialogOffsetx) + popupMargins.left + "px").style("top", (d3.event.pageY - dialogOffsety) - popupMargins.bottom + "px").text(text);
+            svg.popup.style("left", (position.left + popupMargins.left) + "px").style("top", (position.top - popupMargins.bottom) + "px").text(text);
             svg.popup.transition().duration(500).style("opacity", 1);
         },
 
@@ -264,7 +263,7 @@ graph_lib = (function() {
                 }).attr("cy", function(d) {
                 return context.yScale(d.score);
                 }).attr("r", 3).attr("class", "contextPoint").on("mouseover", function(d) {
-                return self.contextMouseOver(d.score);
+                return self.contextMouseOver(d.score, $(this).position());
                 }).on("mouseout", self.contextMouseOut)
                 .style({
                     "fill": "#000000",
@@ -397,7 +396,7 @@ graph_lib = (function() {
                             return null;
                         }
                     }).on("mouseover", function(d) {
-                        return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);
+                        return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
                     }).on("mouseout", self.contextMouseOut);
                     focus.obj.selectAll("." + thisEntry.label + "down-arrows").data(svg.data.filter(function(d) {
                         if (d.blood_pressure_diastolic) {
@@ -420,7 +419,7 @@ graph_lib = (function() {
                             return null;
                         }
                     }).on("mouseover", function(d) {
-                        return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);
+                        return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
                     }).on("mouseout", self.contextMouseOut);
                 }
 
@@ -449,7 +448,7 @@ graph_lib = (function() {
                     stroke: "rgba(0,0,0,0)",
                     "stroke-width": "3"
                 }).on("mouseover", function(d) {
-                    return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);
+                    return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
                 }).on("mouseout", self.contextMouseOut);
                 focus.obj.append("text").text(thisEntry.label).attr("y", thisEntry.yScale(thisEntry.normMax) + shift).attr("x", svg.width - svg.infoAreaRight).attr({
                     "font-family": "sans-serif",
@@ -522,8 +521,9 @@ graph_lib = (function() {
                     } else {
                         return "none";
                     }
-                }).attr("clip-path", "url(#clip)").on("mouseover", function(d) {
-                    return self.contextMouseOver(d[thisEntry.label]);
+                }).attr("clip-path", "url(#clip)")
+                .attr("data-label", thisEntry.key).on("mouseover", function(d) {
+                    return self.contextMouseOver(d[$(this).attr("data-label")], $(this).position());
                 }).on("mouseout", self.contextMouseOut);
 
                 focus.obj.append("text").text(thisEntry.label).attr("y", thisEntry.yScale(thisEntry.normMax) + shift).attr("x", svg.width - svg.infoAreaRight).attr({
@@ -620,7 +620,7 @@ graph_lib = (function() {
                         return null;
                     }
                 }).on("mouseover", function(d) {
-                    return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);
+                    return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
                 }).on("mouseout", self.contextMouseOut);
                 focus.obj.selectAll(".BPdown-arrows").data(svg.data.filter(function(d) {
                     if (d.blood_pressure_diastolic && d.date_start >= focus.xScale.domain()[0] && d.date_start <= focus.xScale.domain()[1]) {
@@ -643,7 +643,7 @@ graph_lib = (function() {
                         return null;
                     }
                 }).on("mouseover", function(d) {
-                    return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);
+                    return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
                 }).on("mouseout", self.contextMouseOut);
             }
 
