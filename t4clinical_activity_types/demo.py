@@ -72,10 +72,10 @@ class t4_clinical_demo_env(orm.Model):
     def random_available_location(self, cr, uid, env_id, parent_id=None, usages=['bed'], available_range=[1,1]):
         fake.seed(next_seed())
         env = self.browse(cr, uid, env_id)
-        location_ids = self.pool['t4.clinical.api'].location_availability_map(cr, uid,  
-                                                                                  available_range=available_range,
-                                                                                  usages=['bed'],
-                                                                                  pos_ids=[env.pos_id.id]).keys()
+        location_ids = self.pool['t4.clinical.api'].location_map(cr, uid,  
+                                                                  available_range=available_range,
+                                                                  usages=['bed'],
+                                                                  pos_ids=[env.pos_id.id]).keys()
         location_pool = self.pool['t4.clinical.location']
 #         if parent_id:
 #             domain = [['id', 'child_of', parent_id]]
@@ -86,17 +86,16 @@ class t4_clinical_demo_env(orm.Model):
         return location_pool.browse(cr, uid, location_id)
 
     def get_activity_free_patients(self, cr, uid, env_id, data_models, states):
-        #FIXME: this function to be replaced with activity_free_location(data_model, states)
         # random_observation_available_location
         fake.seed(next_seed())
         env = self.browse(cr, uid, env_id)
         patient_pool = self.pool['t4.clinical.patient']
         api_pool = self.pool['t4.clinical.api']
-        all_patient_ids = [a.patient_id.id for a in api_pool.get_activities(cr, uid, pos_ids=[env.pos_id.id], data_models=['t4.clinical.spell'], states=['started'])]
-        used_patient_ids = [a.patient_id.id for a in api_pool.get_activities(cr, uid, data_models=data_models, states=states)]
+        all_patient_ids = [a.patient_id.id for a in api_pool.get_activities(cr, SUPERUSER_ID, pos_ids=[env.pos_id.id], data_models=['t4.clinical.spell'], states=['started'])]
+        used_patient_ids = [a.patient_id.id for a in api_pool.get_activities(cr, SUPERUSER_ID, data_models=data_models, states=states)]
         patient_ids = list(set(all_patient_ids)-set(used_patient_ids))       
         #patient_id = patient_ids and fake.random_element(patient_ids) or False
-        return patient_pool.browse(cr, uid, patient_ids)
+        return patient_pool.browse(cr, SUPERUSER_ID, patient_ids)
 
     def data_adt_patient_discharge(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
@@ -178,7 +177,7 @@ class t4_clinical_demo_env(orm.Model):
         
         #import pdb; pdb.set_trace()
         fake.seed(next_seed())
-        patients = self.get_activity_free_patients(cr, uid, env_id,'t4.clinical.patient.observation.ews',['new','scheduled','started'])
+        patients = self.get_activity_free_patients(cr, uid, env_id,['t4.clinical.patient.observation.ews'],['new','scheduled','started'])
         d = {
             'respiration_rate': fake.random_int(min=5, max=34),
             'indirect_oxymetry_spo2': fake.random_int(min=85, max=100),
@@ -281,7 +280,8 @@ class t4_clinical_demo_env(orm.Model):
 
                 
     def data_observation_gcs(self, cr, uid, env_id, activity_id=None, data={}):    
-        patients = self.get_activity_free_patients(cr, uid, env_id,'t4.clinical.patient.observation.ews',['new','scheduled','started']) 
+        fake.seed(next_seed())
+        patients = self.get_activity_free_patients(cr, uid, env_id,['t4.clinical.patient.observation.gcs'],['new','scheduled','started']) 
         d = {
             'eyes': fake.random_element(array=('1', '2', '3', '4', 'C')),
             'verbal': fake.random_element(array=('1', '2', '3', '4', '5', 'T')),

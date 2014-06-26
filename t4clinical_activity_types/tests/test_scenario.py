@@ -167,7 +167,7 @@ class ActivityTypesScenarioTest(BaseTest):
         super(BaseTest, self).setUp()
 
     def test_build_env(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         config = {
               'bed_qty': 7,
@@ -182,7 +182,7 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool.build(cr, uid, env_id)
         
     def test_adt_register(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -238,7 +238,7 @@ class ActivityTypesScenarioTest(BaseTest):
             assert False, "Unexpected reaction to registration attempt of existing patient!"
 
     def test_adt_admit(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -292,7 +292,7 @@ class ActivityTypesScenarioTest(BaseTest):
         assert placement_activity.state == 'new'        
         
     def test_adt_discharge(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -306,7 +306,7 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool.complete(cr, uid, env_id, discharge_activity.id)
     
     def test_placement(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -337,7 +337,7 @@ class ActivityTypesScenarioTest(BaseTest):
     
         
     def test_availability_map(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -352,7 +352,7 @@ class ActivityTypesScenarioTest(BaseTest):
         patients = [a.patient_id for a in spell_activities]
         bed_locations = api_pool.get_locations(cr, uid, pos_ids=[env.pos_id.id], usages=['bed'])
         assert len(bed_locations) == env.bed_qty
-        amap = api_pool.location_availability_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
+        amap = api_pool.location_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
         available_ids = [k for k, v in amap.items() if amap[k]['available']>0]
         unavailable_ids = list(set(amap.keys()) - set(available_ids))
         assert len(unavailable_ids) == env.patient_qty, "unavailable_ids = %s" % unavailable_ids
@@ -361,12 +361,12 @@ class ActivityTypesScenarioTest(BaseTest):
         for i in range(len(available_ids)):
             move = api_pool.create_complete(cr, uid, 't4.clinical.patient.move', {},
                                             {'patient_id': patients[0].id, 'location_id': available_ids[i]})
-            amap = api_pool.location_availability_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
+            amap = api_pool.location_map(cr, uid, usages=['bed'], available_range=[0,1], pos_ids=[env.pos_id.id])
             assert not amap[available_ids[i]]['available']
             if i > 0: assert amap[available_ids[i-1]]['available']
         
     def test_no_policy_obs_and_adt_cancel(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         activity_pool = self.registry('t4.activity')
@@ -383,17 +383,26 @@ class ActivityTypesScenarioTest(BaseTest):
         env = env_pool.build(cr, uid, env_id)
         pos = env.pos_id
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        
+        nurse_user_id = api_pool.user_map(cr,uid, group_xmlids=['group_t4clinical_nurse']).keys()[0]
         
         #Complete observation.ews
         ews_activities = api_pool.get_activities(cr, uid, pos_ids=[pos.id], data_models=['t4.clinical.patient.observation.ews'])
         assert len(ews_activities) == env.patient_qty, "len(ews_activities) = %s, env.patient_qty = %s, pos.id = %s" % (len(ews_activities), env.patient_qty, pos.id)
         for activity in ews_activities:
-            env_pool.submit_complete(cr, uid, env_id, activity.id)
+            api_pool.assign(cr, uid, activity.id, nurse_user_id)
+            env_pool.submit_complete(cr, nurse_user_id, env_id, activity.id)
 
                 
-        # Complete observation.gcs       
-        gcs = [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.gcs') for i in range(env.patient_qty)]
+        # Complete observation.gcs  
+#         gcs_activities = api_pool.get_activities(cr, uid, pos_ids=[pos.id], data_models=['t4.clinical.patient.observation.gcs'])
+#         print gcs_activities
+        #import pdb; pdb.set_trace()
+        #patients = [a.patient for a in api_pool.get_activities(cr, uid, pos_ids=[pos.id], data_models=['t4.clinical.patient.observation.gcs'])]
+        #gcs = [env_pool.create_activity(cr, uid, env_id, 't4.clinical.patient.observation.gcs',{}, {'patient_id':p.id}) for p in patients]
+        gcs = [env_pool.create_activity(cr, uid, env_id, 't4.clinical.patient.observation.gcs') for i in range(env.patient_qty)]
+        for gcs_activity in gcs: 
+            api_pool.assign(cr, uid, gcs_activity.id, nurse_user_id)
+            env_pool.submit_complete(cr, nurse_user_id, env_id, gcs_activity.id)
         # Complete observation.height
         height = [env_pool.create_complete(cr, uid, env_id, 't4.clinical.patient.observation.height') for i in range(env.patient_qty)]
         # Complete observation.weight
@@ -412,7 +421,7 @@ class ActivityTypesScenarioTest(BaseTest):
                 assert a.state == 'cancelled'
 
     def test_gcs_observations_policy_static(self):
-        return
+        #return
         gcs_test_data = {
             'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
             'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
@@ -515,9 +524,11 @@ class ActivityTypesScenarioTest(BaseTest):
                 'pulse_rate': ews_test_data['PR'][i],
                 'avpu_text': ews_test_data['AVPU'][i]
             }
-            if ews_policy['notifications'][ews_test_data['CASE'][i]]['assessment']:
-                import pdb; pdb.set_trace()
-            ews_activity = api_pool.submit_complete(cr, uid, ews_activity.id, data)
+            nurse_user_id = api_pool.user_map(cr,uid, group_xmlids=['group_t4clinical_nurse']).keys()[0]
+
+            # completion must be made as nurse user, otherwise notifications are not created
+            api_pool.assign(cr, uid, ews_activity.id, nurse_user_id)
+            ews_activity = api_pool.submit_complete(cr, nurse_user_id, ews_activity.id, data)
             
             frequency = ews_policy['frequencies'][ews_test_data['CASE'][i]]
             clinical_risk = ews_policy['risk'][ews_test_data['CASE'][i]]
@@ -551,10 +562,8 @@ class ActivityTypesScenarioTest(BaseTest):
                 ('state', 'not in', ['completed', 'cancelled']),
                 ('data_model', '=', 't4.clinical.notification.assessment')]
             assessment_ids = activity_pool.search(cr, uid, domain)
-#             if assessment and not assessment_ids:
-#                 import pdb; pdb.set_trace()
-
-            if assessment and cr.fetchone():
+            
+            if assessment:
                 self.assertTrue(assessment_ids, msg='Assessment notification not triggered')
                 activity_pool.complete(cr, uid, assessment_ids[0])
                 domain = [
@@ -578,12 +587,6 @@ class ActivityTypesScenarioTest(BaseTest):
             else:
                 self.assertFalse(frequency_ids, msg='Review frequency notification triggered')
 
-            domain = [
-                ('creator_id', '=', ews_activity.id),
-                ('state', 'not in', ['completed', 'cancelled']),
-                ('data_model', '=', 't4.clinical.notification.nurse')]
-            notification_ids = activity_pool.search(cr, uid, domain)
-            self.assertEqual(len(notification_ids), len(nurse_notifications), msg='Wrong notifications triggered')
             ews_activity = api_pool.get_activities(cr, uid, pos_ids=[env.pos_id.id], 
                                                    data_models=['t4.clinical.patient.observation.ews'],
                                                    states=['new','scheduled','started'])[0]

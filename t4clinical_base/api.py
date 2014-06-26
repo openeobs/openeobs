@@ -3,6 +3,7 @@ from openerp.osv import orm, fields, osv
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from openerp import SUPERUSER_ID
+from pprint import pprint as pp
 
 import logging        
 _logger = logging.getLogger(__name__)
@@ -100,10 +101,10 @@ class t4_clinical_api(orm.AbstractModel):
         pp(res)
         return res       
 
-    def patient_location_map(self, cr, uid, ids=[], types=[], usages=[], codes=[]):  
+    def patient_map(self, cr, uid, ids=[], types=[], usages=[], codes=[]):  
         """
-        returns dict for patient model of format:
-        {patient_id: location_id, ...}
+        returns:
+        {patient_id: {location_id, ...}}
         """
         print "api: map args: ids: %s, available_range: %s, usages: %s" % (ids,available_range,usages)
         where_list = []
@@ -139,20 +140,54 @@ class t4_clinical_api(orm.AbstractModel):
         res = {r['patient_id']: r['location_id'] for r in cr.dictfetchall()}
         return res
     
-    def user_map(self, cr,uid, group_xmlids=[], assigned_activity_ids=[]):
+    def user_map(self, cr,uid, user_ids=[], group_xmlids=[], assigned_activity_ids=[]):
         """
         returns:
         {user_id: {group_xmlids, assigned_activity_ids, responsible_activity_ids}}
         """
         where_list = []
-        if activity_ids: where_list.append("assigned_activity_id in (%s)" % ','.join([str(id) for id in activity_ids]))
-        if group_xmlids: where_list.append("group_xmlids in ('%s')" % "','".join(group_xmlids))
+        if assigned_activity_ids: where_list.append("assigned_activity_ids in (%s)" % ','.join([str(id) for id in assigned_activity_ids]))
+        if user_ids: where_list.append("user_id in (%s)" % ','.join([str(id) for id in user_ids]))
+        if group_xmlids: where_list.append("group_xmlids && array['%s']" % "','".join(group_xmlids))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""       
-        pass
+        sql = """
+            with pre_map as(
+                    select 
+                        u.id user_id,
+                        u.login,
+                        array_agg(imd.name::text) as group_xmlids,
+                        array_agg(aa.id) as assigned_activity_ids,
+                        array_agg(ra.id) as responsible_activity_ids
+                    from res_users u
+                    left join res_groups_users_rel gur on u.id = gur.uid
+                    left join res_groups g on g.id = gur.gid
+                    left join ir_model_data imd on imd.res_id = g.id and imd.model = 'res.groups'
+                    left join t4_activity aa on aa.user_id = u.id -- assigned
+                    left join activity_user_rel aur on aur.user_id = u.id
+                    left join t4_activity ra on ra.user_id = u.id -- responsible
+                    group by u.id, u.login
+            ),
+            map as(
+                select 
+                    user_id,
+                    login,
+                    (select array_agg(g) from unnest(group_xmlids) g where g is not null) as group_xmlids,
+                    (select array_agg(aa) from unnest(assigned_activity_ids) aa where aa is not null) as assigned_activity_ids,
+                    (select array_agg(ra) from unnest(responsible_activity_ids) ra where ra is not null) as responsible_activity_ids
+                from pre_map
+            )  
+            select * from map
+            {where_clause}
+        """.format(where_clause=where_clause)
+        cr.execute(sql)
+        res = cr.dictfetchall()
+        res = {r['user_id']: r for r in res}
+        #pp(res)
+        return res
     
     def get_location_ids(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):    
-        location_ids = self.location_availability_map(cr, uid, pos_ids=pos_ids,
+        location_ids = self.location_map(cr, uid, pos_ids=pos_ids,
                                   location_ids=location_ids, types=types, usages=usages, codes=codes,
                                   occupied_range=occupied_range, capacity_range=capacity_range, 
                                   available_range=available_range).keys()
@@ -230,17 +265,17 @@ class t4_clinical_api(orm.AbstractModel):
 #         # not finished. 
         
         
-    def location_availability_map(self, cr, uid, #FIXME: add 'data_models' by which location is not occupied, 
-                                                 #'states' if location in activity and state in states, location is occupied  
-                                  location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
-                                  occupied_range=[], capacity_range=[], available_range=[]):  
+    def location_map(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
+                                    patient_ids=[], 
+                                    occupied_range=[], capacity_range=[], available_range=[]):  
         """
         returns dict of dicts for location model of format:
         {id: {id, code, type, usage, occupied, capacity, available}}
         """
         #print "api: map args: location_ids: %s, available_range: %s, usages: %s" % (location_ids,available_range,usages)
         where_list = []
-        if location_ids: where_list.append("id in (%s)" % ','.join([str(id) for id in location_ids]))
+        if location_ids: where_list.append("location_id in (%s)" % ','.join([str(id) for id in location_ids]))
+        if patient_ids: where_list.append("patinet_ids && array[%s]" % ','.join([str(id) for id in patient_ids]))
         if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))
         if types: where_list.append("type in ('%s')" % "','".join([str(t) for t in types]))
         if usages: where_list.append("usage in ('%s')" % "','".join([str(u) for u in usages]))
@@ -265,33 +300,34 @@ class t4_clinical_api(orm.AbstractModel):
                 patient_per_location as (
                     select 
                         m.location_id,
-                        count(m.patient_id) as patient_qty
-                        
+                        count(m.patient_id) as patient_qty,
+                        array_agg(mpd.patient_id) as patient_ids
                     from t4_clinical_patient_move m
                     inner join t4_activity ma on m.activity_id = ma.id
-                    inner join move_patient_date ppd on m.patient_id = ppd.patient_id
-                                                        and ma.termination_seq = ppd.max_termination_seq
+                    inner join move_patient_date mpd on m.patient_id = mpd.patient_id
+                                                        and ma.termination_seq = mpd.max_termination_seq
                     inner join t4_activity sa on sa.data_model='t4.clinical.spell' and m.patient_id = sa.patient_id
                     where sa.state = 'started'
                     group by m.location_id
                 ),
-                avalibility_map as (
+                map as (
                     select 
-                        l.id,
+                        l.id as location_id,
                         l.code,
                         l.type,
                         l.usage,
                         l.pos_id,
                         coalesce(ppl.patient_qty, 0) as occupied,
                         coalesce(l.patient_capacity, 0) as capacity,
-                        coalesce(l.patient_capacity, 0) - coalesce(ppl.patient_qty, 0) as available
+                        coalesce(l.patient_capacity, 0) - coalesce(ppl.patient_qty, 0) as available,
+                        ppl.patient_ids
                     from t4_clinical_location l
                     left join patient_per_location ppl on l.id = ppl.location_id
                 )
                 
-            select * from avalibility_map %s """ % where_clause
+            select * from map %s """ % where_clause
         cr.execute(sql)
-        res = {location['id']: location for location in cr.dictfetchall()}
+        res = {location['location_id']: location for location in cr.dictfetchall()}
         return res
         
     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
