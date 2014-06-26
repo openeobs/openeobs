@@ -146,7 +146,7 @@ class t4_clinical_wardboard(orm.Model):
     }
 
     def _get_cr_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
-        res = [['NoScore', 'No Score Yet'], ['None', 'No Risk'], ['Low', 'Low Risk'], ['Medium', 'Medium Risk'], ['High', 'High Risk']]
+        res = [['NoScore', 'No Score Yet'], ['High', 'High Risk'], ['Medium', 'Medium Risk'], ['Low', 'Low Risk'], ['None', 'No Risk']]
         fold = {r[0]: False for r in res}
         return res, fold
 
