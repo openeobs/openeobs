@@ -101,17 +101,17 @@ class t4_clinical_api(orm.AbstractModel):
         pp(res)
         return res       
 
-    def patient_map(self, cr, uid, ids=[], types=[], usages=[], codes=[]):  
+    def patient_map(self, cr, uid, patient_ids=[], pos_ids=[]):  
         """
         returns:
-        {patient_id: {location_id, ...}}
+        {patient_id: {location_id, route: {sequence: location_id}  }}
         """
-        print "api: map args: ids: %s, available_range: %s, usages: %s" % (ids,available_range,usages)
         where_list = []
-        ids and where_list.append("patient_id in (%s)" % ','.join([str(id) for id in ids]))
-        types and where_list.append("type in ('%s')" % "','".join(types))
-        usages and where_list.append("usage in ('%s')" % "','".join(usages))
-        codes and where_list.append("code in ('%s')" % "','".join(codes))
+        if patient_ids: where_list.append("patient_id in (%s)" % ','.join([str(id) for id in patient_ids]))
+        if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))
+#         types and where_list.append("type in ('%s')" % "','".join(types))
+#         usages and where_list.append("usage in ('%s')" % "','".join(usages))
+#         codes and where_list.append("code in ('%s')" % "','".join(codes))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
         print where_clause     
         sql = """
@@ -128,8 +128,10 @@ class t4_clinical_api(orm.AbstractModel):
                 patient_location as (
                     select distinct
                         m.patient_id,
-                        m.location_id
+                        m.location_id,
+                        l.pos_id
                     from t4_clinical_patient_move m
+                    inner join t4_clinical_location l on l.id = m.location_id
                     inner join t4_activity ma on m.activity_id = ma.id
                     inner join move_patient_date ppd on ma.date_terminated = ppd.max_date_terminated and m.patient_id = ppd.patient_id
                     inner join t4_activity sa on ma.parent_id = sa.id
@@ -137,7 +139,7 @@ class t4_clinical_api(orm.AbstractModel):
                 )
             select * from patient_location %s """ % where_clause
         cr.execute(sql)
-        res = {r['patient_id']: r['location_id'] for r in cr.dictfetchall()}
+        res = {r['patient_id']: r for r in cr.dictfetchall()}
         return res
     
     def user_map(self, cr,uid, user_ids=[], group_xmlids=[], assigned_activity_ids=[]):
@@ -202,7 +204,7 @@ class t4_clinical_api(orm.AbstractModel):
                                   available_range=available_range)
         return self.pool['t4.clinical.location'].browse(cr, uid, location_ids)     
 
-    def get_activity_ids(self, cr, uid, activity_ids=[],
+    def activity_map(self, cr, uid, activity_ids=[],
                        pos_ids=[], location_ids=[], patient_ids=[],
                        device_ids=[], data_models=[], states=[]):
         """
@@ -219,13 +221,13 @@ class t4_clinical_api(orm.AbstractModel):
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
         sql = "select id from t4_activity %s" % where_clause
         cr.execute(sql)
-        activity_ids = [r['id'] for r in cr.dictfetchall()]
-        return activity_ids
+        res = [r['id'] for r in cr.dictfetchall()]
+        return res
     
     def get_activities(self, cr, uid, activity_ids=[],
                        pos_ids=[], location_ids=[], patient_ids=[],
                        device_ids=[], data_models=[], states=[]):
-        activity_ids = self.get_activity_ids(cr, uid, pos_ids=pos_ids, location_ids=location_ids, 
+        activity_ids = self.activity_map(cr, uid, pos_ids=pos_ids, location_ids=location_ids, 
                                              patient_ids=patient_ids, device_ids=device_ids, 
                                              data_models=data_models, states=states)
         return self.pool['t4.activity'].browse(cr, uid, activity_ids)
@@ -266,16 +268,41 @@ class t4_clinical_api(orm.AbstractModel):
         
         
     def location_map(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
-                                    patient_ids=[], 
-                                    occupied_range=[], capacity_range=[], available_range=[]):  
+                                    patient_ids=[], #data_models=[], states=[],
+                                    occupied_range=[], capacity_range=[], available_range=[], debug=True):  
         """
         returns dict of dicts for location model of format:
         {id: {id, code, type, usage, occupied, capacity, available}}
         """
+        # assertions needed because string is taken as list too, and passing string we may end up with:
+        # "where field in (s,t,r,i,n,g)" and may miss some results
+        if debug:
+            assert isinstance(location_ids, (list, tuple)) and all([isinstance(i,(int, long)) for i in location_ids]), \
+                "type = %s, items: %s" % (type(location_ids).__name__, location_ids)
+            assert isinstance(types, (list, tuple)) and all([isinstance(i,(basestring)) for i in types]), \
+                "type = %s, items: %s" % (type(types).__name__, types)
+            assert isinstance(usages, (list, tuple)) and all([isinstance(i,(basestring)) for i in usages]), \
+                "type = %s, items: %s" % (type(usages).__name__, usages)            
+            assert isinstance(codes, (list, tuple)) and all([isinstance(i,(basestring)) for i in codes]), \
+                "type = %s, items: %s" % (type(codes).__name__, codes)  
+            assert isinstance(pos_ids, (list, tuple)) and all([isinstance(i,(int, long)) for i in pos_ids]), \
+                "type = %s, items: %s" % (type(pos_ids).__name__, pos_ids)   
+            assert isinstance(patient_ids, (list, tuple)) and all([isinstance(i,(int, long)) for i in patient_ids]), \
+                "type = %s, items: %s" % (type(patient_ids).__name__, patient_ids)   
+            assert isinstance(occupied_range, (list, tuple)) \
+                and all([isinstance(i,(int, long)) and i>=0 for i in occupied_range]) and len(occupied_range) in [0, 2], \
+                "type = %s, items: %s" % (type(occupied_range).__name__, occupied_range)      
+            assert isinstance(capacity_range, (list, tuple)) \
+                and all([isinstance(i,(int, long)) and i>=0 for i in capacity_range]) and len(capacity_range) in [0, 2], \
+                "type = %s, items: %s" % (type(capacity_range).__name__, capacity_range)                 
+            assert isinstance(available_range, (list, tuple)) \
+                and all([isinstance(i,(int, long)) and i>=0 for i in available_range]) and len(available_range) in [0, 2], \
+                "type = %s, items: %s" % (type(available_range).__name__, available_range)                 
+                           
         #print "api: map args: location_ids: %s, available_range: %s, usages: %s" % (location_ids,available_range,usages)
         where_list = []
         if location_ids: where_list.append("location_id in (%s)" % ','.join([str(id) for id in location_ids]))
-        if patient_ids: where_list.append("patinet_ids && array[%s]" % ','.join([str(id) for id in patient_ids]))
+        if patient_ids: where_list.append("patient_ids && array[%s]" % ','.join([str(id) for id in patient_ids]))
         if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))
         if types: where_list.append("type in ('%s')" % "','".join([str(t) for t in types]))
         if usages: where_list.append("usage in ('%s')" % "','".join([str(u) for u in usages]))
@@ -283,6 +310,8 @@ class t4_clinical_api(orm.AbstractModel):
         if occupied_range: where_list.append("occupied between %s and %s" % (occupied_range[0], occupied_range[1]))
         if capacity_range: where_list.append("capacity between %s and %s" % (capacity_range[0], capacity_range[1]))
         if available_range: where_list.append("available between %s and %s" % (available_range[0], available_range[1]))
+#         if data_models: where_list.append("data_model in ('%s')" % "','".join(data_models))
+#         if states: where_list.append("state in ('%s')" % "','".join(states))        
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
         #print where_clause     
         sql = """
@@ -307,6 +336,7 @@ class t4_clinical_api(orm.AbstractModel):
                     inner join move_patient_date mpd on m.patient_id = mpd.patient_id
                                                         and ma.termination_seq = mpd.max_termination_seq
                     inner join t4_activity sa on sa.data_model='t4.clinical.spell' and m.patient_id = sa.patient_id
+                    --left join t4_activity a on a.location_id 
                     where sa.state = 'started'
                     group by m.location_id
                 ),
