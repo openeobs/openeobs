@@ -38,3 +38,7 @@
 .t4c_wardboard .oe_list_content .oe_group_header {
     height: 25px;
 }
+
+.t4_ewschart {
+    position: relative !important;
+}
