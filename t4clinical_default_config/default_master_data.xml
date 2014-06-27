@@ -325,6 +325,24 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_admin'))]"/>
         </record>
+        
+        <!-- O2 Saturation Levels -->
+        <record id="t4c_sat_level_1" model="t4.clinical.o2level">
+            <field name="min">88</field>
+            <field name="max">92</field>
+        </record>
+        <record id="t4c_sat_level_2" model="t4.clinical.o2level">
+            <field name="min">92</field>
+            <field name="max">96</field>
+        </record>
+        <record id="t4c_sat_level_3" model="t4.clinical.o2level">
+            <field name="min">90</field>
+            <field name="max">94</field>
+        </record>
+        <record id="t4c_sat_level_4" model="t4.clinical.o2level">
+            <field name="min">86</field>
+            <field name="max">90</field>
+        </record>
 
     </data>
 </openerp>
