@@ -113,18 +113,18 @@
                                 <page string="Admission Details">
                                     <group>
                                         <field name="spell_code" readonly="1" string="Code"/>
-                                        <field name="spell_date_started" readonly="True" string="Admission Date"/>
+                                        <field name="spell_date_started" readonly="True" string="Admission Date" widget="t4c_datetime"/>
                                     </group>
                                     <group string="Previous admissions">
 	                                    <field name="spell_ids" readonly="1" nolabel="1">
 	                                        <tree>
 	                                            <field name="code"/>
-	                                            <field name="date_started"/>
+	                                            <field name="date_started" widget="t4c_datetime"/>
 	                                            <field name="location_id"/>
 	                                        </tree>
 	                                        <form>
 	                                            <field name="code" />
-	                                            <field name="date_started" />
+	                                            <field name="date_started" widget="t4c_datetime"/>
 	                                            <field name="location_id"/>
 	                                        </form>
 	                                   </field>
@@ -149,35 +149,38 @@
                                     <group string="Weight">
                                         <field name="weight_ids" readonly="1" nolabel="1">
                                             <tree>
-                                                <field name="date_terminated" string="Date"/>
+                                                <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                                 <field name="weight" />
+                                                <field name="complete_uid"/>
                                             </tree>
                                             <form>
                                                 <field name="weight" />
-                                                <field name="date_terminated" string="Date"/>
+                                                <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                                <field name="complete_uid"/>
                                             </form>
                                         </field>
                                     </group>
                                     <group string="Blood Sugar">
                                     	<field name="blood_sugar_ids" readonly="1" nolabel="1">
                                             <tree>
-                                                <field name="date_terminated" string="Date"/>
+                                                <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                                 <field name="blood_sugar"/>
+                                                <field name="complete_uid"/>
                                             </tree>
                                             <form>
                                                 <field name="blood_sugar"/>
-                                                <field name="date_terminated" string="Date"/>
+                                                <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                                <field name="complete_uid"/>
                                             </form>
                                         </field>
                                    	</group>
                                     <group string="O2 Target History">
                                         <field name="o2target_ids" nolabel="1" readonly="1">
                                             <tree>
-                                                <field name="level_id"/>
+                                                <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                                <field name="level_id" string="Value"/>
+                                                <field name="complete_uid"/>
                                             </tree>
-                                            <form>
-                                                <field name="level_id"/>
-                                            </form>
                                        </field>
                                     </group>
                                 </page>
@@ -185,7 +188,7 @@
                                     <field name="move_ids" readonly="1">
                                         <tree>
                                             <field name="location_id" />
-                                            <field name="date_terminated" />
+                                            <field name="date_terminated" widget="t4c_datetime"/>
                                             <field name="state" />
                                         </tree>
                                         <form>
@@ -204,7 +207,7 @@
 	                                    	<field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
  	                                    		<tree>
 		                                    		<field name="device_id"/>
-		                                    		<field name="date_started"/>
+		                                    		<field name="date_started" widget="t4c_datetime"/>
 		                                    		<button name="device_session_complete" type="object" icon="gtk-cancel" string="Complete Device Session"/>
 	                                    		</tree>
 	                                    	</field>
@@ -215,8 +218,8 @@
 	                                    	<field name="terminated_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','completed')]">
 	                                    		<tree>
 		                                    		<field name="device_id"/>
-		                                    		<field name="date_started"/>
-		                                    		<field name="date_terminated"/>
+		                                    		<field name="date_started" widget="t4c_datetime"/>
+		                                    		<field name="date_terminated" widget="t4c_datetime"/>
 		                                    		<field name="state"/>
 		                                    		
 	                                    		</tree>

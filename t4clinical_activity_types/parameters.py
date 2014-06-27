@@ -38,7 +38,7 @@ class t4_clinical_patient_o2target(orm.Model):
     _inherit = ['t4.activity.data']       
     _rec_name = 'level_id'
     _columns = {
-        'level_id': fields.many2one('t4.clinical.o2level', 'O2 Level', required=True),                
+        'level_id': fields.many2one('t4.clinical.o2level', 'O2 Level', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
     }
 
