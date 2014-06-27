@@ -42,3 +42,7 @@
 .t4_ewschart {
     position: relative !important;
 }
+
+.openerp .oe_application .oe_breadcrumb_item {
+    max-width: 50em !important;
+}

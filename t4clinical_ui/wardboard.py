@@ -128,6 +128,7 @@ class t4_clinical_wardboard(orm.Model):
         'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
         'spell_activity_id': fields.many2one('t4.activity', 'Spell Activity'),
         'spell_date_started': fields.datetime('Spell Start Date'),
+        'spell_date_terminated': fields.datetime('Spell Discharge Date'),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'spell_code': fields.text('Spell Code'),
         'full_name': fields.text("Family Name"),
@@ -450,6 +451,7 @@ select
     spell.patient_id as patient_id,
     spell_activity.id as spell_activity_id,
     spell_activity.date_started as spell_date_started,
+    spell_activity.date_terminated as spell_date_terminated,
     spell.pos_id,
     spell.code as spell_code,
     coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
@@ -514,7 +516,7 @@ left join (select id, diabetes, patient_id, rank from completed_diabetes where r
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select id, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
-where spell_activity.state = 'started'
+where spell_activity.state = 'started' or spell_activity.state = 'completed'
 )
         """ % (self._table, self._table))
         
