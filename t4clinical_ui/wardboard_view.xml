@@ -144,6 +144,7 @@
                                         <field name="nhs_number" readonly="True" string="NHS Number"/>
                                         <field name="height" string="Height (m)" readonly="1"/>
                                         <field name="mrsa"/>
+                                        <field name="diabetes"/>
                                     </group>                                    
                                     <group string="Weight">
                                         <field name="weight_ids" readonly="1" nolabel="1">
@@ -179,9 +180,6 @@
                                             </form>
                                        </field>
                                     </group>
-                                   	<group string="Diabetes">
-                                    	<field name="diabetes_ids" readonly="1" nolabel="1"/>
-                                   	</group>
                                 </page>
                                 <page string="Movements">
                                     <field name="move_ids" readonly="1">

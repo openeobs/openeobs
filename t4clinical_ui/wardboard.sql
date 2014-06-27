@@ -33,6 +33,17 @@ completed_mrsa as(
 		inner join t4_activity activity on mrsa.activity_id = activity.id
 		where activity.state = 'completed'
 		),
+completed_diabetes as(
+		select
+			diabetes.id,
+			spell.patient_id,
+			diabetes.diabetes,
+			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+		from t4_clinical_spell spell
+		left join t4_clinical_patient_diabetes diabetes on diabetes.patient_id = spell.patient_id
+		inner join t4_activity activity on diabetes.activity_id = activity.id
+		where activity.state = 'completed'
+		),
 completed_height as(
 		select 
 			spell.patient_id,
@@ -112,7 +123,16 @@ select
 	o2target_ob.min as o2target_min,
 	o2target_ob.max as o2target_max,
 	o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string,
-	mrsa.mrsa,
+	case
+	    when mrsa.mrsa then 'yes'
+	    when mrsa.mrsa is null then 'no'
+	    else 'no'
+	end as mrsa,
+	case
+	    when diabetes.diabetes then 'yes'
+	    when diabetes.diabetes is null then 'no'
+	    else 'no'
+	end as diabetes,
 	cosulting_doctors.names as consultant_names
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
@@ -122,6 +142,7 @@ left join (select id, score, patient_id, rank, clinical_risk from completed_ews 
 left join (select id, score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
 left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
+left join (select id, diabetes, patient_id, rank from completed_diabetes where rank = 1) diabetes on spell.patient_id = diabetes.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
