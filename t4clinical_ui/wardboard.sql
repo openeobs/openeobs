@@ -57,8 +57,7 @@ completed_height as(
 completed_o2target as(
 		select 
 			spell.patient_id,
-			level.min,
-			level.max,
+			level.id,
 			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
 		from t4_clinical_spell spell
 		left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
@@ -120,9 +119,7 @@ select
     end as clinical_risk,
 	ews1.score - ews2.score as ews_trend,
 	height_ob.height,
-	o2target_ob.min as o2target_min,
-	o2target_ob.max as o2target_max,
-	o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string,
+	o2target_ob.id as o2target,
 	case
 	    when mrsa.mrsa then 'yes'
 	    when mrsa.mrsa is null then 'no'
@@ -144,6 +141,6 @@ left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews
 left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
 left join (select id, diabetes, patient_id, rank from completed_diabetes where rank = 1) diabetes on spell.patient_id = diabetes.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
-left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
+left join (select id, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
 where spell_activity.state = 'started'

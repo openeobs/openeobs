@@ -149,9 +149,10 @@ class t4_clinical_wardboard(orm.Model):
         'mrsa': fields.selection(_boolean_selection, "MRSA"),
         'diabetes': fields.selection(_boolean_selection, "Diabetes"),
         'height': fields.float("Height"),
-        'o2target_min': fields.integer("O2 Target Min"),
-        'o2target_max': fields.integer("O2 Target Max"),
-        'o2target_string': fields.text("O2 Target"),
+        # 'o2target_min': fields.integer("O2 Target Min"),
+        # 'o2target_max': fields.integer("O2 Target Max"),
+        # 'o2target_string': fields.text("O2 Target"),
+        'o2target': fields.many2one('t4.clinical.o2level', 'O2 Target'),
         'consultant_names': fields.text("Consulting Doctors"),
     }
 
@@ -352,6 +353,15 @@ class t4_clinical_wardboard(orm.Model):
                     'diabetes': vals['diabetes'] == 'yes'
                 }, context=context)
                 activity_pool.complete(cr, uid, diabetes_id, context=context)
+            if 'o2target' in vals:
+                o2target_pool = self.pool['t4.clinical.patient.o2target']
+                o2target_id = o2target_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'level_id': vals['o2target']
+                }, context=context)
+                activity_pool.complete(cr, uid, o2target_id, context=context)
         return True
 
     def init(self, cr):
@@ -418,8 +428,7 @@ completed_height as(
 completed_o2target as(
         select
             spell.patient_id,
-            level.min,
-            level.max,
+            level.id,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
@@ -481,10 +490,8 @@ select
     end as clinical_risk,
     ews1.score - ews2.score as ews_trend,
     height_ob.height,
-    o2target_ob.min as o2target_min,
-    o2target_ob.max as o2target_max,
-    o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string,
-   case
+    o2target_ob.id as o2target,
+    case
         when mrsa.mrsa then 'yes'
         when mrsa.mrsa is null then 'no'
         else 'no'
@@ -505,7 +512,7 @@ left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews
 left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
 left join (select id, diabetes, patient_id, rank from completed_diabetes where rank = 1) diabetes on spell.patient_id = diabetes.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
-left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
+left join (select id, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
 where spell_activity.state = 'started'
 )

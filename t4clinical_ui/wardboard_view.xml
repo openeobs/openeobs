@@ -106,7 +106,7 @@
                                     <field name="frequency" readonly="1"/>
                                     <field name="ews_score" readonly="1"/>
                                     <field name="ews_trend" readonly="1"/>
-                                    <field name="o2target_string" readonly="1"/>
+                                    <field name="o2target" widget="selection"/>
                                 </group>
                             </group>
                             <notebook>
@@ -297,7 +297,7 @@
                                     <field name="frequency" readonly="1"/>
                                     <field name="ews_score" readonly="1"/>
                                     <field name="ews_trend" readonly="1"/>
-                                    <field name="o2target_string" readonly="1"/>
+                                    <field name="o2target" readonly="1"/>
                                 </group>
                             </group>
                             <field name="ews_ids" widget="t4_ewschart"/>
@@ -339,7 +339,7 @@
                                     <field name="frequency" readonly="1"/>
                                     <field name="ews_score" readonly="1"/>
                                     <field name="ews_trend" readonly="1"/>
-                                    <field name="o2target_string" readonly="1"/>
+                                    <field name="o2target" readonly="1"/>
                                 </group>
                                 <group string="Admission">
                                     <field name="spell_date_started" readonly="1"/>
@@ -451,7 +451,7 @@
                 <field name="act_window_id" ref="action_wardboard"/>
             </record>
 
-            <record model="ir.actions.act_window" id="action_patients_by_ward" >
+            <record model="ir.actions.act_window" id="action_patients_by_ward">
                 <field name="name">Wardboard</field>
                 <field name="res_model">t4.clinical.wardboard</field>
                 <field name="view_type">form</field>

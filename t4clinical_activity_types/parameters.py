@@ -18,9 +18,16 @@ frequencies = [
 
 
 class t4_clinical_o2level(orm.Model):
-    _name = 't4.clinical.o2level'      
+    _name = 't4.clinical.o2level'
+
+    def _get_name(self, cr, uid, ids, fn, args, context=None):
+        result = dict.fromkeys(ids, False)
+        for r in self.read(cr, uid, ids, ['max', 'min'], context=context):
+            result[r['id']] = str(r['min']) + '-' + str(r['max'])
+        return result
+
     _columns = {
-        'name': fields.char("O2 Target Name", size=5),
+        'name': fields.function(_get_name, 'O2 Target', type='char', size=10),
         'min': fields.integer("Min"),
         'max': fields.integer("Max"),               
     }
