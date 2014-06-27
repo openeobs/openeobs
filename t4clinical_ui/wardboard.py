@@ -4,6 +4,7 @@ import logging
 _logger = logging.getLogger(__name__)
 from openerp import tools
 from openerp.addons.t4activity.activity import except_if
+from openerp import SUPERUSER_ID
 
 class wardboard_patient_placement(orm.TransientModel):
     _name = "wardboard.patient.placement"
@@ -114,6 +115,12 @@ class t4_clinical_wardboard(orm.Model):
             res[board.id] = board.patient_id.partner_id.company_id.logo
         return res
 
+    _clinical_risk_selection = [['NoScore', 'No Score Yet'],
+                                ['High', 'High Risk'],
+                                ['Medium', 'Medium Risk'],
+                                ['Low', 'Low Risk'],
+                                ['None', 'No Risk']]
+
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=1, ondelete='restrict'),
         'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
@@ -123,7 +130,7 @@ class t4_clinical_wardboard(orm.Model):
         'spell_code': fields.text('Spell Code'),
         'full_name': fields.text("Family Name"),
         'location': fields.text("Location"),
-        'clinical_risk': fields.text("Clinical Risk"),
+        'clinical_risk': fields.selection(_clinical_risk_selection, "Clinical Risk"),
         'ward_id': fields.many2one('t4.clinical.location', 'Ward'),
         'location_id': fields.many2one('t4.clinical.location', "Location"),
         'sex': fields.text("Sex"),
@@ -320,6 +327,20 @@ class t4_clinical_wardboard(orm.Model):
             'context': context,
             'view_id': int(view_id)
         }
+
+    def write(self, cr, uid, ids, vals, context=None):
+        activity_pool = self.pool['t4.activity']
+        for wb in self.browse(cr, uid, ids, context=context):
+            if 'mrsa' in vals:
+                mrsa_pool = self.pool['t4.clinical.patient.mrsa']
+                mrsa_id = mrsa_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'mrsa': vals['mrsa']
+                }, context=context)
+                activity_pool.complete(cr, uid, mrsa_id, context=context)
+        return True
 
     def init(self, cr):
         tools.drop_view_if_exists(cr, 'wardboard')

@@ -16,6 +16,7 @@ frequencies = [
     (1440, 'Every Day')
 ]
 
+
 class t4_clinical_o2level(orm.Model):
     _name = 't4.clinical.o2level'      
     _columns = {
@@ -23,7 +24,8 @@ class t4_clinical_o2level(orm.Model):
         'min': fields.integer("Min"),
         'max': fields.integer("Max"),               
     }
-    
+
+
 class t4_clinical_patient_o2target(orm.Model):
     _name = 't4.clinical.patient.o2target'
     _inherit = ['t4.activity.data']       
@@ -31,15 +33,17 @@ class t4_clinical_patient_o2target(orm.Model):
     _columns = {
         'level_id': fields.many2one('t4.clinical.o2level', 'O2 Level', required=True),                
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
-   }
-    
+    }
+
+
 class t4_clinical_patient_mrsa(orm.Model):
     _name = 't4.clinical.patient.mrsa'
     _inherit = ['t4.activity.data'] 
     _columns = {
         'mrsa': fields.boolean('MRSA', required=True),                
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
-   }
+    }
+
 
 class t4_clinical_patient_diabetes(orm.Model):
     _name = 't4.clinical.patient.diabetes'
@@ -47,4 +51,4 @@ class t4_clinical_patient_diabetes(orm.Model):
     _columns = {
         'diabetes': fields.boolean('Diabetes', required=True),                
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
-   }     
+    }

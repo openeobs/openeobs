@@ -143,7 +143,7 @@
                                         <field name="hospital_number" readonly="True" string="Hospital Number"/>
                                         <field name="nhs_number" readonly="True" string="NHS Number"/>
                                         <field name="height" string="Height (m)" readonly="1"/>
-                                        <field name="mrsa" readonly="1"/>
+                                        <field name="mrsa"/>
                                     </group>                                    
                                     <group string="Weight">
                                         <field name="weight_ids" readonly="1" nolabel="1">
