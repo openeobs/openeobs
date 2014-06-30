@@ -153,6 +153,8 @@ class t4_clinical_patient_placement(orm.Model):
     _submit_view_xmlid = "view_patient_placement_form"
     _complete_view_xmlid = "view_patient_placement_complete"
     _cancel_view_xmlid = "view_patient_placement_form"
+
+    _POLICY = {'activities': [{'model': 't4.clinical.patient.observation.ews', 'type': 'recurring'}]}
     
     _columns = {
         'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location', required=True),
@@ -173,11 +175,10 @@ class t4_clinical_patient_placement(orm.Model):
         api_pool = self.pool['t4.clinical.api']
         move_pool = self.pool['t4.clinical.patient.move']
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
-        gcs_pool = self.pool['t4.clinical.patient.observation.gcs']
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         except_if(not placement_activity.data_ref.location_id, 
                   msg="Location is not set, placement can't be completed! activity.id = %s" % placement_activity.id) 
-        super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
+        res = super(t4_clinical_patient_placement, self).complete(cr, uid, activity_id, context)
         
         placement_activity = activity_pool.browse(cr, uid, activity_id, context)
         # set spell location
@@ -193,15 +194,25 @@ class t4_clinical_patient_placement(orm.Model):
                                                      'location_id': placement_activity.data_ref.location_id.id})
         activity_pool.complete(cr, SUPERUSER_ID, move_activity_id)
         activity_pool.submit(cr, SUPERUSER_ID, spell_activity_id, {'location_id': placement_activity.data_ref.location_id.id})
-        # create EWS
-        ews_activity_id = ews_pool.create_activity(cr, SUPERUSER_ID, 
-                                                   {#'location_id': placement_activity.data_ref.location_id.id,
-                                                    'parent_id': spell_activity_id,
-                                                    'creator_id': activity_id}, 
-                                                   {'patient_id': placement_activity.data_ref.patient_id.id}, context)
-        frequency = activity_pool.browse(cr, SUPERUSER_ID, ews_activity_id, context=context).data_ref.frequency
-        activity_pool.schedule(cr, SUPERUSER_ID, ews_activity_id, date_scheduled=(dt.now()+td(minutes=frequency)).strftime(DTF))
-        return {}
+        # trigger placement policy activities
+        for trigger_activity in self._POLICY['activities']:
+            pool = self.pool[trigger_activity['model']]
+            ta_activity_id = pool.create_activity(cr, SUPERUSER_ID, {
+                'parent_id': spell_activity_id,
+                'creator_id': activity_id
+            }, {
+                'patient_id': placement_activity.data_ref.patient_id.id
+            }, context=context)
+            if trigger_activity['type'] == 'recurring':
+                frequency = activity_pool.browse(cr, SUPERUSER_ID, ta_activity_id, context=context).data_ref.frequency
+                date_schedule = (dt.now()+td(minutes=frequency)).strftime(DTF)
+            else:
+                date_schedule = dt.now().replace(minute=0, second=0, microsecond=0)
+            if trigger_activity['type'] == 'start':
+                activity_pool.start(cr, SUPERUSER_ID, ta_activity_id, context=context)
+            else:
+                activity_pool.schedule(cr, SUPERUSER_ID, ta_activity_id, date_schedule, context=context)
+        return res
 
      
     def submit(self, cr, uid, activity_id, vals, context=None):
