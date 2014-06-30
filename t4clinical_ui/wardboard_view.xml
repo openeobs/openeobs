@@ -176,14 +176,27 @@
                                         </form>
                                     </field>
                                 </group>
-                                <group string="O2 Target History">
-                                    <field name="o2target_ids" nolabel="1" readonly="1">
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_ids" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="level_id" string="Value"/>
+                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
+                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
+                                            <field name="systolic_standing" string="Standing Systolic"/>
+                                            <field name="diastolic_standing" string="Standing Diastolic"/>
                                             <field name="complete_uid"/>
+                                            <field name="result"/>
                                         </tree>
-                                   </field>
+                                        <form>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
+                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
+                                            <field name="systolic_standing" string="Standing Systolic"/>
+                                            <field name="diastolic_standing" string="Standing Diastolic"/>
+                                            <field name="complete_uid"/>
+                                            <field name="result"/>
+                                        </form>
+                                    </field>
                                 </group>
                             </page>
                             <page string="Movements">
@@ -227,6 +240,29 @@
                                             </tree>
                                         </field>
                                     </group>
+                            </page>
+                            <page string="Monitoring">
+                                <group>
+                                    <field name="pbp_monitoring"/>
+                                </group>
+                                <group string="Postural Blood Pressure History">
+                                    <field name="pbp_monitoring_ids" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="t4skr_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="complete_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="O2 Target History">
+                                    <field name="o2target_ids" nolabel="1" readonly="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                            <field name="level_id" string="Value"/>
+                                            <field name="complete_uid"/>
+                                        </tree>
+                                   </field>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>
@@ -537,14 +573,27 @@
                                         </form>
                                     </field>
                                 </group>
-                                <group string="O2 Target History">
-                                    <field name="o2target_ids" nolabel="1" readonly="1">
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_ids" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="level_id" string="Value"/>
+                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
+                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
+                                            <field name="systolic_standing" string="Standing Systolic"/>
+                                            <field name="diastolic_standing" string="Standing Diastolic"/>
                                             <field name="complete_uid"/>
+                                            <field name="result"/>
                                         </tree>
-                                   </field>
+                                        <form>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
+                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
+                                            <field name="systolic_standing" string="Standing Systolic"/>
+                                            <field name="diastolic_standing" string="Standing Diastolic"/>
+                                            <field name="complete_uid"/>
+                                            <field name="result"/>
+                                        </form>
+                                    </field>
                                 </group>
                             </page>
                             <page string="Movements">
@@ -582,6 +631,29 @@
                                             </tree>
                                         </field>
                                     </group>
+                            </page>
+                            <page string="Monitoring">
+                                <group>
+                                    <field name="pbp_monitoring" readonly="1"/>
+                                </group>
+                                <group string="Postural Blood Pressure History">
+                                    <field name="pbp_monitoring_ids" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="t4skr_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="complete_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="O2 Target History">
+                                    <field name="o2target_ids" nolabel="1" readonly="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                            <field name="level_id" string="Value"/>
+                                            <field name="complete_uid"/>
+                                        </tree>
+                                   </field>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>

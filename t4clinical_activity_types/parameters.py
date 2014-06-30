@@ -2,7 +2,9 @@
 
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4activity.activity import except_if
-import logging        
+import logging
+from openerp import SUPERUSER_ID
+from datetime import datetime as dt, timedelta as td
 _logger = logging.getLogger(__name__)
 
 frequencies = [
@@ -59,3 +61,35 @@ class t4_clinical_patient_diabetes(orm.Model):
         'diabetes': fields.boolean('Diabetes', required=True),                
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
     }
+
+
+class t4_clinical_patient_pbp_monitoring(orm.Model):
+    _name = 't4.clinical.patient.pbp_monitoring'
+    _inherit = ['t4.activity.data']
+
+    def _get_value(self, cr, uid, ids, fn, args, context=None):
+        result = dict.fromkeys(ids, False)
+        for r in self.read(cr, uid, ids, ['pbp_monitoring'], context=context):
+            result[r['id']] = 'On' if r['pbp_monitoring'] else 'Off'
+        return result
+
+    _columns = {
+        'pbp_monitoring': fields.boolean('Postural Blood Presssure Monitoring', required=True),
+        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
+        'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
+    }
+
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        api_pool = self.pool['t4.clinical.api']
+        pbp_pool = self.pool['t4.clinical.patient.observation.pbp']
+        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, pbp_pool._name, context=context)
+        if activity.data_ref.pbp_monitoring:
+            pbp_activity_id = pbp_pool.create_activity(cr, SUPERUSER_ID,
+                                 {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
+                                 {'patient_id': activity.data_ref.patient_id.id})
+            date_schedule = dt.now().replace(minute=0, second=0, microsecond=0)
+            activity_pool.schedule(cr, uid, pbp_activity_id, date_schedule, context=context)
+
+        return super(t4_clinical_patient_pbp_monitoring, self).complete(cr, uid, activity_id, context=context)

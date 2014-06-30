@@ -44,6 +44,17 @@ completed_diabetes as(
 		inner join t4_activity activity on diabetes.activity_id = activity.id
 		where activity.state = 'completed'
 		),
+completed_pbp_monitoring as(
+		select
+			pbpm.id,
+			spell.patient_id,
+			pbpm.pbp_monitoring,
+			rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+		from t4_clinical_spell spell
+		left join t4_clinical_patient_pbp_monitoring pbpm on pbpm.patient_id = spell.patient_id
+		inner join t4_activity activity on pbpm.activity_id = activity.id
+		where activity.state = 'completed'
+		),
 completed_height as(
 		select 
 			spell.patient_id,
@@ -131,6 +142,11 @@ select
 	    when diabetes.diabetes is null then 'no'
 	    else 'no'
 	end as diabetes,
+	case
+	    when pbpm.pbp_monitoring then 'yes'
+	    when pbpm.pbp_monitoring is null then 'no'
+	    else 'no'
+	end as pbp_monitoring,
 	cosulting_doctors.names as consultant_names
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
@@ -141,6 +157,7 @@ left join (select id, score, patient_id, rank from completed_ews where rank = 2)
 left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
 left join (select id, diabetes, patient_id, rank from completed_diabetes where rank = 1) diabetes on spell.patient_id = diabetes.patient_id
+left join (select id, pbp_monitoring, patient_id, rank from completed_pbp_monitoring where rank = 1) pbpm on spell.patient_id = pbpm.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
 left join (select id, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id

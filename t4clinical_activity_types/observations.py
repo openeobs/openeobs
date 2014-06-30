@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta as rd
 import logging
 import bisect
 from openerp import SUPERUSER_ID
+from math import fabs
 
 _logger = logging.getLogger(__name__)
 
@@ -329,6 +330,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
         activity_pool = self.pool['t4.activity']
         domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]
         ids = activity_pool.search(cr, SUPERUSER_ID, domain)
+        #TODO THIS SHOULD NOT BE AN ERROR, CREATING REDUNDANT ACTIVITIES SHOULD BE ALLOWED BY REMOVING THE OLD ONES - ADD WARNING MAYBE
         except_if(len(ids),
                   msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
                   % (self._name, str(ids)))
@@ -438,6 +440,7 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         res = super(t4_clinical_patient_observation_gcs, self).create_activity(cr, uid, vals_activity, vals_data, context)
         return res
 
+
 class t4_clinical_patient_observation_vips(orm.Model):
     _name = 't4.clinical.patient.observation.vips'
     _inherit = ['t4.clinical.patient.observation']
@@ -544,4 +547,82 @@ class t4_clinical_patient_observation_vips(orm.Model):
                   msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
                   % (self._name, str(ids)))
         res = super(t4_clinical_patient_observation_vips, self).create_activity(cr, uid, vals_activity, vals_data, context)
+        return res
+
+
+class t4_clinical_patient_observation_pbp(orm.Model):
+    _name = 't4.clinical.patient.observation.pbp'
+    _inherit = ['t4.clinical.patient.observation']
+    _required = ['systolic_sitting', 'diastolic_sitting', 'systolic_standing', 'diastolic_standing']
+
+    _POLICY = {'schedule': [[6, 0], [18, 0]], 'notifications': [
+        [],
+        [{'model': 'nurse', 'summary': 'Inform FY2', 'groups': ['nurse', 'hca']},
+         {'model': 'hca', 'summary': 'Inform registered nurse', 'groups': ['hca']},
+         {'model': 'nurse', 'summary': 'Informed about patient status (Postural Blood Pressure)', 'groups': ['hca']}]
+    ]}
+
+    def _get_pbp_result(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        for pbp in self.browse(cr, uid, ids, context=context):
+            if int(fabs(pbp.systolic_sitting - pbp.systolic_standing)) > 20:
+                res[pbp.id] = 'yes'
+            else:
+                res[pbp.id] = 'no'
+        return res
+
+    _columns = {
+        'systolic_sitting': fields.integer('Sitting Blood Pressure Systolic'),
+        'systolic_standing': fields.integer('Standing Blood Pressure Systolic'),
+        'diastolic_sitting': fields.integer('Sitting Blood Pressure Diastolic'),
+        'diastolic_standing': fields.integer('Standing Blood Pressure Diastolic'),
+        'result': fields.function(_get_pbp_result, type='char', string='>20 mm', size=5, store=False)
+    }
+
+    def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
+        hour = td(hours=1)
+        schedule_times = []
+        for s in self._POLICY['schedule']:
+            schedule_times.append(dt.now().replace(hour=s[0], minute=s[1], second=0, microsecond=0))
+        date_schedule = date_scheduled if date_scheduled else dt.now().replace(minute=0, second=0, microsecond=0)
+        utctimes = [fields.datetime.utc_timestamp(cr, uid, t, context=context) for t in schedule_times]
+        while all([date_schedule.hour != date_schedule.strptime(ut, DTF).hour for ut in utctimes]):
+            date_schedule += hour
+        return super(t4_clinical_patient_observation_pbp, self).schedule(cr, uid, activity_id, date_schedule.strftime(DTF), context=context)
+
+    def complete(self, cr, uid, activity_id, context=None):
+        """
+        Implementation of the default PBP policy
+        """
+        activity_pool = self.pool['t4.activity']
+        api_pool = self.pool['t4.clinical.api']
+        groups_pool = self.pool['res.groups']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        case = int(activity.data_ref.result == 'yes')
+        hcagroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical HCA Group')])
+        nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'T4 Clinical Nurse Group')])
+        group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
+
+        # TRIGGER NOTIFICATIONS
+        api_pool.trigger_notifications(cr, uid, {
+            'notifications': self._POLICY['notifications'][case],
+            'parent_id': activity.parent_id.id,
+            'creator_id': activity_id,
+            'patient_id': activity.data_ref.patient_id.id,
+            'model': self._name,
+            'group': group
+        }, context=context)
+
+        res = super(t4_clinical_patient_observation_pbp, self).complete(cr, SUPERUSER_ID, activity_id, context)
+
+        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
+
+        # create next PBP (schedule)
+        next_activity_id = self.create_activity(cr, SUPERUSER_ID,
+                             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
+                             {'patient_id': activity.data_ref.patient_id.id})
+
+        date_schedule = dt.now().replace(minute=0, second=0, microsecond=0) + td(hours=2)
+
+        activity_pool.schedule(cr, uid, next_activity_id, date_schedule, context=context)
         return res

@@ -19,8 +19,10 @@ class t4_clinical_patient_extension(osv.Model):
         'blood_sugar_ids': fields.one2many('t4.clinical.patient.observation.blood_sugar', 'patient_id', 'Blood Sugar'),
         'mrsa_ids': fields.one2many('t4.clinical.patient.mrsa', 'patient_id', 'MRSA'),
         'diabetes_ids': fields.one2many('t4.clinical.patient.diabetes', 'patient_id', 'Diabetes'),
+        'pbp_monitoring_ids': fields.one2many('t4.clinical.patient.pbp_monitoring', 'patient_id', 'Postural Blood Pressure Monitoring'),
         'terminated_device_session_ids': fields.one2many('t4.clinical.device.session', 'patient_id', 'Device Session History', domain=[('state', '=', 'completed')]),
         'started_device_session_ids': fields.one2many('t4.clinical.device.session', 'patient_id', 'Active Device Sessions', domain=[('state', '=', 'started')]),
+        'pbp_ids': fields.one2many('t4.clinical.patient.observation.pbp', 'patient_id', 'PBP', domain=[('state', '=', 'completed')]),
         'ews_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS'),
         'ews_list_ids': fields.one2many('t4.clinical.patient.observation.ews', 'patient_id', 'EWS List', domain=[('state','=','completed')])
     }
