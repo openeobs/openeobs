@@ -4,6 +4,7 @@ import logging
 _logger = logging.getLogger(__name__)
 from openerp import tools
 from openerp.addons.t4activity.activity import except_if
+from openerp import SUPERUSER_ID
 
 class wardboard_patient_placement(orm.TransientModel):
     _name = "wardboard.patient.placement"
@@ -114,16 +115,25 @@ class t4_clinical_wardboard(orm.Model):
             res[board.id] = board.patient_id.partner_id.company_id.logo
         return res
 
+    _clinical_risk_selection = [['NoScore', 'No Score Yet'],
+                                ['High', 'High Risk'],
+                                ['Medium', 'Medium Risk'],
+                                ['Low', 'Low Risk'],
+                                ['None', 'No Risk']]
+    _boolean_selection = [('yes', 'Yes'),
+                          ('no', 'No')]
+
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=1, ondelete='restrict'),
         'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
         'spell_activity_id': fields.many2one('t4.activity', 'Spell Activity'),
         'spell_date_started': fields.datetime('Spell Start Date'),
+        'spell_date_terminated': fields.datetime('Spell Discharge Date'),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS'),
         'spell_code': fields.text('Spell Code'),
         'full_name': fields.text("Family Name"),
         'location': fields.text("Location"),
-        'clinical_risk': fields.text("Clinical Risk"),
+        'clinical_risk': fields.selection(_clinical_risk_selection, "Clinical Risk"),
         'ward_id': fields.many2one('t4.clinical.location', 'Ward'),
         'location_id': fields.many2one('t4.clinical.location', "Location"),
         'sex': fields.text("Sex"),
@@ -137,11 +147,14 @@ class t4_clinical_wardboard(orm.Model):
         'ews_score': fields.integer("Latest Score"),
         'ews_trend_string': fields.selection(_trend_strings, "Score Trend String"),
         'ews_trend': fields.integer("Score Trend"),
-        'mrsa': fields.boolean("MRSA"),
+        'mrsa': fields.selection(_boolean_selection, "MRSA"),
+        'diabetes': fields.selection(_boolean_selection, "Diabetes"),
+        'pbp_monitoring': fields.selection(_boolean_selection, "Postural Blood Pressure Monitoring"),
         'height': fields.float("Height"),
-        'o2target_min': fields.integer("O2 Target Min"),
-        'o2target_max': fields.integer("O2 Target Max"),
-        'o2target_string': fields.text("O2 Target"),
+        # 'o2target_min': fields.integer("O2 Target Min"),
+        # 'o2target_max': fields.integer("O2 Target Max"),
+        # 'o2target_string': fields.text("O2 Target"),
+        'o2target': fields.many2one('t4.clinical.o2level', 'O2 Target'),
         'consultant_names': fields.text("Consulting Doctors"),
     }
 
@@ -321,6 +334,47 @@ class t4_clinical_wardboard(orm.Model):
             'view_id': int(view_id)
         }
 
+    def write(self, cr, uid, ids, vals, context=None):
+        activity_pool = self.pool['t4.activity']
+        for wb in self.browse(cr, uid, ids, context=context):
+            if 'mrsa' in vals:
+                mrsa_pool = self.pool['t4.clinical.patient.mrsa']
+                mrsa_id = mrsa_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'mrsa': vals['mrsa'] == 'yes'
+                }, context=context)
+                activity_pool.complete(cr, uid, mrsa_id, context=context)
+            if 'diabetes' in vals:
+                diabetes_pool = self.pool['t4.clinical.patient.diabetes']
+                diabetes_id = diabetes_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'diabetes': vals['diabetes'] == 'yes'
+                }, context=context)
+                activity_pool.complete(cr, uid, diabetes_id, context=context)
+            if 'pbp_monitoring' in vals:
+                pbpm_pool = self.pool['t4.clinical.patient.pbp_monitoring']
+                pbpm_id = pbpm_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'pbp_monitoring': vals['pbp_monitoring'] == 'yes'
+                }, context=context)
+                activity_pool.complete(cr, uid, pbpm_id, context=context)
+            if 'o2target' in vals:
+                o2target_pool = self.pool['t4.clinical.patient.o2target']
+                o2target_id = o2target_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'level_id': vals['o2target']
+                }, context=context)
+                activity_pool.complete(cr, uid, o2target_id, context=context)
+        return True
+
     def init(self, cr):
         tools.drop_view_if_exists(cr, 'wardboard')
         cr.execute("""
@@ -361,6 +415,28 @@ completed_mrsa as(
         inner join t4_activity activity on mrsa.activity_id = activity.id
         where activity.state = 'completed'
         ),
+completed_diabetes as(
+        select
+            diabetes.id,
+            spell.patient_id,
+            diabetes.diabetes,
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+        from t4_clinical_spell spell
+        left join t4_clinical_patient_diabetes diabetes on diabetes.patient_id = spell.patient_id
+        inner join t4_activity activity on diabetes.activity_id = activity.id
+        where activity.state = 'completed'
+        ),
+completed_pbp_monitoring as(
+        select
+            pbpm.id,
+            spell.patient_id,
+            pbpm.pbp_monitoring,
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+        from t4_clinical_spell spell
+        left join t4_clinical_patient_pbp_monitoring pbpm on pbpm.patient_id = spell.patient_id
+        inner join t4_activity activity on pbpm.activity_id = activity.id
+        where activity.state = 'completed'
+        ),
 completed_height as(
         select
             spell.patient_id,
@@ -374,8 +450,7 @@ completed_height as(
 completed_o2target as(
         select
             spell.patient_id,
-            level.min,
-            level.max,
+            level.id,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_o2target o2target on o2target.patient_id = spell.patient_id
@@ -397,6 +472,7 @@ select
     spell.patient_id as patient_id,
     spell_activity.id as spell_activity_id,
     spell_activity.date_started as spell_date_started,
+    spell_activity.date_terminated as spell_date_terminated,
     spell.pos_id,
     spell.code as spell_code,
     coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
@@ -437,10 +513,22 @@ select
     end as clinical_risk,
     ews1.score - ews2.score as ews_trend,
     height_ob.height,
-    o2target_ob.min as o2target_min,
-    o2target_ob.max as o2target_max,
-    o2target_ob.min::text || '-' || o2target_ob.max::text as o2target_string,
-    mrsa.mrsa,
+    o2target_ob.id as o2target,
+    case
+        when mrsa.mrsa then 'yes'
+        when mrsa.mrsa is null then 'no'
+        else 'no'
+    end as mrsa,
+    case
+        when diabetes.diabetes then 'yes'
+        when diabetes.diabetes is null then 'no'
+        else 'no'
+    end as diabetes,
+    case
+        when pbpm.pbp_monitoring then 'yes'
+        when pbpm.pbp_monitoring is null then 'no'
+        else 'no'
+    end as pbp_monitoring,
     cosulting_doctors.names as consultant_names
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
@@ -450,10 +538,12 @@ left join (select id, score, patient_id, rank, clinical_risk from completed_ews 
 left join (select id, score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
 left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
 left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
+left join (select id, diabetes, patient_id, rank from completed_diabetes where rank = 1) diabetes on spell.patient_id = diabetes.patient_id
+left join (select id, pbp_monitoring, patient_id, rank from completed_pbp_monitoring where rank = 1) pbpm on spell.patient_id = pbpm.patient_id
 left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
-left join (select min, max, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
+left join (select id, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
-where spell_activity.state = 'started'
+where spell_activity.state = 'started' or spell_activity.state = 'completed'
 )
         """ % (self._table, self._table))
         
