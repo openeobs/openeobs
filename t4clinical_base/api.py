@@ -109,9 +109,6 @@ class t4_clinical_api(orm.AbstractModel):
         where_list = []
         if patient_ids: where_list.append("patient_id in (%s)" % ','.join([str(id) for id in patient_ids]))
         if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(id) for id in pos_ids]))
-#         types and where_list.append("type in ('%s')" % "','".join(types))
-#         usages and where_list.append("usage in ('%s')" % "','".join(usages))
-#         codes and where_list.append("code in ('%s')" % "','".join(codes))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
         print where_clause     
         sql = """
@@ -148,41 +145,47 @@ class t4_clinical_api(orm.AbstractModel):
         {user_id: {group_xmlids, assigned_activity_ids, responsible_activity_ids}}
         """
         where_list = []
-        if assigned_activity_ids: where_list.append("assigned_activity_ids in (%s)" % ','.join([str(id) for id in assigned_activity_ids]))
+        if assigned_activity_ids: where_list.append("assigned_activity_ids && array[%s]" % ','.join([str(id) for id in assigned_activity_ids]))
         if user_ids: where_list.append("user_id in (%s)" % ','.join([str(id) for id in user_ids]))
         if group_xmlids: where_list.append("group_xmlids && array['%s']" % "','".join(group_xmlids))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""       
         sql = """
-            with pre_map as(
+            with 
+            groups as (
+                    select 
+                        gur.uid as user_id, 
+                        array_agg(imd.name::text) as group_xmlids 
+                    from res_groups_users_rel gur
+                    inner join res_groups g on g.id = gur.gid
+                    inner join ir_model_data imd on imd.res_id = g.id and imd.model = 'res.groups'
+                    group by gur.uid 
+            ), 
+            assigned_activity as(
+                    select 
+                        a.user_id,
+                        array_agg(a.id) as assigned_activity_ids
+                    from t4_activity a
+                    where user_id is not null
+                    group by a.user_id
+            ),
+            map as (
                     select 
                         u.id user_id,
                         u.login,
-                        array_agg(imd.name::text) as group_xmlids,
-                        array_agg(aa.id) as assigned_activity_ids,
-                        array_agg(ra.id) as responsible_activity_ids
+                        g.group_xmlids,
+                        aa.assigned_activity_ids
                     from res_users u
-                    left join res_groups_users_rel gur on u.id = gur.uid
-                    left join res_groups g on g.id = gur.gid
-                    left join ir_model_data imd on imd.res_id = g.id and imd.model = 'res.groups'
-                    left join t4_activity aa on aa.user_id = u.id -- assigned
-                    left join activity_user_rel aur on aur.user_id = u.id
-                    left join t4_activity ra on ra.user_id = u.id -- responsible
-                    group by u.id, u.login
-            ),
-            map as(
-                select 
-                    user_id,
-                    login,
-                    (select array_agg(g) from unnest(group_xmlids) g where g is not null) as group_xmlids,
-                    (select array_agg(aa) from unnest(assigned_activity_ids) aa where aa is not null) as assigned_activity_ids,
-                    (select array_agg(ra) from unnest(responsible_activity_ids) ra where ra is not null) as responsible_activity_ids
-                from pre_map
-            )  
+                    left join groups g on g.user_id = u.id
+                    left join assigned_activity aa on aa.user_id = u.id
+            )
             select * from map
             {where_clause}
         """.format(where_clause=where_clause)
         cr.execute(sql)
         res = cr.dictfetchall()
+        #pp(res)
+#         if assigned_activity_ids:
+#             import pdb; pdb.set_trace()
         res = {r['user_id']: r for r in res}
         #pp(res)
         return res
@@ -198,11 +201,11 @@ class t4_clinical_api(orm.AbstractModel):
     def get_locations(self, cr, uid, 
                                   location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
                                   occupied_range=[], capacity_range=[], available_range=[]):
-        location_ids = self.get_location_ids(cr, uid, pos_ids=pos_ids,
+        location_ids = self.location_map(cr, uid, pos_ids=pos_ids,
                                   location_ids=location_ids, types=types, usages=usages, codes=codes,
                                   occupied_range=occupied_range, capacity_range=capacity_range, 
-                                  available_range=available_range)
-        return self.pool['t4.clinical.location'].browse(cr, uid, location_ids)     
+                                  available_range=available_range).keys()
+        return self.pool['t4.clinical.location'].browse(cr, uid, location_ids)
 
     def activity_map(self, cr, uid, activity_ids=[],
                        pos_ids=[], location_ids=[], patient_ids=[],
@@ -221,7 +224,7 @@ class t4_clinical_api(orm.AbstractModel):
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
         sql = "select id from t4_activity %s" % where_clause
         cr.execute(sql)
-        res = [r['id'] for r in cr.dictfetchall()]
+        res = {r['id']: r for r in cr.dictfetchall()}
         return res
     
     def get_activities(self, cr, uid, activity_ids=[],
@@ -229,7 +232,7 @@ class t4_clinical_api(orm.AbstractModel):
                        device_ids=[], data_models=[], states=[]):
         activity_ids = self.activity_map(cr, uid, pos_ids=pos_ids, location_ids=location_ids, 
                                              patient_ids=patient_ids, device_ids=device_ids, 
-                                             data_models=data_models, states=states)
+                                             data_models=data_models, states=states).keys()
         return self.pool['t4.activity'].browse(cr, uid, activity_ids)
      
     
@@ -268,8 +271,7 @@ class t4_clinical_api(orm.AbstractModel):
         
         
     def location_map(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
-                                    patient_ids=[], #data_models=[], states=[],
-                                    occupied_range=[], capacity_range=[], available_range=[], debug=True):  
+                                    patient_ids=[], occupied_range=[], capacity_range=[], available_range=[], debug=True):  
         """
         returns dict of dicts for location model of format:
         {id: {id, code, type, usage, occupied, capacity, available}}

@@ -334,9 +334,46 @@ class ActivityTypesScenarioTest(BaseTest):
         assert placement_activity.data_ref.patient_id.id == placement_activity.patient_id.id
         assert placement_activity.data_ref.suggested_location_id
         assert placement_activity.location_id.id == placement_activity.data_ref.suggested_location_id.id
-    
-    def test_api_patient_map(self):
+
+    def test_api_user_map(self):
         #return
+        env_pool = self.registry('t4.clinical.demo.env')
+        api = self.registry('t4.clinical.api')
+        config = {
+            'bed_qty': 3,
+            'user_qty': 3
+        }
+        nurse_count = len(api.user_map(cr, uid, group_xmlids=['group_t4clinical_nurse']))
+        adt_count = len(api.user_map(cr, uid, group_xmlids=['group_t4clinical_adt']))
+        ward_manager_count = len(api.user_map(cr, uid, group_xmlids=['group_t4clinical_ward_manager']))
+            
+        env_id = env_pool.create(cr, uid, config)
+        env = env_pool.build(cr, uid, env_id)
+        
+        # test group_xmlids
+        umap = api.user_map(cr, uid, group_xmlids=['group_t4clinical_ward_manager'])    
+        assert len(umap) - ward_manager_count == env.ward_manager_user_qty, \
+            "Unexpected ward manager users count. before: %s, after: %s, env: %s" % (ward_manager_count, len(umap), env.ward_manager_user_qty)
+        umap = api.user_map(cr, uid, group_xmlids=['group_t4clinical_adt'])
+        assert len(umap) - adt_count == env.adt_user_qty, \
+            "Unexpected adt users count. before: %s, after: %s, env: %s" % (adt_count, len(umap), env.adt_user_qty)
+        umap = api.user_map(cr, uid, group_xmlids=['group_t4clinical_nurse'])
+        assert len(umap) - nurse_count == env.nurse_user_qty, \
+            "Unexpected nurse users count. before: %s, after: %s, env: %s" % (nurse_count, len(umap), env.nurse_user_qty)        
+        
+        # test assigned_activity_ids
+        ews_activities = api.get_activities(cr, uid, pos_ids=[env.pos_id.id], data_models=['t4.clinical.patient.observation.ews'])
+        user_id = umap.keys()[0]
+        activity_ids = [a.id for a in ews_activities]
+        [api.assign(cr, uid, activity_id, user_id) for activity_id in activity_ids]
+        umap = api.user_map(cr, uid, assigned_activity_ids=activity_ids)
+        pp(umap)
+        assert set(activity_ids) == set(umap[user_id]['assigned_activity_ids']), \
+            "Wrong assigned_activity_ids returned. activity_ids = %s, assigned_activity_ids = %s" \
+            % (activity_ids, umap[user_id]['assigned_activity_ids'])
+                
+    def test_api_patient_map(self):
+        return
         env_pool = self.registry('t4.clinical.demo.env')
         api = self.registry('t4.clinical.api')
         config = {
