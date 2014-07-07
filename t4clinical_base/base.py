@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-import logging        
+import logging
+from openerp import SUPERUSER_ID
 _logger = logging.getLogger(__name__)
 
 
@@ -85,7 +86,8 @@ class t4_clinical_location(orm.Model):
 
     _name = 't4.clinical.location'
     #_parent_name = 'location_id'
-    _rec_name = 'code'
+    #TODO Why is the code the rec_name if it's not required? name should be rec_name
+    # _rec_name = 'code'
     _types = [('poc', 'Point of Care'), ('structural', 'Structural'), ('virtual', 'Virtual'), ('pos', 'POS')]
     _usages = [('bed', 'Bed'), ('ward', 'Ward'), ('room', 'Room'),('department', 'Department'), ('hospital', 'Hospital')]
     
@@ -233,4 +235,18 @@ class t4_clinical_patient(osv.Model):
         if not vals.get('name'):
             vals.update({'name': self._get_fullname(vals)})
         rec_id = super(t4_clinical_patient, self).create(cr, uid, vals, context)
-        return rec_id    
+        return rec_id
+
+
+class mail_message(osv.Model):
+    _name = 'mail.message'
+    _inherit = 'mail.message'
+
+    def _get_default_from(self, cr, uid, context=None):
+        this = self.pool.get('res.users').browse(cr, SUPERUSER_ID, uid, context=context)
+        if this.alias_name and this.alias_domain:
+            return '%s <%s@%s>' % (this.name, this.alias_name, this.alias_domain)
+        elif this.email:
+            return '%s <%s>' % (this.name, this.email)
+        else:
+            return '%s <%s>' % (this.name, 'No email')
