@@ -36,6 +36,15 @@
             </xpath>
         </template>
 
+        <template id="layout" name="Web layout" inherit_id="web.layout">
+            <xpath expr="html/head/title" position="replace">
+                <title>Open eObs</title>
+            </xpath>
+            <xpath expr="html/head/link[@rel='shortcut icon']" position="replace">
+                <link rel="shortcut icon" href="/t4clinical_ui/static/src/img/favicon.ico" type="image/x-icon"/>
+            </xpath>
+        </template>
+
         <!--Active/Inactive Points of Care View-->
         <record model="ir.ui.view" id="view_active_locations_search">
             <field name="name">Active Locations Search View</field>
