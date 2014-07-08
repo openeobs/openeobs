@@ -48,7 +48,7 @@
             <field name="name">Tree View Observation EWS</field>
             <field name="model">t4.clinical.patient.observation.ews</field>
             <field name="arch" type="xml">
-                <tree string="Early Warning Scores">
+                <tree string="Early Warning Scores" class="t4c_obs_list">
                     <field name="date_terminated"/>
                     <field name="score"/>
                     <field name="pulse_rate"/>

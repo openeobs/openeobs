@@ -7,6 +7,20 @@
     width: 40%;
 }
 
+.t4c_obs_list .oe-treeview-table td.oe_number{
+    text-align: center !important;
+}
+.t4c_obs_list .oe-treeview-table td{
+    text-align: center !important;
+}
+
+.t4c_obs_list .oe_list_content td.oe_number{
+    text-align: center !important;
+}
+.t4c_obs_list .oe_list_content td{
+    text-align: center !important;
+}
+
 .t4clinical_kanban_card_clinical_risk {
   background: #f0eeee !important;
 }
