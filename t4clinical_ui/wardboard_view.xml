@@ -104,10 +104,10 @@
 
                         <group>
                             <group string="Early Warning Score">
-                                <field name="next_diff" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
                                 <field name="ews_score" readonly="1"/>
-                                <field name="ews_trend" readonly="1"/>
+                                <field name="ews_trend_string" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
+                                <field name="next_diff" readonly="1"/>
                                 <field name="o2target" widget="selection"/>
                             </group>
                         </group>
@@ -117,7 +117,7 @@
                                     <field name="spell_code" readonly="1" string="Code"/>
                                     <field name="spell_date_started" readonly="True" string="Admission Date" widget="t4c_datetime"/>
                                 </group>
-                                <group string="Previous admissions">
+                                <group string="Previous Admissions">
                                     <field name="spell_ids" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="code"/>

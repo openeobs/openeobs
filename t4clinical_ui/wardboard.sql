@@ -108,10 +108,13 @@ select
 	patient.patient_identifier as nhs_number,
 	extract(year from age(now(), patient.dob)) as age,
 	case
-		when extract(day from ews0.next_diff_interval) = 0 then ews0.next_diff_polarity || to_char(ews0.next_diff_interval, 'HH24:MI') 
-		else ews0.next_diff_polarity || extract(day from ews0.next_diff_interval) || ' day(s) ' || to_char(ews0.next_diff_interval, 'HH24:MI')
+		when extract(day from ews0.next_diff_interval) = 0 then ews0.next_diff_polarity || to_char(ews0.next_diff_interval, 'HH24:MI') || ' hour(s)'
+		else ews0.next_diff_polarity || extract(day from ews0.next_diff_interval) || ' day(s) ' || to_char(ews0.next_diff_interval, 'HH24:MI') || ' hour(s)'
 	end as next_diff,
-	ews0.frequency as frequency,
+	case ews0.frequency < 60
+		when true then ews0.frequency || ' min(s)'
+		else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'
+	end as frequency,
 	case
 		when ews1.id is null then 'none'
 		else ews1.score::text
