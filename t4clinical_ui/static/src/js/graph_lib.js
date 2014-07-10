@@ -98,8 +98,8 @@ graph_lib = (function() {
             context.yAxis = d3.svg.axis().scale(context.yScale).orient("left");
 
 
-            var earliestDate = new Date(context.earliestDate.toString());
-            var now = new Date(context.now.toString());
+            var earliestDate = context.earliestDate;
+            var now = context.now;
             var dateDiffHours = (now - earliestDate) / 1e3 / 60 / 60;
             if (dateDiffHours >= 2) {
             earliestDate.setHours(earliestDate.getHours() - 1);
