@@ -68,9 +68,25 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="view_t4clinical_locations_tree">
+            <field name="name">Locations Tree View</field>
+            <field name="model">t4.clinical.location</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <tree string="Location Tree View" version="7.0" create="0" delete="0">
+                    <field name="parent_id"/>
+                    <field name="name"/>
+                    <field name="code" />
+                    <field name="is_available"/>
+                    <field name="user_ids"/>
+                </tree>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="view_active_locations_tree">
             <field name="name">Active Locations Tree View</field>
             <field name="model">t4.clinical.location</field>
+            <field name="priority">20</field>
             <field name="arch" type="xml">
                 <tree string="Location Tree View" version="7.0" create="0">
                     <field name="active" invisible="1"/>
@@ -197,5 +213,74 @@
             <field name="view_id" ref="poc_management_tree_view"/>
             <field name="context" eval="{'t4_open_form': ref('poc_management_form_view')}"/>
         </record>
+        
+        <record id="view_t4clinical_user_tree" model="ir.ui.view">
+            <field name="name">T4C Users Tree</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <tree string="Users" create="0" delete="0">
+                        <field name="name"/>
+                        <field name="groups_id"/>
+                        <field name="location_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_t4clinical_user_form" model="ir.ui.view">
+            <field name="name">T4C Users Form</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <form string="Users" version="7.0" create="0" edit="1">
+                	<sheet>
+	                	<group colspan="4" col="2" string="User">
+	                        <field name="name"/>
+	                        <field name="login"/>
+	                        <field name="password"/>
+	                        <field name="groups_id" widget="many2many_tags" 
+	                        					domain="[[
+	                        					'name','in',['T4 Clinical HCA Group',
+	                        					'T4 Clinical Nurse Group',
+	                        					'T4 Clinical Doctor Group',
+	                        					'T4 Clinical Ward Manager Group'
+	                        					] ]]"/>
+	                    </group>
+                        <field name="location_ids" readonly="0"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_t4clinical_user_search">
+            <field name="name">T4C Users Search</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <search string="Users">
+                    <field name="name"/>
+                    <field name="groups_id" widget="many2many_tags"/>
+                </search>
+            </field>
+        </record>        
+        <record id="action_t4clinical_user" model="ir.actions.act_window">
+            <field name="name">User Management</field>
+            <field name="res_model">res.users</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_t4clinical_user_search"/>
+            <field name="domain" eval="[['groups_id','in',[ref('t4clinical_base.group_t4clinical_hca'),
+														  ref('t4clinical_base.group_t4clinical_nurse'),
+														  ref('t4clinical_base.group_t4clinical_doctor'),
+														  ref('t4clinical_base.group_t4clinical_ward_manager'),
+															  ]]]"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_t4clinical_user_tree_view">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_t4clinical_user_tree"/>
+            <field name="act_window_id" ref="action_t4clinical_user"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_t4clinical_user_form_view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_t4clinical_user_form"/>
+            <field name="act_window_id" ref="action_t4clinical_user"/>
+        </record>   
     </data>
 </openerp>
