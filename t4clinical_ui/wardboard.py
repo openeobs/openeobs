@@ -122,7 +122,17 @@ class t4_clinical_wardboard(orm.Model):
                                 ['None', 'No Risk']]
     _boolean_selection = [('yes', 'Yes'),
                           ('no', 'No')]
-
+    
+    
+    def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
+        umap = self.pool['t4.clinical.api'].user_map(cr,user, 
+                                                     group_xmlids=['group_t4clinical_hca', 'group_t4clinical_nurse',
+                                                                   'group_t4clinical_ward_manager', 'group_t4clinical_doctor'])
+        
+        self._columns['o2target'].readonly = not (umap.get(user) and 'group_t4clinical_doctor' in umap[user]['group_xmlids'])
+        res = super(t4_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)    
+        return res
+    
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=1, ondelete='restrict'),
         'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
@@ -151,9 +161,6 @@ class t4_clinical_wardboard(orm.Model):
         'diabetes': fields.selection(_boolean_selection, "Diabetes"),
         'pbp_monitoring': fields.selection(_boolean_selection, "Postural Blood Pressure Monitoring"),
         'height': fields.float("Height"),
-        # 'o2target_min': fields.integer("O2 Target Min"),
-        # 'o2target_max': fields.integer("O2 Target Max"),
-        # 'o2target_string': fields.text("O2 Target"),
         'o2target': fields.many2one('t4.clinical.o2level', 'O2 Target'),
         'consultant_names': fields.text("Consulting Doctors"),
     }

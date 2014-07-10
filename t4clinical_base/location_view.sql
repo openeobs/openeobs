@@ -1,4 +1,4 @@
-explain 
+
 with
 move_patient_date as (
     select 
