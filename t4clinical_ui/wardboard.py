@@ -380,6 +380,8 @@ class t4_clinical_wardboard(orm.Model):
         cr.execute("""
 drop view if exists %s;
 create or replace view %s as (
+
+
 with 
 completed_ews as(
         select
@@ -394,10 +396,15 @@ completed_ews as(
         where activity.state = 'completed'
         ),
 scheduled_ews as(
-        select
+        select 
             spell.patient_id,
             activity.date_scheduled,
             ews.frequency,
+            case when activity.date_scheduled >= now() then '' else 'overdue: ' end as next_diff_polarity,
+            case activity.date_scheduled is null
+                when false then justify_hours(greatest(now(),activity.date_scheduled) - least(now(),activity.date_scheduled)) 
+                else interval '0s' 
+            end as next_diff_interval,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
         from t4_clinical_spell spell
         left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
@@ -438,7 +445,7 @@ completed_pbp_monitoring as(
         where activity.state = 'completed'
         ),
 completed_height as(
-        select
+        select 
             spell.patient_id,
             height.height,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
@@ -448,7 +455,7 @@ completed_height as(
         where activity.state = 'completed'
         ),
 completed_o2target as(
-        select
+        select 
             spell.patient_id,
             level.id,
             rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
@@ -459,15 +466,15 @@ completed_o2target as(
         where activity.state = 'completed'
         ),
 cosulting_doctors as(
-        select
+        select 
             spell.id as spell_id,
-            array_to_string(array_agg(doctor.name), ' / ') as names
+            array_to_string(array_agg(doctor.name), ' / ') as names    
         from t4_clinical_spell spell
         inner join con_doctor_spell_rel on con_doctor_spell_rel.spell_id = spell.id
         inner join res_partner doctor on con_doctor_spell_rel.doctor_id = doctor.id
         group by spell.id
         )
-select
+select 
     spell.patient_id as id,
     spell.patient_id as patient_id,
     spell_activity.id as spell_activity_id,
@@ -485,19 +492,14 @@ select
     patient.patient_identifier as nhs_number,
     extract(year from age(now(), patient.dob)) as age,
     case
-        when extract('epoch' from (now() - ews0.date_scheduled)) > 0 then
-            coalesce( nullif( extract('day' from (now() - ews0.date_scheduled))::text || ' day(s) ','0 day(s) '),'' ) ||
-            to_char((now() - ews0.date_scheduled), 'HH24:MI')
-        else
-            'overdue: ' ||
-            coalesce( nullif( extract('day' from (now() - ews0.date_scheduled))::text || ' day(s) ','0 day(s) '),'' ) ||
-            to_char(now() - ews0.date_scheduled, 'HH24:MI')
-        end as next_diff,
+        when extract(day from ews0.next_diff_interval) = 0 then ews0.next_diff_polarity || to_char(ews0.next_diff_interval, 'HH24:MI') 
+        else ews0.next_diff_polarity || extract(day from ews0.next_diff_interval) || ' day(s) ' || to_char(ews0.next_diff_interval, 'HH24:MI')
+    end as next_diff,
     ews0.frequency as frequency,
     case
         when ews1.id is null then 'none'
         else ews1.score::text
-    end as ews_score_string,
+    end as ews_score_string,    
     ews1.score as ews_score,
     case
         when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
@@ -505,7 +507,7 @@ select
         when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'up'
         when ews1.id is null and ews2.id is null then 'none'
         when ews1.id is not null and ews2.id is null then 'one'
-        when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen.
+        when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen. 
     end as ews_trend_string,
     case
         when ews1.id is null then 'NoScore'
@@ -534,16 +536,18 @@ from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
 inner join t4_clinical_patient patient on spell.patient_id = patient.id
 left join t4_clinical_location location on location.id = spell.location_id
-left join (select id, score, patient_id, rank, clinical_risk from completed_ews where rank = 1) ews1 on spell.patient_id = ews1.patient_id
-left join (select id, score, patient_id, rank from completed_ews where rank = 2) ews2 on spell.patient_id = ews2.patient_id
-left join (select date_scheduled, patient_id, frequency, rank from scheduled_ews where rank = 1) ews0 on spell.patient_id = ews0.patient_id
-left join (select id, mrsa, patient_id, rank from completed_mrsa where rank = 1) mrsa on spell.patient_id = mrsa.patient_id
-left join (select id, diabetes, patient_id, rank from completed_diabetes where rank = 1) diabetes on spell.patient_id = diabetes.patient_id
-left join (select id, pbp_monitoring, patient_id, rank from completed_pbp_monitoring where rank = 1) pbpm on spell.patient_id = pbpm.patient_id
-left join (select height, patient_id, rank from completed_height where rank = 1) height_ob on spell.patient_id = height_ob.patient_id
-left join (select id, patient_id, rank from completed_o2target where rank = 1) o2target_ob on spell.patient_id = o2target_ob.patient_id
+left join completed_ews ews1 on spell.patient_id = ews1.patient_id and ews1.rank = 1
+left join completed_ews ews2 on spell.patient_id = ews2.patient_id and ews2.rank = 2
+left join scheduled_ews ews0 on spell.patient_id = ews0.patient_id and ews0.rank = 1
+left join completed_mrsa mrsa on spell.patient_id = mrsa.patient_id and mrsa.rank = 1 
+left join completed_diabetes diabetes on spell.patient_id = diabetes.patient_id and diabetes.rank = 1
+left join completed_pbp_monitoring pbpm on spell.patient_id = pbpm.patient_id and pbpm.rank = 1
+left join completed_height height_ob on spell.patient_id = height_ob.patient_id and height_ob.rank = 1
+left join completed_o2target o2target_ob on spell.patient_id = o2target_ob.patient_id and o2target_ob.rank = 1
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
-where spell_activity.state = 'started' or spell_activity.state = 'completed'
+where spell_activity.state = 'started'
+
+
 )
         """ % (self._table, self._table))
         

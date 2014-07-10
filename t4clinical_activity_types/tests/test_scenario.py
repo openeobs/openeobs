@@ -167,7 +167,7 @@ class ActivityTypesScenarioTest(BaseTest):
         super(BaseTest, self).setUp()
 
     def test_build_env(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         config = {
               'bed_qty': 7,
@@ -182,7 +182,7 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool.build(cr, uid, env_id)
         
     def test_adt_register(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -238,7 +238,7 @@ class ActivityTypesScenarioTest(BaseTest):
             assert False, "Unexpected reaction to registration attempt of existing patient!"
 
     def test_adt_admit(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -292,7 +292,7 @@ class ActivityTypesScenarioTest(BaseTest):
         assert placement_activity.state == 'new'        
         
     def test_adt_discharge(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -306,7 +306,7 @@ class ActivityTypesScenarioTest(BaseTest):
         env_pool.complete(cr, uid, env_id, discharge_activity.id)
     
     def test_placement(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -373,7 +373,7 @@ class ActivityTypesScenarioTest(BaseTest):
             % (activity_ids, umap[user_id]['assigned_activity_ids'])
                 
     def test_api_patient_map(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api = self.registry('t4.clinical.api')
         config = {
@@ -386,7 +386,7 @@ class ActivityTypesScenarioTest(BaseTest):
         pp(pmap)
         
     def test_api_location_map(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         config = {
@@ -426,7 +426,7 @@ class ActivityTypesScenarioTest(BaseTest):
             
             
     def test_no_policy_obs_and_adt_cancel(self):
-        return
+        #return
         env_pool = self.registry('t4.clinical.demo.env')
         api_pool = self.registry('t4.clinical.api')
         activity_pool = self.registry('t4.activity')
@@ -481,7 +481,7 @@ class ActivityTypesScenarioTest(BaseTest):
                 assert a.state == 'cancelled'
 
     def test_gcs_observations_policy_static(self):
-        return
+        #return
         gcs_test_data = {
             'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
             'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
@@ -538,7 +538,7 @@ class ActivityTypesScenarioTest(BaseTest):
         
 
     def test_ews_observations_policy_static(self):
-        return
+        #return
         ews_test_data = {
             'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],
             'CASE':     [   0,    1,    1,    1,    1,    2,    2,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    2,    2,    3],
