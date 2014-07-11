@@ -221,7 +221,7 @@
                 <tree string="Users" create="0" delete="0">
                         <field name="name"/>
                         <field name="groups_id"/>
-                        <field name="location_ids"/>
+                        <field name="location_ids" string="Responsibility Locations"/>
                 </tree>
             </field>
         </record>
