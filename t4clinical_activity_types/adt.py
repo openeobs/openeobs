@@ -18,7 +18,8 @@ class t4_clinical_adt(orm.Model):
 
 class t4_clinical_adt_patient_register(orm.Model):
     _name = 't4.clinical.adt.patient.register'
-    _inherit = ['t4.activity.data']      
+    _inherit = ['t4.activity.data']   
+    _description = 'ADT Patient Register'   
     _columns = { 
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
@@ -77,7 +78,7 @@ class t4_clinical_adt_patient_admit(orm.Model):
     
     _name = 't4.clinical.adt.patient.admit'
     _inherit = ['t4.activity.data']      
-        
+    _description = 'ADT Patient Admit'    
     _columns = {
         'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location', help="Location suggested by ADT for placement. Usually ward."),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
@@ -165,7 +166,8 @@ class t4_clinical_adt_patient_admit(orm.Model):
     
 class t4_clinical_adt_patient_cancel_admit(orm.Model):
     _name = 't4.clinical.adt.patient.cancel_admit'
-    _inherit = ['t4.activity.data']      
+    _inherit = ['t4.activity.data']  
+    _description = 'ADT Cancel Patient Admit'    
     _columns = {
         'other_identifier': fields.text('otherId', required=True),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
@@ -225,7 +227,8 @@ class t4_clinical_adt_patient_cancel_admit(orm.Model):
 
 class t4_clinical_adt_patient_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.discharge'
-    _inherit = ['t4.activity.data']      
+    _inherit = ['t4.activity.data']  
+    _description = 'ADT Patient Discharge'
     _columns = {
         'other_identifier': fields.text('otherId', required=True),
         'discharge_date': fields.datetime('Discharge Date')
@@ -253,7 +256,8 @@ class t4_clinical_adt_patient_discharge(orm.Model):
 
 class t4_clinical_adt_patient_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.transfer'
-    _inherit = ['t4.activity.data']      
+    _inherit = ['t4.activity.data']
+    _description = 'ADT Patient Transfer'      
     _columns = {
         'patient_identifier': fields.text('patientId'),
         'other_identifier': fields.text('otherId'),                
@@ -324,7 +328,8 @@ class t4_clinical_adt_patient_transfer(orm.Model):
 
 class t4_clinical_adt_patient_merge(orm.Model):
     _name = 't4.clinical.adt.patient.merge'
-    _inherit = ['t4.activity.data']      
+    _inherit = ['t4.activity.data'] 
+    _description = 'ADT Patient Merge'
     _columns = {
         'from_identifier': fields.text('From patient Identifier'),
         'into_identifier': fields.text('Into Patient Identifier'),        
@@ -359,7 +364,8 @@ class t4_clinical_adt_patient_merge(orm.Model):
 
 class t4_clinical_adt_patient_update(orm.Model):
     _name = 't4.clinical.adt.patient.update'
-    _inherit = ['t4.activity.data']      
+    _inherit = ['t4.activity.data'] 
+    _description = 'ADT Patient Update'     
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'patient_identifier': fields.text('patientId'),
@@ -399,7 +405,7 @@ class t4_clinical_adt_spell_update(orm.Model):
 
     _name = 't4.clinical.adt.spell.update'
     _inherit = ['t4.activity.data']
-
+    _description = 'ADT Spell Update'
     _columns = {
         'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location', help="Location suggested by ADT for placement. Usually ward."),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
@@ -522,6 +528,7 @@ class t4_clinical_adt_spell_update(orm.Model):
 class t4_clinical_adt_patient_cancel_discharge(orm.Model):
     _name = 't4.clinical.adt.patient.cancel_discharge'
     _inherit = ['t4.activity.data']
+    _description = 'ADT Cancel Patient Discharge'
     _columns = {
         'other_identifier': fields.text('otherId', required=True),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
@@ -600,6 +607,7 @@ class t4_clinical_adt_patient_cancel_discharge(orm.Model):
 class t4_clinical_adt_patient_cancel_transfer(orm.Model):
     _name = 't4.clinical.adt.patient.cancel_transfer'
     _inherit = ['t4.activity.data']
+    _description = 'ADT Cancel Patient Transfer'
     _columns = {
         'other_identifier': fields.text('otherId', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),

@@ -108,8 +108,8 @@ select
 	patient.patient_identifier as nhs_number,
 	extract(year from age(now(), patient.dob)) as age,
 	case
-		when extract(day from ews0.next_diff_interval) = 0 then ews0.next_diff_polarity || to_char(ews0.next_diff_interval, 'HH24:MI') || ' hour(s)'
-		else ews0.next_diff_polarity || extract(day from ews0.next_diff_interval) || ' day(s) ' || to_char(ews0.next_diff_interval, 'HH24:MI') || ' hour(s)'
+		when extract(day from ews0.next_diff_interval) = 0 then ews0.next_diff_polarity || to_char(ews0.next_diff_interval, 'HH24:MI')
+		else ews0.next_diff_polarity || extract(day from ews0.next_diff_interval) || ' day(s) ' || to_char(ews0.next_diff_interval, 'HH24:MI')
 	end as next_diff,
 	case ews0.frequency < 60
 		when true then ews0.frequency || ' min(s)'
@@ -125,8 +125,8 @@ select
         when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) > 0 then 'down'
         when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'up'
         when ews1.id is null and ews2.id is null then 'none'
-        when ews1.id is not null and ews2.id is null then 'one'
-        when ews1.id is null and ews2.id is not null then 'one' -- shouldn't happen. 
+        when ews1.id is not null and ews2.id is null then 'first'
+        when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen. 
     end as ews_trend_string,
     case
         when ews1.id is null then 'NoScore'

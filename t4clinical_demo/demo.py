@@ -13,16 +13,22 @@ def next_seed():
     seed += 1
     return seed
 
-class t4_clinical_spell(orm.Model):
-    """
-    SPELL Configuration
-    """
-    _inherit = 't4.clinical.spell'
+class t4_clinical_demo(orm.Model):    
+    _inherit = 't4.clinical.demo.env'
     
-    _defaults = {
-         'ews_frequency': 30,
-     }
+    def button_adt_patient_register(self, cr, uid, ids, context=None):
+        env_id = ids[0]
+        adt_user_id = self.get_adt_user_ids(cr, uid, env_id)[0]
+        register_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.register')
+        return {'type': 'ir.actions.act_window_close'}
     
+    def button_adt_patient_admit(self, cr, uid, ids, context=None):
+        env_id = ids[0]
+        adt_user_id = self.get_adt_user_ids(cr, uid, env_id)[0]
+        register_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.register')
+        admit_data = {'other_identifier': register_activity.data_ref.other_identifier}
+        admit_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.admit', data_vals=admit_data)
+        return {'type': 'ir.actions.act_window_close'}
     
 class demo(orm.AbstractModel):
     _name = 'demo'

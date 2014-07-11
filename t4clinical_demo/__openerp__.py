@@ -9,7 +9,7 @@
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
     'depends': ['t4clinical_base','t4clinical_activity_types', 't4clinical_api'],
-    'data': ['master_data.xml'],
+    'data': [ 'demo_view.xml'],
     'application': True,
     'installable': True,
     'active': False,
