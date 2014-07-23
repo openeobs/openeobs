@@ -115,7 +115,7 @@ class t4_clinical_api(orm.AbstractModel):
             with
                 move_patient_date as (
                     select 
-                        max(date_terminated) as max_date_terminated,
+                        max(a.date_terminated) as max_date_terminated,
                         m.patient_id
                     from t4_clinical_patient_move m
                     inner join t4_activity a on m.activity_id = a.id
@@ -320,7 +320,7 @@ class t4_clinical_api(orm.AbstractModel):
             with
                 move_patient_date as (
                     select 
-                        max(date_terminated) as max_date_terminated,
+                        max(a.date_terminated) as max_date_terminated,
                         max(termination_seq) as max_termination_seq,
                         m.patient_id
                     from t4_clinical_patient_move m

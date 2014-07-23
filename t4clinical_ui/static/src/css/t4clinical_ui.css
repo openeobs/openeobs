@@ -53,10 +53,21 @@
     height: 25px;
 }
 
+.t4c_obs [data-id="date_terminated"]{
+    width: 250px;
+}
+.t4c_obs [data-id="complete_uid"]{
+    width: 250px;
+}
+
 .t4_ewschart {
     position: relative !important;
 }
 
 .openerp .oe_application .oe_breadcrumb_item {
     max-width: 50em !important;
+}
+
+.t4c_pbp [data-id="systolic_sitting"], .t4c_pbp [data-id="systolic_standing"], .t4c_pbp [data-id="diastolic_sitting"], .t4c_pbp [data-id="diastolic_standing"]{
+    text-align: center !important;
 }

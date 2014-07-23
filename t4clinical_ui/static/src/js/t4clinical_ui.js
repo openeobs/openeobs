@@ -202,6 +202,13 @@ openerp.t4clinical_ui = function (instance) {
             }
         },
 
+        load_list: function(data) {
+            this._super(data);
+            if (this.model == 't4.clinical.patient.observation.pbp'){
+                this.$el.html(QWeb.render('ListViewPBP', this));
+            }
+        }
+
     });
 
     instance.t4clinical_ui.T4Many2One = instance.web.form.FieldMany2One.extend({

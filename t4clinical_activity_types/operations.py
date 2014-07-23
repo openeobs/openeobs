@@ -162,7 +162,6 @@ class t4_clinical_patient_placement(orm.Model):
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
         'pos_id': fields.related('activity_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
-        
     }
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
@@ -210,6 +209,10 @@ class t4_clinical_patient_placement(orm.Model):
                 date_schedule = dt.now().replace(minute=0, second=0, microsecond=0)
             if trigger_activity['type'] == 'start':
                 activity_pool.start(cr, SUPERUSER_ID, ta_activity_id, context=context)
+            elif trigger_activity['type'] == 'complete':
+                if trigger_activity.get('data'):
+                    activity_pool.submit(cr, SUPERUSER_ID, ta_activity_id, trigger_activity['data'], context=context)
+                activity_pool.complete(cr, SUPERUSER_ID, ta_activity_id, context=context)
             else:
                 activity_pool.schedule(cr, SUPERUSER_ID, ta_activity_id, date_schedule, context=context)
         return res

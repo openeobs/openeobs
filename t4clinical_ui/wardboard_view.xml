@@ -108,7 +108,6 @@
                                 <field name="ews_trend_string" readonly="1"/>
                                 <field name="frequency" readonly="1"/>
                                 <field name="next_diff" readonly="1"/>
-                                <field name="o2target" widget="selection"/>
                             </group>
                         </group>
                         <notebook>
@@ -116,58 +115,75 @@
                                 <group>
                                     <field name="spell_code" readonly="1" string="Code"/>
                                     <field name="spell_date_started" readonly="True" string="Admission Date" widget="t4c_datetime"/>
+                                    <field name="location" readonly="1" string="Current Point of Care"/>
                                 </group>
-                                <group string="Previous Admissions">
-                                    <field name="spell_ids" readonly="1" nolabel="1">
+                                <group string="Movements">
+                                    <field name="move_ids" readonly="1" nolabel="1">
                                         <tree>
-                                            <field name="code"/>
-                                            <field name="date_started" widget="t4c_datetime"/>
-                                            <field name="location_id"/>
+                                            <field name="location_id" />
+                                            <field name="date_terminated" widget="t4c_datetime"/>
+                                            <field name="state" />
                                         </tree>
                                         <form>
-                                            <field name="code" />
-                                            <field name="date_started" widget="t4c_datetime"/>
-                                            <field name="location_id"/>
+                                            <field name="location_id" />
+                                            <field name="patient_id" />
                                         </form>
                                    </field>
-                               </group>
+                                </group>
+                                <!--<group string="Previous Admissions">-->
+                                    <!--<field name="spell_ids" readonly="1" nolabel="1">-->
+                                        <!--<tree>-->
+                                            <!--<field name="code"/>-->
+                                            <!--<field name="date_started" widget="t4c_datetime"/>-->
+                                            <!--<field name="location_id"/>-->
+                                        <!--</tree>-->
+                                        <!--<form>-->
+                                            <!--<field name="code" />-->
+                                            <!--<field name="date_started" widget="t4c_datetime"/>-->
+                                            <!--<field name="location_id"/>-->
+                                        <!--</form>-->
+                                   <!--</field>-->
+                               <!--</group>-->
                             </page>
                             <page string="Demographics">
                                 <group>
+                                    <field name="hospital_number" readonly="True" string="Hospital Number"/>
+                                    <field name="nhs_number" readonly="True" string="NHS Number"/>
+                                    <field name="family_name" readonly="True"/>
+                                    <field name="given_name" readonly="True"/>
                                     <field name="middle_names" readonly="True"/>
                                     <field name="dob" readonly="True" widget="date"/>
                                     <field name="age" readonly="True"/>
                                     <field name="sex" readonly="True"/>
                                 </group>
                             </page>
-                            <page string="Medical Details">
+                            <page string="Other Obs">
                                 <group>
-                                    <field name="hospital_number" readonly="True" string="Hospital Number"/>
-                                    <field name="nhs_number" readonly="True" string="NHS Number"/>
                                     <field name="height" string="Height (m)" readonly="1"/>
                                     <field name="mrsa"/>
                                     <field name="diabetes"/>
                                 </group>
                                 <group string="Weight">
-                                    <field name="weight_ids" readonly="1" nolabel="1">
+
+                                    <field name="weight_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="weight" />
                                             <field name="complete_uid"/>
+                                            <field name="weight" string="Weight (Kg)"/>
                                         </tree>
                                         <form>
-                                            <field name="weight" />
+                                            <field name="weight" string="Weight (Kg)"/>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="complete_uid"/>
                                         </form>
                                     </field>
                                 </group>
                                 <group string="Blood Sugar">
-                                    <field name="blood_sugar_ids" readonly="1" nolabel="1">
+                                    <field name="blood_sugar_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="blood_sugar"/>
                                             <field name="complete_uid"/>
+                                            <field name="blood_sugar"/>
                                         </tree>
                                         <form>
                                             <field name="blood_sugar"/>
@@ -177,13 +193,13 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="t4c_pbp" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
-                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
-                                            <field name="systolic_standing" string="Standing Systolic"/>
-                                            <field name="diastolic_standing" string="Standing Diastolic"/>
+                                            <field name="systolic_sitting" string="Systolic"/>
+                                            <field name="diastolic_sitting" string="Diastolic"/>
+                                            <field name="systolic_standing" string="Systolic"/>
+                                            <field name="diastolic_standing" string="Diastolic"/>
                                             <field name="complete_uid"/>
                                             <field name="result"/>
                                         </tree>
@@ -199,19 +215,19 @@
                                     </field>
                                 </group>
                             </page>
-                            <page string="Movements">
-                                <field name="move_ids" readonly="1">
-                                    <tree>
-                                        <field name="location_id" />
-                                        <field name="date_terminated" widget="t4c_datetime"/>
-                                        <field name="state" />
-                                    </tree>
-                                    <form>
-                                        <field name="location_id" />
-                                        <field name="patient_id" />
-                                    </form>
-                               </field>
-                            </page>
+                            <!--<page string="Movements">-->
+                                <!--<field name="move_ids" readonly="1">-->
+                                    <!--<tree>-->
+                                        <!--<field name="location_id" />-->
+                                        <!--<field name="date_terminated" widget="t4c_datetime"/>-->
+                                        <!--<field name="state" />-->
+                                    <!--</tree>-->
+                                    <!--<form>-->
+                                        <!--<field name="location_id" />-->
+                                        <!--<field name="patient_id" />-->
+                                    <!--</form>-->
+                               <!--</field>-->
+                            <!--</page>-->
                             <page string="Devices">
                                     <group string="Active Device Sessions">
                                     <div>
@@ -242,20 +258,29 @@
                                     </group>
                             </page>
                             <page string="Monitoring">
-                                <group>
-                                    <field name="pbp_monitoring"/>
-                                </group>
-                                <group string="Postural Blood Pressure History">
-                                    <field name="pbp_monitoring_ids" readonly="True" nolabel="1">
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_monitoring" string="Active"/>
+                                    <field name="pbp_monitoring_ids" colspan="2" readonly="True" nolabel="1">
                                         <tree>
-                                            <field name="date_terminated" string="Date" widget="t4skr_datetime"/>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="value" string="Value"/>
                                             <field name="complete_uid"/>
                                         </tree>
                                     </field>
                                 </group>
-                                <group string="O2 Target History">
-                                    <field name="o2target_ids" nolabel="1" readonly="1">
+                                <group string="Weight">
+                                    <field name="weight_monitoring" string="Active"/>
+                                    <field name="weight_monitoring_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="complete_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="O2 Saturation Target">
+                                    <field name="o2target" widget="selection" string="Current Target"/>
+                                    <field name="o2target_ids" nolabel="1" colspan="2" readonly="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="level_id" string="Value"/>
@@ -505,7 +530,6 @@
                                 <field name="frequency" readonly="1"/>
                                 <field name="ews_score" readonly="1"/>
                                 <field name="ews_trend" readonly="1"/>
-                                <field name="o2target" widget="selection" readonly="1"/>
                             </group>
                         </group>
                         <notebook>
@@ -513,58 +537,74 @@
                                 <group>
                                     <field name="spell_code" readonly="1" string="Code"/>
                                     <field name="spell_date_started" readonly="True" string="Admission Date" widget="t4c_datetime"/>
+                                    <field name="location" readonly="1" string="Current Point of Care"/>
                                 </group>
-                                <group string="Previous admissions">
-                                    <field name="spell_ids" readonly="1" nolabel="1">
+                                <group string="Movements">
+                                    <field name="move_ids" readonly="1" nolabel="1">
                                         <tree>
-                                            <field name="code"/>
-                                            <field name="date_started" widget="t4c_datetime"/>
-                                            <field name="location_id"/>
+                                            <field name="location_id" />
+                                            <field name="date_terminated" widget="t4c_datetime"/>
+                                            <field name="state" />
                                         </tree>
                                         <form>
-                                            <field name="code" />
-                                            <field name="date_started" widget="t4c_datetime"/>
-                                            <field name="location_id"/>
+                                            <field name="location_id" />
+                                            <field name="patient_id" />
                                         </form>
                                    </field>
-                               </group>
+                                </group>
+                                <!--<group string="Previous admissions">-->
+                                    <!--<field name="spell_ids" readonly="1" nolabel="1">-->
+                                        <!--<tree>-->
+                                            <!--<field name="code"/>-->
+                                            <!--<field name="date_started" widget="t4c_datetime"/>-->
+                                            <!--<field name="location_id"/>-->
+                                        <!--</tree>-->
+                                        <!--<form>-->
+                                            <!--<field name="code" />-->
+                                            <!--<field name="date_started" widget="t4c_datetime"/>-->
+                                            <!--<field name="location_id"/>-->
+                                        <!--</form>-->
+                                   <!--</field>-->
+                               <!--</group>-->
                             </page>
                             <page string="Demographics">
                                 <group>
+                                    <field name="hospital_number" readonly="True" string="Hospital Number"/>
+                                    <field name="nhs_number" readonly="True" string="NHS Number"/>
+                                    <field name="family_name" readonly="True"/>
+                                    <field name="given_name" readonly="True"/>
                                     <field name="middle_names" readonly="True"/>
                                     <field name="dob" readonly="True" widget="date"/>
                                     <field name="age" readonly="True"/>
                                     <field name="sex" readonly="True"/>
                                 </group>
                             </page>
-                            <page string="Medical Details">
+                            <page string="Other Obs">
                                 <group>
-                                    <field name="hospital_number" readonly="True" string="Hospital Number"/>
-                                    <field name="nhs_number" readonly="True" string="NHS Number"/>
                                     <field name="height" string="Height (m)" readonly="1"/>
                                     <field name="mrsa" readonly="1"/>
                                     <field name="diabetes" readonly="1"/>
                                 </group>
                                 <group string="Weight">
-                                    <field name="weight_ids" readonly="1" nolabel="1">
+                                    <field name="weight_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="weight" />
                                             <field name="complete_uid"/>
+                                            <field name="weight" string="Weight (Kg)"/>
                                         </tree>
                                         <form>
-                                            <field name="weight" />
+                                            <field name="weight" string="Weight (Kg)"/>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="complete_uid"/>
                                         </form>
                                     </field>
                                 </group>
                                 <group string="Blood Sugar">
-                                    <field name="blood_sugar_ids" readonly="1" nolabel="1">
+                                    <field name="blood_sugar_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="blood_sugar"/>
                                             <field name="complete_uid"/>
+                                            <field name="blood_sugar"/>
                                         </tree>
                                         <form>
                                             <field name="blood_sugar"/>
@@ -574,13 +614,13 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="t4c_pbp" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
-                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
-                                            <field name="systolic_standing" string="Standing Systolic"/>
-                                            <field name="diastolic_standing" string="Standing Diastolic"/>
+                                            <field name="systolic_sitting" string="Systolic"/>
+                                            <field name="diastolic_sitting" string="Diastolic"/>
+                                            <field name="systolic_standing" string="Systolic"/>
+                                            <field name="diastolic_standing" string="Diastolic"/>
                                             <field name="complete_uid"/>
                                             <field name="result"/>
                                         </tree>
@@ -596,19 +636,19 @@
                                     </field>
                                 </group>
                             </page>
-                            <page string="Movements">
-                                <field name="move_ids" readonly="1">
-                                    <tree>
-                                        <field name="location_id" />
-                                        <field name="date_terminated" widget="t4c_datetime"/>
-                                        <field name="state" />
-                                    </tree>
-                                    <form>
-                                        <field name="location_id" />
-                                        <field name="patient_id" />
-                                    </form>
-                               </field>
-                            </page>
+                            <!--<page string="Movements">-->
+                                <!--<field name="move_ids" readonly="1">-->
+                                    <!--<tree>-->
+                                        <!--<field name="location_id" />-->
+                                        <!--<field name="date_terminated" widget="t4c_datetime"/>-->
+                                        <!--<field name="state" />-->
+                                    <!--</tree>-->
+                                    <!--<form>-->
+                                        <!--<field name="location_id" />-->
+                                        <!--<field name="patient_id" />-->
+                                    <!--</form>-->
+                               <!--</field>-->
+                            <!--</page>-->
                             <page string="Devices">
                                     <group string="Active Device Sessions">
                                     <div>
@@ -633,19 +673,28 @@
                                     </group>
                             </page>
                             <page string="Monitoring">
-                                <group>
-                                    <field name="pbp_monitoring" readonly="1"/>
-                                </group>
-                                <group string="Postural Blood Pressure History">
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_monitoring" readonly="1" string="Active"/>
                                     <field name="pbp_monitoring_ids" readonly="True" nolabel="1">
                                         <tree>
-                                            <field name="date_terminated" string="Date" widget="t4skr_datetime"/>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="value" string="Value"/>
                                             <field name="complete_uid"/>
                                         </tree>
                                     </field>
                                 </group>
-                                <group string="O2 Target History">
+                                <group string="Weight">
+                                    <field name="weight_monitoring" readonly="1" string="Active"/>
+                                    <field name="weight_monitoring_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="t4c_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="complete_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="O2 Saturation Target">
+                                    <field name="o2target" widget="selection" readonly="1" string="Current Target"/>
                                     <field name="o2target_ids" nolabel="1" readonly="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>

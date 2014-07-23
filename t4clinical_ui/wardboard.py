@@ -160,6 +160,7 @@ class t4_clinical_wardboard(orm.Model):
         'mrsa': fields.selection(_boolean_selection, "MRSA"),
         'diabetes': fields.selection(_boolean_selection, "Diabetes"),
         'pbp_monitoring': fields.selection(_boolean_selection, "Postural Blood Pressure Monitoring"),
+        'weight_monitoring': fields.selection(_boolean_selection, "Weight Monitoring"),
         'height': fields.float("Height"),
         'o2target': fields.many2one('t4.clinical.o2level', 'O2 Target'),
         'consultant_names': fields.text("Consulting Doctors"),
@@ -371,6 +372,15 @@ class t4_clinical_wardboard(orm.Model):
                     'pbp_monitoring': vals['pbp_monitoring'] == 'yes'
                 }, context=context)
                 activity_pool.complete(cr, uid, pbpm_id, context=context)
+            if 'weight_monitoring' in vals:
+                wm_pool = self.pool['t4.clinical.patient.weight_monitoring']
+                wm_id = wm_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'weight_monitoring': vals['weight_monitoring'] == 'yes'
+                }, context=context)
+                activity_pool.complete(cr, uid, wm_id, context=context)
             if 'o2target' in vals:
                 o2target_pool = self.pool['t4.clinical.patient.o2target']
                 o2target_id = o2target_pool.create_activity(cr, SUPERUSER_ID, {
@@ -449,6 +459,17 @@ completed_pbp_monitoring as(
         from t4_clinical_spell spell
         left join t4_clinical_patient_pbp_monitoring pbpm on pbpm.patient_id = spell.patient_id
         inner join t4_activity activity on pbpm.activity_id = activity.id
+        where activity.state = 'completed'
+        ),
+completed_weight_monitoring as(
+        select
+            wm.id,
+            spell.patient_id,
+            wm.weight_monitoring,
+            rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+        from t4_clinical_spell spell
+        left join t4_clinical_patient_weight_monitoring wm on wm.patient_id = spell.patient_id
+        inner join t4_activity activity on wm.activity_id = activity.id
         where activity.state = 'completed'
         ),
 completed_height as(
@@ -541,6 +562,11 @@ select
         when pbpm.pbp_monitoring is null then 'no'
         else 'no'
     end as pbp_monitoring,
+    case
+        when wm.weight_monitoring then 'yes'
+        when wm.weight_monitoring is null then 'no'
+        else 'no'
+    end as weight_monitoring,
     cosulting_doctors.names as consultant_names
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
@@ -552,6 +578,7 @@ left join scheduled_ews ews0 on spell.patient_id = ews0.patient_id and ews0.rank
 left join completed_mrsa mrsa on spell.patient_id = mrsa.patient_id and mrsa.rank = 1 
 left join completed_diabetes diabetes on spell.patient_id = diabetes.patient_id and diabetes.rank = 1
 left join completed_pbp_monitoring pbpm on spell.patient_id = pbpm.patient_id and pbpm.rank = 1
+left join completed_weight_monitoring wm on spell.patient_id = wm.patient_id and wm.rank = 1
 left join completed_height height_ob on spell.patient_id = height_ob.patient_id and height_ob.rank = 1
 left join completed_o2target o2target_ob on spell.patient_id = o2target_ob.patient_id and o2target_ob.rank = 1
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
