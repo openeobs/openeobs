@@ -6,10 +6,16 @@
             <field name="arch" type="xml">
                 <form string="Responsibility Allocation Wizard" class="oe_form_configuration" version="7.0">
                     <group>
-                        <field name="user_id" widget="t4c_many2one" required="1"/>
+                        <field name="user_id" widget="t4_many2one" required="1" on_change="onchange_user_id(user_id)" domain="[['groups_id.name','in',['T4 Clinical Nurse Group','T4 Clinical HCA Group','T4 Clinical Doctor Group','T4 Clinical Ward Manager Group']]]"/>
                     </group>
                     <group>
-                        <field name="location_ids" nolabel="1" options="{'no_create': True}"/>
+                        <field name="clear_locations" on_change="onchange_clear(clear_locations)"/>
+                        <field name="location_ids" nolabel="1" options="{'no_create': True}" colspan="2" domain="[['parent_id.user_ids','in',uid]]">
+                            <tree>
+                                <field name="parent_id" string="Upper Point of Care"/>
+                                <field name="name"/>
+                            </tree>
+                        </field>
                     </group>
                     <footer>
                         <button string="Submit" type="object" name="submit" class="oe_highlight"/>
