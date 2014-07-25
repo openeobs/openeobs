@@ -10,7 +10,7 @@
                     </group>
                     <group>
                         <field name="clear_locations" on_change="onchange_clear(clear_locations)"/>
-                        <field name="location_ids" nolabel="1" options="{'no_create': True}" colspan="2" domain="[['parent_id.user_ids','in',uid]]">
+                        <field name="location_ids" nolabel="1" options="{'no_create': True}" colspan="2">
                             <tree>
                                 <field name="parent_id" string="Upper Point of Care"/>
                                 <field name="name"/>
