@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_spell(orm.Model):
     _name = 't4.clinical.spell'
     _inherit = ['t4.activity.data']
+    _description = "Spell / Visit"
     
     _rec_name = 'code'
     _columns = {

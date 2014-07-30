@@ -137,27 +137,16 @@ class t4_activity_data(orm.AbstractModel):
         location_pool = self.pool['t4.clinical.location']
         user_pool = self.pool['res.users']
         activity = self.pool['t4.activity'].browse(cr, uid, activity_id, context)
-        # get groups where current type is allowed
         ima_pool = self.pool['ir.model.access']
-        ima_ids = ima_pool.search(cr, uid, [('model_id.model','=',activity.data_ref._name),
-                                            ('perm_responsibility','=',1)])
+        ima_ids = ima_pool.search(cr, uid, [('model_id.model', '=', activity.data_ref._name),
+                                            ('perm_responsibility', '=', 1)])
         group_ids = [ima.group_id.id for ima in ima_pool.browse(cr, uid, ima_ids)]
         location_id = self.get_activity_location_id(cr, uid, activity_id, context)
-#         if'placement' in activity.data_ref._name:
-#             import pdb; pdb.set_trace()
         user_ids = []
         if location_id:
             ids = user_pool.search(cr, uid, [['location_ids', '!=', False], ['groups_id', 'in', group_ids]])
             for user in user_pool.browse(cr, uid, ids):
                 if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
+                # if location_id in [l.id for l in user.location_ids]:
                     user_ids.append(user.id)
-#                     _logger.info("""get_activity_user_ids() \n
-#                                              user_pool.get_all_responsibility_location_ids(cr, uid, user.id): % s \n
-#                                              user.location_ids: %s \n
-#                                              user_ids: %s \n
-#                                          """ % (user_pool.get_all_responsibility_location_ids(cr, uid, user.id),
-#                                                 user.location_ids,
-#                                                 user_ids
-#                                                 ))
-                #import pdb; pdb.set_trace()
         return list(set(user_ids))

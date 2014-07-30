@@ -84,6 +84,7 @@ class t4_clinical_patient_observation_height_weight(orm.Model):
     _name = 't4.clinical.patient.observation.height_weight'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['height', 'weight']
+    _description = "Height & Weight Observation"
     _columns = {
                        
         'height': fields.float('Height'),
@@ -94,6 +95,7 @@ class t4_clinical_patient_observation_height(orm.Model):
     _name = 't4.clinical.patient.observation.height'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['height']
+    _description = "Height Observation"
     _columns = {
         'height': fields.float('Height'),
     }
@@ -102,6 +104,7 @@ class t4_clinical_patient_observation_weight(orm.Model):
     _name = 't4.clinical.patient.observation.weight'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['weight']
+    _description = "Weight Observation"
     _columns = {
         'weight': fields.float('Weight'),
     }
@@ -152,6 +155,7 @@ class t4_clinical_patient_observation_blood_product(orm.Model):
     _name = 't4.clinical.patient.observation.blood_product'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['vol', 'product']
+    _description = "Blood Product Observation"
     _columns = {
         'vol': fields.float('Blood Product Vol'),
         'product': fields.selection((('rbc', 'RBC'),
@@ -167,6 +171,7 @@ class t4_clinical_patient_observation_blood_sugar(orm.Model):
     _name = 't4.clinical.patient.observation.blood_sugar'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['blood_sugar']
+    _description = "Blood Sugar Observation"
     _columns = {
         'blood_sugar': fields.float('Blood Sugar'),
     }
@@ -176,6 +181,7 @@ class t4_clinical_patient_observation_stools(orm.Model):
     _name = 't4.clinical.patient.observation.stools'
     _inherit = ['t4.clinical.patient.observation']
     _required = []
+    _description = "Bristol Stools Observation"
     _columns = {
         'bowel_open': fields.boolean('Bowel Open'),
         'nausea': fields.boolean('Nausea'),
@@ -206,6 +212,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['respiration_rate', 'indirect_oxymetry_spo2', 'body_temperature', 'blood_pressure_systolic', 'pulse_rate']
+    _description = "NEWS Observation"
 
     _RR_RANGES = {'ranges': [8, 11, 20, 24], 'scores': '31023'}
     _O2_RANGES = {'ranges': [91, 93, 95], 'scores': '3210'}
@@ -382,6 +389,7 @@ class t4_clinical_patient_observation_gcs(orm.Model):
     _name = 't4.clinical.patient.observation.gcs'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['eyes', 'verbal', 'motor']
+    _description = "GCS Observation"
     _eyes = [('1', '1: Does not open eyes'),
              ('2', '2: Opens eyes in response to painful stimuli'),
              ('3', '3: Opens eyes in response to voice'),
@@ -486,6 +494,7 @@ class t4_clinical_patient_observation_vips(orm.Model):
     _name = 't4.clinical.patient.observation.vips'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['pain', 'redness', 'swelling', 'cord', 'pyrexia']
+    _description = "VIPS Observation"
     _selection = [('no', 'No'), ('yes', 'Yes')]
 
     """
@@ -595,6 +604,7 @@ class t4_clinical_patient_observation_pbp(orm.Model):
     _name = 't4.clinical.patient.observation.pbp'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['systolic_sitting', 'diastolic_sitting', 'systolic_standing', 'diastolic_standing']
+    _description = "Postural Blood Pressure Observation"
 
     _POLICY = {'schedule': [[6, 0], [18, 0]], 'notifications': [
         [],
