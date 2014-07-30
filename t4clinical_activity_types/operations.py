@@ -240,7 +240,8 @@ class t4_clinical_patient_discharge(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
         # discharge from current or permanent location ??
-        location_id = self.pool['t4.clinical.api'].get_patient_current_location_id(cr, uid, patient_id, context)
+        location_id = self.pool['t4.clinical.api'].patient_map(cr, uid, patient_ids=[patient_id])[patient_id]['location_id']
+        #get_patient_current_location_id(cr, uid, patient_id, context)
         return location_id      
 
     def complete(self, cr, uid, activity_id, context=None):

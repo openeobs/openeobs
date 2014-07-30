@@ -49,10 +49,10 @@ class t4_clinical_demo_env(orm.Model):
         cr.execute(sql % login) 
         i = 0
         while cr.fetchone():
-           i += 1
-           login = fake.first_name().lower() 
-           cr.execute(sql % login)
-           except_if(i > 100, msg="Can't get unique login after 100 iterations!")
+            i += 1
+            login = fake.first_name().lower() 
+            cr.execute(sql % login)
+            except_if(i > 100, msg="Can't get unique login after 100 iterations!")
         return login
     
     def fake_data(self, cr, uid, env_id, model, data={}):
@@ -97,7 +97,6 @@ class t4_clinical_demo_env(orm.Model):
     def data_location_ward(self, cr, uid, env_id, data={}):
         fake.seed(next_seed())
         env = self.browse(cr, SUPERUSER_ID, env_id) 
-        api_pool = self.pool['t4.clinical.api']
         code = "WARD_"+str(fake.random_int(min=100, max=999))
         d = {
                'name': code,
@@ -149,41 +148,51 @@ class t4_clinical_demo_env(orm.Model):
         fake.seed(next_seed())        
         d = {
                 'name': "HOSPITAL_"+str(fake.random_int(min=100, max=999)),
-                'location_id': pos_location_id,
-                'lot_admission_id': lot_admission_id,
-                'lot_discharge_id': lot_discharge_id,
-                }         
+            }         
         d.update(data)
         return d
         
-    def create_activity(self, cr, uid, env_id, data_model, activity_vals={}, data_vals={}, no_fake=False):
+    def create_activity(self, cr, uid, env_id, data_model, activity_vals={}, data_vals={}, no_fake=False, return_id=False):
         activity_pool = self.pool['t4.activity']
         data_pool = self.pool[data_model]
         if not no_fake:
             dvals = self.fake_data(cr, uid, env_id, data_model, data_vals)
         else:
             dvals = data_vals.copy()        
-        activity_id = data_pool.create_activity(cr, uid, activity_vals, dvals)        
-        return activity_pool.browse(cr, uid, activity_id)
+        activity_id = data_pool.create_activity(cr, uid, activity_vals, dvals)     
+        if return_id:
+            return activity_id
+        else:   
+            return activity_pool.browse(cr, uid, activity_id)
     
-    def create_complete(self, cr, uid, env_id, data_model, activity_vals={}, data_vals={}, no_fake=False):
+    def create_complete(self, cr, uid, env_id, data_model, activity_vals={}, data_vals={}, no_fake=False, return_id=False):
+        #import pdb; pdb.set_trace()
         if not no_fake:
             dvals = self.fake_data(cr, uid, env_id, data_model, data_vals)
         else:
             dvals = data_vals.copy()
         data_pool = self.pool[data_model]
         activity_pool = self.pool['t4.activity']
+        print "activity_vals: %s" %  activity_vals
+        print "dvals: %s" %  dvals
+        
         activity_id = data_pool.create_activity(cr, uid, activity_vals, dvals)
         activity_pool.complete(cr, uid, activity_id)       
-        return activity_pool.browse(cr, uid, activity_id)
+        if return_id:
+            return activity_id
+        else:   
+            return activity_pool.browse(cr, uid, activity_id)
 
-    def complete(self, cr, uid, env_id, activity_id):  
+    def complete(self, cr, uid, env_id, activity_id, return_id=False):  
         assert activity_id
         activity_pool = self.pool['t4.activity']
         activity_pool.complete(cr, uid, activity_id)
-        return activity_pool.browse(cr, uid, activity_id)
+        if return_id:
+            return activity_id
+        else:   
+            return activity_pool.browse(cr, uid, activity_id)
     
-    def submit_complete(self, cr, uid, env_id, activity_id, data_vals={}, no_fake=False):  
+    def submit_complete(self, cr, uid, env_id, activity_id, data_vals={}, no_fake=False, return_id=False):  
         assert activity_id
         activity_pool = self.pool['t4.activity']
         vals = self.pool['t4.clinical.api'].get_activity_data(cr, uid, activity_id)
@@ -195,28 +204,34 @@ class t4_clinical_demo_env(orm.Model):
         #import pdb; pdb.set_trace()
         activity_pool.submit(cr, uid, activity_id, vals)
         activity_pool.complete(cr, uid, activity_id)
-        return activity_pool.browse(cr, uid, activity_id)
+        if return_id:
+            return activity_id
+        else:   
+            return activity_pool.browse(cr, uid, activity_id)
     
     def create(self, cr, uid, vals={},context=None):
         env_id = super(t4_clinical_demo_env, self).create(cr, uid, vals, context)
-        data = self._defaults.copy()
-        data.update(vals)
+        data = self.read(cr, uid, env_id, [])
+        self.build(cr, uid, env_id)
         _logger.info("Env created id=%s data: %s" % (env_id, data))
         return env_id
         
-    def build(self, cr, uid, env_id):
+    def build(self, cr, uid, env_id, return_id=False):
         fake.seed(next_seed())
-        location_pool = self.pool['t4.clinical.location']
-        pos_pool = self.pool['t4.clinical.pos']
         env = self.browse(cr, uid, env_id)
+        except_if(env.pos_id, msg="Build has already been executed for the env.id=%s" % env_id)
         self.build_pos(cr, uid, env_id)
         self.build_adt_users(cr, uid, env_id)
         self.build_nurse_users(cr, uid, env_id)
         self.build_ward_manager_users(cr, uid, env_id)
         self.build_ward_locations(cr, uid, env_id)
         self.build_bed_locations(cr, uid, env_id)
-        return self.browse(cr, uid, env_id)
- 
+        if return_id:
+            return env_id
+        else:
+            return self.browse(cr, uid, env_id)
+
+        
     
 #     def build_patients(self, cr, uid, env_id):
 #         fake.seed(next_seed())
@@ -340,7 +355,7 @@ class t4_clinical_demo_env(orm.Model):
         fake.seed(next_seed())
         location_pool = self.pool['t4.clinical.location']
         pos_pool = self.pool['t4.clinical.pos']
-        env = self.browse(cr, uid, id)
+        env = self.browse(cr, uid, env_id)
         # POS Location
         d = self.fake_data(cr, uid, env_id, 't4.clinical.location.pos')
         pos_location_id = location_pool.create(cr, uid, d)
@@ -354,7 +369,7 @@ class t4_clinical_demo_env(orm.Model):
         lot_discharge_id = location_pool.create(cr, uid, d)       
         _logger.info("Discharge location created id=%s data: %s" % (lot_discharge_id, d)) 
         # POS
-        d = self.fake_data(cr, uid, env_id, 't4.clinical.location.discharge',
+        d = self.fake_data(cr, uid, env_id, 't4.clinical.pos',
                             {
                             'location_id': pos_location_id,
                             'lot_admission_id': lot_admission_id,

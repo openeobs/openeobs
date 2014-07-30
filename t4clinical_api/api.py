@@ -9,8 +9,8 @@ _logger = logging.getLogger(__name__)
 
 
 class t4_clinical_api(orm.AbstractModel):
-    _name = 't4.clinical.api'
-    _inherit = 't4.clinical.api'
+    _name = 't4.clinical.api.frontend'
+    #_inherit = 't4.clinical.api'
 
     def _check_activity_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']

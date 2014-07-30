@@ -179,7 +179,9 @@ class ActivityTypesScenarioTest(BaseTest):
 #              'admission_method': 'adt_admit' 
         }       
         env_id = env_pool.create(cr, uid, config)
-        env_pool.build(cr, uid, env_id)
+        env_pool.browse(cr, uid, env_id)
+
+
         
     def test_adt_register(self):
         #return
@@ -189,7 +191,7 @@ class ActivityTypesScenarioTest(BaseTest):
             'patient_qty': 0,
         }       
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         register_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.register')
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
         # test fake data
@@ -245,7 +247,7 @@ class ActivityTypesScenarioTest(BaseTest):
             'patient_qty': 2,
         }       
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
         register_activity = env_pool.create_complete(cr, adt_user_id, env_id,'t4.clinical.adt.patient.register')
         admit_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.admit')
@@ -299,7 +301,7 @@ class ActivityTypesScenarioTest(BaseTest):
             'patient_qty': 1,
         }       
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         spell_activities = api_pool.get_activities(cr, uid, data_models=['t4.clinical.spell'], pos_ids=[env.pos_id.id], states=['started'])
         patient = spell_activities[0].patient_id
         discharge_activity = env_pool.create_activity(cr, uid, env_id, 't4.clinical.adt.patient.discharge', {}, {'other_identifier': patient.other_identifier}, True)
@@ -313,7 +315,7 @@ class ActivityTypesScenarioTest(BaseTest):
             'patient_qty': 0,
         }       
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
         register_activity = env_pool.create_complete(cr, adt_user_id, env_id,'t4.clinical.adt.patient.register')
         admit_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.admit')
@@ -348,7 +350,7 @@ class ActivityTypesScenarioTest(BaseTest):
         ward_manager_count = len(api.user_map(cr, uid, group_xmlids=['group_t4clinical_ward_manager']))
             
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         
         # test group_xmlids
         umap = api.user_map(cr, uid, group_xmlids=['group_t4clinical_ward_manager'])    
@@ -378,12 +380,24 @@ class ActivityTypesScenarioTest(BaseTest):
         api = self.registry('t4.clinical.api')
         config = {
             'bed_qty': 3,
-            'patient_qty': 2
+            'patient_qty': 3
         }       
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
-        pmap = api.patient_map(cr, uid, pos_ids=[env.pos_id.id])
-        pp(pmap)
+        env = env_pool.browse(cr, uid, env_id)
+        patients = api.patient_map(cr, uid, parent_location_ids=[env.pos_id.location_id.id])
+        assert len(patients) == config['patient_qty'], "parent_location_ids patient_qty: %s is wrong!" % len(patients)
+        patients = api.patient_map(cr, uid, pos_ids=[env.pos_id.id])
+        assert len(patients) == config['patient_qty'], "pos_ids patient_qty: %s is wrong!" % len(patients)
+        patient_ids = patients.keys()
+        patients = api.patient_map(cr, uid, patient_ids=patient_ids)
+        assert len(patients) == config['patient_qty'], "patient_ids patient_qty: %s is wrong!" % len(patients)  
+        patient_ids = patients.keys()
+        patients = api.patient_map(cr, uid, patient_ids=patient_ids, 
+                                            parent_location_ids=[env.pos_id.location_id.id], 
+                                            pos_ids=[env.pos_id.id])
+        assert len(patients) == config['patient_qty'], "patient/parent_location/pos ids patient_qty: %s is wrong!" % len(patients)      
+        pp(patients)
+        
         
     def test_api_location_map(self):
         #return
@@ -394,7 +408,7 @@ class ActivityTypesScenarioTest(BaseTest):
             'patient_qty': 2
         }       
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         # get patients
         spell_activities = api_pool.get_activities(cr, uid, data_models=['t4.clinical.spell'], states=['started'], pos_ids=[env.pos_id.id])
         assert len(spell_activities) == env.patient_qty
@@ -440,7 +454,7 @@ class ActivityTypesScenarioTest(BaseTest):
 #              'admission_method': 'adt_admit'         
         }
         env_id = env_pool.create(cr, uid, config)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         pos = env.pos_id
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
         nurse_user_id = api_pool.user_map(cr,uid, group_xmlids=['group_t4clinical_nurse']).keys()[0]
@@ -505,7 +519,7 @@ class ActivityTypesScenarioTest(BaseTest):
         api_pool = self.registry('t4.clinical.api')
         activity_pool = self.registry('t4.activity')
         env_id = env_pool.create(cr, uid)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
 
         # gcs
         gcs_activity = env_pool.create_complete(cr, uid, env_id,'t4.clinical.patient.observation.gcs')
@@ -566,7 +580,7 @@ class ActivityTypesScenarioTest(BaseTest):
         api_pool = self.registry('t4.clinical.api')
         activity_pool = self.registry('t4.activity')
         env_id = env_pool.create(cr, uid)
-        env = env_pool.build(cr, uid, env_id)
+        env = env_pool.browse(cr, uid, env_id)
         # ews
         ews_activity = api_pool.get_activities(cr, uid, 
                                                pos_ids=[env.pos_id.id], 

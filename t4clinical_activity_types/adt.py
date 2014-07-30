@@ -551,15 +551,25 @@ class t4_clinical_adt_patient_cancel_discharge(orm.Model):
         return res
 
     def complete(self, cr, uid, activity_id, context=None):
-        res = {}
-        super(t4_clinical_adt_patient_cancel_discharge, self).complete(cr, uid, activity_id, context=context)
         activity_pool = self.pool['t4.activity']
         api_pool = self.pool['t4.clinical.api']
         move_pool = self.pool['t4.clinical.patient.move']
+        res = {}
         cancel_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, cancel_activity.data_ref.patient_id.id, context=context)
+        patient_id = cancel_activity.data_ref.patient_id.id
+        spell_activity_id = api_pool.activity_map(cr, uid, patient_ids=[patient_id], 
+                                                  data_models=['t4.clinical.spell'], states=['started'])
         except_if(spell_activity_id, msg="Patient was not discharged or was admitted again!")
-        spell_activity_id = api_pool.get_patient_last_spell_activity_id(cr, SUPERUSER_ID, cancel_activity.data_ref.patient_id.id, context=context)
+        
+        super(t4_clinical_adt_patient_cancel_discharge, self).complete(cr, uid, activity_id, context=context)
+
+        cancel_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
+        spell_activity_id = api_pool.activity_map(cr, uid, patient_ids=[patient_id], 
+                                                  data_models=['t4.clinical.spell'], states=['started'])
+#         #get_patient_spell_activity_id(cr, SUPERUSER_ID, cancel_activity.data_ref.patient_id.id, context=context)
+#         
+#         spell_activity_id = dict(api_pool.patient_map(cr, uid, patient_ids=[cancel_activity.data_ref.patient_id.id])[0][1])['previous']
+#         #api_pool.get_patient_last_spell_activity_id(cr, SUPERUSER_ID, cancel_activity.data_ref.patient_id.id, context=context)
         except_if(not spell_activity_id, msg="Patient was not discharged!")
         domain = [('data_model', '=', 't4.clinical.adt.patient.discharge'),
                   ('state', '=', 'completed'),

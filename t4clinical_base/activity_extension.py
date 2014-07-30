@@ -81,7 +81,9 @@ class t4_activity_data(orm.AbstractModel):
 #             pos_id = data.activity_id.parent_id.pos_id.id
         # 20
         if not location_id:
-            location_id = api_pool.get_patient_current_location_id(cr, uid, patient_id, context)
+            patient_map = api_pool.patient_map(cr, uid, patient_ids=[patient_id]).get(patient_id)  
+            location_id = patient_map and patient_map['location_id']
+            # get_patient_current_location_id(cr, uid, patient_id, context)
             if location_id:
                 location = self.pool['t4.clinical.location'].browse(cr, uid, location_id, context)
                 pos_id = location.pos_id and location.pos_id.id or False

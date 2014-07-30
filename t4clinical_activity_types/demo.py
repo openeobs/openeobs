@@ -319,15 +319,21 @@ class t4_clinical_demo_env(orm.Model):
     
     def create(self, cr, uid, vals={},context=None):
         env_id = super(t4_clinical_demo_env, self).create(cr, uid, vals, context)
-        data = self._defaults.copy()
-        data.update(vals)
+        #env_id = isinstance(env_id, (int, long)) and env_id or env_id.id
+        data = self.read(cr, uid, env_id, [])
         _logger.info("Env created id=%s data: %s" % (env_id, data))
+        #import pdb; pdb.set_trace()
         return env_id
         
-    def build(self, cr, uid, env_id):
+    def build(self, cr, uid, env_id, return_id=False):
         super(t4_clinical_demo_env, self).build(cr, uid, env_id)
         self.build_patients(cr, uid, env_id)
-        return self.browse(cr, uid, env_id)
+        if return_id:
+            return env_id
+        else:
+            return self.browse(cr, uid, env_id)
+    
+
  
     
     def build_patients(self, cr, uid, env_id):
@@ -349,3 +355,4 @@ class t4_clinical_demo_env(orm.Model):
                                                          data_models=['t4.clinical.patient.placement'],
                                                          states=['new'])[0]
             self.submit_complete(cr, adt_user_id, env_id, placement_activity.id) 
+        return True

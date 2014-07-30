@@ -15,6 +15,23 @@ def next_seed():
 
 class t4_clinical_demo(orm.Model):    
     _inherit = 't4.clinical.demo.env'
+    def _get_activity_ids(self, cr, uid, ids, field, args, context=None):
+        api = self.pool['t4.clinical.api']
+        pos_env_map = {env.pos_id.id: env.id for env in self.browse(cr, uid, ids)}
+        res = {}
+        for id, values in api.activity_map(cr, uid, pos_ids=pos_env_map.keys()).items():
+            #import pdb; pdb.set_trace()
+            res.setdefault(pos_env_map[values['pos_id']], []).append(id)
+        return res
+        
+    _columns = {
+        'activity_ids': fields.function(_get_activity_ids, type='many2many', relation='t4.activity', string='Activities', order='write_date'),
+    }
+    def create(self, cr, uid, values, context=None):
+
+        env_id = super(t4_clinical_demo, self).create(cr, uid, values, context)
+
+        return env_id
     
     def button_adt_patient_register(self, cr, uid, ids, context=None):
         env_id = ids[0]

@@ -2,6 +2,7 @@ from openerp.tests import common
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from openerp.addons.t4clinical_activity_types.tests.test_scenario import ActivityTypesTest
+from pprint import pprint as pp
 
 class TestUI(ActivityTypesTest):
 
@@ -11,6 +12,7 @@ class TestUI(ActivityTypesTest):
         self.activity_pool = self.registry('t4.activity')
 
     def test_workload(self):
+        return
         cr, uid = self.cr, self.uid
         data = [
             {'name': '46-', 'date_scheduled': (dt.today()+rd(minutes=48)).strftime("%Y-%m-%d %H:%M:%S"), 'expected_value': 10},
@@ -38,12 +40,25 @@ class TestUI(ActivityTypesTest):
                             % (str(d['expected_value']), str(activity_workload.proximity_interval)))
 
 
-    def test_wardboard(self):
-        from pprint import pprint as pp
+    def test_wardboard_data(self):
+        return
         cr, uid = self.cr, self.uid
-        pos_env = self.create_pos_environment()
-        self.adt_patient_register(data_vals={'other_identifier': "test_workload"}, env=pos_env)
-        pp(pos_env)
-        #self.adt_patient_admit()
-        #self.patient_placement(pos_env['pateint_ids'][0])
+        wardboard_model = self.registry('t4.clinical.wardboard')
+        env_model = self.registry('t4.clinical.demo.env')
+        api = self.registry('t4.clinical.api')
+        config = {
+            'bed_qty': 3,
+            'patient_qty': 2,
+        }
+        #import pdb; pdb.set_trace()
+
+        env_id = env_model.create(cr, uid, config)        
+        env = env_model.browse(cr, uid, env_id)#env_model.build(cr, uid, env_id)  
+
+        # patient data test
+        patient_ids = wardboard_model.search(cr, uid, [['pos_id','=',env.pos_id.id]])
+        assert len(patient_ids) == config['patient_qty'], "Patient qty in the POS: %s" % len(patient_ids)
+        patients = api.patient_map(cr, uid, parent_location_ids=[env.pos_id.location_id.id])
+        pp(patients)
+        
         

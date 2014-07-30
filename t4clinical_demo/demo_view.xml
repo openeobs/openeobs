@@ -19,6 +19,7 @@
                 	<field name="pos_id" readonly="1"/>
 					<button name="button_adt_patient_register" type="object" string="ADT Register Patient" />
 					<button name="button_adt_patient_admit" type="object" string="ADT Admit Patient" />
+					<field name="activity_ids"/>
 					
                 </form>
             </field>
