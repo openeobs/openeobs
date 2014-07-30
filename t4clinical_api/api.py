@@ -64,10 +64,72 @@ class t4_clinical_api(orm.AbstractModel):
         Return a list of activities in dictionary format (containing every field from the table)
         :param ids: ids of the activities we want. If empty returns all activities.
         """
-        domain = [('id', 'in', ids)] if ids else [('state', 'not in', ['completed', 'cancelled'])]
+
+        domain = [('id', 'in', ids)] if ids else [
+            ('state', 'not in', ['completed', 'cancelled']),
+            '|', ('date_scheduled', '<=', (dt.now()+td(days=1)).strftime(DTF)),
+            ('date_deadline', '<=', (dt.now()+td(days=1)).strftime(DTF))
+        ]
         activity_pool = self.pool['t4.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
-        activity_values = activity_pool.read(cr, uid, activity_ids, [], context=context)
+        activity_ids_sql = ','.join(map(str, activity_ids))
+        sql = """
+        with
+            completed_ews as(
+                select
+                    ews.id,
+                    spell.patient_id,
+                    ews.score,
+                    ews.clinical_risk,
+                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+                from t4_clinical_spell spell
+                left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
+                inner join t4_activity activity on ews.activity_id = activity.id
+                where activity.state = 'completed'
+            )
+        select activity.id,
+            activity.summary,
+            case
+                when date_scheduled is not null then date_scheduled::text
+                when date_deadline is not null then date_deadline::text
+                else ''
+            end as deadline,
+            case
+                when activity.date_scheduled is not null and greatest(now() at time zone 'UTC',activity.date_scheduled) != activity.date_scheduled then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC',activity.date_scheduled)), 'HH24:MI') || ' hours'
+                when activity.date_scheduled is not null and greatest(now() at time zone 'UTC',activity.date_scheduled) = activity.date_scheduled then to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC',activity.date_scheduled)), 'HH24:MI') || ' hours'
+                when activity.date_deadline is not null and greatest(now() at time zone 'UTC',activity.date_deadline) != activity.date_deadline then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_deadline) - least(now() at time zone 'UTC',activity.date_deadline)), 'HH24:MI') || ' hours'
+                when activity.date_deadline is not null and greatest(now() at time zone 'UTC',activity.date_deadline) = activity.date_deadline then to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_deadline) - least(now() at time zone 'UTC',activity.date_deadline)), 'HH24:MI') || ' hours'
+                else to_char((interval '0s'), 'HH24:MI') || ' hours'
+            end as deadline_time,
+            coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
+            location.name as location,
+            location_parent.name as parent_location,
+            case
+                when ews1.score is not null then ews1.score::text
+                else ''
+            end as ews_score,
+            case
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) > 0 then 'down'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'up'
+                when ews1.id is null and ews2.id is null then 'none'
+                when ews1.id is not null and ews2.id is null then 'first'
+                when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen.
+            end as ews_trend,
+            case
+                when position('notification' in activity.data_model)::bool then true
+                else false
+            end as notification
+        from t4_activity activity
+        inner join t4_clinical_patient patient on patient.id = activity.patient_id
+        inner join t4_clinical_location location on location.id = activity.location_id
+        inner join t4_clinical_location location_parent on location_parent.id = location.parent_id
+        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
+        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
+        where activity.id in (%s)
+        """ % activity_ids_sql
+        cr.execute(sql)
+        activity_values = cr.fetchall()
         return activity_values
 
     def cancel(self, cr, uid, activity_id, context=None):

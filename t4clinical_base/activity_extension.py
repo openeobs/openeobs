@@ -144,7 +144,7 @@ class t4_activity_data(orm.AbstractModel):
         if location_id:
             ids = user_pool.search(cr, uid, [['location_ids', '!=', False], ['groups_id', 'in', group_ids]])
             for user in user_pool.browse(cr, uid, ids):
-                # if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
-                if location_id in [l.id for l in user.location_ids]:
+                if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
+                # if location_id in [l.id for l in user.location_ids]:
                     user_ids.append(user.id)
         return list(set(user_ids))
