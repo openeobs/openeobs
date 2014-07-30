@@ -61,7 +61,7 @@ class t4_clinical_api(orm.AbstractModel):
 
     def get_activities(self, cr, uid, ids, context=None):
         """
-        Return a list of activities in dictionary format (containing every field from the table)
+        Return a list of activities
         :param ids: ids of the activities we want. If empty returns all activities.
         """
 
@@ -128,8 +128,10 @@ class t4_clinical_api(orm.AbstractModel):
         left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
         where activity.id in (%s)
         """ % activity_ids_sql
-        cr.execute(sql)
-        activity_values = cr.fetchall()
+        activity_values = []
+        if activity_ids:
+            cr.execute(sql)
+            activity_values = cr.dictfetchall()
         return activity_values
 
     def cancel(self, cr, uid, activity_id, context=None):
