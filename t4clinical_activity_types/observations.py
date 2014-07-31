@@ -99,6 +99,13 @@ class t4_clinical_patient_observation_height(orm.Model):
     _columns = {
         'height': fields.float('Height'),
     }
+    _form_description = [
+        {
+            'name': 'height',
+            'type': 'float',
+            'label': 'Height',
+        }
+    ]
 
 class t4_clinical_patient_observation_weight(orm.Model):
     _name = 't4.clinical.patient.observation.weight'
@@ -111,6 +118,13 @@ class t4_clinical_patient_observation_weight(orm.Model):
     _POLICY = {
         'schedule': [[6, 0]]
     }
+    _form_description = [
+        {
+            'name': 'weight',
+            'type': 'float',
+            'label': 'Weight',
+        }
+    ]
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
         hour = td(hours=1)
@@ -156,15 +170,31 @@ class t4_clinical_patient_observation_blood_product(orm.Model):
     _inherit = ['t4.clinical.patient.observation']
     _required = ['vol', 'product']
     _description = "Blood Product Observation"
+    _blood_product_values = [
+        ['rbc', 'RBC'],
+        ['ffp', 'FFP'],
+        ['platelets', 'Platelets'],
+        ['has', 'Human Albumin Sol'],
+        ['dli', 'DLI'],
+        ['stem', 'Stem Cells']
+    ]
     _columns = {
         'vol': fields.float('Blood Product Vol'),
-        'product': fields.selection((('rbc', 'RBC'),
-                                    ('ffp', 'FFP'),
-                                    ('platelets', 'Platelets'),
-                                    ('has', 'Human Albumin Sol'),
-                                    ('dli', 'DLI'),
-                                    ('stem', 'Stem Cells')), 'Blood Product'),
+        'product': fields.selection(_blood_product_values, 'Blood Product'),
     }
+    _form_description = [
+        {
+            'name': 'vol',
+            'type': 'float',
+            'label': 'Vol',
+        },
+        {
+            'name': 'product',
+            'type': 'selection',
+            'selection': _blood_product_values,
+            'label': 'Blood Product',
+        }
+    ]
 
 
 class t4_clinical_patient_observation_blood_sugar(orm.Model):
@@ -175,6 +205,13 @@ class t4_clinical_patient_observation_blood_sugar(orm.Model):
     _columns = {
         'blood_sugar': fields.float('Blood Sugar'),
     }
+    _form_description = [
+        {
+            'name': 'blood_sugar',
+            'type': 'float',
+            'label': 'Blood Sugar',
+        }
+    ]
 
 
 class t4_clinical_patient_observation_stools(orm.Model):
