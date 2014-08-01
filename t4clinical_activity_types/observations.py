@@ -97,13 +97,16 @@ class t4_clinical_patient_observation_height(orm.Model):
     _required = ['height']
     _description = "Height Observation"
     _columns = {
-        'height': fields.float('Height'),
+        'height': fields.float('Height', digits=(1, 1)),
     }
     _form_description = [
         {
             'name': 'height',
             'type': 'float',
             'label': 'Height',
+            'min': 0.1,
+            'max': 3.0,
+            'digits': [1, 1]
         }
     ]
 
@@ -113,7 +116,7 @@ class t4_clinical_patient_observation_weight(orm.Model):
     _required = ['weight']
     _description = "Weight Observation"
     _columns = {
-        'weight': fields.float('Weight'),
+        'weight': fields.float('Weight', digits=(3, 1)),
     }
     _POLICY = {
         'schedule': [[6, 0]]
@@ -122,7 +125,10 @@ class t4_clinical_patient_observation_weight(orm.Model):
         {
             'name': 'weight',
             'type': 'float',
-            'label': 'Weight',
+            'label': 'Weight (Kg)',
+            'min': 1.0,
+            'max': 999.9,
+            'digits': [3, 1]
         }
     ]
 
@@ -179,14 +185,17 @@ class t4_clinical_patient_observation_blood_product(orm.Model):
         ['stem', 'Stem Cells']
     ]
     _columns = {
-        'vol': fields.float('Blood Product Vol'),
+        'vol': fields.float('Blood Product Vol', digits=(5, 1)),
         'product': fields.selection(_blood_product_values, 'Blood Product'),
     }
     _form_description = [
         {
             'name': 'vol',
             'type': 'float',
-            'label': 'Vol',
+            'label': 'Vol (ml)',
+            'min': 0.1,
+            'max': 10000.0,
+            'digits': [5, 1]
         },
         {
             'name': 'product',
@@ -203,13 +212,16 @@ class t4_clinical_patient_observation_blood_sugar(orm.Model):
     _required = ['blood_sugar']
     _description = "Blood Sugar Observation"
     _columns = {
-        'blood_sugar': fields.float('Blood Sugar'),
+        'blood_sugar': fields.float('Blood Sugar', digits=(2, 1)),
     }
     _form_description = [
         {
             'name': 'blood_sugar',
             'type': 'float',
-            'label': 'Blood Sugar',
+            'label': 'Blood Sugar (mmol/L)',
+            'min': 1.0,
+            'max': 99.9,
+            'digits': [2, 1]
         }
     ]
 
