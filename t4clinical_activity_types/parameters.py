@@ -90,7 +90,7 @@ class t4_clinical_patient_pbp_monitoring(orm.Model):
                                  {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
                                  {'patient_id': activity.data_ref.patient_id.id})
             date_schedule = dt.now().replace(minute=0, second=0, microsecond=0)
-            activity_pool.schedule(cr, uid, pbp_activity_id, date_schedule, context=context)
+            activity_pool.schedule(cr, SUPERUSER_ID, pbp_activity_id, date_schedule, context=context)
 
         return super(t4_clinical_patient_pbp_monitoring, self).complete(cr, uid, activity_id, context=context)
 
@@ -122,6 +122,6 @@ class t4_clinical_patient_weight_monitoring(orm.Model):
                                  {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
                                  {'patient_id': activity.data_ref.patient_id.id})
             date_schedule = dt.now().replace(minute=0, second=0, microsecond=0)
-            activity_pool.schedule(cr, uid, weight_activity_id, date_schedule, context=context)
+            activity_pool.schedule(cr, SUPERUSER_ID, weight_activity_id, date_schedule, context=context)
 
         return super(t4_clinical_patient_weight_monitoring, self).complete(cr, uid, activity_id, context=context)
