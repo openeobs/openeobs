@@ -52,6 +52,8 @@ with
 			patient.other_identifier,
 			patient.gender,
 			patient.dob::text,
+			extract(year from age(now(), patient.dob)) as age,
+			patient.patient_identifier,
 			move_activity.location_id,
 			location_hierarchy.parent_ids as parent_location_ids,
 			spell_activity.max_id as spell_activity_id,

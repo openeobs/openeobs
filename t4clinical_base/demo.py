@@ -60,6 +60,7 @@ class t4_clinical_demo_env(orm.Model):
         This method returns fake data for model
         Extend this method to add fake data for other models 
         """
+        data_copy = data.copy()
         method_map = {
             # Base      
             't4.clinical.location.bed': 'data_location_bed',
@@ -72,7 +73,7 @@ class t4_clinical_demo_env(orm.Model):
         #import pdb; pdb.set_trace()
         res = None
         if method_map.get(model) and hasattr(t4_clinical_demo_env, method_map[model]):
-            res = eval("self.%s(cr, uid, env_id, data=data)" % method_map[model])  
+            res = eval("self.%s(cr, uid, env_id, data=data_copy)" % method_map[model])  
         except_if(not res, msg="Data method is not defined for model '%s'" % model)
         return res
     
@@ -167,6 +168,9 @@ class t4_clinical_demo_env(orm.Model):
     
     def create_complete(self, cr, uid, env_id, data_model, activity_vals={}, data_vals={}, no_fake=False, return_id=False):
         #import pdb; pdb.set_trace()
+        print "activity_vals before fake: %s" %  activity_vals
+        print "dvals before fake: %s" %  data_vals        
+        print "create_complete.data_model: %s" % data_model
         if not no_fake:
             dvals = self.fake_data(cr, uid, env_id, data_model, data_vals)
         else:

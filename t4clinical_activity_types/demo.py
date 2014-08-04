@@ -40,6 +40,7 @@ class t4_clinical_demo_env(orm.Model):
         This method returns fake data for model
         Extend this method to add fake data for other models 
         """
+        data_copy = data.copy()
         method_map = {
 
             # Observations
@@ -62,9 +63,9 @@ class t4_clinical_demo_env(orm.Model):
         res = None
         # FIXME: this need notification if data_method not defined for model
         if method_map.get(model) and hasattr(t4_clinical_demo_env, method_map[model]):
-            res = eval("self.{method}(cr, uid, env_id, data=data)".format(method=method_map[model]))
+            res = eval("self.{method}(cr, uid, env_id, data=data_copy)".format(method=method_map[model]))
         else:
-            res = super(t4_clinical_demo_env, self).fake_data(cr, uid, env_id, model, data)
+            res = super(t4_clinical_demo_env, self).fake_data(cr, uid, env_id, model, data_copy)
         except_if(not res, msg="Data method is not defined for model '%s'" % model)
         return res
     
@@ -341,18 +342,25 @@ class t4_clinical_demo_env(orm.Model):
         env = self.browse(cr, SUPERUSER_ID, env_id)
         assert env.pos_id, "POS is not created/set in the env id=%s" % env_id
         activity_pool = self.pool['t4.activity']
-        api_pool = self.pool['t4.clinical.api']
+        api = self.pool['t4.clinical.api']
         register_pool = self.pool['t4.clinical.adt.patient.register']
         admit_pool = self.pool['t4.clinical.adt.patient.admit']
         #import pdb; pdb.set_trace()
         adt_user_id = self.get_adt_user_ids(cr, uid, env_id)[0]
         for i in range(env.patient_qty):
-            register_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.register')
+            register_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.register', {}, {})
             admit_data = {'other_identifier': register_activity.data_ref.other_identifier}
-            admit_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.admit', data_vals=admit_data)
-            placement_activity = api_pool.get_activities(cr, uid, 
+            admit_activity = self.create_complete(cr, adt_user_id, env_id, 't4.clinical.adt.patient.admit', {}, admit_data)
+            placement_activity = api.get_activities(cr, uid, 
                                                          pos_ids = [env.pos_id.id],
                                                          data_models=['t4.clinical.patient.placement'],
                                                          states=['new'])[0]
             self.submit_complete(cr, adt_user_id, env_id, placement_activity.id) 
         return True
+    
+    
+    
+    
+    
+    
+    

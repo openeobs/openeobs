@@ -1,11 +1,15 @@
-import test_scenario
-#import test_ews_policy
-#import test_gcs_policy
-#import test_observations
-
+# import test_observations
+import test_api
+# import test_adt
+# import test_demo
+# import test_operations 
+ 
 fast_suite = [
-    test_scenario
+    
 #     test_observations,
-#     test_ews_policy,
-#     test_gcs_policy
+    test_api
+#     test_adt,
+#     test_demo,
+#     test_operations
+    
     ]

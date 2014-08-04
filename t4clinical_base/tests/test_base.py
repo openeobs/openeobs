@@ -1,4 +1,4 @@
-from openerp.tests import common
+from openerp.tests.common import SingleTransactionCase
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from openerp import tools
@@ -17,7 +17,7 @@ def next_seed():
     seed += 1
     return seed
 
-class BaseTest(common.SingleTransactionCase):
+class BaseTest(SingleTransactionCase):
     @classmethod
     def tearDownClass(cls):
         if config['test_commit']:

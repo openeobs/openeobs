@@ -293,6 +293,7 @@ with
             patient.other_identifier,
             patient.gender,
             patient.dob::text,
+            extract(year from age(now(), patient.dob)) as age,
             move_activity.location_id,
             location_hierarchy.parent_ids as parent_location_ids,
             spell_activity.max_id as spell_activity_id,
@@ -410,12 +411,11 @@ with
         if device_ids: where_list.append("device_id in (%s)" % ','.join([str(int(id)) for id in device_ids]))
         if data_models: where_list.append("data_model in ('%s')" % "','".join(data_models))
         if states: where_list.append("state in ('%s')" % "','".join(states))
-        
+        if ranks: where_list.append("rank in (%s)" % ','.join([str(int(r)) for r in ranks]))
         
         args = {
           "partition_by": partition_by,
           "where": where_list and "where %s" % " and ".join(where_list) or "",
-          "rank_where": ranks and "where rank in (%s)" % ','.join([str(int(r)) for r in ranks]) or "",
           "partition_order": partition_order
         }
         sql = """
@@ -428,19 +428,14 @@ with
                     patient_id,
                     device_id,
                     data_model,
-                    state  
-                from t4_activity
-                {where}
-            ),
-            ranked_activity as (
-                select
-                    id,
-                    rank() over (partition by {partition_by} order by {partition_order}) as rank  
+                    state,
+                    rank() over (partition by {partition_by} order by {partition_order}) as rank
                 from t4_activity
             )
-            select * from ranked_activity
-            {rank_where}
+            select * from activity
+            {where}
             """.format(**args)
+        print sql
         cr.execute(sql)
         res = {r['id']: r['rank'] for r in cr.dictfetchall()}
         return res 
@@ -483,6 +478,7 @@ with
         
         %s""" % where_clause
         cr.execute(sql)
+        #print sql
         res = {r['id']: r for r in cr.dictfetchall()}
         return res
     
@@ -629,18 +625,22 @@ with
 #         return list(patient_ids)
 
     def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
-        activity_pool = self.pool['t4.activity']
-        domain = [('patient_id', '=', patient_id),
-                  ('state', '=', 'started'),
-                  ('data_model', '=', 't4.clinical.spell')]
-        if pos_id:
-            domain.append(('pos_id', '=', pos_id))
-        spell_activity_id = activity_pool.search(cr, uid, domain, context=context)
+        domain = {
+                  'patient_ids': [patient_id],
+                  'states': ['started'],
+                  'data_models': ['t4.clinical.spell']
+                  }
+        pos_id and domain.update({'pos_ids': [pos_id]})
+        #import pdb; pdb.set_trace()
+        spell_activity_id = self.activity_map(cr, uid, **domain).keys()
         if not spell_activity_id:
             return False
         if len(spell_activity_id) > 1:
             _logger.warn("For patient_id=%s found more than 1 started spell_activity_ids: %s " % (patient_id, spell_activity_id))
+        #try:
         return spell_activity_id[0]
+        #except:
+         #   import pdb; pdb.set_trace()
 
 #     def get_patient_last_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
 #         activity_pool = self.pool['t4.activity']
