@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 
 
 class t4_clinical_api(orm.AbstractModel):
-    _name = 't4.clinical.api.frontend'
+    _name = 't4.clinical.api.external'
     #_inherit = 't4.clinical.api'
 
     def _check_activity_id(self, cr, uid, activity_id, context=None):
@@ -176,10 +176,77 @@ class t4_clinical_api(orm.AbstractModel):
         Return a list of patients in dictionary format (containing every field from the table)
         :param ids: ids of the patients we want. If empty returns all patients.
         """
-        domain = [('id', 'in', ids)] if ids else []
-        patient_pool = self.pool['t4.clinical.patient']
-        patient_ids = patient_pool.search(cr, uid, domain, context=context)
-        patient_values = patient_pool.read(cr, uid, patient_ids, [], context=context)
+        domain = [
+            ('state', '=', 'started'),
+            ('patient_id', 'in', ids),
+            ('data_model', '=', 't4.clinical.spell')
+        ] if ids else [
+            ('state', '=', 'started'),
+            ('data_model', '=', 't4.clinical.spell')
+        ]
+        activity_pool = self.pool['t4.activity']
+        spell_ids = activity_pool.search(cr, uid, domain, context=context)
+        spell_ids_sql = ','.join(map(str, spell_ids))
+        sql = """
+        with
+            completed_ews as(
+                select
+                    ews.id,
+                    spell.patient_id,
+                    ews.score,
+                    ews.clinical_risk,
+                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+                from t4_clinical_spell spell
+                left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
+                inner join t4_activity activity on ews.activity_id = activity.id
+                where activity.state = 'completed'
+            ),
+            scheduled_ews as(
+                select
+                    spell.patient_id,
+                    activity.date_scheduled,
+                    ews.frequency,
+                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+                from t4_clinical_spell spell
+                left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
+                inner join t4_activity activity on ews.activity_id = activity.id
+                where activity.state = 'scheduled'
+            )
+        select patient.id,
+            coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
+            case
+                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
+                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) = ews0.date_scheduled then to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
+                else to_char((interval '0s'), 'HH24:MI') || ' hours'
+            end as next_ews_time,
+            location.name as location,
+            location_parent.name as parent_location,
+            case
+                when ews1.score is not null then ews1.score::text
+                else ''
+            end as ews_score,
+            ews1.clinical_risk,
+            case
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) > 0 then 'down'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'up'
+                when ews1.id is null and ews2.id is null then 'none'
+                when ews1.id is not null and ews2.id is null then 'first'
+                when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen.
+            end as ews_trend
+        from t4_activity activity
+        inner join t4_clinical_patient patient on patient.id = activity.patient_id
+        inner join t4_clinical_location location on location.id = activity.location_id
+        inner join t4_clinical_location location_parent on location_parent.id = location.parent_id
+        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
+        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
+        left join scheduled_ews ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1
+        where activity.state = 'started' and activity.data_model = 't4.clinical.spell' and activity.id in (%s)
+        """ % spell_ids_sql
+        patient_values = []
+        if spell_ids:
+            cr.execute(sql)
+            patient_values = cr.dictfetchall()
         return patient_values
 
     def update(self, cr, uid, patient_id, data, context=None):

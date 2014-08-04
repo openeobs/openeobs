@@ -97,8 +97,18 @@ class t4_clinical_patient_observation_height(orm.Model):
     _required = ['height']
     _description = "Height Observation"
     _columns = {
-        'height': fields.float('Height'),
+        'height': fields.float('Height', digits=(1, 1)),
     }
+    _form_description = [
+        {
+            'name': 'height',
+            'type': 'float',
+            'label': 'Height',
+            'min': 0.1,
+            'max': 3.0,
+            'digits': [1, 1]
+        }
+    ]
 
 class t4_clinical_patient_observation_weight(orm.Model):
     _name = 't4.clinical.patient.observation.weight'
@@ -106,11 +116,21 @@ class t4_clinical_patient_observation_weight(orm.Model):
     _required = ['weight']
     _description = "Weight Observation"
     _columns = {
-        'weight': fields.float('Weight'),
+        'weight': fields.float('Weight', digits=(3, 1)),
     }
     _POLICY = {
         'schedule': [[6, 0]]
     }
+    _form_description = [
+        {
+            'name': 'weight',
+            'type': 'float',
+            'label': 'Weight (Kg)',
+            'min': 1.0,
+            'max': 999.9,
+            'digits': [3, 1]
+        }
+    ]
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
         hour = td(hours=1)
@@ -156,15 +176,34 @@ class t4_clinical_patient_observation_blood_product(orm.Model):
     _inherit = ['t4.clinical.patient.observation']
     _required = ['vol', 'product']
     _description = "Blood Product Observation"
+    _blood_product_values = [
+        ['rbc', 'RBC'],
+        ['ffp', 'FFP'],
+        ['platelets', 'Platelets'],
+        ['has', 'Human Albumin Sol'],
+        ['dli', 'DLI'],
+        ['stem', 'Stem Cells']
+    ]
     _columns = {
-        'vol': fields.float('Blood Product Vol'),
-        'product': fields.selection((('rbc', 'RBC'),
-                                    ('ffp', 'FFP'),
-                                    ('platelets', 'Platelets'),
-                                    ('has', 'Human Albumin Sol'),
-                                    ('dli', 'DLI'),
-                                    ('stem', 'Stem Cells')), 'Blood Product'),
+        'vol': fields.float('Blood Product Vol', digits=(5, 1)),
+        'product': fields.selection(_blood_product_values, 'Blood Product'),
     }
+    _form_description = [
+        {
+            'name': 'vol',
+            'type': 'float',
+            'label': 'Vol (ml)',
+            'min': 0.1,
+            'max': 10000.0,
+            'digits': [5, 1]
+        },
+        {
+            'name': 'product',
+            'type': 'selection',
+            'selection': _blood_product_values,
+            'label': 'Blood Product',
+        }
+    ]
 
 
 class t4_clinical_patient_observation_blood_sugar(orm.Model):
@@ -173,8 +212,18 @@ class t4_clinical_patient_observation_blood_sugar(orm.Model):
     _required = ['blood_sugar']
     _description = "Blood Sugar Observation"
     _columns = {
-        'blood_sugar': fields.float('Blood Sugar'),
+        'blood_sugar': fields.float('Blood Sugar', digits=(2, 1)),
     }
+    _form_description = [
+        {
+            'name': 'blood_sugar',
+            'type': 'float',
+            'label': 'Blood Sugar (mmol/L)',
+            'min': 1.0,
+            'max': 99.9,
+            'digits': [2, 1]
+        }
+    ]
 
 
 class t4_clinical_patient_observation_stools(orm.Model):
@@ -284,7 +333,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
         ews_pool = self.pool['t4.clinical.patient.observation.ews']
         ews_ids = ews_pool.search(cr, uid, [('activity_id', 'in', ids)], context=context)
         return ews_ids
-    
+    _avpu_values = [['A', 'Alert'], ['V', 'Voice'], ['P', 'Pain'], ['U', 'Unresponsive']]
     _columns = {
         #'duration': fields.integer('Duration'),
         'score': fields.function(_get_score, type='integer', multi='score', string='Score', store={
@@ -299,14 +348,11 @@ class t4_clinical_patient_observation_ews(orm.Model):
         'respiration_rate': fields.integer('Respiration Rate'),
         'indirect_oxymetry_spo2': fields.integer('O2 Saturation'),
         'oxygen_administration_flag': fields.boolean('Patient on supplemental O2'),
-        'body_temperature': fields.float('Body Temperature', digits=(3, 1)),
+        'body_temperature': fields.float('Body Temperature', digits=(2, 1)),
         'blood_pressure_systolic': fields.integer('Blood Pressure Systolic'),
         'blood_pressure_diastolic': fields.integer('Blood Pressure Diastolic'),
         'pulse_rate': fields.integer('Pulse Rate'),
-        'avpu_text': fields.selection((('A', 'Alert'),
-                                       ('V', 'Voice'),
-                                       ('P', 'Pain'),
-                                       ('U', 'Unresponsive')), 'AVPU'),
+        'avpu_text': fields.selection(_avpu_values, 'AVPU'),
         'mews_score': fields.integer('Mews Score'),
         # O2 stuff former 'o2_device_reading_id'
         'flow_rate': fields.integer('Flow rate (l/min)'),
@@ -321,6 +367,66 @@ class t4_clinical_patient_observation_ews(orm.Model):
             't4.activity.data': (_data2ews_ids, ['date_terminated'], 20)
         })
     }
+
+    _form_description = [
+        {
+            'name': 'respiration_rate',
+            'type': 'integer',
+            'label': 'Respiration Rate',
+            'min': 1,
+            'max': 59
+        },
+        {
+            'name': 'indirect_oxymetry_spo2',
+            'type': 'integer',
+            'label': 'O2 Saturation',
+            'min': 51,
+            'max': 100
+        },
+        {
+            'name': 'body_temperature',
+            'type': 'float',
+            'label': 'Body Temperature',
+            'min': 27.1,
+            'max': 44.9,
+            'digits': [2, 1]
+        },
+        {
+            'name': 'blood_pressure_systolic',
+            'type': 'integer',
+            'label': 'Blood Pressure Systolic',
+            'min': 1,
+            'max': 300,
+            'validation': [['>', 'blood_pressure_diastolic']]
+        },
+        {
+            'name': 'blood_pressure_diastolic',
+            'type': 'integer',
+            'label': 'Blood Pressure Diastolic',
+            'min': 1,
+            'max': 280,
+            'validation': [['<', 'blood_pressure_systolic']]
+        },
+        {
+            'name': 'pulse_rate',
+            'type': 'integer',
+            'label': 'Pulse Rate',
+            'min': 1,
+            'max': 250
+        },
+        {
+            'name': 'avpu_text',
+            'type': 'selection',
+            'selection': _avpu_values,
+            'label': 'AVPU',
+        },
+        {
+            'name': 'oxygen_administration_flag',
+            'type': 'selection',
+            'label': 'Patient on supplemental O2',
+            'selection': [[True, 'Yes'], [False, 'No']]
+        }
+    ]
 
     _defaults = {
         'frequency': 15
