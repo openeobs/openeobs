@@ -62,7 +62,7 @@
             <field name="name">Activity Workload</field>
             <field name="res_model">t4.activity.workload</field>
             <field name="view_mode">kanban</field>
-			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','done']]]</field>
+			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','done']],['parent_id.user_ids','in',uid]]</field>
               <field name="search_view_id" ref="view_activity_workload_search"/>
         </record>  
         <record model="ir.actions.act_window.view" id="act_activity_workload_kanban_view">
