@@ -100,8 +100,15 @@ class t4_clinical_adt_patient_admit(orm.Model):
         # location validation
         suggested_location = api_pool.get_locations(cr, SUPERUSER_ID, codes=[vals['location']], pos_ids=[user.pos_id.id])
         if not suggested_location:
-            _logger.warn("ADT suggested_location '%s' not found! Will pass suggested_location_id = False" % vals['location'])
-            suggested_location_id = False
+            _logger.warn("ADT suggested_location '%s' not found! Will automatically create one" % vals['location'])
+            location_pool = self.pool['t4.clinical.location']
+            suggested_location_id = location_pool.create(cr, uid, {
+                'name': vals['location'],
+                'code': vals['location'],
+                'pos_id': user.pos_id.id,
+                'type': 'poc',
+                'usage': 'ward'
+            }, context=context)
         else:
             suggested_location_id = suggested_location[0].id
         # patient validation
@@ -287,8 +294,18 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         patient_id = patient_id[0]           
         location_pool = self.pool['t4.clinical.location']
         location_id = location_pool.search(cr, uid, [('code', '=', vals['location'])], context=context)
-        except_if(not location_id, msg="Location not found!")
-        location_id = location_id[0]
+        if not location_id:
+            _logger.warn("ADT transfer location '%s' not found! Will automatically create one" % vals['location'])
+            location_pool = self.pool['t4.clinical.location']
+            location_id = location_pool.create(cr, uid, {
+                'name': vals['location'],
+                'code': vals['location'],
+                'pos_id': spell_activity.location_id.pos_id.id,
+                'type': 'poc',
+                'usage': 'ward'
+            }, context=context)
+        else:
+            location_id = location_id[0]
         vals.update({'location_id': location_id, 'from_location_id': spell_activity.location_id.id})
         super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)
 
@@ -429,8 +446,15 @@ class t4_clinical_adt_spell_update(orm.Model):
                                                     [('code','=',vals['location']),
                                                      ('id','child_of',user.pos_id.location_id.id)])
         if not suggested_location_id:
-            _logger.warn("ADT suggested_location '%s' not found! Will pass suggested_location_id = False" % vals['location'])
-            suggested_location_id = False
+            _logger.warn("ADT suggested_location '%s' not found! Will automatically create one" % vals['location'])
+            location_pool = self.pool['t4.clinical.location']
+            suggested_location_id = location_pool.create(cr, uid, {
+                'name': vals['location'],
+                'code': vals['location'],
+                'pos_id': user.pos_id.id,
+                'type': 'poc',
+                'usage': 'ward'
+            }, context=context)
         else:
             suggested_location_id = suggested_location_id[0]
         # patient validation
