@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api &mdash; t4clinical_api 1.0. documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="t4clinical_api 1.0. documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">t4clinical_api 1.0. documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for api</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">openerp.osv</span> <span class="kn">import</span> <span class="n">orm</span><span class="p">,</span> <span class="n">osv</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span><span class="p">,</span> <span class="n">timedelta</span> <span class="k">as</span> <span class="n">td</span>
+<span class="kn">from</span> <span class="nn">openerp.tools</span> <span class="kn">import</span> <span class="n">DEFAULT_SERVER_DATETIME_FORMAT</span> <span class="k">as</span> <span class="n">DTF</span>
+<span class="kn">from</span> <span class="nn">openerp.tools.translate</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">openerp</span> <span class="kn">import</span> <span class="n">SUPERUSER_ID</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="t4_clinical_api"><a class="viewcode-back" href="../code.html#api.t4_clinical_api">[docs]</a><span class="k">class</span> <span class="nc">t4_clinical_api</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">AbstractModel</span><span class="p">):</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;t4.clinical.api.external&#39;</span>
+    <span class="c">#_inherit = &#39;t4.clinical.api&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_check_activity_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">)]</span>
+        <span class="n">activity_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">activity_ids</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Activity ID not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">activity_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">_create_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">data_model</span><span class="p">,</span> <span class="n">vals_activity</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">vals_data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">model_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="n">data_model</span><span class="p">]</span>
+        <span class="n">activity_id</span> <span class="o">=</span> <span class="n">model_pool</span><span class="o">.</span><span class="n">create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="p">,</span> <span class="n">vals_data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Activity created id=</span><span class="si">%s</span><span class="s">, data_model=</span><span class="si">%s</span><span class="se">\n</span><span class="s"> vals_activity: </span><span class="si">%s</span><span class="se">\n</span><span class="s"> vals_data: </span><span class="si">%s</span><span class="s">&quot;</span>
+                     <span class="o">%</span> <span class="p">(</span><span class="n">activity_id</span><span class="p">,</span> <span class="n">data_model</span><span class="p">,</span> <span class="n">vals_activity</span><span class="p">,</span> <span class="n">vals_data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">activity_id</span>
+
+    <span class="k">def</span> <span class="nf">_check_hospital_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">hospital_number</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">patient_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.clinical.patient&#39;</span><span class="p">]</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;other_identifier&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">hospital_number</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">patient_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cancel_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c"># Y: what if more than one activities of the type for the patient exist?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_hospital_number</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Patient ID not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;completed&#39;</span><span class="p">)]</span>
+        <span class="n">admit_activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s">&#39;date_terminated desc&#39;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">admit_activity</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">activity_type</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Activity type not valid&#39;</span><span class="p">)</span>
+        <span class="n">field_name</span> <span class="o">=</span> <span class="n">activity_type</span><span class="o">+</span><span class="s">&#39;_frequency&#39;</span>
+        <span class="n">spell_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.clinical.spell&#39;</span><span class="p">]</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;not in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">,</span> <span class="s">&#39;cancelled&#39;</span><span class="p">])]</span>
+        <span class="n">spell_ids</span> <span class="o">=</span> <span class="n">spell_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">spell_ids</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Spell not found&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">operation</span> <span class="o">==</span> <span class="s">&#39;get&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">spell_pool</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">spell_ids</span><span class="p">,</span> <span class="p">[</span><span class="n">field_name</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">spell_pool</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">spell_ids</span><span class="p">,</span> <span class="p">{</span><span class="n">field_name</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;frequency&#39;</span><span class="p">]},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="c"># # # # # # # #</span>
+    <span class="c">#  ACTIVITIES #</span>
+    <span class="c"># # # # # # # #</span>
+
+<div class="viewcode-block" id="t4_clinical_api.get_activities"><a class="viewcode-back" href="../code.html#api.t4_clinical_api.get_activities">[docs]</a>    <span class="k">def</span> <span class="nf">get_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of activities</span>
+<span class="sd">        :param ids: ids of the activities we want. If empty returns all activities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">ids</span><span class="p">)]</span> <span class="k">if</span> <span class="n">ids</span> <span class="k">else</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;not in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">,</span> <span class="s">&#39;cancelled&#39;</span><span class="p">]),</span>
+            <span class="s">&#39;|&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;date_scheduled&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;=&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">+</span><span class="n">td</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DTF</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s">&#39;date_deadline&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;=&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">+</span><span class="n">td</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DTF</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">activity_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_ids_sql</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">activity_ids</span><span class="p">))</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">        with</span>
+<span class="s">            completed_ews as(</span>
+<span class="s">                select</span>
+<span class="s">                    ews.id,</span>
+<span class="s">                    spell.patient_id,</span>
+<span class="s">                    ews.score,</span>
+<span class="s">                    ews.clinical_risk,</span>
+<span class="s">                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)</span>
+<span class="s">                from t4_clinical_spell spell</span>
+<span class="s">                left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id</span>
+<span class="s">                inner join t4_activity activity on ews.activity_id = activity.id</span>
+<span class="s">                where activity.state = &#39;completed&#39;</span>
+<span class="s">            )</span>
+<span class="s">        select activity.id,</span>
+<span class="s">            activity.summary,</span>
+<span class="s">            case</span>
+<span class="s">                when date_scheduled is not null then date_scheduled::text</span>
+<span class="s">                when date_deadline is not null then date_deadline::text</span>
+<span class="s">                else &#39;&#39;</span>
+<span class="s">            end as deadline,</span>
+<span class="s">            case</span>
+<span class="s">                when activity.date_scheduled is not null and greatest(now() at time zone &#39;UTC&#39;,activity.date_scheduled) != activity.date_scheduled then &#39;overdue: &#39; || to_char(justify_hours(greatest(now() at time zone &#39;UTC&#39;,activity.date_scheduled) - least(now() at time zone &#39;UTC&#39;,activity.date_scheduled)), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">                when activity.date_scheduled is not null and greatest(now() at time zone &#39;UTC&#39;,activity.date_scheduled) = activity.date_scheduled then to_char(justify_hours(greatest(now() at time zone &#39;UTC&#39;,activity.date_scheduled) - least(now() at time zone &#39;UTC&#39;,activity.date_scheduled)), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">                when activity.date_deadline is not null and greatest(now() at time zone &#39;UTC&#39;,activity.date_deadline) != activity.date_deadline then &#39;overdue: &#39; || to_char(justify_hours(greatest(now() at time zone &#39;UTC&#39;,activity.date_deadline) - least(now() at time zone &#39;UTC&#39;,activity.date_deadline)), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">                when activity.date_deadline is not null and greatest(now() at time zone &#39;UTC&#39;,activity.date_deadline) = activity.date_deadline then to_char(justify_hours(greatest(now() at time zone &#39;UTC&#39;,activity.date_deadline) - least(now() at time zone &#39;UTC&#39;,activity.date_deadline)), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">                else to_char((interval &#39;0s&#39;), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">            end as deadline_time,</span>
+<span class="s">            coalesce(patient.family_name, &#39;&#39;) || &#39;, &#39; || coalesce(patient.given_name, &#39;&#39;) || &#39; &#39; || coalesce(patient.middle_names,&#39;&#39;) as full_name,</span>
+<span class="s">            location.name as location,</span>
+<span class="s">            location_parent.name as parent_location,</span>
+<span class="s">            case</span>
+<span class="s">                when ews1.score is not null then ews1.score::text</span>
+<span class="s">                else &#39;&#39;</span>
+<span class="s">            end as ews_score,</span>
+<span class="s">            case</span>
+<span class="s">                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then &#39;same&#39;</span>
+<span class="s">                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) &gt; 0 then &#39;down&#39;</span>
+<span class="s">                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) &lt; 0 then &#39;up&#39;</span>
+<span class="s">                when ews1.id is null and ews2.id is null then &#39;none&#39;</span>
+<span class="s">                when ews1.id is not null and ews2.id is null then &#39;first&#39;</span>
+<span class="s">                when ews1.id is null and ews2.id is not null then &#39;no latest&#39; -- shouldn&#39;t happen.</span>
+<span class="s">            end as ews_trend,</span>
+<span class="s">            case</span>
+<span class="s">                when position(&#39;notification&#39; in activity.data_model)::bool then true</span>
+<span class="s">                else false</span>
+<span class="s">            end as notification</span>
+<span class="s">        from t4_activity activity</span>
+<span class="s">        inner join t4_clinical_patient patient on patient.id = activity.patient_id</span>
+<span class="s">        inner join t4_clinical_location location on location.id = activity.location_id</span>
+<span class="s">        inner join t4_clinical_location location_parent on location_parent.id = location.parent_id</span>
+<span class="s">        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1</span>
+<span class="s">        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2</span>
+<span class="s">        where activity.id in (</span><span class="si">%s</span><span class="s">)</span>
+<span class="s">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">activity_ids_sql</span>
+        <span class="n">activity_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">activity_ids</span><span class="p">:</span>
+            <span class="n">cr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+            <span class="n">activity_values</span> <span class="o">=</span> <span class="n">cr</span><span class="o">.</span><span class="n">dictfetchall</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">activity_values</span>
+</div>
+    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_activity_id</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_activity_id</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">unassign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_activity_id</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">unassign</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">user_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;res.users&#39;</span><span class="p">]</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">uid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_activity_id</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;user_id&#39;</span><span class="p">):</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">]</span>
+            <span class="n">domain</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)]</span>
+            <span class="n">user_ids</span> <span class="o">=</span> <span class="n">user_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">user_ids</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;User ID not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">user_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_activity_id</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="c"># # # # # # #</span>
+    <span class="c">#  PATIENTS #</span>
+    <span class="c"># # # # # # #</span>
+
+<div class="viewcode-block" id="t4_clinical_api.get_patients"><a class="viewcode-back" href="../code.html#api.t4_clinical_api.get_patients">[docs]</a>    <span class="k">def</span> <span class="nf">get_patients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of patients in dictionary format (containing every field from the table)</span>
+<span class="sd">        :param ids: ids of the patients we want. If empty returns all patients.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;started&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">ids</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;t4.clinical.spell&#39;</span><span class="p">)</span>
+        <span class="p">]</span> <span class="k">if</span> <span class="n">ids</span> <span class="k">else</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;started&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;t4.clinical.spell&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">spell_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">spell_ids_sql</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">spell_ids</span><span class="p">))</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">        with</span>
+<span class="s">            completed_ews as(</span>
+<span class="s">                select</span>
+<span class="s">                    ews.id,</span>
+<span class="s">                    spell.patient_id,</span>
+<span class="s">                    ews.score,</span>
+<span class="s">                    ews.clinical_risk,</span>
+<span class="s">                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)</span>
+<span class="s">                from t4_clinical_spell spell</span>
+<span class="s">                left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id</span>
+<span class="s">                inner join t4_activity activity on ews.activity_id = activity.id</span>
+<span class="s">                where activity.state = &#39;completed&#39;</span>
+<span class="s">            ),</span>
+<span class="s">            scheduled_ews as(</span>
+<span class="s">                select</span>
+<span class="s">                    spell.patient_id,</span>
+<span class="s">                    activity.date_scheduled,</span>
+<span class="s">                    ews.frequency,</span>
+<span class="s">                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)</span>
+<span class="s">                from t4_clinical_spell spell</span>
+<span class="s">                left join t4_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id</span>
+<span class="s">                inner join t4_activity activity on ews.activity_id = activity.id</span>
+<span class="s">                where activity.state = &#39;scheduled&#39;</span>
+<span class="s">            )</span>
+<span class="s">        select patient.id,</span>
+<span class="s">            coalesce(patient.family_name, &#39;&#39;) || &#39;, &#39; || coalesce(patient.given_name, &#39;&#39;) || &#39; &#39; || coalesce(patient.middle_names,&#39;&#39;) as full_name,</span>
+<span class="s">            case</span>
+<span class="s">                when ews0.date_scheduled is not null and greatest(now() at time zone &#39;UTC&#39;,ews0.date_scheduled) != ews0.date_scheduled then &#39;overdue: &#39; || to_char(justify_hours(greatest(now() at time zone &#39;UTC&#39;,ews0.date_scheduled) - least(now() at time zone &#39;UTC&#39;,ews0.date_scheduled)), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">                when ews0.date_scheduled is not null and greatest(now() at time zone &#39;UTC&#39;,ews0.date_scheduled) = ews0.date_scheduled then to_char(justify_hours(greatest(now() at time zone &#39;UTC&#39;,ews0.date_scheduled) - least(now() at time zone &#39;UTC&#39;,ews0.date_scheduled)), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">                else to_char((interval &#39;0s&#39;), &#39;HH24:MI&#39;) || &#39; hours&#39;</span>
+<span class="s">            end as next_ews_time,</span>
+<span class="s">            location.name as location,</span>
+<span class="s">            location_parent.name as parent_location,</span>
+<span class="s">            case</span>
+<span class="s">                when ews1.score is not null then ews1.score::text</span>
+<span class="s">                else &#39;&#39;</span>
+<span class="s">            end as ews_score,</span>
+<span class="s">            ews1.clinical_risk,</span>
+<span class="s">            case</span>
+<span class="s">                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then &#39;same&#39;</span>
+<span class="s">                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) &gt; 0 then &#39;down&#39;</span>
+<span class="s">                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) &lt; 0 then &#39;up&#39;</span>
+<span class="s">                when ews1.id is null and ews2.id is null then &#39;none&#39;</span>
+<span class="s">                when ews1.id is not null and ews2.id is null then &#39;first&#39;</span>
+<span class="s">                when ews1.id is null and ews2.id is not null then &#39;no latest&#39; -- shouldn&#39;t happen.</span>
+<span class="s">            end as ews_trend</span>
+<span class="s">        from t4_activity activity</span>
+<span class="s">        inner join t4_clinical_patient patient on patient.id = activity.patient_id</span>
+<span class="s">        inner join t4_clinical_location location on location.id = activity.location_id</span>
+<span class="s">        inner join t4_clinical_location location_parent on location_parent.id = location.parent_id</span>
+<span class="s">        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1</span>
+<span class="s">        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2</span>
+<span class="s">        left join scheduled_ews ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1</span>
+<span class="s">        where activity.state = &#39;started&#39; and activity.data_model = &#39;t4.clinical.spell&#39; and activity.id in (</span><span class="si">%s</span><span class="s">)</span>
+<span class="s">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">spell_ids_sql</span>
+        <span class="n">patient_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">spell_ids</span><span class="p">:</span>
+            <span class="n">cr</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+            <span class="n">patient_values</span> <span class="o">=</span> <span class="n">cr</span><span class="o">.</span><span class="n">dictfetchall</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">patient_values</span>
+</div>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_hospital_number</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Patient registered from an update call - data available:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">})</span>
+        <span class="n">update_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.update&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">update_activity</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">update_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Patient updated</span><span class="se">\n</span><span class="s"> data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">register_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.register&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">})</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">register_activity</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">register_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Patient registered</span><span class="se">\n</span><span class="s"> data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">admit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="c"># if not self._check_hospital_number(cr, uid, patient_id, context=context):</span>
+        <span class="c">#     _logger.warn(&quot;Patient registered from an admit call&quot;)</span>
+        <span class="c">#     self.register(cr, uid, patient_id, {}, context=context)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">})</span>
+        <span class="n">admit_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.admit&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">admit_activity</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">admit_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Patient admitted</span><span class="se">\n</span><span class="s"> data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    
+    <span class="k">def</span> <span class="nf">admit_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">})</span>
+        <span class="n">update_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.spell.update&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">update_activity</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">update_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Admission updated</span><span class="se">\n</span><span class="s"> data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+        
+    <span class="k">def</span> <span class="nf">cancel_admit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">}</span>
+        <span class="n">cancel_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.cancel_admit&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">cancel_activity</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">cancel_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Admission cancelled</span><span class="se">\n</span><span class="s"> data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_hospital_number</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Patient ID not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">patient_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.clinical.patient&#39;</span><span class="p">]</span>
+        <span class="n">patientdb_id</span> <span class="o">=</span> <span class="n">patient_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[(</span><span class="s">&#39;other_identifier&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">)],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">discharge_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.discharge&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">patientdb_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]},</span> <span class="p">{</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">,</span> <span class="s">&#39;discharge_date&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;discharge_date&#39;</span><span class="p">)},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">discharge_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Patient discharged: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">cancel_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_hospital_number</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Patient ID not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">patient_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.clinical.patient&#39;</span><span class="p">]</span>
+        <span class="n">patientdb_id</span> <span class="o">=</span> <span class="n">patient_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[(</span><span class="s">&#39;other_identifier&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">)],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">cancel_discharge_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.cancel_discharge&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">patientdb_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">cancel_discharge_activity</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">cancel_discharge_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Discharge cancelled for patient: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_hospital_number</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Patient ID not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;into_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">})</span>
+        <span class="n">merge_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.merge&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">merge_activity</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">merge_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Patient merged</span><span class="se">\n</span><span class="s"> data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_hospital_number</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Patient ID not found: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">patient_id</span><span class="p">)</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;other_identifier&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">})</span>
+        <span class="n">transfer_activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.transfer&#39;</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">transfer_activity</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">activity_pool</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">transfer_activity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Patient transferred</span><span class="se">\n</span><span class="s"> data: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">cancel_transfer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="s">&#39;t4.clinical.adt.patient.transfer&#39;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+<div class="viewcode-block" id="t4_clinical_api.get_activities_for_patient"><a class="viewcode-back" href="../code.html#api.t4_clinical_api.get_activities_for_patient">[docs]</a>    <span class="k">def</span> <span class="nf">get_activities_for_patient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">+</span><span class="n">td</span><span class="p">(</span><span class="n">days</span><span class="o">=-</span><span class="mi">30</span><span class="p">),</span>
+                                <span class="n">end_date</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of activities in dictionary format (containing every field from the table)</span>
+<span class="sd">        :param patient_id: Postgres ID of the patient to get the activities from.</span>
+<span class="sd">        :param activity_type: Type of activity we want.</span>
+<span class="sd">        :param start_date: start date to filter. A month from now by default.</span>
+<span class="sd">        :param end_date: end date to filter. Now by default.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.clinical.patient.observation.&#39;</span><span class="o">+</span><span class="n">activity_type</span><span class="p">]</span> <span class="k">if</span> <span class="n">activity_type</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;t4.activity&#39;</span><span class="p">]</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;completed&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&#39;date_terminated&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;=&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DTF</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s">&#39;date_terminated&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;=&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">DTF</span><span class="p">))]</span> <span class="k">if</span> <span class="n">activity_type</span> \
+            <span class="k">else</span> <span class="p">[(</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;not in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">,</span> <span class="s">&#39;cancelled&#39;</span><span class="p">])]</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">model_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_pool</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="p">[],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">create_activity_for_patient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">activity_type</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Activity type not valid&#39;</span><span class="p">)</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="s">&#39;t4.clinical.patient.observation.&#39;</span><span class="o">+</span><span class="n">activity_type</span>
+        <span class="n">user_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;res.users&#39;</span><span class="p">]</span>
+        <span class="n">access_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;ir.model.access&#39;</span><span class="p">]</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">user_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">rules_ids</span> <span class="o">=</span> <span class="n">access_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="p">[(</span><span class="s">&#39;model_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;group_id&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">groups_id</span><span class="p">)],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rules_ids</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Access denied, there are no access rules for these activity type - user groups&#39;</span><span class="p">)</span>
+        <span class="n">rules_values</span> <span class="o">=</span> <span class="n">access_pool</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">rules_ids</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;perm_responsibility&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;perm_responsibility&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rules_values</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&#39;Error!&#39;</span><span class="p">),</span> <span class="s">&#39;Access denied, the user is not responsible for this activity type&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="p">{},</span> <span class="p">{</span><span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">patient_id</span><span class="p">},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="s">&#39;get&#39;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">activity_type</span><span class="p">,</span> <span class="s">&#39;set&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">t4clinical_api 1.0. documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Ami.tactix4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

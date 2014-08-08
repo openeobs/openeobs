@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; t4clinical_base 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="t4clinical_base 1.0.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">t4clinical_base 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <p>Contents:</p>
+<span class="target" id="module-api"></span><dl class="class">
+<dt id="api.t4_clinical_api">
+<em class="property">class </em><tt class="descclassname">api.</tt><tt class="descname">t4_clinical_api</tt><big>(</big><em>pool</em>, <em>cr</em><big>)</big><a class="reference internal" href="_modules/api.html#t4_clinical_api"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.t4_clinical_api" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="api.t4_clinical_api.activity_info">
+<tt class="descname">activity_info</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api.html#t4_clinical_api.activity_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.t4_clinical_api.activity_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>activity diagnostic info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.t4_clinical_api.activity_map">
+<tt class="descname">activity_map</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api.html#t4_clinical_api.activity_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.t4_clinical_api.activity_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments and Return Parameters may be extended at later stages
+Returns:</p>
+<blockquote>
+<div><p>Description: user data, real and calculated parameters
+Format: {id: {id, ..., other params}}
+Parameters:</p>
+<blockquote>
+<div><p>id, all real fields of t4.activity: t4.clinical.patient field
+...
+TODO:</p>
+<blockquote>
+<div>...</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd><p class="first">activity_ids=[],
+pos_ids=[], location_ids=[], patient_ids=[],
+device_ids=[], data_models=[], states=[]: unlimited lists of values semantically corresponding to the parameter name
+...
+TODO:</p>
+<blockquote class="last">
+<div>...</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.t4_clinical_api.location_map">
+<tt class="descname">location_map</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api.html#t4_clinical_api.location_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.t4_clinical_api.location_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments and Return Parameters may be extended at later stages
+Returns:</p>
+<blockquote>
+<div><p>Description: location data, real and calculated parameters
+Format: {id: {id, code, type, usage, occupied, capacity, available, ..., other params}}
+Parameters:</p>
+<blockquote>
+<div>id, code, type, usage, occupied, capacity: t4.clinical.location fields
+occupied: calculated as &#8216;patients found as moved in and not moved out&#8217;
+available: calculated as &#8216;location capacity&#8217; - &#8216;patients found as moved in and not moved out&#8217;
+patient_ids: calculated as &#8216;ids of patients found as moved in and not moved out&#8217;</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd>location_ids=[], types=[], usages=[], 
+codes=[], pos_ids=[], patient_ids=[]: unlimited lists of values semantically corresponding to the parameter name
+occupied_range=[], capacity_range=[], available_range=[]: min,max ranges of corresponding values</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.t4_clinical_api.patient_map">
+<tt class="descname">patient_map</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api.html#t4_clinical_api.patient_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.t4_clinical_api.patient_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments and Return Parameters may be extended at later stages
+Returns:</p>
+<blockquote>
+<div><p>Description: user data, real and calculated parameters
+Format: {id: {id, ..., other params}}
+Parameters:</p>
+<blockquote>
+<div><p>id: t4.clinical.patient field
+location_id: patient&#8217;s current location 
+pos_id: patient&#8217;s current pos
+...
+TODO:</p>
+<blockquote>
+<div>route: {sequence: location_id, ...}
+spell_activity_id</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd><p class="first">pos_ids=[], patient_ids=[]: unlimited lists of values semantically corresponding to the parameter name
+...
+TODO:</p>
+<blockquote class="last">
+<div>route_location_ids=[]: location ids that patient&#8217;s route crosses</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="api.t4_clinical_api.user_map">
+<tt class="descname">user_map</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api.html#t4_clinical_api.user_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.t4_clinical_api.user_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Arguments and Return Parameters may be extended at later stages
+Returns:</p>
+<blockquote>
+<div><p>Description: user data, real and calculated parameters
+Format: {id: {id, ..., other params}}
+Parameters:</p>
+<blockquote>
+<div><p>id, login: res.users fields
+group_xmlids: user&#8217;s groups xml ids 
+assigned_activity_ids: ids of activities assigned to the user
+...
+TODO:</p>
+<blockquote>
+<div>responsible_activity_ids</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>Arguments:</dt>
+<dd><p class="first">user_ids=[], group_xmlids=[], assigned_activity_ids=[]: unlimited lists of values semantically corresponding to the parameter name
+...
+TODO:</p>
+<blockquote class="last">
+<div>responsible_activity_ids</div></blockquote>
+</dd>
+</dl>
+<p>returns:
+{user_id: {group_xmlids, assigned_activity_ids, responsible_activity_ids}}</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.t4_clinical_api_adt">
+<em class="property">class </em><tt class="descclassname">api.</tt><tt class="descname">t4_clinical_api_adt</tt><big>(</big><em>pool</em>, <em>cr</em><big>)</big><a class="reference internal" href="_modules/api.html#t4_clinical_api_adt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.t4_clinical_api_adt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/code.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">t4clinical_base 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Ami.tactix4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
