@@ -176,7 +176,7 @@
             <field name="name">Points of Care Management Form View</field>
             <field name="model">t4.clinical.location</field>
             <field name="arch" type="xml">
-                <form string="Points of Care Management" version="7.0" create="0">
+                <form string="Points of Care Management" version="7.0" create="0" edit="0">
                     <sheet>
                         <group string="Point of Care Management">
                             <field name="name" readonly="1"/>
@@ -192,6 +192,7 @@
                                     <tree version="7.0" editable="1" create="0">
                                         <field name="name" readonly="1"/>
                                         <field name="user_ids" widget="many2many_tags"/>
+                                        <field name="is_available" readonly="1"/>
                                     </tree>
                                 </field>
                             </page>
