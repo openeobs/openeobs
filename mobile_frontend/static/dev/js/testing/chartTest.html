@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>T4skr Graph Library Test Suite</title>
+    <link rel="stylesheet" href="qunit.css">
+</head>
+<body>
+    <div id="svgTestArea">
+        <h3>Score</h3>
+        <div id="contextChart" class="chart"></div>
+        <h3 id="focusTitle">Individual values</h3>
+        <div class="chartDates">
+            <p>Start date</p>
+            <input type="date" name="contextStartD" id="contextStartD" class="mobDT date" onchange="contextChange()">
+            <input type="time" name="contextStartT" id="contextStartT" class="mobDT time" onchange="contextChange()">
+        </div>
+        <div class="chartDates">
+            <p>End date</p>
+            <input type="date" name="contextEndD" id="contextEndD" class="mobDT date" onchange="contextChange()">
+            <input type="time" name="contextEndT" id="contextEndT" class="mobDT time" onchange="contextChange()">
+        </div>
+        <div id="focusChart" class="chart"></div>
+        <div class="table-wrapper" id="the_unplottables">
+            <h3>Unplottable values</h3>
+            <div class="table-wrapper">
+                <table id="chartTable"></table>
+            </div>
+        </div>
+    </div>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+
+    <script src="../../javascripts/jquery-1.9.1.min.js"></script>
+    <script src="../../javascripts/d3.v3.min.js"></script>
+    <script src="graph_lib.js"></script>
+    <script src="qunit.js"></script>
+    <script src="../news-score.js"></script>
+    <script src="../mews-score.js"></script>
+    <script src="graph_lib_tests.js"></script>
+</body>
+</html>

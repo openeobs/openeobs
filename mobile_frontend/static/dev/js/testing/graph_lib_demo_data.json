@@ -1,0 +1,45 @@
+{
+    "obs": [
+        {
+            "obsId": 4,
+            "obs": {
+                "pulse_rate": 80,
+                "pulse_type": null,
+                "respiration_rate": 15,
+                "body_temperature": 38,
+                "consciousness": "A",
+                "urine_output": "3",
+                "blood_pressure_systolic": 126,
+                "blood_pressure_diastolic": 94,
+                "indirect_oxymetry_spo2": null,
+                "oxygen_administration_flag": {
+                    "parameters": {}
+                }
+            },
+            "obsStart": "2014-02-10 21:49:55",
+            "obsFinish": "2014-02-10 21:51:55",
+            "reason": null
+        },
+        {
+            "obsId": 4,
+            "obs": {
+                "pulse_rate": 67,
+                "pulse_type": null,
+                "respiration_rate": 21,
+                "body_temperature": 38,
+                "consciousness": "A",
+                "urine_output": "3",
+                "blood_pressure_systolic": 135,
+                "blood_pressure_diastolic": 74,
+                "indirect_oxymetry_spo2": null,
+                "oxygen_administration_flag": {
+                    "parameters": {}
+                }
+            },
+            "obsStart": "2014-02-10 21:40:02",
+            "obsFinish": "2014-02-10 21:42:02",
+            "reason": null
+        }
+    ],
+    "obsType": "t4skr.observation.mews"
+}
