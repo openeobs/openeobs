@@ -5,10 +5,10 @@ from BeautifulSoup import BeautifulSoup
 import helpers
 
 
-class PatientListTest(common.SingleTransactionCase):
+class TaskListTest(common.SingleTransactionCase):
 
     def setUp(self):
-        super(PatientListTest, self).setUp()
+        super(TaskListTest, self).setUp()
 
         # set up database connection objects
         self.registry = openerp.modules.registry.RegistryManager.get('t4clinical_test')
@@ -67,37 +67,37 @@ class PatientListTest(common.SingleTransactionCase):
         }
 
         # Call controller
-        patient_api = self.registry['t4.clinical.api.external']
-        patients = patient_api.get_patients(cr, adt_user_id, [], context=self.context)
-        for patient in patients:
-            patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'], patient['id'])
-            patient['color'] = 'level-one'
-            patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
-            patient['deadline_time'] = patient['next_ews_time']
-            patient['summary'] = patient['summary'] if patient.get('summary') else False
+        task_api = self.registry['t4.clinical.api.external']
+        tasks = task_api.get_activities(cr, adt_user_id, [], context=self.context)
+        for task in tasks:
+            task['url'] = '{0}{1}'.format(helpers.URLS['single_task'], task['id'])
+            task['color'] = 'level-one'
+            task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
+            task['summary'] = task['summary'] if task.get('summary') else False
 
         view_obj = self.registry("ir.ui.view")
-        get_patients_html = view_obj.render(
-            cr, uid, 'mobile_frontend.patient_task_list', {'items': patients[:1],
-                                                           'section': 'patient',
+        get_tasks_html = view_obj.render(
+            cr, uid, 'mobile_frontend.patient_task_list', {'items': tasks[:1],
+                                                           'section': 'task',
                                                            'username': 'norah',
                                                            'urls': helpers.URLS},
             context=self.context)
 
         # Create BS instances
-        example_patient = patients[0]
-        example_html = helpers.PATIENT_LIST_HTML.format(example_patient['url'],
-                                                        example_patient['deadline_time'],
-                                                        example_patient['full_name'],
-                                                        example_patient['ews_score'],
-                                                        example_patient['trend_icon'],
-                                                        example_patient['location'],
-                                                        example_patient['parent_location'])
+        example_task = tasks[0]
+        example_html = helpers.TASK_LIST_HTML.format(example_task['url'],
+                                                     example_task['deadline_time'],
+                                                     example_task['full_name'],
+                                                     example_task['ews_score'],
+                                                     example_task['trend_icon'],
+                                                     example_task['location'],
+                                                     example_task['parent_location'],
+                                                     example_task['summary'])
 
-        get_patients_bs = str(BeautifulSoup(get_patients_html)).replace('\n', '')
-        example_patients_bs = str(BeautifulSoup(example_html)).replace('\n', '')
+        get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
+        example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')
 
         # Assert that shit
-        self.assertEqual(get_patients_bs,
-                         example_patients_bs,
+        self.assertEqual(get_tasks_bs,
+                         example_tasks_bs,
                          'DOM from Controller ain\'t the same as DOM from example')

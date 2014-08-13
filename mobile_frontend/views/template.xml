@@ -64,9 +64,7 @@
                                     </div>
                                 </div>
                                 <div class="task-meta">
-                                    <p class="taskInfo">
-                                        <t t-if="item['summary']"><t t-esc="item['summary']"></t></t><br/>
-                                    </p>
+                                    <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
                                 </div>
                             </a>
                         </li>
