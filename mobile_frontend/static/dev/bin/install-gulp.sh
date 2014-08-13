@@ -17,4 +17,4 @@ npm install --save-dev gulp-concat
 npm install --save-dev less
 
 #compile
-#sh build-all.sh
+sh build-all.sh
