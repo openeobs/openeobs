@@ -3,12 +3,13 @@ from openerp.tests import common
 import openerp.modules.registry
 from BeautifulSoup import BeautifulSoup
 import helpers
+import re
 
 
-class TaskListTest(common.SingleTransactionCase):
+class NewsObsTest(common.SingleTransactionCase):
 
     def setUp(self):
-        super(TaskListTest, self).setUp()
+        super(NewsObsTest, self).setUp()
 
         # set up database connection objects
         self.registry = openerp.modules.registry.RegistryManager.get('t4clinical_test')
@@ -23,7 +24,7 @@ class TaskListTest(common.SingleTransactionCase):
         self.location_type = self.registry.get('t4.clinical.pos.delivery.type')
         self.users = self.registry.get('res.users')
 
-    def test_task_list(self):
+    def test_news_obs_form(self):
         cr, uid = self.cr, self.uid
 
         # Create test patient
@@ -66,33 +67,66 @@ class TaskListTest(common.SingleTransactionCase):
             'uid': 1
         }
 
-        # Call controller
+        # Grab the NEWS Obs task from task list
         task_api = self.registry['t4.clinical.api.external']
-        tasks = task_api.get_activities(cr, adt_user_id, [], context=self.context)
-        for task in tasks:
-            task['url'] = '{0}{1}'.format(helpers.URLS['single_task'], task['id'])
-            task['color'] = 'level-one'
-            task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
-            task['summary'] = task['summary'] if task.get('summary') else False
+        task_id = [a for a in task_api.get_activities(cr, adt_user_id, [], context=self.context) if "NEWS" in a['summary']][0]['id']
+
+        # Take the Task
+        activity_reg = self.registry['t4.activity']
+        task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary'], context=self.context)
+        patient = dict()
+        patient['url'] = helpers.URLS['single_patient'] + '{0}'.format(2)
+        patient['name'] = 'Colin is Awesome'
+        form = dict()
+        form['action'] = helpers.URLS['task_form_action']+'{0}'.format(task_id)
+        form['type'] = task['data_model']
+        form['source-id'] = int(task_id)
+        form['source'] = "task"
+        form['start'] = '0'
+        #if task.get('user_id') and task['user_id'][0] != new_uid:
+        if task.get('user_id') and task['user_id'][0] != adt_user_id:
+            self.fail('Task is already taken by another user')
+        try:
+            task_api.assign(cr, uid, task_id, {'user_id': adt_user_id}, context=self.context)
+        except Exception:
+            self.fail("Wasn't able to take Task")
+
+        # Grab the form Def and compile the data to send to template
+        obs_reg = self.registry[task['data_model']]
+        form_desc = obs_reg._form_description
+        form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
+        for form_input in form_desc:
+            if form_input['type'] in ['float', 'integer']:
+                form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
+                form_input['type'] = 'number'
+                form_input['number'] = True
+                form_input['info'] = ''
+                form_input['errors'] = ''
+            elif form_input['type'] == 'selection':
+                form_input['selection_options'] = []
+                form_input['info'] = ''
+                form_input['errors'] = ''
+                for option in form_input['selection']:
+                    opt = dict()
+                    opt['value'] = '{0}'.format(option[0])
+                    opt['label'] = option[1]
+                    form_input['selection_options'].append(opt)
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(
-            cr, uid, 'mobile_frontend.patient_task_list', {'items': tasks[:1],
-                                                           'section': 'task',
-                                                           'username': 'norah',
-                                                           'urls': helpers.URLS},
-            context=self.context)
+        get_tasks_html = view_obj.render(cr, uid, 'mobile_frontend.observation_entry',
+                                         {'inputs': form_desc,
+                                          'name': task['summary'],
+                                          'patient': patient,
+                                          'form': form,
+                                          'section': 'task',
+                                          'username': 'norah',
+                                          'urls': helpers.URLS},
+                                         context=self.context)
 
         # Create BS instances
-        example_task = tasks[0]
-        example_html = helpers.TASK_LIST_HTML.format(example_task['url'],
-                                                     example_task['deadline_time'],
-                                                     example_task['full_name'],
-                                                     example_task['ews_score'],
-                                                     example_task['trend_icon'],
-                                                     example_task['location'],
-                                                     example_task['parent_location'],
-                                                     example_task['summary'])
+        example_html = helpers.NEWS_OBS.format(patient['url'],
+                                               patient['name'],
+                                               task_id, 0)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')
