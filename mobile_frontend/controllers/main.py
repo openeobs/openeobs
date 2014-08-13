@@ -26,23 +26,23 @@ class MobileFrontend(http.Controller):
     @http.route(URLS['stylesheet'], type='http', auth='public', website=True)
     def get_stylesheet(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
-            return stylesheet.read()
+            return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
     @http.route(URLS['new_stylesheet'], type='http', auth='public', website=True)
     def get_new_stylesheet(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/css/new.css', 'r') as stylesheet:
-            return stylesheet.read()
+            return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
     @http.route('/mobile/src/fonts/<xmlid>', auth='public', type='http')
     def get_font(self, xmlid, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/fonts/' + xmlid, 'r') as font:
-            return font.read()
+            return request.make_response(font.read(), headers={'Content-Type':'application/font-woff'})
 
 
     @http.route(URLS['logo'], type='http', auth='public', website=True)
     def get_logo(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/img/t4skrlogo.png', 'r') as logo:
-            return logo.read()
+            return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
     @http.route(URLS['patient_list'], type='http', auth="public", website=True)
     def get_patients(self, *args, **kw):
@@ -58,10 +58,10 @@ class MobileFrontend(http.Controller):
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
-        return request.render('mobile_frontend.task_patient_list', qcontext={'items': patients,
+        return request.render('mobile_frontend.patient_task_list', qcontext={'items': patients,
                                                                              'section': 'patient',
                                                                              'username': 'norah',
-                                                                             'urls': URLS}, lazy=False)
+                                                                             'urls': URLS})
 
     @http.route(URLS['task_list'], type='http', auth='public', website=True)
     def get_tasks(self, *args, **kw):
@@ -75,7 +75,7 @@ class MobileFrontend(http.Controller):
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
             task['color'] = 'level-one'
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
-        return request.render('mobile_frontend.task_patient_list', qcontext={'items': tasks,
+        return request.render('mobile_frontend.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
                                                                              'username': 'norah',
                                                                              'urls': URLS})
@@ -141,7 +141,7 @@ class MobileFrontend(http.Controller):
                         opt['label'] = option[1]
                         form_input['selection_options'].append(opt)
 
-            return request.render('mobile_frontend.observation_data_entry', qcontext={'inputs': form_desc,
+            return request.render('mobile_frontend.observation_entry', qcontext={'inputs': form_desc,
                                                                                       'name': task['summary'],
                                                                                       'patient': patient,
                                                                                       'form': form,

@@ -3,96 +3,80 @@
 -->
 <openerp>
     <data>
+
+
         <template t-name="mobile_frontend.base" name="Base layout">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
+                    <title>Open-eObs</title>
+                    <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
                 </head>
                 <body>
+                    <div class="header">
+                        <div class="header-main block">
+                            <img t-att-src="urls['logo']" class="logo"/>
+                            <ul class="header-meta">
+                                <li class="logout"><a t-att-href="urls['logout']" class="button back">Logout</a></li>
+                            </ul>
+                        </div>
+                        <ul class="header-menu two-col">
+                            <t t-if="section=='task'">
+                                <li><a t-att-href="urls['task_list']" id="taskNavItem" class="selected">Tasks</a></li>
+                                <li><a t-att-href="urls['patient_list']" id="patientNavItem">My Patients</a></li>
+                            </t>
+                            <t t-if="section=='patient'">
+                                <li><a t-att-href="urls['task_list']" id="taskNavItem">Tasks</a></li>
+                                <li><a t-att-href="urls['patient_list']" id="patientNavItem" class="selected">My Patients</a></li>
+                            </t>
+                        </ul>
+                    </div>
                     <t t-raw="0"/>
+                    <div class="footer block">
+                        <p class="user"><t t-esc="username"/></p>
+                    </div>
                 </body>
             </html>
         </template>
-        
-        
-        <template t-name="mobile_frontend.logged_in_footer" name="Footer when logged in">
-			<t t-call="mobile_frontend.base">
-				<div class="footer block">
-					<p class="user"><t t-esc="username"/></p>
-				</div>
-			</t>
-        </template>
-        
-        <template t-name="mobile_frontend.logged_in_header" name="Header when logged in">
-			<t t-call="mobile_frontend.base">
-				<div class="header">
-					<div class="header-main block">
-						<img t-att-src="urls['logo']" class="logo"/>
-						<ul class="header-meta">
-							<li class="logout"><a t-att-href="urls['logout']" class="button back">Logout</a></li>
-						</ul>
-					</div>
-					<ul class="header-menu two-col">
-						<t t-if="section=='task'">
-							<li><a t-att-href="urls['task_list']" id="taskNavItem" class="selected">Tasks</a></li>
-							<li><a t-att-href="urls['patient_list']" id="patientNavItem">My Patients</a></li>
-						</t>
-						<t t-if="section=='patient'">
-							<li><a t-att-href="urls['task_list']" id="taskNavItem">Tasks</a></li>
-							<li><a t-att-href="urls['patient_list']" id="patientNavItem" class="selected">My Patients</a></li>
-						</t>
-					</ul>
-				</div>
-			</t>
-        </template>
 
-        
-        <template t-name="mobile_frontend.assets" name="Assets for mobile frontend">
-			<title>Open-eObs</title>
-            <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
-        </template>
-
-        <template t-name="mobile_frontend.assets_new" name="Assets for mobile frontend">
+       <!-- <template t-name="mobile_frontend.assets_new" name="Assets for mobile frontend">
             <title>Open-eObs</title>
             <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
             <link t-att-href="urls['new_stylesheet']" rel="stylesheet" type="text/css"/>
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
-        </template>
+        </template>     -->
         
         
         
-        <template t-name="mobile_frontend.task_patient_list" name="List of Tasks or Patients">
-			<t t-call="mobile_frontend.assets"/>
-			<t t-call="mobile_frontend.logged_in_header"/>
-			<t t-call="mobile_frontend.base">
+        <template t-name="mobile_frontend.patient_task_list" name="List of Tasks or Patients">
+            <t t-call="mobile_frontend.base">
                 <div class="content">
-					<ul class="tasklist">
+                    <ul class="tasklist">
                         <li t-foreach="items" t-as="item">
-							<a t-att-href="item['url']" t-att-class="item['color']+' block'">
-								<div class="task-meta">
-									<div class="task-right">
-										<p class="aside"><t t-esc="item['deadline_time']"/></p>
-									</div>
-									<div class="task-left">
-										<strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
-										<em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
-									</div>
-								</div>
-								<div class="task-meta">
-									<p class="taskInfo">
-										<t t-if="item['summary']"><t t-esc="item['summary']"></t></t><br/>
-									</p>
-								</div>
-							</a>
-						</li>
+                            <a t-att-href="item['url']" t-att-class="item['color']+' block'">
+                                <div class="task-meta">
+                                    <div class="task-right">
+                                        <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                    </div>
+                                    <div class="task-left">
+                                        <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
+                                        <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                    </div>
+                                </div>
+                                <div class="task-meta">
+                                    <p class="taskInfo">
+                                        <t t-if="item['summary']"><t t-esc="item['summary']"></t></t><br/>
+                                    </p>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
-			</t>
-			<t t-call="mobile_frontend.logged_in_footer"/>
+            </t>
         </template>
 
 
-        <template t-name="mobile_frontend.task_patient_list_new" name="List of Tasks or Patients - new design">
+       <!--  <template t-name="mobile_frontend.task_patient_list_new" name="List of Tasks or Patients - new design">
             <t t-call="mobile_frontend.assets_new"/>
             <t t-call="mobile_frontend.logged_in_header"/>
             <t t-call="mobile_frontend.base">
@@ -129,44 +113,39 @@
                 </div>
             </t>
             <t t-call="mobile_frontend.logged_in_footer"/>
-        </template>
+        </template>  -->
 
 
          <template name="Notification Confirm/Cancel Screen" t-name="mobile_frontend.notification_confirm_cancel">
             <h1><t t-esc="name"/></h1>
         </template>
 
-        <template name="Observation Data Entry Screen" t-name="mobile_frontend.observation_data_entry">
-            <t t-call="mobile_frontend.assets_new"/>
-            <t t-call="mobile_frontend.logged_in_header"/>
+        <template name="Observation Data Entry Screen" t-name="mobile_frontend.observation_entry">
             <t t-call="mobile_frontend.base">
-                <div class="content">
-                    <div>
-                        <h2 id="patientName" class="block">
-                            <a t-att-href="patient['url']">
-                                <t t-esc="patient['name']"/>
-                                <i class="icon-info"></i>
-                            </a>
-                        </h2>
-                        <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-data-id="form['source-id']" id="obsForm" t-att-source="form['source']">
-                            <div t-foreach="inputs" t-as="item">
-                                <t t-if="item['type']=='number'">
-                                    <t t-call="mobile_frontend.observation_data_input"/>
-                                </t>
-                                <t t-if="item['type']=='selection'">
-                                    <t t-call="mobile_frontend.observation_data_select"/>
-                                </t>
-                            </div>
-                            <input type="hidden" name="taskId" t-att-value="form['source-id']"/>
-                            <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                            <div class="block obsSubmit">
-                                <input type="submit" value="Submit" id="submitButton"/>
-                            </div>
-                        </form>
-                    </div>
+                <div>
+                    <h2 id="patientName" class="block">
+                        <a t-att-href="patient['url']">
+                            <t t-esc="patient['name']"/>
+                            <i class="icon-info"></i>
+                        </a>
+                    </h2>
+                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-data-id="form['source-id']" id="obsForm" t-att-source="form['source']">
+                        <div t-foreach="inputs" t-as="item">
+                            <t t-if="item['type']=='number'">
+                                <t t-call="mobile_frontend.observation_data_input"/>
+                            </t>
+                            <t t-if="item['type']=='selection'">
+                                <t t-call="mobile_frontend.observation_data_select"/>
+                            </t>
+                        </div>
+                        <input type="hidden" name="taskId" t-att-value="form['source-id']"/>
+                        <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                        <div class="block obsSubmit">
+                            <input type="submit" value="Submit" id="submitButton"/>
+                        </div>
+                    </form>
                 </div>
             </t>
-            <t t-call="mobile_frontend.logged_in_footer"/>
         </template>
 
 
