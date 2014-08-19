@@ -29,7 +29,7 @@ class test_api(common.SingleTransactionCase):
         
         
     def test_api_location_map(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         env_pool = self.registry('t4.clinical.demo.env')
         api = self.registry('t4.clinical.api')
@@ -69,7 +69,7 @@ class test_api(common.SingleTransactionCase):
             amap = api.location_map(cr, uid, usages=['bed'], patient_ids=[patient_id], available_range=[0,1], pos_ids=[env.pos_id.id])
             
     def test_api_patient_map(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         env_pool = self.registry('t4.clinical.demo.env')
         api = self.registry('t4.clinical.api')
@@ -95,7 +95,7 @@ class test_api(common.SingleTransactionCase):
         
         
     def test_api_user_map(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         env_pool = self.registry('t4.clinical.demo.env')
         api = self.registry('t4.clinical.api')

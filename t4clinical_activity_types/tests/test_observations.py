@@ -134,7 +134,7 @@ class test_observations(common.SingleTransactionCase):
         super(test_observations, self).setUp()
 
     def test_no_policy_obs_and_adt_cancel(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         env_pool = self.registry('t4.clinical.demo.env')
         api = self.registry('t4.clinical.api')
@@ -177,7 +177,7 @@ class test_observations(common.SingleTransactionCase):
                 assert a.state == 'cancelled'
 
     def test_gcs_observations_policy_static(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         gcs_test_data = {
             'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
@@ -235,7 +235,7 @@ class test_observations(common.SingleTransactionCase):
         
 
     def test_ews_observations_policy_static(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         ews_test_data = {
             'SCORE':    [   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15,   16,   17,    3,    4,   20],

@@ -101,7 +101,7 @@ class test_adt(common.SingleTransactionCase):
 
 
     def test_adt_register(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         env_pool = self.registry('t4.clinical.demo.env')
         api = self.registry('t4.clinical.api')

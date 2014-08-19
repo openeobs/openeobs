@@ -312,8 +312,24 @@ with
         res = {r['id']: r for r in cr.dictfetchall()}
         #import pdb; pdb.set_trace()
         return res
+
+    def get_adt_users(self, cr, uid, pos_ids=[], return_id=False):
+        user_ids = self.user_map(cr, uid, pos_ids=pos_ids, group_xmlids=['group_t4clinical_adt']).keys()
+        if return_id:
+            return user_ids
+        else:
+            return self.pool['res.users'].browse(cr, uid, user_ids)
+
+    def get_users(self, cr, uid, user_ids=[], group_xmlids=[], assigned_activity_ids=[], pos_ids=[], return_id=False):
+
+        user_ids = self.user_map(cr, uid, user_ids=user_ids, group_xmlids=group_xmlids, 
+                                     assigned_activity_ids=assigned_activity_ids, pos_ids=pos_ids).keys()
+        if return_id:
+            return user_ids
+        else:
+            return self.pool['res.users'].browse(cr, uid, user_ids)
     
-    def user_map(self, cr,uid, user_ids=[], group_xmlids=[], assigned_activity_ids=[]):
+    def user_map(self, cr,uid, user_ids=[], group_xmlids=[], assigned_activity_ids=[], pos_ids=[]):
         """
         Arguments and Return Parameters may be extended at later stages
         Returns:
@@ -340,6 +356,7 @@ with
         where_list = []
         if assigned_activity_ids: where_list.append("assigned_activity_ids && array[%s]" % ','.join([str(int(id)) for id in assigned_activity_ids]))
         if user_ids: where_list.append("user_id in (%s)" % ','.join([str(int(id)) for id in user_ids]))
+        if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(int(id)) for id in pos_ids]))
         if group_xmlids: where_list.append("group_xmlids && array['%s']" % "','".join(group_xmlids))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""       
         sql = """
@@ -366,7 +383,8 @@ with
                         u.id,
                         u.login as login,
                         g.group_xmlids,
-                        aa.assigned_activity_ids
+                        aa.assigned_activity_ids,
+                        u.pos_id
                     from res_users u
                     left join groups g on g.user_id = u.id
                     left join assigned_activity aa on aa.user_id = u.id
@@ -483,7 +501,10 @@ with
         return res
     
     def get_activities(self, cr, uid, activity_ids=[],
-                       pos_ids=[], location_ids=[], patient_ids=[],device_ids=[], data_models=[], states=[], return_id=False):
+                       pos_ids=[], location_ids=[], patient_ids=[],
+                       device_ids=[], data_models=[], states=[], 
+                       return_id=False):
+
         activity_ids = self.activity_map(cr, uid, pos_ids=pos_ids, location_ids=location_ids, 
                                              patient_ids=patient_ids, device_ids=device_ids, 
                                              data_models=data_models, states=states).keys()
@@ -625,34 +646,17 @@ with
 #         return list(patient_ids)
 
     def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
-        domain = {
-                  'patient_ids': [patient_id],
+        domain = {'patient_ids': [patient_id],
                   'states': ['started'],
-                  'data_models': ['t4.clinical.spell']
-                  }
+                  'data_models': ['t4.clinical.spell']}
         pos_id and domain.update({'pos_ids': [pos_id]})
-        #import pdb; pdb.set_trace()
         spell_activity_id = self.activity_map(cr, uid, **domain).keys()
         if not spell_activity_id:
             return False
         if len(spell_activity_id) > 1:
             _logger.warn("For patient_id=%s found more than 1 started spell_activity_ids: %s " % (patient_id, spell_activity_id))
-        #try:
         return spell_activity_id[0]
-        #except:
-         #   import pdb; pdb.set_trace()
 
-#     def get_patient_last_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
-#         activity_pool = self.pool['t4.activity']
-#         domain = [('patient_id', '=', patient_id),
-#                   ('state', '=', 'completed'),
-#                   ('data_model', '=', 't4.clinical.spell')]
-#         if pos_id:
-#             domain.append(('pos_id', '=', pos_id))
-#         spell_activity_id = activity_pool.search(cr, uid, domain, order='date_terminated desc', context=context)
-#         if not spell_activity_id:
-#             return False
-#         return spell_activity_id[0]
 
     def get_patient_spell_activity_browse(self, cr, uid, patient_id, pos_id=None, context=None):
         spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, pos_id, context)
@@ -661,11 +665,11 @@ with
         return self.pool['t4.activity'].browse(cr, uid, spell_activity_id, context)
     
     def get_device_session_activity_id(self, cr, uid, device_id, context=None):
-        activity_pool = self.pool['t4.activity']
-        domain = [('device_id', '=', device_id),
-                  ('state', '=', 'started'),
-                  ('data_model', '=', 't4.clinical.device.session')]
-        session_activity_id = activity_pool.search(cr, uid, domain)
+        api = self.pool['t4.clinical.api']
+        domain = {'device_ids': [device_id],
+                  'states': ['started'],
+                  'data_models': ['t4.clinical.device.session']}
+        session_activity_id = api.activity_map(cr, uid, **domain).keys()
         if not session_activity_id:
             return False
         if len(session_activity_id) > 1:
@@ -698,11 +702,3 @@ with
 #         res = self.get_patient_placement_location_browse(cr, uid, patient_id, context)
 #         res = res and res.id
 #         return res    
-
-
-class t4_clinical_api_adt(orm.AbstractModel):
-    _name = 't4.clinical.api.adt'
-
-    
-class t4_clinical_api_frontend(orm.AbstractModel):
-    _name = 't4.clinical.api.frontend'

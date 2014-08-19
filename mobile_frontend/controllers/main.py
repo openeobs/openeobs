@@ -157,5 +157,11 @@ class MobileFrontend(http.Controller):
     @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="public", website=True)
     def process_form(self, task_id, *args, **kw):
         print 'doing some foo'
+        #import pdb; pdb.set_trace()
+        cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
+        api = request.registry('t4.clinical.api')
+        kw_copy = kw.copy()
+        del kw_copy['taskId']
+        api.submit_complete(cr, uid, int(task_id), kw_copy, context)
         return utils.redirect(URLS['task_list'])
 
