@@ -34,7 +34,7 @@ class TestObservations(common.SingleTransactionCase):
         wm_uid = self.xml2db_id("demo_user_manager")
         nur_uid = self.xml2db_id("demo_user_nurse")
 
-        gender = faker.random_element(array=('M', 'F'))
+        gender = faker.random_element(('M', 'F'))
         patient_data = {
             'family_name': faker.last_name(),
             'other_identifier': str(faker.random_int(min=1001, max=9999)),
@@ -54,7 +54,7 @@ class TestObservations(common.SingleTransactionCase):
         admit_data = {
             'code': str(faker.random_int(min=10001, max=99999)),
             'other_identifier': patient_data['other_identifier'],
-            'location': 'W'+faker.random_element(array=('8', '9')),
+            'location': 'W'+faker.random_element(('8', '9')),
             'start_date': faker.date_time_between(start_date="-1w", end_date="-1h").strftime(DTF)
         }
         admit_activity_id = admit_pool.create_activity(cr, adt_uid, {}, admit_data)
@@ -64,11 +64,11 @@ class TestObservations(common.SingleTransactionCase):
         available_bed_location_ids = location_pool.get_available_location_ids(cr, uid, ['bed'])
         if admit_data['location'] == 'W8':
             location_ids = location_pool.search(cr, uid, [
-                ('code', '=', 'B'+faker.random_element(array=('1', '2', '3', '4'))),
+                ('code', '=', 'B'+faker.random_element(('1', '2', '3', '4'))),
                 ('id','in',available_bed_location_ids)])
         else:
             location_ids = location_pool.search(cr, uid, [
-                ('code', '=', 'B'+faker.random_element(array=('5', '6', '7', '8'))),
+                ('code', '=', 'B'+faker.random_element(('5', '6', '7', '8'))),
                 ('id','in',available_bed_location_ids)])
         # self.assertTrue(location_ids, msg='Location not found')
         if not location_ids:
@@ -111,7 +111,7 @@ class TestObservations(common.SingleTransactionCase):
         blood_product_activity_id = blood_product_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
         self.assertTrue(blood_product_activity_id, msg='Blood product Observation activity not created')
         vol = float(faker.random_int(min=1, max=10))
-        product = faker.random_element(array=('rbc', 'ffp', 'platelets', 'has', 'dli', 'stem'))
+        product = faker.random_element(('rbc', 'ffp', 'platelets', 'has', 'dli', 'stem'))
         activity_pool.submit(cr, nur_uid, blood_product_activity_id, {'vol': vol, 'product': product})
         activity_pool.complete(cr, nur_uid, blood_product_activity_id)
         blood_product = activity_pool.browse(cr, uid, blood_product_activity_id)
@@ -141,13 +141,13 @@ class TestObservations(common.SingleTransactionCase):
             'bowel_open': faker.random_int(min=0, max=1),
             'nausea': faker.random_int(min=0, max=1),
             'vomiting': faker.random_int(min=0, max=1),
-            'quantity': faker.random_element(array=('large', 'medium', 'small')),
-            'colour': faker.random_element(array=('brown', 'yellow', 'green', 'black', 'red', 'clay')),
+            'quantity': faker.random_element(('large', 'medium', 'small')),
+            'colour': faker.random_element(('brown', 'yellow', 'green', 'black', 'red', 'clay')),
             'bristol_type': str(faker.random_int(min=1, max=7)),
             'offensive': faker.random_int(min=0, max=1),
             'strain': faker.random_int(min=0, max=1),
             'laxatives': faker.random_int(min=0, max=1),
-            'samples': faker.random_element(array=('none', 'micro', 'virol', 'm+v')),
+            'samples': faker.random_element(('none', 'micro', 'virol', 'm+v')),
             'rectal_exam': faker.random_int(min=0, max=1),
         }
         activity_pool.submit(cr, nur_uid, stools_activity_id, stools_data)

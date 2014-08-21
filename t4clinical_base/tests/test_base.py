@@ -192,7 +192,7 @@ class BaseTest(SingleTransactionCase):
         fake.seed(next_seed())
         family_name = data.get('family_name') or fake.last_name()
         given_name = data.get('given_name') or fake.first_name()
-        gender = data.get('gender') or fake.random_element(array=('M','F'))
+        gender = data.get('gender') or fake.random_element(('M','F'))
         other_identifier = data.get('other_identifier') or str(fake.random_int(min=1000001, max=9999999))
         dob = data.get('dob') or fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S")        
         res = {
