@@ -17,7 +17,7 @@ class DemoLoader(orm.AbstractModel):
         lseed = str(fake.random_int(min=1001, max=9999))
         while n <= qty:
 
-            gender = fake.random_element(array=('M','F'))
+            gender = fake.random_element(('M','F'))
             data.append({
                     'family_name': fake.last_name(), 
                     'given_name': fake.first_name(),
@@ -40,7 +40,7 @@ class DemoLoader(orm.AbstractModel):
             t = {}
             t.update({'other_identifier':r['other_identifier']})
             t.update({'code': lseed + str(n).zfill(5),
-                      'location': 'W'+fake.random_element(array=('8','9')), 
+                      'location': 'W'+fake.random_element(('8','9')), 
                       'start_date': fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S")
                       })
             data.append(t)
@@ -77,7 +77,7 @@ class DemoLoader(orm.AbstractModel):
                             'blood_pressure_systolic': fake.random_int(min=115, max=150),
                             'blood_pressure_diastolic': fake.random_int(min=60, max=100),
                             'pulse_rate': fake.random_int(min=60, max=80),
-                            'avpu_text': fake.random_element(array=('A','V','P','U'))                         
+                            'avpu_text': fake.random_element(('A','V','P','U'))                         
                          })
         return data   
 

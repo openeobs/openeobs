@@ -120,7 +120,7 @@ def next_seed():
 #         patient_id = data_vals.get('patient_id') \
 #                      or env['patient_ids'][fake.random_int(min=0, max=len(env['patient_ids'])-1)]
 #         o2target_ids = o2target_pool.search(cr, uid, [])
-#         o2level_id = data_vals.get('level_id') or fake.random_element(array=o2target_ids) if o2target_ids else False
+#         o2level_id = data_vals.get('level_id') or fake.random_element(o2target_ids) if o2target_ids else False
 #         if not o2level_id:
 #             return False
 #         spell_activity_id = api.get_patient_spell_activity_id(cr, uid, patient_id)

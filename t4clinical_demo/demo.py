@@ -108,7 +108,7 @@ class demo(orm.AbstractModel):
         activity_pool = self.pool['t4.activity']
         register_pool = self.pool['t4.clinical.adt.patient.register']
         fake.seed(next_seed()) 
-        gender = fake.random_element(array=('M','F'))
+        gender = fake.random_element(('M','F'))
         other_identifier = str(fake.random_int(min=1000001, max=9999999))
         dob = fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S")
         register_activity_id = register_pool.create_activity(cr, uid, {},{})
@@ -201,7 +201,7 @@ class demo(orm.AbstractModel):
                 'blood_pressure_systolic': fake.random_int(min=115, max=150),
                 'blood_pressure_diastolic': fake.random_int(min=60, max=100),
                 'pulse_rate': fake.random_int(min=60, max=80),
-                'avpu_text': fake.random_element(array=('A','V','P','U'))                         
+                'avpu_text': fake.random_element(('A','V','P','U'))                         
         }
         ews_submit_res = activity_pool.submit(cr, uid, ews_activity_id, data)
         ews_complete_res = activity_pool.complete(cr, uid, ews_activity_id)

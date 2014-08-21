@@ -141,14 +141,14 @@ class t4_clinical_demo_env(orm.Model):
         assert locations, "No ward locations to set as admit location"
         d = {
             'other_identifier': fake.random_element(patients).other_identifier,
-            'location': fake.random_element(array=locations).code,
+            'location': fake.random_element(locations).code,
             'code': fake.random_int(min=10001, max=99999),
             'start_date': fake.date_time_between(start_date="-1w", end_date="-1h").strftime("%Y-%m-%d %H:%M:%S"),
             'doctors': [
                    {
                     'code': str(fake.random_int(min=10001, max=99999)),
-                    'type': fake.random_element(array=('r','c')),
-                    'title': fake.random_element(array=('Mr','Mrs','Ms','Dr')),
+                    'type': fake.random_element(('r','c')),
+                    'title': fake.random_element(('Mr','Mrs','Ms','Dr')),
                     'family_name': fake.last_name(),
                     'given_name': fake.first_name()
                     },
@@ -160,7 +160,7 @@ class t4_clinical_demo_env(orm.Model):
 
     def data_adt_patient_register(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
-        gender = fake.random_element(array=('M','F'))
+        gender = fake.random_element(('M','F'))
         d = {
                 'family_name': fake.last_name(),
                 'given_name': fake.first_name(),
@@ -185,8 +185,8 @@ class t4_clinical_demo_env(orm.Model):
             'body_temperature': float(fake.random_int(min=350, max=391))/10.0 ,
             'blood_pressure_systolic': fake.random_int(min=65, max=206),
             'pulse_rate': fake.random_int(min=35, max=136),
-            'avpu_text': fake.random_element(array=('A', 'V', 'P', 'U')),
-            'oxygen_administration_flag': fake.random_element(array=(True, False)),
+            'avpu_text': fake.random_element(('A', 'V', 'P', 'U')),
+            'oxygen_administration_flag': fake.random_element((True, False)),
             'blood_pressure_diastolic': fake.random_int(min=35, max=176),
             'patient_id': patients and fake.random_element(patients).id or False
         }
@@ -211,13 +211,13 @@ class t4_clinical_demo_env(orm.Model):
             'bowel_open': fake.random_int(min=0, max=1),
             'nausea': fake.random_int(min=0, max=1),
             'vomiting': fake.random_int(min=0, max=1),
-            'quantity': fake.random_element(array=('large', 'medium', 'small')),
-            'colour': fake.random_element(array=('brown', 'yellow', 'green', 'black', 'red', 'clay')),
+            'quantity': fake.random_element(('large', 'medium', 'small')),
+            'colour': fake.random_element(('brown', 'yellow', 'green', 'black', 'red', 'clay')),
             'bristol_type': str(fake.random_int(min=1, max=7)),
             'offensive': fake.random_int(min=0, max=1),
             'strain': fake.random_int(min=0, max=1),
             'laxatives': fake.random_int(min=0, max=1),
-            'samples': fake.random_element(array=('none', 'micro', 'virol', 'm+v')),
+            'samples': fake.random_element(('none', 'micro', 'virol', 'm+v')),
             'rectal_exam': fake.random_int(min=0, max=1),
             'patient_id': fake.random_element(self.get_current_patient_ids(cr, SUPERUSER_ID, env_id))
         }
@@ -238,7 +238,7 @@ class t4_clinical_demo_env(orm.Model):
     def data_observation_blood_product(self, cr, uid, env_id, activity_id=None, data={}):
         fake.seed(next_seed())
         d = {
-             'product': fake.random_element(array=('rbc', 'ffp', 'platelets', 'has', 'dli', 'stem')),
+             'product': fake.random_element(('rbc', 'ffp', 'platelets', 'has', 'dli', 'stem')),
              'vol': float(fake.random_int(min=1, max=10)),
              'patient_id': fake.random_element(self.get_current_patient_ids(cr, SUPERUSER_ID, env_id))
         }
@@ -284,9 +284,9 @@ class t4_clinical_demo_env(orm.Model):
         fake.seed(next_seed())
         patients = self.get_activity_free_patients(cr, uid, env_id,['t4.clinical.patient.observation.gcs'],['new','scheduled','started']) 
         d = {
-            'eyes': fake.random_element(array=('1', '2', '3', '4', 'C')),
-            'verbal': fake.random_element(array=('1', '2', '3', '4', '5', 'T')),
-            'motor': fake.random_element(array=('1', '2', '3', '4', '5', '6')),
+            'eyes': fake.random_element(('1', '2', '3', '4', 'C')),
+            'verbal': fake.random_element(('1', '2', '3', '4', '5', 'T')),
+            'motor': fake.random_element(('1', '2', '3', '4', '5', '6')),
             'patient_id': patients and fake.random_element(patients).id or False
         }
         if not d['patient_id']:
