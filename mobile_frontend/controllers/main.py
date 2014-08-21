@@ -4,7 +4,8 @@ from openerp import http
 from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
-from werkzeug import utils
+from werkzeug import utils, exceptions
+import openerp.addons.web.controllers.main as main
 
 URL_PREFIX = '/mobile/'
 
@@ -15,20 +16,20 @@ URLS = {'patient_list': URL_PREFIX+'patients/',
         'stylesheet': URL_PREFIX+'src/css/main.css',
         'new_stylesheet': URL_PREFIX+'src/css/new.css',
         'logo': URL_PREFIX+'src/img/logo.png',
+        'login': URL_PREFIX+'login',
         'logout': URL_PREFIX+'logout/',
         'task_form_action': URL_PREFIX+'task/submit/',
         'patient_form_action': URL_PREFIX+'patient/submit/',
         }
 
-
 class MobileFrontend(http.Controller):
 
-    @http.route(URLS['stylesheet'], type='http', auth='public', website=True)
+    @http.route(URLS['stylesheet'], type='http', auth='public')
     def get_stylesheet(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
-    @http.route(URLS['new_stylesheet'], type='http', auth='public', website=True)
+    @http.route(URLS['new_stylesheet'], type='http', auth='public')
     def get_new_stylesheet(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/css/new.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
@@ -39,12 +40,45 @@ class MobileFrontend(http.Controller):
             return request.make_response(font.read(), headers={'Content-Type':'application/font-woff'})
 
 
-    @http.route(URLS['logo'], type='http', auth='public', website=True)
+    @http.route(URLS['logo'], type='http', auth='public')
     def get_logo(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/img/t4skrlogo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
-    @http.route(URLS['patient_list'], type='http', auth="public", website=True)
+    # Session Management
+    @http.route(URL_PREFIX, type='http', auth='none')
+    def index(self, *args, **kw):
+        #ensure_db(redirect='http://google.com')
+        if request.session.uid:
+            return utils.redirect(URLS['task_list'], 303)
+        else:
+            return utils.redirect(URLS['login'], 303)
+
+    @http.route(URLS['login'], type="http", auth="none")
+    def mobile_login(self, *args, **kw):
+
+        if not request.uid:
+            request.uid = openerp.SUPERUSER_ID
+
+        values = request.params.copy()
+        try:
+            values['databases'] = http.db_list()
+        except openerp.exceptions.AccessDenied:
+            values['databases'] = None
+
+
+        if request.httprequest.method == 'GET':
+            login_template = open(get_module_path('mobile_frontend') + '/views/login.html', 'rb').read()
+            return request.make_response(login_template.format(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors=''))
+        if request.httprequest.method == 'POST':
+            uid = request.session.authenticate('t4clinical_default_config', request.params['username'], request.params['password'])
+            if uid is not False:
+                request.uid = uid
+                return utils.redirect(URLS['task_list'], 303)
+            return request.render('mobile_frontend.login', qcontext={'urls': URLS, 'errors': True})
+
+
+    @http.route(URLS['patient_list'], type='http', auth="user")
     def get_patients(self, *args, **kw):
         cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
         users_api = request.registry['res.users']
@@ -63,7 +97,7 @@ class MobileFrontend(http.Controller):
                                                                              'username': 'norah',
                                                                              'urls': URLS})
 
-    @http.route(URLS['task_list'], type='http', auth='public', website=True)
+    @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
         cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
         users_api = request.registry['res.users']
@@ -80,7 +114,7 @@ class MobileFrontend(http.Controller):
                                                                              'username': 'norah',
                                                                              'urls': URLS})
 
-    @http.route(URLS['single_task']+'<task_id>', type='http', auth='public', website=True)
+    @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
         cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
         users_api = request.registry['res.users']
@@ -154,7 +188,7 @@ class MobileFrontend(http.Controller):
                                                                      'username': 'norah',
                                                                      'urls': URLS})
 
-    @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="public", website=True)
+    @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="user")
     def process_form(self, task_id, *args, **kw):
         print 'doing some foo'
         #import pdb; pdb.set_trace()
