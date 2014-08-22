@@ -22,37 +22,98 @@ URLS = {'patient_list': URL_PREFIX+'patients/',
         'patient_form_action': URL_PREFIX+'patient/submit/',
         }
 
+db_list = http.db_list
+
+db_monodb = http.db_monodb
+
+def abort_and_redirect(url):
+    r = request.httprequest
+    response = utils.redirect(url, 302)
+    response = r.app.get_response(r, response, explicit_session=False)
+    exceptions.abort(response)
+
+def ensure_db(redirect=URLS['login']):
+    # This helper should be used in web client auth="none" routes
+    # if those routes needs a db to work with.
+    # If the heuristics does not find any database, then the users will be
+    # redirected to db selector or any url specified by `redirect` argument.
+    # If the db is taken out of a query parameter, it will be checked against
+    # `http.db_filter()` in order to ensure it's legit and thus avoid db
+    # forgering that could lead to xss attacks.
+    db = request.params.get('db')
+
+    # Ensure db is legit
+    if db and db not in http.db_filter([db]):
+        db = None
+
+    if db and not request.session.db:
+        # User asked a specific database on a new session.
+        # That mean the nodb router has been used to find the route
+        # Depending on installed module in the database, the rendering of the page
+        # may depend on data injected by the database route dispatcher.
+        # Thus, we redirect the user to the same page but with the session cookie set.
+        # This will force using the database route dispatcher...
+        r = request.httprequest
+        url_redirect = r.base_url
+        if r.query_string:
+            # Can't use werkzeug.wrappers.BaseRequest.url with encoded hashes:
+            # https://github.com/amigrave/werkzeug/commit/b4a62433f2f7678c234cdcac6247a869f90a7eb7
+            url_redirect += '?' + r.query_string
+        response = utils.redirect(url_redirect, 302)
+        request.session.db = db
+        abort_and_redirect(url_redirect)
+
+    # if db not provided, use the session one
+    if not db:
+        db = request.session.db
+
+    # if no database provided and no database in session, use monodb
+    if not db:
+        db = db_monodb(request.httprequest)
+
+    # if no db can be found til here, send to the database selector
+    # the database selector will redirect to database manager if needed
+    if not db:
+        exceptions.abort(utils.redirect(redirect, 303))
+
+    # always switch the session to the computed db
+    if db != request.session.db:
+        request.session.logout()
+        abort_and_redirect(request.httprequest.url)
+
+    request.session.db = db
+
+
 class MobileFrontend(http.Controller):
 
-    @http.route(URLS['stylesheet'], type='http', auth='public')
+    @http.route(URLS['stylesheet'], type='http', auth='none')
     def get_stylesheet(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
-    @http.route(URLS['new_stylesheet'], type='http', auth='public')
+    @http.route(URLS['new_stylesheet'], type='http', auth='none')
     def get_new_stylesheet(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/css/new.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
-    @http.route('/mobile/src/fonts/<xmlid>', auth='public', type='http')
+    @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/fonts/' + xmlid, 'r') as font:
             return request.make_response(font.read(), headers={'Content-Type':'application/font-woff'})
 
 
-    @http.route(URLS['logo'], type='http', auth='public')
+    @http.route(URLS['logo'], type='http', auth='none')
     def get_logo(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/img/t4skrlogo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
-    # Session Management
     @http.route(URL_PREFIX, type='http', auth='none')
     def index(self, *args, **kw):
-        #ensure_db(redirect='http://google.com')
+        ensure_db()
         if request.session.uid:
             return utils.redirect(URLS['task_list'], 303)
         else:
-            return utils.redirect(URLS['login'], 303)
+            return utils.redirerequestct(URLS['login'], 303)
 
     @http.route(URLS['login'], type="http", auth="none")
     def mobile_login(self, *args, **kw):
@@ -66,7 +127,6 @@ class MobileFrontend(http.Controller):
         except openerp.exceptions.AccessDenied:
             values['databases'] = None
 
-
         if request.httprequest.method == 'GET':
             login_template = open(get_module_path('mobile_frontend') + '/views/login.html', 'rb').read()
             return request.make_response(login_template.format(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors=''))
@@ -75,17 +135,20 @@ class MobileFrontend(http.Controller):
             if uid is not False:
                 request.uid = uid
                 return utils.redirect(URLS['task_list'], 303)
-            return request.render('mobile_frontend.login', qcontext={'urls': URLS, 'errors': True})
+            login_template = open(get_module_path('mobile_frontend') + '/views/login.html', 'rb').read()
+            return request.make_response(login_template.format(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='<div class="alert alert-error">Invalid username/password</div>'))
+
+    @http.route(URLS['logout'], type='http', auth="user")
+    def mobile_logout(self, *args, **kw):
+        request.session.logout()
+        return utils.redirect(URLS['login'], 303)
 
 
     @http.route(URLS['patient_list'], type='http', auth="user")
     def get_patients(self, *args, **kw):
-        cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
-        users_api = request.registry['res.users']
-        user_ids = users_api.search(cr, uid, [['login', '=', 'norah']], context=context)
-        new_uid = user_ids[0]
+        cr, uid, context = request.cr, request.session.uid, request.context
         patient_api = request.registry['t4.clinical.api.external']
-        patients = patient_api.get_patients(cr, new_uid, [], context=context)
+        patients = patient_api.get_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = 'level-one'
@@ -94,32 +157,26 @@ class MobileFrontend(http.Controller):
             patient['summary'] = patient['summary'] if patient.get('summary') else False
         return request.render('mobile_frontend.patient_task_list', qcontext={'items': patients,
                                                                              'section': 'patient',
-                                                                             'username': 'norah',
+                                                                             'username': request.session['login'],
                                                                              'urls': URLS})
 
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
-        cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
-        users_api = request.registry['res.users']
-        user_ids = users_api.search(cr, uid, [['login', '=', 'norah']], context=context)
-        new_uid = user_ids[0]
+        cr, uid, context = request.cr, request.uid, request.context
         task_api = request.registry['t4.clinical.api.external']
-        tasks = task_api.get_activities(cr, new_uid, [], context=context)
+        tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
             task['color'] = 'level-one'
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
         return request.render('mobile_frontend.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
-                                                                             'username': 'norah',
+                                                                             'username': request.session['login'],
                                                                              'urls': URLS})
 
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
-        cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
-        users_api = request.registry['res.users']
-        user_ids = users_api.search(cr, uid, [['login', '=', 'norah']], context=context)
-        new_uid = user_ids[0]
+        cr, uid, context = request.cr, request.uid, request.context
         activity_reg = request.registry['t4.activity']
         api_reg = request.registry['t4.clinical.api.external']
         task_id = int(task_id)
@@ -133,13 +190,13 @@ class MobileFrontend(http.Controller):
         form['source-id'] = int(task_id)
         form['source'] = "task"
         form['start'] = datetime.now().strftime('%s')
-        if task.get('user_id') and task['user_id'][0] != new_uid:
+        if task.get('user_id') and task['user_id'][0] != uid:
             return request.render('mobile_frontend.error', qcontext={'error_string': 'Task is taken by another user',
                                                                      'section': 'task',
-                                                                     'username': 'norah',
+                                                                     'username': request.session['login'],
                                                                      'urls': URLS})
         try:
-            api_reg.assign(cr, uid, task_id, {'user_id': new_uid}, context=context)
+            api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
         except Exception:
             #return 'unable to take task'
             a = 0
@@ -149,7 +206,7 @@ class MobileFrontend(http.Controller):
             form['type'] = re.match(r't4\.clinical\.patient\.notification\.(.*)', task['data_model']).group(1)
             return request.render('mobile_frontend.notification_confirm_cancel', qcontext={'name': task['summary'],
                                                                                  'section': 'task',
-                                                                                 'username': 'norah',
+                                                                                 'username': request.session['login'],
                                                                                  'urls': URLS})
         elif 'observation' in task['data_model']:
             # load obs foo
@@ -180,22 +237,21 @@ class MobileFrontend(http.Controller):
                                                                                       'patient': patient,
                                                                                       'form': form,
                                                                                       'section': 'task',
-                                                                                      'username': 'norah',
+                                                                                      'username': request.session['login'],
                                                                                       'urls': URLS})
         else:
             return request.render('mobile_frontend.error', qcontext={'error_string': 'Task is neither a notification nor an observation',
                                                                      'section': 'task',
-                                                                     'username': 'norah',
+                                                                     'username': request.session['login'],
                                                                      'urls': URLS})
 
     @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="user")
     def process_form(self, task_id, *args, **kw):
         print 'doing some foo'
         #import pdb; pdb.set_trace()
-        cr, uid, context = request.cr, openerp.SUPERUSER_ID, request.context
+        cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('t4.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         api.submit_complete(cr, uid, int(task_id), kw_copy, context)
         return utils.redirect(URLS['task_list'])
-
