@@ -289,43 +289,47 @@ class t4_clinical_patient_observation_ews(orm.Model):
                     {'model': 'nurse', 'summary': 'Informed about patient status (NEWS)', 'groups': ['hca']}]
                ],
                'risk': ['None', 'Low', 'Medium', 'High']}
+
+    def calculate_score(self, ews_data):
+        score = 0
+        three_in_one = False
+
+        aux = int(self._RR_RANGES['scores'][bisect.bisect_left(self._RR_RANGES['ranges'], ews_data['respiration_rate'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._O2_RANGES['scores'][bisect.bisect_left(self._O2_RANGES['ranges'], ews_data['indirect_oxymetry_spo2'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._BT_RANGES['scores'][bisect.bisect_left(self._BT_RANGES['ranges'], ews_data['body_temperature'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._BP_RANGES['scores'][bisect.bisect_left(self._BP_RANGES['ranges'], ews_data['blood_pressure_systolic'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._PR_RANGES['scores'][bisect.bisect_left(self._PR_RANGES['ranges'], ews_data['pulse_rate'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        score += 2 if ews_data['oxygen_administration_flag'] else 0
+
+        score += 3 if ews_data['avpu_text'] in ['V', 'P', 'U'] else 0
+        three_in_one = True if ews_data['avpu_text'] in ['V', 'P', 'U'] else three_in_one
+
+        case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], score)])
+        case = 2 if three_in_one and case < 3 else case
+        clinical_risk = self._POLICY['risk'][case]
+
+        return {'score': score, 'three_in_one': three_in_one, 'clinical_risk': clinical_risk}
+
     
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for ews in self.browse(cr, uid, ids, context):
-            score = 0
-            three_in_one = False
-
-            aux = int(self._RR_RANGES['scores'][bisect.bisect_left(self._RR_RANGES['ranges'], ews.respiration_rate)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._O2_RANGES['scores'][bisect.bisect_left(self._O2_RANGES['ranges'], ews.indirect_oxymetry_spo2)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._BT_RANGES['scores'][bisect.bisect_left(self._BT_RANGES['ranges'], ews.body_temperature)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._BP_RANGES['scores'][bisect.bisect_left(self._BP_RANGES['ranges'], ews.blood_pressure_systolic)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._PR_RANGES['scores'][bisect.bisect_left(self._PR_RANGES['ranges'], ews.pulse_rate)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            score += 2 if ews.oxygen_administration_flag else 0
-
-            score += 3 if ews.avpu_text in ['V', 'P', 'U'] else 0
-            three_in_one = True if ews.avpu_text in ['V', 'P', 'U'] else three_in_one
-
-            case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], score)])
-            case = 2 if three_in_one and case < 3 else case
-            clinical_risk = self._POLICY['risk'][case]
-
-            res[ews.id] = {'score': score, 'three_in_one': three_in_one, 'clinical_risk': clinical_risk}
+            res[ews.id] = self.calculate_score(ews)
             _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res
 
