@@ -16,7 +16,7 @@ URLS = {'patient_list': URL_PREFIX+'patients/',
         'stylesheet': URL_PREFIX+'src/css/main.css',
         'new_stylesheet': URL_PREFIX+'src/css/new.css',
         'logo': URL_PREFIX+'src/img/logo.png',
-        'login': URL_PREFIX+'login',
+        'login': URL_PREFIX+'login/',
         'logout': URL_PREFIX+'logout/',
         'task_form_action': URL_PREFIX+'task/submit/',
         'patient_form_action': URL_PREFIX+'patient/submit/',
@@ -113,7 +113,7 @@ class MobileFrontend(http.Controller):
         if request.session.uid:
             return utils.redirect(URLS['task_list'], 303)
         else:
-            return utils.redirerequestct(URLS['login'], 303)
+            return utils.redirect(URLS['login'], 303)
 
     @http.route(URLS['login'], type="http", auth="none")
     def mobile_login(self, *args, **kw):
