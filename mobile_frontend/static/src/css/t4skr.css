@@ -394,7 +394,6 @@ a.patientInfo .obs {
   width: 40%;
   position: absolute;
   right: 0;
-  /*top: -0.7em;*/
   top: 0em;
   text-align: right;
   padding: 0.3em 2%;
@@ -948,14 +947,14 @@ a.patientInfo .obs {
     height: inherit;
     float: none;
     clear: both;
-    position: relative;*/
+    position: relative;  */
 }
 .patientlist li a .aside {
   position: absolute;
   right: 5%;
   text-align: right;
-  /* top: -1.2em;
-      font-size: 0.8em;  */
+  /*top: -1.2em;
+      font-size: 0.8em;*/
   width: 37%;
 }
 .patientlist li a.level-one {

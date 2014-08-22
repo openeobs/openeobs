@@ -139,6 +139,7 @@
                             <input type="submit" value="Submit" id="submitButton"/>
                         </div>
                     </form>
+                    <script t-att-src="urls['jquery']" type="text/javascript"></script>
                 </div>
             </t>
         </template>

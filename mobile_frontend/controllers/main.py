@@ -1,26 +1,16 @@
 # -*- coding: utf-8 -*-s
-import openerp, re
+import openerp, re, json
 from openerp import http
 from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
 import openerp.addons.web.controllers.main as main
+import urls
 
 URL_PREFIX = '/mobile/'
 
-URLS = {'patient_list': URL_PREFIX+'patients/',
-        'single_patient': URL_PREFIX+'patient/',
-        'task_list': URL_PREFIX+'tasks/',
-        'single_task': URL_PREFIX+'task/',
-        'stylesheet': URL_PREFIX+'src/css/main.css',
-        'new_stylesheet': URL_PREFIX+'src/css/new.css',
-        'logo': URL_PREFIX+'src/img/logo.png',
-        'login': URL_PREFIX+'login/',
-        'logout': URL_PREFIX+'logout/',
-        'task_form_action': URL_PREFIX+'task/submit/',
-        'patient_form_action': URL_PREFIX+'patient/submit/',
-        }
+URLS = urls.URLS
 
 db_list = http.db_list
 
@@ -91,10 +81,10 @@ class MobileFrontend(http.Controller):
         with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
-    @http.route(URLS['new_stylesheet'], type='http', auth='none')
-    def get_new_stylesheet(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/css/new.css', 'r') as stylesheet:
-            return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
+    #@http.route(URLS['new_stylesheet'], type='http', auth='none')
+    #def get_new_stylesheet(self, *args, **kw):
+    #    with open(get_module_path('mobile_frontend') + '/static/src/css/new.css', 'r') as stylesheet:
+    #        return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
@@ -106,6 +96,22 @@ class MobileFrontend(http.Controller):
     def get_logo(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/img/t4skrlogo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
+
+    @http.route(URLS['jquery'], type='http', auth='none')
+    def get_jquery(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/jquery.js', 'r') as jquery:
+            return request.make_response(jquery.read(), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['js_routes'], type='http', auth='none')
+    def javascript_routes(self, *args, **kw):
+        routes = {}
+        for route in urls.routes:
+            routes[route['name']] = {}
+            routes[route['name']]['absolute_url'] = 'http://localhost:8169'+URL_PREFIX+route['endpoint']
+            routes[route['name']]['type'] = route['methods']
+            routes[route['name']]['method'] = route['methods']
+            routes[route['name']]['websocket_url'] = 'ws://localhost:8169'+URL_PREFIX+route['endpoint']
+        return request.make_response(json.dumps(routes), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URL_PREFIX, type='http', auth='none')
     def index(self, *args, **kw):
@@ -247,11 +253,19 @@ class MobileFrontend(http.Controller):
 
     @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="user")
     def process_form(self, task_id, *args, **kw):
-        print 'doing some foo'
-        #import pdb; pdb.set_trace()
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('t4.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         api.submit_complete(cr, uid, int(task_id), kw_copy, context)
         return utils.redirect(URLS['task_list'])
+
+
+
+    @http.route(URLS['ews_score'], type="http", auth="user")
+    def calculate_ews_score(self, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        data = kw.copy()
+        return request.make_response(json.dumps(ews_pool.calculate_score(data)), headers={'Content-Type': 'application/json'})
+
