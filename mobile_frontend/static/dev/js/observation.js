@@ -10,14 +10,14 @@
 var timeIdle = 0;
 var idleTime = 240;
 var timing = true;
-var taskId
+var taskId;
 var EWSlabel = "NEWS";
 var oxmin, oxmax;
 var patientName;
 
 $(document).ready(function () {
     // define variables that will be used throughout the observation form
-    var patientId = $("#obsForm").attr("data-id"),  obsType = $("#obsForm").attr("data-type"), obsSource = $("#obsForm").attr("data-source");
+    var patientId = $("#obsForm").attr("patient-id"),  obsType = $("#obsForm").attr("data-type"), obsSource = $("#obsForm").attr("data-source");
         taskId = $("#obsForm").attr("task-id");
         oxmin = $("#obsForm").attr("data-min");
         oxmax = $("#obsForm").attr("data-max");
@@ -36,20 +36,20 @@ $(document).ready(function () {
     if(obsSource == "task"){
 
         if(taskId != null && taskId != undefined && taskId != ""){
-            jsRoutes.controllers.Tasks.taskExistsAjax(taskId).ajax({
+            frontend_routes.json_take_task(taskId).ajax({
                 cache: false,
                 success: function(data){
                     console.log(data);
                     if(data.status.toString() === "true"){
 
                     }else{
-                        displayModal("getTaskIssue", "Task unavailable", "<p>This task is unavailable. This may be due to the task being taken by another user or that it has been completed.</p>",["<a href="+jsRoutes.controllers.Tasks.listTasks().url+ " class=\"action\">Go to Task list</a>"]);
+                        displayModal("getTaskIssue", "Task unavailable", "<p>This task is unavailable. This may be due to the task being taken by another user or that it has been completed.</p>",["<a href="+frontend_routes.task_list().url+ " class=\"action\">Go to Task list</a>"]);
 
                     }
                 },
                 error: function(err){
                     console.log(err);
-                    displayModal("getTaskError", "Error checking if task available", "<p>There was error checking if this task is available. Someone may have taken it or the task is already been completed.</p>",["<a href="+jsRoutes.controllers.Tasks.listTasks().url+ " class=\"action\">Go to Task list</a>"]);
+                    displayModal("getTaskError", "Error checking if task available", "<p>There was error checking if this task is available. Someone may have taken it or the task is already been completed.</p>",["<a href="+frontend_routes.task_list().url+ " class=\"action\">Go to Task list</a>"]);
                 }
             });
         }
@@ -63,39 +63,34 @@ $(document).ready(function () {
         e.preventDefault();
         timeIdle = 0;
         var patientName = "", patientGender = "", patientDetails = "";
-        jsRoutes.controllers.Patients.getPatientInfo(patientId).ajax({
+        frontend_routes.json_patient_info(patientId).ajax({
             success: function(data){
                 console.log(data);
-                if(data.title){
-                    patientName += data.title;
-                }
-                if(data.name){
-                    patientName += " " + data.name;
+                if(data.full_name){
+                    patientName += " " + data.full_name;
                 }
                 if(data.gender){
                     patientGender = data.gender;
                 }
                 if(data.dob){
                     var patientDOB = new Date(data.dob);
-                    console.log(patientDOB);
                     patientDOB = ("0"+patientDOB.getDate()).slice(-2) + "/" + ("0"+(patientDOB.getMonth()+1)).slice(-2) + "/" + patientDOB.getFullYear();
-                    console.log(patientDOB);
                     patientDetails += "<dt>DOB:</dt><dd>"+patientDOB+"</dd>";
                 }
-                if(data.location.bed != ""){
-                    patientDetails += "<dt>Location:</dt><dd>"+data.location.bed+"</dd>";
+                if(data.location != ""){
+                    patientDetails += "<dt>Location:</dt><dd>"+data.location+"</dd>";
                 }
-                if(data.obsType){
-                    EWSlabel = "NEWS";
+
+                EWSlabel = "NEWS";
+
+                if(data.ews_score){
+                    patientDetails += "<dt class='twoline'>Latest " + EWSlabel +  " Score</dt><dd class='twoline'>"+data.ews_score+"</dd>";
                 }
-                if(data.latestNewsScore){
-                    patientDetails += "<dt class='twoline'>Latest " + EWSlabel +  " Score</dt><dd class='twoline'>"+data.latestNewsScore+"</dd>";
+                if(data.other_identifier){
+                    patientDetails += "<dt>Hospital ID</dt><dd>" + data.other_identifier + "</dd>"
                 }
-                if(data.otherId){
-                    patientDetails += "<dt>Hospital ID</dt><dd>" + data.otherId + "</dd>"
-                }
-                if(data.patientId){
-                    patientDetails += "<dt>NHS Number</dt><dd>" + data.patientId + "</dd>"
+                if(data.patient_identifier){
+                    patientDetails += "<dt>NHS Number</dt><dd>" + data.patient_identifier + "</dd>"
                 }
                 displayModal("patientInfo", patientName+"<span class=\"alignright\">" + patientGender +"</span>", "<dl>" + patientDetails + "</dl><p><a href='#' id='loadObs'>View Patient Observation Data</a></p>",["<a href=\"#\" class=\"cancel\">Cancel</a>"]);
             },error: function(err){
@@ -321,7 +316,7 @@ $(document).ready(function () {
             r = jsRoutes.controllers.Observations.submitObsForPatient(obsType);
         }else{
             console.log("obsource is task");
-            r = jsRoutes.controllers.Observations.submitObsForTask(obsType);
+            r = frontend_routes.json_task_form_action(taskId);
         }
         if(!submitDisabled){
             console.log("disabling submit");
@@ -444,7 +439,7 @@ $(document).ready(function () {
     $('.content').on("click", "#loadObs", function(e) {
         e.preventDefault();
         timeIdle = 0;
-        $('body').append("<div class='full-modal'><p><a href='#' id='closeFullModal'>Close Popup</a></p><iframe src='"+jsRoutes.controllers.Patients.displayPatientInfo(patientId).url+"'></iframe></div>");
+        $('body').append("<div class='full-modal'><p><a href='#' id='closeFullModal'>Close Popup</a></p><iframe src='"+frontend_routes.single_patient(patientId).url+"'></iframe></div>");
         $('.full-modal iframe').load(function(){
             $(this).show();
             $('.full-modal iframe').contents().find('.header').hide();
@@ -454,7 +449,6 @@ $(document).ready(function () {
     });
 
     $('body').on("click", "#closeFullModal", function(e) {
-        console.log('asda');
         e.preventDefault();
         timeIdle = 0;
         $('.full-modal').remove();
@@ -686,22 +680,6 @@ function ToggleNIVSupO2(whichWay){
     }
 }
 
-//// on leaving the page move the checkedouttask in the past task so can see if task is still available to user later
-//$(window).on("beforeunload", function(){
-//    if(sessionStorage.checkedOutTask){
-//        try{
-//            if(sessionStorage.pastTask && sessionStorage.pastTask.indexOf("-" + taskId + "-") <0){
-//                sessionStorage.pastTask = sessionStorage.pastTask + " -" + sessionStorage.checkedOutTask + "-";
-//            }else{
-//                sessionStorage.pastTask = "-" + sessionStorage.checkedOutTask + "-";
-//            }
-//        }catch(e){
-//                displayModal("sessionStorageError", "sessionStorage Error", "<p>There was an error adding objects to session storage. Please make sure you are not browsing in private mode and try again.</p>",["<a href=\"#\" class=\"cancel\">Cancel</a>"]);
-//
-//        }
-//    }
-//    return;
-//});
 
 function displayTaskCancellationOptions(){
     console.log("this is being called");
@@ -772,18 +750,23 @@ window.setInterval(function(){
     if(timing){
         if(timeIdle == idleTime){
             var taskCancelled = "";
-            var j = jsRoutes.controllers.Tasks.cancelTaskAjax(taskId);
+            var j = frontend_routes.json_cancel_take_task(taskId);
             $.ajax({
                 url: j.url,
                 type: j.type,
                 success: function(data){
-                    taskCancelled = "task has been checked back into the system";
+                    if(data.status.toString() === "true"){
+                        taskCancelled = "task has been checked back into the system";
+                    }else{
+                        taskCancelled = "task has <strong>not</strong> been checked into the system: <em>" + data.reason + "</em>";
+                    }
+
                 },
                 error: function(err){
                     taskCancelled = "task has <strong>not</strong> been checked back into the system";
                 }
             });
-            displayModal("obsSentBack", "Data entry window expired", "<p>No data entry for 4 minutes, no data submitted.</p>", ["<a href="+jsRoutes.controllers.Tasks.listTasks().url+ " class=\"action\">Back to task list</a>"], 0);
+            displayModal("obsSentBack", "Data entry window expired", "<p>No data entry for 4 minutes, no data submitted.</p>", ["<a href="+frontend_routes.task_list().url+ " class=\"action\">Back to task list</a>"], 0);
             timing = false;
         }else{
             timeIdle++;

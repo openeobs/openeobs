@@ -105,6 +105,16 @@ class MobileFrontend(http.Controller):
         with open(get_module_path('mobile_frontend') + '/static/src/js/jquery.js', 'r') as jquery:
             return request.make_response(jquery.read(), headers={'Content-Type': 'text/javascript'})
 
+    @http.route(URLS['observation_form_js'], type='http', auth='none')
+    def get_observation_js(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/observation.js', 'r') as js:
+            return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['observation_form_validation'], type='http', auth='none')
+    def get_observation_validation(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/validation.js', 'r') as js:
+            return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
+
     @http.route(URLS['js_routes'], type='http', auth='none')
     def javascript_routes(self, *args, **kw):
         return request.make_response(env.get_template('routes_template.js').render({
@@ -179,20 +189,61 @@ class MobileFrontend(http.Controller):
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
 
+    @http.route(URLS['json_take_task']+'<task_id>', type="http", auth="user")
+    def take_task_ajax(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        task_id = int(task_id)
+        activity_reg = request.registry['t4.activity']
+        api_reg = request.registry['t4.clinical.api.external']
+        task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
+        if task.get('user_id') and task['user_id'][0] != uid:
+            return request.make_response(json.dumps({'status': 'false', 'reason': 'task assigned to another user'}), headers={'Content-Type': 'application/json'})
+        else:
+            return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})
+        try:
+            api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
+            return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})
+        except Exception:
+            return request.make_response(json.dumps({'status': 'false', 'reason': 'unable to assign to user'}), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['json_cancel_take_task']+'<task_id>', type="http", auth="user")
+    def cancel_take_task_ajax(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        task_id = int(task_id)
+        activity_reg = request.registry['t4.activity']
+        api_reg = request.registry['t4.clinical.api.external']
+        task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
+        if task.get('user_id') and task['user_id'][0] != uid:
+            return request.make_response(json.dumps({'status': 'false', 'reason': "Can't cancel other user's task"}), headers={'Content-Type': 'application/json'})
+        else:
+            try:
+                api_reg.unassign(cr, uid, task_id, context=context)
+                return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})
+            except Exception:
+                return request.make_response(json.dumps({'status': 'false', 'reason': "Unable to unassign task"}), headers={'Content-Type': 'application/json'})
+
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         activity_reg = request.registry['t4.activity']
         api_reg = request.registry['t4.clinical.api.external']
         task_id = int(task_id)
-        task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary'], context=context)
+        task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=context)
         patient = dict()
-        patient['url'] = URLS['single_patient'] + '{0}'.format(2)
-        patient['name'] = 'Colin is Awesome'
+        if task['patient_id']:
+            patient_info = api_reg.get_patients(cr, uid, [task['patient_id'][0]], context=context)
+            if len(patient_info) >0:
+                patient_info = patient_info[0]
+            patient['url'] = URLS['single_patient'] + '{0}'.format(patient_info['id'])
+            patient['name'] = patient_info['full_name']
+            patient['id'] = patient_info['id']
+        else:
+            patient = False
         form = dict()
         form['action'] = URLS['task_form_action']+'{0}'.format(task_id)
         form['type'] = task['data_model']
-        form['source-id'] = int(task_id)
+        form['task-id'] = int(task_id)
+        form['patient-id'] = int(patient['id'])
         form['source'] = "task"
         form['start'] = datetime.now().strftime('%s')
         if task.get('user_id') and task['user_id'][0] != uid:
@@ -260,6 +311,14 @@ class MobileFrontend(http.Controller):
         return utils.redirect(URLS['task_list'])
 
 
+    @http.route(URLS['json_task_form_action']+'<task_id>', type="http", auth="user")
+    def process_ajax_form(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry('t4.clinical.api')
+        kw_copy = kw.copy()
+        del kw_copy['taskId']
+        result = api.submit_complete(cr, uid, int(task_id), kw_copy, context)
+        return request.make_response(json.dumps(result), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ews_score'], type="http", auth="user")
     def calculate_ews_score(self, *args, **kw):
@@ -271,6 +330,9 @@ class MobileFrontend(http.Controller):
     @http.route(URLS['json_patient_info']+'<patient_id>', type="http", auth="user")
     def get_patient_info(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        visit_pool = request.registry('t4.clinical.patient')
-        patient_info = visit_pool.read(cr, uid, patient_id, ['name', 'dob', 'gender', 'sex', 'contact_address', 'current_location', 'email', 'mobile', 'other_identifier', 'patient_identifier'])  # need to add latest_news_score, time_to_next_obs
-        return request.make_response(json.dumps(patient_info), headers={'Content-Type': 'application/json'})
+        api_pool = request.registry('t4.clinical.api.external')
+        patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
+        if len(patient_info) > 0:
+            return request.make_response(json.dumps(patient_info[0]), headers={'Content-Type': 'application/json'})
+        else:
+            return request.make_response(json.dumps({'status': 2, 'error': 'Patient not found'}), headers={'Content-Type': 'application/json'})

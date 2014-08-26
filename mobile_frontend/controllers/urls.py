@@ -52,6 +52,18 @@ routes = [
         'args': False
     },
     {
+        'name': 'observation_form_js',
+        'endpoint': 'src/js/observation.js',
+        'method': 'GET',
+        'args': False
+    },
+    {
+        'name': 'observation_form_validation',
+        'endpoint': 'src/js/validation.js',
+        'method': 'GET',
+        'args': False
+    },
+    {
         'name': 'logo',
         'endpoint': 'src/img/logo.png',
         'method': 'GET',
@@ -76,6 +88,12 @@ routes = [
         'args': 'task_id'
     },
     {
+        'name': 'json_task_form_action',
+        'endpoint': 'task/submit_ajax/',
+        'method': 'POST',
+        'args': 'task_id'
+    },
+    {
         'name': 'patient_form_action',
         'endpoint': 'patient/submit/',
         'method': 'POST',
@@ -86,6 +104,18 @@ routes = [
         'endpoint': 'ews/score/',
         'method': 'POST',
         'args': False
+    },
+    {
+        'name': 'json_take_task',
+        'endpoint': 'tasks/take_ajax/',
+        'method': 'POST',
+        'args': 'task_id'
+    },
+    {
+        'name': 'json_cancel_take_task',
+        'endpoint': 'tasks/cancel_take_ajax/',
+        'method': 'POST',
+        'args': 'task_id'
     }
 ]
 

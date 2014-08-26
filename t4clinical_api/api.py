@@ -213,6 +213,10 @@ class t4_clinical_api(orm.AbstractModel):
                 where activity.state = 'scheduled'
             )
         select patient.id,
+            patient.dob,
+            patient.gender,
+            patient.sex,
+            patient.other_identifier,
             coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
             case
                 when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'

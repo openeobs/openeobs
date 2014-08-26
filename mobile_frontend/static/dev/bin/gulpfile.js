@@ -4,7 +4,8 @@ var gulp = require('gulp'),
 
 gulp.task('build_observation_js', function(){
     gulp.src(['../js/gcs-score.js', '../js/modals.js', '../js/observation.js','../js/submission.js','../js/validation.js'])
-        .pipe(uglify())
+        .pipe(uglify({output: {beautify: true}}))
+        //.pipe(uglify())
         .pipe(concat('observation.js'))
         .pipe(gulp.dest('../../src/js'))
 });
