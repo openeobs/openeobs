@@ -140,6 +140,8 @@
                         </div>
                     </form>
                     <script t-att-src="urls['jquery']" type="text/javascript"></script>
+                    <script t-att-src="urls['js_routes']" type="text/javascript"></script>
+                    <script src="http://localhost:9000/api" type="text/javascript"></script>
                 </div>
             </t>
         </template>

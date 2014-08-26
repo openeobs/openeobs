@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-s
-import openerp, re, json
+import openerp, re, json, urls, jinja2
 from openerp import http
 from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
 import openerp.addons.web.controllers.main as main
-import urls
 
 URL_PREFIX = '/mobile/'
 
@@ -15,6 +14,10 @@ URLS = urls.URLS
 db_list = http.db_list
 
 db_monodb = http.db_monodb
+
+loader = jinja2.FileSystemLoader(get_module_path('mobile_frontend') + '/views/')
+env = jinja2.Environment(loader=loader)
+
 
 def abort_and_redirect(url):
     r = request.httprequest
@@ -104,14 +107,10 @@ class MobileFrontend(http.Controller):
 
     @http.route(URLS['js_routes'], type='http', auth='none')
     def javascript_routes(self, *args, **kw):
-        routes = {}
-        for route in urls.routes:
-            routes[route['name']] = {}
-            routes[route['name']]['absolute_url'] = 'http://localhost:8169'+URL_PREFIX+route['endpoint']
-            routes[route['name']]['type'] = route['methods']
-            routes[route['name']]['method'] = route['methods']
-            routes[route['name']]['websocket_url'] = 'ws://localhost:8169'+URL_PREFIX+route['endpoint']
-        return request.make_response(json.dumps(routes), headers={'Content-Type': 'text/javascript'})
+        return request.make_response(env.get_template('routes_template.js').render({
+            'routes': urls.routes,
+            'base_url': urls.BASE_URL
+        }), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URL_PREFIX, type='http', auth='none')
     def index(self, *args, **kw):
@@ -269,3 +268,9 @@ class MobileFrontend(http.Controller):
         data = kw.copy()
         return request.make_response(json.dumps(ews_pool.calculate_score(data)), headers={'Content-Type': 'application/json'})
 
+    @http.route(URLS['json_patient_info']+'<patient_id>', type="http", auth="user")
+    def get_patient_info(self, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        visit_pool = request.registry('t4.clinical.patient')
+        patient_info = visit_pool.read(cr, uid, patient_id, ['name', 'dob', 'gender', 'sex', 'contact_address', 'current_location', 'email', 'mobile', 'other_identifier', 'patient_identifier'])  # need to add latest_news_score, time_to_next_obs
+        return request.make_response(json.dumps(patient_info), headers={'Content-Type': 'application/json'})

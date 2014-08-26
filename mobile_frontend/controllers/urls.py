@@ -1,84 +1,91 @@
 __author__ = 'colin'
 URL_PREFIX = '/mobile/'
+BASE_URL = 'http://localhost:8169'+URL_PREFIX
 
 routes = [
     {
         'name': 'patient_list',
         'endpoint': 'patients/',
-        'methods': ['GET'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
-        'name': 'single_list',
+        'name': 'single_patient',
         'endpoint': 'patient/',
-        'methods': ['GET'],
-        'args': ['patient_id']
+        'method': 'GET',
+        'args': 'patient_id'
+    },
+    {
+        'name': 'json_patient_info',
+        'endpoint': 'patient/info/',
+        'method': 'GET',
+        'args': 'patient_id'
     },
     {
         'name': 'task_list',
         'endpoint': 'tasks/',
-        'methods': ['GET'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'single_task',
         'endpoint': 'task/',
-        'methods': ['GET'],
-        'args': ['task_id']
+        'method': 'GET',
+        'args': 'task_id'
     },
     {
         'name': 'stylesheet',
         'endpoint': 'src/css/main.css',
-        'methods': ['GET'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'jquery',
         'endpoint': 'src/js/jquery.js',
-        'methods': ['GET'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'js_routes',
         'endpoint': 'src/js/routes.js',
-        'methods': ['GET'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'logo',
         'endpoint': 'src/img/logo.png',
-        'methods': ['GET'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'login',
         'endpoint': 'login/',
-        'methods': ['GET','POST'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'logout',
         'endpoint': 'logout/',
-        'methods': ['GET'],
-        'args': []
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'task_form_action',
         'endpoint': 'task/submit/',
-        'methods': ['POST'],
-        'args': ['task_id']
+        'method': 'POST',
+        'args': 'task_id'
     },
     {
         'name': 'patient_form_action',
         'endpoint': 'patient/submit/',
-        'methods': ['POST'],
-        'args': ['patient_id']
+        'method': 'POST',
+        'args': 'patient_id'
     },
     {
         'name': 'ews_score',
         'endpoint': 'ews/score/',
-        'methods': ['POST'],
-        'args': []
+        'method': 'POST',
+        'args': False
     }
 ]
 
