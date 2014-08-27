@@ -128,6 +128,7 @@ $(document).ready(function () {
     var validator;
     if(obsType != "clinical" && obsType != "ObsFreq"){
 
+        console.log('adding custom methods');
 
 
         jQuery.validator.addMethod("pimpedNumber", function(value, element){
@@ -147,7 +148,6 @@ $(document).ready(function () {
                     });
                 }
                 if(element.value != "" && $max.val() != "") {
-                    console.log(parseInt(value) + " - " +  parseInt($max.val()));
                     return parseInt(value) < parseInt($max.val());
                 }else{
                     return true;
@@ -162,7 +162,6 @@ $(document).ready(function () {
                 });
             }
             if(element.value != "" && $max.val() != "") {
-                console.log(parseInt(value) + " - " +  parseInt($max.val()));
                 return parseInt(value) > parseInt($max.val());
             }else{
                 return true;

@@ -2,7 +2,7 @@
  * Created by colin on 30/12/13.
  */
 function addValidationRules(obsType) {
-    if(obsType == "NEWS"){
+    if(obsType == "ews"){
         $("#body_temperature").rules("add", {
             min: 27.1,
             max: 44.9,
@@ -68,7 +68,7 @@ function addValidationRules(obsType) {
             }
         });
 
-        $("#supplementaryO2_O2Device").rules("add", {
+        /*$("#supplementaryO2_O2Device").rules("add", {
             required: false
         });
         $("#obsData_supplementaryO2_parameters_flow").rules("add", {
@@ -114,7 +114,7 @@ function addValidationRules(obsType) {
             messages:{
                 min: "Value too low"
             }
-        });
+        });   */
     }
 
     if(obsType == "GCS"){

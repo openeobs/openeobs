@@ -3,7 +3,7 @@ var gulp = require('gulp'),
     concat = require('gulp-concat');
 
 gulp.task('build_observation_js', function(){
-    gulp.src(['../js/gcs-score.js', '../js/modals.js', '../js/observation.js','../js/submission.js','../js/validation.js'])
+    gulp.src(['../js/gcs-score.js', '../js/modals.js', '../js/validation.js', '../js/observation.js','../js/submission.js'])
         .pipe(uglify({output: {beautify: true}}))
         //.pipe(uglify())
         .pipe(concat('observation.js'))

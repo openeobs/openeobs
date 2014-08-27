@@ -63,6 +63,135 @@ $(".content").on("click", ".dialog .cancel", function(e) {
 }), $(".content").on("click", ".cover", function(e) {
     e.preventDefault(), dismissModal("", "all");
 });
+function addValidationRules(e) {
+    "ews" == e && ($("#body_temperature").rules("add", {
+        min: 27.1,
+        max: 44.9,
+        pimpedNumber: !0,
+        messages: {
+            min: "Temperature too low (degrees Celsius)",
+            max: "Temperature too high (degrees Celsius)",
+            pimpedNumber: "Value must be a number"
+        }
+    }), $("#respiration_rate").rules("add", {
+        min: 1,
+        max: 59,
+        pimpedDigits: !0,
+        messages: {
+            min: "Respiratory rate too low",
+            max: "Respiratory rate too high",
+            pimpedDigits: "Value must be a whole number"
+        }
+    }), $("#indirect_oxymetry_spo2").rules("add", {
+        min: 51,
+        max: 100,
+        pimpedDigits: !0,
+        messages: {
+            min: "O2 saturation too low",
+            max: "O2 saturation too high",
+            pimpedDigits: "Value must be a whole number"
+        }
+    }), $("#pulse_rate").rules("add", {
+        min: 1,
+        max: 250,
+        pimpedDigits: !0,
+        messages: {
+            min: "Heart rate too low",
+            max: "Heart rate too high",
+            pimpedDigits: "Value must be a whole number"
+        }
+    }), $("#blood_pressure_diastolic").rules("add", {
+        min: 1,
+        max: 280,
+        pimpedDigits: !0,
+        lessThan: "#blood_pressure_systolic",
+        messages: {
+            min: "Diastolic BP too low",
+            max: "Diastolic BP too high",
+            pimpedDigits: "Value must be a whole number",
+            lessThan: "Diastolic must be less than systolic"
+        }
+    }), $("#blood_pressure_systolic").rules("add", {
+        min: 1,
+        max: 300,
+        pimpedDigits: !0,
+        greaterThan: "#blood_pressure_diastolic",
+        messages: {
+            min: "Systolic BP too low",
+            max: "Systolic BP too high",
+            pimpedDigits: "Value must be a whole number",
+            greaterThan: "Systolic must be greater than diastolic"
+        }
+    })), "GCS" == e && ($("#gcsData_eyes").rules("add", {
+        required: !1
+    }), $("#gcsData_verbal").rules("add", {
+        required: !1
+    }), $("#gcsData_motor").rules("add", {
+        required: !1
+    })), "STOOL" == e && ($("#stoolsData_bowelOpen").rules("add", {
+        required: !1
+    }), $("#stoolsData_nausea").rules("add", {
+        required: !1
+    }), $("#stoolsData_vomiting").rules("add", {
+        required: !1
+    }), $("#stoolsData_quantity").rules("add", {
+        required: !1
+    }), $("#stoolsData_colour").rules("add", {
+        required: !1
+    }), $("#stoolsData_bristolType").rules("add", {
+        required: !1
+    }), $("#stoolsData_offensive").rules("add", {
+        required: !1
+    }), $("#stoolsData_strain").rules("add", {
+        required: !1
+    }), $("#stoolsData_laxatives").rules("add", {
+        required: !1
+    }), $("#stoolsData_samples").rules("add", {
+        required: !1
+    }), $("#stoolsData_rectalExam").rules("add", {
+        required: !1
+    })), "BLOODS" == e && $("#bloodSugarData_bloodSugar").rules("add", {
+        min: 1,
+        max: 99.9,
+        pimpedNumber: !0,
+        messages: {
+            min: "Blood sugar too low",
+            max: "Blood sugar too high",
+            pimpedNumber: "Value must be a number"
+        }
+    }), "WEIGHT" == e && ($("#heightWeightData_height").rules("add", {
+        pimpedNumber: !0,
+        required: !1,
+        messages: {
+            pimpedNumber: "Value must be a number"
+        }
+    }), $("#heightWeightData_weight").rules("add", {
+        pimpedNumber: !0,
+        messages: {
+            pimpedNumber: "Value must be a number"
+        }
+    })), "BLOODP" == e && $("#BloodProductData_volume").rules("add", {
+        pimpedNumber: !0,
+        messages: {
+            pimpedNumber: "Value must be a number"
+        }
+    });
+}
+
+function resetErrors(e, a) {
+    if ("delete" == a) $("#" + e).parent().parent(".obsField").removeClass("error"), 
+    $("#" + e).parent().siblings(".input-body").children(".errors").children("label.error").remove(); else {
+        if ("empty" != a) return !1;
+        $("#" + e).parent().parent(".obsField").removeClass("error"), $("#" + e).parent().parent().find(".errors").text("");
+    }
+}
+
+function showErrors(e) {
+    $.each(e, function(e, a) {
+        var r = e.replace(/\./g, "_");
+        $("#" + r).parent().parent().addClass("error"), $("#" + r).parent().parent().find(".input-body .errors").text(a);
+    });
+}
 function ToggleBaseSupO2(e) {
     "show" == e ? ($("#parent_obsData_supplementaryO2_parameters_flow").removeClass("valHide"), 
     $("#obsData_supplementaryO2_parameters_flow").removeClass("exclude"), $("#parent_obsData_supplementaryO2_parameters_concentration").removeClass("valHide"), 
@@ -179,20 +308,18 @@ $(document).ready(function() {
         timeIdle = 0;
     }), $("#startTimestamp").val($.now());
     var r;
-    "clinical" != s && "ObsFreq" != s && (jQuery.validator.addMethod("pimpedNumber", function(e, s) {
+    "clinical" != s && "ObsFreq" != s && (console.log("adding custom methods"), jQuery.validator.addMethod("pimpedNumber", function(e, s) {
         return /^[-+]?\d+(\.\d+)?$/.test(e) ? !0 : (s.value = "", !0);
     }, "Invalid character found in field"), jQuery.validator.addMethod("lessThan", function(e, s, a) {
         var o = $(a);
         return this.settings.onfocusout && o.off(".validate-lessThan").on("blur.validate-lessThan", function() {
             $(s).valid();
-        }), "" != s.value && "" != o.val() ? (console.log(parseInt(e) + " - " + parseInt(o.val())), 
-        parseInt(e) < parseInt(o.val())) : !0;
+        }), "" != s.value && "" != o.val() ? parseInt(e) < parseInt(o.val()) : !0;
     }, "Diastolic must be less than systolic"), jQuery.validator.addMethod("greaterThan", function(e, s, a) {
         var o = $(a);
         return this.settings.onfocusout && o.off(".validate-greaterThan").on("blur.validate-greaterThan", function() {
             $(s).valid();
-        }), "" != s.value && "" != o.val() ? (console.log(parseInt(e) + " - " + parseInt(o.val())), 
-        parseInt(e) > parseInt(o.val())) : !0;
+        }), "" != s.value && "" != o.val() ? parseInt(e) > parseInt(o.val()) : !0;
     }, "Systolic must be greater than diastolic"), jQuery.validator.addMethod("mewsO2", function(e, s) {
         return s.value <= 94 && "" !== s.value ? ($(s).parent().parent().addClass("warning"), 
         $(s).parent().siblings(".input-body").children(".help").text("O2 less than 95%, action required"), 
@@ -424,173 +551,4 @@ function processObs(a) {
         }), !0;
     }
     return "GCS" == a ? "" == $("#gcsData_eyes").val() || "" == $("#gcsData_verbal").val() || "" == $("#gcsData_motor").val() ? !1 : e = gcs($("#gcsData_eyes").val(), $("#gcsData_verbal").val(), $("#gcsData_motor").val()) : "STOOL" == a ? "" == $("#stoolsData_bowelOpen").val() || "" == $("#stoolsData_nausea").val() || "" == $("#stoolsData_vomiting").val() || "" == $("#stoolsData_quantity").val() || "" == $("#stoolsData_colour").val() || "" == $("#stoolsData_bristolType").val() || "" == $("#stoolsData_offensive").val() || "" == $("#stoolsData_strain").val() || "" == $("#stoolsData_laxatives").val() || "" == $("#stoolsData_samples").val() || "" == $("#stoolsData_rectalExam").val() ? !1 : !0 : "BLOODS" == a ? "" == $("#bloodSugarData_bloodSugar").val() || "" == $("#bloodSugarData_diabetic").val() ? !1 : !0 : "WEIGHT" == a ? "" == $("#heightWeightData_weight").val() ? !1 : !0 : "BLOODP" == a ? "" == $("#BloodProductData_volume").val() || "" == $("#BloodProductData_product").val() ? !1 : !0 : void 0;
-}
-function addValidationRules(e) {
-    "NEWS" == e && ($("#body_temperature").rules("add", {
-        min: 27.1,
-        max: 44.9,
-        pimpedNumber: !0,
-        messages: {
-            min: "Temperature too low (degrees Celsius)",
-            max: "Temperature too high (degrees Celsius)",
-            pimpedNumber: "Value must be a number"
-        }
-    }), $("#respiration_rate").rules("add", {
-        min: 1,
-        max: 59,
-        pimpedDigits: !0,
-        messages: {
-            min: "Respiratory rate too low",
-            max: "Respiratory rate too high",
-            pimpedDigits: "Value must be a whole number"
-        }
-    }), $("#indirect_oxymetry_spo2").rules("add", {
-        min: 51,
-        max: 100,
-        pimpedDigits: !0,
-        messages: {
-            min: "O2 saturation too low",
-            max: "O2 saturation too high",
-            pimpedDigits: "Value must be a whole number"
-        }
-    }), $("#pulse_rate").rules("add", {
-        min: 1,
-        max: 250,
-        pimpedDigits: !0,
-        messages: {
-            min: "Heart rate too low",
-            max: "Heart rate too high",
-            pimpedDigits: "Value must be a whole number"
-        }
-    }), $("#blood_pressure_diastolic").rules("add", {
-        min: 1,
-        max: 280,
-        pimpedDigits: !0,
-        lessThan: "#blood_pressure_systolic",
-        messages: {
-            min: "Diastolic BP too low",
-            max: "Diastolic BP too high",
-            pimpedDigits: "Value must be a whole number",
-            lessThan: "Diastolic must be less than systolic"
-        }
-    }), $("#blood_pressure_systolic").rules("add", {
-        min: 1,
-        max: 300,
-        pimpedDigits: !0,
-        greaterThan: "#blood_pressure_diastolic",
-        messages: {
-            min: "Systolic BP too low",
-            max: "Systolic BP too high",
-            pimpedDigits: "Value must be a whole number",
-            greaterThan: "Systolic must be greater than diastolic"
-        }
-    }), $("#supplementaryO2_O2Device").rules("add", {
-        required: !1
-    }), $("#obsData_supplementaryO2_parameters_flow").rules("add", {
-        pimpedNumber: !0,
-        required: !1,
-        min: 0,
-        messages: {
-            pimpedNumber: "Value must be a number",
-            min: "Value too low"
-        }
-    }), $("#obsData_supplementaryO2_parameters_concentration").rules("add", {
-        required: !1,
-        min: 0,
-        messages: {
-            min: "Value too low"
-        }
-    }), $("#obsData_supplementaryO2_parameters_cpapPeep").rules("add", {
-        required: !1,
-        min: 0,
-        messages: {
-            min: "Value too low"
-        }
-    }), $("#obsData_supplementaryO2_parameters_nivBackupRate").rules("add", {
-        required: !1,
-        min: 0,
-        messages: {
-            min: "Value too low"
-        }
-    }), $("#obsData_supplementaryO2_parameters_nivIpap").rules("add", {
-        required: !1,
-        min: 0,
-        messages: {
-            min: "Value too low"
-        }
-    }), $("#obsData_supplementaryO2_parameters_nivEpap").rules("add", {
-        required: !1,
-        min: 0,
-        messages: {
-            min: "Value too low"
-        }
-    })), "GCS" == e && ($("#gcsData_eyes").rules("add", {
-        required: !1
-    }), $("#gcsData_verbal").rules("add", {
-        required: !1
-    }), $("#gcsData_motor").rules("add", {
-        required: !1
-    })), "STOOL" == e && ($("#stoolsData_bowelOpen").rules("add", {
-        required: !1
-    }), $("#stoolsData_nausea").rules("add", {
-        required: !1
-    }), $("#stoolsData_vomiting").rules("add", {
-        required: !1
-    }), $("#stoolsData_quantity").rules("add", {
-        required: !1
-    }), $("#stoolsData_colour").rules("add", {
-        required: !1
-    }), $("#stoolsData_bristolType").rules("add", {
-        required: !1
-    }), $("#stoolsData_offensive").rules("add", {
-        required: !1
-    }), $("#stoolsData_strain").rules("add", {
-        required: !1
-    }), $("#stoolsData_laxatives").rules("add", {
-        required: !1
-    }), $("#stoolsData_samples").rules("add", {
-        required: !1
-    }), $("#stoolsData_rectalExam").rules("add", {
-        required: !1
-    })), "BLOODS" == e && $("#bloodSugarData_bloodSugar").rules("add", {
-        min: 1,
-        max: 99.9,
-        pimpedNumber: !0,
-        messages: {
-            min: "Blood sugar too low",
-            max: "Blood sugar too high",
-            pimpedNumber: "Value must be a number"
-        }
-    }), "WEIGHT" == e && ($("#heightWeightData_height").rules("add", {
-        pimpedNumber: !0,
-        required: !1,
-        messages: {
-            pimpedNumber: "Value must be a number"
-        }
-    }), $("#heightWeightData_weight").rules("add", {
-        pimpedNumber: !0,
-        messages: {
-            pimpedNumber: "Value must be a number"
-        }
-    })), "BLOODP" == e && $("#BloodProductData_volume").rules("add", {
-        pimpedNumber: !0,
-        messages: {
-            pimpedNumber: "Value must be a number"
-        }
-    });
-}
-
-function resetErrors(e, a) {
-    if ("delete" == a) $("#" + e).parent().parent(".obsField").removeClass("error"), 
-    $("#" + e).parent().siblings(".input-body").children(".errors").children("label.error").remove(); else {
-        if ("empty" != a) return !1;
-        $("#" + e).parent().parent(".obsField").removeClass("error"), $("#" + e).parent().parent().find(".errors").text("");
-    }
-}
-
-function showErrors(e) {
-    $.each(e, function(e, a) {
-        var r = e.replace(/\./g, "_");
-        $("#" + r).parent().parent().addClass("error"), $("#" + r).parent().parent().find(".input-body .errors").text(a);
-    });
 }
