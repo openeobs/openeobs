@@ -37,6 +37,15 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             if o.is_partial and not o.partial_reason:
                 return False
         return True
+
+    def complete(self, cr, uid, activity_id, context=None):
+        api = self.pool['t4.clinical.api']
+        activity = api.get_activity(cr, uid, activity_id)
+        res = super(t4_clinical_patient_observation, self).complete(cr, uid, activity_id, context)
+        #o = self.browse(cr, uid, activity_id)
+        except_if(activity.data_ref.is_partial and not activity.data_ref.partial_reason,
+                  msg="Partial observation didn't have reason")
+        return res
     
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
@@ -82,8 +91,6 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             for obs in self.browse(cr, uid, ids, context=context):
                 scheduled = (dt.strptime(obs.activity_id.create_date, DTF)+td(minutes=vals['frequency'])).strftime(DTF)
                 activity_pool.schedule(cr, uid, obs.activity_id.id, date_scheduled=scheduled, context=context)
-        except_if(not all([o.is_partial and o.partial_reason or not o.is_partial for o in self.browse(cr, uid, ids)]),
-                  msg="Partial observation didn't have reason")
         return True
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
