@@ -317,8 +317,12 @@ class MobileFrontend(http.Controller):
         api = request.registry('t4.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
-        result = api.submit_complete(cr, uid, int(task_id), kw_copy, context)
-        return request.make_response(json.dumps(result), headers={'Content-Type': 'application/json'})
+        for key, value in kw_copy.items():
+            if not value:
+                del kw_copy[key]
+        api.submit_complete(cr, uid, int(task_id), kw_copy, context)
+        triggered_tasks = api.activity_map(cr, uid, creator_ids=[int(task_id)])
+        return request.make_response(json.dumps(triggered_tasks), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ews_score'], type="http", auth="user")
     def calculate_ews_score(self, *args, **kw):
@@ -326,6 +330,12 @@ class MobileFrontend(http.Controller):
         ews_pool = request.registry('t4.clinical.patient.observation.ews')
         data = kw.copy()
         return request.make_response(json.dumps(ews_pool.calculate_score(data)), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['json_partial_reasons'], type="http", auth="user")
+    def get_partial_reasons(self, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        return request.make_response(json.dumps(ews_pool._partial_reasons), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['json_patient_info']+'<patient_id>', type="http", auth="user")
     def get_patient_info(self, patient_id, *args, **kw):

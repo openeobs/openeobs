@@ -116,6 +116,12 @@ routes = [
         'endpoint': 'tasks/cancel_take_ajax/',
         'method': 'POST',
         'args': 'task_id'
+    },
+    {
+        'name': 'json_partial_reasons',
+        'endpoint': 'ews/partial_reasons',
+        'method': 'GET',
+        'args': False
     }
 ]
 
