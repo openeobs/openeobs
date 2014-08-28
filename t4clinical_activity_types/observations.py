@@ -70,8 +70,6 @@ class t4_clinical_patient_observation(orm.AbstractModel):
                 
     def write(self, cr, uid, ids, vals, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
-        except_if(not self._partial_observation_has_reason(cr, uid, ids, context=context),
-                  msg="Partial observation didn't have reason")
         if not self._required:
             return super(t4_clinical_patient_observation, self).write(cr, uid, ids, vals, context)
         for obs in self.read(cr, uid, ids, ['none_values'], context):
@@ -84,6 +82,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             for obs in self.browse(cr, uid, ids, context=context):
                 scheduled = (dt.strptime(obs.activity_id.create_date, DTF)+td(minutes=vals['frequency'])).strftime(DTF)
                 activity_pool.schedule(cr, uid, obs.activity_id.id, date_scheduled=scheduled, context=context)
+        except_if(not all([o.is_partial and o.partial_reason or not o.is_partial for o in self.browse(cr, uid, ids)]),
+                  msg="Partial observation didn't have reason")
         return True
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
