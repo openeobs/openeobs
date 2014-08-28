@@ -17,25 +17,41 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
     _inherit = ['t4.activity.data']
     _required = [] # fields required for complete observation
+    _partial_reasons = [['not_in_bed', 'Patient not in bed'],
+                        ['asleep', 'Patient asleep']]
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
         if not self._required:
             return {id: False for id in ids}
-        res = {obs['id']: bool(set(self._required) & set(eval(obs['none_values']))) for obs in self.read(cr, uid, ids, ['none_values'], context)}
+        res = {}
+        for obs in self.read(cr, uid, ids, ['none_values'], context):
+            print 'inside read {0} - {1}'.format(self._required, obs['none_values'])
+            res.update({obs['id']: bool(set(self._required) & set(eval(obs['none_values'])))})
         print 'is_partial: %s' % res
         #import pdb; pdb.set_trace()
-        return res    
+        return res
+
+    def _partial_observation_has_reason(self, cr, uid, ids, context=None):
+        for o in self.browse(cr, uid, ids, context=context):
+            if o.is_partial and not o.partial_reason:
+                return False
+        return True
     
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'is_partial': fields.function(_is_partial, type='boolean', string='Is Partial?'),
         'none_values': fields.text('Non-updated fields'),
-        'frequency': fields.selection(frequencies, 'Frequency')
+        'frequency': fields.selection(frequencies, 'Frequency'),
+        'partial_reason': fields.selection(_partial_reasons, 'Reason if partial observation')
     }
     _defaults = {
 
     }
+
+    # _constraints = [
+    #     (_partial_observation_has_reason, 'You cannot say observation is partial without supplying a reason', ['partial_reason'])
+    # ]
     
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))
@@ -54,6 +70,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
                 
     def write(self, cr, uid, ids, vals, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
+        except_if(not self._partial_observation_has_reason(cr, uid, ids, context=context),
+                  msg="Partial observation didn't have reason")
         if not self._required:
             return super(t4_clinical_patient_observation, self).write(cr, uid, ids, vals, context)
         for obs in self.read(cr, uid, ids, ['none_values'], context):
