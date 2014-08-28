@@ -71,6 +71,10 @@ API consists of 3 classes of methods:
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api'
     
+    def browse(self, cr, uid, model, ids, context=None):
+        model_pool = self.pool['model']
+        return model_pool.browse(cr, uid, ids, context)
+    
     def get_activity(self, cr, uid, activity_id, return_id=False):
         activity_pool = self.pool['t4.activity']
         if return_id:
@@ -380,7 +384,7 @@ with
             ),
             map as (
                     select 
-                        u.id,
+                        u.id as user_id,
                         u.login as login,
                         g.group_xmlids,
                         aa.assigned_activity_ids,
@@ -393,7 +397,7 @@ with
             {where_clause}
         """.format(where_clause=where_clause)
         cr.execute(sql)
-        res = {r['id']: r for r in cr.dictfetchall()}
+        res = {r['user_id']: r for r in cr.dictfetchall()}
         return res
     
     def get_location_ids(self, cr, uid, location_ids=[], types=[], usages=[], codes=[], pos_ids=[],
@@ -458,7 +462,7 @@ with
         res = {r['id']: r['rank'] for r in cr.dictfetchall()}
         return res 
 
-    def activity_map(self, cr, uid, activity_ids=[],
+    def activity_map(self, cr, uid, activity_ids=[], creator_ids=[],
                        pos_ids=[], location_ids=[], patient_ids=[],
                        device_ids=[], data_models=[], states=[]):
         """
@@ -482,6 +486,7 @@ with
         """
         where_list = []
         if activity_ids: where_list.append("id in (%s)" % ','.join([str(int(id)) for id in activity_ids]))
+        if creator_ids: where_list.append("creator_id in (%s)" % ','.join([str(int(id)) for id in creator_ids]))
         if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(int(id)) for id in pos_ids]))    
         if location_ids: where_list.append("location_id in (%s)" % ','.join([str(int(id)) for id in location_ids])) 
         if patient_ids: where_list.append("patient_id in (%s)" % ','.join([str(int(id)) for id in patient_ids]))
