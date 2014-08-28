@@ -124,7 +124,7 @@
                     <h2 id="patientName" class="block">
                         <a t-att-href="patient['url']"><t t-esc="patient['name']"/><i class="icon-info"></i></a>
                     </h2>
-                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-data-id="form['source-id']" id="obsForm" t-att-source="form['source']">
+                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']">
                         <div t-foreach="inputs" t-as="item">
                             <t t-if="item['type']=='number'">
                                 <t t-call="mobile_frontend.observation_data_input"/>
@@ -133,12 +133,16 @@
                                 <t t-call="mobile_frontend.observation_data_select"/>
                             </t>
                         </div>
-                        <input type="hidden" name="taskId" t-att-value="form['source-id']"/>
+                        <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
                         <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
                         <div class="block obsSubmit">
                             <input type="submit" value="Submit" id="submitButton"/>
                         </div>
                     </form>
+                    <script t-att-src="urls['jquery']" type="text/javascript"></script>
+                    <script t-att-src="urls['js_routes']" type="text/javascript"></script>
+                    <script t-att-src="urls['observation_form_validation']" type="text/javascript"></script>
+                    <script t-att-src="urls['observation_form_js']" type="text/javascript"></script>
                 </div>
             </t>
         </template>
@@ -199,6 +203,7 @@
             </t>
             <t t-call="mobile_frontend.logged_in_footer"/>
         </template>
+
 
 
     </data>

@@ -17,25 +17,41 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
     _inherit = ['t4.activity.data']
     _required = [] # fields required for complete observation
+    _partial_reasons = [['not_in_bed', 'Patient not in bed'],
+                        ['asleep', 'Patient asleep']]
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
         if not self._required:
             return {id: False for id in ids}
-        res = {obs['id']: bool(set(self._required) & set(eval(obs['none_values']))) for obs in self.read(cr, uid, ids, ['none_values'], context)}
+        res = {}
+        for obs in self.read(cr, uid, ids, ['none_values'], context):
+            print 'inside read {0} - {1}'.format(self._required, obs['none_values'])
+            res.update({obs['id']: bool(set(self._required) & set(eval(obs['none_values'])))})
         print 'is_partial: %s' % res
         #import pdb; pdb.set_trace()
-        return res    
+        return res
+
+    def _partial_observation_has_reason(self, cr, uid, ids, context=None):
+        for o in self.browse(cr, uid, ids, context=context):
+            if o.is_partial and not o.partial_reason:
+                return False
+        return True
     
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'is_partial': fields.function(_is_partial, type='boolean', string='Is Partial?'),
         'none_values': fields.text('Non-updated fields'),
-        'frequency': fields.selection(frequencies, 'Frequency')
+        'frequency': fields.selection(frequencies, 'Frequency'),
+        'partial_reason': fields.selection(_partial_reasons, 'Reason if partial observation')
     }
     _defaults = {
 
     }
+
+    # _constraints = [
+    #     (_partial_observation_has_reason, 'You cannot say observation is partial without supplying a reason', ['partial_reason'])
+    # ]
     
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))
@@ -66,6 +82,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             for obs in self.browse(cr, uid, ids, context=context):
                 scheduled = (dt.strptime(obs.activity_id.create_date, DTF)+td(minutes=vals['frequency'])).strftime(DTF)
                 activity_pool.schedule(cr, uid, obs.activity_id.id, date_scheduled=scheduled, context=context)
+        except_if(not all([o.is_partial and o.partial_reason or not o.is_partial for o in self.browse(cr, uid, ids)]),
+                  msg="Partial observation didn't have reason")
         return True
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
@@ -289,43 +307,47 @@ class t4_clinical_patient_observation_ews(orm.Model):
                     {'model': 'nurse', 'summary': 'Informed about patient status (NEWS)', 'groups': ['hca']}]
                ],
                'risk': ['None', 'Low', 'Medium', 'High']}
+
+    def calculate_score(self, ews_data):
+        score = 0
+        three_in_one = False
+
+        aux = int(self._RR_RANGES['scores'][bisect.bisect_left(self._RR_RANGES['ranges'], ews_data['respiration_rate'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._O2_RANGES['scores'][bisect.bisect_left(self._O2_RANGES['ranges'], ews_data['indirect_oxymetry_spo2'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._BT_RANGES['scores'][bisect.bisect_left(self._BT_RANGES['ranges'], ews_data['body_temperature'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._BP_RANGES['scores'][bisect.bisect_left(self._BP_RANGES['ranges'], ews_data['blood_pressure_systolic'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        aux = int(self._PR_RANGES['scores'][bisect.bisect_left(self._PR_RANGES['ranges'], ews_data['pulse_rate'])])
+        three_in_one = three_in_one or aux == 3
+        score += aux
+
+        score += 2 if ews_data['oxygen_administration_flag'] else 0
+
+        score += 3 if ews_data['avpu_text'] in ['V', 'P', 'U'] else 0
+        three_in_one = True if ews_data['avpu_text'] in ['V', 'P', 'U'] else three_in_one
+
+        case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], score)])
+        case = 2 if three_in_one and case < 3 else case
+        clinical_risk = self._POLICY['risk'][case]
+
+        return {'score': score, 'three_in_one': three_in_one, 'clinical_risk': clinical_risk}
+
     
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for ews in self.browse(cr, uid, ids, context):
-            score = 0
-            three_in_one = False
-
-            aux = int(self._RR_RANGES['scores'][bisect.bisect_left(self._RR_RANGES['ranges'], ews.respiration_rate)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._O2_RANGES['scores'][bisect.bisect_left(self._O2_RANGES['ranges'], ews.indirect_oxymetry_spo2)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._BT_RANGES['scores'][bisect.bisect_left(self._BT_RANGES['ranges'], ews.body_temperature)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._BP_RANGES['scores'][bisect.bisect_left(self._BP_RANGES['ranges'], ews.blood_pressure_systolic)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            aux = int(self._PR_RANGES['scores'][bisect.bisect_left(self._PR_RANGES['ranges'], ews.pulse_rate)])
-            three_in_one = three_in_one or aux == 3
-            score += aux
-
-            score += 2 if ews.oxygen_administration_flag else 0
-
-            score += 3 if ews.avpu_text in ['V', 'P', 'U'] else 0
-            three_in_one = True if ews.avpu_text in ['V', 'P', 'U'] else three_in_one
-
-            case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], score)])
-            case = 2 if three_in_one and case < 3 else case
-            clinical_risk = self._POLICY['risk'][case]
-
-            res[ews.id] = {'score': score, 'three_in_one': three_in_one, 'clinical_risk': clinical_risk}
+            res[ews.id] = self.calculate_score(ews)
             _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res
 
