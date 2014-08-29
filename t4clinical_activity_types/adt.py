@@ -7,7 +7,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import SUPERUSER_ID
 import logging        
 _logger = logging.getLogger(__name__)
-
+from openerp.addons.t4demo.demo import Demo
 
 class t4_clinical_adt(orm.Model):
     _name = 't4.clinical.adt'
@@ -54,6 +54,20 @@ class t4_clinical_adt_patient_register(orm.Model):
         res = {}
         super(t4_clinical_adt_patient_register, self).complete(cr, uid, activity_id, context)
         return res       
+
+    def demo_values(self, cr, uid, values={}):
+        fake = self.next_seed_fake()
+        gender = fake.random_element(('M','F'))
+        v = {
+                'family_name': fake.last_name(),
+                'given_name': fake.first_name(),
+                'other_identifier': str(fake.random_int(min=1000001, max=9999999)),
+                'dob': fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S"),
+                'gender': gender,
+                'sex': gender,
+                }
+        v.update(values)
+        return v
 
 
 class t4_clinical_adt_patient_admit(orm.Model):
@@ -169,7 +183,28 @@ class t4_clinical_adt_patient_admit(orm.Model):
                                         'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
         spell_activity = [a for a in admission_activity.created_ids if a.data_model == 't4.clinical.spell'][0]
         api_pool.write_activity(cr, SUPERUSER_ID, activity_id, {'parent_id': spell_activity.id})
-        return res
+        return res  
+    
+    def demo_values(self, cr, uid, values={}):
+        fake = self.next_seed_fake()
+        api =self.pool['t4.clinical.api']
+        v = {}
+        # if 'other_identifier' not passed register new patient and use it's data
+        if 'other_identifier' not in values:
+            reg_pool = self.pool['t4.clinical.adt.patient.register']
+            reg_activity_id = reg_pool.create_activity(cr, uid, {}, {}, {'demo': True})
+            reg_data = api.get_activity_data(cr, uid, reg_activity_id)
+            v.update({'other_identifier': reg_data['other_identifier']})
+        if 'location' not in values:
+            location_pool = self.pool['t4.clinical.location']
+            wards = api.location_map(cr, uid, pos_ids=[reg_data['pos_id']], usages=['wards'])
+            if not wards:
+                ward_location_id = location_pool.create(cr, uid, {}, {'demo': True, 'demo_method': 'demo_values_ward'})
+                wards = api.location_map(cr, uid, location_ids=[ward_location_id])
+            ward_id = fake.random_element(wards.keys())
+            v.update({'location': wards[ward_id]['code']})
+        v.update(values)
+        return v    
     
 class t4_clinical_adt_patient_cancel_admit(orm.Model):
     _name = 't4.clinical.adt.patient.cancel_admit'

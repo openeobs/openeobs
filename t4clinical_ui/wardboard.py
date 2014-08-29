@@ -18,7 +18,7 @@ class wardboard_patient_placement(orm.TransientModel):
         wiz = self.browse(cr, uid, ids[0])
         spell_activity_id = self.pool['t4.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
         placement_activity_id = self.pool['t4.clinical.patient.placement']\
-                                .create_activity(cr, uid, {'parent_id': spell_activity_id}, 
+                                .create_activity(cr, SUPERUSER_ID, {'parent_id': spell_activity_id}, 
                                                            {
                                                             'suggested_location_id': wiz.bed_dst_location_id.id,
                                                             'location_id': wiz.bed_dst_location_id.id,
@@ -35,14 +35,11 @@ class wardboard_device_session_start(orm.TransientModel):
     def do_start(self, cr, uid, ids, context=None):
         wiz = self.browse(cr, uid, ids[0])
         spell_activity_id = self.pool['t4.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
-        device_activity_id = self.pool['t4.clinical.device.session']\
-                                .create_activity(cr, uid, {'parent_id': spell_activity_id}, 
-                                                           {
-                                                            'patient_id': wiz.patient_id.id,
-                                                            'device_id': wiz.device_id.id
-                                                           })
+        device_activity_id = self.pool['t4.clinical.device.session'].create_activity(cr, SUPERUSER_ID, 
+                                                {'parent_id': spell_activity_id},
+                                                {'patient_id': wiz.patient_id.id, 'device_id': wiz.device_id.id})
         self.pool['t4.activity'].start(cr, uid, device_activity_id, context)        
-
+        import pdb; pdb.set_trace()
 class wardboard_device_session_complete(orm.TransientModel):
     _name = "wardboard.device.session.complete"
 
@@ -101,7 +98,6 @@ class t4_clinical_wardboard(orm.Model):
     _name = "t4.clinical.wardboard"
     _inherits = {
                  't4.clinical.patient': 'patient_id',
-                # 't4.clinical.spell': 'spell_activity_id'
     }
     _description = "Wardboard"
     _auto = False
@@ -132,6 +128,19 @@ class t4_clinical_wardboard(orm.Model):
         self._columns['o2target'].readonly = not (umap.get(user) and 'group_t4clinical_doctor' in umap[user]['group_xmlids'])
         res = super(t4_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)    
         return res
+
+    def _get_started_device_session_ids(self, cr, uid, ids, field_name, arg, context=None):
+        sql = "select id, wb_started_device_session_ids ids from t4_clinical_wardboard where id in (%s)" % ", ".join([str(id) for id in ids])
+        cr.execute(sql)
+        res = {r['id']: r['ids'] for r in cr.dictfetchall()}
+        import pdb; pdb.set_trace()
+        return res 
+
+    def _get_completed_device_session_ids(self, cr, uid, ids, field_name, arg, context=None):
+        sql = "select id, wb_completed_device_session_ids ids from t4_clinical_wardboard where id in (%s)" % ", ".join([str(id) for id in ids])
+        cr.execute(sql)
+        res = {r['id']: r['ids'] for r in cr.dictfetchall()}
+        return res 
     
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=1, ondelete='restrict'),
@@ -164,8 +173,10 @@ class t4_clinical_wardboard(orm.Model):
         'height': fields.float("Height"),
         'o2target': fields.many2one('t4.clinical.o2level', 'O2 Target'),
         'consultant_names': fields.text("Consulting Doctors"),
-    }
+        'terminated_device_session_ids': fields.function(_get_completed_device_session_ids, type='many2many', relation='t4.clinical.device.session', string='Device Session History'),
+        'started_device_session_ids': fields.function(_get_started_device_session_ids, type='many2many', relation='t4.clinical.device.session', string='Device Session History'),
 
+        }
     def _get_cr_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         res = [['NoScore', 'No Score Yet'], ['High', 'High Risk'], ['Medium', 'Medium Risk'], ['Low', 'Low Risk'], ['None', 'No Risk']]
         fold = {r[0]: False for r in res}
@@ -501,7 +512,27 @@ cosulting_doctors as(
         inner join con_doctor_spell_rel on con_doctor_spell_rel.spell_id = spell.id
         inner join res_partner doctor on con_doctor_spell_rel.doctor_id = doctor.id
         group by spell.id
-        )
+        ),
+started_device_session as(
+        select 
+            spell.id as spell_id,
+            array_agg(data.id) as ids   
+        from t4_clinical_spell spell
+        inner join t4_clinical_device_session data on data.patient_id = spell.patient_id
+        inner join t4_activity activity on activity.id = data.activity_id
+        where activity.state = 'started'
+        group by spell.id
+        ),
+completed_device_session as(
+        select 
+            spell.id as spell_id,
+            array_agg(data.id) as ids   
+        from t4_clinical_spell spell
+        inner join t4_clinical_device_session data on data.patient_id = spell.patient_id        
+        inner join t4_activity activity on activity.id = data.activity_id
+        where activity.state = 'completed'
+        group by spell.id
+        )        
 select 
     spell.patient_id as id,
     spell.patient_id as patient_id,
@@ -567,7 +598,9 @@ select
         when wm.weight_monitoring is null then 'no'
         else 'no'
     end as weight_monitoring,
-    cosulting_doctors.names as consultant_names
+    cosulting_doctors.names as consultant_names,
+    started_device_session.ids as wb_started_device_session_ids,
+    completed_device_session.ids as wb_completed_device_session_ids
 from t4_clinical_spell spell
 inner join t4_activity spell_activity on spell_activity.id = spell.activity_id
 inner join t4_clinical_patient patient on spell.patient_id = patient.id
@@ -582,6 +615,8 @@ left join completed_weight_monitoring wm on spell.patient_id = wm.patient_id and
 left join completed_height height_ob on spell.patient_id = height_ob.patient_id and height_ob.rank = 1
 left join completed_o2target o2target_ob on spell.patient_id = o2target_ob.patient_id and o2target_ob.rank = 1
 left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
+left join started_device_session on started_device_session.spell_id = spell.id
+left join completed_device_session on completed_device_session.spell_id = spell.id
 where spell_activity.state = 'started'
 
 

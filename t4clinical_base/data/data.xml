@@ -1,17 +1,6 @@
 <?xml version="1.0"?>
 <openerp>
 	<data>
-		<!-- Recurrence Scheduler -->
-        <record model="ir.cron" id="t4_activity_recurrence_cron">
-            <field name="name">activity Recurrence</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
-            <field name="doall" eval="False"/>
-            <field name="model" eval="'t4.activity.recurrence'"/>
-            <field name="function" eval="'cron'"/>
-            <field name="args" eval="'()'" />
-        </record>	
 <!-- Model category -->
         <record model="ir.module.category" id="module_category_t4clinical">
             <field name="name">T4 Clinical</field>
