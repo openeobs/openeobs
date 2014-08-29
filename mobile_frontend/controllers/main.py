@@ -5,7 +5,6 @@ from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
-import openerp.addons.web.controllers.main as main
 
 URL_PREFIX = '/mobile/'
 
@@ -77,7 +76,7 @@ def ensure_db(redirect=URLS['login']):
     request.session.db = db
 
 
-class MobileFrontend(http.Controller):
+class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['stylesheet'], type='http', auth='none')
     def get_stylesheet(self, *args, **kw):
@@ -320,7 +319,7 @@ class MobileFrontend(http.Controller):
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
-        api.submit_complete(cr, uid, int(task_id), kw_copy, context)
+        result = api.submit_complete(cr, uid, int(task_id), kw_copy, context)
         triggered_tasks = [v for v in api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 

@@ -419,8 +419,8 @@ $(document).ready(function() {
             data: t,
             success: function(e) {
                 if (console.log(e), 1 == e.status || 2 == e.status) 1 == e.status ? (dismissModal("obsPartial", "hide"), 
-                displayModal("obsConfirm", "Successfully submitted", "<p>The partial observation have been successfully submitted. Please be aware that this task is still active until all observations have been taken. Only the last complete NEWS score will be displayed..</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500)) : (dismissModal("obsPartial", "hide"), 
-                displayModal("obsConfirm", "Action required", "<p>" + e.message + "</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>', '<a href="' + jsRoutes.controllers.Tasks.performTask(e.taskId).url + '" class="confirm">Proceed</a>' ], 500)); else if (e.responseText) {
+                displayModal("obsConfirm", "Successfully submitted", "<p>The partial observation have been successfully submitted. Please be aware that this task is still active until all observations have been taken. Only the last complete NEWS score will be displayed..</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500)) : (dismissModal("obsPartial", "hide"), 
+                displayModal("obsConfirm", "Action required", "<p>" + e.message + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.id).url + '" class="confirm">Proceed</a>' ], 500)); else if (e.responseText) {
                     console.log("re-enabling submit"), submitDisbled = !1;
                     var s = $.parseJSON(e.responseText);
                     s.errors && showErrors(s.errors), dismissModal("obsPartial", "hide");

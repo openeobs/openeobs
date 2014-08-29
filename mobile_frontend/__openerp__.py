@@ -9,7 +9,7 @@
     """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['t4clinical_demo', 't4clinical_api', 't4clinical_base', 't4clinical_activity_types'],
+    'depends': ['web', 't4clinical_demo', 't4clinical_api', 't4clinical_base', 't4clinical_activity_types'],
     'data': ['views/template.xml'],
     'demo': [],
     'images': [],
