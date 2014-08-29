@@ -321,8 +321,8 @@ class MobileFrontend(http.Controller):
             if not value:
                 del kw_copy[key]
         api.submit_complete(cr, uid, int(task_id), kw_copy, context)
-        triggered_tasks = api.activity_map(cr, uid, creator_ids=[int(task_id)])
-        return request.make_response(json.dumps(triggered_tasks), headers={'Content-Type': 'application/json'})
+        triggered_tasks = [v for v in api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model']]
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ews_score'], type="http", auth="user")
     def calculate_ews_score(self, *args, **kw):

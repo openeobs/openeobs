@@ -8,7 +8,7 @@
  */
 
 var timeIdle = 0;
-var idleTime = 240;
+var idleTime = 2400;
 var timing = true;
 var taskId;
 var EWSlabel = "NEWS";
@@ -327,24 +327,24 @@ $(document).ready(function () {
                 success: function(data){
                     console.log(data);
                     if(data.status == 1){
-                        if(data.relatedTasks){
-                            if(data.relatedTasks.length == 1){
+                        if(data.related_tasks){
+                            if(data.related_tasks.length == 1){
                                 dismissModal("obsConfirm", "hide");
-                                displayModal("obsConfirm", "Action required", "<p>" + data.relatedTasks[0].reason + "</p>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\" class=\"action\">Go to My Tasks</a>", "<a href=\""+jsRoutes.controllers.Tasks.performTask(data.relatedTasks[0].taskId).url+"\" class=\"confirm\">Proceed</a>"], 500);
-                            }else if(data.relatedTasks.length > 1){
+                                displayModal("obsConfirm", "Action required", "<p>" + data.related_tasks[0].summary + "</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>", "<a href=\""+frontend_routes.single_task(data.related_tasks[0].id).url+"\" class=\"confirm\">Proceed</a>"], 500);
+                            }else if(data.related_tasks.length > 1){
                                 var taskList = "";
-                                for(var a = 0; a < data.relatedTasks.length; a++){
-                                    taskList += "<li><a href=\""+jsRoutes.controllers.Tasks.performTask(data.relatedTasks[a].taskId).url+"\">"+ data.relatedTasks[a].reason + "</a></li>";
+                                for(var a = 0; a < data.related_tasks.length; a++){
+                                    taskList += "<li><a href=\""+frontend_routes.single_task(data.related_tasks[a].id).url+"\">"+ data.related_tasks[a].summary + "</a></li>";
                                 }
                                 dismissModal("obsConfirm", "hide");
-                                displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\">Go to My Tasks</a>"], 500);
+                                displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+frontend_routes.task_list().url+ "\">Go to My Tasks</a>"], 500);
                             }else{
                                 dismissModal("obsConfirm", "hide");
-                                displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                                displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                             }
                         }else{
                             dismissModal("obsConfirm", "hide");
-                            displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                            displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                         }
                     }else if(data.responseText){
                         console.log("re-enabling submit");
@@ -389,7 +389,7 @@ $(document).ready(function () {
             r = jsRoutes.controllers.Observations.submitObsForPatient(obsType);
         }else{
             console.log("partial obs for task");
-            r = jsRoutes.controllers.Observations.submitObsForTask(obsType);
+            r = frontend_routes.json_task_form_action(taskId);
         }
         if(!submitDisabled){
             console.log("disabling submit");
@@ -534,7 +534,7 @@ $(document).ready(function () {
                     displayModal("obsConfirm", "Submit Blood Product observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
                 }
             }else{
-                if(obsType == "NEWS" || obsType == "MEWS" || obsType == "BTUHMEWS"){
+                if(obsType == "ews"){
                     displayPartialObsDialog();
                 }else{
                     displayModal("obsConfirm", "Mandatory observation values not entered", "<p>Please enter all information and submit observation again</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">OK</a>"], 0);
@@ -713,27 +713,22 @@ return;
 
 // if partial obs has been detected then do a modal with reasons via ajax
 function displayPartialObsDialog(){
-    console.log("this is being called");
     timeIdle = 0;
-    var j = jsRoutes.controllers.Observations.getPartialObsReasons();
+    var j = frontend_routes.json_partial_reasons();
     $.ajax({
         url: j.url,
         type: j.type,
         success: function(data){
 
-            console.log(data);
-
             var cont = "<p>Please state reason for submitting partial observation.</p>";
-            var sel = "<select name=\"reason\">";
+            var sel = "<select name=\"partial_reason\">";
             for(i = 0; i < data.length; i++){
-                console.log(data[i]);
-                sel += "<option value=\"" + data[i].id + "\">" + data[i].name + "</option>";
+                sel += "<option value=\"" + data[i][0] + "\">" + data[i][1] + "</option>";
             }
             sel += "</select>";
             displayModal("obsPartial", "Submit partial observation", cont + sel, ["<a href=\"#\" class=\"cancel\">Cancel</a>", "<a href=\"#\" class=\"confirmPartial selected\">Confirm</a>"], 500, "form");
         },
         error: function(err){
-            console.log(err);
             var errResp = $.parseJSON(err.responseText);
             if(errResp.errors){
                 showErrors(errResp.errors);
