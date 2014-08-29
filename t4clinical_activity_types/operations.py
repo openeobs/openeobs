@@ -7,6 +7,7 @@ import logging
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import SUPERUSER_ID
+from openerp.addons.t4demo.demo import Demo
 _logger = logging.getLogger(__name__)
 
 
@@ -264,8 +265,7 @@ class t4_clinical_patient_discharge(orm.Model):
 
         activity_pool.complete(cr, uid, spell_activity.id, context)
         return {}  
-        
-        
+             
 class t4_clinical_patient_admission(orm.Model):
     _name = 't4.clinical.patient.admission'    
     _inherit = ['t4.activity.data']
@@ -275,12 +275,15 @@ class t4_clinical_patient_admission(orm.Model):
         'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location'),
         'location_id': fields.related('activity_id','location_id', type='many2one', relation='t4.clinical.location', string='Location')
     }
+            
+            
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         #import pdb; pdb.set_trace()
         location_id = activity.data_ref.pos_id.lot_admission_id.id #or activity.data_ref.pos_id.location_id.id
         return location_id 
+    
     
     def complete(self, cr, uid, activity_id, context=None):
         res = {}

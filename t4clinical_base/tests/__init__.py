@@ -1,5 +1,4 @@
-# import test_base
-# 
-# fast_suite = [
-#     test_base,
-#     ]
+import test_new_demo
+fast_suite = [
+    test_new_demo,
+    ]
