@@ -327,8 +327,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def calculate_ews_score(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        converter_pool = request.registry('ir.fields.converter')
+        converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
+
         data = kw.copy()
-        return request.make_response(json.dumps(ews_pool.calculate_score(data)), headers={'Content-Type': 'application/json'})
+        test = {}
+        converted_data = converter(data, test)
+
+        return request.make_response(json.dumps(ews_pool.calculate_score(converted_data)), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['json_partial_reasons'], type="http", auth="user")
     def get_partial_reasons(self, *args, **kw):

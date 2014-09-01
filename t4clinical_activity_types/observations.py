@@ -319,28 +319,28 @@ class t4_clinical_patient_observation_ews(orm.Model):
         score = 0
         three_in_one = False
 
-        aux = int(self._RR_RANGES['scores'][bisect.bisect_left(self._RR_RANGES['ranges'], int(ews_data['respiration_rate']))])
+        aux = int(self._RR_RANGES['scores'][bisect.bisect_left(self._RR_RANGES['ranges'], ews_data['respiration_rate'])])
         three_in_one = three_in_one or aux == 3
         score += aux
 
-        aux = int(self._O2_RANGES['scores'][bisect.bisect_left(self._O2_RANGES['ranges'], int(ews_data['indirect_oxymetry_spo2']))])
+        aux = int(self._O2_RANGES['scores'][bisect.bisect_left(self._O2_RANGES['ranges'], ews_data['indirect_oxymetry_spo2'])])
         three_in_one = three_in_one or aux == 3
         score += aux
 
-        aux = int(self._BT_RANGES['scores'][bisect.bisect_left(self._BT_RANGES['ranges'], float(ews_data['body_temperature']))])
+        aux = int(self._BT_RANGES['scores'][bisect.bisect_left(self._BT_RANGES['ranges'], ews_data['body_temperature'])])
         three_in_one = three_in_one or aux == 3
         score += aux
 
-        aux = int(self._BP_RANGES['scores'][bisect.bisect_left(self._BP_RANGES['ranges'], int(ews_data['blood_pressure_systolic']))])
+        aux = int(self._BP_RANGES['scores'][bisect.bisect_left(self._BP_RANGES['ranges'], ews_data['blood_pressure_systolic'])])
         three_in_one = three_in_one or aux == 3
         score += aux
 
-        aux = int(self._PR_RANGES['scores'][bisect.bisect_left(self._PR_RANGES['ranges'], int(ews_data['pulse_rate']))])
+        aux = int(self._PR_RANGES['scores'][bisect.bisect_left(self._PR_RANGES['ranges'], ews_data['pulse_rate'])])
         three_in_one = three_in_one or aux == 3
         score += aux
 
         if 'oxygen_administration_flag' in ews_data and ews_data['oxygen_administration_flag']:
-            score += 2 if eval(ews_data['oxygen_administration_flag']) else 0
+            score += 2 if ews_data['oxygen_administration_flag'] else 0
 
         score += 3 if ews_data['avpu_text'] in ['V', 'P', 'U'] else 0
         three_in_one = True if ews_data['avpu_text'] in ['V', 'P', 'U'] else three_in_one
