@@ -339,7 +339,8 @@ class t4_clinical_patient_observation_ews(orm.Model):
         three_in_one = three_in_one or aux == 3
         score += aux
 
-        score += 2 if eval(ews_data['oxygen_administration_flag']) else 0
+        if 'oxygen_administration_flag' in ews_data and ews_data['oxygen_administration_flag']:
+            score += 2 if eval(ews_data['oxygen_administration_flag']) else 0
 
         score += 3 if ews_data['avpu_text'] in ['V', 'P', 'U'] else 0
         three_in_one = True if ews_data['avpu_text'] in ['V', 'P', 'U'] else three_in_one
