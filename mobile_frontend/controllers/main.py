@@ -351,3 +351,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             return request.make_response(json.dumps(patient_info[0]), headers={'Content-Type': 'application/json'})
         else:
             return request.make_response(json.dumps({'status': 2, 'error': 'Patient not found'}), headers={'Content-Type': 'application/json'})
+
+    @http.route('/ajax_test', type="http", auth="user")
+    def ajax_test(self, *args, **kw):
+        test_html = '<html><head><script src="{jquery}"></script><script src="{routes}"></script></head><body>Test</body></html>'.format(jquery=URLS['jquery'], routes=URLS['js_routes'])
+        return test_html

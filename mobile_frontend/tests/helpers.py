@@ -1,19 +1,9 @@
 __author__ = 'colin'
+from openerp.addons.mobile_frontend.controllers import urls
 
 # URL structure
 URL_PREFIX = '/mobile/'
-URLS = {'patient_list': URL_PREFIX+'patients/',
-        'single_patient': URL_PREFIX+'patient/',
-        'task_list': URL_PREFIX+'tasks/',
-        'single_task': URL_PREFIX+'task/',
-        'stylesheet': URL_PREFIX+'src/css/main.css',
-        'new_stylesheet': URL_PREFIX+'src/css/new.css',
-        'logo': URL_PREFIX+'src/img/logo.png',
-        'login': URL_PREFIX+'login/',
-        'logout': URL_PREFIX+'logout/',
-        'task_form_action': URL_PREFIX+'task/submit/',
-        'patient_form_action': URL_PREFIX+'patient/submit/',
-        }
+URLS = urls.URLS
 
 # patient list HTML
 # 0 - url
@@ -281,3 +271,73 @@ NEWS_OBS = """
     </body>
 </html>
 """
+
+# add jquery to header
+# add frontend_routes to header
+# check frontend_routes has been added correctly
+# call the score endpoint with data
+# on success check the results were as expected
+AJAX_SCORE_CALCULATION_CODE = "frontend_routes.ews_score().ajax({{" \
+                              "data:'respiration_rate={respiration_rate}&pulse_rate={pulse_rate}&indirect_oxymetry_spo2={spo2}&body_temperature={body_temp}&blood_pressure_systolic={bp}&avpu_text={avpu}&oxygen_administration_flag={oxygen_flag}'," \
+                              "success:function(data){{" \
+                              "if(data.score=={score}&&data.clinical_risk=={clinical_risk}&&data.three_in_one=={three_in_one}){{" \
+                              "console.log('ok');" \
+                              "}}else{{" \
+                              "console.log('error');" \
+                              "}}" \
+                              "}},error:function(err){{" \
+                              "console.log('error');" \
+                              "}}}});"
+
+# an array of dictionaries to help with testing score endpoint
+
+AJAX_SCORE_CALCULATION_DATA = [
+    {
+        'respiration_rate': 18,
+        'pulse_rate': 65,
+        'body_temperature': 37.5,
+        'indirect_oxymetry_spo2': 99,
+        'blood_pressure_systolic': 120,
+        'avpu_text': 'A',
+        'oxygen_administration_flag': False,
+        'score': 0,
+        'clinical_risk': '"None"',
+        'three_in_one': 'false',
+    },
+    {
+        'respiration_rate': 11,
+        'pulse_rate': 65,
+        'body_temperature': 37.5,
+        'indirect_oxymetry_spo2': 99,
+        'blood_pressure_systolic': 120,
+        'avpu_text': 'A',
+        'oxygen_administration_flag': False,
+        'score': 1,
+        'clinical_risk': '"Low"',
+        'three_in_one': 'false',
+    },
+    {
+        'respiration_rate': 11,
+        'pulse_rate': 65,
+        'body_temperature': 37.5,
+        'indirect_oxymetry_spo2': 99,
+        'blood_pressure_systolic': 120,
+        'avpu_text': 'V',
+        'oxygen_administration_flag': False,
+        'score': 4,
+        'clinical_risk': '"Medium"',
+        'three_in_one': 'true',
+    },
+    {
+        'respiration_rate': 24,
+        'pulse_rate': 130,
+        'body_temperature': 36.0,
+        'indirect_oxymetry_spo2': 93,
+        'blood_pressure_systolic': 100,
+        'avpu_text': 'A',
+        'oxygen_administration_flag': True,
+        'score': 11,
+        'clinical_risk': '"High"',
+        'three_in_one': 'false',
+    },
+]
