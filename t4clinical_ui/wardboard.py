@@ -598,8 +598,8 @@ t4_clinical_wardboard as(
     inner join t4_clinical_patient patient on spell.patient_id = patient.id
     left join t4_clinical_location location on location.id = spell.location_id
     left join ews ews1 on spell.id = ews1.spell_id and ews1.rank = 1 and ews1.state = 'completed'
-    left join ews ews2 on spell.id = ews2.spell_id and ews2.rank = 2 and ews1.state = 'completed'
-    left join ews ews0 on spell.id = ews0.spell_id and ews0.rank = 1 and ews1.state = 'shceduled'    
+    left join ews ews2 on spell.id = ews2.spell_id and ews2.rank = 2 and ews2.state = 'completed'
+    left join ews ews0 on spell.id = ews0.spell_id and ews0.rank = 1 and ews0.state = 'scheduled'    
     left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
     inner join param on param.spell_id = spell.id
 

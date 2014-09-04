@@ -66,6 +66,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
     
     def create_activity(self, cr, uid, model, values_method=None, activity_values={}, data_values={}, context=None):
         model_pool = self.pool[model]
+        print "create activity data_values: %s" % data_values
         v = self.demo_data(cr, uid, model, values_method, data_values)
         _logger.info("Creating DEMO resource '%s', values: %s" % (model, v))
         activity_id = model_pool.create_activity(cr, uid, activity_values, v, context)
@@ -425,18 +426,21 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
         return v
     
     def adt_admit(self, cr, uid, values={}):
+        print values
         fake = self.next_seed_fake()
         api =self.pool['t4.clinical.api']
         api_demo = self.pool['t4.clinical.api.demo']
         #import pdb; pdb.set_trace()
         v = {}
         # if 'other_identifier' not passed register new patient and use it's data
+        pos_id = 'pos_id' in values and values.pop('pos_id') or False
         if 'other_identifier' not in values:
             reg_activity_id = api_demo.create_activity(cr, uid, 't4.clinical.adt.patient.register')
             reg_data = api.get_activity_data(cr, uid, reg_activity_id)
             v.update({'other_identifier': reg_data['other_identifier']})
+            pos_id = reg_data['pos_id']
         if 'location' not in values:
-            ward_ids = api.location_map(cr, uid, pos_ids=[reg_data['pos_id']], usages=['wards']).keys()
+            ward_ids = api.location_map(cr, uid, pos_ids=[pos_id], usages=['wards']).keys()
             if not ward_ids:
                 pos = self.pool['t4.clinical.pos'].browse(cr, uid, api.user_map(cr, uid, user_ids=[uid])[uid]['pos_id'])
                 ward_location_id = api_demo.create(cr, uid, 't4.clinical.location', 'location_ward', {'parent_id': pos.location_id.id})

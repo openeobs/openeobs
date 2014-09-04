@@ -2,49 +2,37 @@
 <openerp>
     <data>
         <!-- t4skr.task.view Tree View -->
-        <record model="ir.ui.view" id="view_t4clinical_demo_tree">
-            <field name="name">t4.clinical.demo.tree</field>
-            <field name="model">t4.clinical.demo.env</field>
+         <record model="ir.ui.view" id="view_t4clinical_demo_placement_form">
+            <field name="name">t4.clinical.demo.placement.form</field>
+            <field name="model">t4.clinical.demo.placement</field>
             <field name="arch" type="xml">
-                <tree string="Task">
-                	<field name="pos_id" readonly="1"/>
-                </tree>
-            </field>
-        </record>
-         <record model="ir.ui.view" id="view_t4clinical_demo_form">
-            <field name="name">t4.clinical.demo.form</field>
-            <field name="model">t4.clinical.demo.env</field>
-            <field name="arch" type="xml">
-                <form string="Task">
-                	<field name="pos_id" readonly="1"/>
-					<button name="button_adt_patient_register" type="object" string="ADT Register Patient" />
-					<button name="button_adt_patient_admit" type="object" string="ADT Admit Patient" />
-					<field name="activity_ids"/>
+                <form string="Placement">
+
+					DOB<field name="dob"/>
+					Sex<field name="sex"/>
+					Family Name<field name="family_name"/>
+					Given Name<field name="given_name"/>
+					Gender<field name="gender"/>
+					Other ID<field name="other_identifier"/>
+
+                	POS<field name="pos_id" string="POS"/>
+					Bed Location<field name="bed_location_id" domain="[('pos_id','=',pos_id)]"/>
+					
+					<button name="submit" string="Submit" type="object"/>
 					
                 </form>
             </field>
         </record>
 
         
-        <record model="ir.actions.act_window" id="action_t4clinical_demo" >
-            <field name="name">Demo Actions</field>
-            <field name="res_model">t4.clinical.demo.env</field>
+        <record model="ir.actions.act_window" id="action_t4clinical_demo_placement" >
+            <field name="name">Demo Placement</field>
+            <field name="res_model">t4.clinical.demo.placement</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
         </record>
 
-        <record model="ir.actions.act_window.view" id="act_demo_tree">
-            <field eval="0" name="sequence"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_t4clinical_demo_tree"/>
-            <field name="act_window_id" ref="action_t4clinical_demo"/>
-        </record>
-        <record model="ir.actions.act_window.view" id="act_demo_form">
-            <field eval="1" name="sequence"/>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="view_t4clinical_demo_form"/>
-            <field name="act_window_id" ref="action_t4clinical_demo"/>
-        </record>
 
         <menuitem name="Demo"
                   sequence="99"
@@ -52,10 +40,10 @@
                   parent="t4clinical_base.menu_t4_clinical"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_hca,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
-        <menuitem name="Demo Actions"
+        <menuitem name="Demo Placement"
                   id="menu_t4ui_left_demo_view"
                   parent="menu_t4ui_left_demo"
-                  action="action_t4clinical_demo"
+                  action="action_t4clinical_demo_placement"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 	</data>
 </openerp>
