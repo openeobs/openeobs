@@ -536,12 +536,12 @@ t4_clinical_wardboard as(
                 height.height,
                 o2target_level.id as o2target_level_id
             from wb_activity_latest activity
-            left join t4_clinical_patient_mrsa mrsa on activity.id = mrsa.activity_id and activity.state = 'completed' and activity.data_model ilike '%mrsa%'
-            left join t4_clinical_patient_diabetes diabetes on activity.id = diabetes.activity_id and activity.state = 'completed' and activity.data_model ilike '%diabetes%'
-            left join t4_clinical_patient_pbp_monitoring pbpm on activity.id = pbpm.activity_id and activity.state = 'completed' and activity.data_model ilike '%pbp_monitoring%'
-            left join t4_clinical_patient_weight_monitoring wm on activity.id = wm.activity_id and activity.state = 'completed' and activity.data_model ilike '%weight_monitoring%'
-            left join t4_clinical_patient_observation_height height on activity.id = height.activity_id and activity.state = 'completed' and activity.data_model ilike '%observation.height%'
-            left join t4_clinical_patient_o2target o2target on activity.id = o2target.activity_id and activity.state = 'completed' and activity.data_model ilike '%o2target%'
+            left join t4_clinical_patient_mrsa mrsa on activity.id = mrsa.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.mrsa'
+            left join t4_clinical_patient_diabetes diabetes on activity.id = diabetes.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.diabetes'
+            left join t4_clinical_patient_pbp_monitoring pbpm on activity.id = pbpm.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.pbp_monitoring'
+            left join t4_clinical_patient_weight_monitoring wm on activity.id = wm.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.weight_monitoring'
+            left join t4_clinical_patient_observation_height height on activity.id = height.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.observation.height'
+            left join t4_clinical_patient_o2target o2target on activity.id = o2target.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.o2target'
             left join t4_clinical_o2level o2target_level on o2target_level.id = o2target.level_id    
             )
     
@@ -605,6 +605,8 @@ t4_clinical_wardboard as(
 
     where spell_activity.state = 'started'
 );
+
+
 
         """)
         
