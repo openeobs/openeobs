@@ -268,7 +268,7 @@ with
     move_activity as (
         select 
             a.id,
-            rank() over(partition by patient_id order by termination_seq desc),
+            rank() over(partition by patient_id order by sequence desc),
             patient_id,
             location_id,
             pos_id,
@@ -421,7 +421,7 @@ with
             return self.pool['t4.clinical.location'].browse(cr, uid, location_ids)
 
     def activity_rank_map(self, cr, uid, 
-                        partition_by="patient_id, state", partition_order="termination_seq desc", rank_order="desc",
+                        partition_by="patient_id, state", partition_order="sequence desc", rank_order="desc",
                         ranks=[],
                         activity_ids=[], pos_ids=[], location_ids=[], patient_ids=[],
                         device_ids=[], data_models=[], states=[]):
@@ -593,7 +593,7 @@ with
                 move_patient_date as (
                     select 
                         max(a.date_terminated) as max_date_terminated,
-                        max(termination_seq) as max_termination_seq,
+                        max(sequence) as max_sequence,
                         m.patient_id
                     from t4_clinical_patient_move m
                     inner join t4_activity a on m.activity_id = a.id
@@ -608,7 +608,7 @@ with
                     from t4_clinical_patient_move m
                     inner join t4_activity ma on m.activity_id = ma.id
                     inner join move_patient_date mpd on m.patient_id = mpd.patient_id
-                                                        and ma.termination_seq = mpd.max_termination_seq
+                                                        and ma.sequence = mpd.max_sequence
                     inner join t4_activity sa on sa.data_model='t4.clinical.spell' and m.patient_id = sa.patient_id
                     --left join t4_activity a on a.location_id 
                     where sa.state = 'started'

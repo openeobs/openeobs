@@ -182,7 +182,7 @@ class test_ui_data(SingleTransactionCase):
             # other obs
             mrsa_activity_map = api.activity_rank_map(cr, uid, 
                                                         partition_by="patient_id, data_model, state", 
-                                                        partition_order="termination_seq desc",
+                                                        partition_order="sequence desc",
                                                         ranks=[1], pos_ids=[env.pos_id.id], 
                                                         patient_ids=[patient_id],
                                                         data_models=['t4.clinical.patient.mrsa'], 
