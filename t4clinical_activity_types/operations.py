@@ -37,6 +37,7 @@ class t4_clinical_notification_frequency(orm.Model):
         'observation': fields.text('Observation Model', required=True),
         'frequency': fields.selection(frequencies, 'Frequency')
     }
+    _notifications = [{'model': 'medical_team', 'groups': ['nurse']}]
 
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
@@ -56,7 +57,7 @@ class t4_clinical_notification_frequency(orm.Model):
         if trigger_notification:
             api_pool = self.pool['t4.clinical.api']
             api_pool.trigger_notifications(cr, uid, {
-                'notifications': [{'model': 'medical_team', 'groups': ['nurse']}],
+                'notifications': self._notifications,
                 'parent_id': review_frequency.parent_id.id,
                 'creator_id': activity_id,
                 'patient_id': review_frequency.data_ref.patient_id.id,
@@ -70,13 +71,14 @@ class t4_clinical_notification_assessment(orm.Model):
     _name = 't4.clinical.notification.assessment'
     _inherit = ['t4.clinical.notification']
     _description = 'Assess Patient'
+    _notifications = [{'model': 'frequency', 'groups': ['nurse']}]
 
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         api_pool = self.pool['t4.clinical.api']
         api_pool.trigger_notifications(cr, uid, {
-            'notifications': [{'model': 'frequency', 'groups': ['nurse']}],
+            'notifications': self._notifications,
             'parent_id': activity.parent_id.id,
             'creator_id': activity_id,
             'patient_id': activity.data_ref.patient_id.id,
@@ -90,13 +92,14 @@ class t4_clinical_notification_medical_team(orm.Model):
     _name = 't4.clinical.notification.medical_team'
     _inherit = ['t4.clinical.notification']
     _description = 'Inform Medical Team?'
+    _notifications = [{'model': 'doctor_assessment', 'groups': ['nurse']}]
 
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         api_pool = self.pool['t4.clinical.api']
         api_pool.trigger_notifications(cr, uid, {
-            'notifications': [{'model': 'doctor_assessment', 'groups': ['nurse']}],
+            'notifications': self._notifications,
             'parent_id': activity.parent_id.id,
             'creator_id': activity_id,
             'patient_id': activity.data_ref.patient_id.id,
