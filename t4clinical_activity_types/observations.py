@@ -57,6 +57,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _defaults = {
 
     }
+    _form_description = []
 
     # _constraints = [
     #     (_partial_observation_has_reason, 'You cannot say observation is partial without supplying a reason', ['partial_reason'])
@@ -102,7 +103,10 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         placement = placement_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
         #import pdb; pdb.set_trace()
         location_id = placement and placement[0].location_id.id or False
-        return location_id     
+        return location_id
+
+    def get_form_description(self, cr, uid, patient_id, context=None):
+        return self._form_description
 
 # deprecated
 class t4_clinical_patient_observation_height_weight(orm.Model):
@@ -385,13 +389,13 @@ class t4_clinical_patient_observation_ews(orm.Model):
         'avpu_text': fields.selection(_avpu_values, 'AVPU'),
         'mews_score': fields.integer('Mews Score'),
         # O2 stuff former 'o2_device_reading_id'
-        'flow_rate': fields.integer('Flow rate (l/min)'),
+        'flow_rate': fields.float('Flow rate (l/min)', digits=(3, 1)),
         'concentration': fields.integer('Concentration (%)'),
         'cpap_peep': fields.integer('CPAP: PEEP (cmH2O)'),
         'niv_backup': fields.integer('NIV: Back-up rate (br/min)'),
         'niv_ipap': fields.integer('NIV: IPAP (cmH2O)'),
         'niv_epap': fields.integer('NIV: EPAP (cmH2O)'),
-        #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),
+        'device_id': fields.many2one('t4.clinical.device', 'Device'),
         'order_by': fields.related('activity_id', 'date_terminated', type='datetime', string='Date Terminated', store={
             't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['activity_id'], 10),
             't4.activity.data': (_data2ews_ids, ['date_terminated'], 20)
@@ -454,7 +458,65 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'name': 'oxygen_administration_flag',
             'type': 'selection',
             'label': 'Patient on supplemental O2',
-            'selection': [[True, 'Yes'], [False, 'No']]
+            'selection': [[True, 'Yes'], [False, 'No']],
+            'on_change': {
+                'True': {
+                    'show': ['device_instance_id'],
+                    'hide': []
+                },
+                'False': {
+                    'show': [],
+                    'hide': ['device_instance_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                }
+            }
+        },
+        {
+            'name': 'device_id',
+            'type': 'selection',
+            'label': 'O2 Device'
+        },
+        {
+            'name': 'flow_rate',
+            'type': 'float',
+            'label': 'Flow Rate',
+            'min': 0,
+            'max': 100.0,
+            'digits': [3, 1]
+        },
+        {
+            'name': 'concentration',
+            'type': 'integer',
+            'label': 'Concentration',
+            'min': 0,
+            'max': 100
+        },
+        {
+            'name': 'cpap_peep',
+            'type': 'integer',
+            'label': 'CPAP: PEEP (cmH2O)',
+            'min': 0,
+            'max': 1000
+        },
+        {
+            'name': 'niv_backup',
+            'type': 'integer',
+            'label': 'NIV: Back-up rate (br/min)',
+            'min': 0,
+            'max': 100
+        },
+        {
+            'name': 'niv_ipap',
+            'type': 'integer',
+            'label': 'NIV: IPAP (cmH2O)',
+            'min': 0,
+            'max': 100
+        },
+        {
+            'name': 'niv_epap',
+            'type': 'integer',
+            'label': 'NIV: EPAP (cmH2O)',
+            'min': 0,
+            'max': 100
         }
     ]
 
@@ -520,6 +582,50 @@ class t4_clinical_patient_observation_ews(orm.Model):
                   % (self._name, str(ids)))
         res = super(t4_clinical_patient_observation_ews, self).create_activity(cr, uid, vals_activity, vals_data, context)
         return res
+
+    def get_form_description(self, cr, uid, patient_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        device_pool = self.pool['t4.clinical.device']
+        fd = list(self._form_description)
+        # Find the O2 target
+        o2target_ids = activity_pool.search(cr, uid, [
+            ('state', '=', 'completed'),
+            ('patient_id', '=', patient_id),
+            ('data_model', '=', 't4.clinical.patient.o2target')], order='date_terminated desc', context=context)
+        if not o2target_ids:
+            o2target = False
+        else:
+            o2tactivity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
+            o2target = o2tactivity.data_ref.level_id.name
+        # Find O2 devices
+        device_ids = device_pool.search(cr, uid, [('type_id.name', '=', 'Supplemental O2')], context=context)
+        device_selection = [[d, device_pool.read(cr, uid, d, ['name'], context=context)['name']] for d in device_ids]
+        device_on_change = {}
+        for ds in device_selection:
+            if ds[1] == 'CPAP':
+                device_on_change[ds[1]] = {
+                    'show': ['flow_rate', 'concentration', 'cpap_peep'],
+                    'hide': ['niv_backup', 'niv_ipap', 'niv_epap']
+                }
+            elif ds[1] == 'NIV BiPAP':
+                device_on_change[ds[1]] = {
+                    'show': ['flow_rate', 'concentration', 'niv_backup', 'niv_ipap', 'niv_epap'],
+                    'hide': ['cpap_peep']
+                }
+            else:
+                device_on_change[ds[1]] = {
+                    'show': ['flow_rate', 'concentration'],
+                    'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                }
+
+        for field in fd:
+            if field['name'] == 'indirect_oxymetry_spo2' and o2target:
+                field['secondary_label'] = o2target
+            if field['name'] == 'device_id':
+                field['selection'] = device_selection
+                field['on_change'] = device_on_change
+        return fd
+
 
 class t4_clinical_patient_observation_gcs(orm.Model):
     _name = 't4.clinical.patient.observation.gcs'

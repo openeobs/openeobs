@@ -266,7 +266,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         elif 'observation' in task['data_model']:
             # load obs foo
             obs_reg = request.registry[task['data_model']]
-            form_desc = obs_reg._form_description
+            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
             form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
             for form_input in form_desc:
                 if form_input['type'] in ['float', 'integer']:
