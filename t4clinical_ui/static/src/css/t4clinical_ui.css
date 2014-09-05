@@ -43,9 +43,6 @@
 .t4c_wardboard [data-id="full_name"]{
     width: 250px;
 }
-.t4c_wardboard [data-field="ews_score_string"]{
-    text-align: center;
-}
 .t4c_wardboard .oe_list_content > tbody > tr {
     height: 50px;
 }
