@@ -18,6 +18,10 @@ class t4_clinical_notification(orm.AbstractModel):
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
     }
+    _form_description = []
+
+    def get_form_description(self, cr, uid, patient_id, context=None):
+        return self._form_description
 
 
 class t4_clinical_notification_hca(orm.Model):
@@ -65,6 +69,15 @@ class t4_clinical_notification_frequency(orm.Model):
                 'group': 'nurse'
             }, context=context)
         return super(t4_clinical_notification_frequency, self).complete(cr, uid, activity_id, context=context)
+
+    _form_description = [
+        {
+            'name': 'frequency',
+            'type': 'selection',
+            'selection': frequencies,
+            'label': 'Observation frequency'
+        }
+    ]
 
 
 class t4_clinical_notification_assessment(orm.Model):
