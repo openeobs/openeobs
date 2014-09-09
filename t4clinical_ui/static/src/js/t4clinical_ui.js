@@ -1,3 +1,5 @@
+var logout_time = 1200000;
+
 openerp.t4clinical_ui = function (instance) {
 
     var QWeb = instance.web.qweb;
@@ -178,7 +180,7 @@ openerp.t4clinical_ui = function (instance) {
                     session.session_logout().done(function(){
                         location.reload();
                     });
-                }, 1200000);
+                }, logout_time);
             } else {
                 wardboard_refreshed = false;
             }
@@ -600,7 +602,7 @@ openerp.t4clinical_ui = function (instance) {
                 session.session_logout().done(function(){
                     location.reload();
                 });
-            }, 1200000);
+            }, logout_time);
         }
     });
 

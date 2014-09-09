@@ -583,12 +583,12 @@ $(document).ready(function () {
         }
     });
 
-    $("#obsData_supplementaryO2_oxygen_administration_flag").change(function(e){
-       var value = $("#obsData_supplementaryO2_oxygen_administration_flag").val();
-       if(value == "true"){
-           $("#parent_obsData_supplementaryO2_O2Device").removeClass("valHide");
-           $("#obsData_supplementaryO2_O2Device").removeClass("exclude");
-           var value = $("#obsData_supplementaryO2_O2Device").val();
+    $("#oxygen_administration_flag").change(function(e){
+       var value = $("#oxygen_administration_flag").val();
+       if(value == "True"){
+           $("#parent_device_id").removeClass("valHide");
+           $("#device_id").removeClass("exclude");
+           var value = $("#device_id").val();
            if(value <= 43){
                ToggleBaseSupO2("show");
                ToggleCPAPSupO2("hide");
@@ -607,16 +607,16 @@ $(document).ready(function () {
                ToggleNIVSupO2("hide");
            }
        }else{
-           $("#parent_obsData_supplementaryO2_O2Device").addClass("valHide");
-           $("#obsData_supplementaryO2_O2Device").addClass("exclude");
+           $("#parent_device_id").addClass("valHide");
+           $("#device_id").addClass("exclude");
            ToggleBaseSupO2("hide");
            ToggleCPAPSupO2("hide");
            ToggleNIVSupO2("hide");
        }
     });
 
-    $("#obsData_supplementaryO2_O2Device").change(function(e){
-       var value = $("#obsData_supplementaryO2_O2Device").val();
+    $("#device_id").change(function(e){
+       var value = $("#device_id").val();
        if(value <= 43){
            ToggleBaseSupO2("show");
            ToggleCPAPSupO2("hide");
@@ -639,43 +639,43 @@ $(document).ready(function () {
 
 function ToggleBaseSupO2(whichWay){
     if(whichWay == "show"){
-        $("#parent_obsData_supplementaryO2_parameters_flow").removeClass("valHide");
-        $("#obsData_supplementaryO2_parameters_flow").removeClass("exclude");
-        $("#parent_obsData_supplementaryO2_parameters_concentration").removeClass("valHide");
-        $("#obsData_supplementaryO2_parameters_concentration").removeClass("exclude");
+        $("#parent_flow_rate").removeClass("valHide");
+        $("#flow_rate").removeClass("exclude");
+        $("#parent_concentration").removeClass("valHide");
+        $("#concentration").removeClass("exclude");
     }else{
-        $("#parent_obsData_supplementaryO2_parameters_flow").addClass("valHide");
-        $("#obsData_supplementaryO2_parameters_flow").addClass("exclude");
-        $("#parent_obsData_supplementaryO2_parameters_concentration").addClass("valHide");
-        $("#obsData_supplementaryO2_parameters_concentration").addClass("exclude");
+        $("#parent_flow_rate").addClass("valHide");
+        $("#flow_rate").addClass("exclude");
+        $("#parent_concentration").addClass("valHide");
+        $("#concentration").addClass("exclude");
     }
 }
 
 function ToggleCPAPSupO2(whichWay){
     if(whichWay == "show"){
-        $("#parent_obsData_supplementaryO2_parameters_cpapPeep").removeClass("valHide");
-        $("#obsData_supplementaryO2_parameters_cpapPeep").removeClass("exclude");
+        $("#parent_cpap_peep").removeClass("valHide");
+        $("#cpap_peep").removeClass("exclude");
     }else{
-        $("#parent_obsData_supplementaryO2_parameters_cpapPeep").addClass("valHide");
-        $("#obsData_supplementaryO2_parameters_cpapPeep").addClass("exclude");
+        $("#parent_cpap_peep").addClass("valHide");
+        $("#cpap_peep").addClass("exclude");
     }
 }
 
 function ToggleNIVSupO2(whichWay){
     if(whichWay == "show"){
-        $("#parent_obsData_supplementaryO2_parameters_nivBackupRate").removeClass("valHide");
-        $("#obsData_supplementaryO2_parameters_nivBackupRate").removeClass("exclude");
-        $("#parent_obsData_supplementaryO2_parameters_nivIpap").removeClass("valHide");
-        $("#obsData_supplementaryO2_parameters_nivIpap").removeClass("exclude");
-        $("#parent_obsData_supplementaryO2_parameters_nivEpap").removeClass("valHide");
-        $("#obsData_supplementaryO2_parameters_nivEpap").removeClass("exclude");
+        $("#parent_niv_backup").removeClass("valHide");
+        $("#niv_backup").removeClass("exclude");
+        $("#parent_niv_ipap").removeClass("valHide");
+        $("#niv_ipap").removeClass("exclude");
+        $("#parent_niv_epap").removeClass("valHide");
+        $("#niv_epap").removeClass("exclude");
     }else{
-        $("#parent_obsData_supplementaryO2_parameters_nivBackupRate").addClass("valHide");
-        $("#obsData_supplementaryO2_parameters_nivBackupRate").addClass("exclude");
-        $("#parent_obsData_supplementaryO2_parameters_nivIpap").addClass("valHide");
-        $("#obsData_supplementaryO2_parameters_nivIpap").addClass("exclude");
-        $("#parent_obsData_supplementaryO2_parameters_nivEpap").addClass("valHide");
-        $("#obsData_supplementaryO2_parameters_nivEpap").addClass("exclude");
+        $("#parent_niv_backup").addClass("valHide");
+        $("#niv_backup").addClass("exclude");
+        $("#parent_niv_ipap").addClass("valHide");
+        $("#niv_ipap").addClass("exclude");
+        $("#parent_niv_epap").addClass("valHide");
+        $("#niv_epap").addClass("exclude");
     }
 }
 

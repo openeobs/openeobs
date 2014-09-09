@@ -57,6 +57,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _defaults = {
 
     }
+    _form_description = []
 
     # _constraints = [
     #     (_partial_observation_has_reason, 'You cannot say observation is partial without supplying a reason', ['partial_reason'])
@@ -102,7 +103,10 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         placement = placement_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
         #import pdb; pdb.set_trace()
         location_id = placement and placement[0].location_id.id or False
-        return location_id     
+        return location_id
+
+    def get_form_description(self, cr, uid, patient_id, context=None):
+        return self._form_description
 
 # deprecated
 class t4_clinical_patient_observation_height_weight(orm.Model):
@@ -256,30 +260,94 @@ class t4_clinical_patient_observation_stools(orm.Model):
     _inherit = ['t4.clinical.patient.observation']
     _required = []
     _description = "Bristol Stools Observation"
+    _boolean_selection = [[True, 'Yes'], [False, 'No']]
+    _quantity_selection = [['large', 'Large'], ['medium', 'Medium'], ['small', 'Small']]
+    _colour_selection = [['brown', 'Brown'], ['yellow', 'Yellow'], ['green', 'Green'], ['black', 'Black/Tarry'],
+                         ['red', 'Red (fresh blood)'], ['clay', 'Clay']]
+    _bristol_selection = [['1', 'Type 1'], ['2', 'Type 2'], ['3', 'Type 3'], ['4', 'Type 4'], ['5', 'Type 5'],
+                          ['6', 'Type 6'], ['7', 'Type 7']]
+    _samples_selection = [['none', 'None'], ['micro', 'Micro'], ['virol', 'Virol'], ['m+v', 'M+V']]
     _columns = {
         'bowel_open': fields.boolean('Bowel Open'),
         'nausea': fields.boolean('Nausea'),
         'vomiting': fields.boolean('Vomiting'),
-        'quantity': fields.selection((('large', 'Large'),
-                                    ('medium', 'Medium'),
-                                    ('small', 'Small')), 'Quantity'),
-        'colour': fields.selection((('brown', 'Brown'),
-                                    ('yellow', 'Yellow'),
-                                    ('green', 'Green'),
-                                    ('black', 'Black/Tarry'),
-                                    ('red', 'Red (fresh blood)'),
-                                    ('clay', 'Clay')), 'Colour'),
-        'bristol_type': fields.selection((('1', 'Type 1'), ('2', 'Type 2'), ('3', 'Type 3'), ('4', 'Type 4'),
-                                        ('5', 'Type 5'), ('6', 'Type 6'), ('7', 'Type 7')), 'Bristol Type'),
+        'quantity': fields.selection(_quantity_selection, 'Quantity'),
+        'colour': fields.selection(_colour_selection, 'Colour'),
+        'bristol_type': fields.selection(_bristol_selection, 'Bristol Type'),
         'offensive': fields.boolean('Offensive'),
         'strain': fields.boolean('Strain'),
         'laxatives': fields.boolean('Laxatives'),
-        'samples': fields.selection((('none', 'None'),
-                                    ('micro', 'Micro'),
-                                    ('virol', 'Virol'),
-                                    ('m+v', 'M+V')), 'Lab Samples'),
+        'samples': fields.selection(_samples_selection, 'Lab Samples'),
         'rectal_exam': fields.boolean('Rectal Exam'),
     }
+    _form_description = [
+        {
+            'name': 'bowel_open',
+            'type': 'selection',
+            'label': 'Bowel Open',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'nausea',
+            'type': 'selection',
+            'label': 'Nausea',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'vomiting',
+            'type': 'selection',
+            'label': 'Vomiting',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'quantity',
+            'type': 'selection',
+            'label': 'Quantity',
+            'selection': _quantity_selection
+        },
+        {
+            'name': 'colour',
+            'type': 'selection',
+            'label': 'Colour',
+            'selection': _colour_selection
+        },
+        {
+            'name': 'bristol_type',
+            'type': 'selection',
+            'label': 'Bristol Type',
+            'selection': _bristol_selection
+        },
+        {
+            'name': 'offensive',
+            'type': 'selection',
+            'label': 'Offensive',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'strain',
+            'type': 'selection',
+            'label': 'Strain',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'laxatives',
+            'type': 'selection',
+            'label': 'Laxatives',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'samples',
+            'type': 'selection',
+            'label': 'Lab Samples',
+            'selection': _samples_selection
+        },
+        {
+            'name': 'rectal_exam',
+            'type': 'selection',
+            'label': 'Rectal Exam',
+            'selection': _boolean_selection
+        }
+    ]
 
 
 class t4_clinical_patient_observation_ews(orm.Model):
@@ -385,13 +453,13 @@ class t4_clinical_patient_observation_ews(orm.Model):
         'avpu_text': fields.selection(_avpu_values, 'AVPU'),
         'mews_score': fields.integer('Mews Score'),
         # O2 stuff former 'o2_device_reading_id'
-        'flow_rate': fields.integer('Flow rate (l/min)'),
+        'flow_rate': fields.float('Flow rate (l/min)', digits=(3, 1)),
         'concentration': fields.integer('Concentration (%)'),
         'cpap_peep': fields.integer('CPAP: PEEP (cmH2O)'),
         'niv_backup': fields.integer('NIV: Back-up rate (br/min)'),
         'niv_ipap': fields.integer('NIV: IPAP (cmH2O)'),
         'niv_epap': fields.integer('NIV: EPAP (cmH2O)'),
-        #'device_instance_id': fields.many2one('t4clinical.device.instance', 'Device', required=True),
+        'device_id': fields.many2one('t4.clinical.device', 'Device'),
         'order_by': fields.related('activity_id', 'date_terminated', type='datetime', string='Date Terminated', store={
             't4.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['activity_id'], 10),
             't4.activity.data': (_data2ews_ids, ['date_terminated'], 20)
@@ -404,14 +472,16 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'type': 'integer',
             'label': 'Respiration Rate',
             'min': 1,
-            'max': 59
+            'max': 59,
+            'initially_hidden': False,
         },
         {
             'name': 'indirect_oxymetry_spo2',
             'type': 'integer',
             'label': 'O2 Saturation',
             'min': 51,
-            'max': 100
+            'max': 100,
+            'initially_hidden': False,
         },
         {
             'name': 'body_temperature',
@@ -419,7 +489,8 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'label': 'Body Temperature',
             'min': 27.1,
             'max': 44.9,
-            'digits': [2, 1]
+            'digits': [2, 1],
+            'initially_hidden': False,
         },
         {
             'name': 'blood_pressure_systolic',
@@ -427,7 +498,8 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'label': 'Blood Pressure Systolic',
             'min': 1,
             'max': 300,
-            'validation': [['>', 'blood_pressure_diastolic']]
+            'validation': [['>', 'blood_pressure_diastolic']],
+            'initially_hidden': False,
         },
         {
             'name': 'blood_pressure_diastolic',
@@ -435,26 +507,95 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'label': 'Blood Pressure Diastolic',
             'min': 1,
             'max': 280,
-            'validation': [['<', 'blood_pressure_systolic']]
+            'validation': [['<', 'blood_pressure_systolic']],
+            'initially_hidden': False,
         },
         {
             'name': 'pulse_rate',
             'type': 'integer',
             'label': 'Pulse Rate',
             'min': 1,
-            'max': 250
+            'max': 250,
+            'initially_hidden': False,
         },
         {
             'name': 'avpu_text',
             'type': 'selection',
             'selection': _avpu_values,
             'label': 'AVPU',
+            'initially_hidden': False,
         },
         {
             'name': 'oxygen_administration_flag',
             'type': 'selection',
             'label': 'Patient on supplemental O2',
-            'selection': [[True, 'Yes'], [False, 'No']]
+            'selection': [[False, 'No'], [True, 'Yes']],
+            'initially_hidden': False,
+            'on_change': {
+                'True': {
+                    'show': ['device_id'],
+                    'hide': []
+                },
+                'False': {
+                    'show': [],
+                    'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                }
+            }
+        },
+        {
+            'name': 'device_id',
+            'type': 'selection',
+            'label': 'O2 Device',
+            'initially_hidden': True
+        },
+        {
+            'name': 'flow_rate',
+            'type': 'float',
+            'label': 'Flow Rate',
+            'min': 0,
+            'max': 100.0,
+            'digits': [3, 1],
+            'initially_hidden': True
+        },
+        {
+            'name': 'concentration',
+            'type': 'integer',
+            'label': 'Concentration',
+            'min': 0,
+            'max': 100,
+            'initially_hidden': True
+        },
+        {
+            'name': 'cpap_peep',
+            'type': 'integer',
+            'label': 'CPAP: PEEP (cmH2O)',
+            'min': 0,
+            'max': 1000,
+            'initially_hidden': True
+        },
+        {
+            'name': 'niv_backup',
+            'type': 'integer',
+            'label': 'NIV: Back-up rate (br/min)',
+            'min': 0,
+            'max': 100,
+            'initially_hidden': True
+        },
+        {
+            'name': 'niv_ipap',
+            'type': 'integer',
+            'label': 'NIV: IPAP (cmH2O)',
+            'min': 0,
+            'max': 100,
+            'initially_hidden': True
+        },
+        {
+            'name': 'niv_epap',
+            'type': 'integer',
+            'label': 'NIV: EPAP (cmH2O)',
+            'min': 0,
+            'max': 100,
+            'initially_hidden': True
         }
     ]
 
@@ -521,6 +662,50 @@ class t4_clinical_patient_observation_ews(orm.Model):
         res = super(t4_clinical_patient_observation_ews, self).create_activity(cr, uid, vals_activity, vals_data, context)
         return res
 
+    def get_form_description(self, cr, uid, patient_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        device_pool = self.pool['t4.clinical.device']
+        fd = list(self._form_description)
+        # Find the O2 target
+        o2target_ids = activity_pool.search(cr, uid, [
+            ('state', '=', 'completed'),
+            ('patient_id', '=', patient_id),
+            ('data_model', '=', 't4.clinical.patient.o2target')], order='date_terminated desc', context=context)
+        if not o2target_ids:
+            o2target = False
+        else:
+            o2tactivity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
+            o2target = o2tactivity.data_ref.level_id.name
+        # Find O2 devices
+        device_ids = device_pool.search(cr, uid, [('type_id.name', '=', 'Supplemental O2')], context=context)
+        device_selection = [[d, device_pool.read(cr, uid, d, ['name'], context=context)['name']] for d in device_ids]
+        device_on_change = {}
+        for ds in device_selection:
+            if ds[1] == 'CPAP':
+                device_on_change[ds[1]] = {
+                    'show': ['flow_rate', 'concentration', 'cpap_peep'],
+                    'hide': ['niv_backup', 'niv_ipap', 'niv_epap']
+                }
+            elif ds[1] == 'NIV BiPAP':
+                device_on_change[ds[1]] = {
+                    'show': ['flow_rate', 'concentration', 'niv_backup', 'niv_ipap', 'niv_epap'],
+                    'hide': ['cpap_peep']
+                }
+            else:
+                device_on_change[ds[1]] = {
+                    'show': ['flow_rate', 'concentration'],
+                    'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                }
+
+        for field in fd:
+            if field['name'] == 'indirect_oxymetry_spo2' and o2target:
+                field['secondary_label'] = o2target
+            if field['name'] == 'device_id':
+                field['selection'] = device_selection
+                field['on_change'] = device_on_change
+        return fd
+
+
 class t4_clinical_patient_observation_gcs(orm.Model):
     _name = 't4.clinical.patient.observation.gcs'
     _inherit = ['t4.clinical.patient.observation']
@@ -578,6 +763,27 @@ class t4_clinical_patient_observation_gcs(orm.Model):
     _defaults = {
         'frequency': 60
     }
+
+    _form_description = [
+        {
+            'name': 'eyes',
+            'type': 'selection',
+            'label': 'Eyes',
+            'selection': _eyes
+        },
+        {
+            'name': 'verbal',
+            'type': 'selection',
+            'label': 'Verbal',
+            'selection': _verbal
+        },
+        {
+            'name': 'motor',
+            'type': 'selection',
+            'label': 'Motor',
+            'selection': _motor
+        }
+    ]
 
     def complete(self, cr, uid, activity_id, context=None):
         """
@@ -690,6 +896,39 @@ class t4_clinical_patient_observation_vips(orm.Model):
         'frequency': 1440
     }
 
+    _form_description = [
+        {
+            'name': 'pain',
+            'type': 'selection',
+            'label': 'Pain',
+            'selection': _selection
+        },
+        {
+            'name': 'redness',
+            'type': 'selection',
+            'label': 'Redness',
+            'selection': _selection
+        },
+        {
+            'name': 'swelling',
+            'type': 'selection',
+            'label': 'Swelling',
+            'selection': _selection
+        },
+        {
+            'name': 'cord',
+            'type': 'selection',
+            'label': 'Palpable venous cord',
+            'selection': _selection
+        },
+        {
+            'name': 'pyrexia',
+            'type': 'selection',
+            'label': 'Pyrexia',
+            'selection': _selection
+        }
+    ]
+
     def complete(self, cr, uid, activity_id, context=None):
         """
         Implementation of the default VIPS policy
@@ -765,6 +1004,41 @@ class t4_clinical_patient_observation_pbp(orm.Model):
         'diastolic_standing': fields.integer('Standing Blood Pressure Diastolic'),
         'result': fields.function(_get_pbp_result, type='char', string='>20 mm', size=5, store=False)
     }
+
+    _form_description = [
+        {
+            'name': 'systolic_sitting',
+            'type': 'integer',
+            'label': 'Sitting Blood Pressure Systolic',
+            'min': 1,
+            'max': 300,
+            'validation': [['>', 'diastolic_sitting']]
+        },
+        {
+            'name': 'diastolic_sitting',
+            'type': 'integer',
+            'label': 'Sitting Blood Pressure Diastolic',
+            'min': 1,
+            'max': 280,
+            'validation': [['<', 'systolic_sitting']]
+        },
+        {
+            'name': 'systolic_standing',
+            'type': 'integer',
+            'label': 'Standing Blood Pressure Systolic',
+            'min': 1,
+            'max': 300,
+            'validation': [['>', 'diastolic_standing']]
+        },
+        {
+            'name': 'diastolic_standing',
+            'type': 'integer',
+            'label': 'Standing Blood Pressure Diastolic',
+            'min': 1,
+            'max': 280,
+            'validation': [['<', 'systolic_standing']]
+        }
+    ]
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
         hour = td(hours=1)
