@@ -472,14 +472,16 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'type': 'integer',
             'label': 'Respiration Rate',
             'min': 1,
-            'max': 59
+            'max': 59,
+            'initially_hidden': False,
         },
         {
             'name': 'indirect_oxymetry_spo2',
             'type': 'integer',
             'label': 'O2 Saturation',
             'min': 51,
-            'max': 100
+            'max': 100,
+            'initially_hidden': False,
         },
         {
             'name': 'body_temperature',
@@ -487,7 +489,8 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'label': 'Body Temperature',
             'min': 27.1,
             'max': 44.9,
-            'digits': [2, 1]
+            'digits': [2, 1],
+            'initially_hidden': False,
         },
         {
             'name': 'blood_pressure_systolic',
@@ -495,7 +498,8 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'label': 'Blood Pressure Systolic',
             'min': 1,
             'max': 300,
-            'validation': [['>', 'blood_pressure_diastolic']]
+            'validation': [['>', 'blood_pressure_diastolic']],
+            'initially_hidden': False,
         },
         {
             'name': 'blood_pressure_diastolic',
@@ -503,41 +507,46 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'label': 'Blood Pressure Diastolic',
             'min': 1,
             'max': 280,
-            'validation': [['<', 'blood_pressure_systolic']]
+            'validation': [['<', 'blood_pressure_systolic']],
+            'initially_hidden': False,
         },
         {
             'name': 'pulse_rate',
             'type': 'integer',
             'label': 'Pulse Rate',
             'min': 1,
-            'max': 250
+            'max': 250,
+            'initially_hidden': False,
         },
         {
             'name': 'avpu_text',
             'type': 'selection',
             'selection': _avpu_values,
             'label': 'AVPU',
+            'initially_hidden': False,
         },
         {
             'name': 'oxygen_administration_flag',
             'type': 'selection',
             'label': 'Patient on supplemental O2',
-            'selection': [[True, 'Yes'], [False, 'No']],
+            'selection': [[False, 'No'], [True, 'Yes']],
+            'initially_hidden': False,
             'on_change': {
                 'True': {
-                    'show': ['device_instance_id'],
+                    'show': ['device_id'],
                     'hide': []
                 },
                 'False': {
                     'show': [],
-                    'hide': ['device_instance_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                    'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
                 }
             }
         },
         {
             'name': 'device_id',
             'type': 'selection',
-            'label': 'O2 Device'
+            'label': 'O2 Device',
+            'initially_hidden': True
         },
         {
             'name': 'flow_rate',
@@ -545,42 +554,48 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'label': 'Flow Rate',
             'min': 0,
             'max': 100.0,
-            'digits': [3, 1]
+            'digits': [3, 1],
+            'initially_hidden': True
         },
         {
             'name': 'concentration',
             'type': 'integer',
             'label': 'Concentration',
             'min': 0,
-            'max': 100
+            'max': 100,
+            'initially_hidden': True
         },
         {
             'name': 'cpap_peep',
             'type': 'integer',
             'label': 'CPAP: PEEP (cmH2O)',
             'min': 0,
-            'max': 1000
+            'max': 1000,
+            'initially_hidden': True
         },
         {
             'name': 'niv_backup',
             'type': 'integer',
             'label': 'NIV: Back-up rate (br/min)',
             'min': 0,
-            'max': 100
+            'max': 100,
+            'initially_hidden': True
         },
         {
             'name': 'niv_ipap',
             'type': 'integer',
             'label': 'NIV: IPAP (cmH2O)',
             'min': 0,
-            'max': 100
+            'max': 100,
+            'initially_hidden': True
         },
         {
             'name': 'niv_epap',
             'type': 'integer',
             'label': 'NIV: EPAP (cmH2O)',
             'min': 0,
-            'max': 100
+            'max': 100,
+            'initially_hidden': True
         }
     ]
 

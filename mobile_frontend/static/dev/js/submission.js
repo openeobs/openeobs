@@ -8,18 +8,18 @@ function processObs(obsType){
             return false;
         }else{
             if($("#oxygen_administration_flag").val().toString() == "true"){
-                if($("#obsData_supplementaryO2_O2Device").val() == ""){
+                if($("#device_id").val() == ""){
                     return false;
-                }else if($("#obsData_supplementaryO2_O2Device").val() == "44"){
-                    if(($("#obsData_supplementaryO2_parameters_flow").val() == "" && $("#obsData_supplementaryO2_parameters_concentration").val() == "" ) || $("#obsData_supplementaryO2_parameters_cpapPeep").val() == ""){
+                }else if($("device_id").val() == "44"){
+                    if(($("#flow_rate").val() == "" && $("#concentration").val() == "" ) || $("#cpap_peep").val() == ""){
                         return false;
                     }
-                }else if($("#obsData_supplementaryO2_O2Device").val() == "45"){
-                    if(($("#obsData_supplementaryO2_parameters_flow").val() == "" && $("#obsData_supplementaryO2_parameters_concentration").val() == "" ) || ($("#obsData_supplementaryO2_parameters_nivBackupRate").val() == "" || $("#obsData_supplementaryO2_parameters_nivIpap").val() == "" || $("#obsData_supplementaryO2_parameters_nivEpap").val() == "")){
+                }else if($("#device_id").val() == "45"){
+                    if(($("#flow_rate").val() == "" && $("#concentration").val() == "" ) || ($("#niv_backup").val() == "" || $("#niv_ipap").val() == "" || $("#niv_epap").val() == "")){
                         return false;
                     }
                 }else{
-                    if($("#obsData_supplementaryO2_parameters_flow").val() == "" && $("#obsData_supplementaryO2_parameters_concentration").val() == "" ){
+                    if($("#flow_rate").val() == "" && $("#concentration").val() == "" ){
                         return false;
                     }
                 }

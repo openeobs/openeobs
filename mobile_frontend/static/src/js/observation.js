@@ -122,6 +122,46 @@ function addValidationRules(e) {
             pimpedDigits: "Value must be a whole number",
             greaterThan: "Systolic must be greater than diastolic"
         }
+    }), $("#device_id").rules("add", {
+        required: !1
+    }), $("#flow_rate").rules("add", {
+        pimpedNumber: !0,
+        required: !1,
+        min: 0,
+        messages: {
+            pimpedNumber: "Value must be a number",
+            min: "Value too low"
+        }
+    }), $("#concentration").rules("add", {
+        required: !1,
+        min: 0,
+        messages: {
+            min: "Value too low"
+        }
+    }), $("#cpap_peep").rules("add", {
+        required: !1,
+        min: 0,
+        messages: {
+            min: "Value too low"
+        }
+    }), $("#niv_backup").rules("add", {
+        required: !1,
+        min: 0,
+        messages: {
+            min: "Value too low"
+        }
+    }), $("#niv_ipap").rules("add", {
+        required: !1,
+        min: 0,
+        messages: {
+            min: "Value too low"
+        }
+    }), $("#niv_epap").rules("add", {
+        required: !1,
+        min: 0,
+        messages: {
+            min: "Value too low"
+        }
     })), "GCS" == e && ($("#gcsData_eyes").rules("add", {
         required: !1
     }), $("#gcsData_verbal").rules("add", {
@@ -193,27 +233,23 @@ function showErrors(e) {
     });
 }
 function ToggleBaseSupO2(e) {
-    "show" == e ? ($("#parent_obsData_supplementaryO2_parameters_flow").removeClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_flow").removeClass("exclude"), $("#parent_obsData_supplementaryO2_parameters_concentration").removeClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_concentration").removeClass("exclude")) : ($("#parent_obsData_supplementaryO2_parameters_flow").addClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_flow").addClass("exclude"), $("#parent_obsData_supplementaryO2_parameters_concentration").addClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_concentration").addClass("exclude"));
+    "show" == e ? ($("#parent_flow_rate").removeClass("valHide"), $("#flow_rate").removeClass("exclude"), 
+    $("#parent_concentration").removeClass("valHide"), $("#concentration").removeClass("exclude")) : ($("#parent_flow_rate").addClass("valHide"), 
+    $("#flow_rate").addClass("exclude"), $("#parent_concentration").addClass("valHide"), 
+    $("#concentration").addClass("exclude"));
 }
 
 function ToggleCPAPSupO2(e) {
-    "show" == e ? ($("#parent_obsData_supplementaryO2_parameters_cpapPeep").removeClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_cpapPeep").removeClass("exclude")) : ($("#parent_obsData_supplementaryO2_parameters_cpapPeep").addClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_cpapPeep").addClass("exclude"));
+    "show" == e ? ($("#parent_cpap_peep").removeClass("valHide"), $("#cpap_peep").removeClass("exclude")) : ($("#parent_cpap_peep").addClass("valHide"), 
+    $("#cpap_peep").addClass("exclude"));
 }
 
 function ToggleNIVSupO2(e) {
-    "show" == e ? ($("#parent_obsData_supplementaryO2_parameters_nivBackupRate").removeClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_nivBackupRate").removeClass("exclude"), $("#parent_obsData_supplementaryO2_parameters_nivIpap").removeClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_nivIpap").removeClass("exclude"), $("#parent_obsData_supplementaryO2_parameters_nivEpap").removeClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_nivEpap").removeClass("exclude")) : ($("#parent_obsData_supplementaryO2_parameters_nivBackupRate").addClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_nivBackupRate").addClass("exclude"), $("#parent_obsData_supplementaryO2_parameters_nivIpap").addClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_nivIpap").addClass("exclude"), $("#parent_obsData_supplementaryO2_parameters_nivEpap").addClass("valHide"), 
-    $("#obsData_supplementaryO2_parameters_nivEpap").addClass("exclude"));
+    "show" == e ? ($("#parent_niv_backup").removeClass("valHide"), $("#niv_backup").removeClass("exclude"), 
+    $("#parent_niv_ipap").removeClass("valHide"), $("#niv_ipap").removeClass("exclude"), 
+    $("#parent_niv_epap").removeClass("valHide"), $("#niv_epap").removeClass("exclude")) : ($("#parent_niv_backup").addClass("valHide"), 
+    $("#niv_backup").addClass("exclude"), $("#parent_niv_ipap").addClass("valHide"), 
+    $("#niv_ipap").addClass("exclude"), $("#parent_niv_epap").addClass("valHide"), $("#niv_epap").addClass("exclude"));
 }
 
 function displayTaskCancellationOptions() {
@@ -275,20 +311,20 @@ $(document).ready(function() {
         }
     }) : timing = !1, $("#patientName a").click(function(s) {
         s.preventDefault(), timeIdle = 0;
-        var a = "", o = "", t = "";
+        var a = "", o = "", r = "";
         frontend_routes.json_patient_info(e).ajax({
             success: function(e) {
                 if (console.log(e), e.full_name && (a += " " + e.full_name), e.gender && (o = e.gender), 
                 e.dob) {
                     var s = new Date(e.dob);
                     s = ("0" + s.getDate()).slice(-2) + "/" + ("0" + (s.getMonth() + 1)).slice(-2) + "/" + s.getFullYear(), 
-                    t += "<dt>DOB:</dt><dd>" + s + "</dd>";
+                    r += "<dt>DOB:</dt><dd>" + s + "</dd>";
                 }
-                "" != e.location && (t += "<dt>Location:</dt><dd>" + e.location + "</dd>"), EWSlabel = "NEWS", 
-                e.ews_score && (t += "<dt class='twoline'>Latest " + EWSlabel + " Score</dt><dd class='twoline'>" + e.ews_score + "</dd>"), 
-                e.other_identifier && (t += "<dt>Hospital ID</dt><dd>" + e.other_identifier + "</dd>"), 
-                e.patient_identifier && (t += "<dt>NHS Number</dt><dd>" + e.patient_identifier + "</dd>"), 
-                displayModal("patientInfo", a + '<span class="alignright">' + o + "</span>", "<dl>" + t + "</dl><p><a href='#' id='loadObs'>View Patient Observation Data</a></p>", [ '<a href="#" class="cancel">Cancel</a>' ]);
+                "" != e.location && (r += "<dt>Location:</dt><dd>" + e.location + "</dd>"), EWSlabel = "NEWS", 
+                e.ews_score && (r += "<dt class='twoline'>Latest " + EWSlabel + " Score</dt><dd class='twoline'>" + e.ews_score + "</dd>"), 
+                e.other_identifier && (r += "<dt>Hospital ID</dt><dd>" + e.other_identifier + "</dd>"), 
+                e.patient_identifier && (r += "<dt>NHS Number</dt><dd>" + e.patient_identifier + "</dd>"), 
+                displayModal("patientInfo", a + '<span class="alignright">' + o + "</span>", "<dl>" + r + "</dl><p><a href='#' id='loadObs'>View Patient Observation Data</a></p>", [ '<a href="#" class="cancel">Cancel</a>' ]);
             },
             error: function() {
                 displayModal("patientInfo", "Error getting patient details", "<p>Sorry there seems to have been an error</p>", [ '<a href="#" class="cancel">Cancel</a>' ]);
@@ -305,7 +341,7 @@ $(document).ready(function() {
     }), $("select").on("focus", function() {
         timeIdle = 0;
     }), $("#startTimestamp").val($.now());
-    var t;
+    var r;
     "clinical" != s && "ObsFreq" != s && (console.log("adding custom methods"), jQuery.validator.addMethod("pimpedNumber", function(e, s) {
         return /^[-+]?\d+(\.\d+)?$/.test(e) ? !0 : (s.value = "", !0);
     }, "Invalid character found in field"), jQuery.validator.addMethod("lessThan", function(e, s, a) {
@@ -326,7 +362,7 @@ $(document).ready(function() {
     }, "O2 less than 95%, action required"), jQuery.validator.addMethod("pimpedDigits", function(e, s) {
         return /^[-+]?\d+$/.test(e) ? !0 : /^[-+]?\d+\.(\d+)?$/.test(e) ? !1 : (s.value = "", 
         !0);
-    }, "Invalid character found in field"), t = $("#obsForm").validate({
+    }, "Invalid character found in field"), r = $("#obsForm").validate({
         success: function(e) {
             resetErrors(e.attr("for"), "empty");
         },
@@ -378,15 +414,15 @@ $(document).ready(function() {
         }), !0;
     }), $(".content").on("click", "#obsSubmit", function(e) {
         e.preventDefault(), timeIdle = 0, resetErrors("empty");
-        var t = $($("#obsForm")[0].elements).not(".exclude").serialize();
-        console.log(t);
-        var r;
-        return "patient" == a ? (console.log("obsource is patient"), r = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("obsource is task"), 
-        r = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+        var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
+        console.log(r);
+        var t;
+        return "patient" == a ? (console.log("obsource is patient"), t = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("obsource is task"), 
+        t = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: r.url,
-            type: r.type,
-            data: t,
+            url: t.url,
+            type: t.type,
+            data: r,
             success: function(e) {
                 if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("obsConfirm", "hide"), 
                 displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.related_tasks[0].id).url + '" class="confirm">Proceed</a>' ], 500); else if (e.related_tasks.length > 1) {
@@ -395,8 +431,8 @@ $(document).ready(function() {
                 } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
                 displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else if (e.responseText) {
                     console.log("re-enabling submit"), o = !1;
-                    var t = $.parseJSON(e.responseText);
-                    t.errors && showErrors(t.errors), $("#obsConfirm .error").css("display", "block");
+                    var r = $.parseJSON(e.responseText);
+                    r.errors && showErrors(r.errors), $("#obsConfirm .error").css("display", "block");
                 } else $("#obsConfirm .error").css("display", "block");
             },
             error: function(e) {
@@ -408,15 +444,15 @@ $(document).ready(function() {
         })), !0;
     }), $("form").on("click", ".confirmPartial", function(e) {
         e.preventDefault(), timeIdle = 0, resetErrors("empty");
-        var t = $($("#obsForm")[0].elements).not(".exclude").serialize();
-        console.log(t);
-        var r;
-        "patient" == a ? (console.log("partial obs for patient"), r = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("partial obs for task"), 
-        r = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+        var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
+        console.log(r);
+        var t;
+        "patient" == a ? (console.log("partial obs for patient"), t = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("partial obs for task"), 
+        t = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: r.url,
-            type: r.type,
-            data: t,
+            url: t.url,
+            type: t.type,
+            data: r,
             success: function(e) {
                 if (console.log(e), 1 == e.status || 2 == e.status) 1 == e.status ? (dismissModal("obsPartial", "hide"), 
                 displayModal("obsConfirm", "Successfully submitted", "<p>The partial observation have been successfully submitted. Please be aware that this task is still active until all observations have been taken. Only the last complete NEWS score will be displayed..</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500)) : (dismissModal("obsPartial", "hide"), 
@@ -467,10 +503,10 @@ $(document).ready(function() {
             }
         }));
     }), $("#submitButton").click(function(e) {
-        if (e.preventDefault(), timeIdle = 0, t.form()) {
+        if (e.preventDefault(), timeIdle = 0, r.form()) {
             var a = processObs(s);
             console.log(a), $(".obsError").css("display", "none"), a ? "NEWS" == s ? displayModal("obsConfirm", 'Submit NEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "MEWS" == s ? displayModal("obsConfirm", 'Submit MEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "BTUHMEWS" == s || ("GCS" == s ? displayModal("obsConfirm", 'Submit GCS of <span id="obsScore" class="' + a.colour + '">' + a.gcsScore + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "STOOL" == s ? displayModal("obsConfirm", "Submit Stool observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "BLOODS" == s ? displayModal("obsConfirm", "Submit Blood Sugar observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "WEIGHT" == s ? displayModal("obsConfirm", "Submit Height and Weight observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "BLOODP" == s && displayModal("obsConfirm", "Submit Blood Product observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0)) : "ews" == s ? displayPartialObsDialog() : displayModal("obsConfirm", "Mandatory observation values not entered", "<p>Please enter all information and submit observation again</p>", [ '<a href="#" id="obsCancel" class="cancel">OK</a>' ], 0);
-        } else console.log(t.errors()), displayModal("obsConfirm", "Form validation errors", "<p>The observation your are trying to submit has input errors. Please correct them and resubmit.</p>", [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>' ]);
+        } else console.log(r.errors()), displayModal("obsConfirm", "Form validation errors", "<p>The observation your are trying to submit has input errors. Please correct them and resubmit.</p>", [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>' ]);
     }), $("#cancelSubmit").click(function(e) {
         e.preventDefault(), timeIdle = 0, displayTaskCancellationOptions();
     }), $("#bristolPopup").click(function(e) {
@@ -485,19 +521,19 @@ $(document).ready(function() {
         $("#parent_obsData_motor").removeClass("valHide")) : ($("#parent_obsData_avpu").addClass("valHide"), 
         $("#parent_obsData_eyes").addClass("valHide"), $("#parent_obsData_verbal").addClass("valHide"), 
         $("#parent_obsData_motor").addClass("valHide"));
-    }), $("#obsData_supplementaryO2_oxygen_administration_flag").change(function() {
-        var e = $("#obsData_supplementaryO2_oxygen_administration_flag").val();
-        if ("true" == e) {
-            $("#parent_obsData_supplementaryO2_O2Device").removeClass("valHide"), $("#obsData_supplementaryO2_O2Device").removeClass("exclude");
-            var e = $("#obsData_supplementaryO2_O2Device").val();
+    }), $("#oxygen_administration_flag").change(function() {
+        var e = $("#oxygen_administration_flag").val();
+        if ("True" == e) {
+            $("#parent_device_id").removeClass("valHide"), $("#device_id").removeClass("exclude");
+            var e = $("#device_id").val();
             43 >= e ? (ToggleBaseSupO2("show"), ToggleCPAPSupO2("hide"), ToggleNIVSupO2("hide")) : 44 == e ? (ToggleBaseSupO2("show"), 
             ToggleCPAPSupO2("show"), ToggleNIVSupO2("hide")) : 45 == e ? (ToggleBaseSupO2("show"), 
             ToggleCPAPSupO2("hide"), ToggleNIVSupO2("show")) : e > 45 && (ToggleBaseSupO2("show"), 
             ToggleCPAPSupO2("hide"), ToggleNIVSupO2("hide"));
-        } else $("#parent_obsData_supplementaryO2_O2Device").addClass("valHide"), $("#obsData_supplementaryO2_O2Device").addClass("exclude"), 
+        } else $("#parent_device_id").addClass("valHide"), $("#device_id").addClass("exclude"), 
         ToggleBaseSupO2("hide"), ToggleCPAPSupO2("hide"), ToggleNIVSupO2("hide");
-    }), $("#obsData_supplementaryO2_O2Device").change(function() {
-        var e = $("#obsData_supplementaryO2_O2Device").val();
+    }), $("#device_id").change(function() {
+        var e = $("#device_id").val();
         43 >= e ? (ToggleBaseSupO2("show"), ToggleCPAPSupO2("hide"), ToggleNIVSupO2("hide")) : 44 == e ? (ToggleBaseSupO2("show"), 
         ToggleCPAPSupO2("show"), ToggleNIVSupO2("hide")) : 45 == e ? (ToggleBaseSupO2("show"), 
         ToggleCPAPSupO2("hide"), ToggleNIVSupO2("show")) : e > 45 && (ToggleBaseSupO2("show"), 
@@ -520,33 +556,33 @@ $(document).ready(function() {
     } else timeIdle++;
 }, 1e3);
 function processObs(a) {
-    var e;
+    var o;
     if ("ews" == a) {
         if ("" == $("#respiration_rate").val() || "" == $("#indirect_oxymetry_spo2").val() || "" == $("#body_temperature").val() || "" == $("#blood_pressure_systolic").val() || "" == $("#blood_pressure_diastolic").val() || "" == $("#pulse_rate").val() || "" == $("#avpu_text").val() || "" == $("#oxygen_administration_flag").val()) return !1;
         if ("true" == $("#oxygen_administration_flag").val().toString()) {
-            if ("" == $("#obsData_supplementaryO2_O2Device").val()) return !1;
-            if ("44" == $("#obsData_supplementaryO2_O2Device").val()) {
-                if ("" == $("#obsData_supplementaryO2_parameters_flow").val() && "" == $("#obsData_supplementaryO2_parameters_concentration").val() || "" == $("#obsData_supplementaryO2_parameters_cpapPeep").val()) return !1;
-            } else if ("45" == $("#obsData_supplementaryO2_O2Device").val()) {
-                if ("" == $("#obsData_supplementaryO2_parameters_flow").val() && "" == $("#obsData_supplementaryO2_parameters_concentration").val() || "" == $("#obsData_supplementaryO2_parameters_nivBackupRate").val() || "" == $("#obsData_supplementaryO2_parameters_nivIpap").val() || "" == $("#obsData_supplementaryO2_parameters_nivEpap").val()) return !1;
-            } else if ("" == $("#obsData_supplementaryO2_parameters_flow").val() && "" == $("#obsData_supplementaryO2_parameters_concentration").val()) return !1;
+            if ("" == $("#device_id").val()) return !1;
+            if ("44" == $("device_id").val()) {
+                if ("" == $("#flow_rate").val() && "" == $("#concentration").val() || "" == $("#cpap_peep").val()) return !1;
+            } else if ("45" == $("#device_id").val()) {
+                if ("" == $("#flow_rate").val() && "" == $("#concentration").val() || "" == $("#niv_backup").val() || "" == $("#niv_ipap").val() || "" == $("#niv_epap").val()) return !1;
+            } else if ("" == $("#flow_rate").val() && "" == $("#concentration").val()) return !1;
         }
-        var s = frontend_routes.ews_score(), t = $.ajax({
-            url: s.url,
-            type: s.type,
+        var l = frontend_routes.ews_score(), e = $.ajax({
+            url: l.url,
+            type: l.type,
             data: jQuery("#obsForm").not(".exclude").serialize(),
             success: function(a) {
                 console.log(a), a.class = a.clinical_risk.toLowerCase(), 3 != a.score && 4 != a.score || 1 != a.three_in_one || (a.clinical_risk = "One observation scored 3 therefore " + a.clinical_risk + " clinical risk"), 
-                e = a;
+                o = a;
             },
             error: function() {
                 console.log("nay");
             }
         });
-        return t.then(function(a) {
+        return e.then(function(a) {
             return console.log("this is being called"), displayModal("obsConfirm", 'Submit NEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", "<p><strong>Clinical risk: " + a.clinical_risk + '</strong></p><p>Please confirm you want to submit this score</p><p class="obsError error">Data not sent, please resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]), 
-            $("#obsConfirm").addClass("clinicalrisk-" + a.class), e;
+            $("#obsConfirm").addClass("clinicalrisk-" + a.class), o;
         }), !0;
     }
-    return "GCS" == a ? "" == $("#gcsData_eyes").val() || "" == $("#gcsData_verbal").val() || "" == $("#gcsData_motor").val() ? !1 : e = gcs($("#gcsData_eyes").val(), $("#gcsData_verbal").val(), $("#gcsData_motor").val()) : "STOOL" == a ? "" == $("#stoolsData_bowelOpen").val() || "" == $("#stoolsData_nausea").val() || "" == $("#stoolsData_vomiting").val() || "" == $("#stoolsData_quantity").val() || "" == $("#stoolsData_colour").val() || "" == $("#stoolsData_bristolType").val() || "" == $("#stoolsData_offensive").val() || "" == $("#stoolsData_strain").val() || "" == $("#stoolsData_laxatives").val() || "" == $("#stoolsData_samples").val() || "" == $("#stoolsData_rectalExam").val() ? !1 : !0 : "BLOODS" == a ? "" == $("#bloodSugarData_bloodSugar").val() || "" == $("#bloodSugarData_diabetic").val() ? !1 : !0 : "WEIGHT" == a ? "" == $("#heightWeightData_weight").val() ? !1 : !0 : "BLOODP" == a ? "" == $("#BloodProductData_volume").val() || "" == $("#BloodProductData_product").val() ? !1 : !0 : void 0;
+    return "GCS" == a ? "" == $("#gcsData_eyes").val() || "" == $("#gcsData_verbal").val() || "" == $("#gcsData_motor").val() ? !1 : o = gcs($("#gcsData_eyes").val(), $("#gcsData_verbal").val(), $("#gcsData_motor").val()) : "STOOL" == a ? "" == $("#stoolsData_bowelOpen").val() || "" == $("#stoolsData_nausea").val() || "" == $("#stoolsData_vomiting").val() || "" == $("#stoolsData_quantity").val() || "" == $("#stoolsData_colour").val() || "" == $("#stoolsData_bristolType").val() || "" == $("#stoolsData_offensive").val() || "" == $("#stoolsData_strain").val() || "" == $("#stoolsData_laxatives").val() || "" == $("#stoolsData_samples").val() || "" == $("#stoolsData_rectalExam").val() ? !1 : !0 : "BLOODS" == a ? "" == $("#bloodSugarData_bloodSugar").val() || "" == $("#bloodSugarData_diabetic").val() ? !1 : !0 : "WEIGHT" == a ? "" == $("#heightWeightData_weight").val() ? !1 : !0 : "BLOODP" == a ? "" == $("#BloodProductData_volume").val() || "" == $("#BloodProductData_product").val() ? !1 : !0 : void 0;
 }

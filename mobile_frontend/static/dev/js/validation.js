@@ -68,10 +68,10 @@ function addValidationRules(obsType) {
             }
         });
 
-        /*$("#supplementaryO2_O2Device").rules("add", {
+        $("#device_id").rules("add", {
             required: false
         });
-        $("#obsData_supplementaryO2_parameters_flow").rules("add", {
+        $("#flow_rate").rules("add", {
             pimpedNumber: true,
             required: false,
             min: 0,
@@ -80,41 +80,41 @@ function addValidationRules(obsType) {
                 min: "Value too low"
             }
         });
-        $("#obsData_supplementaryO2_parameters_concentration").rules("add", {
+        $("#concentration").rules("add", {
             required: false,
             min: 0,
             messages:{
                 min: "Value too low"
             }
         });
-        $("#obsData_supplementaryO2_parameters_cpapPeep").rules("add", {
+        $("#cpap_peep").rules("add", {
             required: false,
             min: 0,
             messages:{
                 min: "Value too low"
             }
         });
-        $("#obsData_supplementaryO2_parameters_nivBackupRate").rules("add", {
+        $("#niv_backup").rules("add", {
             required: false,
             min: 0,
             messages:{
                 min: "Value too low"
             }
         });
-        $("#obsData_supplementaryO2_parameters_nivIpap").rules("add", {
+        $("#niv_ipap").rules("add", {
             required: false,
             min: 0,
             messages:{
                 min: "Value too low"
             }
         });
-        $("#obsData_supplementaryO2_parameters_nivEpap").rules("add", {
+        $("#niv_epap").rules("add", {
             required: false,
             min: 0,
             messages:{
                 min: "Value too low"
             }
-        });   */
+        });
     }
 
     if(obsType == "GCS"){
