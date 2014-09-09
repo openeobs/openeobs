@@ -260,30 +260,94 @@ class t4_clinical_patient_observation_stools(orm.Model):
     _inherit = ['t4.clinical.patient.observation']
     _required = []
     _description = "Bristol Stools Observation"
+    _boolean_selection = [[True, 'Yes'], [False, 'No']]
+    _quantity_selection = [['large', 'Large'], ['medium', 'Medium'], ['small', 'Small']]
+    _colour_selection = [['brown', 'Brown'], ['yellow', 'Yellow'], ['green', 'Green'], ['black', 'Black/Tarry'],
+                         ['red', 'Red (fresh blood)'], ['clay', 'Clay']]
+    _bristol_selection = [['1', 'Type 1'], ['2', 'Type 2'], ['3', 'Type 3'], ['4', 'Type 4'], ['5', 'Type 5'],
+                          ['6', 'Type 6'], ['7', 'Type 7']]
+    _samples_selection = [['none', 'None'], ['micro', 'Micro'], ['virol', 'Virol'], ['m+v', 'M+V']]
     _columns = {
         'bowel_open': fields.boolean('Bowel Open'),
         'nausea': fields.boolean('Nausea'),
         'vomiting': fields.boolean('Vomiting'),
-        'quantity': fields.selection((('large', 'Large'),
-                                    ('medium', 'Medium'),
-                                    ('small', 'Small')), 'Quantity'),
-        'colour': fields.selection((('brown', 'Brown'),
-                                    ('yellow', 'Yellow'),
-                                    ('green', 'Green'),
-                                    ('black', 'Black/Tarry'),
-                                    ('red', 'Red (fresh blood)'),
-                                    ('clay', 'Clay')), 'Colour'),
-        'bristol_type': fields.selection((('1', 'Type 1'), ('2', 'Type 2'), ('3', 'Type 3'), ('4', 'Type 4'),
-                                        ('5', 'Type 5'), ('6', 'Type 6'), ('7', 'Type 7')), 'Bristol Type'),
+        'quantity': fields.selection(_quantity_selection, 'Quantity'),
+        'colour': fields.selection(_colour_selection, 'Colour'),
+        'bristol_type': fields.selection(_bristol_selection, 'Bristol Type'),
         'offensive': fields.boolean('Offensive'),
         'strain': fields.boolean('Strain'),
         'laxatives': fields.boolean('Laxatives'),
-        'samples': fields.selection((('none', 'None'),
-                                    ('micro', 'Micro'),
-                                    ('virol', 'Virol'),
-                                    ('m+v', 'M+V')), 'Lab Samples'),
+        'samples': fields.selection(_samples_selection, 'Lab Samples'),
         'rectal_exam': fields.boolean('Rectal Exam'),
     }
+    _form_description = [
+        {
+            'name': 'bowel_open',
+            'type': 'selection',
+            'label': 'Bowel Open',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'nausea',
+            'type': 'selection',
+            'label': 'Nausea',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'vomiting',
+            'type': 'selection',
+            'label': 'Vomiting',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'quantity',
+            'type': 'selection',
+            'label': 'Quantity',
+            'selection': _quantity_selection
+        },
+        {
+            'name': 'colour',
+            'type': 'selection',
+            'label': 'Colour',
+            'selection': _colour_selection
+        },
+        {
+            'name': 'bristol_type',
+            'type': 'selection',
+            'label': 'Bristol Type',
+            'selection': _bristol_selection
+        },
+        {
+            'name': 'offensive',
+            'type': 'selection',
+            'label': 'Offensive',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'strain',
+            'type': 'selection',
+            'label': 'Strain',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'laxatives',
+            'type': 'selection',
+            'label': 'Laxatives',
+            'selection': _boolean_selection
+        },
+        {
+            'name': 'samples',
+            'type': 'selection',
+            'label': 'Lab Samples',
+            'selection': _samples_selection
+        },
+        {
+            'name': 'rectal_exam',
+            'type': 'selection',
+            'label': 'Rectal Exam',
+            'selection': _boolean_selection
+        }
+    ]
 
 
 class t4_clinical_patient_observation_ews(orm.Model):
@@ -685,6 +749,27 @@ class t4_clinical_patient_observation_gcs(orm.Model):
         'frequency': 60
     }
 
+    _form_description = [
+        {
+            'name': 'eyes',
+            'type': 'selection',
+            'label': 'Eyes',
+            'selection': _eyes
+        },
+        {
+            'name': 'verbal',
+            'type': 'selection',
+            'label': 'Verbal',
+            'selection': _verbal
+        },
+        {
+            'name': 'motor',
+            'type': 'selection',
+            'label': 'Motor',
+            'selection': _motor
+        }
+    ]
+
     def complete(self, cr, uid, activity_id, context=None):
         """
         Implementation of the default GCS policy
@@ -796,6 +881,39 @@ class t4_clinical_patient_observation_vips(orm.Model):
         'frequency': 1440
     }
 
+    _form_description = [
+        {
+            'name': 'pain',
+            'type': 'selection',
+            'label': 'Pain',
+            'selection': _selection
+        },
+        {
+            'name': 'redness',
+            'type': 'selection',
+            'label': 'Redness',
+            'selection': _selection
+        },
+        {
+            'name': 'swelling',
+            'type': 'selection',
+            'label': 'Swelling',
+            'selection': _selection
+        },
+        {
+            'name': 'cord',
+            'type': 'selection',
+            'label': 'Palpable venous cord',
+            'selection': _selection
+        },
+        {
+            'name': 'pyrexia',
+            'type': 'selection',
+            'label': 'Pyrexia',
+            'selection': _selection
+        }
+    ]
+
     def complete(self, cr, uid, activity_id, context=None):
         """
         Implementation of the default VIPS policy
@@ -871,6 +989,41 @@ class t4_clinical_patient_observation_pbp(orm.Model):
         'diastolic_standing': fields.integer('Standing Blood Pressure Diastolic'),
         'result': fields.function(_get_pbp_result, type='char', string='>20 mm', size=5, store=False)
     }
+
+    _form_description = [
+        {
+            'name': 'systolic_sitting',
+            'type': 'integer',
+            'label': 'Sitting Blood Pressure Systolic',
+            'min': 1,
+            'max': 300,
+            'validation': [['>', 'diastolic_sitting']]
+        },
+        {
+            'name': 'diastolic_sitting',
+            'type': 'integer',
+            'label': 'Sitting Blood Pressure Diastolic',
+            'min': 1,
+            'max': 280,
+            'validation': [['<', 'systolic_sitting']]
+        },
+        {
+            'name': 'systolic_standing',
+            'type': 'integer',
+            'label': 'Standing Blood Pressure Systolic',
+            'min': 1,
+            'max': 300,
+            'validation': [['>', 'diastolic_standing']]
+        },
+        {
+            'name': 'diastolic_standing',
+            'type': 'integer',
+            'label': 'Standing Blood Pressure Diastolic',
+            'min': 1,
+            'max': 280,
+            'validation': [['<', 'systolic_standing']]
+        }
+    ]
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
         hour = td(hours=1)
