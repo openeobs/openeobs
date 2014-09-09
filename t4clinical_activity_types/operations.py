@@ -23,6 +23,9 @@ class t4_clinical_notification(orm.AbstractModel):
     def get_form_description(self, cr, uid, patient_id, context=None):
         return self._form_description
 
+    def is_cancellable(self, cr, uid, context=None):
+        return False
+
 
 class t4_clinical_notification_hca(orm.Model):
     _name = 't4.clinical.notification.hca'
@@ -120,6 +123,9 @@ class t4_clinical_notification_medical_team(orm.Model):
             'group': 'nurse'
         }, context=context)
         return super(t4_clinical_notification_medical_team, self).complete(cr, uid, activity_id, context=context)
+
+    def is_cancellable(self, cr, uid, context=None):
+        return True
 
 
 class t4_clinical_notification_doctor_assessment(orm.Model):
