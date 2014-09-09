@@ -20,6 +20,14 @@ class t4_clinical_api(orm.AbstractModel):
             raise osv.except_osv(_('Error!'), 'Activity ID not found: %s' % activity_id)
         return True
 
+    def check_activity_access(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        domain = [('id', '=', activity_id)]
+        activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        if not activity_ids:
+            return False
+        return True
+
     def _create_activity(self, cr, uid, data_model, vals_activity=None, vals_data=None, context=None):
         model_pool = self.pool[data_model]
         activity_id = model_pool.create_activity(cr, uid, vals_activity, vals_data, context=context)
