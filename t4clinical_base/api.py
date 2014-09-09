@@ -70,10 +70,22 @@ API consists of 3 classes of methods:
     
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api'
+
+    def search(self, cr, uid, model, args, offset=0, limit=None, order=None, context=None, count=False):
+        model_pool = self.pool[model]
+        return model_pool.search(cr, uid, args, offset, limit, order, context, count)
     
+    def create(self, cr, uid, model, values, context=None):
+        model_pool = self.pool[model]
+        return model_pool.create(cr, uid, values, context)
+        
     def browse(self, cr, uid, model, ids, context=None):
-        model_pool = self.pool['model']
+        model_pool = self.pool[model]
         return model_pool.browse(cr, uid, ids, context)
+
+    def write(self, cr, uid, model, ids, values, context=None):
+        model_pool = self.pool[model]
+        return model_pool.write(cr, uid, ids, values, context)
     
     def get_activity(self, cr, uid, activity_id, return_id=False):
         activity_pool = self.pool['t4.activity']
