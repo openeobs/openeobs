@@ -193,6 +193,7 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
         
         't4.clinical.adt.patient.register': 'adt_register',
         't4.clinical.adt.patient.admit': 'adt_admit',
+        't4.clinical.adt.patient.discharge': 'adt_discharge',
         
         't4.clinical.patient.observation.ews': 'observation_ews',
         't4.clinical.patient.observation.weight': 'observation_weight',
@@ -450,6 +451,17 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
             v.update({'location': ward['code']})
         v.update(values)
         return v      
+    
+    def adt_discharge(self, cr, uid, values={}):
+        fake = self.next_seed_fake()
+        api =self.pool['t4.clinical.api']
+        patient_ids = [a['patient_id'] for a in api.activity_map(cr, uid, data_models=['t4.clinical.spell'], states=['started']).values()]
+        patient = fake.random_element(api.patient_map(cr, uid, patient_ids=patient_ids).values()) 
+        v = {
+            'other_identifier': patient.get('other_identifier', "No patients to discharge!"),
+        }
+        v.update(values)
+        return v
     
     def observation_ews(self, cr, uid, values={}):
         fake = self.next_seed_fake()

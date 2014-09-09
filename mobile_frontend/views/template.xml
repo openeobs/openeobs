@@ -149,13 +149,15 @@
 
 
         <template name="Selection box input" t-name="mobile_frontend.observation_data_select">
-           <div class="block obsSelectField" t-att-id="'parent_'+item['name']">
+           <div t-att-class="'block obsSelectField valHide' if item['initially_hidden']==True else 'block obsSelectField'" t-att-id="'parent_'+item['name']">
                <div class="input-header">
                    <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                </div>
                <div class="input-body">
                    <select t-att-id="item['name']" t-att-name="item['name']">
-                            <option value="">Please Select</option>
+                            <t t-if="item['initially_hidden']==False">
+                                <option value="">Please Select</option>
+                            </t>
                         <t t-foreach="item['selection_options']" t-as="option">
                             <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
                         </t>
@@ -167,7 +169,7 @@
        </template>
 
         <template name="Input box" t-name="mobile_frontend.observation_data_input">
-            <div class="block obsField" t-att-id="'parent_' + item['name']">
+            <div t-att-class="'block obsField valHide' if item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
                     <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                         <!-- <t t-if="item['target']">
