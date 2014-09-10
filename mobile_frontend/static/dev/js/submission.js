@@ -7,7 +7,7 @@ function processObs(obsType){
         if($("#respiration_rate").val() == "" || $("#indirect_oxymetry_spo2").val() == "" || $("#body_temperature").val() == "" || $("#blood_pressure_systolic").val() == ""  || $("#blood_pressure_diastolic").val() == "" || $("#pulse_rate").val() == "" || $("#avpu_text").val() == "" || $("#oxygen_administration_flag").val() == ""){
             return false;
         }else{
-            if($("#oxygen_administration_flag").val().toString() == "true"){
+            if($("#oxygen_administration_flag").val().toString() == "True"){
                 if($("#device_id").val() == ""){
                     return false;
                 }else if($("device_id").val() == "44"){
@@ -29,7 +29,7 @@ function processObs(obsType){
             var getScore = $.ajax({
                url: talkToServer.url,
                type: talkToServer.type,
-               data: jQuery("#obsForm").not(".exclude").serialize(),
+               data: $($("#obsForm")[0].elements).not(".exclude").serialize(),
                success: function(data){
                     console.log(data);
                    data.class = data.clinical_risk.toLowerCase();

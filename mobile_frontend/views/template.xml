@@ -39,15 +39,6 @@
             </html>
         </template>
 
-       <!-- <template t-name="mobile_frontend.assets_new" name="Assets for mobile frontend">
-            <title>Open-eObs</title>
-            <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
-            <link t-att-href="urls['new_stylesheet']" rel="stylesheet" type="text/css"/>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
-        </template>     -->
-        
-        
-        
         <template t-name="mobile_frontend.patient_task_list" name="List of Tasks or Patients">
             <t t-call="mobile_frontend.base">
                 <div class="content">
@@ -73,49 +64,32 @@
             </t>
         </template>
 
-
-       <!--  <template t-name="mobile_frontend.task_patient_list_new" name="List of Tasks or Patients - new design">
-            <t t-call="mobile_frontend.assets_new"/>
-            <t t-call="mobile_frontend.logged_in_header"/>
-            <t t-call="mobile_frontend.base">
-                <div class="content">
-                    <ul class="tasklist">
-                        <li t-foreach="items" t-as="item">
-                            <a t-att-href="item['url']" t-att-class="item['color']+' block'">
-                                <div class="task-meta red">
-                                    <ul>
-                                        <li class="ews"><span class="score">8</span><span class="trend">^</span></li>
-                                        <li class="icon">!</li>
-                                    </ul>
-                                </div>
-                                <div class="task-content">
-                                    <ul>
-                                        <li class="title">NEWS Observation</li>
-                                        <li class="info">
-                                            <ul>
-                                                <li class="deadline">
-                                                    <p>Overdue<br/>
-                                                    <strong>30 mins</strong></p>
-                                                </li>
-                                                <li class="patient">
-                                                    <p><strong>Colin Wren</strong><br/>
-                                                    Bed 1, Ward 64</p>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </t>
-            <t t-call="mobile_frontend.logged_in_footer"/>
-        </template>  -->
-
-
          <template name="Notification Confirm/Cancel Screen" t-name="mobile_frontend.notification_confirm_cancel">
-            <h1><t t-esc="name"/></h1>
+             <t t-call="mobile_frontend.base">
+                 <div class="content">
+                     <h2 id="patientName" class="block">
+                         <a t-att-href="patient['url']"><t t-esc="patient['name']"/><i class="icon-info"></i></a>
+                     </h2>
+                     <div t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" class="block" t-att-data-type="form['type']">
+                         <h3>Confirm action taken?</h3>
+                         <p>Press the button below to confirm that you can completed the task <t t-esc="name"/></p>
+                         <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                         <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                         <p class="obsSubmit">
+                             <a t-att-href="form['confirm_url']" class="button submitButton" id="confirmSubmit">Confirm action</a>
+                         </p>
+                         <t t-if="cancellable==True">
+                            <p class="obsConfirm">
+                                <a t-att-href="form['cancel_url']" class="button cancelButton" id="cancelSubmit">Cancel action</a>
+                            </p>
+                         </t>
+                     </div>
+                     <script t-att-src="urls['jquery']" type="text/javascript"></script>
+                     <script t-att-src="urls['js_routes']" type="text/javascript"></script>
+                     <script t-att-src="urls['observation_form_validation']" type="text/javascript"></script>
+                     <script t-att-src="urls['observation_form_js']" type="text/javascript"></script>
+                 </div>
+             </t>
         </template>
 
         <template name="Observation Data Entry Screen" t-name="mobile_frontend.observation_entry">
@@ -159,7 +133,7 @@
                                 <option value="">Please Select</option>
                             </t>
                         <t t-foreach="item['selection_options']" t-as="option">
-                            <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
+                            <option t-att-value="option['value']" t-att-class="'exclude' if item['initially_hidden']==True else ''"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
                    <span class="errors"><t t-esc="item['errors']"/></span>
@@ -177,7 +151,7 @@
                         </t> -->
 
                     <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']"/>
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if item['initially_hidden']==True else ''"/>
                     <!-- </t>
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>

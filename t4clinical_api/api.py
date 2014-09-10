@@ -170,16 +170,16 @@ class t4_clinical_api(orm.AbstractModel):
                 raise osv.except_osv(_('Error!'), 'User ID not found: %s' % user_id)
         return activity_pool.assign(cr, uid, activity_id, user_id, context=context)
 
+    # def complete(self, cr, uid, activity_id, data, context=None):
+    #     activity_pool = self.pool['t4.activity']
+    #     self._check_activity_id(cr, uid, activity_id, context=context)
+    #     return activity_pool.complete(cr, uid, activity_id, data)
+
     def complete(self, cr, uid, activity_id, data, context=None):
         activity_pool = self.pool['t4.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
-        return activity_pool.complete(cr, uid, activity_id, data, context=context)
-
-    def submit_complete(self, cr, uid, activity_id, data, context=None):
-        activity_pool = self.pool['t4.activity']
-        self._check_activity_id(cr, uid, activity_id, context=context)
         activity_pool.submit(cr, uid, activity_id, data, context=context)
-        return activity_pool.complete(cr, uid, activity_id, data, context=context)
+        return activity_pool.complete(cr, uid, activity_id, context=context)
 
     # # # # # # #
     #  PATIENTS #

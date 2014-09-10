@@ -258,11 +258,21 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         if 'notification' in task['data_model']:
             # load notification foo
-            form['type'] = re.match(r't4\.clinical\.patient\.notification\.(.*)', task['data_model']).group(1)
+            obs_reg = request.registry[task['data_model']]
+            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
+            cancellable = obs_reg.is_cancellable(cr, uid, context=context)
+            form['confirm_url'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
+            if cancellable:
+                form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
+            form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
             return request.render('mobile_frontend.notification_confirm_cancel', qcontext={'name': task['summary'],
-                                                                                 'section': 'task',
-                                                                                 'username': request.session['login'],
-                                                                                 'urls': URLS})
+                                                                                           'inputs': form_desc,
+                                                                                           'cancellable': cancellable,
+                                                                                           'patient': patient,
+                                                                                           'form': form,
+                                                                                           'section': 'task',
+                                                                                           'username': request.session['login'],
+                                                                                           'urls': URLS})
         elif 'observation' in task['data_model']:
             # load obs foo
             obs_reg = request.registry[task['data_model']]
@@ -313,14 +323,24 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['json_task_form_action']+'<task_id>', type="http", auth="user")
     def process_ajax_form(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api')
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        converter_pool = request.registry('ir.fields.converter')
+        converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
         kw_copy = kw.copy()
+        test = {}
+        timestamp = kw_copy['startTimestamp']
+        del kw_copy['startTimestamp']
         del kw_copy['taskId']
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
-        result = api.submit_complete(cr, uid, int(task_id), kw_copy, context)
-        triggered_tasks = [v for v in api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model']]
+
+        converted_data = converter(kw_copy, test)
+        converted_data['startTimestamp'] = timestamp
+        result = api.complete(cr, uid, int(task_id), converted_data, context)
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ews_score'], type="http", auth="user")
@@ -332,6 +352,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         data = kw.copy()
         test = {}
+        del data['startTimestamp']
+        del data['taskId']
+        for key, value in data.items():
+            if not value or key not in ['avpu_text', 'blood_pressure_systolic', 'body_temperature', 'indirect_oxymetry_spo2', 'oxygen_administration_flag', 'pulse_rate', 'respiration_rate']:
+                del data[key]
         converted_data = converter(data, test)
 
         return request.make_response(json.dumps(ews_pool.calculate_score(converted_data)), headers={'Content-Type': 'application/json'})
@@ -356,3 +381,27 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def ajax_test(self, *args, **kw):
         test_html = '<html><head><script src="{jquery}"></script><script src="{routes}"></script></head><body>Test</body></html>'.format(jquery=URLS['jquery'], routes=URLS['js_routes'])
         return test_html
+
+
+    @http.route(URLS['confirm_clinical_notification']+'<task_id>', type="http", auth="user")
+    def confirm_clinical(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        kw_copy = kw.copy()
+        result = api.complete(cr, uid, int(task_id), kw_copy)
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
+
+
+    @http.route(URLS['cancel_clinical_notification']+'<task_id>', type="http", auth="user")
+    def cancel_clinical(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+        return 'meh'
+
+    @http.route(URLS['ajax_task_cancellation_options'], type='http', auth='user')
+    def cancel_reasons(self, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+        return request.make_response(json.dumps([{'id': 1, 'name': 'This is a test'}, {'id': 2, 'name': 'This is another test'}]), headers={'Content-Type': 'application/json'})

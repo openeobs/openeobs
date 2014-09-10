@@ -122,6 +122,24 @@ routes = [
         'endpoint': 'ews/partial_reasons',
         'method': 'GET',
         'args': False
+    },
+    {
+        'name': 'confirm_clinical_notification',
+        'endpoint': 'tasks/confirm_clinical/',
+        'method': 'GET',
+        'args': 'task_id'
+    },
+    {
+        'name': 'cancel_clinical_notification',
+        'endpoint': 'tasks/cancel_clinical/',
+        'method': 'GET',
+        'args': 'task_id'
+    },
+    {
+        'name': 'ajax_task_cancellation_options',
+        'endpoint': 'tasks/cancel_reasons',
+        'method': 'GET',
+        'args': False
     }
 ]
 
