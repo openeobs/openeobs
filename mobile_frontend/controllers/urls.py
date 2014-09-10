@@ -140,6 +140,12 @@ routes = [
         'endpoint': 'tasks/cancel_reasons',
         'method': 'GET',
         'args': False
+    },
+    {
+        'name': 'confirm_review_frequency',
+        'endpoint': 'tasks/confirm_review_frequency/',
+        'method': 'POST',
+        'args': 'task_id'
     }
 ]
 

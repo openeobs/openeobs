@@ -299,7 +299,7 @@ $(document).ready(function() {
     $(".header").css({
         "box-shadow": "none",
         "border-bottom": "1px solid #eeeeee"
-    }), "medical_team" != s && "ObsFreq" != s && $("#obsForm")[0].reset();
+    }), "medical_team" != s && "frequency" != s && $("#obsForm")[0].reset();
     var o = !1;
     "task" == a ? null != taskId && void 0 != taskId && "" != taskId && frontend_routes.json_take_task(taskId).ajax({
         cache: !1,
@@ -342,7 +342,7 @@ $(document).ready(function() {
         timeIdle = 0;
     }), $("#startTimestamp").val($.now());
     var t;
-    "medical_team" != s && "ObsFreq" != s && (console.log("adding custom methods"), 
+    "medical_team" != s && "frequency" != s && (console.log("adding custom methods"), 
     jQuery.validator.addMethod("pimpedNumber", function(e, s) {
         return /^[-+]?\d+(\.\d+)?$/.test(e) ? !0 : (s.value = "", !0);
     }, "Invalid character found in field"), jQuery.validator.addMethod("lessThan", function(e, s, a) {
@@ -393,18 +393,18 @@ $(document).ready(function() {
         }), !0;
     }), $(".content").on("click", "#obsFreqSubmit", function(e) {
         e.preventDefault(), timeIdle = 0;
-        var s = $($("#obsForm")[0].elements).not(".exclude").serialize(), a = jsRoutes.controllers.Observations.submitObsChange(taskId);
+        var s = $($("#obsForm")[0].elements).not(".exclude").serialize(), a = frontend_routes.confirm_review_frequency(taskId);
         return $.ajax({
             url: a.url,
             type: a.type,
             data: s,
             success: function(e) {
-                if (console.log(e), 1 == e.status) if (e.relatedTasks) if (1 == e.relatedTasks.length) dismissModal("obsConfirm", "hide"), 
-                displayModal("obsConfirm", "Action required", "<p>" + e.relatedTasks[0].reason + "</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>', '<a href="' + jsRoutes.controllers.Tasks.performTask(e.relatedTasks[0].taskId).url + '" class="confirm">Confirm</a>' ], 500); else if (e.relatedTasks.length > 1) {
-                    for (var s = "", a = 0; a < e.relatedTasks.length; a++) s += '<li><a href="' + jsRoutes.controllers.Tasks.performTask(e.relatedTasks[a].taskId).url + '">' + e.relatedTasks[a].reason + "</a></li>";
-                    dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '">Go to My Tasks</a>' ], 500);
-                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
-                displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500);
+                if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("obsConfirm", "hide"), 
+                displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.relatedTasks[0].id).url + '" class="confirm">Confirm</a>' ], 500); else if (e.related_tasks.length > 1) {
+                    for (var s = "", a = 0; a < e.related_tasks.length; a++) s += '<li><a href="' + frontend_routes.single_task(e.relatedTasks[a].id).url + '">' + e.related_tasks[a].summary + "</a></li>";
+                    dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + frontend_routes.task_list().url + '">Go to My Tasks</a>' ], 500);
+                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
+                displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500);
             },
             error: function(e) {
                 console.log("re-enabling submit"), o = !1, console.log(e), console.log(e.responseText), 

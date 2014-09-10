@@ -26,7 +26,7 @@ $(document).ready(function () {
     $(".header").css({"box-shadow": "none", "border-bottom": "1px solid #eeeeee"});
 
     //reset the form on page load
-    if(obsType != "medical_team" && obsType != "ObsFreq"){
+    if(obsType != "medical_team" && obsType != "frequency"){
         $("#obsForm")[0].reset();
     }
 
@@ -126,7 +126,7 @@ $(document).ready(function () {
 
     //setup validation
     var validator;
-    if(obsType != "medical_team" && obsType != "ObsFreq"){
+    if(obsType != "medical_team" && obsType != "frequency"){
 
         console.log('adding custom methods');
 
@@ -258,7 +258,7 @@ $(document).ready(function () {
         e.preventDefault();
         timeIdle = 0;
         var formData = $($("#obsForm")[0].elements).not(".exclude").serialize();
-        var r = jsRoutes.controllers.Observations.submitObsChange(taskId);
+        var r = frontend_routes.confirm_review_frequency(taskId);
         $.ajax({
             url: r.url,
             type: r.type,
@@ -266,24 +266,24 @@ $(document).ready(function () {
             success: function(data){
                 console.log(data);
                 if(data.status == 1){
-                    if(data.relatedTasks){
-                        if(data.relatedTasks.length == 1){
+                    if(data.related_tasks){
+                        if(data.related_tasks.length == 1){
                             dismissModal("obsConfirm", "hide");
-                            displayModal("obsConfirm", "Action required", "<p>" + data.relatedTasks[0].reason + "</p>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\" class=\"action\">Go to My Tasks</a>", "<a href=\""+jsRoutes.controllers.Tasks.performTask(data.relatedTasks[0].taskId).url+"\" class=\"confirm\">Confirm</a>"], 500);
-                        }else if(data.relatedTasks.length > 1){
+                            displayModal("obsConfirm", "Action required", "<p>" + data.related_tasks[0].summary + "</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>", "<a href=\""+frontend_routes.single_task(data.relatedTasks[0].id).url+"\" class=\"confirm\">Confirm</a>"], 500);
+                        }else if(data.related_tasks.length > 1){
                             var taskList = "";
-                            for(var a = 0; a < data.relatedTasks.length; a++){
-                                taskList += "<li><a href=\""+jsRoutes.controllers.Tasks.performTask(data.relatedTasks[a].taskId).url+"\">"+ data.relatedTasks[a].reason + "</a></li>";
+                            for(var a = 0; a < data.related_tasks.length; a++){
+                                taskList += "<li><a href=\""+frontend_routes.single_task(data.relatedTasks[a].id).url+"\">"+ data.related_tasks[a].summary + "</a></li>";
                             }
                             dismissModal("obsConfirm", "hide");
-                            displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\">Go to My Tasks</a>"], 500);
+                            displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+frontend_routes.task_list().url+ "\">Go to My Tasks</a>"], 500);
                         }else{
                             dismissModal("obsConfirm", "hide");
-                            displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                            displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                         }
                     }else{
                         dismissModal("obsConfirm", "hide");
-                        displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", ["<a href=\""+jsRoutes.controllers.Tasks.listTasks().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                        displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                     }
                 }},
             error: function(err){

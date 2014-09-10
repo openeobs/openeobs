@@ -78,7 +78,8 @@ class t4_clinical_notification_frequency(orm.Model):
             'name': 'frequency',
             'type': 'selection',
             'selection': frequencies,
-            'label': 'Observation frequency'
+            'label': 'Observation frequency',
+            'initially_hidden': False
         }
     ]
 

@@ -262,6 +262,24 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
             cancellable = obs_reg.is_cancellable(cr, uid, context=context)
             form['confirm_url'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
+            for form_input in form_desc:
+                if form_input['type'] in ['float', 'integer']:
+                    form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
+                    form_input['type'] = 'number'
+                    form_input['number'] = True
+                    form_input['info'] = ''
+                    form_input['errors'] = ''
+                    #if form_input['target']:
+                    #    form_input['target'] = False
+                elif form_input['type'] == 'selection':
+                    form_input['selection_options'] = []
+                    form_input['info'] = ''
+                    form_input['errors'] = ''
+                    for option in form_input['selection']:
+                        opt = dict()
+                        opt['value'] = '{0}'.format(option[0])
+                        opt['label'] = option[1]
+                        form_input['selection_options'].append(opt)
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
             form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
@@ -389,10 +407,22 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api = request.registry('t4.clinical.api.external')
         base_api = request.registry('t4.clinical.api')
         kw_copy = kw.copy()
+        del kw_copy['taskId']
         result = api.complete(cr, uid, int(task_id), kw_copy)
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
+    @http.route(URLS['confirm_review_frequency']+'<task_id>', type="http", auth="user")
+    def confirm_review_frequency(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        kw_copy = kw.copy()
+        del kw_copy['taskId']
+        kw_copy['frequency'] = int(kw_copy['frequency'])
+        result = api.complete(cr, uid, int(task_id), kw_copy)
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['cancel_clinical_notification']+'<task_id>', type="http", auth="user")
     def cancel_clinical(self, task_id, *args, **kw):
