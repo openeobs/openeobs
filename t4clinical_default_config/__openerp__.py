@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['t4clinical_ui'],
+    'depends': ['t4clinical_ui', 'mobile_frontend'],
     'data': ['default_master_data.xml'],
     'qweb': ['static/src/xml/t4clinical_default_config.xml'],
     'css': ['static/src/css/t4clinical_default_config.css'],
