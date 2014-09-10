@@ -175,6 +175,12 @@ class t4_clinical_api(orm.AbstractModel):
         self._check_activity_id(cr, uid, activity_id, context=context)
         return activity_pool.complete(cr, uid, activity_id, data, context=context)
 
+    def submit_complete(self, cr, uid, activity_id, data, context=None):
+        activity_pool = self.pool['t4.activity']
+        self._check_activity_id(cr, uid, activity_id, context=context)
+        activity_pool.submit(cr, uid, activity_id, data, context=context)
+        return activity_pool.complete(cr, uid, activity_id, data, context=context)
+
     # # # # # # #
     #  PATIENTS #
     # # # # # # #
