@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-s
-import openerp, re, json, urls, jinja2
+import openerp, re, json, urls, jinja2, bisect
 from openerp import http
 from openerp.modules.module import get_module_path
 from datetime import datetime
@@ -158,6 +158,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return utils.redirect(URLS['login'], 303)
 
 
+    def calculate_ews_class(self, score):
+        score_classes = ['level-none', 'level-one', 'level-two', 'level-three']
+        score_ranges = [0, 4, 6]
+        if score:
+            return score_classes[bisect.bisect_left(score_ranges, int(score))]
+        else:
+            return 'level-none'
+
     @http.route(URLS['patient_list'], type='http', auth="user")
     def get_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.session.uid, request.context
@@ -165,7 +173,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patients = patient_api.get_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
-            patient['color'] = 'level-one'
+            patient['color'] = self.calculate_ews_class(patient['ews_score'])
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
@@ -181,7 +189,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
-            task['color'] = 'level-one'
+            task['color'] = self.calculate_ews_class(task['ews_score'])
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
         return request.render('mobile_frontend.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
@@ -353,7 +361,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         del kw_copy['startTimestamp']
         del kw_copy['taskId']
-        del kw_copy['device_id']
+        if device_id:
+            del kw_copy['device_id']
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
