@@ -188,7 +188,7 @@ class t4_clinical_api(orm.AbstractModel):
         reasons = []
         for reason in cancel_pool.browse(cr, uid, reason_ids, context=context):
             if not reason.system:
-                reasons.append([reason.id, reason.name])
+                reasons.append({'id':reason.id, 'name': reason.name})
         return reasons
 
     # # # # # # #

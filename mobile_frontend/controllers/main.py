@@ -449,4 +449,4 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def cancel_reasons(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
-        return request.make_response(json.dumps([{'id': 1, 'name': 'This is a test'}, {'id': 2, 'name': 'This is another test'}]), headers={'Content-Type': 'application/json'})
+        return request.make_response(json.dumps(api_pool.get_cancel_reasons(cr, uid, context=context)), headers={'Content-Type': 'application/json'})
