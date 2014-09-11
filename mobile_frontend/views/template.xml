@@ -50,6 +50,9 @@
                                         <p class="aside"><t t-esc="item['deadline_time']"/></p>
                                     </div>
                                     <div class="task-left">
+                                        <t t-if="'notification' in item and item['notification']==True">
+                                            <i class="icon-alert"></i>
+                                        </t>
                                         <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
                                         <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
                                     </div>
