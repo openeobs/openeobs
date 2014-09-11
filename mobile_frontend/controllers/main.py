@@ -349,14 +349,19 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         kw_copy = kw.copy()
         test = {}
         timestamp = kw_copy['startTimestamp']
+        device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
+
         del kw_copy['startTimestamp']
         del kw_copy['taskId']
+        del kw_copy['device_id']
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
 
         converted_data = converter(kw_copy, test)
         converted_data['startTimestamp'] = timestamp
+        if device_id:
+            converted_data['device_id'] = device_id
         result = api.complete(cr, uid, int(task_id), converted_data, context)
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
@@ -407,7 +412,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api = request.registry('t4.clinical.api.external')
         base_api = request.registry('t4.clinical.api')
         kw_copy = kw.copy()
-        del kw_copy['taskId']
+        if 'taskId' in kw_copy:
+            del kw_copy['taskId']
         result = api.complete(cr, uid, int(task_id), kw_copy)
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})

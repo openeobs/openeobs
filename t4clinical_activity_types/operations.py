@@ -99,7 +99,7 @@ class t4_clinical_notification_assessment(orm.Model):
             'parent_id': activity.parent_id.id,
             'creator_id': activity_id,
             'patient_id': activity.data_ref.patient_id.id,
-            'model': activity.creator_id._name,
+            'model': activity.creator_id.data_ref._name,
             'group': 'nurse'
         }, context=context)
         return super(t4_clinical_notification_assessment, self).complete(cr, uid, activity_id, context=context)
