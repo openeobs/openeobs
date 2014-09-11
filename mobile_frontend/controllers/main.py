@@ -443,7 +443,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def cancel_clinical(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
-        return 'meh'
+        kw_copy = kw.copy()
+        kw_copy['reason'] = int(kw_copy['reason'])
+        result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
+        return request.make_response(json.dumps({'status':1}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ajax_task_cancellation_options'], type='http', auth='user')
     def cancel_reasons(self, *args, **kw):

@@ -132,7 +132,7 @@ routes = [
     {
         'name': 'cancel_clinical_notification',
         'endpoint': 'tasks/cancel_clinical/',
-        'method': 'GET',
+        'method': 'POST',
         'args': 'task_id'
     },
     {
