@@ -355,7 +355,7 @@
         <!--Activity Cancellation Reasons-->
         <record id="t4c_cancel_reason_1" model="t4.cancel.reason">
             <field name="name">Unspecified Reason</field>
-            <field name="system">False</field>
+            <field name="system" eval="False"/>
         </record>
         
         <!-- Device Types -->
