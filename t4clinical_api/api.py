@@ -142,9 +142,10 @@ class t4_clinical_api(orm.AbstractModel):
             activity_values = cr.dictfetchall()
         return activity_values
 
-    def cancel(self, cr, uid, activity_id, context=None):
+    def cancel(self, cr, uid, activity_id, data, context=None):
         activity_pool = self.pool['t4.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
+        activity_pool.submit(cr, uid, activity_id, data, context=context)
         return activity_pool.cancel(cr, uid, activity_id, context=context)
 
     def submit(self, cr, uid, activity_id, data, context=None):
@@ -180,6 +181,15 @@ class t4_clinical_api(orm.AbstractModel):
         self._check_activity_id(cr, uid, activity_id, context=context)
         activity_pool.submit(cr, uid, activity_id, data, context=context)
         return activity_pool.complete(cr, uid, activity_id, context=context)
+
+    def get_cancel_reasons(self, cr, uid, context=None):
+        cancel_pool = self.pool['t4.cancel.reason']
+        reason_ids = cancel_pool.search(cr, uid, [], context=context)
+        reasons = []
+        for reason in cancel_pool.browse(cr, uid, reason_ids, context=context):
+            if not reason.system:
+                reasons.append([reason.id, reason.name])
+        return reasons
 
     # # # # # # #
     #  PATIENTS #

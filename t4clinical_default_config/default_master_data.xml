@@ -351,6 +351,12 @@
             <field name="min">86</field>
             <field name="max">90</field>
         </record>
+
+        <!--Activity Cancellation Reasons-->
+        <record id="t4c_cancel_reason_1" model="t4.cancel.reason">
+            <field name="name">Unspecified Reason</field>
+            <field name="system">False</field>
+        </record>
         
         <!-- Device Types -->
         <record model="t4.clinical.device.type" id="t4c_device_type_catheter">
