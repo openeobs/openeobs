@@ -31,8 +31,16 @@ class t4_clinical_o2level(orm.Model):
     _columns = {
         'name': fields.function(_get_name, 'O2 Target', type='char', size=10),
         'min': fields.integer("Min"),
-        'max': fields.integer("Max"),               
+        'max': fields.integer("Max"),
+        'active': fields.boolean('Active', help="If the active field is set to false, it will allow you to hide the"
+                                                " O2 target without removing it."),
     }
+    _defaults = {
+        'active': True
+    }
+
+    def unlink(self, cr, uid, ids, context=None):
+        return self.write(cr, uid, ids, {'active': False}, context=context)
 
 
 class t4_clinical_patient_o2target(orm.Model):

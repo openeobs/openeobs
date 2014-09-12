@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <menuitem name="Default T4Clinical" id="menu_t4ui_top_root" groups="t4clinical_base.group_t4clinical_base,base.user_root"/>
+        <menuitem name="Open eObs" id="menu_t4ui_top_root" groups="t4clinical_base.group_t4clinical_base,base.user_root"/>
         <menuitem name="Patient Management"
                   sequence="2"
                   id="menu_t4ui_left_patient"
@@ -43,17 +43,44 @@
                   parent="menu_t4ui_left_ward"
                   action="action_t4c_userboard"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin,base.user_root"/>
-        
-        <menuitem name="Administration"
-                  id="menu_t4ui_left_admin"
-                  parent="menu_t4ui_top_root"
-                  groups="t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
-        
-        <menuitem name="Users"
-                  id="menu_t4ui_left_users"
-                  parent="menu_t4ui_left_admin"
-                  action="action_show_t4clinical_users"
-                  groups="t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
+
+        <menuitem name="Administration" id="menu_t4ui_admin_top_root" groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
+
+        <menuitem name="Data Management"
+                  sequence="1"
+                  id="menu_t4ui_admin_left_data"
+                  parent="menu_t4ui_admin_top_root"
+                  groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
+
+        <menuitem name="Manage O2 Targets"
+                  id="menu_t4ui_left_o2_targets"
+                  parent="menu_t4ui_admin_left_data"
+                  action="action_show_o2_targets"
+                  groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
+
+        <menuitem name="Devices Management"
+                  sequence="2"
+                  id="menu_t4ui_admin_left_devices"
+                  parent="menu_t4ui_admin_top_root"
+                  groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
+
+        <menuitem name="Devices"
+                  id="menu_t4ui_left_devices"
+                  parent="menu_t4ui_admin_left_devices"
+                  action="action_show_devices"
+                  groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
+
+        <menuitem name="Device Types"
+                  id="menu_t4ui_left_device_types"
+                  parent="menu_t4ui_admin_left_devices"
+                  action="action_show_device_types"
+                  groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
+
+        <!--<menuitem name="Users"-->
+                  <!--id="menu_t4ui_left_users"-->
+                  <!--parent="menu_t4ui_left_admin"-->
+                  <!--action="action_show_t4clinical_users"-->
+                  <!--groups="t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>-->
 
     	<!-- WARDBOARD -->
         <menuitem name="Wardboard"

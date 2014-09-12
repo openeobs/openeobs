@@ -355,6 +355,158 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_t4clinical_user_form"/>
             <field name="act_window_id" ref="action_t4clinical_user"/>
-        </record>   
+        </record>
+
+        <!--Admin Views - O2 Levels-->
+        <record id="view_t4clinical_o2level_form" model="ir.ui.view">
+            <field name="name">T4C O2 Level Form</field>
+            <field name="model">t4.clinical.o2level</field>
+            <field name="arch" type="xml">
+                <form string="O2 Targets" version="7.0" edit="0">
+                	<sheet>
+	                	<div class="oe_title">
+                            <label string="Range" for="name"/>
+                            <h1><field name="name" readonly="True"/></h1>
+                        </div>
+                        <group string="values">
+                            <field name="min"/>
+                            <field name="max"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_t4clinical_o2level_tree">
+            <field name="name">T4C O2 Level Tree</field>
+            <field name="model">t4.clinical.o2level</field>
+            <field name="arch" type="xml">
+                <tree string="O2 Targets" version="7.0">
+                    <field name="name" string="Target"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_o2_targets">
+            <field name="name">O2 Targets</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">t4.clinical.o2level</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!--Admin Views - Devices-->
+        <record model="ir.ui.view" id="view_t4clinical_device_search">
+            <field name="name">T4C Device Search</field>
+            <field name="model">t4.clinical.device</field>
+            <field name="arch" type="xml">
+                <search string="Devices">
+                    <field name="name"/>
+                    <group expand="1" string="Group By...">
+                        <filter name="type" string="Type" domain="[]" context="{'group_by':'type_id'}" help="Type"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_t4clinical_device_tree">
+            <field name="name">T4C Device Tree</field>
+            <field name="model">t4.clinical.device</field>
+            <field name="arch" type="xml">
+                <tree string="Devices" version="7.0">
+                    <field name="name"/>
+                    <field name="type_id"/>
+                    <field name="is_available"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_t4clinical_device_form">
+            <field name="name">T4C Device Form</field>
+            <field name="model">t4.clinical.device</field>
+            <field name="arch" type="xml">
+                <form string="Device" version="7.0">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group string="Device Information">
+                            <field name="type_id"/>
+                            <field name="is_available"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_devices">
+            <field name="name">Devices</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">t4.clinical.device</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{"search_default_type":1}</field>
+            <field name="search_view_id" ref="view_t4clinical_device_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_t4clinical_devices_tree_view">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_t4clinical_device_tree"/>
+            <field name="act_window_id" ref="action_show_devices"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_t4clinical_devices_form_view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_t4clinical_device_form"/>
+            <field name="act_window_id" ref="action_show_devices"/>
+        </record>
+
+        <!--Admin Views - Device Types-->
+        <record model="ir.ui.view" id="view_t4clinical_device_type_search">
+            <field name="name">T4C Device Type Search</field>
+            <field name="model">t4.clinical.device.type</field>
+            <field name="arch" type="xml">
+                <search string="Device Types">
+                    <field name="name"/>
+                    <group expand="1" string="Group By...">
+                        <filter name="flow_direction" string="Flow Direction" domain="[]" context="{'group_by':'flow_direction'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_t4clinical_device_type_tree">
+            <field name="name">T4C Device Type Tree</field>
+            <field name="model">t4.clinical.device.type</field>
+            <field name="arch" type="xml">
+                <tree string="Device Types" version="7.0">
+                    <field name="name"/>
+                    <field name="flow_direction"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_t4clinical_device_type_form">
+            <field name="name">T4C Device Type Form</field>
+            <field name="model">t4.clinical.device.type</field>
+            <field name="arch" type="xml">
+                <form string="Device Type" version="7.0">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group string="Parameters">
+                            <field name="flow_direction"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_device_types">
+            <field name="name">Device Types</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">t4.clinical.device.type</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_t4clinical_device_type_search"/>
+        </record>
     </data>
 </openerp>
