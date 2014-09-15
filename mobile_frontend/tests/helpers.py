@@ -157,11 +157,11 @@ NEWS_OBS = """
         </div>
         <div class="content">
             <h2 id="patientName" class="block">
-                <a href="{0}">{1}<i class="icon-info"></i></a>
+                <a href="{patient_url}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form source="task" data-type="ews" action="/mobile/task/submit/{2}" data-id="{2}" method="POST" id="obsForm">
+            <form task-id="{task_id}" patient-id="{patient_id}" data-type="ews" action="/mobile/task/submit/{task_id}" method="POST" data-source="task" id="obsForm">
                 <div>
-                    <div id="parent_respiration_rate" class="block obsField">
+                    <div class="block obsField" id="parent_respiration_rate">
                         <div class="input-header">
                             <label for="respiration_rate">Respiration Rate</label>
                             <input step="1" name="respiration_rate" max="59" min="1" type="number" id="respiration_rate"/>
@@ -173,7 +173,7 @@ NEWS_OBS = """
                     </div>
                 </div>
                 <div>
-                    <div id="parent_indirect_oxymetry_spo2" class="block obsField">
+                    <div class="block obsField" id="parent_indirect_oxymetry_spo2">
                         <div class="input-header">
                             <label for="indirect_oxymetry_spo2">O2 Saturation</label>
                             <input step="1" name="indirect_oxymetry_spo2" max="100" min="51" type="number" id="indirect_oxymetry_spo2"/>
@@ -185,7 +185,7 @@ NEWS_OBS = """
                     </div>
                 </div>
                 <div>
-                    <div id="parent_body_temperature" class="block obsField">
+                    <div class="block obsField" id="parent_body_temperature">
                         <div class="input-header">
                             <label for="body_temperature">Body Temperature</label>
                             <input step="0.1" name="body_temperature" max="44.9" min="27.1" type="number" id="body_temperature"/>
@@ -197,7 +197,7 @@ NEWS_OBS = """
                     </div>
                 </div>
                 <div>
-                    <div id="parent_blood_pressure_systolic" class="block obsField">
+                    <div class="block obsField" id="parent_blood_pressure_systolic">
                         <div class="input-header">
                             <label for="blood_pressure_systolic">Blood Pressure Systolic</label>
                             <input step="1" name="blood_pressure_systolic" max="300" min="1" type="number" id="blood_pressure_systolic"/>
@@ -209,7 +209,7 @@ NEWS_OBS = """
                     </div>
                 </div>
                 <div>
-                    <div id="parent_blood_pressure_diastolic" class="block obsField">
+                    <div class="block obsField" id="parent_blood_pressure_diastolic">
                         <div class="input-header">
                             <label for="blood_pressure_diastolic">Blood Pressure Diastolic</label>
                             <input step="1" name="blood_pressure_diastolic" max="280" min="1" type="number" id="blood_pressure_diastolic"/>
@@ -221,7 +221,7 @@ NEWS_OBS = """
                     </div>
                 </div>
                 <div>
-                    <div id="parent_pulse_rate" class="block obsField">
+                    <div class="block obsField" id="parent_pulse_rate">
                         <div class="input-header">
                             <label for="pulse_rate">Pulse Rate</label>
                             <input step="1" name="pulse_rate" max="250" min="1" type="number" id="pulse_rate"/>
@@ -233,7 +233,7 @@ NEWS_OBS = """
                     </div>
                 </div>
                 <div>
-                    <div id="parent_avpu_text" class="block obsSelectField">
+                    <div class="block obsSelectField" id="parent_avpu_text">
                         <div class="input-header">
                             <label for="avpu_text">AVPU</label>
                         </div>
@@ -251,27 +251,118 @@ NEWS_OBS = """
                    </div>
                 </div>
                 <div>
-                    <div id="parent_oxygen_administration_flag" class="block obsSelectField">
+                    <div class="block obsSelectField" id="parent_oxygen_administration_flag">
                         <div class="input-header">
                             <label for="oxygen_administration_flag">Patient on supplemental O2</label>
                         </div>
                        <div class="input-body">
                            <select name="oxygen_administration_flag" id="oxygen_administration_flag">
                                 <option value="">Please Select</option>
-                                <option value="True">Yes</option>
                                 <option value="False">No</option>
+                                <option value="True">Yes</option>
                            </select>
                            <span class="errors"></span>
                            <span class="help"></span>
                        </div>
                    </div>
                 </div>
-                <input value="{2}" type="hidden" name="taskId"/>
-                <input value="{3}" type="hidden" name="startTimestamp" id="startTimestamp"/>
+                <div>
+                    <div class="block obsSelectField valHide" id="parent_device_id">
+                        <div class="input-header">
+                            <label for="device_id">O2 Device</label>
+                        </div>
+                        <div class="input-body">
+                            <select name="device_id" class="exclude" id="device_id">
+                                {device_options}
+                            </select>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_flow_rate">
+                        <div class="input-header">
+                            <label for="flow_rate">Flow Rate</label>
+                            <input class="exclude" step="0.1" name="flow_rate" max="100.0"  type="number" id="flow_rate"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_concentration">
+                        <div class="input-header">
+                            <label for="concentration">Concentration</label>
+                            <input class="exclude" step="1" name="concentration" max="100"  type="number" id="concentration"/>
+
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_cpap_peep">
+                        <div class="input-header">
+                            <label for="cpap_peep">CPAP: PEEP (cmH2O)</label>
+                            <input class="exclude" step="1" name="cpap_peep" max="1000"  type="number" id="cpap_peep"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_niv_backup">
+                        <div class="input-header">
+                            <label for="niv_backup">NIV: Back-up rate (br/min)</label>
+                            <input class="exclude" step="1" name="niv_backup" max="100"  type="number" id="niv_backup"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_niv_ipap">
+                        <div class="input-header">
+                            <label for="niv_ipap">NIV: IPAP (cmH2O)</label>
+                            <input class="exclude" step="1" name="niv_ipap" max="100"  type="number" id="niv_ipap"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_niv_epap">
+                        <div class="input-header">
+                            <label for="niv_epap">NIV: EPAP (cmH2O)</label>
+                            <input class="exclude" step="1" name="niv_epap" max="100"  type="number" id="niv_epap"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <input value="{task_id}" type="hidden" name="taskId"/>
+                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
                 </div>
             </form>
+            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
+            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
+            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
+            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
         </div>
         <div class="footer block">
             <p class="user">norah</p>
@@ -279,6 +370,8 @@ NEWS_OBS = """
     </body>
 </html>
 """
+
+DEVICE_OPTION = """<option value="{device_id}">{device_name}</option>"""
 
 # add jquery to header
 # add frontend_routes to header

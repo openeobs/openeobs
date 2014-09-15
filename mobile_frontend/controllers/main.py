@@ -473,5 +473,5 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patient_obs(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
-
-        return request.make_response(json.dumps({'obs':[]}), headers={'Content-Type': 'application/json'})
+        ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
+        return request.make_response(json.dumps({'obs': ews}), headers={'Content-Type': 'application/json'})
