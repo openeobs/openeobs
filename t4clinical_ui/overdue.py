@@ -43,8 +43,10 @@ class t4_clinical_placement(orm.Model):
                         now() at time zone 'UTC',
                         now() at time zone 'UTC' > activity.date_scheduled,
                         case
-                            when now() at time zone 'UTC' > activity.date_scheduled
+                            when activity.date_scheduled is not null and now() at time zone 'UTC' > activity.date_scheduled
                             then (extract(epoch from (now() at time zone 'UTC' - activity.date_scheduled))/60)::int
+                            when activity.date_deadline is not null and now() at time zone 'UTC' > activity.date_deadline
+                            then (extract(epoch from (now() at time zone 'UTC' - activity.date_deadline))/60)::int
                             else 0
                         end  as delay
                     from t4_activity activity
