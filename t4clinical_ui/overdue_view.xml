@@ -1,0 +1,35 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_t4_clinical_overdue_tree">
+            <field name="name">T4 Clinical Overdue Activities Tree</field>
+            <field name="model">t4.clinical.overdue</field>
+            <field name="arch" type="xml">
+                <tree string="T4 Clinical Overdue Activities Tree" version="7.0" create="0">
+                    <field name="patient_name"/>
+                    <field name="parent_location"/>
+                    <field name="location"/>
+                    <field name="nhs_number"/>
+                    <field name="delay"/>
+                    <field name="name"/>
+                    <field name="user_name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_overdue" >
+            <field name="name">Overdue Activities</field>
+            <field name="res_model">t4.clinical.overdue</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="domain">[('delay','>',0),('user_ids','in',uid)]</field>
+            <field name="view_id" ref="view_t4_clinical_overdue_tree"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_view_overdue_tree">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_t4_clinical_overdue_tree"/>
+            <field name="act_window_id" ref="action_show_overdue"/>
+        </record>
+    </data>
+</openerp>
