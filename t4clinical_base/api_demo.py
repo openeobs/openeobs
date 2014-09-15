@@ -99,7 +99,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
         wm_uid = wm_exists[0]
         nurse_uid = nurse_exists[0]
         # GENERATE ENVIRONMENT
-        admit_activity_ids = [self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', {'location': ward}) for i in range(patients)]
+        admit_activity_ids = [self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', data_values={'location': ward}) for i in range(patients)]
         [api.complete(cr, uid, id) for id in admit_activity_ids]
         temp_bed_ids = location_pool.search(cr, uid, [('parent_id.code', '=', ward), ('usage', '=', 'bed'), ('is_available', '=', True)], context=context)
         temp_placement_activity_ids = api.activity_map(cr, wm_uid,

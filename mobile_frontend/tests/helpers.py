@@ -96,22 +96,7 @@ TASK_LIST_HTML = """
         </div>
         <div class="content">
             <ul class="tasklist">
-                <li>
-                    <a class="level-one block" href="{0}">
-                        <div class="task-meta">
-                            <div class="task-right">
-                                <p class="aside">{1}</p>
-                            </div>
-                            <div class="task-left">
-                                <strong>{2}</strong> ({3} <i class="{4}"></i>)<br/>
-                                <em>{5},{6}</em>
-                            </div>
-                        </div>
-                        <div class="task-meta">
-                            <p class="taskInfo">{7}<br/></p>
-                        </div>
-                    </a>
-                </li>
+                {task_list}
             </ul>
         </div>
         <div class="footer block">
@@ -119,6 +104,25 @@ TASK_LIST_HTML = """
         </div>
     </body>
 </html>
+"""
+
+TASK_LIST_ITEM = """
+<li>
+    <a class="level-one block" href="{0}">
+        <div class="task-meta">
+            <div class="task-right">
+                <p class="aside">{1}</p>
+            </div>
+            <div class="task-left">
+                {2}<strong>{3}</strong> ({4} <i class="{5}"></i>)<br/>
+                <em>{6},{7}</em>
+            </div>
+        </div>
+        <div class="task-meta">
+            <p class="taskInfo">{8}<br/></p>
+        </div>
+    </a>
+</li>
 """
 
 # NEWS Observation template
