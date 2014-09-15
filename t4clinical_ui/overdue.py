@@ -4,7 +4,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class t4_clinical_placement(orm.Model):
+class t4_clinical_overdue(orm.Model):
     _name = "t4.clinical.overdue"
     _inherits = {'t4.activity': 'activity_id'}
     _description = "Overdue Activities View"
