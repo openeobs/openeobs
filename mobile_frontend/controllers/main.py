@@ -208,7 +208,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         activity_reg = request.registry['t4.activity']
         api_reg = request.registry['t4.clinical.api.external']
         task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
-        if task.get('user_id') and task['user_id'][0] != uid:
+        if 'user_id' in task and task['user_id'][0] != uid:
             return request.make_response(json.dumps({'status': 'false', 'reason': 'task assigned to another user'}), headers={'Content-Type': 'application/json'})
         else:
             return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})

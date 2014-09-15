@@ -442,3 +442,25 @@ AJAX_SCORE_CALCULATION_DATA = [
         'three_in_one': 'false',
     },
 ]
+
+TAKE_TASK_AJAX = "frontend_routes.json_take_task({task_id}).ajax({{" \
+                             "success:function(data){{" \
+                             "if(data.status.toString() === 'true'){{" \
+                             "console.log('ok');" \
+                             "}}else{{" \
+                             "console.log('error');" \
+                             "}}" \
+                             "}},error:function(err){{" \
+                             "console.log('error');" \
+                             "}}}});"
+
+CANCEL_TAKE_TASK_AJAX = "frontend_routes.json_cancel_take_task({task_id}).ajax({{" \
+                 "success:function(data){{" \
+                 "if(data.status.toString() === 'true'){{" \
+                 "console.log('ok');" \
+                 "}}else{{" \
+                 "console.log('error');" \
+                 "}}" \
+                 "}},error:function(err){{" \
+                 "console.log('error');" \
+                 "}}}});"
