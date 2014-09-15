@@ -464,3 +464,11 @@ CANCEL_TAKE_TASK_AJAX = "frontend_routes.json_cancel_take_task({task_id}).ajax({
                  "}},error:function(err){{" \
                  "console.log('error');" \
                  "}}}});"
+
+PARTIAL_REASONS_AJAX = "frontend_routes.json_partial_reasons().ajax({" \
+                        "dataType:'json'," \
+                        "success:function(data){" \
+                        "console.log('ok');" \
+                        "},error:function(err){" \
+                        "console.log('error');" \
+                        "}});"
