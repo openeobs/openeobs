@@ -95,7 +95,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
         assert patients > 0
         assert placements > 0
         assert patients >= placements
-        adt_uid = user_pool.search(cr, uid, [('login', '=', 'adt_user')], context=context)[0]
+        adt_uid = user_pool.search(cr, uid, [('login', '=', 'adt')], context=context)[0]
         wm_uid = wm_exists[0]
         nurse_uid = nurse_exists[0]
         # GENERATE ENVIRONMENT
