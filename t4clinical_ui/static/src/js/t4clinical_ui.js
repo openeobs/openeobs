@@ -101,7 +101,7 @@ openerp.t4clinical_ui = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (options.action.name == "Device Types" || options.action.name == "Devices" || options.action.name == "O2 Targets" || options.action.name == "User Management" || options.action.name == "Recently Discharged Patients" || options.action.name == "Patient Placements" || options.action.name == "Wardboard" || options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
+                if (options.action.name == "Doctor Tasks" || options.action.name == "Device Types" || options.action.name == "Devices" || options.action.name == "O2 Targets" || options.action.name == "User Management" || options.action.name == "Recently Discharged Patients" || options.action.name == "Patient Placements" || options.action.name == "Wardboard" || options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
                     options.selectable = false;
                 };
                 if (typeof(timing5) != 'undefined'){
