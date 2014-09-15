@@ -472,3 +472,11 @@ PARTIAL_REASONS_AJAX = "frontend_routes.json_partial_reasons().ajax({" \
                         "},error:function(err){" \
                         "console.log('error');" \
                         "}});"
+
+TASK_CANCELLATION_REASONS_AJAX = "frontend_routes.ajax_task_cancellation_options().ajax({" \
+                                 "dataType:'json'," \
+                                 "success:function(data){" \
+                                 "console.log('ok');" \
+                                 "},error:function(err){" \
+                                 "console.log('error');" \
+                                 "}});"
