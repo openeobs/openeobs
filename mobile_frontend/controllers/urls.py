@@ -161,7 +161,7 @@ routes = [
     },
     {
         'name': 'ajax_get_patient_obs',
-        'endpoint': 'patient/ajax_obs',
+        'endpoint': 'patient/ajax_obs/',
         'method': 'GET',
         'args': 'patient_id'
     }

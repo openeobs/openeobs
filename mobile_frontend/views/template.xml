@@ -138,12 +138,12 @@
                    <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                </div>
                <div class="input-body">
-                   <select t-att-id="item['name']" t-att-name="item['name']">
+                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''">
                             <t t-if="item['initially_hidden']==False">
                                 <option value="">Please Select</option>
                             </t>
                         <t t-foreach="item['selection_options']" t-as="option">
-                            <option t-att-value="option['value']" t-att-class="'exclude' if item['initially_hidden']==True else ''"><t t-esc="option['label']"/></option>
+                            <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
                    <span class="errors"><t t-esc="item['errors']"/></span>

@@ -389,8 +389,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         data = kw.copy()
         test = {}
-        del data['startTimestamp']
-        del data['taskId']
+        if 'startTimestamp' in data:
+            del data['startTimestamp']
+        if 'taskId' in data:
+            del data['taskId']
         for key, value in data.items():
             if not value or key not in ['avpu_text', 'blood_pressure_systolic', 'body_temperature', 'indirect_oxymetry_spo2', 'oxygen_administration_flag', 'pulse_rate', 'respiration_rate']:
                 del data[key]
@@ -473,5 +475,5 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patient_obs(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
-
-        return request.make_response(json.dumps({'obs':[]}), headers={'Content-Type': 'application/json'})
+        ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
+        return request.make_response(json.dumps({'obs': ews}), headers={'Content-Type': 'application/json'})

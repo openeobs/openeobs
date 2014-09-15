@@ -27,39 +27,12 @@ class NewsObsTest(common.SingleTransactionCase):
     def test_news_obs_form(self):
         cr, uid = self.cr, self.uid
 
-        # Create test patient
-        env_pool = self.registry('t4.clinical.demo.env')
-        config = {'patient_qty': 1}
-        env_id = env_pool.create(cr, uid, config)
-        adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        register_activity = env_pool.create_complete(cr,
-                                                     adt_user_id,
-                                                     env_id,
-                                                     't4.clinical.adt.patient.register')
-        admit_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.admit')
-        admit_data['other_identifier'] = register_activity.data_ref.other_identifier
-        admit_activity = env_pool.create_complete(cr,
-                                                  adt_user_id,
-                                                  env_id,
-                                                  't4.clinical.adt.patient.admit',
-                                                  {},
-                                                  admit_data)
-        # test admission
-        admission_activity = [a for a in admit_activity.created_ids if a.data_model == 't4.clinical.patient.admission']
-        assert len(admission_activity) == 1, "Created admission activity: %s" % admission_activity
-        admission_activity = admission_activity[0]
-        assert admission_activity.state == 'completed'
-        #test placement
-        placement_activity = [a for a in admission_activity.created_ids if a.data_model ==
-                              't4.clinical.patient.placement']
-        assert len(placement_activity) == 1, "Created patient.placement activity: %s" % placement_activity
-        placement_activity = placement_activity[0]
-        assert placement_activity.state == 'new'
-        assert placement_activity.pos_id.id == register_activity.pos_id.id
-        assert placement_activity.patient_id.id == register_activity.patient_id.id
-        assert placement_activity.data_ref.patient_id.id == placement_activity.patient_id.id
-        assert placement_activity.data_ref.suggested_location_id
-        assert placement_activity.location_id.id == placement_activity.data_ref.suggested_location_id.id
+        # create environment
+        api_demo = self.registry('t4.clinical.api.demo')
+        api_demo.build_uat_env(cr, uid, patients=8, placements=4, context=None)
+
+        # get a nurse user
+        norah_user = self.users.search(cr, uid, [['login', '=', 'norah']])[0]
 
         self.context = {
             'lang': 'en_GB',
@@ -69,31 +42,41 @@ class NewsObsTest(common.SingleTransactionCase):
 
         # Grab the NEWS Obs task from task list
         task_api = self.registry['t4.clinical.api.external']
-        task_id = [a for a in task_api.get_activities(cr, adt_user_id, [], context=self.context) if "NEWS" in a['summary']][0]['id']
+        task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
 
         # Take the Task
         activity_reg = self.registry['t4.activity']
-        task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary'], context=self.context)
+        api_reg = self.registry['t4.clinical.api.external']
+        task_id = int(task_id)
+        task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=self.context)
         patient = dict()
-        patient['url'] = helpers.URLS['single_patient'] + '{0}'.format(2)
-        patient['name'] = 'Colin is Awesome'
+        if task['patient_id']:
+            patient_info = api_reg.get_patients(cr, uid, [task['patient_id'][0]], context=self.context)
+            if len(patient_info) >0:
+                patient_info = patient_info[0]
+            patient['url'] = helpers.URLS['single_patient'] + '{0}'.format(patient_info['id'])
+            patient['name'] = patient_info['full_name']
+            patient['id'] = patient_info['id']
+        else:
+            patient = False
         form = dict()
         form['action'] = helpers.URLS['task_form_action']+'{0}'.format(task_id)
         form['type'] = task['data_model']
-        form['source-id'] = int(task_id)
+        form['task-id'] = int(task_id)
+        form['patient-id'] = task['patient_id'][0]
         form['source'] = "task"
         form['start'] = '0'
         #if task.get('user_id') and task['user_id'][0] != new_uid:
-        if task.get('user_id') and task['user_id'][0] != adt_user_id:
+        if task.get('user_id') and task['user_id'][0] != norah_user:
             self.fail('Task is already taken by another user')
         try:
-            task_api.assign(cr, uid, task_id, {'user_id': adt_user_id}, context=self.context)
+            task_api.assign(cr, uid, task_id, {'user_id': norah_user}, context=self.context)
         except Exception:
             self.fail("Wasn't able to take Task")
 
         # Grab the form Def and compile the data to send to template
         obs_reg = self.registry[task['data_model']]
-        form_desc = obs_reg._form_description
+        form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=self.context)
         form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
@@ -124,9 +107,14 @@ class NewsObsTest(common.SingleTransactionCase):
                                          context=self.context)
 
         # Create BS instances
-        example_html = helpers.NEWS_OBS.format(patient['url'],
-                                               patient['name'],
-                                               task_id, 0)
+        devices_string = ""
+        for device in [v['selection'] for v in form_desc if v['name'] is 'device_id'][0]:
+            devices_string += helpers.DEVICE_OPTION.format(device_id=device[0], device_name=device[1])
+        example_html = helpers.NEWS_OBS.format(patient_url=patient['url'],
+                                               patient_name=patient['name'],
+                                               patient_id=patient['id'],
+                                               device_options=devices_string,
+                                               task_id=task_id, timestamp=0)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')
