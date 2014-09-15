@@ -97,6 +97,7 @@ class t4_clinical_api(orm.AbstractModel):
             )
         select activity.id,
             activity.summary,
+            ews1.clinical_risk,
             case
                 when date_scheduled is not null then date_scheduled::text
                 when date_deadline is not null then date_deadline::text
