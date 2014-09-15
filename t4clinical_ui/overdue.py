@@ -32,7 +32,11 @@ class t4_clinical_placement(orm.Model):
                 create or replace view %s as (
                     select
                         activity.id as id,
-                        spell.id as activity_id,
+                        case
+                            when activity.data_model != 't4.clinical.patient.placement'
+                            then spell.id
+                            else activity.id
+                        end as activity_id,
                         activity.summary as name,
                         location.name as location,
                         parent_location.name as parent_location,
@@ -43,8 +47,10 @@ class t4_clinical_placement(orm.Model):
                         now() at time zone 'UTC',
                         now() at time zone 'UTC' > activity.date_scheduled,
                         case
-                            when now() at time zone 'UTC' > activity.date_scheduled
+                            when activity.date_scheduled is not null and now() at time zone 'UTC' > activity.date_scheduled
                             then (extract(epoch from (now() at time zone 'UTC' - activity.date_scheduled))/60)::int
+                            when activity.date_deadline is not null and now() at time zone 'UTC' > activity.date_deadline
+                            then (extract(epoch from (now() at time zone 'UTC' - activity.date_deadline))/60)::int
                             else 0
                         end  as delay
                     from t4_activity activity
