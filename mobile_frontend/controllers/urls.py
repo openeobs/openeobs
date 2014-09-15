@@ -64,6 +64,18 @@ routes = [
         'args': False
     },
     {
+        'name': 'data_driven_documents',
+        'endpoint': 'src/js/d3.js',
+        'method': 'GET',
+        'args': False
+    },
+    {
+        'name': 'patient_graph',
+        'endpoint': 'src/js/graph_lib.js',
+        'method': 'GET',
+        'args': False
+    },
+    {
         'name': 'logo',
         'endpoint': 'src/img/logo.png',
         'method': 'GET',
@@ -146,6 +158,12 @@ routes = [
         'endpoint': 'tasks/confirm_review_frequency/',
         'method': 'POST',
         'args': 'task_id'
+    },
+    {
+        'name': 'ajax_get_patient_obs',
+        'endpoint': 'patient/ajax_obs',
+        'method': 'GET',
+        'args': 'patient_id'
     }
 ]
 

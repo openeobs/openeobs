@@ -190,6 +190,37 @@
             <t t-call="mobile_frontend.logged_in_footer"/>
         </template>
 
+        <template t-name="mobile_frontend.patient" name="Patient screen">
+            <t t-call="mobile_frontend.base">
+                <div class="content">
+                    <div class="block">
+                        <a class="patientInfo" href="#" id="obsButton">
+                            <h3 class="name" t-att-data-id="patient['id']">
+                                <strong><t t-esc="patient['full_name']"/></strong><br/>
+                                <t t-if="'parent_location' in patient">
+                                    <t t-esc="patient['parent_location']"/>,
+                                </t>
+                                <t t-if="'location' in patient">
+                                    <t t-esc="patient['location']"/>
+                                </t>
+                            </h3>
+                            <h3 class="obs">Take observation</h3>
+                        </a>
+                        <ul class="two-col tabs">
+                            <li><a href="#graph-content" class="selected">Graph</a></li>
+                            <li><a href="#table-content">Table</a></li>
+                        </ul>
+                        <div id="graph-content"></div>
+                        <div id="table-content"></div>
+                    </div>
+                    <script t-att-src="urls['jquery']" type="text/javascript"></script>
+                    <script t-att-src="urls['js_routes']" type="text/javascript"></script>
+                    <script t-att-src="urls['data_driven_documents']" type="text/javascript"></script>
+                    <script t-att-src="urls['patient_graph']" type="text/javascript"></script>
+                </div>
+            </t>
+        </template>
+
 
 
     </data>

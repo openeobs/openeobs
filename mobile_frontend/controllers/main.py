@@ -83,11 +83,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
-    #@http.route(URLS['new_stylesheet'], type='http', auth='none')
-    #def get_new_stylesheet(self, *args, **kw):
-    #    with open(get_module_path('mobile_frontend') + '/static/src/css/new.css', 'r') as stylesheet:
-    #        return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
-
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/fonts/' + xmlid, 'r') as font:
@@ -120,6 +115,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             'routes': urls.routes,
             'base_url': urls.BASE_URL
         }), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['patient_graph'], type='http', auth='none')
+    def graph_lib(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/patient_graph.js', 'r') as js:
+            return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['data_driven_documents'], type='http', auth='none')
+    def d_three(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/d3.js', 'r') as js:
+            return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URL_PREFIX, type='http', auth='none')
     def index(self, *args, **kw):
@@ -453,3 +458,20 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
         return request.make_response(json.dumps(api_pool.get_cancel_reasons(cr, uid, context=context)), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['single_patient']+'<patient_id>', type='http', auth='user')
+    def get_patient(self, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+        patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
+        return request.render('mobile_frontend.patient', qcontext={'patient': patient,
+                                                                   'urls': URLS,
+                                                                   'section': 'patient',
+                                                                   'username': request.session['login']})
+
+    @http.route(URLS['ajax_get_patient_obs']+'<patient_id>', type='http', auth='user')
+    def get_patient_obs(self, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+
+        return request.make_response(json.dumps({'obs':[]}), headers={'Content-Type': 'application/json'})
