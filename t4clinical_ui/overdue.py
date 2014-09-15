@@ -32,7 +32,11 @@ class t4_clinical_placement(orm.Model):
                 create or replace view %s as (
                     select
                         activity.id as id,
-                        spell.id as activity_id,
+                        case
+                            when activity.data_model != 't4.clinical.patient.placement'
+                            then spell.id
+                            else activity.id
+                        end as activity_id,
                         activity.summary as name,
                         location.name as location,
                         parent_location.name as parent_location,
