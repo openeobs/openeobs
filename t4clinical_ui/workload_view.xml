@@ -26,7 +26,7 @@
                                     <span t-attf-class="#{red || ''}"><i><field name="date_scheduled"/></i></span>
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
-                                    <field name="location_id"/>
+                                    <field name="location_id"/> (<field name="ward_id"/>)
                                     <field name="user_id"/>
                                 </div>
                             </div>
@@ -43,11 +43,14 @@
             <field name="model">t4.activity.workload</field>
             <field name="arch" type="xml">
                <search string="Activity">
-                    <field name="summary"/>
-                    <filter string="NEWS Observations Only" name="observations_news"
-                    	domain="[('data_model','in',['t4.clinical.patient.observation.ews'])]"/>
-                    <separator/>
-                </search>
+                   <field name="summary"/>
+                   <field name="patient_other_id"/>
+                   <field name="patient_id"/>
+                   <field name="ward_id"/>
+                   <filter string="NEWS Observations Only" name="observations_news"
+                       domain="[('data_model','in',['t4.clinical.patient.observation.ews'])]"/>
+                   <separator/>
+               </search>
             </field>
         </record>     
         <record model="ir.actions.act_window" id="act_activity_workload_kanban">

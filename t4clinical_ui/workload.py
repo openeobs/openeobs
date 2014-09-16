@@ -25,7 +25,8 @@ class t4_clinical_workload(orm.Model):
         'user_id': fields.many2one('res.users', 'Assigned to'),
         'date_scheduled': fields.datetime('Scheduled Date'),
         'data_model': fields.text('Data Model'),
-        'patient_other_id': fields.text('Hospital Number')
+        'patient_other_id': fields.text('Hospital Number'),
+        'ward_id': fields.many2one('t4.clinical.location', 'Parent Location')
     }
 
     def init(self, cr):
@@ -59,9 +60,12 @@ class t4_clinical_workload(orm.Model):
                             else null
                         end as date_scheduled,
                         activity.data_model as data_model,
-                        patient.other_identifier as patient_other_id
+                        patient.other_identifier as patient_other_id,
+                        ward.id as ward_id
                     from t4_activity activity
                     inner join t4_clinical_patient patient on activity.patient_id = patient.id
+                    inner join t4_clinical_location bed on activity.location_id = bed.id
+                    inner join t4_clinical_location ward on bed.parent_id = ward.id
                     left join t4_activity spell on spell.data_model = 't4.clinical.spell' and spell.patient_id = activity.patient_id
                 )
         """ % (self._table, self._table))
