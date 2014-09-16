@@ -22,24 +22,28 @@
 
         <menuitem name="Active Points of Care"
                   id="menu_t4ui_left_active_poc"
+                  sequence="1"
                   parent="menu_t4ui_left_ward"
                   action="action_show_active_locations"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin,base.user_root"/>
 
         <menuitem name="Inactive Points of Care"
                   id="menu_t4ui_left_inactive_poc"
+                  sequence="2"
                   parent="menu_t4ui_left_ward"
                   action="action_show_inactive_locations"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin,base.user_root"/>
 
         <menuitem name="Points of Care Management"
                   id="menu_t4ui_left_poc_management"
+                  sequence="5"
                   parent="menu_t4ui_left_ward"
                   action="action_show_poc_management"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin,base.user_root"/>
 
         <menuitem name="User Management"
                   id="menu_t4ui_left_user_management"
+                  sequence="4"
                   parent="menu_t4ui_left_ward"
                   action="action_t4c_userboard"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin,base.user_root"/>
@@ -77,7 +81,6 @@
                   groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
 
         <menuitem name="User Management"
-                  sequence="3"
                   id="menu_t4ui_admin_left_users"
                   parent="menu_t4ui_admin_top_root"
                   groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
@@ -96,7 +99,7 @@
           	action=""
           	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
           	
-        <menuitem name="Wardboard"
+        <menuitem name="Patients Board"
           	id="menu_left_sub_wardboard" 
           	parent="menu_left_wardboard"
           	action="action_wardboard"
@@ -110,7 +113,7 @@
             sequence="2"
           	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
-        <menuitem name="Recently Discharged Patients"
+        <menuitem name="Recently Discharged"
           	id="menu_left_discharged_patients"
           	parent="menu_left_wardboard"
           	action="action_wardboard_discharged"
@@ -133,6 +136,7 @@
 
         <menuitem name="Activity Workload" 
         	id="menu_left_sub_activity_workload"
+            sequence="3"
         	parent="menu_t4ui_left_ward"
             action="act_activity_workload_kanban" 
             groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>

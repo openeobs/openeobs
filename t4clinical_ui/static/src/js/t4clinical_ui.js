@@ -101,19 +101,19 @@ openerp.t4clinical_ui = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (options.action.name == "Overdue Activities" || options.action.name == "Doctor Activities" || options.action.name == "Device Types" || options.action.name == "Devices" || options.action.name == "O2 Targets" || options.action.name == "User Management" || options.action.name == "Recently Discharged Patients" || options.action.name == "Patient Placements" || options.action.name == "Wardboard" || options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
+                if (options.action.name == "Patients Board" || options.action.name == "Overdue Activities" || options.action.name == "Doctor Activities" || options.action.name == "Device Types" || options.action.name == "Devices" || options.action.name == "O2 Targets" || options.action.name == "User Management" || options.action.name == "Recently Discharged Patients" || options.action.name == "Patient Placements" || options.action.name == "Wardboard" || options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
                     options.selectable = false;
                 };
                 if (typeof(timing5) != 'undefined'){
                     clearInterval(timing5);
                 }
                 wardboard_groups_opened = false;
-                if (options.action.name == "Wardboard"){
+                if (options.action.name == "Patients Board"){
                     if (typeof(timing) != 'undefined'){
                         clearInterval(timing);
                     }
                     timing = window.setInterval(function(){
-                        var button =  $("a:contains('Wardboard')");
+                        var button =  $("a:contains('Patients Board')");
                         if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('oe_active') && $(".oe_view_manager_view_list").css('display') != 'none'){
                             wardboard_refreshed = true;
                             button.click();
