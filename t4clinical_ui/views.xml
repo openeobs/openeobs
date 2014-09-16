@@ -510,26 +510,26 @@
         </record>
 
         <!--Doctor Tasks-->
-        <record model="ir.ui.view" id="view_t4clinical_doctor_tasks_tree">
-            <field name="name">T4C Doctor Tasks Tree</field>
-            <field name="model">t4.activity</field>
+        <record model="ir.ui.view" id="view_t4clinical_doctor_activities_tree">
+            <field name="name">T4C Doctor Activities Tree</field>
+            <field name="model">t4.clinical.doctor_activities</field>
             <field name="arch" type="xml">
-                <tree string="Doctor Tasks" version="7.0" create="0">
+                <tree string="Doctor Activities" version="7.0" create="0">
                     <field name="summary"/>
                     <field name="patient_id"/>
-                    <field name="location_id"/>
+                    <field name="location"/>
                     <field name="create_date"/>
                 </tree>
             </field>
         </record>
-        <record model="ir.actions.act_window" id="action_show_doctor_tasks">
-            <field name="name">Doctor Tasks</field>
+        <record model="ir.actions.act_window" id="action_show_doctor_activities">
+            <field name="name">Doctor Activities</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">t4.activity</field>
+            <field name="res_model">t4.clinical.doctor_activities</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree</field>
-            <field name="domain">[('state','not in',['completed','cancelled']),('data_model','=','t4.clinical.notification.doctor_assessment'),('user_ids','in',uid)]</field>
-            <field name="view_id" ref="view_t4clinical_doctor_tasks_tree"/>
+            <field name="domain">[('user_ids','in',uid)]</field>
+            <field name="view_id" ref="view_t4clinical_doctor_activities_tree"/>
         </record>
     </data>
 </openerp>

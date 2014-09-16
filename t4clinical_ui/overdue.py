@@ -21,8 +21,9 @@ class t4_clinical_overdue(orm.Model):
         'parent_location': fields.char('Parent Location', size=100),
         'patient_name': fields.char('Patient Name', size=100),
         'nhs_number': fields.char('NHS Number', size=100),
-        'user_name': fields.char('User Name', size=100),
-        'state': fields.selection(_states, 'State')
+        'user_name': fields.char('Assigned to', size=100),
+        'state': fields.selection(_states, 'State'),
+        'groups': fields.text('Doable By')
     }
 
     def init(self, cr):
@@ -52,7 +53,18 @@ class t4_clinical_overdue(orm.Model):
                             when activity.date_deadline is not null and now() at time zone 'UTC' > activity.date_deadline
                             then (extract(epoch from (now() at time zone 'UTC' - activity.date_deadline))/60)::int
                             else 0
-                        end  as delay
+                        end  as delay,
+                        case
+                            when activity.data_model ilike '%%hca%%'
+                            then 'HCA'
+                            when activity.data_model ilike '%%doctor%%'
+                            then 'Doctor'
+                            when activity.data_model ilike '%%notification%%'
+                            then 'Nurse'
+                            when activity.data_model ilike '%%observation%%'
+                            then 'HCA, Nurse'
+                            else 'Ward Manager'
+                        end as groups
                     from t4_activity activity
                     inner join t4_clinical_patient patient on activity.patient_id = patient.id
                     inner join t4_clinical_location location on activity.location_id = location.id
@@ -62,5 +74,37 @@ class t4_clinical_overdue(orm.Model):
                     left join t4_activity spell on spell.data_model = 't4.clinical.spell' and spell.patient_id = activity.patient_id
                     where activity.state not in ('completed','cancelled') and activity.data_model != 't4.clinical.spell'
                     order by delay
+                )
+        """ % (self._table, self._table))
+
+
+class t4_clinical_doctor_activities(orm.Model):
+    _name = "t4.clinical.doctor_activities"
+    _inherits = {'t4.activity': 'activity_id'}
+    _description = "Doctor Activities View"
+    _auto = False
+    _table = "t4_clinical_doctor_activities"
+    _columns = {
+        'activity_id': fields.many2one('t4.activity', 'Activity', required=1, ondelete='restrict'),
+        'summary': fields.text('Summary'),
+        'location': fields.text('Location'),
+    }
+
+    def init(self, cr):
+
+        cr.execute("""
+                drop view if exists %s;
+                create or replace view %s as (
+                    select
+                        activity.id as id,
+                        spell.id as activity_id,
+                        activity.summary as summary,
+                        location.name || ' (' || parent_location.name || ')' as location
+                    from t4_activity activity
+                    inner join t4_clinical_patient patient on activity.patient_id = patient.id
+                    inner join t4_clinical_location location on activity.location_id = location.id
+                    inner join t4_clinical_location parent_location on location.parent_id = parent_location.id
+                    left join t4_activity spell on spell.data_model = 't4.clinical.spell' and spell.patient_id = activity.patient_id
+                    where activity.state not in ('completed','cancelled') and activity.data_model = 't4.clinical.notification.doctor_assessment'
                 )
         """ % (self._table, self._table))
