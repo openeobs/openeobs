@@ -76,3 +76,35 @@ class t4_clinical_overdue(orm.Model):
                     order by delay
                 )
         """ % (self._table, self._table))
+
+
+class t4_clinical_doctor_activities(orm.Model):
+    _name = "t4.clinical.doctor_activities"
+    _inherits = {'t4.activity': 'activity_id'}
+    _description = "Doctor Activities View"
+    _auto = False
+    _table = "t4_clinical_doctor_activities"
+    _columns = {
+        'activity_id': fields.many2one('t4.activity', 'Activity', required=1, ondelete='restrict'),
+        'summary': fields.text('Summary'),
+        'location': fields.text('Location'),
+    }
+
+    def init(self, cr):
+
+        cr.execute("""
+                drop view if exists %s;
+                create or replace view %s as (
+                    select
+                        activity.id as id,
+                        spell.id as activity_id,
+                        activity.summary as summary,
+                        location.name || ' (' || parent_location.name || ')' as location
+                    from t4_activity activity
+                    inner join t4_clinical_patient patient on activity.patient_id = patient.id
+                    inner join t4_clinical_location location on activity.location_id = location.id
+                    inner join t4_clinical_location parent_location on location.parent_id = parent_location.id
+                    left join t4_activity spell on spell.data_model = 't4.clinical.spell' and spell.patient_id = activity.patient_id
+                    where activity.state not in ('completed','cancelled') and activity.data_model = 't4.clinical.notification.doctor_assessment'
+                )
+        """ % (self._table, self._table))
