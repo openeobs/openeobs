@@ -2,14 +2,16 @@ __author__ = 'colin'
 from openerp.tests import common
 import openerp.modules.registry
 from BeautifulSoup import BeautifulSoup
-import helpers
+from helpers import URLS as urls
 import re
+import datetime
+import helpers
 
 
-class NewsObsTest(common.SingleTransactionCase):
+class ObsFreqTest(common.SingleTransactionCase):
 
     def setUp(self):
-        super(NewsObsTest, self).setUp()
+        super(ObsFreqTest, self).setUp()
 
         # set up database connection objects
         self.registry = openerp.modules.registry.RegistryManager.get('t4clinical_test')
@@ -24,7 +26,7 @@ class NewsObsTest(common.SingleTransactionCase):
         self.location_type = self.registry.get('t4.clinical.pos.delivery.type')
         self.users = self.registry.get('res.users')
 
-    def test_news_obs_form(self):
+    def test_obs_freq_form(self):
         cr, uid = self.cr, self.uid
 
         # create environment
@@ -42,7 +44,27 @@ class NewsObsTest(common.SingleTransactionCase):
 
         # Grab the NEWS Obs task from task list
         task_api = self.registry['t4.clinical.api.external']
-        task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
+
+        ews_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
+        ews_data = {
+            'respiration_rate': 20,
+            'indirect_oxymetry_spo2': 99,
+            'body_temperature': 37.5,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 80,
+            'avpu_text': 'A',
+            'oxygen_administration_flag': True,
+            'device_id': 36,
+            'flow_rate': 3,
+            'startTimestamp': datetime.datetime.now().strftime('%s')
+        }
+        task_api.complete(cr, norah_user, ews_id, ews_data, context=self.context)
+
+        assess_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "Assess" in a['summary']][0]['id']
+        task_api.complete(cr, norah_user, assess_id, {}, context=self.context)
+
+        task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "Frequency" in a['summary']][0]['id']
 
         # Take the Task
         activity_reg = self.registry['t4.activity']
@@ -54,13 +76,13 @@ class NewsObsTest(common.SingleTransactionCase):
             patient_info = api_reg.get_patients(cr, uid, [task['patient_id'][0]], context=self.context)
             if len(patient_info) >0:
                 patient_info = patient_info[0]
-            patient['url'] = helpers.URLS['single_patient'] + '{0}'.format(patient_info['id'])
+            patient['url'] = urls['single_patient'] + '{0}'.format(patient_info['id'])
             patient['name'] = patient_info['full_name']
             patient['id'] = patient_info['id']
         else:
             patient = False
         form = dict()
-        form['action'] = helpers.URLS['task_form_action']+'{0}'.format(task_id)
+        form['action'] = urls['task_form_action']+'{0}'.format(task_id)
         form['type'] = task['data_model']
         form['task-id'] = int(task_id)
         form['patient-id'] = task['patient_id'][0]
@@ -77,7 +99,8 @@ class NewsObsTest(common.SingleTransactionCase):
         # Grab the form Def and compile the data to send to template
         obs_reg = self.registry[task['data_model']]
         form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=self.context)
-        form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
+        cancellable = obs_reg.is_cancellable(cr, uid, context=self.context)
+        form['confirm_url'] = "{0}{1}".format(urls['confirm_clinical_notification'], task_id)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
                 form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
@@ -94,27 +117,29 @@ class NewsObsTest(common.SingleTransactionCase):
                     opt['value'] = '{0}'.format(option[0])
                     opt['label'] = option[1]
                     form_input['selection_options'].append(opt)
+        if cancellable:
+            form['cancel_url'] = "{0}{1}".format(urls['cancel_clinical_notification'], task_id)
+        form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
+
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'mobile_frontend.observation_entry',
-                                         {'inputs': form_desc,
-                                          'name': task['summary'],
-                                          'patient': patient,
-                                          'form': form,
-                                          'section': 'task',
-                                          'username': 'norah',
-                                          'urls': helpers.URLS},
-                                         context=self.context)
+        get_tasks_html = view_obj.render(cr, uid, 'mobile_frontend.notification_confirm_cancel', {'name': task['summary'],
+                                                                                       'inputs': form_desc,
+                                                                                       'cancellable': cancellable,
+                                                                                       'patient': patient,
+                                                                                       'form': form,
+                                                                                       'section': 'task',
+                                                                                       'username': 'norah',
+                                                                                       'urls': urls}, context=self.context)
 
-        # Create BS instances
-        devices_string = ""
-        for device in [v['selection'] for v in form_desc if v['name'] is 'device_id'][0]:
-            devices_string += helpers.DEVICE_OPTION.format(device_id=device[0], device_name=device[1])
-        example_html = helpers.NEWS_OBS.format(patient_url=patient['url'],
+        example_options = """<option value="">Please Select</option>"""
+        for option in [v['selection'] for v in form_desc if v['name'] is 'frequency'][0]:
+            example_options += helpers.OBS_FREQ_OPTION.format(freq_time=option[0], freq_name=option[1])
+        example_html = helpers.OBS_FREQ_HTML.format(task_url=form['confirm_url'],
                                                patient_name=patient['name'],
                                                patient_id=patient['id'],
-                                               device_options=devices_string,
-                                               task_id=task_id, timestamp=0)
+                                               task_id=task_id,
+                                               frequency_options=example_options)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')

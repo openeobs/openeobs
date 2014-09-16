@@ -275,6 +275,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
             cancellable = obs_reg.is_cancellable(cr, uid, context=context)
             form['confirm_url'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
+            form['action'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
             for form_input in form_desc:
                 if form_input['type'] in ['float', 'integer']:
                     form_input['step'] = 0.1 if form_input['type'] is 'float' else 1

@@ -73,7 +73,7 @@
                      <h2 id="patientName" class="block">
                          <a t-att-href="patient['url']"><t t-esc="patient['name']"/><i class="icon-info"></i></a>
                      </h2>
-                     <form t-att-action="form['action']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']">
+                     <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']">
                          <h3>Confirm action taken?</h3>
                          <p>Press the button below to confirm that you can completed the task <t t-esc="name"/></p>
                          <t t-if="len(inputs) > 0">
