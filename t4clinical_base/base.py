@@ -295,8 +295,9 @@ class t4_clinical_location(orm.Model):
 
     def _get_related_patients(self, cr, uid, ids, field, args, context=None):
         res = {}
+        placement_pool = self.pool['t4.clinical.patient.placement']
         for loc in self.browse(cr, uid, ids, context=context):
-            res[loc.id] = len(loc.patient_ids)
+            res[loc.id] = len(placement_pool.search(cr, uid, [('suggested_location_id', '=', loc.id), ('state', 'not in', ['completed', 'cancelled'])]))
         return res
 
     def _get_related_patients_childs(self, cr, uid, ids, field, args, context=None):
