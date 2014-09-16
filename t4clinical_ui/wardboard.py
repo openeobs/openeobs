@@ -546,7 +546,7 @@ t4_clinical_wardboard as(
             )
     
     select 
-        spell.id as id,
+        patient.id as id,
         spell.patient_id as patient_id,
         spell_activity.id as spell_activity_id,
         spell_activity.date_started as spell_date_started,

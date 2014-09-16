@@ -456,8 +456,8 @@ class t4_clinical_api(orm.AbstractModel):
             ('date_terminated', '>=', start_date.strftime(DTF)),
             ('date_terminated', '<=', end_date.strftime(DTF))] if activity_type \
             else [('patient_id', '=', patient_id), ('state', 'not in', ['completed', 'cancelled'])]
-        ids = model_pool.search(cr, uid, domain, context=context)
-        return model_pool.read(cr, uid, ids, [], context=context)
+        ids = model_pool.search(cr, SUPERUSER_ID, domain, context=context)
+        return model_pool.read(cr, SUPERUSER_ID, ids, [], context=context)
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type, context=None):
         if not activity_type:
