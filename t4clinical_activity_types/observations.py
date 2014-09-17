@@ -17,6 +17,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
     _inherit = ['t4.activity.data']
     _required = [] # fields required for complete observation
+    _num_fields = [] # numeric fields we want to be able to read as NULL instead of 0
     _partial_reasons = [['not_in_bed', 'Patient not in bed'],
                         ['asleep', 'Patient asleep']]
     
@@ -50,7 +51,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'is_partial': fields.function(_is_partial, type='boolean', string='Is Partial?'),
-        'none_values': fields.text('Non-updated fields'),
+        'none_values': fields.text('Non-updated required fields'),
+        'null_values': fields.text('Non-updated numeric fields'),
         'frequency': fields.selection(frequencies, 'Frequency'),
         'partial_reason': fields.selection(_partial_reasons, 'Reason if partial observation')
     }
@@ -65,7 +67,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))
-        vals.update({'none_values': none_values})
+        null_values = list(set(self._num_fields) - set(vals.keys()))
+        vals.update({'none_values': none_values, 'null_values': null_values})
         #print "create none_values: %s" % none_values
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)
     
@@ -80,12 +83,14 @@ class t4_clinical_patient_observation(orm.AbstractModel):
                 
     def write(self, cr, uid, ids, vals, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
-        if not self._required:
+        if not self._required and not self._num_fields:
             return super(t4_clinical_patient_observation, self).write(cr, uid, ids, vals, context)
-        for obs in self.read(cr, uid, ids, ['none_values'], context):
+        for obs in self.read(cr, uid, ids, ['none_values', 'null_values'], context):
             none_values = list(set(eval(obs['none_values'])) - set(vals.keys()))
-            vals.update({'none_values': none_values})
+            null_values = list(set(eval(obs['null_values'])) - set(vals.keys()))
+            vals.update({'none_values': none_values, 'null_values': null_values})
             print "write none_values: %s" % none_values
+            print "write null_values: %s" % null_values
             super(t4_clinical_patient_observation, self).write(cr, uid, obs['id'], vals, context)
         if 'frequency' in vals:
             activity_pool = self.pool['t4.activity']
@@ -93,6 +98,19 @@ class t4_clinical_patient_observation(orm.AbstractModel):
                 scheduled = (dt.strptime(obs.activity_id.create_date, DTF)+td(minutes=vals['frequency'])).strftime(DTF)
                 activity_pool.schedule(cr, uid, obs.activity_id.id, date_scheduled=scheduled, context=context)
         return True
+
+    def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read'):
+        ids = isinstance(ids, (tuple, list)) and ids or [ids]
+        if not self._num_fields:
+            return super(t4_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        if fields and 'null_values' not in fields:
+            fields.append('null_values')
+        res = super(t4_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        for obs in res:
+            for nv in eval(obs['null_values']):
+                if nv in obs.keys():
+                    obs[nv] = False
+        return res
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
@@ -354,6 +372,9 @@ class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['respiration_rate', 'indirect_oxymetry_spo2', 'body_temperature', 'blood_pressure_systolic', 'pulse_rate']
+    _num_fields = ['respiration_rate', 'indirect_oxymetry_spo2', 'body_temperature', 'blood_pressure_systolic',
+                   'blood_pressure_diastolic', 'pulse_rate', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup',
+                   'niv_ipap', 'niv_epap']
     _description = "NEWS Observation"
 
     _RR_RANGES = {'ranges': [8, 11, 20, 24], 'scores': '31023'}
