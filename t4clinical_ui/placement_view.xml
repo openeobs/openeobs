@@ -24,11 +24,11 @@
             <field name="view_id" ref="view_t4_clinical_placement_tree"/>
         </record>
 
-        <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">
+        <record model="ir.actions.act_window.view" id="act_view_placement_tree">
             <field eval="0" name="sequence"/>
             <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_wardboard_tree"/>
-            <field name="act_window_id" ref="action_wardboard"/>
+            <field name="view_id" ref="view_t4_clinical_placement_tree"/>
+            <field name="act_window_id" ref="action_show_placements"/>
         </record>
     </data>
 </openerp>

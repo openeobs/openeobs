@@ -509,9 +509,9 @@ t4_clinical_wardboard as(
                 ews.score,
                 ews.frequency,
                 ews.clinical_risk,
-                case when activity.date_scheduled >= now() then '' else 'overdue: ' end as next_diff_polarity,
+                case when activity.date_scheduled < now() at time zone 'UTC' then 'overdue: ' else '' end as next_diff_polarity,
                 case activity.date_scheduled is null
-                    when false then justify_hours(greatest(now(),activity.date_scheduled) - least(now(),activity.date_scheduled)) 
+                    when false then justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC', activity.date_scheduled))
                     else interval '0s' 
                 end as next_diff_interval,
                 activity.rank
@@ -551,7 +551,7 @@ t4_clinical_wardboard as(
     )
     
     select 
-        spell.id as id,
+        patient.id as id,
         spell.patient_id as patient_id,
         spell_activity.id as spell_activity_id,
         spell_activity.date_started as spell_date_started,
@@ -570,10 +570,10 @@ t4_clinical_wardboard as(
         patient.other_identifier as hospital_number,
         patient.patient_identifier as nhs_number,
         extract(year from age(now(), patient.dob)) as age,
-        case
-            when extract(day from ews0.next_diff_interval) = 0 then ews0.next_diff_polarity || to_char(ews0.next_diff_interval, 'HH24:MI')
-            else ews0.next_diff_polarity || extract(day from ews0.next_diff_interval) || ' day(s) ' || to_char(ews0.next_diff_interval, 'HH24:MI')
-        end as next_diff,
+        ews0.next_diff_polarity ||
+        case when extract(days from ews0.next_diff_interval) > 0
+            then  extract(days from ews0.next_diff_interval) || ' day(s) ' else ''
+        end || to_char(ews0.next_diff_interval, 'HH24:MI') next_diff,
         case ews0.frequency < 60
             when true then ews0.frequency || ' min(s)'
             else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'

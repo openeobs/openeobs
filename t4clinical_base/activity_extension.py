@@ -9,6 +9,17 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+
+
+class t4_cancel_reason(orm.Model):
+    """cancellation reason
+    """
+    _name = 't4.cancel.reason'
+    _columns = {
+        'name': fields.char('Name', size=300),
+        'system': fields.boolean('System/User Reason')
+    }
+
     
 class t4_activity(orm.Model):
     """ activity
@@ -22,7 +33,8 @@ class t4_activity(orm.Model):
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', readonly=True),
         'device_id': fields.many2one('t4.clinical.device', 'Device', readonly=True),
         'location_id': fields.many2one('t4.clinical.location', 'Location', readonly=True),
-        'pos_id': fields.many2one('t4.clinical.pos', 'POS', readonly=True)
+        'pos_id': fields.many2one('t4.clinical.pos', 'POS', readonly=True),
+        'cancel_reason_id': fields.many2one('t4.cancel.reason', 'Cancellation Reason')
     }
     
  

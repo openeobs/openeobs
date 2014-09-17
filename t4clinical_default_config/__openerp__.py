@@ -10,7 +10,6 @@
     'website': 'http://www.tactix4.com/',
     
     
-    'depends': ['t4clinical_ui'],
     
     'data': ['trust.xml',
              'greenford_pos.xml', 'greenford_locations.xml', 'greenford_users.xml','greenford_devices.xml','greenford_params.xml'],

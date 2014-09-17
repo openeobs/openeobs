@@ -1,5 +1,5 @@
 // AJAX call to get the data
-var route = jsRoutes.controllers.Patients.getPatientObs("EWS", svg.patientId).ajax({
+var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
     dataType: "json",
     success: function (obsData) { // on success process it
         console.log(obsData);

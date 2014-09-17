@@ -19,80 +19,60 @@ class TaskListTest(common.SingleTransactionCase):
         self.patient = self.registry.get('t4.clinical.patient')
         self.patient_visits = self.registry.get('t4.clinical.patient.visit')
         self.tasks = self.registry.get('t4.clinical.task.base')
-        self.location = self.registry.get('t4.clinical.pos.delivery')
-        self.location_type = self.registry.get('t4.clinical.pos.delivery.type')
+        self.location = self.registry.get('t4.clinical.location')
+        #self.location_type = self.registry.get('t4.clinical.location.type')
         self.users = self.registry.get('res.users')
+        self.activities = self.registry.get('t4.activity')
 
     def test_task_list(self):
         cr, uid = self.cr, self.uid
 
-        # Create test patient
-        env_pool = self.registry('t4.clinical.demo.env')
-        config = {'patient_qty': 1}
-        env_id = env_pool.create(cr, uid, config)
-        adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        register_activity = env_pool.create_complete(cr,
-                                                     adt_user_id,
-                                                     env_id,
-                                                     't4.clinical.adt.patient.register')
-        admit_data = env_pool.fake_data(cr, uid, env_id, 't4.clinical.adt.patient.admit')
-        admit_data['other_identifier'] = register_activity.data_ref.other_identifier
-        admit_activity = env_pool.create_complete(cr,
-                                                  adt_user_id,
-                                                  env_id,
-                                                  't4.clinical.adt.patient.admit',
-                                                  {},
-                                                  admit_data)
-        # test admission
-        admission_activity = [a for a in admit_activity.created_ids if a.data_model == 't4.clinical.patient.admission']
-        assert len(admission_activity) == 1, "Created admission activity: %s" % admission_activity
-        admission_activity = admission_activity[0]
-        assert admission_activity.state == 'completed'
-        #test placement
-        placement_activity = [a for a in admission_activity.created_ids if a.data_model ==
-                              't4.clinical.patient.placement']
-        assert len(placement_activity) == 1, "Created patient.placement activity: %s" % placement_activity
-        placement_activity = placement_activity[0]
-        assert placement_activity.state == 'new'
-        assert placement_activity.pos_id.id == register_activity.pos_id.id
-        assert placement_activity.patient_id.id == register_activity.patient_id.id
-        assert placement_activity.data_ref.patient_id.id == placement_activity.patient_id.id
-        assert placement_activity.data_ref.suggested_location_id
-        assert placement_activity.location_id.id == placement_activity.data_ref.suggested_location_id.id
+        # create environment
+        api_demo = self.registry('t4.clinical.api.demo')
+        api_demo.build_uat_env(cr, uid, patients=8, placements=4, context=None)
+
+        # get a nurse user
+        norah_user = self.users.search(cr, uid, [['login', '=', 'norah']])[0]
+
+        # assign nurse to ward
 
         self.context = {
             'lang': 'en_GB',
             'tz': 'Europe/London',
-            'uid': 1
+            'uid': norah_user
         }
 
         # Call controller
         task_api = self.registry['t4.clinical.api.external']
-        tasks = task_api.get_activities(cr, adt_user_id, [], context=self.context)
+        tasks = task_api.get_activities(cr, norah_user, [], context=self.context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(helpers.URLS['single_task'], task['id'])
             task['color'] = 'level-one'
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
             task['summary'] = task['summary'] if task.get('summary') else False
+            task['notification_string'] = '<i class="icon-alert"></i>' if task['notification']==True else ''
 
         view_obj = self.registry("ir.ui.view")
         get_tasks_html = view_obj.render(
-            cr, uid, 'mobile_frontend.patient_task_list', {'items': tasks[:1],
+            cr, uid, 'mobile_frontend.patient_task_list', {'items': tasks,
                                                            'section': 'task',
                                                            'username': 'norah',
                                                            'urls': helpers.URLS},
             context=self.context)
 
         # Create BS instances
-        example_task = tasks[0]
-        example_html = helpers.TASK_LIST_HTML.format(example_task['url'],
-                                                     example_task['deadline_time'],
-                                                     example_task['full_name'],
-                                                     example_task['ews_score'],
-                                                     example_task['trend_icon'],
-                                                     example_task['location'],
-                                                     example_task['parent_location'],
-                                                     example_task['summary'])
+        task_list_string = ""
+        for task in tasks:
+            task_list_string += helpers.TASK_LIST_ITEM.format(task['url'],
+                                                              task['deadline_time'],
+                                                              task['notification_string'],
+                                                              task['full_name'],
+                                                              task['ews_score'],
+                                                              task['trend_icon'],
+                                                              task['location'],
+                                                              task['parent_location'],
+                                                              task['summary'])
+        example_html = helpers.TASK_LIST_HTML.format(task_list=task_list_string)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')

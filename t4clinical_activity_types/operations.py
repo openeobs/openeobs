@@ -23,6 +23,9 @@ class t4_clinical_notification(orm.AbstractModel):
     def get_form_description(self, cr, uid, patient_id, context=None):
         return self._form_description
 
+    def is_cancellable(self, cr, uid, context=None):
+        return False
+
 
 class t4_clinical_notification_hca(orm.Model):
     _name = 't4.clinical.notification.hca'
@@ -75,7 +78,8 @@ class t4_clinical_notification_frequency(orm.Model):
             'name': 'frequency',
             'type': 'selection',
             'selection': frequencies,
-            'label': 'Observation frequency'
+            'label': 'Observation frequency',
+            'initially_hidden': False
         }
     ]
 
@@ -95,7 +99,7 @@ class t4_clinical_notification_assessment(orm.Model):
             'parent_id': activity.parent_id.id,
             'creator_id': activity_id,
             'patient_id': activity.data_ref.patient_id.id,
-            'model': activity.creator_id._name,
+            'model': activity.creator_id.data_ref._name,
             'group': 'nurse'
         }, context=context)
         return super(t4_clinical_notification_assessment, self).complete(cr, uid, activity_id, context=context)
@@ -120,6 +124,9 @@ class t4_clinical_notification_medical_team(orm.Model):
             'group': 'nurse'
         }, context=context)
         return super(t4_clinical_notification_medical_team, self).complete(cr, uid, activity_id, context=context)
+
+    def is_cancellable(self, cr, uid, context=None):
+        return True
 
 
 class t4_clinical_notification_doctor_assessment(orm.Model):

@@ -69,7 +69,63 @@ class t4_clinical_api_demo(orm.AbstractModel):
         patient_id = None
         raise orm.except_orm('Not Implemented', 'Method place patient is not implemented yet!')
         return patient_id
-    
+
+    def build_uat_env(self, cr, uid, pos=1, ward='E8', wm='winifred', nurse='norah', patients=16, placements=8, ews=2,
+                      context=None):
+        """
+        Creates UAT environment in the provided ward. Adds patients and observations
+        """
+        api = self.pool['t4.clinical.api']
+        user_pool = self.pool['res.users']
+        location_pool = self.pool['t4.clinical.location']
+        # CHECK PARAMETERS
+        assert self.pool['t4.clinical.pos'].read(cr, uid, pos, context=context)
+        wm_exists = user_pool.search(cr, uid, [('login', '=', wm)], context=context)
+        assert wm_exists
+        nurse_exists = user_pool.search(cr, uid, [('login', '=', nurse)], context=context)
+        assert nurse_exists
+        assert self.pool['t4.clinical.location'].search(cr, uid, [('code', '=', ward), ('usage', '=', 'ward'), ('user_ids', 'in', wm_exists)], context=context)
+        assert patients > 0
+        assert placements > 0
+        assert patients >= placements
+        adt_uid = user_pool.search(cr, uid, [('login', '=', 'adt')], context=context)[0]
+        wm_uid = wm_exists[0]
+        nurse_uid = nurse_exists[0]
+        # GENERATE ENVIRONMENT
+        admit_activity_ids = [self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', data_values={'location': ward}) for i in range(patients)]
+        [api.complete(cr, uid, id) for id in admit_activity_ids]
+        temp_bed_ids = location_pool.search(cr, uid, [('parent_id.code', '=', ward), ('usage', '=', 'bed'), ('is_available', '=', True)], context=context)
+        temp_placement_activity_ids = api.activity_map(cr, wm_uid,
+                                                       data_models=['t4.clinical.patient.placement'],
+                                                       pos_ids=[pos],
+                                                       states=['new', 'scheduled']).keys()
+        for i in range(placements):
+            if not temp_bed_ids or not temp_placement_activity_ids:
+                break
+            placement_activity_id = fake.random_element(temp_placement_activity_ids)
+            bed_location_id = fake.random_element(temp_bed_ids)
+            api.submit_complete(cr, wm_uid, placement_activity_id, {'location_id': bed_location_id})
+            temp_placement_activity_ids.remove(placement_activity_id)
+            temp_bed_ids.remove(bed_location_id)
+
+        ews_activities = api.activity_map(cr, uid,
+                                          data_models=['t4.clinical.patient.observation.ews'],
+                                          pos_ids=[pos],
+                                          states=['new', 'scheduled']).values()
+
+        #EWS
+        for i in range(ews):
+            for ews in ews_activities:
+                api.assign(cr, uid, ews['id'], nurse_uid)
+                api.submit_complete(cr, nurse_uid, ews['id'], self.demo_data(cr, uid, 't4.clinical.patient.observation.ews'))
+            ews_activities = api.activity_map(cr, uid,
+                                          data_models=['t4.clinical.patient.observation.ews'],
+                                          pos_ids=[pos],
+                                          states=['new', 'scheduled']).values()
+
+        return True
+        
+        
     def get_available_bed(self, cr, uid, location_ids=[], pos_id=None):
         """
         Method    

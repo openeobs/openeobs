@@ -20,6 +20,14 @@ class t4_clinical_api(orm.AbstractModel):
             raise osv.except_osv(_('Error!'), 'Activity ID not found: %s' % activity_id)
         return True
 
+    def check_activity_access(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        domain = [('id', '=', activity_id)]
+        activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        if not activity_ids:
+            return False
+        return True
+
     def _create_activity(self, cr, uid, data_model, vals_activity=None, vals_data=None, context=None):
         model_pool = self.pool[data_model]
         activity_id = model_pool.create_activity(cr, uid, vals_activity, vals_data, context=context)
@@ -89,6 +97,7 @@ class t4_clinical_api(orm.AbstractModel):
             )
         select activity.id,
             activity.summary,
+            ews1.clinical_risk,
             case
                 when date_scheduled is not null then date_scheduled::text
                 when date_deadline is not null then date_deadline::text
@@ -134,9 +143,10 @@ class t4_clinical_api(orm.AbstractModel):
             activity_values = cr.dictfetchall()
         return activity_values
 
-    def cancel(self, cr, uid, activity_id, context=None):
+    def cancel(self, cr, uid, activity_id, data, context=None):
         activity_pool = self.pool['t4.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
+        activity_pool.submit(cr, uid, activity_id, data, context=context)
         return activity_pool.cancel(cr, uid, activity_id, context=context)
 
     def submit(self, cr, uid, activity_id, data, context=None):
@@ -162,10 +172,25 @@ class t4_clinical_api(orm.AbstractModel):
                 raise osv.except_osv(_('Error!'), 'User ID not found: %s' % user_id)
         return activity_pool.assign(cr, uid, activity_id, user_id, context=context)
 
+    # def complete(self, cr, uid, activity_id, data, context=None):
+    #     activity_pool = self.pool['t4.activity']
+    #     self._check_activity_id(cr, uid, activity_id, context=context)
+    #     return activity_pool.complete(cr, uid, activity_id, data)
+
     def complete(self, cr, uid, activity_id, data, context=None):
         activity_pool = self.pool['t4.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
-        return activity_pool.complete(cr, uid, activity_id, data, context=context)
+        activity_pool.submit(cr, uid, activity_id, data, context=context)
+        return activity_pool.complete(cr, uid, activity_id, context=context)
+
+    def get_cancel_reasons(self, cr, uid, context=None):
+        cancel_pool = self.pool['t4.cancel.reason']
+        reason_ids = cancel_pool.search(cr, uid, [], context=context)
+        reasons = []
+        for reason in cancel_pool.browse(cr, uid, reason_ids, context=context):
+            if not reason.system:
+                reasons.append({'id':reason.id, 'name': reason.name})
+        return reasons
 
     # # # # # # #
     #  PATIENTS #
@@ -266,6 +291,18 @@ class t4_clinical_api(orm.AbstractModel):
         return res
 
     def register(self, cr, uid, patient_id, data, context=None):
+        """
+        Registers a new patient into the system
+        :param patient_id: Hospital Number of the patient
+        :param data: dictionary parameter that may contain the following keys:
+            patient_identifier: NHS number
+            family_name: Surname
+            given_name: Name
+            middle_names: Middle names
+            dob: Date of birth
+            gender: Gender (M/F)
+            sex: Sex (M/F)
+        """
         activity_pool = self.pool['t4.activity']
         register_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.register', {}, {}, context=context)
         data.update({'other_identifier': patient_id})
@@ -275,10 +312,22 @@ class t4_clinical_api(orm.AbstractModel):
         return True
 
     def admit(self, cr, uid, patient_id, data, context=None):
+        """
+        Admits a patient into the specified location.
+        :param patient_id: Hospital number of the patient
+        :param data: dictionary parameter that may contain the following keys:
+            location: location code where the patient will be admitted. REQUIRED
+            start_date: admission start date.
+            doctors: consulting and referring doctors list of dictionaries. expected format:
+               [...
+               {
+               'type': 'c' or 'r',
+               'code': code string,
+               'title':, 'given_name':, 'family_name':, }
+               ...]
+                if doctor doesn't exist, we create partner, but don't create user for that doctor.
+        """
         activity_pool = self.pool['t4.activity']
-        # if not self._check_hospital_number(cr, uid, patient_id, context=context):
-        #     _logger.warn("Patient registered from an admit call")
-        #     self.register(cr, uid, patient_id, {}, context=context)
         data.update({'other_identifier': patient_id})
         admit_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, admit_activity, data, context=context)
@@ -287,6 +336,9 @@ class t4_clinical_api(orm.AbstractModel):
         return True
     
     def admit_update(self, cr, uid, patient_id, data, context=None):
+        """
+        Updates the spell information of the patient. Accepts the same parameters as admit.
+        """
         activity_pool = self.pool['t4.activity']
         data.update({'other_identifier': patient_id})
         update_activity = self._create_activity(cr, uid, 't4.clinical.adt.spell.update', {}, {}, context=context)
@@ -296,6 +348,9 @@ class t4_clinical_api(orm.AbstractModel):
         return True
         
     def cancel_admit(self, cr, uid, patient_id, context=None):
+        """
+        Cancels the open admission of the patient.
+        """
         activity_pool = self.pool['t4.activity']
         data = {'other_identifier': patient_id}
         cancel_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.cancel_admit', {}, {}, context=context)
@@ -305,6 +360,12 @@ class t4_clinical_api(orm.AbstractModel):
         return True
 
     def discharge(self, cr, uid, patient_id, data, context=None):
+        """
+        Discharges the patient.
+        :param patient_id: Hospital number of the patient
+        :param data: dictionary parameter that may contain the following keys:
+            discharge_date: patient discharge date.
+        """
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['t4.activity']
@@ -316,6 +377,9 @@ class t4_clinical_api(orm.AbstractModel):
         return True
 
     def cancel_discharge(self, cr, uid, patient_id, context=None):
+        """
+        Cancels the last discharge of the patient.
+        """
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['t4.activity']
@@ -328,6 +392,12 @@ class t4_clinical_api(orm.AbstractModel):
         return True
 
     def merge(self, cr, uid, patient_id, data, context=None):
+        """
+        Merges a specified patient into the patient.
+        :param patient_id: Hospital number of the patient we want to merge INTO
+        :param data: dictionary parameter that may contain the following keys:
+            from_identifier: Hospital number of the patient we want to merge FROM
+        """
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['t4.activity']
@@ -339,6 +409,12 @@ class t4_clinical_api(orm.AbstractModel):
         return True
 
     def transfer(self, cr, uid, patient_id, data, context=None):
+        """
+        Transfers the patient to the specified location.
+        :param patient_id: Hospital number of the patient
+        :param data: dictionary parameter that may contain the following keys:
+            location: location code where the patient will be transferred. REQUIRED
+        """
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['t4.activity']
@@ -350,7 +426,19 @@ class t4_clinical_api(orm.AbstractModel):
         return True
 
     def cancel_transfer(self, cr, uid, patient_id, context=None):
-        return self._cancel_activity(cr, uid, patient_id, 't4.clinical.adt.patient.transfer', context=context)
+        """
+        Cancels the last transfer of the patient.
+        """
+        if not self._check_hospital_number(cr, uid, patient_id, context=context):
+            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        activity_pool = self.pool['t4.activity']
+        patient_pool = self.pool['t4.clinical.patient']
+        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
+        cancel_transfer_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.cancel_transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
+        activity_pool.submit(cr, uid, cancel_transfer_activity, {'other_identifier': patient_id}, context=context)
+        activity_pool.complete(cr, uid, cancel_transfer_activity, context=context)
+        _logger.info("Transfer cancelled for patient: %s" % patient_id)
+        return True
 
     def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=dt.now()+td(days=-30),
                                 end_date=dt.now(), context=None):
@@ -368,8 +456,8 @@ class t4_clinical_api(orm.AbstractModel):
             ('date_terminated', '>=', start_date.strftime(DTF)),
             ('date_terminated', '<=', end_date.strftime(DTF))] if activity_type \
             else [('patient_id', '=', patient_id), ('state', 'not in', ['completed', 'cancelled'])]
-        ids = model_pool.search(cr, uid, domain, context=context)
-        return model_pool.read(cr, uid, ids, [], context=context)
+        ids = model_pool.search(cr, SUPERUSER_ID, domain, context=context)
+        return model_pool.read(cr, SUPERUSER_ID, ids, [], context=context)
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type, context=None):
         if not activity_type:

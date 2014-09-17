@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-s
-import openerp, re, json, urls, jinja2
+import openerp, re, json, urls, jinja2, bisect
 from openerp import http
 from openerp.modules.module import get_module_path
 from datetime import datetime
@@ -83,11 +83,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
-    #@http.route(URLS['new_stylesheet'], type='http', auth='none')
-    #def get_new_stylesheet(self, *args, **kw):
-    #    with open(get_module_path('mobile_frontend') + '/static/src/css/new.css', 'r') as stylesheet:
-    #        return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
-
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/fonts/' + xmlid, 'r') as font:
@@ -120,6 +115,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             'routes': urls.routes,
             'base_url': urls.BASE_URL
         }), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['patient_graph'], type='http', auth='none')
+    def graph_lib(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/patient_graph.js', 'r') as js:
+            return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['data_driven_documents'], type='http', auth='none')
+    def d_three(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/d3.js', 'r') as js:
+            return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URL_PREFIX, type='http', auth='none')
     def index(self, *args, **kw):
@@ -158,6 +163,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return utils.redirect(URLS['login'], 303)
 
 
+    def calculate_ews_class(self, score):
+        score_classes = ['level-none', 'level-one', 'level-two', 'level-three']
+        score_ranges = [0, 4, 6]
+        if score:
+            return score_classes[bisect.bisect_left(score_ranges, int(score))]
+        else:
+            return 'level-none'
+
     @http.route(URLS['patient_list'], type='http', auth="user")
     def get_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.session.uid, request.context
@@ -165,7 +178,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patients = patient_api.get_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
-            patient['color'] = 'level-one'
+            patient['color'] = self.calculate_ews_class(patient['ews_score'])
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
@@ -181,7 +194,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
-            task['color'] = 'level-one'
+            task['color'] = self.calculate_ews_class(task['ews_score'])
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
         return request.render('mobile_frontend.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
@@ -195,7 +208,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         activity_reg = request.registry['t4.activity']
         api_reg = request.registry['t4.clinical.api.external']
         task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
-        if task.get('user_id') and task['user_id'][0] != uid:
+        if 'user_id' in task and task['user_id'][0] != uid:
             return request.make_response(json.dumps({'status': 'false', 'reason': 'task assigned to another user'}), headers={'Content-Type': 'application/json'})
         else:
             return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})
@@ -258,11 +271,40 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         if 'notification' in task['data_model']:
             # load notification foo
-            form['type'] = re.match(r't4\.clinical\.patient\.notification\.(.*)', task['data_model']).group(1)
+            obs_reg = request.registry[task['data_model']]
+            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
+            cancellable = obs_reg.is_cancellable(cr, uid, context=context)
+            form['confirm_url'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
+            form['action'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
+            for form_input in form_desc:
+                if form_input['type'] in ['float', 'integer']:
+                    form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
+                    form_input['type'] = 'number'
+                    form_input['number'] = True
+                    form_input['info'] = ''
+                    form_input['errors'] = ''
+                    #if form_input['target']:
+                    #    form_input['target'] = False
+                elif form_input['type'] == 'selection':
+                    form_input['selection_options'] = []
+                    form_input['info'] = ''
+                    form_input['errors'] = ''
+                    for option in form_input['selection']:
+                        opt = dict()
+                        opt['value'] = '{0}'.format(option[0])
+                        opt['label'] = option[1]
+                        form_input['selection_options'].append(opt)
+            if cancellable:
+                form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
+            form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
             return request.render('mobile_frontend.notification_confirm_cancel', qcontext={'name': task['summary'],
-                                                                                 'section': 'task',
-                                                                                 'username': request.session['login'],
-                                                                                 'urls': URLS})
+                                                                                           'inputs': form_desc,
+                                                                                           'cancellable': cancellable,
+                                                                                           'patient': patient,
+                                                                                           'form': form,
+                                                                                           'section': 'task',
+                                                                                           'username': request.session['login'],
+                                                                                           'urls': URLS})
         elif 'observation' in task['data_model']:
             # load obs foo
             obs_reg = request.registry[task['data_model']]
@@ -313,14 +355,30 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['json_task_form_action']+'<task_id>', type="http", auth="user")
     def process_ajax_form(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api')
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        converter_pool = request.registry('ir.fields.converter')
+        converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
         kw_copy = kw.copy()
+        test = {}
+        timestamp = kw_copy['startTimestamp']
+        device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
+
+        del kw_copy['startTimestamp']
         del kw_copy['taskId']
+        if device_id:
+            del kw_copy['device_id']
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
-        result = api.submit_complete(cr, uid, int(task_id), kw_copy, context)
-        triggered_tasks = [v for v in api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model']]
+
+        converted_data = converter(kw_copy, test)
+        converted_data['startTimestamp'] = timestamp
+        if device_id:
+            converted_data['device_id'] = device_id
+        result = api.complete(cr, uid, int(task_id), converted_data, context)
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ews_score'], type="http", auth="user")
@@ -332,6 +390,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         data = kw.copy()
         test = {}
+        if 'startTimestamp' in data:
+            del data['startTimestamp']
+        if 'taskId' in data:
+            del data['taskId']
+        for key, value in data.items():
+            if not value or key not in ['avpu_text', 'blood_pressure_systolic', 'body_temperature', 'indirect_oxymetry_spo2', 'oxygen_administration_flag', 'pulse_rate', 'respiration_rate']:
+                del data[key]
         converted_data = converter(data, test)
 
         return request.make_response(json.dumps(ews_pool.calculate_score(converted_data)), headers={'Content-Type': 'application/json'})
@@ -356,3 +421,60 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def ajax_test(self, *args, **kw):
         test_html = '<html><head><script src="{jquery}"></script><script src="{routes}"></script></head><body>Test</body></html>'.format(jquery=URLS['jquery'], routes=URLS['js_routes'])
         return test_html
+
+
+    @http.route(URLS['confirm_clinical_notification']+'<task_id>', type="http", auth="user")
+    def confirm_clinical(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        kw_copy = kw.copy()
+        if 'taskId' in kw_copy:
+            del kw_copy['taskId']
+        result = api.complete(cr, uid, int(task_id), kw_copy)
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['confirm_review_frequency']+'<task_id>', type="http", auth="user")
+    def confirm_review_frequency(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        kw_copy = kw.copy()
+        del kw_copy['taskId']
+        kw_copy['frequency'] = int(kw_copy['frequency'])
+        result = api.complete(cr, uid, int(task_id), kw_copy)
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['cancel_clinical_notification']+'<task_id>', type="http", auth="user")
+    def cancel_clinical(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+        kw_copy = kw.copy()
+        kw_copy['reason'] = int(kw_copy['reason'])
+        result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
+        return request.make_response(json.dumps({'status':1}), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['ajax_task_cancellation_options'], type='http', auth='user')
+    def cancel_reasons(self, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+        return request.make_response(json.dumps(api_pool.get_cancel_reasons(cr, uid, context=context)), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['single_patient']+'<patient_id>', type='http', auth='user')
+    def get_patient(self, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+        patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
+        return request.render('mobile_frontend.patient', qcontext={'patient': patient,
+                                                                   'urls': URLS,
+                                                                   'section': 'patient',
+                                                                   'username': request.session['login']})
+
+    @http.route(URLS['ajax_get_patient_obs']+'<patient_id>', type='http', auth='user')
+    def get_patient_obs(self, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+        ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
+        return request.make_response(json.dumps({'obs': ews}), headers={'Content-Type': 'application/json'})

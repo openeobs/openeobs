@@ -991,7 +991,7 @@ class t4_clinical_patient_observation_pbp(orm.Model):
     def _get_pbp_result(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         for pbp in self.browse(cr, uid, ids, context=context):
-            if int(fabs(pbp.systolic_sitting - pbp.systolic_standing)) > 20:
+            if int(pbp.systolic_sitting - pbp.systolic_standing) > 20:
                 res[pbp.id] = 'yes'
             else:
                 res[pbp.id] = 'no'
@@ -1002,7 +1002,7 @@ class t4_clinical_patient_observation_pbp(orm.Model):
         'systolic_standing': fields.integer('Standing Blood Pressure Systolic'),
         'diastolic_sitting': fields.integer('Sitting Blood Pressure Diastolic'),
         'diastolic_standing': fields.integer('Standing Blood Pressure Diastolic'),
-        'result': fields.function(_get_pbp_result, type='char', string='>20 mm', size=5, store=False)
+        'result': fields.function(_get_pbp_result, type='char', string='>20 mm/Hg', size=5, store=False)
     }
 
     _form_description = [

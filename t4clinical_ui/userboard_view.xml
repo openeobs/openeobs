@@ -1,5 +1,94 @@
 <openerp>
     <data>
+        <!--Admin Userboard Views-->
+        <record model="ir.ui.view" id="view_t4c_admin_userboard_search">
+            <field name="name">T4C Admin Userboard Search</field>
+            <field name="model">t4.clinical.admin.userboard</field>
+            <field name="arch" type="xml">
+                <search string="Admin UserBoard">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <group expand="1" string="Filters">
+                        <filter name="filter_inactive" string="Inactive Users" domain="[['active','=',False]]"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_t4c_admin_userboard_tree" model="ir.ui.view">
+            <field name="name">T4C Admin Userboard Tree</field>
+            <field name="model">t4.clinical.admin.userboard</field>
+            <field name="arch" type="xml">
+                <tree string="Users" version="7.0">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <field name="groups_id" string="Roles"/>
+                    <field name="location_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <act_window id="change_password_wizard_action_admin_userboard"
+            name="Change Password"
+            src_model="t4.clinical.admin.userboard"
+            res_model="change.password.wizard"
+            view_type="form" view_mode="form"
+            key2="client_action_multi" target="new"
+            groups="t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev"/>
+
+        <record id="view_t4c_admin_userboard_form" model="ir.ui.view">
+            <field name="name">T4C Admin Userboard Form</field>
+            <field name="model">t4.clinical.admin.userboard</field>
+            <field name="arch" type="xml">
+                <form string="Users" version="7.0">
+                    <header>
+                        <button name="deactivate" string="Deactivate" type="object" attrs="{'invisible':[['active','=',False]]}"/>
+                        <button name="activate" string="Activate" type="object" attrs="{'invisible':[['active','=',True]]}"/>
+                    </header>
+                	<sheet>
+	                	<group colspan="4" col="2">
+	                        <field name="name"/>
+	                        <field name="login"/>
+                            <field name="active" invisible="1"/>
+	                    </group>
+                        <group colspan="4" col="2" string="Roles">
+	                        <field name="hca"/>
+	                        <field name="nurse"/>
+                            <field name="ward_manager"/>
+                            <field name="doctor"/>
+                            <field name="admin"/>
+	                    </group>
+                        <div colspan="4">
+                            <button name="responsibility_allocation" string="Responsibility Allocation" type="object"/>
+                        </div>
+                        <notebook>
+                            <page string="Location responsibility">
+                                <field name="location_ids" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_t4c_admin_userboard" model="ir.actions.act_window">
+            <field name="name">Open eObs Users</field>
+            <field name="res_model">t4.clinical.admin.userboard</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_t4c_admin_userboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_t4c_admin_userboard_tree_view">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_t4c_admin_userboard_tree"/>
+            <field name="act_window_id" ref="action_t4c_admin_userboard"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_t4c_admin_userboard_form_view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_t4c_admin_userboard_form"/>
+            <field name="act_window_id" ref="action_t4c_admin_userboard"/>
+        </record>
+
         <!--Userboard Views-->
         <record model="ir.ui.view" id="view_t4c_userboard_search">
             <field name="name">t4c.userboard.search</field>
@@ -32,7 +121,7 @@
             </field>
         </record>
 
-        <act_window id="change_password_wizard_action"
+        <act_window id="change_password_wizard_action_userboard"
             name="Change Password"
             src_model="t4.clinical.userboard"
             res_model="change.password.wizard"

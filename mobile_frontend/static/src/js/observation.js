@@ -254,7 +254,7 @@ function ToggleNIVSupO2(e) {
 
 function displayTaskCancellationOptions() {
     console.log("this is being called"), timeIdle = 0;
-    var e = jsRoutes.controllers.Observations.getTaskCancellationReasons();
+    var e = frontend_routes.ajax_task_cancellation_options();
     $.ajax({
         url: e.url,
         type: e.type,
@@ -299,7 +299,7 @@ $(document).ready(function() {
     $(".header").css({
         "box-shadow": "none",
         "border-bottom": "1px solid #eeeeee"
-    }), "clinical" != s && "ObsFreq" != s && $("#obsForm")[0].reset();
+    }), "medical_team" != s && "frequency" != s && $("#obsForm")[0].reset();
     var o = !1;
     "task" == a ? null != taskId && void 0 != taskId && "" != taskId && frontend_routes.json_take_task(taskId).ajax({
         cache: !1,
@@ -311,20 +311,20 @@ $(document).ready(function() {
         }
     }) : timing = !1, $("#patientName a").click(function(s) {
         s.preventDefault(), timeIdle = 0;
-        var a = "", o = "", r = "";
+        var a = "", o = "", t = "";
         frontend_routes.json_patient_info(e).ajax({
             success: function(e) {
                 if (console.log(e), e.full_name && (a += " " + e.full_name), e.gender && (o = e.gender), 
                 e.dob) {
                     var s = new Date(e.dob);
                     s = ("0" + s.getDate()).slice(-2) + "/" + ("0" + (s.getMonth() + 1)).slice(-2) + "/" + s.getFullYear(), 
-                    r += "<dt>DOB:</dt><dd>" + s + "</dd>";
+                    t += "<dt>DOB:</dt><dd>" + s + "</dd>";
                 }
-                "" != e.location && (r += "<dt>Location:</dt><dd>" + e.location + "</dd>"), EWSlabel = "NEWS", 
-                e.ews_score && (r += "<dt class='twoline'>Latest " + EWSlabel + " Score</dt><dd class='twoline'>" + e.ews_score + "</dd>"), 
-                e.other_identifier && (r += "<dt>Hospital ID</dt><dd>" + e.other_identifier + "</dd>"), 
-                e.patient_identifier && (r += "<dt>NHS Number</dt><dd>" + e.patient_identifier + "</dd>"), 
-                displayModal("patientInfo", a + '<span class="alignright">' + o + "</span>", "<dl>" + r + "</dl><p><a href='#' id='loadObs'>View Patient Observation Data</a></p>", [ '<a href="#" class="cancel">Cancel</a>' ]);
+                "" != e.location && (t += "<dt>Location:</dt><dd>" + e.location + "</dd>"), EWSlabel = "NEWS", 
+                e.ews_score && (t += "<dt class='twoline'>Latest " + EWSlabel + " Score</dt><dd class='twoline'>" + e.ews_score + "</dd>"), 
+                e.other_identifier && (t += "<dt>Hospital ID</dt><dd>" + e.other_identifier + "</dd>"), 
+                e.patient_identifier && (t += "<dt>NHS Number</dt><dd>" + e.patient_identifier + "</dd>"), 
+                displayModal("patientInfo", a + '<span class="alignright">' + o + "</span>", "<dl>" + t + "</dl><p><a href='#' id='loadObs'>View Patient Observation Data</a></p>", [ '<a href="#" class="cancel">Cancel</a>' ]);
             },
             error: function() {
                 displayModal("patientInfo", "Error getting patient details", "<p>Sorry there seems to have been an error</p>", [ '<a href="#" class="cancel">Cancel</a>' ]);
@@ -341,8 +341,9 @@ $(document).ready(function() {
     }), $("select").on("focus", function() {
         timeIdle = 0;
     }), $("#startTimestamp").val($.now());
-    var r;
-    "clinical" != s && "ObsFreq" != s && (console.log("adding custom methods"), jQuery.validator.addMethod("pimpedNumber", function(e, s) {
+    var t;
+    "medical_team" != s && "frequency" != s && (console.log("adding custom methods"), 
+    jQuery.validator.addMethod("pimpedNumber", function(e, s) {
         return /^[-+]?\d+(\.\d+)?$/.test(e) ? !0 : (s.value = "", !0);
     }, "Invalid character found in field"), jQuery.validator.addMethod("lessThan", function(e, s, a) {
         var o = $(a);
@@ -362,7 +363,7 @@ $(document).ready(function() {
     }, "O2 less than 95%, action required"), jQuery.validator.addMethod("pimpedDigits", function(e, s) {
         return /^[-+]?\d+$/.test(e) ? !0 : /^[-+]?\d+\.(\d+)?$/.test(e) ? !1 : (s.value = "", 
         !0);
-    }, "Invalid character found in field"), r = $("#obsForm").validate({
+    }, "Invalid character found in field"), t = $("#obsForm").validate({
         success: function(e) {
             resetErrors(e.attr("for"), "empty");
         },
@@ -371,17 +372,17 @@ $(document).ready(function() {
         }
     }), addValidationRules(s)), $(".content").on("click", "#confirmSubmit", function(e) {
         e.preventDefault(), timeIdle = 0;
-        var s = jsRoutes.controllers.Observations.submitClinicalConfirmation(taskId);
+        var s = frontend_routes.confirm_clinical_notification(taskId);
         return $.ajax({
             url: s.url,
             type: s.type,
             success: function(e) {
-                if (console.log(e), 1 == e.status) if (e.relatedTasks) if (1 == e.relatedTasks.length) dismissModal("obsConfirm", "hide"), 
-                displayModal("obsConfirm", "Action required", "<p>" + e.relatedTasks[0].reason + "</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>', '<a href="' + jsRoutes.controllers.Tasks.performTask(e.relatedTasks[0].taskId).url + '" class="confirm">Confirm</a>' ], 500); else if (e.relatedTasks.length > 1) {
-                    for (var s = "", a = 0; a < e.relatedTasks.length; a++) s += '<li><a href="' + jsRoutes.controllers.Tasks.performTask(e.relatedTasks[a].taskId).url + '">' + e.relatedTasks[a].reason + "</a></li>";
-                    dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '">Go to My Tasks</a>' ], 500);
-                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The confirmation has been successfully submitted.</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
-                displayModal("obsConfirm", "Successfully submitted", "<p>The confirmation has been successfully submitted.</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500);
+                if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("obsConfirm", "hide"), 
+                displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.related_tasks[0].id).url + '" class="confirm">Confirm</a>' ], 500); else if (e.related_tasks.length > 1) {
+                    for (var s = "", a = 0; a < e.related_tasks.length; a++) s += '<li><a href="' + frontend_route.single_task(e.related_tasks[a].id).url + '">' + e.related_tasks[a].summary + "</a></li>";
+                    dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + frontend_routes.task_list().url + '">Go to My Tasks</a>' ], 500);
+                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The confirmation has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
+                displayModal("obsConfirm", "Successfully submitted", "<p>The confirmation has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500);
             },
             error: function(e) {
                 console.log("re-enabling submit"), o = !1, console.log(e), console.log(e.responseText), 
@@ -392,18 +393,18 @@ $(document).ready(function() {
         }), !0;
     }), $(".content").on("click", "#obsFreqSubmit", function(e) {
         e.preventDefault(), timeIdle = 0;
-        var s = $($("#obsForm")[0].elements).not(".exclude").serialize(), a = jsRoutes.controllers.Observations.submitObsChange(taskId);
+        var s = $($("#obsForm")[0].elements).not(".exclude").serialize(), a = frontend_routes.confirm_review_frequency(taskId);
         return $.ajax({
             url: a.url,
             type: a.type,
             data: s,
             success: function(e) {
-                if (console.log(e), 1 == e.status) if (e.relatedTasks) if (1 == e.relatedTasks.length) dismissModal("obsConfirm", "hide"), 
-                displayModal("obsConfirm", "Action required", "<p>" + e.relatedTasks[0].reason + "</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>', '<a href="' + jsRoutes.controllers.Tasks.performTask(e.relatedTasks[0].taskId).url + '" class="confirm">Confirm</a>' ], 500); else if (e.relatedTasks.length > 1) {
-                    for (var s = "", a = 0; a < e.relatedTasks.length; a++) s += '<li><a href="' + jsRoutes.controllers.Tasks.performTask(e.relatedTasks[a].taskId).url + '">' + e.relatedTasks[a].reason + "</a></li>";
-                    dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '">Go to My Tasks</a>' ], 500);
-                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
-                displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500);
+                if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("obsConfirm", "hide"), 
+                displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.relatedTasks[0].id).url + '" class="confirm">Confirm</a>' ], 500); else if (e.related_tasks.length > 1) {
+                    for (var s = "", a = 0; a < e.related_tasks.length; a++) s += '<li><a href="' + frontend_routes.single_task(e.relatedTasks[a].id).url + '">' + e.related_tasks[a].summary + "</a></li>";
+                    dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + frontend_routes.task_list().url + '">Go to My Tasks</a>' ], 500);
+                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
+                displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500);
             },
             error: function(e) {
                 console.log("re-enabling submit"), o = !1, console.log(e), console.log(e.responseText), 
@@ -414,15 +415,15 @@ $(document).ready(function() {
         }), !0;
     }), $(".content").on("click", "#obsSubmit", function(e) {
         e.preventDefault(), timeIdle = 0, resetErrors("empty");
-        var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
-        console.log(r);
-        var t;
-        return "patient" == a ? (console.log("obsource is patient"), t = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("obsource is task"), 
-        t = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+        var t = $($("#obsForm")[0].elements).not(".exclude").serialize();
+        console.log(t);
+        var r;
+        return "patient" == a ? (console.log("obsource is patient"), r = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("obsource is task"), 
+        r = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: t.url,
-            type: t.type,
-            data: r,
+            url: r.url,
+            type: r.type,
+            data: t,
             success: function(e) {
                 if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("obsConfirm", "hide"), 
                 displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.related_tasks[0].id).url + '" class="confirm">Proceed</a>' ], 500); else if (e.related_tasks.length > 1) {
@@ -431,8 +432,8 @@ $(document).ready(function() {
                 } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
                 displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else if (e.responseText) {
                     console.log("re-enabling submit"), o = !1;
-                    var r = $.parseJSON(e.responseText);
-                    r.errors && showErrors(r.errors), $("#obsConfirm .error").css("display", "block");
+                    var t = $.parseJSON(e.responseText);
+                    t.errors && showErrors(t.errors), $("#obsConfirm .error").css("display", "block");
                 } else $("#obsConfirm .error").css("display", "block");
             },
             error: function(e) {
@@ -444,15 +445,15 @@ $(document).ready(function() {
         })), !0;
     }), $("form").on("click", ".confirmPartial", function(e) {
         e.preventDefault(), timeIdle = 0, resetErrors("empty");
-        var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
-        console.log(r);
-        var t;
-        "patient" == a ? (console.log("partial obs for patient"), t = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("partial obs for task"), 
-        t = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+        var t = $($("#obsForm")[0].elements).not(".exclude").serialize();
+        console.log(t);
+        var r;
+        "patient" == a ? (console.log("partial obs for patient"), r = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("partial obs for task"), 
+        r = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: t.url,
-            type: t.type,
-            data: r,
+            url: r.url,
+            type: r.type,
+            data: t,
             success: function(e) {
                 if (console.log(e), 1 == e.status || 2 == e.status) 1 == e.status ? (dismissModal("obsPartial", "hide"), 
                 displayModal("obsConfirm", "Successfully submitted", "<p>The partial observation have been successfully submitted. Please be aware that this task is still active until all observations have been taken. Only the last complete NEWS score will be displayed..</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500)) : (dismissModal("obsPartial", "hide"), 
@@ -481,15 +482,15 @@ $(document).ready(function() {
         e.preventDefault(), timeIdle = 0, resetErrors("empty");
         var s = $($("#obsForm .cancelValues")).not(".exclude").serialize();
         console.log(s);
-        var a = jsRoutes.controllers.Observations.submitClinicalCancellation(taskId);
+        var a = frontend_routes.cancel_clinical_notification(taskId);
         o || (console.log("disabling submit"), o = !0, $.ajax({
             url: a.url,
             type: a.type,
             data: s,
             success: function(e) {
                 if (console.log(e), 1 == e.status || 2 == e.status) 1 == e.status ? (dismissModal("taskCancel", "hide"), 
-                displayModal("obsConfirm", "Successfully submitted", "<p>Action successfully cancelled</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>' ], 500)) : (dismissModal("taskCancel", "hide"), 
-                displayModal("obsConfirm", "Action required", "<p>" + e.message + "</p>", [ '<a href="' + jsRoutes.controllers.Tasks.listTasks().url + '" class="action">Go to My Tasks</a>', '<a href="' + jsRoutes.controllers.Tasks.performTask(e.taskId).url + '" class="confirm">Proceed</a>' ], 500)); else if (e.responseText) {
+                displayModal("obsConfirm", "Successfully submitted", "<p>Action successfully cancelled</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500)) : (dismissModal("taskCancel", "hide"), 
+                displayModal("obsConfirm", "Action required", "<p>" + e.message + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.taskId).url + '" class="confirm">Proceed</a>' ], 500)); else if (e.responseText) {
                     console.log("re-enabling submit"), submitDisbled = !1;
                     var s = $.parseJSON(e.responseText);
                     s.errors && showErrors(s.errors), dismissModal("taskCancel", "hide");
@@ -503,10 +504,10 @@ $(document).ready(function() {
             }
         }));
     }), $("#submitButton").click(function(e) {
-        if (e.preventDefault(), timeIdle = 0, r.form()) {
+        if (e.preventDefault(), timeIdle = 0, t.form()) {
             var a = processObs(s);
             console.log(a), $(".obsError").css("display", "none"), a ? "NEWS" == s ? displayModal("obsConfirm", 'Submit NEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "MEWS" == s ? displayModal("obsConfirm", 'Submit MEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "BTUHMEWS" == s || ("GCS" == s ? displayModal("obsConfirm", 'Submit GCS of <span id="obsScore" class="' + a.colour + '">' + a.gcsScore + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "STOOL" == s ? displayModal("obsConfirm", "Submit Stool observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "BLOODS" == s ? displayModal("obsConfirm", "Submit Blood Sugar observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "WEIGHT" == s ? displayModal("obsConfirm", "Submit Height and Weight observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "BLOODP" == s && displayModal("obsConfirm", "Submit Blood Product observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0)) : "ews" == s ? displayPartialObsDialog() : displayModal("obsConfirm", "Mandatory observation values not entered", "<p>Please enter all information and submit observation again</p>", [ '<a href="#" id="obsCancel" class="cancel">OK</a>' ], 0);
-        } else console.log(r.errors()), displayModal("obsConfirm", "Form validation errors", "<p>The observation your are trying to submit has input errors. Please correct them and resubmit.</p>", [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>' ]);
+        } else console.log(t.errors()), displayModal("obsConfirm", "Form validation errors", "<p>The observation your are trying to submit has input errors. Please correct them and resubmit.</p>", [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>' ]);
     }), $("#cancelSubmit").click(function(e) {
         e.preventDefault(), timeIdle = 0, displayTaskCancellationOptions();
     }), $("#bristolPopup").click(function(e) {
@@ -559,7 +560,7 @@ function processObs(a) {
     var o;
     if ("ews" == a) {
         if ("" == $("#respiration_rate").val() || "" == $("#indirect_oxymetry_spo2").val() || "" == $("#body_temperature").val() || "" == $("#blood_pressure_systolic").val() || "" == $("#blood_pressure_diastolic").val() || "" == $("#pulse_rate").val() || "" == $("#avpu_text").val() || "" == $("#oxygen_administration_flag").val()) return !1;
-        if ("true" == $("#oxygen_administration_flag").val().toString()) {
+        if ("True" == $("#oxygen_administration_flag").val().toString()) {
             if ("" == $("#device_id").val()) return !1;
             if ("44" == $("device_id").val()) {
                 if ("" == $("#flow_rate").val() && "" == $("#concentration").val() || "" == $("#cpap_peep").val()) return !1;
@@ -570,7 +571,7 @@ function processObs(a) {
         var l = frontend_routes.ews_score(), e = $.ajax({
             url: l.url,
             type: l.type,
-            data: jQuery("#obsForm").not(".exclude").serialize(),
+            data: $($("#obsForm")[0].elements).not(".exclude").serialize(),
             success: function(a) {
                 console.log(a), a.class = a.clinical_risk.toLowerCase(), 3 != a.score && 4 != a.score || 1 != a.three_in_one || (a.clinical_risk = "One observation scored 3 therefore " + a.clinical_risk + " clinical risk"), 
                 o = a;

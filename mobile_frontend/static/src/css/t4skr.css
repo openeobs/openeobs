@@ -352,6 +352,11 @@ table {
   padding-left: 5%;
   padding-right: 5%;
 }
+.block .block {
+  width: 100%;
+  padding-left: 0%;
+  padding-right: 0%;
+}
 button,
 .button {
   padding: .3em 2% .3em 2%;
@@ -1153,9 +1158,6 @@ rect.green {
 }
 .obsChange .obsSubmit {
   padding-bottom: 0px !important;
-}
-#obsFreqSubmit {
-  height: 3.4em !important;
 }
 #obsButton {
   margin-bottom: 2em;

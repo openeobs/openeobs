@@ -224,7 +224,90 @@ class t4_clinical_location(orm.Model):
         return res
 
     def _get_patient_ids (self, cr, uid, ids, field, args, context=None):
-        pass   
+        res = {}
+        patient_pool = self.pool['t4.clinical.patient']
+        for lid in ids:
+            res[lid] = patient_pool.search(cr, uid, [('current_location_id', '=', lid)], context=context)
+        return res
+
+    def _get_hca_ids(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for loc in self.browse(cr, uid, ids, context=context):
+            user_ids = []
+            for user in loc.user_ids:
+                if any([g.name == 'T4 Clinical HCA Group' for g in user.groups_id]):
+                    user_ids.append(user.id)
+            res[loc.id] = list(set(user_ids))
+        return res
+
+    def _get_nurse_ids(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for loc in self.browse(cr, uid, ids, context=context):
+            user_ids = []
+            for user in loc.user_ids:
+                if any([g.name == 'T4 Clinical Nurse Group' for g in user.groups_id]):
+                    user_ids.append(user.id)
+            res[loc.id] = list(set(user_ids))
+        return res
+
+    def _get_wm_ids(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for loc in self.browse(cr, uid, ids, context=context):
+            user_ids = []
+            for user in loc.user_ids:
+                if any([g.name == 'T4 Clinical Ward Manager Group' for g in user.groups_id]):
+                    user_ids.append(user.id)
+            res[loc.id] = list(set(user_ids))
+        return res
+
+    def _get_doctor_ids(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for loc in self.browse(cr, uid, ids, context=context):
+            user_ids = []
+            for user in loc.user_ids:
+                if any([g.name == 'T4 Clinical Doctor Group' for g in user.groups_id]):
+                    user_ids.append(user.id)
+            res[loc.id] = list(set(user_ids))
+        return res
+
+    def _get_users(self, cr, uid, location_id, group_name, context=None):
+        loc = self.browse(cr, uid, location_id, context=context)
+        res = []
+        if loc.child_ids:
+            for child in loc.child_ids:
+                res += self._get_users(cr, uid, child.id, group_name, context=context)
+        for user in loc.user_ids:
+            if any([g.name == group_name for g in user.groups_id]):
+                res += [user.id]
+        return list(set(res))
+
+    def _get_hcas(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for loc_id in ids:
+            res[loc_id] = len(self._get_users(cr, uid, loc_id, 'T4 Clinical HCA Group', context=context))
+        return res
+
+    def _get_nurses(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for loc_id in ids:
+            res[loc_id] = len(self._get_users(cr, uid, loc_id, 'T4 Clinical Nurse Group', context=context))
+        return res
+
+    def _get_related_patients(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        placement_pool = self.pool['t4.clinical.patient.placement']
+        for loc in self.browse(cr, uid, ids, context=context):
+            res[loc.id] = len(placement_pool.search(cr, uid, [('suggested_location_id', '=', loc.id), ('state', 'not in', ['completed', 'cancelled'])]))
+        return res
+
+    def _get_related_patients_childs(self, cr, uid, ids, field, args, context=None):
+        res = {}
+        for loc in self.browse(cr, uid, ids, context=context):
+            sum = 0
+            for child in loc.child_ids:
+                sum += len(child.patient_ids)
+            res[loc.id] = sum
+        return res
 
     _columns = {
         'name': fields.char('Location', size=100, required=True, select=True),
@@ -247,7 +330,15 @@ class t4_clinical_location(orm.Model):
         'patient_capacity': fields.integer('Patient Capacity'),
         'patient_ids': fields.function(_get_patient_ids, type='one2many', relation='t4.clinical.patient', string="Location Patients"),
         'user_ids': fields.many2many('res.users', 'user_location_rel', 'location_id', 'user_id', 'Responsible Users'),
-      
+        # aux fields for the view, worth having a SQL model instead?
+        'assigned_hca_ids': fields.function(_get_hca_ids, type='many2many', relation='res.users', string="Assigned HCAs"),
+        'assigned_nurse_ids': fields.function(_get_nurse_ids, type='many2many', relation='res.users', string="Assigned Nurses"),
+        'assigned_wm_ids': fields.function(_get_wm_ids, type='many2many', relation='res.users', string="Assigned Ward Managers"),
+        'assigned_doctor_ids': fields.function(_get_doctor_ids, type='many2many', relation='res.users', string="Assigned Doctors"),
+        'related_hcas': fields.function(_get_hcas, type='integer', string="Number of related HCAs"),
+        'related_nurses': fields.function(_get_nurses, type='integer', string="Number of related Nurses"),
+        'related_patients': fields.function(_get_related_patients, type='integer', string="Number of related Patients"),
+        'related_patients_childs': fields.function(_get_related_patients_childs, type='integer', string="Number of related Patients from child locations")
     }
 
     _defaults = {
