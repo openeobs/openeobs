@@ -185,7 +185,7 @@ class t4_clinical_location(orm.Model):
     #TODO Why is the code the rec_name if it's not required? name should be rec_name
     # _rec_name = 'code'
     _types = [('poc', 'Point of Care'), ('structural', 'Structural'), ('virtual', 'Virtual'), ('pos', 'POS')]
-    _usages = [('bed', 'Bed'), ('ward', 'Ward'), ('room', 'Room'),('department', 'Department'), ('hospital', 'Hospital')]
+    _usages = [('bed', 'Bed'), ('bay', 'Bay'),('ward', 'Ward'), ('room', 'Room'),('department', 'Department'), ('hospital', 'Hospital')]
     
     def _location2pos_id(self, cr, uid, ids, field, args, context=None):
         res = {}

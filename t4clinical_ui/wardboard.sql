@@ -30,12 +30,12 @@ wb_activity_latest as(
     select 
     	max_sequence.spell_id,
     	activity.state,
-    	activity.data_model,
-    	activity.id
+    	array_agg(activity.id) as ids
     from t4_activity activity
     inner join max_sequence on max_sequence.data_model = activity.data_model
     	 and max_sequence.state = activity.state
     	 and max_sequence.sequence = activity.sequence
+	group by max_sequence.spell_id, activity.state
 );
 
 create or replace view 
@@ -87,23 +87,25 @@ t4_clinical_wardboard as(
 	        ),
 	        
 	param as(
-			select distinct on (activity.spell_id)
-				activity.spell_id,
-				mrsa.mrsa,
-				diabetes.diabetes,
-				pbpm.pbp_monitoring,
-				wm.weight_monitoring,
-				height.height,
-				o2target_level.id as o2target_level_id
-			from wb_activity_latest activity
-			left join t4_clinical_patient_mrsa mrsa on activity.id = mrsa.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.mrsa'
-			left join t4_clinical_patient_diabetes diabetes on activity.id = diabetes.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.diabetes'
-			left join t4_clinical_patient_pbp_monitoring pbpm on activity.id = pbpm.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.pbp_monitoring'
-			left join t4_clinical_patient_weight_monitoring wm on activity.id = wm.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.weight_monitoring'
-			left join t4_clinical_patient_observation_height height on activity.id = height.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.observation.height'
-			left join t4_clinical_patient_o2target o2target on activity.id = o2target.activity_id and activity.state = 'completed' and activity.data_model ilike 't4.clinical.patient.o2target'
-			left join t4_clinical_o2level o2target_level on o2target_level.id = o2target.level_id	
-			)
+	
+		select 
+			activity.spell_id,
+			height.height,
+			diabetes.diabetes,
+			mrsa.mrsa,
+			pbpm.pbp_monitoring,
+			wm.weight_monitoring,
+			o2target_level.id as o2target_level_id
+		from wb_activity_latest activity
+		left join t4_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
+		left join t4_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
+		left join t4_clinical_patient_pbp_monitoring pbpm on activity.ids && array[pbpm.activity_id]
+		left join t4_clinical_patient_weight_monitoring wm on activity.ids && array[wm.activity_id]
+		left join t4_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
+		left join t4_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
+		left join t4_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]	
+		where activity.state = 'completed'
+	)
 	
 	select 
 	    spell.id as id,

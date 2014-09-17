@@ -66,7 +66,29 @@ API consists of 3 classes of methods:
                     - submit_complete
 """
 
+def norm_ids(ids):
+    return [int(id) for id in ids if id not in (None, False, 0)]
 
+def ids2sql(ids):
+    return ','.join(map(str, norm_ids(ids)))
+
+def strs2sql(strs):
+    norm_strs = [s for s in strs if id not in (None, False, '')]
+    if not norm_strs:
+        return ''
+    else:
+        return "'"+"','".join(norm_strs)+"'"
+
+def list2sqlstr(lst):
+    res = []
+    for l in lst:
+        if isinstance(l, (int, long)):
+            res.append("%s" % int(l))
+        elif isinstance(l, basestring):
+            res.append("'%s'" % l) 
+        elif l is None:
+            res.append("0")
+    return ",".join(res)
     
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api'
@@ -222,7 +244,6 @@ class t4_clinical_api(orm.AbstractModel):
             return patient_ids
         else:
             return self.pool['t4.clinical.patient'].brpwse(cr, uid, patient_ids)
-        
 
     def patient_map(self, cr, uid, patient_ids=[], pos_ids=[], location_ids=[], parent_location_ids=[]):  
         """
@@ -370,9 +391,9 @@ with
         {user_id: {group_xmlids, assigned_activity_ids, responsible_activity_ids}}
         """
         where_list = []
-        if assigned_activity_ids: where_list.append("assigned_activity_ids && array[%s]" % ','.join([str(int(id)) for id in assigned_activity_ids]))
-        if user_ids: where_list.append("user_id in (%s)" % ','.join([str(int(id)) for id in user_ids]))
-        if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(int(id)) for id in pos_ids]))
+        if assigned_activity_ids: where_list.append("assigned_activity_ids && array[%s]" % list2sqlstr(assigned_activity_ids))
+        if user_ids: where_list.append("user_id in (%s)" % list2sqlstr(user_ids))
+        if pos_ids: where_list.append("pos_id in (%s)" % list2sqlstr(pos_ids))
         if group_xmlids: where_list.append("group_xmlids && array['%s']" % "','".join(group_xmlids))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""       
         sql = """
@@ -438,7 +459,7 @@ with
                         activity_ids=[], pos_ids=[], location_ids=[], patient_ids=[],
                         device_ids=[], data_models=[], states=[]):
         where_list = []
-        if activity_ids: where_list.append("id in (%s)" % ','.join([str(int(id)) for id in activity_ids]))
+        if activity_ids: where_list.append("id in (%s)" % list2sqlstr(activity_ids))
         if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(int(id)) for id in pos_ids]))    
         if location_ids: where_list.append("location_id in (%s)" % ','.join([str(int(id)) for id in location_ids])) 
         if patient_ids: where_list.append("patient_id in (%s)" % ','.join([str(int(id)) for id in patient_ids]))
@@ -586,13 +607,14 @@ with
 #                 "type = %s, items: %s" % (type(available_range).__name__, available_range)                 
                            
         #print "api: map args: location_ids: %s, available_range: %s, usages: %s" % (location_ids,available_range,usages)
+        
         where_list = []
-        if location_ids: where_list.append("location_id in (%s)" % ','.join([str(int(id)) for id in location_ids]))
-        if patient_ids: where_list.append("patient_ids && array[%s]" % ','.join([str(int(id)) for id in patient_ids]))
-        if pos_ids: where_list.append("pos_id in (%s)" % ','.join([str(int(id)) for id in pos_ids]))
-        if types: where_list.append("type in ('%s')" % "','".join([str(t) for t in types]))
-        if usages: where_list.append("usage in ('%s')" % "','".join([str(u) for u in usages]))
-        if codes: where_list.append("code in ('%s')" % "','".join([str(c) for c in codes]))                       
+        if location_ids: where_list.append("location_id in (%s)" % list2sqlstr(location_ids))
+        if patient_ids: where_list.append("patient_ids && array[%s]" % list2sqlstr(patient_ids))
+        if pos_ids: where_list.append("pos_id in (%s)" % list2sqlstr(pos_ids))
+        if types: where_list.append("type in (%s)" % list2sqlstr(types))
+        if usages: where_list.append("usage in (%s)" % list2sqlstr(usages))
+        if codes: where_list.append("code in (%s)" % list2sqlstr(codes))                       
         if occupied_range: where_list.append("occupied between %s and %s" % (occupied_range[0], occupied_range[1]))
         if capacity_range: where_list.append("capacity between %s and %s" % (capacity_range[0], capacity_range[1]))
         if available_range: where_list.append("available between %s and %s" % (available_range[0], available_range[1]))

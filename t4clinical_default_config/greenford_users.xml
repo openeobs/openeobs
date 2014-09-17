@@ -1,0 +1,126 @@
+<openerp>
+    <data>
+        <!--Users-->
+        
+        <record id="t4c_def_conf_adt_user" model="res.users">
+            <field name="name">GUH-ADT</field>
+            <field name="login">adt</field>
+            <field name="password">adt</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_admin'))]"/>
+            <field name="pos_id" ref="t4c_def_conf_pos_hospital"/>
+        </record>
+        
+        <record id="t4c_def_conf_hca_harold_user" model="res.users">
+            <field name="name">Harold Bishop</field>
+            <field name="login">harold</field>
+            <field name="password">harold</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b1'),ref('t4c_def_conf_location_b2'),
+            ref('t4c_def_conf_location_b3'),ref('t4c_def_conf_location_b4')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_hca_henry_user" model="res.users">
+            <field name="name">Henry Higgins</field>
+            <field name="login">henry</field>
+            <field name="password">henry</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b5'),ref('t4c_def_conf_location_b6'),
+            ref('t4c_def_conf_location_b7'),ref('t4c_def_conf_location_b8')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_hca_hannah_user" model="res.users">
+            <field name="name">Hannah Mitchell</field>
+            <field name="login">hannah</field>
+            <field name="password">hannah</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b11'),ref('t4c_def_conf_location_b12'),
+            ref('t4c_def_conf_location_b13'),ref('t4c_def_conf_location_b14')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_nurse_norah_user" model="res.users">
+            <field name="name">Norah Miller</field>
+            <field name="login">norah</field>
+            <field name="password">norah</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b1'),ref('t4c_def_conf_location_b2'),
+            ref('t4c_def_conf_location_b3'),ref('t4c_def_conf_location_b4')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_nurse_nadine_user" model="res.users">
+            <field name="name">Nadine Bullock</field>
+            <field name="login">nadine</field>
+            <field name="password">nadine</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b5'),ref('t4c_def_conf_location_b6'),
+            ref('t4c_def_conf_location_b7'),ref('t4c_def_conf_location_b8')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_nurse_nathan_user" model="res.users">
+            <field name="name">Nathan Lewis</field>
+            <field name="login">nathan</field>
+            <field name="password">nathan</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b11'),ref('t4c_def_conf_location_b12'),
+            ref('t4c_def_conf_location_b13'),ref('t4c_def_conf_location_b14')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_ward_manager_winifred_user" model="res.users">
+            <field name="name">Winifred Kirrin</field>
+            <field name="login">winifred</field>
+            <field name="password">winifred</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_w8')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_ward_manager_walter_user" model="res.users">
+            <field name="name">Walter Smith</field>
+            <field name="login">walter</field>
+            <field name="password">walter</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_w8')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_ward_manager_whitney_user" model="res.users">
+            <field name="name">Whitney Williams</field>
+            <field name="login">whitney</field>
+            <field name="password">whitney</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_ward_manager'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_w9')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_doctor_dave_user" model="res.users">
+            <field name="name">Dave Chas</field>
+            <field name="login">dave</field>
+            <field name="password">dave</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b1'),ref('t4c_def_conf_location_b2'),
+            ref('t4c_def_conf_location_b3'),ref('t4c_def_conf_location_b4')]]]"/>
+        </record>
+
+        <record id="t4c_def_conf_doctor_davina_user" model="res.users">
+            <field name="name">Davina McCall</field>
+            <field name="login">davina</field>
+            <field name="password">davina</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('t4c_def_conf_location_b11'),ref('t4c_def_conf_location_b12'),
+            ref('t4c_def_conf_location_b13'),ref('t4c_def_conf_location_b14')]]]"/>
+        </record>
+
+        <record id="base.user_root" model="res.users">
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('t4clinical_base.group_t4clinical_admin'))]"/>
+        </record>
+        
+    </data>
+</openerp>

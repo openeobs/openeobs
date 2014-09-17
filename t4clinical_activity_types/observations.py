@@ -26,9 +26,9 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             return {id: False for id in ids}
         res = {}
         for obs in self.read(cr, uid, ids, ['none_values'], context):
-            print 'inside read {0} - {1}'.format(self._required, obs['none_values'])
+            #print 'inside read {0} - {1}'.format(self._required, obs['none_values'])
             res.update({obs['id']: bool(set(self._required) & set(eval(obs['none_values'])))})
-        print 'is_partial: %s' % res
+        #print 'is_partial: %s' % res
         #import pdb; pdb.set_trace()
         return res
 

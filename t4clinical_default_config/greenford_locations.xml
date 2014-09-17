@@ -1,0 +1,168 @@
+<openerp>
+    <data>
+        
+        <!-- Location - Wards -->
+        <record id="t4c_def_conf_location_w8" model="t4.clinical.location">
+            <field name="name">Ward E8</field>
+            <field name="code">E8</field>
+            <field name="type">poc</field>
+            <field name="usage">ward</field>
+          <field name="parent_id" ref="t4c_def_conf_location_guh"/>
+        </record>        
+        <record id="t4c_def_conf_location_w9" model="t4.clinical.location">
+            <field name="name">Ward E9</field>
+            <field name="code">E9</field>
+            <field name="type">poc</field>
+            <field name="usage">ward</field>
+            <field name="parent_id" ref="t4c_def_conf_location_guh"/>
+        </record>
+
+        <!-- Point of Care - Beds -->
+
+        <!-- BEDS E8 Ward -->
+        <record id="t4c_def_conf_location_b1" model="t4.clinical.location">
+            <field name="name">Bed 1</field>
+            <field name="code">B1</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>   
+        <record id="t4c_def_conf_location_b2" model="t4.clinical.location">
+            <field name="name">Bed 2</field>
+            <field name="code">B2</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>  
+        <record id="t4c_def_conf_location_b3" model="t4.clinical.location">
+            <field name="name">Bed 3</field>
+            <field name="code">B3</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>  
+        <record id="t4c_def_conf_location_b4" model="t4.clinical.location">
+            <field name="name">Bed 4</field>
+            <field name="code">B4</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>          
+        <record id="t4c_def_conf_location_b5" model="t4.clinical.location">
+            <field name="name">Bed 5</field>
+            <field name="code">B5</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>
+        <record id="t4c_def_conf_location_b6" model="t4.clinical.location">
+            <field name="name">Bed 6</field>
+            <field name="code">B6</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>
+        <record id="t4c_def_conf_location_b7" model="t4.clinical.location">
+            <field name="name">Bed 7</field>
+            <field name="code">B7</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>
+        <record id="t4c_def_conf_location_b8" model="t4.clinical.location">
+            <field name="name">Bed 8</field>
+            <field name="code">B8</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>
+        <record id="t4c_def_conf_location_b9" model="t4.clinical.location">
+            <field name="name">Bed 9</field>
+            <field name="code">B9</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>
+        <record id="t4c_def_conf_location_b10" model="t4.clinical.location">
+            <field name="name">Bed 10</field>
+            <field name="code">B10</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w8"/>
+        </record>
+
+
+        <!-- BEDS E9 Ward -->
+        <record id="t4c_def_conf_location_b11" model="t4.clinical.location">
+            <field name="name">Bed 11</field>
+            <field name="code">B11</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>   
+        <record id="t4c_def_conf_location_b12" model="t4.clinical.location">
+            <field name="name">Bed 12</field>
+            <field name="code">B12</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>  
+        <record id="t4c_def_conf_location_b13" model="t4.clinical.location">
+            <field name="name">Bed 13</field>
+            <field name="code">B13</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>
+        <record id="t4c_def_conf_location_b14" model="t4.clinical.location">
+            <field name="name">Bed 14</field>
+            <field name="code">B14</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>
+        <record id="t4c_def_conf_location_b15" model="t4.clinical.location">
+            <field name="name">Bed 15</field>
+            <field name="code">B15</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>  
+        <record id="t4c_def_conf_location_b16" model="t4.clinical.location">
+            <field name="name">Bed 16</field>
+            <field name="code">B16</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>
+        <record id="t4c_def_conf_location_b17" model="t4.clinical.location">
+            <field name="name">Bed 17</field>
+            <field name="code">B17</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>
+        <record id="t4c_def_conf_location_b18" model="t4.clinical.location">
+            <field name="name">Bed 18</field>
+            <field name="code">B18</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>
+        <record id="t4c_def_conf_location_b19" model="t4.clinical.location">
+            <field name="name">Bed 19</field>
+            <field name="code">B19</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>
+        <record id="t4c_def_conf_location_b20" model="t4.clinical.location">
+            <field name="name">Bed 20</field>
+            <field name="code">B20</field>
+            <field name="type">poc</field>
+            <field name="usage">bed</field>
+            <field name="parent_id" ref="t4c_def_conf_location_w9"/>
+        </record>
+
+    </data>
+</openerp>

@@ -13,13 +13,6 @@ _logger = logging.getLogger(__name__)
 
 from faker import Faker
 fake = Faker()
-seed = fake.random_int(min=0, max=9999999)
-
-
-def next_seed():
-    global seed
-    seed += 1
-    return seed
 
 
 class t4_clinical_api_demo(orm.AbstractModel):
@@ -72,15 +65,172 @@ class t4_clinical_api_demo(orm.AbstractModel):
         activity_id = model_pool.create_activity(cr, uid, activity_values, v, context)
         return activity_id
     
-    def place_patient(self, cr, uid, pos_id):
+    def place_patient(self, cr, uid, pos_id, bed_location_id=None):
         patient_id = None
         raise orm.except_orm('Not Implemented', 'Method place patient is not implemented yet!')
         return patient_id
     
+    def get_available_bed(self, cr, uid, location_ids=[], pos_id=None):
+        """
+        Method    
+        """
+        api = self.pool['t4.clinical.api']
+        fake = self.next_seed_fake()
+        # find available in passed location_ids
+        if location_ids:
+            location_ids = api.location_map(cr, uid, location_ids=location_ids, usages=['bed'], available_range=[1,1]).keys()
+            if location_ids:
+                return fake.random_element(location_ids)
+        # ensure pos_id is set
+        if not pos_id:
+            pos_ids = self.pool['t4.clinical.pos'].search(cr, uid, [])
+            if pos_ids:
+                pos_id = pos_ids[0]
+            else:
+                raise orm.except_orm('POS not found!', 'pos_id was not passed and existing POS is not found.') 
+        # try to find existing locations
+        location_ids = api.location_map(cr, uid, location_ids=location_ids, pos_ids=[pos_id], usages=['bed'], available_range=[1,1]).keys()
+        if location_ids:
+            return fake.random_element(location_ids)
+        # create new location
+        ward_location_ids = api.location_map(cr, uid, pos_ids=[pos_id], usages=['ward']).keys()
+        if not ward_location_ids:
+            pos_location_ids = api.location_map(cr, uid, pos_ids=[pos_id], usages=['pos']).keys()[0]
+            ward_location_id = self.create(cr, uid, 't4.clinical.location', 'location_ward', {'parent_id': pos_location_ids[0]})
+        else:
+            ward_location_id = fake.random_element(ward_location_ids)
+        location_id = self.create(cr, uid, 't4.clinical.location', 'location_bed', {'parent_id': ward_location_id})
+        return location_id
+    
+    def get_nurse(self, cr, uid):    
+        api = self.pool['t4.clinical.api']
+        nurse_uid = api.user_map(cr, uid, group_xmlids=['group_t4clinical_nurse']).keys()
+        if uid in nurse_uid:
+            nurse_uid = uid
+        else:
+            nurse_uid = nurse_uid and nurse_uid[0] or self.create(cr, uid, 'res.users', 'user_nurse')    
+        return nurse_uid
+    
+    def user_add_location(self, cr, uid, user_id, location_id):
+        """
+        Adds location_id to user's responsibility location list
+        """
+        self.pool['res.users'].write(cr, uid, user_id, {'location_ids': ([4, location_id])})
+        return 
+        
+    def get_adt_user(self, cr, uid, pos_id):
+        """
+        Returns ADT user id for pos_id
+        If uid appears to be ADT user id, returns uid
+        """
+        api = self.pool['t4.clinical.api']
+        adt_uid = api.user_map(cr, uid, group_xmlids=['group_t4clinical_adt'], pos_ids=[pos_id]).keys()
+        if uid in adt_uid:
+            adt_uid = uid
+        else:
+            adt_uid = adt_uid and adt_uid[0] or self.create(cr, uid, 'res.users', 'user_adt', {'pos_id': pos_id})    
+        return adt_uid
+    
+    def register_admit(self, cr, uid, pos_id, register_values={}, admit_values={}):
+        """
+        Registers and admits patient to POS. Missing data will be generated
+        """
+        api = self.pool['t4.clinical.api']
+        # ensure pos_id is set
+        if not pos_id:
+            pos_ids = self.pool['t4.clinical.pos'].search(cr, uid, [])
+            if pos_ids:
+                pos_id = pos_ids[0]
+            else:
+                raise orm.except_orm('POS not found!', 'pos_id was not passed and existing POS is not found.')         
+        adt_uid = self.get_adt_user(cr, uid, pos_id)
+        reg_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.register', None, {}, register_values)
+        reg_data = api.get_activity_data(cr, uid, reg_activity_id)
+        admit_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', None, {}, reg_data)
+        api.complete(cr, uid, admit_activity_id)   
+        return admit_activity_id
+             
+
+        
+    def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}):
+        """
+        Registers, admits and places patient into bed_location_id if vacant 
+        otherwise found among existing ones or created.
+        Missing data will be generated
+        """        
+        api = self.pool['t4.clinical.api']
+        
+        bed_location_id = self.get_available_bed(cr, uid, location_ids=[bed_location_id])
+        bed_location = api.browse(cr, uid, 't4.clinical.location', bed_location_id)     
+        pos_id = bed_location.pos_id.id      
+        
+        admit_activity_id = self.register_admit(cr, uid, pos_id, register_values, admit_values)
+          
+        admission_activity_id = api.activity_map(cr, uid, 
+                                                  data_models=['t4.clinical.patient.admission'],
+                                                  creator_ids=[admit_activity_id]).keys()[0]
+                        
+        placement_activity_id = api.activity_map(cr, uid, 
+                                                  data_models=['t4.clinical.patient.placement'],
+                                                  creator_ids=[admission_activity_id]).keys()[0]   
+        
+        api.submit_complete(cr, uid, placement_activity_id, {'location_id': bed_location_id})     
+        return placement_activity_id     
+    
+    def build_patient(self, cr, uid, bed_location_id=None, nurse_user_id=None, wm_user_id=None,
+                      ews_count=3, gcs_count=2):
+        """
+        Patients-centric method. Places patient and builds patient-related environment. 
+        """    
+        api = self.pool['t4.clinical.api']
+        placement_activity_id = self.register_admit_place(cr, uid)
+        placement_activity = api.browse(cr, uid, 't4.activity', placement_activity_id)
+        patient_id = placement_activity.patient_id.id
+        pos_id = placement_activity.pos_id.id
+        if not nurse_user_id:
+            nurse_user_id = self.get_nurse(cr, uid)
+        print nurse_user_id
+        import pdb; pdb.set_trace()
+        self.user_add_location(cr, uid, nurse_user_id, placement_activity.location_id.id)
+        if wm_user_id:
+            self.user_add_location(cr, uid, wm_user_id, placement_activity.location_id.id)
+        while ews_count + gcs_count > 0:
+            if ews_count:
+                ews_count -= 1
+                ews = api.activity_map(cr, uid, 
+                                      data_models=['t4.clinical.patient.observation.ews'],
+                                      pos_ids=[pos_id],
+                                      patient_ids=[patient_id],
+                                      states=['new', 'scheduled']).values()[0]
+                api.submit_complete(cr, nurse_user_id, ews['id'], self.demo_data(cr, uid, 't4.clinical.patient.observation.ews'))
+      
+            if gcs_count:
+                gcs_count -= 1
+        
+        return True
+        
+    
+    def build_bed(self, cr, uid, bed_location_id=None, pos_id=None, parent_location_id=None, nurse_user_id=None,
+                   ews=3, gcs=3, blood_sugar=2):
+        """
+        Bed-centric method. Builds environment related to bed location. 
+        """
+    
+    
+    
+    def build_ward(self, cr, uid, ward_location_id=None, pos_id=None, parent_location_id=None, nurse_user_id=None, wm_user_id=None,
+                   ews=3, gcs=3, blood_sugar=2):
+        """
+        Ward-centric method. Builds environment related to bed location.
+        """
+    
+    
+    
     def build_uat_pos(self, cr, uid, 
                        bed_count=5, ward_count=2, 
                        patient_admit_count=10, patient_placement_count=5, 
-                       ews_count=3, weight_count=3, blood_sugar_count=3):
+                       ews_count=3, weight_count=3, blood_sugar_count=3,
+                       height_count=3, o2target_count=3, mrsa_count=3, diabetes_count=3):
 #                        adt_user_count=1, hca_count=2, nurse_count=2, doctor_count=2, ward_manager_count=2):
         """
         Creates UAT POS with set names, wards, beds
@@ -92,8 +242,8 @@ class t4_clinical_api_demo(orm.AbstractModel):
         ward_manager_names = ['walter', 'wanda']
         doctor_names = ['dean', 'dana']
         
-        assert patient_admit_count >= patient_placement_count
-        assert bed_count >= patient_placement_count
+        assert patient_admit_count >= patient_placement_count, "%s >= %s" % (patient_admit_count, patient_placement_count)
+        assert bed_count >= patient_placement_count, "%s >= %s" % (bed_count, patient_placement_count)
         
         fake = self.next_seed_fake()
         api = self.pool['t4.clinical.api']
@@ -168,8 +318,26 @@ class t4_clinical_api_demo(orm.AbstractModel):
             for spell in spell_activities:
                 vals = self.demo_data(cr, uid, 't4.clinical.patient.observation.blood_sugar', values={'patient_id': spell['patient_id']})
                 api.create_complete(cr, uid, 't4.clinical.patient.observation.blood_sugar', {'parent_id': spell['id']}, vals)            
+
+        # HEIGHT
+        for i in range(height_count):
+            for spell in spell_activities:
+                vals = self.demo_data(cr, uid, 't4.clinical.patient.observation.height', values={'patient_id': spell['patient_id']})
+                api.create_complete(cr, uid,'t4.clinical.patient.observation.height', {'parent_id': spell['id']}, vals)
+
+        # DIABETES
+        for i in range(diabetes_count):
+            for spell in spell_activities:
+                vals = self.demo_data(cr, uid, 't4.clinical.patient.diabetes', values={'patient_id': spell['patient_id']})
+                api.create_complete(cr, uid,'t4.clinical.patient.diabetes', {'parent_id': spell['id']}, vals)
+
+#         # O2TARGET
+#         for i in range(o2target_count):
+#             for spell in spell_activities:
+#                 vals = self.demo_data(cr, uid, 't4.clinical.patient.o2target', values={'patient_id': spell['patient_id']})
+#                 api.create_complete(cr, uid,'t4.clinical.patient.o2target', {'parent_id': spell['id']}, vals)        
+        
         return True
-    
 #     def create_placement(self, cr, uid, values={}):
 #         """
 #         Must use adt user
@@ -197,7 +365,10 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
         
         't4.clinical.patient.observation.ews': 'observation_ews',
         't4.clinical.patient.observation.weight': 'observation_weight',
+        't4.clinical.patient.observation.height': 'observation_height',
         't4.clinical.patient.observation.blood_sugar': 'observation_blood_sugar',
+        
+        't4.clinical.patient.diabetes': 'diabetes',
         
     }
 
@@ -517,9 +688,25 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
         v.update({'weight': float(fake.random_int(min=40, max=200))})
         v.update(values)
         return v        
+
+    def observation_height(self, cr, uid, values={}):
+        fake = self.next_seed_fake()
+        v = {}
+        assert 'patient_id' in values, "'patient_id' is not in values!"
+        v.update({'height': float(fake.random_int(min=120, max=220))})
+        v.update(values)
+        return v  
+
+    def diabetes(self, cr, uid, values={}):
+        fake = self.next_seed_fake()
+        v = {}
+        assert 'patient_id' in values, "'patient_id' is not in values!"
+        v.update({'diabetes': fake.random_element([True, False])})
+        v.update(values)
+        return v  
     
     def observation_blood_sugar(self, cr, uid, values={}):
-        fake.seed(next_seed())
+        fake = self.next_seed_fake()
         v = {
              'blood_sugar': float(fake.random_int(min=1, max=100)),
              #'patient_id': fake.random_element(self.get_current_patient_ids(cr, SUPERUSER_ID, env_id))

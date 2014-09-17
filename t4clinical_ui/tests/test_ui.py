@@ -48,7 +48,7 @@ class test_ui_data(SingleTransactionCase):
 
 
     def test_wardboard_data(self):
-        return
+        #return
         cr, uid = self.cr, self.uid
         wardboard_model = self.registry('t4.clinical.wardboard')
         env_model = self.registry('t4.clinical.demo.env')
@@ -179,6 +179,12 @@ class test_ui_data(SingleTransactionCase):
                         "wardboard.ews_trend_string: %s, this_ews_trend_string: %s"\
                         %(wardboard.ews_trend_string, this_ews_trend_string)
                 previous_result = {'score':activity.data_ref.score}
+                ews_ids = [ews.id for ews in wardboard.ews_ids]
+                
+                print "id = %s, ews_ids = %s" % (activity.data_ref.id, ews_ids)
+#                 import pdb; pdb.set_trace()
+                assert activity.data_ref.id in ews_ids, "ews.data_ref.id not in wardboard.ews_ids: id = %s, ews_ids = %s" % (activity.data_ref.id, ews_ids)
+                #import pdb; pdb.set_trace()
             # other obs
             mrsa_activity_map = api.activity_rank_map(cr, uid, 
                                                         partition_by="patient_id, data_model, state", 
@@ -190,9 +196,11 @@ class test_ui_data(SingleTransactionCase):
                                                       )
             print "create_complete mrsa_activity: %s" % mrsa_activity
             print "mrsa_activity_map: %s" % mrsa_activity_map         
+             
             assert wardboard.mrsa == mrsa_activity.data_ref.mrsa and 'yes' or 'no'
             assert wardboard.diabetes == diabetes_activity.data_ref.diabetes and 'yes' or 'no'
             assert wardboard.pbp_monitoring == pbpm_activity.data_ref.pbp_monitoring and 'yes' or 'no'  
             assert wardboard.weight_monitoring == weightm_activity.data_ref.weight_monitoring and 'yes' or 'no' 
+#             import pdb; pdb.set_trace()
             assert wardboard.height == height_activity.data_ref.height
-            assert wardboard.o2target.id == o2target_activity.data_ref.level_id.id
+            #assert wardboard.o2target.id == o2target_activity.data_ref.level_id.id

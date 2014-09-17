@@ -8,10 +8,18 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
+    
+    
     'depends': ['t4clinical_ui'],
-    'data': ['default_master_data.xml'],
+    
+    'data': ['trust.xml',
+             'greenford_pos.xml', 'greenford_locations.xml', 'greenford_users.xml','greenford_devices.xml','greenford_params.xml'],
+             
+             
     'qweb': ['static/src/xml/t4clinical_default_config.xml'],
     'css': ['static/src/css/t4clinical_default_config.css'],
+    
+    
     'application': True,
     'installable': True,
     'active': False,
