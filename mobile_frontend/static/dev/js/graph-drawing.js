@@ -64,7 +64,7 @@ function drawChart(){
     context.obj.append("g").attr({"class": "y axis", "transform": "translate(5,0)"}).call(context.yAxis);
 
     // only want brushing if on a desktop
-    if(!svg.isMob) {
+    //if(!svg.isMob) {
         //setup context brush
         context.brush = d3.svg.brush()
             .x(context.xScale)
@@ -78,14 +78,14 @@ function drawChart(){
             .attr("y", -6)
             .attr("height", context.height + 7)
             .style({"fill": "#333", "opacity": "0.5"});
-    }
+    //}
 
     // create line for context values
     context.area = d3.svg.line()
         .interpolate("step-after")
-        .defined(function(d){ if(d.obs.score > -1){ return d; }})
-        .x(function(d) { return context.xScale(d.obsStart); })
-        .y(function(d) { return context.yScale(d.obs.score);});
+        .defined(function(d){ if(d.score > -1){ return d; }})
+        .x(function(d) { return context.xScale(d.date_started); })
+        .y(function(d) { return context.yScale(d.score);});
 
     // add area to context
     context.obj.append("path")
@@ -96,23 +96,23 @@ function drawChart(){
 
 
     // add circles to represent values and also so can be selected
-    context.obj.selectAll("circle.contextPoint").data(svg.data.filter(function(d){ if(d.obs.score > -1){ return d; }}))
+    context.obj.selectAll("circle.contextPoint").data(svg.data.filter(function(d){ if(d.score > -1){ return d; }}))
         .enter()
         .append("circle")
         .attr("cx", function (d) {
-            return context.xScale(d.obsStart)
+            return context.xScale(d.date_started)
         })
-        .attr("cy", function(d){ return context.yScale(d.obs.score); })
+        .attr("cy", function(d){ return context.yScale(d.score); })
         .attr("r", 3)
         .attr("class", "contextPoint")
-        .on("mouseover", function(d){ return contextMouseOver(d.obs.score);})
+        .on("mouseover", function(d){ return contextMouseOver(d.score);})
         .on("mouseout", contextMouseOut);
 
-    context.obj.selectAll("circle.emptyContextPoint").data(svg.data.filter(function(d){ console.log(typeof(d.obs.score)); if(d.obs.score == undefined){ return d; }}))
+    context.obj.selectAll("circle.emptyContextPoint").data(svg.data.filter(function(d){ console.log(typeof(d.score)); if(d.score == undefined){ return d; }}))
         .enter()
         .append("circle")
         .attr("cx", function (d) {
-            return context.xScale(d.obsStart)
+            return context.xScale(d.date_started)
         })
         .attr("cy", function(d){ return context.yScale(context.yScale.domain()[1] / 2); })
         .attr("r", 3)
@@ -224,66 +224,66 @@ function drawGraph() {
 
             // if BP data points then add up arrows
             focus.obj.selectAll("." + thisEntry.label + "up-arrows")
-                .data(svg.data.filter(function(d){ if(d.obs.blood_pressure_systolic){ return d; }}))
+                .data(svg.data.filter(function(d){ if(d.blood_pressure_systolic){ return d; }}))
                 .enter()
                 .append("path")
                 .attr({
                     "d": d3.svg.symbol().size(function(d){ return 45; }).type(function(d){ return 'triangle-up'}),
-                    "transform": function(d){ return "translate(" + context.xScale(d.obsStart) +  "," + (thisEntry.yScale(d.obs.blood_pressure_systolic) + 3) + ")"; },
+                    "transform": function(d){ return "translate(" + context.xScale(d.date_started) +  "," + (thisEntry.yScale(d.blood_pressure_systolic) + 3) + ")"; },
                     "class": "data_symbols " + thisEntry.label + "up-arrows"
                 })
                 .style("display", function(d){
-                    if(d.obs["blood_pressure_systolic"] === null){
+                    if(d["blood_pressure_systolic"] === null){
                         return "none";
                     }else{
                         return null;
                     }
                 })
-                .on("mouseover", function(d){ return contextMouseOver("s:" + d.obs["blood_pressure_systolic"] + " d:" + d.obs["blood_pressure_diastolic"]);})
+                .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
                 .on("mouseout", contextMouseOut);
 
             // if BP data points then add up arrows
             focus.obj.selectAll("." + thisEntry.label + "down-arrows")
-                .data(svg.data.filter(function(d){ if(d.obs.blood_pressure_diastolic){ return d; }}))
+                .data(svg.data.filter(function(d){ if(d.blood_pressure_diastolic){ return d; }}))
                 .enter()
                 .append("path")
                 .attr({
                     "d": d3.svg.symbol().size(function(d){ return 45; }).type(function(d){ return 'triangle-down'}),
-                    "transform": function(d){ return "translate(" + context.xScale(d.obsStart) +  "," + (thisEntry.yScale(d.obs.blood_pressure_diastolic) - 3) + ")"; },
+                    "transform": function(d){ return "translate(" + context.xScale(d.date_started) +  "," + (thisEntry.yScale(d.blood_pressure_diastolic) - 3) + ")"; },
                     "class": "data_symbols " + thisEntry.label + "down-arrows"
                 })
                 .style("display", function(d){
-                    if(d.obs["blood_pressure_diastolic"] === null){
+                    if(d["blood_pressure_diastolic"] === null){
                         return "none";
                     }else{
                         return null;
                     }
                 })
-                .on("mouseover", function(d){ return contextMouseOver("s:" + d.obs["blood_pressure_systolic"] + " d:" + d.obs["blood_pressure_diastolic"]);})
+                .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
                 .on("mouseout", contextMouseOut);
 
             // if BP data points then select / create the BP graph, use the data to append a line at the date the observation was taken that goes from systolic to diastolic on the y axis
             focus.obj.selectAll("#" + thisEntry.label)
-                .data(svg.data.filter(function(d){ if(d.obs.blood_pressure_diastolic && d.obs.blood_pressure_systolic){ return d; }}))
+                .data(svg.data.filter(function(d){ if(d.blood_pressure_diastolic && d.blood_pressure_systolic){ return d; }}))
                 .enter()
                 .append("rect")
                 .attr({
                     "width": 2,
-                    "height": function(d) { return thisEntry.yScale(d.obs["blood_pressure_diastolic"]) - thisEntry.yScale(d.obs["blood_pressure_systolic"]);},
-                    "x": function(d){ return focus.xScale(d.obsStart) - 1;},
-                    "y": function(d){ return thisEntry.yScale(d.obs["blood_pressure_systolic"]);},
+                    "height": function(d) { return thisEntry.yScale(d["blood_pressure_diastolic"]) - thisEntry.yScale(d["blood_pressure_systolic"]);},
+                    "x": function(d){ return focus.xScale(d.date_started) - 1;},
+                    "y": function(d){ return thisEntry.yScale(d["blood_pressure_systolic"]);},
                     "clip-path": "url(#clip)",
                     "class": "data_lines data-" + thisEntry.label
                 })
                 .style("display", function(d){
-                    if(d.obs["blood_pressure_systolic"] === null || d.obs["blood_pressure_diastolic"] === null){
+                    if(d["blood_pressure_systolic"] === null || d["blood_pressure_diastolic"] === null){
                         return "none";
                     }else{
                         return null;
                     }
                 })
                 .style({"stroke":"rgba(0,0,0,0)", "stroke-width": "3"})
-                .on("mouseover", function(d){ return contextMouseOver("s:" + d.obs["blood_pressure_systolic"] + " d:" + d.obs["blood_pressure_diastolic"]);})
+                .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
                 .on("mouseout", contextMouseOut);
 
             // append the name to the label area in line with the top of the normal rect
@@ -295,8 +295,8 @@ function drawGraph() {
 
             // append the latest systolic value to just above the normal min
             focus.obj.append("text").text(function () {
-                if(svg.data[svg.data.length -1]["obs"]["blood_pressure_systolic"]){
-                    return svg.data[svg.data.length - 1]["obs"]["blood_pressure_systolic"]
+                if(svg.data[svg.data.length -1]["blood_pressure_systolic"]){
+                    return svg.data[svg.data.length - 1]["blood_pressure_systolic"]
                 }else{
                     return "";
                 }})
@@ -306,8 +306,8 @@ function drawGraph() {
 
             // append the latest diastolic value below the systolic one
             focus.obj.append("text").text(function () {
-                if(svg.data[svg.data.length -1]["obs"]["blood_pressure_diastolic"]){
-                    return svg.data[svg.data.length - 1]["obs"]["blood_pressure_diastolic"]
+                if(svg.data[svg.data.length -1]["blood_pressure_diastolic"]){
+                    return svg.data[svg.data.length - 1]["blood_pressure_diastolic"]
                 }else{
                     return "";
                 }})
@@ -324,13 +324,13 @@ function drawGraph() {
             // if not BP then select / create a chart with the name and add a circle for that data point
             thisEntry.area = d3.svg.line()
                 .interpolate("linear")
-                .defined(function(d){ if(d.obs[thisEntry.key]){ return d; }})
-                .x(function(d) { return focus.xScale(d.obsStart); })
-                .y(function(d) { return thisEntry.yScale(d.obs[thisEntry.key]); });
+                .defined(function(d){ if(d[thisEntry.key]){ return d; }})
+                .x(function(d) { return focus.xScale(d.date_started); })
+                .y(function(d) { return thisEntry.yScale(d[thisEntry.key]); });
 
             // add area to context
             focus.obj.append("path")
-                .datum(svg.data.filter(function(d){ if(d.obs[thisEntry.key]){ return d; }}))
+                .datum(svg.data.filter(function(d){ if(d[thisEntry.key]){ return d; }}))
                 .attr("d", thisEntry.area)
                 .style({"stroke":"#888888", "stroke-width": "1", "fill":"none"})
                 .attr("class", "focusPath")
@@ -338,18 +338,18 @@ function drawGraph() {
                 .attr("clip-path", "url(#clip)");
 
             focus.obj.selectAll("#" + thisEntry.label)
-                .data(svg.data.filter(function(d){ if(d.obs[thisEntry.key]){ return d; }}))
+                .data(svg.data.filter(function(d){ if(d[thisEntry.key]){ return d; }}))
                 .enter()
                 .append("circle")
                 .attr("cx", function (d) {
-                    return focus.xScale(d.obsStart)
+                    return focus.xScale(d.date_started)
                 }).attr("cy", function (d) {
-                    return thisEntry.yScale(d.obs[thisEntry.key]);
+                    return thisEntry.yScale(d[thisEntry.key]);
                 }).attr("r", 3)
                 .attr("class", "data_points data-" + thisEntry.label)
-                .style("display", function(d){ if(d.obs[thisEntry.key]){ return null; }else{ return "none"; }})
+                .style("display", function(d){ if(d[thisEntry.key]){ return null; }else{ return "none"; }})
                 .attr("clip-path", "url(#clip)")
-                .on("mouseover", function(d){  return contextMouseOver(d.obs[thisEntry.label]);})
+                .on("mouseover", function(d){  return contextMouseOver(d[thisEntry.label]);})
                 .on("mouseout", contextMouseOut);
 
             // append the name of the dataset
@@ -362,8 +362,8 @@ function drawGraph() {
             // append the latest value and the unit of measure
             focus.obj.append("text")
                 .text(function () {
-                    if(svg.data[svg.data.length-1]["obs"][thisEntry.key]){
-                        return svg.data[svg.data.length - 1]["obs"][thisEntry.key] + thisEntry.measurement ;
+                    if(svg.data[svg.data.length-1][thisEntry.key]){
+                        return svg.data[svg.data.length - 1][thisEntry.key] + thisEntry.measurement ;
                     }else{
                         return "";
                     }})
@@ -379,9 +379,9 @@ function drawTabularObs(el){
     var container = d3.select('#table-content').append('div').attr('style', 'padding-top: 1em');
     var cards = container.selectAll('.card').data(svg.data.reverse()).enter().append('div').attr('class','card');
     var header = cards.append('h3').text(function(d){
-        return ("0" + d.obsStart.getHours()).slice(-2) + ":" + ("0" + d.obsStart.getMinutes()).slice(-2) + " " + ("0" + d.obsStart.getDate()).slice(-2) + "/" + ("0" + (d.obsStart.getMonth() + 1)).slice(-2) + "/" + d.obsStart.getFullYear(); });
+        return ("0" + d.date_started.getHours()).slice(-2) + ":" + ("0" + d.date_started.getMinutes()).slice(-2) + " " + ("0" + d.date_started.getDate()).slice(-2) + "/" + ("0" + (d.date_started.getMonth() + 1)).slice(-2) + "/" + d.date_started.getFullYear(); });
     var list = cards.append('table');
-    var list_items = list.selectAll('tr').data(function(d){ return $.map(d.obs, function(v,k){ if(k !== "indirect_oxymetry_spo2_label"){return {key: process_obs_name(k), value: v};} }); }).enter();
+    var list_items = list.selectAll('tr').data(function(d){ return $.map(d, function(v,k){ if(k !== "indirect_oxymetry_spo2_label"){ var name = process_obs_name(k); if(typeof(name) !== "undefined"){ return {key: name, value: v};}} }); }).enter();
     list_items.append('tr').html(function(d){
         if(typeof(d.value) == "object"){
             if(d.key == "Oxygen Administration Flag"){
@@ -400,7 +400,7 @@ function drawTabularObs(el){
 
 function redrawFocus(transition){
     // redraw the focus graph based on the new domain
-    focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d){return focus.xScale(d.obsStart);});
+    focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d){return focus.xScale(d.date_started);});
 
     if(transition){
         svg.transitionDuration = 1000;
@@ -409,7 +409,7 @@ function redrawFocus(transition){
     }
      for(var i = 0; i < focus.graphs.length; i++){
         var thisEntry = focus.graphs[i];
-        thisEntry.area = d3.svg.line().interpolate("linear").x(function(d){  return focus.xScale(d.obsStart); }).y(function(d){ return thisEntry.yScale(d.obs[thisEntry.key]); });
+        thisEntry.area = d3.svg.line().interpolate("linear").x(function(d){  return focus.xScale(d.date_started); }).y(function(d){ return thisEntry.yScale(d[thisEntry.key]); });
         focus.obj.select("#path-"+ thisEntry.key).transition().duration(svg.transitionDuration).attr("d", thisEntry.area);
 
          //var tickMod = calcTicks(svg.width, focus.xScale.domain()[0], focus.xScale.domain()[1]);
@@ -434,49 +434,49 @@ function redrawFocus(transition){
 
     // replace this with draw function
     focus.obj.select(".x.axis").call(focus.xAxis);
-    focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d){return focus.xScale(d.obsStart);});
+    focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d){return focus.xScale(d.date_started);});
     focus.obj.selectAll(".data_symbols").remove();
     // if BP data points then add up arrows
     focus.obj.selectAll(".BPup-arrows")
-        .data(svg.data.filter(function(d){ if(d.obs.blood_pressure_systolic && d.obsStart >= focus.xScale.domain()[0] && d.obsStart <= focus.xScale.domain()[1]){ console.log(d); return d; }}))
+        .data(svg.data.filter(function(d){ if(d.blood_pressure_systolic && d.date_started >= focus.xScale.domain()[0] && d.date_started <= focus.xScale.domain()[1]){ console.log(d); return d; }}))
         .enter()
         .append("path")
         .attr({
             "d": d3.svg.symbol().size(function(d){ console.log("calling size"); return 45; }).type(function(d){ console.log("calling type"); return 'triangle-up';}),
-            "transform": function(d){ console.log("calling transform"); return "translate(" + (focus.xScale(d.obsStart) + 1) +  "," + (focus.graphs[focus.graphs.length -1].yScale(d.obs.blood_pressure_systolic) + 3) + ")"; },
+            "transform": function(d){ console.log("calling transform"); return "translate(" + (focus.xScale(d.date_started) + 1) +  "," + (focus.graphs[focus.graphs.length -1].yScale(d.blood_pressure_systolic) + 3) + ")"; },
             "class": "data_symbols BPup-arrows"
         })
         .style("display", function(d){
-            if(d.obs["blood_pressure_systolic"] === null){
+            if(d["blood_pressure_systolic"] === null){
                 return "none";
             }else{
                 return null;
             }
         })
-        .on("mouseover", function(d){ return contextMouseOver("s:" + d.obs["blood_pressure_systolic"] + " d:" + d.obs["blood_pressure_diastolic"]);})
+        .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
         .on("mouseout", contextMouseOut);
 
     // if BP data points then add up arrows
     focus.obj.selectAll(".BPdown-arrows")
-        .data(svg.data.filter(function(d){ if(d.obs.blood_pressure_diastolic && d.obsStart >= focus.xScale.domain()[0] && d.obsStart <= focus.xScale.domain()[1]){ return d; }}))
+        .data(svg.data.filter(function(d){ if(d.blood_pressure_diastolic && d.date_started >= focus.xScale.domain()[0] && d.date_started <= focus.xScale.domain()[1]){ return d; }}))
         .enter()
         .append("path")
         .attr({
             "d": d3.svg.symbol().size(function(d){ return 45; }).type(function(d){ return 'triangle-down'}),
-            "transform": function(d){ return "translate(" + (focus.xScale(d.obsStart) + 1) +  "," + (focus.graphs[focus.graphs.length -1].yScale(d.obs.blood_pressure_diastolic) - 3) + ")"; },
+            "transform": function(d){ return "translate(" + (focus.xScale(d.date_started) + 1) +  "," + (focus.graphs[focus.graphs.length -1].yScale(d.blood_pressure_diastolic) - 3) + ")"; },
             "class": "data_symbols BPdown-arrows"
         })
         .style("display", function(d){
-            if(d.obs["blood_pressure_diastolic"] === null){
+            if(d["blood_pressure_diastolic"] === null){
                 return "none";
             }else{
                 return null;
             }
         })
-        .on("mouseover", function(d){ return contextMouseOver("s:" + d.obs["blood_pressure_systolic"] + " d:" + d.obs["blood_pressure_diastolic"]);})
+        .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
         .on("mouseout", contextMouseOut);
 
-    focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(d){ return focus.xScale(d.obsStart) });
+    focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(d){ return focus.xScale(d.date_started) });
 
 
     //update the ticks for the focus x scale
@@ -516,10 +516,10 @@ function resizeGraphs() {
     //var tMod = calcTicks(w - (svg.infoAreaRight + (svg.margins.right/3)), context.xScale.domain()[0], context.xScale.domain()[1]);
     //context.xAxis.ticks(svg.ticks);
 
-    context.area.x(function(d) { return context.xScale(d.obsStart); }).y(function(d) { return context.yScale(d.obs.score);});
+    context.area.x(function(d) { return context.xScale(d.date_started); }).y(function(d) { return context.yScale(d.score);});
     context.obj.selectAll(".contextPath").transition().duration(svg.transitionDuration).attr("d", context.area);
 
-    context.obj.selectAll(".contextPoint").transition().duration(svg.transitionDuration).attr("cx", function(d){ return context.xScale(d.obsStart); });
+    context.obj.selectAll(".contextPoint").transition().duration(svg.transitionDuration).attr("cx", function(d){ return context.xScale(d.date_started); });
     context.obj.selectAll(".x.axis g text").each(insertLinebreaks);
     context.obj.selectAll(".horizontalGrid").transition().duration(svg.transitionDuration).attr("x2", (w - svg.infoAreaRight) -10);
     context.obj.selectAll(".green").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + (svg.margins.right/3)));
@@ -589,8 +589,8 @@ function initTable(){
 
     // go through the data to table and add the dates that are inclusive to the headerData array
     for(var i =0; i < svg.data.length; i++){
-        if(svg.data[i].obsStart >= startDate && svg.data[i].obsStart <= endDate){
-            headerData.push(svg.data[i].obsStart);
+        if(svg.data[i].date_started >= startDate && svg.data[i].date_started <= endDate){
+            headerData.push(svg.data[i].date_started);
         }
     }
 
@@ -626,8 +626,8 @@ function drawTable(){
 
         // go through the data and for the data inside of the extent add it to the array
         for(var j=0; j < svg.data.length; j++){
-            if(svg.data[j].obsStart >= startDate && svg.data[j].obsStart <= endDate){
-                tableData.push(svg.data[j]["obs"][thisEntry.key]);
+            if(svg.data[j].date_started >= startDate && svg.data[j].date_started <= endDate){
+                tableData.push(svg.data[j][thisEntry.key]);
             }
         }
 

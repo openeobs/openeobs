@@ -210,7 +210,28 @@
                             <li><a href="#graph-content" class="selected">Graph</a></li>
                             <li><a href="#table-content">Table</a></li>
                         </ul>
-                        <div id="graph-content"></div>
+                        <div id="graph-content">
+                            <h3>NEWS Score</h3>
+                            <div id="contextChart" class="chart"></div>
+                            <h3 id="focusTitle">Individual values</h3>
+                            <div class="chartDates">
+                                <p>Start date</p>
+                                <input type="date" name="contextStartD" id="contextStartD" class="mobDT date" onchange="contextChange()"/>
+                                <input type="time" name="contextStartT" id="contextStartT" class="mobDT time" onchange="contextChange()"/>
+                            </div>
+                            <div class="chartDates">
+                                <p>End date</p>
+                                <input type="date" name="contextEndD" id="contextEndD" class="mobDT date" onchange="contextChange()"/>
+                                <input type="time" name="contextEndT" id="contextEndT" class="mobDT time" onchange="contextChange()"/>
+                            </div>
+                            <div id="focusChart" class="chart"></div>
+                            <div class="table-wrapper" id="the_unplottables">
+                                <h3>Tabular values</h3>
+                                <div class="table-wrapper">
+                                     <table id="chartTable"></table>
+                                </div>
+                            </div>
+                        </div>
                         <div id="table-content"></div>
                     </div>
                     <script t-att-src="urls['jquery']" type="text/javascript"></script>
