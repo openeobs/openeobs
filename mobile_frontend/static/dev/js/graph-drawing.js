@@ -18,7 +18,7 @@ function drawChart(){
         .attr({
             "class": function(d) { return d.class; },
             "x": context.xScale(context.xScale.domain()[0]),
-            "y": function(d){ return context.yScale(d.e) -1},
+            "y": function(d){ return context.yScale(d.e)},
             "width": svg.width - (svg.infoAreaRight + (svg.margins.right/3)),
             "height": function(d){ return context.yScale(d.s) - (context.yScale(d.e) -1); }
         });
@@ -34,7 +34,7 @@ function drawChart(){
             "x2" : function(d){ return context.xScale(d);},
             "y1" : 0,
             "y2" : context.height,
-            "shape-rendering": "cripsEdges",
+            "shape-rendering": "crispEdges",
             "stroke" : "rgba(0,0,0,0.1)",
             "stroke-width": "1px"
         });
@@ -50,7 +50,7 @@ function drawChart(){
             "x2" : context.xScale(context.xScale.domain()[1]),
             "y1" : function(d) { return context.yScale(d)},
             "y2" : function(d) { return context.yScale(d)},
-            "shape-rendering": "cripsEdges",
+            "shape-rendering": "crispEdges",
             "stroke" : "rgba(0,0,0,0.1)",
             "stroke-width": "1px"
         });
@@ -108,7 +108,7 @@ function drawChart(){
         .on("mouseover", function(d){ return contextMouseOver(d.score);})
         .on("mouseout", contextMouseOut);
 
-    context.obj.selectAll("circle.emptyContextPoint").data(svg.data.filter(function(d){ console.log(typeof(d.score)); if(d.score == undefined){ return d; }}))
+    context.obj.selectAll("circle.emptyContextPoint").data(svg.data.filter(function(d){ if(d.score == undefined){ return d; }}))
         .enter()
         .append("circle")
         .attr("cx", function (d) {
@@ -153,6 +153,8 @@ function drawGraph() {
         // setup an object for easy access to variables
         var thisEntry = focus.graphs[i];
 
+        thisEntry.group = focus.obj.append("g").attr("class", "g-"+thisEntry.label);
+
         // figure out the offset
         thisEntry.offset = ((i * focus.chartHeight) + (focus.chartPadding * (i -1)));
 
@@ -163,18 +165,18 @@ function drawGraph() {
         thisEntry.diffNorm = thisEntry.yScale(thisEntry.normMin) - thisEntry.yScale(thisEntry.normMax);
 
         // draw a black line across the bottom of the graph
-        focus.obj.append("line").attr("x1", 5).attr("x2", ((svg.width - svg.infoAreaRight) -11)).attr("y1", focus.chartHeight + thisEntry.offset).attr("y2", focus.chartHeight + thisEntry.offset).style("stroke", "black").style("opacity", 1).style("stroke-width", 2).attr("class", "line line-" + thisEntry.label);
+        thisEntry.group.append("line").attr("x1", 5).attr("x2", ((svg.width - svg.infoAreaRight) -11)).attr("y1", focus.chartHeight + thisEntry.offset).attr("y2", focus.chartHeight + thisEntry.offset).style("stroke", "black").style("opacity", 1).style("stroke-width", 2).attr("class", "line line-" + thisEntry.label);
 
         // draw a light gray rect to show the normal range
         if(thisEntry.label != "BP"){
-            focus.obj.append("rect").attr("x", 5).attr("y", thisEntry.yScale(thisEntry.normMax)).attr("width",  ((svg.width - svg.infoAreaRight) -16)).attr("height", thisEntry.diffNorm).style("fill", "#CCCCCC").style("opacity", .75).attr("class", "norm norm-" + thisEntry.label);
+            thisEntry.group.append("rect").attr("x", 5).attr("y", thisEntry.yScale(thisEntry.normMax)).attr("width",  ((svg.width - svg.infoAreaRight) -16)).attr("height", thisEntry.diffNorm).style("fill", "#CCCCCC").style("opacity", .75).attr("class", "norm norm-" + thisEntry.label);
         }else{
-            focus.obj.append("line").attr("x1", 5).attr("x2", ((svg.width - svg.infoAreaRight) -11)).attr("y1", thisEntry.yScale(100)).attr("y2", thisEntry.yScale(100)).style("stroke", "black").style("opacity", 1).style("stroke-width", 1).attr("class", "line line-" + thisEntry.label);
+            thisEntry.group.append("line").attr("x1", 5).attr("x2", ((svg.width - svg.infoAreaRight) -11)).attr("y1", thisEntry.yScale(100)).attr("y2", thisEntry.yScale(100)).style("stroke", "black").style("opacity", 1).style("stroke-width", 1).attr("class", "line line-" + thisEntry.label);
         }
 
         // add text to show the normal min and max values
-        focus.obj.append("text").text(thisEntry.normMin).attr("x", - 5).attr("y", thisEntry.yScale(thisEntry.normMin)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle").attr("dominant-baseline", "hanging");
-        focus.obj.append("text").text(thisEntry.normMax).attr("x", - 5).attr("y", thisEntry.yScale(thisEntry.normMax)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle");
+        thisEntry.group.append("text").text(thisEntry.normMin).attr("x", - 5).attr("y", thisEntry.yScale(thisEntry.normMin)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle").attr("dominant-baseline", "hanging");
+        thisEntry.group.append("text").text(thisEntry.normMax).attr("x", - 5).attr("y", thisEntry.yScale(thisEntry.normMax)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle");
 
         // calculate value to get text to line up with data point
         var shift = thisEntry.diffNorm - 10;
@@ -182,13 +184,13 @@ function drawGraph() {
 
         // draw horizontal grid
         var hTicks = d3.svg.axis().scale(thisEntry.yScale).orient("left").ticks(10);
-        var ti = focus.obj.append("g").call(hTicks);
+        var ti = thisEntry.group.append("g").call(hTicks);
         hTicks = thisEntry.yScale.ticks();
         ti.remove();
 
         // add the vertical grid
        // var tickMod = calcTicks(svg.width, context.earliestDate, context.now);
-        focus.obj.selectAll("line.verticalGrid.focus"+thisEntry.label)
+        thisEntry.group.selectAll("line.verticalGrid.focus"+thisEntry.label)
             .data(focus.xScale.ticks())
             .enter()
             .append("line")
@@ -223,47 +225,58 @@ function drawGraph() {
         if (thisEntry.label == "BP") {
 
             // if BP data points then add up arrows
-            focus.obj.selectAll("." + thisEntry.label + "up-arrows")
-                .data(svg.data.filter(function(d){ if(d.blood_pressure_systolic){ return d; }}))
-                .enter()
-                .append("path")
-                .attr({
-                    "d": d3.svg.symbol().size(function(d){ return 45; }).type(function(d){ return 'triangle-up'}),
-                    "transform": function(d){ return "translate(" + context.xScale(d.date_started) +  "," + (thisEntry.yScale(d.blood_pressure_systolic) + 3) + ")"; },
-                    "class": "data_symbols " + thisEntry.label + "up-arrows"
-                })
-                .style("display", function(d){
-                    if(d["blood_pressure_systolic"] === null){
-                        return "none";
-                    }else{
-                        return null;
-                    }
-                })
-                .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
-                .on("mouseout", contextMouseOut);
+            thisEntry.group.selectAll("." + thisEntry.label + "-top-line").data(svg.data.filter(function(d) {
+                if (d.blood_pressure_systolic) {
+                    return d;
+                }
+            })).enter().append("rect").attr({
+                'y': function(d){
+                    return thisEntry.yScale(d.blood_pressure_systolic);
+                },
+                'x': function(d){
+                    return focus.xScale(d.date_started) - (focus.BPWidth / 2);
+                },
+                'height': 2,
+                'width': focus.BPWidth,
+                'class': thisEntry.label + '-top-line',
+                "clip-path": "url(#clip)"
+            }).style("display", function(d) {
+                if (d["blood_pressure_systolic"] === null) {
+                    return "none";
+                } else {
+                    return null;
+                }
+            }).on("mouseover", function(d) {
+                return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
+            }).on("mouseout", self.contextMouseOut);
 
-            // if BP data points then add up arrows
-            focus.obj.selectAll("." + thisEntry.label + "down-arrows")
-                .data(svg.data.filter(function(d){ if(d.blood_pressure_diastolic){ return d; }}))
-                .enter()
-                .append("path")
-                .attr({
-                    "d": d3.svg.symbol().size(function(d){ return 45; }).type(function(d){ return 'triangle-down'}),
-                    "transform": function(d){ return "translate(" + context.xScale(d.date_started) +  "," + (thisEntry.yScale(d.blood_pressure_diastolic) - 3) + ")"; },
-                    "class": "data_symbols " + thisEntry.label + "down-arrows"
-                })
-                .style("display", function(d){
-                    if(d["blood_pressure_diastolic"] === null){
-                        return "none";
-                    }else{
-                        return null;
-                    }
-                })
-                .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
-                .on("mouseout", contextMouseOut);
 
+            thisEntry.group.selectAll("." + thisEntry.label + "-bottom-line").data(svg.data.filter(function(d) {
+                if (d.blood_pressure_diastolic) {
+                    return d;
+                }
+            })).enter().append("rect").attr({
+                'y': function(d){
+                    return thisEntry.yScale(d.blood_pressure_diastolic);
+                },
+                'x': function(d){
+                    return focus.xScale(d.date_started) - (focus.BPWidth / 2);
+                },
+                'height': 2,
+                'width': focus.BPWidth,
+                'class': thisEntry.label + '-bottom-line',
+                "clip-path": "url(#clip)"
+            }).style("display", function(d) {
+                if (d["blood_pressure_diastolic"] === null) {
+                    return "none";
+                } else {
+                    return null;
+                }
+            }).on("mouseover", function(d) {
+                return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
+            }).on("mouseout", self.contextMouseOut);
             // if BP data points then select / create the BP graph, use the data to append a line at the date the observation was taken that goes from systolic to diastolic on the y axis
-            focus.obj.selectAll("#" + thisEntry.label)
+            thisEntry.group.selectAll("#" + thisEntry.label)
                 .data(svg.data.filter(function(d){ if(d.blood_pressure_diastolic && d.blood_pressure_systolic){ return d; }}))
                 .enter()
                 .append("rect")
@@ -287,14 +300,14 @@ function drawGraph() {
                 .on("mouseout", contextMouseOut);
 
             // append the name to the label area in line with the top of the normal rect
-            focus.obj.append("text")
+            thisEntry.group.append("text")
                 .text(thisEntry.label)
                 .attr("y", thisEntry.yScale(thisEntry.normMax) + shift)
                 .attr("x", svg.width - svg.infoAreaRight)
                 .attr({"font-family": "sans-serif", "font-size": "12px", "font-weight": "bold", "fill": "#BBBBBB", "text-anchor": "start", "class": "info infoname-" + thisEntry.label});
 
             // append the latest systolic value to just above the normal min
-            focus.obj.append("text").text(function () {
+            thisEntry.group.append("text").text(function () {
                 if(svg.data[svg.data.length -1]["blood_pressure_systolic"]){
                     return svg.data[svg.data.length - 1]["blood_pressure_systolic"]
                 }else{
@@ -305,7 +318,7 @@ function drawGraph() {
                 .attr({"font-family": "sans-serif","font-size": "12px","font-weight": "bold", "text-anchor": "start", "class": "info infovalue1-" + thisEntry.label});
 
             // append the latest diastolic value below the systolic one
-            focus.obj.append("text").text(function () {
+            thisEntry.group.append("text").text(function () {
                 if(svg.data[svg.data.length -1]["blood_pressure_diastolic"]){
                     return svg.data[svg.data.length - 1]["blood_pressure_diastolic"]
                 }else{
@@ -316,7 +329,7 @@ function drawGraph() {
                 .attr({"font-family": "sans-serif","font-size": "12px","font-weight": "bold","text-anchor": "start","class": "info infovalue2-" + thisEntry.label});
 
             // append the units measurement next to the systolic value
-            focus.obj.append("text").text(function () { return thisEntry.measurement })
+            thisEntry.group.append("text").text(function () { return thisEntry.measurement })
                 .attr("y", thisEntry.yScale(thisEntry.normMin) - 10)
                 .attr("x", svg.width - svg.infoAreaRight + (svg.labelGap*2))
                 .attr({"font-family": "sans-serif", "font-size": "9px", "font-weight": "bold", "text-anchor": "start", "class": "info infovalue3-" + thisEntry.label});
@@ -329,7 +342,7 @@ function drawGraph() {
                 .y(function(d) { return thisEntry.yScale(d[thisEntry.key]); });
 
             // add area to context
-            focus.obj.append("path")
+            thisEntry.group.append("path")
                 .datum(svg.data.filter(function(d){ if(d[thisEntry.key]){ return d; }}))
                 .attr("d", thisEntry.area)
                 .style({"stroke":"#888888", "stroke-width": "1", "fill":"none"})
@@ -337,7 +350,7 @@ function drawGraph() {
                 .attr("id", "path-" + thisEntry.key)
                 .attr("clip-path", "url(#clip)");
 
-            focus.obj.selectAll("#" + thisEntry.label)
+            thisEntry.group.selectAll("#" + thisEntry.label)
                 .data(svg.data.filter(function(d){ if(d[thisEntry.key]){ return d; }}))
                 .enter()
                 .append("circle")
@@ -353,14 +366,14 @@ function drawGraph() {
                 .on("mouseout", contextMouseOut);
 
             // append the name of the dataset
-            focus.obj.append("text")
+            thisEntry.group.append("text")
                 .text(thisEntry.label)
                 .attr("y", thisEntry.yScale(thisEntry.normMax) + shift)
                 .attr("x", svg.width - svg.infoAreaRight)
                 .attr({"font-family": "sans-serif", "font-size": "12px", "font-weight": "bold", "fill": "#BBBBBB", "text-anchor": "start", "class": "info infoname-" + thisEntry.label});
 
             // append the latest value and the unit of measure
-            focus.obj.append("text")
+            thisEntry.group.append("text")
                 .text(function () {
                     if(svg.data[svg.data.length-1][thisEntry.key]){
                         return svg.data[svg.data.length - 1][thisEntry.key] + thisEntry.measurement ;
@@ -410,11 +423,11 @@ function redrawFocus(transition){
      for(var i = 0; i < focus.graphs.length; i++){
         var thisEntry = focus.graphs[i];
         thisEntry.area = d3.svg.line().interpolate("linear").x(function(d){  return focus.xScale(d.date_started); }).y(function(d){ return thisEntry.yScale(d[thisEntry.key]); });
-        focus.obj.select("#path-"+ thisEntry.key).transition().duration(svg.transitionDuration).attr("d", thisEntry.area);
+         thisEntry.group.select("#path-"+ thisEntry.key).transition().duration(svg.transitionDuration).attr("d", thisEntry.area);
 
          //var tickMod = calcTicks(svg.width, focus.xScale.domain()[0], focus.xScale.domain()[1]);
 
-         focus.obj.selectAll("line.verticalGrid.focus"+thisEntry.label)
+         thisEntry.group.selectAll("line.verticalGrid.focus"+thisEntry.label)
              .remove()
              .data(focus.xScale.ticks())
              .enter()
@@ -430,51 +443,26 @@ function redrawFocus(transition){
                  "stroke-width": "1px"
              });
 
+         if(thisEntry.label=="BP"){
+             focus.obj.selectAll('.'+thisEntry.label+'-top-line').attr({'y': function(d){
+                 return thisEntry.yScale(d.blood_pressure_systolic);
+             },
+                 'x': function(d){
+                     return (focus.xScale(d.date_started) - ((focus.BPWidth/2)-1));
+                 }});
+             focus.obj.selectAll('.'+thisEntry.label+'-bottom-line').attr({'y': function(d){
+                 return thisEntry.yScale(d.blood_pressure_diastolic);
+             },
+                 'x': function(d){
+                     return (focus.xScale(d.date_started) - ((focus.BPWidth/2)-1));
+                 }});
+         }
+
      }
 
     // replace this with draw function
     focus.obj.select(".x.axis").call(focus.xAxis);
     focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d){return focus.xScale(d.date_started);});
-    focus.obj.selectAll(".data_symbols").remove();
-    // if BP data points then add up arrows
-    focus.obj.selectAll(".BPup-arrows")
-        .data(svg.data.filter(function(d){ if(d.blood_pressure_systolic && d.date_started >= focus.xScale.domain()[0] && d.date_started <= focus.xScale.domain()[1]){ console.log(d); return d; }}))
-        .enter()
-        .append("path")
-        .attr({
-            "d": d3.svg.symbol().size(function(d){ console.log("calling size"); return 45; }).type(function(d){ console.log("calling type"); return 'triangle-up';}),
-            "transform": function(d){ console.log("calling transform"); return "translate(" + (focus.xScale(d.date_started) + 1) +  "," + (focus.graphs[focus.graphs.length -1].yScale(d.blood_pressure_systolic) + 3) + ")"; },
-            "class": "data_symbols BPup-arrows"
-        })
-        .style("display", function(d){
-            if(d["blood_pressure_systolic"] === null){
-                return "none";
-            }else{
-                return null;
-            }
-        })
-        .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
-        .on("mouseout", contextMouseOut);
-
-    // if BP data points then add up arrows
-    focus.obj.selectAll(".BPdown-arrows")
-        .data(svg.data.filter(function(d){ if(d.blood_pressure_diastolic && d.date_started >= focus.xScale.domain()[0] && d.date_started <= focus.xScale.domain()[1]){ return d; }}))
-        .enter()
-        .append("path")
-        .attr({
-            "d": d3.svg.symbol().size(function(d){ return 45; }).type(function(d){ return 'triangle-down'}),
-            "transform": function(d){ return "translate(" + (focus.xScale(d.date_started) + 1) +  "," + (focus.graphs[focus.graphs.length -1].yScale(d.blood_pressure_diastolic) - 3) + ")"; },
-            "class": "data_symbols BPdown-arrows"
-        })
-        .style("display", function(d){
-            if(d["blood_pressure_diastolic"] === null){
-                return "none";
-            }else{
-                return null;
-            }
-        })
-        .on("mouseover", function(d){ return contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"]);})
-        .on("mouseout", contextMouseOut);
 
     focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(d){ return focus.xScale(d.date_started) });
 
@@ -525,6 +513,7 @@ function resizeGraphs() {
     context.obj.selectAll(".green").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + (svg.margins.right/3)));
     context.obj.selectAll(".amber").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + (svg.margins.right/3)));
     context.obj.selectAll(".red").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + (svg.margins.right/3)));
+    context.obj.selectAll(".brush .background").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + (svg.margins.right/3)));
     // add the vertical grid to context
 
     //var tickMod = calcTicks(svg.width, context.earliestDate, context.now);

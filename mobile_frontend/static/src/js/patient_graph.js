@@ -1,23 +1,22 @@
 function initGraph(t) {
-    "undefined" == typeof t && (t = 20), svg.width = $(svg.el).width() - svg.margins.left - svg.margins.right, 
-    svg.infoAreaRight = svg.width / 18, focus.height = (focus.graphs.length + 1) * focus.chartHeight, 
-    svg.height = context.height + focus.height + context.margins.bottom + context.margins.top + focus.margins.bottom + focus.margins.top, 
+    "undefined" == typeof t && (t = 20), svg.width = $(svg.el).width(), svg.infoAreaRight = svg.width / 18, 
+    focus.height = (focus.graphs.length + 1) * focus.chartHeight, svg.height = context.height + focus.height + context.margins.bottom + context.margins.top + focus.margins.bottom + focus.margins.top, 
     svg.obj.context = d3.select("#contextChart").append("svg").attr("width", svg.width + svg.margins.left + svg.margins.right).attr("height", context.height + context.margins.bottom + context.margins.top).append("g").attr("transform", "translate(0," + context.margins.top + ")"), 
     svg.obj.focus = d3.select("#focusChart").append("svg").attr("width", svg.width + svg.margins.left + svg.margins.right).attr("height", focus.height + focus.margins.bottom + focus.margins.top).append("g").attr("transform", "translate(0," + focus.margins.top / 3 + ")"), 
-    context.yScale = d3.scale.linear().domain([ 0, t ]).range([ context.height, 0 ]), 
+    svg.width = svg.width - svg.margins.left - svg.margins.right, context.yScale = d3.scale.linear().domain([ 0, t ]).range([ context.height, 0 ]), 
     context.yAxis = d3.svg.axis().scale(context.yScale).orient("left");
     var e = new Date(context.earliestDate), s = new Date(context.now), a = (s - e) / 1e3 / 60 / 60;
     if (a >= 2 ? (e.setHours(e.getHours() - 1), e.setMinutes(0), e.setSeconds(0), s.setHours(s.getHours() + 1), 
     s.setMinutes(0), s.setSeconds(0)) : (e.setMinutes(e.getMinutes() - 6), s.setMinutes(s.getMinutes() + 6)), 
-    context.now = s, context.xScale = d3.time.scale().domain([ e, s ]).range([ svg.margins.left / 4, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]), 
-    context.xAxis = d3.svg.axis().scale(context.xScale).orient("top"), svg.isMob) {
+    context.now = s, svg.isMob) {
         $(window).width() > $(window).height() ? (e = new Date(context.now), e.setDate(e.getDate() - svg.dateRange.landscape)) : (e = new Date(context.now), 
         e.setDate(e.getDate() - svg.dateRange.portrait));
         var n = new Date(e), i = new Date(s), o = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2) + "-" + ("0" + n.getDate()).slice(-2), g = ("0" + n.getHours()).slice(-2) + ":" + ("0" + n.getMinutes()).slice(-2) + ":00", r = i.getFullYear() + "-" + ("0" + (i.getMonth() + 1)).slice(-2) + "-" + ("0" + i.getDate()).slice(-2), l = ("0" + i.getHours()).slice(-2) + ":" + ("0" + i.getMinutes()).slice(-2) + ":00";
         $("#contextStartD").val(o), $("#contextStartT").val(g), $("#contextEndD").val(r), 
         $("#contextEndT").val(l), $(".chartDates").show();
     }
-    focus.xScale = d3.time.scale().domain([ e, s ]).range([ svg.margins.left / 4, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]), 
+    context.xScale = d3.time.scale().domain([ e, s ]).range([ svg.margins.left / 4, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]), 
+    context.xAxis = d3.svg.axis().scale(context.xScale).orient("top"), focus.xScale = d3.time.scale().domain([ e, s ]).range([ svg.margins.left / 4, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]), 
     focus.xAxis = d3.svg.axis().scale(focus.xScale).orient("top"), svg.isMob && (context.xAxis.ticks(5), 
     focus.xAxis.ticks(5)), drawChart(), drawGraph();
 }
@@ -90,7 +89,8 @@ var svg = {
     xScale: null,
     yScale: null,
     yAxis: null,
-    chartPadding: 20
+    chartPadding: 20,
+    BPWidth: 8
 };
 function insertLinebreaks(e) {
     var t = d3.select(this), s = 10, n = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ], r = n[e.getDay()] + " " + e.getDate() + "/" + ("0" + (e.getMonth() + 1)).slice(-2) + " " + ("0" + e.getHours()).slice(-2) + ":" + ("0" + e.getMinutes()).slice(-2), a = r.split(" ");
@@ -165,7 +165,7 @@ function drawChart() {
         },
         x: context.xScale(context.xScale.domain()[0]),
         y: function(t) {
-            return context.yScale(t.e) - 1;
+            return context.yScale(t.e);
         },
         width: svg.width - (svg.infoAreaRight + svg.margins.right / 3),
         height: function(t) {
@@ -181,7 +181,7 @@ function drawChart() {
         },
         y1: 0,
         y2: context.height,
-        "shape-rendering": "cripsEdges",
+        "shape-rendering": "crispEdges",
         stroke: "rgba(0,0,0,0.1)",
         "stroke-width": "1px"
     }), context.obj.selectAll("line.horizontalGrid").data([ 0, 3, 6, 9, 12, 15, 18 ]).enter().append("line").attr({
@@ -194,7 +194,7 @@ function drawChart() {
         y2: function(t) {
             return context.yScale(t);
         },
-        "shape-rendering": "cripsEdges",
+        "shape-rendering": "crispEdges",
         stroke: "rgba(0,0,0,0.1)",
         "stroke-width": "1px"
     }), context.obj.append("g").attr("class", "x axis").call(context.xAxis), context.obj.append("g").attr({
@@ -223,7 +223,7 @@ function drawChart() {
     }).attr("r", 3).attr("class", "contextPoint").on("mouseover", function(t) {
         return contextMouseOver(t.score);
     }).on("mouseout", contextMouseOut), context.obj.selectAll("circle.emptyContextPoint").data(svg.data.filter(function(t) {
-        return console.log(typeof t.score), void 0 == t.score ? t : void 0;
+        return void 0 == t.score ? t : void 0;
     })).enter().append("circle").attr("cx", function(t) {
         return context.xScale(t.date_started);
     }).attr("cy", function() {
@@ -240,15 +240,16 @@ function drawChart() {
 function drawGraph() {
     for (var t = 0; t < focus.graphs.length; t++) {
         var e = focus.graphs[t];
-        e.offset = t * focus.chartHeight + focus.chartPadding * (t - 1), e.yScale = d3.scale.linear().domain([ e.min, e.max ]).range([ focus.chartHeight + e.offset, e.offset ]), 
-        e.diffNorm = e.yScale(e.normMin) - e.yScale(e.normMax), focus.obj.append("line").attr("x1", 5).attr("x2", svg.width - svg.infoAreaRight - 11).attr("y1", focus.chartHeight + e.offset).attr("y2", focus.chartHeight + e.offset).style("stroke", "black").style("opacity", 1).style("stroke-width", 2).attr("class", "line line-" + e.label), 
-        "BP" != e.label ? focus.obj.append("rect").attr("x", 5).attr("y", e.yScale(e.normMax)).attr("width", svg.width - svg.infoAreaRight - 16).attr("height", e.diffNorm).style("fill", "#CCCCCC").style("opacity", .75).attr("class", "norm norm-" + e.label) : focus.obj.append("line").attr("x1", 5).attr("x2", svg.width - svg.infoAreaRight - 11).attr("y1", e.yScale(100)).attr("y2", e.yScale(100)).style("stroke", "black").style("opacity", 1).style("stroke-width", 1).attr("class", "line line-" + e.label), 
-        focus.obj.append("text").text(e.normMin).attr("x", -5).attr("y", e.yScale(e.normMin)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle").attr("dominant-baseline", "hanging"), 
-        focus.obj.append("text").text(e.normMax).attr("x", -5).attr("y", e.yScale(e.normMax)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle");
+        e.group = focus.obj.append("g").attr("class", "g-" + e.label), e.offset = t * focus.chartHeight + focus.chartPadding * (t - 1), 
+        e.yScale = d3.scale.linear().domain([ e.min, e.max ]).range([ focus.chartHeight + e.offset, e.offset ]), 
+        e.diffNorm = e.yScale(e.normMin) - e.yScale(e.normMax), e.group.append("line").attr("x1", 5).attr("x2", svg.width - svg.infoAreaRight - 11).attr("y1", focus.chartHeight + e.offset).attr("y2", focus.chartHeight + e.offset).style("stroke", "black").style("opacity", 1).style("stroke-width", 2).attr("class", "line line-" + e.label), 
+        "BP" != e.label ? e.group.append("rect").attr("x", 5).attr("y", e.yScale(e.normMax)).attr("width", svg.width - svg.infoAreaRight - 16).attr("height", e.diffNorm).style("fill", "#CCCCCC").style("opacity", .75).attr("class", "norm norm-" + e.label) : e.group.append("line").attr("x1", 5).attr("x2", svg.width - svg.infoAreaRight - 11).attr("y1", e.yScale(100)).attr("y2", e.yScale(100)).style("stroke", "black").style("opacity", 1).style("stroke-width", 1).attr("class", "line line-" + e.label), 
+        e.group.append("text").text(e.normMin).attr("x", -5).attr("y", e.yScale(e.normMin)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle").attr("dominant-baseline", "hanging"), 
+        e.group.append("text").text(e.normMax).attr("x", -5).attr("y", e.yScale(e.normMax)).attr("font-family", "sans-serif").attr("font-size", "10px").attr("font-weight", "normal").attr("text-anchor", "middle");
         var a = e.diffNorm - 10;
         a > 0 && (a = 0);
-        var n = d3.svg.axis().scale(e.yScale).orient("left").ticks(10), o = focus.obj.append("g").call(n);
-        n = e.yScale.ticks(), o.remove(), focus.obj.selectAll("line.verticalGrid.focus" + e.label).data(focus.xScale.ticks()).enter().append("line").attr({
+        var r = d3.svg.axis().scale(e.yScale).orient("left").ticks(10), n = e.group.append("g").call(r);
+        r = e.yScale.ticks(), n.remove(), e.group.selectAll("line.verticalGrid.focus" + e.label).data(focus.xScale.ticks()).enter().append("line").attr({
             "class": "verticalGrid focus" + e.label,
             x1: function(t) {
                 return focus.xScale(t);
@@ -261,7 +262,7 @@ function drawGraph() {
             "shape-rendering": "crispEdges",
             stroke: "rgba(0,0,0,0.1)",
             "stroke-width": "1px"
-        }), focus.obj.selectAll("line.horizontalGrid.focus" + e.label).data(n).enter().append("line").attr({
+        }), focus.obj.selectAll("line.horizontalGrid.focus" + e.label).data(r).enter().append("line").attr({
             "class": "horizontalGrid focus" + e.label,
             x1: 5,
             x2: svg.width - svg.infoAreaRight - 11,
@@ -274,39 +275,41 @@ function drawGraph() {
             "shape-rendering": "crispEdges",
             stroke: "rgba(0,0,0,0.1)",
             "stroke-width": "1px"
-        }), "BP" == e.label ? (focus.obj.selectAll("." + e.label + "up-arrows").data(svg.data.filter(function(t) {
+        }), "BP" == e.label ? (e.group.selectAll("." + e.label + "-top-line").data(svg.data.filter(function(t) {
             return t.blood_pressure_systolic ? t : void 0;
-        })).enter().append("path").attr({
-            d: d3.svg.symbol().size(function() {
-                return 45;
-            }).type(function() {
-                return "triangle-up";
-            }),
-            transform: function(t) {
-                return "translate(" + context.xScale(t.date_started) + "," + (e.yScale(t.blood_pressure_systolic) + 3) + ")";
+        })).enter().append("rect").attr({
+            y: function(t) {
+                return e.yScale(t.blood_pressure_systolic);
             },
-            "class": "data_symbols " + e.label + "up-arrows"
+            x: function(t) {
+                return focus.xScale(t.date_started) - focus.BPWidth / 2;
+            },
+            height: 2,
+            width: focus.BPWidth,
+            "class": e.label + "-top-line",
+            "clip-path": "url(#clip)"
         }).style("display", function(t) {
             return null === t.blood_pressure_systolic ? "none" : null;
         }).on("mouseover", function(t) {
-            return contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic);
-        }).on("mouseout", contextMouseOut), focus.obj.selectAll("." + e.label + "down-arrows").data(svg.data.filter(function(t) {
+            return self.contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic, $(this).position());
+        }).on("mouseout", self.contextMouseOut), e.group.selectAll("." + e.label + "-bottom-line").data(svg.data.filter(function(t) {
             return t.blood_pressure_diastolic ? t : void 0;
-        })).enter().append("path").attr({
-            d: d3.svg.symbol().size(function() {
-                return 45;
-            }).type(function() {
-                return "triangle-down";
-            }),
-            transform: function(t) {
-                return "translate(" + context.xScale(t.date_started) + "," + (e.yScale(t.blood_pressure_diastolic) - 3) + ")";
+        })).enter().append("rect").attr({
+            y: function(t) {
+                return e.yScale(t.blood_pressure_diastolic);
             },
-            "class": "data_symbols " + e.label + "down-arrows"
+            x: function(t) {
+                return focus.xScale(t.date_started) - focus.BPWidth / 2;
+            },
+            height: 2,
+            width: focus.BPWidth,
+            "class": e.label + "-bottom-line",
+            "clip-path": "url(#clip)"
         }).style("display", function(t) {
             return null === t.blood_pressure_diastolic ? "none" : null;
         }).on("mouseover", function(t) {
-            return contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic);
-        }).on("mouseout", contextMouseOut), focus.obj.selectAll("#" + e.label).data(svg.data.filter(function(t) {
+            return self.contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic, $(this).position());
+        }).on("mouseout", self.contextMouseOut), e.group.selectAll("#" + e.label).data(svg.data.filter(function(t) {
             return t.blood_pressure_diastolic && t.blood_pressure_systolic ? t : void 0;
         })).enter().append("rect").attr({
             width: 2,
@@ -328,14 +331,14 @@ function drawGraph() {
             "stroke-width": "3"
         }).on("mouseover", function(t) {
             return contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic);
-        }).on("mouseout", contextMouseOut), focus.obj.append("text").text(e.label).attr("y", e.yScale(e.normMax) + a).attr("x", svg.width - svg.infoAreaRight).attr({
+        }).on("mouseout", contextMouseOut), e.group.append("text").text(e.label).attr("y", e.yScale(e.normMax) + a).attr("x", svg.width - svg.infoAreaRight).attr({
             "font-family": "sans-serif",
             "font-size": "12px",
             "font-weight": "bold",
             fill: "#BBBBBB",
             "text-anchor": "start",
             "class": "info infoname-" + e.label
-        }), focus.obj.append("text").text(function() {
+        }), e.group.append("text").text(function() {
             return svg.data[svg.data.length - 1].blood_pressure_systolic ? svg.data[svg.data.length - 1].blood_pressure_systolic : "";
         }).attr("y", e.yScale(e.normMin) - 20).attr("x", svg.width - svg.infoAreaRight).attr({
             "font-family": "sans-serif",
@@ -343,7 +346,7 @@ function drawGraph() {
             "font-weight": "bold",
             "text-anchor": "start",
             "class": "info infovalue1-" + e.label
-        }), focus.obj.append("text").text(function() {
+        }), e.group.append("text").text(function() {
             return svg.data[svg.data.length - 1].blood_pressure_diastolic ? svg.data[svg.data.length - 1].blood_pressure_diastolic : "";
         }).attr("y", e.yScale(e.normMin) - 10).attr("x", svg.width - svg.infoAreaRight).attr({
             "font-family": "sans-serif",
@@ -351,7 +354,7 @@ function drawGraph() {
             "font-weight": "bold",
             "text-anchor": "start",
             "class": "info infovalue2-" + e.label
-        }), focus.obj.append("text").text(function() {
+        }), e.group.append("text").text(function() {
             return e.measurement;
         }).attr("y", e.yScale(e.normMin) - 10).attr("x", svg.width - svg.infoAreaRight + 2 * svg.labelGap).attr({
             "font-family": "sans-serif",
@@ -365,14 +368,14 @@ function drawGraph() {
             return focus.xScale(t.date_started);
         }).y(function(t) {
             return e.yScale(t[e.key]);
-        }), focus.obj.append("path").datum(svg.data.filter(function(t) {
+        }), e.group.append("path").datum(svg.data.filter(function(t) {
             return t[e.key] ? t : void 0;
         })).attr("d", e.area).style({
             stroke: "#888888",
             "stroke-width": "1",
             fill: "none"
         }).attr("class", "focusPath").attr("id", "path-" + e.key).attr("clip-path", "url(#clip)"), 
-        focus.obj.selectAll("#" + e.label).data(svg.data.filter(function(t) {
+        e.group.selectAll("#" + e.label).data(svg.data.filter(function(t) {
             return t[e.key] ? t : void 0;
         })).enter().append("circle").attr("cx", function(t) {
             return focus.xScale(t.date_started);
@@ -382,14 +385,14 @@ function drawGraph() {
             return t[e.key] ? null : "none";
         }).attr("clip-path", "url(#clip)").on("mouseover", function(t) {
             return contextMouseOver(t[e.label]);
-        }).on("mouseout", contextMouseOut), focus.obj.append("text").text(e.label).attr("y", e.yScale(e.normMax) + a).attr("x", svg.width - svg.infoAreaRight).attr({
+        }).on("mouseout", contextMouseOut), e.group.append("text").text(e.label).attr("y", e.yScale(e.normMax) + a).attr("x", svg.width - svg.infoAreaRight).attr({
             "font-family": "sans-serif",
             "font-size": "12px",
             "font-weight": "bold",
             fill: "#BBBBBB",
             "text-anchor": "start",
             "class": "info infoname-" + e.label
-        }), focus.obj.append("text").text(function() {
+        }), e.group.append("text").text(function() {
             return svg.data[svg.data.length - 1][e.key] ? svg.data[svg.data.length - 1][e.key] + e.measurement : "";
         }).attr("y", e.yScale(e.normMin) - a).attr("x", svg.width - svg.infoAreaRight).attr({
             "font-family": "sans-serif",
@@ -404,7 +407,7 @@ function drawGraph() {
 function drawTabularObs() {
     var t = d3.select("#table-content").append("div").attr("style", "padding-top: 1em"), e = t.selectAll(".card").data(svg.data.reverse()).enter().append("div").attr("class", "card"), a = (e.append("h3").text(function(t) {
         return ("0" + t.date_started.getHours()).slice(-2) + ":" + ("0" + t.date_started.getMinutes()).slice(-2) + " " + ("0" + t.date_started.getDate()).slice(-2) + "/" + ("0" + (t.date_started.getMonth() + 1)).slice(-2) + "/" + t.date_started.getFullYear();
-    }), e.append("table")), n = a.selectAll("tr").data(function(t) {
+    }), e.append("table")), r = a.selectAll("tr").data(function(t) {
         return $.map(t, function(t, e) {
             if ("indirect_oxymetry_spo2_label" !== e) {
                 var a = process_obs_name(e);
@@ -415,7 +418,7 @@ function drawTabularObs() {
             }
         });
     }).enter();
-    n.append("tr").html(function(t) {
+    r.append("tr").html(function(t) {
         return "object" != typeof t.value ? "<td>" + t.key + "</td><td>" + t.value + "</td>" : "Oxygen Administration Flag" == t.key ? 1 == t.value.onO2 ? "<td>" + t.key + "</td><td> true </td>" : "<td>" + t.key + "</td><td> false </td>" : void 0;
     });
 }
@@ -430,8 +433,8 @@ function redrawFocus(t) {
             return focus.xScale(t.date_started);
         }).y(function(t) {
             return a.yScale(t[a.key]);
-        }), focus.obj.select("#path-" + a.key).transition().duration(svg.transitionDuration).attr("d", a.area), 
-        focus.obj.selectAll("line.verticalGrid.focus" + a.label).remove().data(focus.xScale.ticks()).enter().append("line").attr({
+        }), a.group.select("#path-" + a.key).transition().duration(svg.transitionDuration).attr("d", a.area), 
+        a.group.selectAll("line.verticalGrid.focus" + a.label).remove().data(focus.xScale.ticks()).enter().append("line").attr({
             "class": "verticalGrid focus" + a.label,
             x1: function(t) {
                 return focus.xScale(t);
@@ -444,44 +447,25 @@ function redrawFocus(t) {
             "shape-rendering": "crispEdges",
             stroke: "rgba(0,0,0,0.1)",
             "stroke-width": "1px"
-        });
+        }), "BP" == a.label && (focus.obj.selectAll("." + a.label + "-top-line").attr({
+            y: function(t) {
+                return a.yScale(t.blood_pressure_systolic);
+            },
+            x: function(t) {
+                return focus.xScale(t.date_started) - (focus.BPWidth / 2 - 1);
+            }
+        }), focus.obj.selectAll("." + a.label + "-bottom-line").attr({
+            y: function(t) {
+                return a.yScale(t.blood_pressure_diastolic);
+            },
+            x: function(t) {
+                return focus.xScale(t.date_started) - (focus.BPWidth / 2 - 1);
+            }
+        }));
     }
     focus.obj.select(".x.axis").call(focus.xAxis), focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(t) {
         return focus.xScale(t.date_started);
-    }), focus.obj.selectAll(".data_symbols").remove(), focus.obj.selectAll(".BPup-arrows").data(svg.data.filter(function(t) {
-        return t.blood_pressure_systolic && t.date_started >= focus.xScale.domain()[0] && t.date_started <= focus.xScale.domain()[1] ? (console.log(t), 
-        t) : void 0;
-    })).enter().append("path").attr({
-        d: d3.svg.symbol().size(function() {
-            return console.log("calling size"), 45;
-        }).type(function() {
-            return console.log("calling type"), "triangle-up";
-        }),
-        transform: function(t) {
-            return console.log("calling transform"), "translate(" + (focus.xScale(t.date_started) + 1) + "," + (focus.graphs[focus.graphs.length - 1].yScale(t.blood_pressure_systolic) + 3) + ")";
-        },
-        "class": "data_symbols BPup-arrows"
-    }).style("display", function(t) {
-        return null === t.blood_pressure_systolic ? "none" : null;
-    }).on("mouseover", function(t) {
-        return contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic);
-    }).on("mouseout", contextMouseOut), focus.obj.selectAll(".BPdown-arrows").data(svg.data.filter(function(t) {
-        return t.blood_pressure_diastolic && t.date_started >= focus.xScale.domain()[0] && t.date_started <= focus.xScale.domain()[1] ? t : void 0;
-    })).enter().append("path").attr({
-        d: d3.svg.symbol().size(function() {
-            return 45;
-        }).type(function() {
-            return "triangle-down";
-        }),
-        transform: function(t) {
-            return "translate(" + (focus.xScale(t.date_started) + 1) + "," + (focus.graphs[focus.graphs.length - 1].yScale(t.blood_pressure_diastolic) - 3) + ")";
-        },
-        "class": "data_symbols BPdown-arrows"
-    }).style("display", function(t) {
-        return null === t.blood_pressure_diastolic ? "none" : null;
-    }).on("mouseover", function(t) {
-        return contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic);
-    }).on("mouseout", contextMouseOut), focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(t) {
+    }), focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(t) {
         return focus.xScale(t.date_started);
     }), focus.obj.select(".x.axis").call(focus.xAxis), focus.obj.selectAll(".horizontalGrid").transition().duration(svg.transitionDuration).attr("x2", focus.xScale(focus.xScale.domain()[1])), 
     initTable(), focus.obj.selectAll(".x.axis g text").each(insertLinebreaks);
@@ -507,6 +491,7 @@ function resizeGraphs() {
     context.obj.selectAll(".green").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + svg.margins.right / 3)), 
     context.obj.selectAll(".amber").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + svg.margins.right / 3)), 
     context.obj.selectAll(".red").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + svg.margins.right / 3)), 
+    context.obj.selectAll(".brush .background").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + svg.margins.right / 3)), 
     context.obj.selectAll(".verticalGrid").remove().data(context.xScale.ticks()).enter().append("line").attr({
         "class": "verticalGrid",
         x1: function(t) {
@@ -534,7 +519,7 @@ function resizeGraphs() {
 function initTable() {
     var t = [ "Type" ];
     d3.select("#chartTable").selectAll("tr").remove();
-    for (var e = new Date(focus.xScale.domain()[0]), a = new Date(focus.xScale.domain()[1]), n = 0; n < svg.data.length; n++) svg.data[n].date_started >= e && svg.data[n].date_started <= a && t.push(svg.data[n].date_started);
+    for (var e = new Date(focus.xScale.domain()[0]), a = new Date(focus.xScale.domain()[1]), r = 0; r < svg.data.length; r++) svg.data[r].date_started >= e && svg.data[r].date_started <= a && t.push(svg.data[r].date_started);
     dataTableTr = d3.select("#chartTable").append("tr"), dataTableTr.selectAll("th").data(t).enter().append("th").html(function(t) {
         return "Type" == t ? t : ("0" + t.getDate()).slice(-2) + "/" + ("0" + (t.getMonth() + 1)).slice(-2) + "<br>" + ("0" + t.getHours()).slice(-2) + ":" + ("0" + t.getMinutes()).slice(-2);
     }).style("width", 90 / t.length + "%"), drawTable();
@@ -542,7 +527,7 @@ function initTable() {
 
 function drawTable() {
     for (var t = 0; t < focus.tables.length; t++) {
-        for (var e = focus.tables[t], a = [ e.label ], n = new Date(focus.xScale.domain()[0]), o = new Date(focus.xScale.domain()[1]), r = 0; r < svg.data.length; r++) svg.data[r].date_started >= n && svg.data[r].date_started <= o && a.push(svg.data[r][e.key]);
+        for (var e = focus.tables[t], a = [ e.label ], r = new Date(focus.xScale.domain()[0]), n = new Date(focus.xScale.domain()[1]), o = 0; o < svg.data.length; o++) svg.data[o].date_started >= r && svg.data[o].date_started <= n && a.push(svg.data[o][e.key]);
         var s = d3.select("#chartTable").append("tr");
         s.selectAll("td." + e.label).data(a).enter().append("td").html(function(t) {
             return t;

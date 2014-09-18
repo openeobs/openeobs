@@ -53,7 +53,8 @@ var focus = {
     xScale: null,
     yScale: null,
     yAxis: null,
-    chartPadding: 20
+    chartPadding: 20,
+    BPWidth: 8
 };
 
 // Function that deals with the setup of the graphs
@@ -64,7 +65,7 @@ function initGraph(maxScore) {
     }
 
 
-    svg.width = ($(svg.el).width() - svg.margins.left - svg.margins.right);
+    svg.width = $(svg.el).width();
     svg.infoAreaRight = svg.width / 18;
     focus.height = ((focus.graphs.length+1) * focus.chartHeight);
     svg.height = (context.height + focus.height + context.margins.bottom + context.margins.top + focus.margins.bottom + focus.margins.top);
@@ -83,6 +84,8 @@ function initGraph(maxScore) {
         .attr("height", (focus.height + focus.margins.bottom + focus.margins.top))
         .append("g")
         .attr("transform", "translate(" + 0 + "," + focus.margins.top/3 + ")");
+
+    svg.width = (svg.width - svg.margins.left) - svg.margins.right;
 
     // set up the context scales and axis so it plots all the data
     //context.xScale = d3.time.scale().domain([context.earliestDate, context.now]).range([(svg.margins.left/4), svg.width - (svg.infoAreaRight + (svg.margins.right/4))]);
@@ -112,9 +115,7 @@ function initGraph(maxScore) {
 
     context.now = now;
         // set up the context scales and axis so it plots all the data
-        context.xScale = d3.time.scale().domain([earliestDate, now]).range([(svg.margins.left/4), svg.width - (svg.infoAreaRight + (svg.margins.right/4))]);
-        //var tickMod = calcTicks(svg.width, earliestDate, now);
-        context.xAxis = d3.svg.axis().scale(context.xScale).orient("top");
+
 
     // if mobile then
     if(svg.isMob) {
@@ -143,6 +144,9 @@ function initGraph(maxScore) {
         $(".chartDates").show();
     }
 
+    context.xScale = d3.time.scale().domain([earliestDate, now]).range([(svg.margins.left/4), svg.width - (svg.infoAreaRight + (svg.margins.right/4))]);
+    //var tickMod = calcTicks(svg.width, earliestDate, now);
+    context.xAxis = d3.svg.axis().scale(context.xScale).orient("top");
     focus.xScale = d3.time.scale().domain([earliestDate, now]).range([(svg.margins.left/4), svg.width - (svg.infoAreaRight + (svg.margins.right/4))]);
     focus.xAxis = d3.svg.axis().scale(focus.xScale).orient("top");//.ticks(tickMod[0], tickMod[1]);
 
