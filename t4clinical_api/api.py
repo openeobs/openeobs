@@ -440,8 +440,8 @@ class t4_clinical_api(orm.AbstractModel):
         _logger.info("Transfer cancelled for patient: %s" % patient_id)
         return True
 
-    def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=dt.now()+td(days=-30),
-                                end_date=dt.now(), context=None):
+    def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=None,
+                                end_date=None, context=None):
         """
         Returns a list of activities in dictionary format (containing every field from the table)
         :param patient_id: Postgres ID of the patient to get the activities from.
@@ -449,6 +449,8 @@ class t4_clinical_api(orm.AbstractModel):
         :param start_date: start date to filter. A month from now by default.
         :param end_date: end date to filter. Now by default.
         """
+        start_date = dt.now()-td(days=30) if not start_date else start_date
+        end_date = dt.now() if not end_date else end_date
         model_pool = self.pool['t4.clinical.patient.observation.'+activity_type] if activity_type else self.pool['t4.activity']
         domain = [
             ('patient_id', '=', patient_id),
