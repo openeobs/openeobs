@@ -30,4 +30,8 @@ class cancel_notifications_wizard(osv.TransientModel):
 
         [activity_pool.cancel(cr, SUPERUSER_ID, n, context=context) for n in notification_ids]
 
+        cancel_reason_id = self.pool['t4.cancel.reason'].search(cr, uid, [('name', '=', 'Cancelled by Ward Manager')], context=context)
+
+        activity_pool.write(cr, SUPERUSER_ID, notification_ids, {'terminate_uid': uid, 'cancel_reason_id': cancel_reason_id[0]}, context=context)
+
         return {'type': 'ir.actions.act_window_close'}
