@@ -97,13 +97,13 @@ var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
 
 $(document).ready(function(){
     $('#table-content').hide();
-//    $("#obsButton" ).click(function(e){
-//        e.preventDefault();
-//        var content = "<ul class=\"menu\">";
+    $("#obsButton").click(function(e){
+        e.preventDefault();
+        var content = "<ul class=\"menu\">";
 //        content += "<li class='rightContent'><a href='/mobile/patients/takeMewsObs/71'>NEWS <span class='aside'>overdue: 169.57&nbsp;hours</span></a></li>";content += "<li><a href='/mobile/patients/takeGcsObs/71'>GCS</a></li>";content += "<li><a href='/mobile/patients/takeBloodProductObs/71'>Blood Product</a></li>";content += "<li><a href='/mobile/patients/takeHeightWeightObs/71'>Height and Weight</a></li>";content += "<li><a href='/mobile/patients/takeBloodSugarObs/71'>Blood Sugar</a></li>";content += "<li><a href='/mobile/patients/takeStoolsObs/71'>Stools</a></li>";
-//        content += "</ul>";
-//        displayModal("obsPick", "Pick an observation for RAU, Filiberto", content, ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>"],0)
-//    });
+        content += "</ul>";
+        displayModal("obsPick", "Pick an observation for", content, ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>"],0)
+    });
     $(".tabs li a").click(function(e){
         e.preventDefault();
         var toShow = $(this).attr('href');

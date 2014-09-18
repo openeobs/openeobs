@@ -165,10 +165,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
 
     def calculate_ews_class(self, score):
-        score_classes = ['level-none', 'level-one', 'level-two', 'level-three']
-        score_ranges = [0, 4, 6]
-        if score:
-            return score_classes[bisect.bisect_left(score_ranges, int(score))]
+        if score is 'None':
+            return 'level-none'
+        elif score is 'Low':
+            return 'level-one'
+        elif score is 'Medium':
+            return 'level-two'
+        elif score is 'High':
+            return 'level-three'
         else:
             return 'level-none'
 
@@ -179,7 +183,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patients = patient_api.get_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
-            patient['color'] = self.calculate_ews_class(patient['ews_score'])
+            patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
@@ -195,7 +199,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
-            task['color'] = self.calculate_ews_class(task['ews_score'])
+            task['color'] = self.calculate_ews_class(task['clinical_risk'])
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
         return request.render('mobile_frontend.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',

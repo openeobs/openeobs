@@ -585,15 +585,15 @@ var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
     dataType: "json",
     success: function(e) {
         console.log(e), svg.chartType = e.obsType;
-        var t = e.obs.reverse();
-        if (t.length < 1 && console.log("no data"), svg.ticks = Math.floor(svg.width / 100), 
-        context.earliestDate = svg.startParse(t[0].date_started), context.now = svg.startParse(t[t.length - 1].date_started), 
+        var a = e.obs.reverse();
+        if (a.length < 1 && console.log("no data"), svg.ticks = Math.floor(svg.width / 100), 
+        context.earliestDate = svg.startParse(a[0].date_started), context.now = svg.startParse(a[a.length - 1].date_started), 
         svg.isMob) if ($(window).width() > $(window).height()) {
-            var a = new Date(context.now);
-            a.setDate(a.getDate() - svg.dateRange.landscape), context.earliestDate = a;
+            var t = new Date(context.now);
+            t.setDate(t.getDate() - svg.dateRange.landscape), context.earliestDate = t;
         } else {
-            var a = new Date(context.now);
-            a.setDate(a.getDate() - svg.dateRange.portrait), context.earliestDate = a;
+            var t = new Date(context.now);
+            t.setDate(t.getDate() - svg.dateRange.portrait), context.earliestDate = t;
         }
         context.scoreRange = [ {
             "class": "green",
@@ -609,13 +609,13 @@ var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
             e: 20
         } ];
         var n = !1;
-        svg.data = t, t.forEach(function(e) {
+        svg.data = a, a.forEach(function(e) {
             e.date_started = svg.startParse(e.date_started), e.indirect_oxymetry_spo2 && (e.indirect_oxymetry_spo2_label = e.indirect_oxymetry_spo2 + "%"), 
             e.oxygen_administration_flag && (n = !0, e.inspired_oxygen = "", "undefined" != typeof e.flow_rate && (e.inspired_oxygen += "Flow: " + e.flow_rate + "l/hr<br>"), 
             "undefined" != typeof e.concentration && (e.inspired_oxygen += "Concentration: " + e.concentration + "%<br>"), 
             e.cpap_peep && (e.inspired_oxygen += "CPAP PEEP: " + e.cpap_peep + "<br>"), e.niv_backup && (e.inspired_oxygen += "NIV Backup Rate: " + e.niv_backup + "<br>"), 
             e.niv_ipap && (e.inspired_oxygen += "NIV IPAP: " + e.niv_ipap + "<br>"), e.niv_epap && (e.inspired_oxygen += "NIV EPAP: " + e.niv_epap + "<br>"));
-        }), svg.data = t, focus.graphs.push({
+        }), svg.data = a, focus.graphs.push({
             key: "respiration_rate",
             label: "RR",
             measurement: "/min",
@@ -672,10 +672,14 @@ var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
 });
 
 $(document).ready(function() {
-    $("#table-content").hide(), $(".tabs li a").click(function(e) {
+    $("#table-content").hide(), $("#obsButton").click(function(e) {
         e.preventDefault();
-        var t = $(this).attr("href");
-        $("#graph-content").hide(), $("#table-content").hide(), $(t).show(), $(".tabs li a").removeClass("selected"), 
+        var a = '<ul class="menu">';
+        a += "</ul>", displayModal("obsPick", "Pick an observation for", a, [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>' ], 0);
+    }), $(".tabs li a").click(function(e) {
+        e.preventDefault();
+        var a = $(this).attr("href");
+        $("#graph-content").hide(), $("#table-content").hide(), $(a).show(), $(".tabs li a").removeClass("selected"), 
         $(this).addClass("selected");
     });
 });
