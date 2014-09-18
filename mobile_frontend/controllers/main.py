@@ -5,6 +5,7 @@ from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 URL_PREFIX = '/mobile/'
 
@@ -348,6 +349,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api = request.registry('t4.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
+        kw_copy['date_started'] = datetime.fromtimestamp(int(kw_copy['startTimestamp'])).strftime(DTF)
+        del kw_copy['startTimestamp']
         api.submit_complete(cr, uid, int(task_id), kw_copy, context)
         return utils.redirect(URLS['task_list'])
 
@@ -374,7 +377,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 del kw_copy[key]
 
         converted_data = converter(kw_copy, test)
-        converted_data['startTimestamp'] = timestamp
+        converted_data['date_started'] = datetime.fromtimestamp(int(timestamp)).strftime(DTF)
         if device_id:
             converted_data['device_id'] = device_id
         result = api.complete(cr, uid, int(task_id), converted_data, context)

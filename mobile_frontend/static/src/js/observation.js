@@ -331,16 +331,16 @@ $(document).ready(function() {
             }
         });
     }), $("input").on("change", function() {
-        $("#startTimestamp").val($.now()), timeIdle = 0;
+        timeIdle = 0;
     }), $("input").on("keyup", function() {
         $(this).valid();
     }), $("input").on("focus", function() {
         timeIdle = 0;
     }), $("select").on("change", function() {
-        $("#startTimestamp").val($.now()), timeIdle = 0;
+        timeIdle = 0;
     }), $("select").on("focus", function() {
         timeIdle = 0;
-    }), $("#startTimestamp").val($.now());
+    });
     var t;
     "medical_team" != s && "frequency" != s && (console.log("adding custom methods"), 
     jQuery.validator.addMethod("pimpedNumber", function(e, s) {
