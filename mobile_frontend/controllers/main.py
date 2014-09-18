@@ -165,13 +165,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
 
     def calculate_ews_class(self, score):
-        if score is 'None':
+        if score == 'None':
             return 'level-none'
-        elif score is 'Low':
+        elif score == 'Low':
             return 'level-one'
-        elif score is 'Medium':
+        elif score == 'Medium':
             return 'level-two'
-        elif score is 'High':
+        elif score == 'High':
             return 'level-three'
         else:
             return 'level-none'
