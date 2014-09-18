@@ -193,9 +193,9 @@ class t4_clinical_api(orm.AbstractModel):
                 reasons.append({'id':reason.id, 'name': reason.name})
         return reasons
 
-    def get_form_description(self, cr, uid, patient_id, observation_type, context=None):
-        observation_pool = self.pool['t4.clinical.patient.observation.'+observation_type]
-        return observation_pool.get_form_description(cr, uid, patient_id, context=context)
+    def get_form_description(self, cr, uid, patient_id, data_model, context=None):
+        model_pool = self.pool[data_model]
+        return model_pool.get_form_description(cr, uid, patient_id, context=context)
 
     # # # # # # #
     #  PATIENTS #
