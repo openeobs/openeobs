@@ -11,6 +11,7 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api.external'
     #_inherit = 't4.clinical.api'
+    _active_observations = ['ews', 'height', 'weight', 'blood_product', 'blood_sugar', 'stools', 'gcs', 'pbp']
 
     def _check_activity_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
@@ -191,6 +192,10 @@ class t4_clinical_api(orm.AbstractModel):
             if not reason.system:
                 reasons.append({'id':reason.id, 'name': reason.name})
         return reasons
+
+    def get_form_description(self, cr, uid, patient_id, observation_type, context=None):
+        observation_pool = self.pool['t4.clinical.patient.observation.'+observation_type]
+        return observation_pool.get_form_description(cr, uid, patient_id, context=context)
 
     # # # # # # #
     #  PATIENTS #
