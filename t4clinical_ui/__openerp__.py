@@ -10,6 +10,7 @@
     'website': 'http://www.tactix4.com/',
     'depends': ['t4clinical_base','t4clinical_activity_types', 't4clinical_api'],
     'data': ['wizard/responsibility_allocation_wizard.xml',
+             'wizard/cancel_notifications_view.xml',
              'wardboard_view.xml',
              'workload_view.xml',
              'placement_view.xml',
