@@ -197,6 +197,10 @@ class t4_clinical_api(orm.AbstractModel):
         model_pool = self.pool[data_model]
         return model_pool.get_form_description(cr, uid, patient_id, context=context)
 
+    def is_cancellable(self, cr, uid, data_model, context=None):
+        model_pool = self.pool[data_model]
+        return model_pool.is_cancellable(cr, uid, context=context) if 'notification' in data_model else False
+
     # # # # # # #
     #  PATIENTS #
     # # # # # # #
