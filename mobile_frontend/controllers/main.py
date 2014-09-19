@@ -490,3 +490,54 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api_pool = request.registry('t4.clinical.api.external')
         ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
         return request.make_response(json.dumps({'obs': ews, 'obsType': 'ews'}), headers={'Content-Type': 'application/json'})
+
+
+    @http.route(URLS['patient_ob']+'<observation>/'+'<patient_id>', type='http', auth='user')
+    def take_patient_observation(self, observation, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+
+        patient = dict()
+        patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
+        if len(patient_info) >0:
+            patient_info = patient_info[0]
+        patient['url'] = URLS['single_patient'] + '{0}'.format(patient_info['id'])
+        patient['name'] = patient_info['full_name']
+        patient['id'] = patient_info['id']
+
+        form = dict()
+        form['action'] = URLS['patient_form_action']+'{0}/{1}'.format(observation, patient_id)
+        form['type'] = observation
+        form['task-id'] = False
+        form['patient-id'] = int(patient_id)
+        form['source'] = "patient"
+        form['start'] = datetime.now().strftime('%s')
+
+        form_desc = api_pool.get_form_description(cr, uid, int(patient_id), 't4.clinical.patient.observation.{0}'.format(observation), context=context)
+
+        for form_input in form_desc:
+            if form_input['type'] in ['float', 'integer']:
+                form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
+                form_input['type'] = 'number'
+                form_input['number'] = True
+                form_input['info'] = ''
+                form_input['errors'] = ''
+                #if form_input['target']:
+                #    form_input['target'] = False
+            elif form_input['type'] == 'selection':
+                form_input['selection_options'] = []
+                form_input['info'] = ''
+                form_input['errors'] = ''
+                for option in form_input['selection']:
+                    opt = dict()
+                    opt['value'] = '{0}'.format(option[0])
+                    opt['label'] = option[1]
+                    form_input['selection_options'].append(opt)
+
+        return request.render('mobile_frontend.observation_entry', qcontext={'inputs': form_desc,
+                                                                             'name': [v['name'] for v in api_pool._active_observations if v['type'] == observation][0],
+                                                                             'patient': patient,
+                                                                             'form': form,
+                                                                             'section': 'task',
+                                                                             'username': request.session['login'],
+                                                                             'urls': URLS})
