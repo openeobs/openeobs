@@ -11,7 +11,40 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api.external'
     #_inherit = 't4.clinical.api'
-    _active_observations = ['ews', 'height', 'weight', 'blood_product', 'blood_sugar', 'stools', 'gcs', 'pbp']
+    _active_observations = [
+        {
+            'type': 'ews',
+            'name': 'National Early Warning Score (NEWS)'
+        },
+        {
+            'type': 'height',
+            'name': 'Height'
+        },
+        {
+            'type': 'weight',
+            'name': 'Weight'
+        },
+        {
+            'type': 'blood_product',
+            'name': 'Blood Product'
+        },
+        {
+            'type': 'blood_sugar',
+            'name': 'Blood Sugar'
+        },
+        {
+            'type': 'stools',
+            'name': 'Bristol Stool Scale'
+        },
+        {
+            'type': 'gcs',
+            'name': 'Glasglow Coma Scale (GCS)'
+        },
+        {
+            'type': 'pbp',
+            'name': 'Postural Blood Pressure'
+        }
+    ]
 
     def _check_activity_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
