@@ -1,6 +1,7 @@
 from openerp.tests.common import SingleTransactionCase
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
+from openerp import SUPERUSER_ID
 #from openerp.addons.t4clinical_activity_types.tests.test_scenario import ActivityTypesTest
 from pprint import pprint as pp
 from faker import Faker
@@ -155,9 +156,10 @@ class test_ui_data(SingleTransactionCase):
                 activity = api.submit_complete(cr, nurse_user_id, activity_id, ews_data)
                 print "score: %s" % activity.data_ref.score
                 
-                wardboard_ids = wardboard_model.search(cr, uid, [['id','=',patient_id],['pos_id','=',env.pos_id.id]])
+                wardboard_ids = wardboard_model.search(cr, SUPERUSER_ID, [['patient_id','=',patient_id],['pos_id','=',env.pos_id.id]])
+                #import pdb; pdb.set_trace()
                 assert len(wardboard_ids) == 1
-                wardboard = wardboard_model.browse(cr, uid, wardboard_ids[0])
+                wardboard = wardboard_model.browse(cr, SUPERUSER_ID, wardboard_ids[0])
                 assert wardboard.clinical_risk == activity.data_ref.clinical_risk,\
                     "wardboard.clinical_risk: %s, activity.data_ref.clinical_risk: %s"\
                     %(wardboard.clinical_risk, activity.data_ref.clinical_risk)

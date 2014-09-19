@@ -100,14 +100,13 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         return True
 
     def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read'):
-        ids = isinstance(ids, (tuple, list)) and ids or [ids]
         if not self._num_fields:
             return super(t4_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
         if fields and 'null_values' not in fields:
             fields.append('null_values')
         res = super(t4_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
-        for obs in res:
-            for nv in eval(obs['null_values']):
+        for obs in isinstance(res, (tuple, list)) and res or [res]:
+            for nv in eval(obs['null_values'] or '{}'):
                 if nv in obs.keys():
                     obs[nv] = False
         return res

@@ -168,6 +168,9 @@ class t4_activity_data(orm.AbstractModel):
 #                     # if location_id in [l.id for l in user.location_ids]:
 #                         user_ids.append(user.id)
         api = self.pool['t4.clinical.api']
+        cr.execute("select location_id from t4_activity where id = %s" % activity_id)
+        if not cr.fetchone()[0]:
+            return []
         activity = api.browse(cr, uid, 't4.activity', activity_id)
         if 'notification' in activity.data_model or 'observation' in activity.data_model:
             where_clause = "where location_activity_ids && array[%s]" % activity_id
