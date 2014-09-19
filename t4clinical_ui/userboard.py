@@ -72,8 +72,10 @@ class t4clinical_userboard(orm.Model):
             groups_pool = self.pool['res.groups']
             user_write_vals = {}
             groups = []
-            user_write_vals.update({'name': vals['name']})
-            user_write_vals.update({'login': vals['login'], 'password': vals['login']})
+            if vals.get('name'):
+                user_write_vals.update({'name': vals['name']})
+            if vals.get('login'):
+                user_write_vals.update({'login': vals['login']})
             if hca:
                 groups += groups_pool.search(cr, uid, [('name', '=', 'T4 Clinical HCA Group')], context=context)
             if nurse:
@@ -217,8 +219,10 @@ class t4clinical_admin_userboard(orm.Model):
             groups_pool = self.pool['res.groups']
             user_write_vals = {}
             groups = []
-            user_write_vals.update({'name': vals['name']})
-            user_write_vals.update({'login': vals['login'], 'password': vals['login']})
+            if vals.get('name'):
+                user_write_vals.update({'name': vals['name']})
+            if vals.get('login'):
+                user_write_vals.update({'login': vals['login']})
             if hca:
                 groups += groups_pool.search(cr, uid, [('name', '=', 'T4 Clinical HCA Group')], context=context)
             if nurse:

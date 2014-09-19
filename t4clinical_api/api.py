@@ -11,6 +11,40 @@ _logger = logging.getLogger(__name__)
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api.external'
     #_inherit = 't4.clinical.api'
+    _active_observations = [
+        {
+            'type': 'ews',
+            'name': 'National Early Warning Score (NEWS)'
+        },
+        {
+            'type': 'height',
+            'name': 'Height'
+        },
+        {
+            'type': 'weight',
+            'name': 'Weight'
+        },
+        {
+            'type': 'blood_product',
+            'name': 'Blood Product'
+        },
+        {
+            'type': 'blood_sugar',
+            'name': 'Blood Sugar'
+        },
+        {
+            'type': 'stools',
+            'name': 'Bristol Stool Scale'
+        },
+        {
+            'type': 'gcs',
+            'name': 'Glasglow Coma Scale (GCS)'
+        },
+        {
+            'type': 'pbp',
+            'name': 'Postural Blood Pressure'
+        }
+    ]
 
     def _check_activity_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
@@ -191,6 +225,14 @@ class t4_clinical_api(orm.AbstractModel):
             if not reason.system:
                 reasons.append({'id':reason.id, 'name': reason.name})
         return reasons
+
+    def get_form_description(self, cr, uid, patient_id, data_model, context=None):
+        model_pool = self.pool[data_model]
+        return model_pool.get_form_description(cr, uid, patient_id, context=context)
+
+    def is_cancellable(self, cr, uid, data_model, context=None):
+        model_pool = self.pool[data_model]
+        return model_pool.is_cancellable(cr, uid, context=context) if 'notification' in data_model else False
 
     # # # # # # #
     #  PATIENTS #
@@ -440,8 +482,8 @@ class t4_clinical_api(orm.AbstractModel):
         _logger.info("Transfer cancelled for patient: %s" % patient_id)
         return True
 
-    def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=dt.now()+td(days=-30),
-                                end_date=dt.now(), context=None):
+    def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=None,
+                                end_date=None, context=None):
         """
         Returns a list of activities in dictionary format (containing every field from the table)
         :param patient_id: Postgres ID of the patient to get the activities from.
@@ -449,6 +491,8 @@ class t4_clinical_api(orm.AbstractModel):
         :param start_date: start date to filter. A month from now by default.
         :param end_date: end date to filter. Now by default.
         """
+        start_date = dt.now()-td(days=30) if not start_date else start_date
+        end_date = dt.now() if not end_date else end_date
         model_pool = self.pool['t4.clinical.patient.observation.'+activity_type] if activity_type else self.pool['t4.activity']
         domain = [
             ('patient_id', '=', patient_id),

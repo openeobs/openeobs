@@ -5,6 +5,7 @@ from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 URL_PREFIX = '/mobile/'
 
@@ -164,10 +165,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
 
     def calculate_ews_class(self, score):
-        score_classes = ['level-none', 'level-one', 'level-two', 'level-three']
-        score_ranges = [0, 4, 6]
-        if score:
-            return score_classes[bisect.bisect_left(score_ranges, int(score))]
+        if score == 'None':
+            return 'level-none'
+        elif score == 'Low':
+            return 'level-one'
+        elif score == 'Medium':
+            return 'level-two'
+        elif score == 'High':
+            return 'level-three'
         else:
             return 'level-none'
 
@@ -178,7 +183,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patients = patient_api.get_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
-            patient['color'] = self.calculate_ews_class(patient['ews_score'])
+            patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
@@ -194,7 +199,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
-            task['color'] = self.calculate_ews_class(task['ews_score'])
+            task['color'] = self.calculate_ews_class(task['clinical_risk'])
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
         return request.render('mobile_frontend.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
@@ -271,9 +276,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         if 'notification' in task['data_model']:
             # load notification foo
-            obs_reg = request.registry[task['data_model']]
-            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
-            cancellable = obs_reg.is_cancellable(cr, uid, context=context)
+            obs_reg = request.registry['t4.clinical.api.external']
+            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
+            cancellable = obs_reg.is_cancellable(cr, uid, task['data_model'], context=context)
             form['confirm_url'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
             form['action'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
             for form_input in form_desc:
@@ -307,8 +312,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                                            'urls': URLS})
         elif 'observation' in task['data_model']:
             # load obs foo
-            obs_reg = request.registry[task['data_model']]
-            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
+            obs_reg = request.registry['t4.clinical.api.external']
+            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
             form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
             for form_input in form_desc:
                 if form_input['type'] in ['float', 'integer']:
@@ -348,6 +353,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api = request.registry('t4.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
+        kw_copy['date_started'] = datetime.fromtimestamp(int(kw_copy['startTimestamp'])).strftime(DTF)
+        del kw_copy['startTimestamp']
         api.submit_complete(cr, uid, int(task_id), kw_copy, context)
         return utils.redirect(URLS['task_list'])
 
@@ -374,7 +381,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 del kw_copy[key]
 
         converted_data = converter(kw_copy, test)
-        converted_data['startTimestamp'] = timestamp
+        converted_data['date_started'] = datetime.fromtimestamp(int(timestamp)).strftime(DTF)
         if device_id:
             converted_data['device_id'] = device_id
         result = api.complete(cr, uid, int(task_id), converted_data, context)
@@ -467,14 +474,70 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
+        obs = api_pool._active_observations
         return request.render('mobile_frontend.patient', qcontext={'patient': patient,
                                                                    'urls': URLS,
                                                                    'section': 'patient',
+                                                                   'obs_list': obs,
                                                                    'username': request.session['login']})
+
+
+
 
     @http.route(URLS['ajax_get_patient_obs']+'<patient_id>', type='http', auth='user')
     def get_patient_obs(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
         ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
-        return request.make_response(json.dumps({'obs': ews}), headers={'Content-Type': 'application/json'})
+        return request.make_response(json.dumps({'obs': ews, 'obsType': 'ews'}), headers={'Content-Type': 'application/json'})
+
+
+    @http.route(URLS['patient_ob']+'<observation>/'+'<patient_id>', type='http', auth='user')
+    def take_patient_observation(self, observation, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('t4.clinical.api.external')
+
+        patient = dict()
+        patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
+        if len(patient_info) >0:
+            patient_info = patient_info[0]
+        patient['url'] = URLS['single_patient'] + '{0}'.format(patient_info['id'])
+        patient['name'] = patient_info['full_name']
+        patient['id'] = patient_info['id']
+
+        form = dict()
+        form['action'] = URLS['patient_form_action']+'{0}/{1}'.format(observation, patient_id)
+        form['type'] = observation
+        form['task-id'] = False
+        form['patient-id'] = int(patient_id)
+        form['source'] = "patient"
+        form['start'] = datetime.now().strftime('%s')
+
+        form_desc = api_pool.get_form_description(cr, uid, int(patient_id), 't4.clinical.patient.observation.{0}'.format(observation), context=context)
+
+        for form_input in form_desc:
+            if form_input['type'] in ['float', 'integer']:
+                form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
+                form_input['type'] = 'number'
+                form_input['number'] = True
+                form_input['info'] = ''
+                form_input['errors'] = ''
+                #if form_input['target']:
+                #    form_input['target'] = False
+            elif form_input['type'] == 'selection':
+                form_input['selection_options'] = []
+                form_input['info'] = ''
+                form_input['errors'] = ''
+                for option in form_input['selection']:
+                    opt = dict()
+                    opt['value'] = '{0}'.format(option[0])
+                    opt['label'] = option[1]
+                    form_input['selection_options'].append(opt)
+
+        return request.render('mobile_frontend.observation_entry', qcontext={'inputs': form_desc,
+                                                                             'name': [v['name'] for v in api_pool._active_observations if v['type'] == observation][0],
+                                                                             'patient': patient,
+                                                                             'form': form,
+                                                                             'section': 'task',
+                                                                             'username': request.session['login'],
+                                                                             'urls': URLS})

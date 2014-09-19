@@ -104,7 +104,21 @@
         <record id="employee_category_t4clinical_ward_manager" model="hr.employee.category">
             <field name="name">Ward Manager</field>
            
-        </record> 
+        </record>
+
+        <!--Cancellation Reasons-->
+        <record id="t4c_cancel_reason_1" model="t4.cancel.reason">
+            <field name="name">Unspecified reason</field>
+            <field name="system" eval="False"/>
+        </record>
+        <record id="t4c_cancel_reason_2" model="t4.cancel.reason">
+            <field name="name">Cancelled by Ward Manager</field>
+            <field name="system" eval="True"/>
+        </record>
+        <record id="t4c_cancel_reason_3" model="t4.cancel.reason">
+            <field name="name">Cancelled by System</field>
+            <field name="system" eval="True"/>
+        </record>
         
 	</data>
 </openerp>

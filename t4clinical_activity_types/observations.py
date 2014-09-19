@@ -17,6 +17,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _name = 't4.clinical.patient.observation'
     _inherit = ['t4.activity.data']
     _required = [] # fields required for complete observation
+    _num_fields = [] # numeric fields we want to be able to read as NULL instead of 0
     _partial_reasons = [['not_in_bed', 'Patient not in bed'],
                         ['asleep', 'Patient asleep']]
     
@@ -50,7 +51,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'is_partial': fields.function(_is_partial, type='boolean', string='Is Partial?'),
-        'none_values': fields.text('Non-updated fields'),
+        'none_values': fields.text('Non-updated required fields'),
+        'null_values': fields.text('Non-updated numeric fields'),
         'frequency': fields.selection(frequencies, 'Frequency'),
         'partial_reason': fields.selection(_partial_reasons, 'Reason if partial observation')
     }
@@ -65,7 +67,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
     
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))
-        vals.update({'none_values': none_values})
+        null_values = list(set(self._num_fields) - set(vals.keys()))
+        vals.update({'none_values': none_values, 'null_values': null_values})
         #print "create none_values: %s" % none_values
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)
     
@@ -80,12 +83,14 @@ class t4_clinical_patient_observation(orm.AbstractModel):
                 
     def write(self, cr, uid, ids, vals, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]
-        if not self._required:
+        if not self._required and not self._num_fields:
             return super(t4_clinical_patient_observation, self).write(cr, uid, ids, vals, context)
-        for obs in self.read(cr, uid, ids, ['none_values'], context):
+        for obs in self.read(cr, uid, ids, ['none_values', 'null_values'], context):
             none_values = list(set(eval(obs['none_values'])) - set(vals.keys()))
-            vals.update({'none_values': none_values})
+            null_values = list(set(eval(obs['null_values'])) - set(vals.keys()))
+            vals.update({'none_values': none_values, 'null_values': null_values})
             print "write none_values: %s" % none_values
+            print "write null_values: %s" % null_values
             super(t4_clinical_patient_observation, self).write(cr, uid, obs['id'], vals, context)
         if 'frequency' in vals:
             activity_pool = self.pool['t4.activity']
@@ -93,6 +98,19 @@ class t4_clinical_patient_observation(orm.AbstractModel):
                 scheduled = (dt.strptime(obs.activity_id.create_date, DTF)+td(minutes=vals['frequency'])).strftime(DTF)
                 activity_pool.schedule(cr, uid, obs.activity_id.id, date_scheduled=scheduled, context=context)
         return True
+
+    def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read'):
+        ids = isinstance(ids, (tuple, list)) and ids or [ids]
+        if not self._num_fields:
+            return super(t4_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        if fields and 'null_values' not in fields:
+            fields.append('null_values')
+        res = super(t4_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        for obs in res:
+            for nv in eval(obs['null_values']):
+                if nv in obs.keys():
+                    obs[nv] = False
+        return res
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
@@ -135,7 +153,8 @@ class t4_clinical_patient_observation_height(orm.Model):
             'label': 'Height',
             'min': 0.1,
             'max': 3.0,
-            'digits': [1, 1]
+            'digits': [1, 1],
+            'initially_hidden': False
         }
     ]
 
@@ -157,7 +176,8 @@ class t4_clinical_patient_observation_weight(orm.Model):
             'label': 'Weight (Kg)',
             'min': 1.0,
             'max': 999.9,
-            'digits': [3, 1]
+            'digits': [3, 1],
+            'initially_hidden': False
         }
     ]
 
@@ -224,13 +244,15 @@ class t4_clinical_patient_observation_blood_product(orm.Model):
             'label': 'Vol (ml)',
             'min': 0.1,
             'max': 10000.0,
-            'digits': [5, 1]
+            'digits': [5, 1],
+            'initially_hidden': False
         },
         {
             'name': 'product',
             'type': 'selection',
             'selection': _blood_product_values,
             'label': 'Blood Product',
+            'initially_hidden': False
         }
     ]
 
@@ -250,7 +272,8 @@ class t4_clinical_patient_observation_blood_sugar(orm.Model):
             'label': 'Blood Sugar (mmol/L)',
             'min': 1.0,
             'max': 99.9,
-            'digits': [2, 1]
+            'digits': [2, 1],
+            'initially_hidden': False
         }
     ]
 
@@ -285,67 +308,78 @@ class t4_clinical_patient_observation_stools(orm.Model):
             'name': 'bowel_open',
             'type': 'selection',
             'label': 'Bowel Open',
-            'selection': _boolean_selection
+            'selection': _boolean_selection,
+            'initially_hidden': False
         },
         {
             'name': 'nausea',
             'type': 'selection',
             'label': 'Nausea',
-            'selection': _boolean_selection
+            'selection': _boolean_selection,
+            'initially_hidden': False
         },
         {
             'name': 'vomiting',
             'type': 'selection',
             'label': 'Vomiting',
-            'selection': _boolean_selection
+            'selection': _boolean_selection,
+            'initially_hidden': False
         },
         {
             'name': 'quantity',
             'type': 'selection',
             'label': 'Quantity',
-            'selection': _quantity_selection
+            'selection': _quantity_selection,
+            'initially_hidden': False
         },
         {
             'name': 'colour',
             'type': 'selection',
             'label': 'Colour',
-            'selection': _colour_selection
+            'selection': _colour_selection,
+            'initially_hidden': False
         },
         {
             'name': 'bristol_type',
             'type': 'selection',
             'label': 'Bristol Type',
-            'selection': _bristol_selection
+            'selection': _bristol_selection,
+            'initially_hidden': False
         },
         {
             'name': 'offensive',
             'type': 'selection',
             'label': 'Offensive',
-            'selection': _boolean_selection
+            'selection': _boolean_selection,
+            'initially_hidden': False
         },
         {
             'name': 'strain',
             'type': 'selection',
             'label': 'Strain',
-            'selection': _boolean_selection
+            'selection': _boolean_selection,
+            'initially_hidden': False
         },
         {
             'name': 'laxatives',
             'type': 'selection',
             'label': 'Laxatives',
-            'selection': _boolean_selection
+            'selection': _boolean_selection,
+            'initially_hidden': False
         },
         {
             'name': 'samples',
             'type': 'selection',
             'label': 'Lab Samples',
-            'selection': _samples_selection
+            'selection': _samples_selection,
+            'initially_hidden': False
         },
         {
             'name': 'rectal_exam',
             'type': 'selection',
             'label': 'Rectal Exam',
-            'selection': _boolean_selection
+            'selection': _boolean_selection,
+            'initially_hidden': False
         }
     ]
 
@@ -354,6 +388,9 @@ class t4_clinical_patient_observation_ews(orm.Model):
     _name = 't4.clinical.patient.observation.ews'
     _inherit = ['t4.clinical.patient.observation']
     _required = ['respiration_rate', 'indirect_oxymetry_spo2', 'body_temperature', 'blood_pressure_systolic', 'pulse_rate']
+    _num_fields = ['respiration_rate', 'indirect_oxymetry_spo2', 'body_temperature', 'blood_pressure_systolic',
+                   'blood_pressure_diastolic', 'pulse_rate', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup',
+                   'niv_ipap', 'niv_epap']
     _description = "NEWS Observation"
 
     _RR_RANGES = {'ranges': [8, 11, 20, 24], 'scores': '31023'}
@@ -769,19 +806,22 @@ class t4_clinical_patient_observation_gcs(orm.Model):
             'name': 'eyes',
             'type': 'selection',
             'label': 'Eyes',
-            'selection': _eyes
+            'selection': _eyes,
+            'initially_hidden': False
         },
         {
             'name': 'verbal',
             'type': 'selection',
             'label': 'Verbal',
-            'selection': _verbal
+            'selection': _verbal,
+            'initially_hidden': False
         },
         {
             'name': 'motor',
             'type': 'selection',
             'label': 'Motor',
-            'selection': _motor
+            'selection': _motor,
+            'initially_hidden': False
         }
     ]
 
@@ -901,31 +941,36 @@ class t4_clinical_patient_observation_vips(orm.Model):
             'name': 'pain',
             'type': 'selection',
             'label': 'Pain',
-            'selection': _selection
+            'selection': _selection,
+            'initially_hidden': False
         },
         {
             'name': 'redness',
             'type': 'selection',
             'label': 'Redness',
-            'selection': _selection
+            'selection': _selection,
+            'initially_hidden': False
         },
         {
             'name': 'swelling',
             'type': 'selection',
             'label': 'Swelling',
-            'selection': _selection
+            'selection': _selection,
+            'initially_hidden': False
         },
         {
             'name': 'cord',
             'type': 'selection',
             'label': 'Palpable venous cord',
-            'selection': _selection
+            'selection': _selection,
+            'initially_hidden': False
         },
         {
             'name': 'pyrexia',
             'type': 'selection',
             'label': 'Pyrexia',
-            'selection': _selection
+            'selection': _selection,
+            'initially_hidden': False
         }
     ]
 
@@ -1012,7 +1057,8 @@ class t4_clinical_patient_observation_pbp(orm.Model):
             'label': 'Sitting Blood Pressure Systolic',
             'min': 1,
             'max': 300,
-            'validation': [['>', 'diastolic_sitting']]
+            'validation': [['>', 'diastolic_sitting']],
+            'initially_hidden': False
         },
         {
             'name': 'diastolic_sitting',
@@ -1020,7 +1066,8 @@ class t4_clinical_patient_observation_pbp(orm.Model):
             'label': 'Sitting Blood Pressure Diastolic',
             'min': 1,
             'max': 280,
-            'validation': [['<', 'systolic_sitting']]
+            'validation': [['<', 'systolic_sitting']],
+            'initially_hidden': False
         },
         {
             'name': 'systolic_standing',
@@ -1028,7 +1075,8 @@ class t4_clinical_patient_observation_pbp(orm.Model):
             'label': 'Standing Blood Pressure Systolic',
             'min': 1,
             'max': 300,
-            'validation': [['>', 'diastolic_standing']]
+            'validation': [['>', 'diastolic_standing']],
+            'initially_hidden': True
         },
         {
             'name': 'diastolic_standing',
@@ -1036,7 +1084,8 @@ class t4_clinical_patient_observation_pbp(orm.Model):
             'label': 'Standing Blood Pressure Diastolic',
             'min': 1,
             'max': 280,
-            'validation': [['<', 'systolic_standing']]
+            'validation': [['<', 'systolic_standing']],
+            'initially_hidden': True
         }
     ]
 

@@ -168,13 +168,13 @@
                                     <field name="weight_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="weight" string="Weight (Kg)"/>
                                         </tree>
                                         <form>
                                             <field name="weight" string="Weight (Kg)"/>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </form>
                                     </field>
                                 </group>
@@ -182,13 +182,13 @@
                                     <field name="blood_sugar_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="blood_sugar"/>
                                         </tree>
                                         <form>
                                             <field name="blood_sugar"/>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </form>
                                     </field>
                                 </group>
@@ -200,7 +200,7 @@
                                             <field name="diastolic_sitting" string="Diastolic"/>
                                             <field name="systolic_standing" string="Systolic"/>
                                             <field name="diastolic_standing" string="Diastolic"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="result"/>
                                         </tree>
                                         <form>
@@ -209,7 +209,7 @@
                                             <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
                                             <field name="systolic_standing" string="Standing Systolic"/>
                                             <field name="diastolic_standing" string="Standing Diastolic"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="result"/>
                                         </form>
                                     </field>
@@ -264,7 +264,7 @@
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="value" string="Value"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -274,7 +274,7 @@
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="value" string="Value"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -284,7 +284,7 @@
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="level_id" string="Value"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </tree>
                                    </field>
                                 </group>
@@ -589,13 +589,13 @@
                                     <field name="weight_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="weight" string="Weight (Kg)"/>
                                         </tree>
                                         <form>
                                             <field name="weight" string="Weight (Kg)"/>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </form>
                                     </field>
                                 </group>
@@ -603,13 +603,13 @@
                                     <field name="blood_sugar_ids" class="t4c_obs" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="blood_sugar"/>
                                         </tree>
                                         <form>
                                             <field name="blood_sugar"/>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </form>
                                     </field>
                                 </group>
@@ -621,7 +621,7 @@
                                             <field name="diastolic_sitting" string="Diastolic"/>
                                             <field name="systolic_standing" string="Systolic"/>
                                             <field name="diastolic_standing" string="Diastolic"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="result"/>
                                         </tree>
                                         <form>
@@ -630,7 +630,7 @@
                                             <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
                                             <field name="systolic_standing" string="Standing Systolic"/>
                                             <field name="diastolic_standing" string="Standing Diastolic"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                             <field name="result"/>
                                         </form>
                                     </field>
@@ -679,7 +679,7 @@
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="value" string="Value"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -689,7 +689,7 @@
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="value" string="Value"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </tree>
                                     </field>
                                 </group>
@@ -699,7 +699,7 @@
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="t4c_datetime"/>
                                             <field name="level_id" string="Value"/>
-                                            <field name="complete_uid"/>
+                                            <field name="terminate_uid"/>
                                         </tree>
                                    </field>
                                 </group>

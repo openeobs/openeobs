@@ -101,7 +101,7 @@ $(document).ready(function () {
 
     // There's a four minute timer until the task it checked back, changing the input will reset the timer
     $("input").on("change", function() {
-        $("#startTimestamp").val($.now());
+        //$("#startTimestamp").val($.now());
         timeIdle = 0;
     });
 
@@ -114,7 +114,7 @@ $(document).ready(function () {
     });
 
     $("select").on("change", function() {
-        $("#startTimestamp").val($.now());
+        //$("#startTimestamp").val($.now());
         timeIdle = 0;
     });
 
@@ -122,7 +122,7 @@ $(document).ready(function () {
         timeIdle = 0;
     });
 
-    $("#startTimestamp").val($.now());
+    //$("#startTimestamp").val($.now());
 
     //setup validation
     var validator;
