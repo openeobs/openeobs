@@ -276,9 +276,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         if 'notification' in task['data_model']:
             # load notification foo
-            obs_reg = request.registry[task['data_model']]
-            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
-            cancellable = obs_reg.is_cancellable(cr, uid, context=context)
+            obs_reg = request.registry['t4.clinical.api.external']
+            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
+            cancellable = obs_reg.is_cancellable(cr, uid, task['data_model'], context=context)
             form['confirm_url'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
             form['action'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
             for form_input in form_desc:
@@ -312,8 +312,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                                            'urls': URLS})
         elif 'observation' in task['data_model']:
             # load obs foo
-            obs_reg = request.registry[task['data_model']]
-            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=context)
+            obs_reg = request.registry['t4.clinical.api.external']
+            form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
             form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
             for form_input in form_desc:
                 if form_input['type'] in ['float', 'integer']:
@@ -474,10 +474,15 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
+        obs = api_pool._active_observations
         return request.render('mobile_frontend.patient', qcontext={'patient': patient,
                                                                    'urls': URLS,
                                                                    'section': 'patient',
+                                                                   'obs_list': obs,
                                                                    'username': request.session['login']})
+
+
+
 
     @http.route(URLS['ajax_get_patient_obs']+'<patient_id>', type='http', auth='user')
     def get_patient_obs(self, patient_id, *args, **kw):

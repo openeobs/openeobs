@@ -657,10 +657,10 @@ var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
 });
 
 $(document).ready(function() {
-    $("#table-content").hide(), $("#obsButton").click(function(e) {
+    $("#table-content").hide(), $("#obsMenu").hide(), $("#obsButton").click(function(e) {
         e.preventDefault();
-        var a = '<ul class="menu">';
-        a += "</ul>", displayModal("obsPick", "Pick an observation for", a, [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>' ], 0);
+        var a = '<ul class="menu">', t = $("#obsMenu").html();
+        a += t, a += "</ul>", displayModal("obsPick", "Pick an observation for", a, [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>' ], 0);
     }), $(".tabs li a").click(function(e) {
         e.preventDefault();
         var a = $(this).attr("href");
