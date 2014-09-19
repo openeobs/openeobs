@@ -413,17 +413,17 @@ $(document).ready(function() {
                 s.errors && showErrors(s.errors);
             }
         }), !0;
-    }), $(".content").on("click", "#obsSubmit", function(e) {
-        e.preventDefault(), timeIdle = 0, resetErrors("empty");
-        var t = $($("#obsForm")[0].elements).not(".exclude").serialize();
-        console.log(t);
-        var r;
-        return "patient" == a ? (console.log("obsource is patient"), r = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("obsource is task"), 
-        r = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+    }), $(".content").on("click", "#obsSubmit", function(t) {
+        t.preventDefault(), timeIdle = 0, resetErrors("empty");
+        var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
+        console.log(r);
+        var l;
+        return "patient" == a ? (console.log("obsource is patient"), l = frontend_routes.json_patient_form_action(s, e)) : (console.log("obsource is task"), 
+        l = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: r.url,
-            type: r.type,
-            data: t,
+            url: l.url,
+            type: l.type,
+            data: r,
             success: function(e) {
                 if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("obsConfirm", "hide"), 
                 displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.related_tasks[0].id).url + '" class="confirm">Proceed</a>' ], 500); else if (e.related_tasks.length > 1) {
@@ -443,17 +443,17 @@ $(document).ready(function() {
                 s.errors && showErrors(s.errors);
             }
         })), !0;
-    }), $("form").on("click", ".confirmPartial", function(e) {
-        e.preventDefault(), timeIdle = 0, resetErrors("empty");
-        var t = $($("#obsForm")[0].elements).not(".exclude").serialize();
-        console.log(t);
-        var r;
-        "patient" == a ? (console.log("partial obs for patient"), r = jsRoutes.controllers.Observations.submitObsForPatient(s)) : (console.log("partial obs for task"), 
-        r = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+    }), $("form").on("click", ".confirmPartial", function(t) {
+        t.preventDefault(), timeIdle = 0, resetErrors("empty");
+        var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
+        console.log(r);
+        var l;
+        "patient" == a ? (console.log("partial obs for patient"), l = frontend_routes.json_patient_form_action(s, e)) : (console.log("partial obs for task"), 
+        l = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: r.url,
-            type: r.type,
-            data: t,
+            url: l.url,
+            type: l.type,
+            data: r,
             success: function(e) {
                 if (console.log(e), 1 == e.status || 2 == e.status) 1 == e.status ? (dismissModal("obsPartial", "hide"), 
                 displayModal("obsConfirm", "Successfully submitted", "<p>The partial observation have been successfully submitted. Please be aware that this task is still active until all observations have been taken. Only the last complete NEWS score will be displayed..</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500)) : (dismissModal("obsPartial", "hide"), 
@@ -557,7 +557,7 @@ $(document).ready(function() {
     } else timeIdle++;
 }, 1e3);
 function processObs(a) {
-    var o;
+    var e;
     if ("ews" == a) {
         if ("" == $("#respiration_rate").val() || "" == $("#indirect_oxymetry_spo2").val() || "" == $("#body_temperature").val() || "" == $("#blood_pressure_systolic").val() || "" == $("#blood_pressure_diastolic").val() || "" == $("#pulse_rate").val() || "" == $("#avpu_text").val() || "" == $("#oxygen_administration_flag").val()) return !1;
         if ("True" == $("#oxygen_administration_flag").val().toString()) {
@@ -568,22 +568,22 @@ function processObs(a) {
                 if ("" == $("#flow_rate").val() && "" == $("#concentration").val() || "" == $("#niv_backup").val() || "" == $("#niv_ipap").val() || "" == $("#niv_epap").val()) return !1;
             } else if ("" == $("#flow_rate").val() && "" == $("#concentration").val()) return !1;
         }
-        var l = frontend_routes.ews_score(), e = $.ajax({
+        var l = frontend_routes.ews_score(), o = $.ajax({
             url: l.url,
             type: l.type,
             data: $($("#obsForm")[0].elements).not(".exclude").serialize(),
             success: function(a) {
                 console.log(a), a.class = a.clinical_risk.toLowerCase(), 3 != a.score && 4 != a.score || 1 != a.three_in_one || (a.clinical_risk = "One observation scored 3 therefore " + a.clinical_risk + " clinical risk"), 
-                o = a;
+                e = a;
             },
             error: function() {
                 console.log("nay");
             }
         });
-        return e.then(function(a) {
+        return o.then(function(a) {
             return console.log("this is being called"), displayModal("obsConfirm", 'Submit NEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", "<p><strong>Clinical risk: " + a.clinical_risk + '</strong></p><p>Please confirm you want to submit this score</p><p class="obsError error">Data not sent, please resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]), 
-            $("#obsConfirm").addClass("clinicalrisk-" + a.class), o;
+            $("#obsConfirm").addClass("clinicalrisk-" + a.class), e;
         }), !0;
     }
-    return "GCS" == a ? "" == $("#gcsData_eyes").val() || "" == $("#gcsData_verbal").val() || "" == $("#gcsData_motor").val() ? !1 : o = gcs($("#gcsData_eyes").val(), $("#gcsData_verbal").val(), $("#gcsData_motor").val()) : "STOOL" == a ? "" == $("#stoolsData_bowelOpen").val() || "" == $("#stoolsData_nausea").val() || "" == $("#stoolsData_vomiting").val() || "" == $("#stoolsData_quantity").val() || "" == $("#stoolsData_colour").val() || "" == $("#stoolsData_bristolType").val() || "" == $("#stoolsData_offensive").val() || "" == $("#stoolsData_strain").val() || "" == $("#stoolsData_laxatives").val() || "" == $("#stoolsData_samples").val() || "" == $("#stoolsData_rectalExam").val() ? !1 : !0 : "BLOODS" == a ? "" == $("#bloodSugarData_bloodSugar").val() || "" == $("#bloodSugarData_diabetic").val() ? !1 : !0 : "WEIGHT" == a ? "" == $("#heightWeightData_weight").val() ? !1 : !0 : "BLOODP" == a ? "" == $("#BloodProductData_volume").val() || "" == $("#BloodProductData_product").val() ? !1 : !0 : void 0;
+    return "gcs" == a ? "" == $("#eyes").val() || "" == $("#verbal").val() || "" == $("motor").val() ? !1 : e = gcs($("#eyes").val(), $("#verbal").val(), $("#motor").val()) : "stool" == a ? "" == $("#bowel_open").val() || "" == $("#nausea").val() || "" == $("#vomiting").val() || "" == $("#quantity").val() || "" == $("#colour").val() || "" == $("#bristol_type").val() || "" == $("#offensive").val() || "" == $("#strain").val() || "" == $("#laxatives").val() || "" == $("#samples").val() || "" == $("#rectal_exam").val() ? !1 : !0 : "bloods" == a ? "" == $("#blood_sugar").val() || "" == $("#diabetic").val() ? !1 : !0 : "weight" == a ? "" == $("#weight").val() ? !1 : !0 : "height" == a ? "" == $("#height").val() ? !1 : !0 : "bloodp" == a ? "" == $("#volume").val() || "" == $("#product").val() ? !1 : !0 : void 0;
 }

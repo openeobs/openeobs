@@ -312,7 +312,7 @@ $(document).ready(function () {
         var r;
         if(obsSource == "patient"){
             console.log("obsource is patient");
-            r = jsRoutes.controllers.Observations.submitObsForPatient(obsType);
+            r = frontend_routes.json_patient_form_action(obsType, patientId);
         }else{
             console.log("obsource is task");
             r = frontend_routes.json_task_form_action(taskId);
@@ -386,7 +386,7 @@ $(document).ready(function () {
         var r;
         if(obsSource == "patient"){
             console.log("partial obs for patient");
-            r = jsRoutes.controllers.Observations.submitObsForPatient(obsType);
+            r = frontend_routes.json_patient_form_action(obsType, patientId);
         }else{
             console.log("partial obs for task");
             r = frontend_routes.json_task_form_action(taskId);

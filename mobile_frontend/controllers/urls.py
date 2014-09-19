@@ -13,13 +13,13 @@ routes = [
         'name': 'single_patient',
         'endpoint': 'patient/',
         'method': 'GET',
-        'args': 'patient_id'
+        'args': ['patient_id']
     },
     {
         'name': 'json_patient_info',
         'endpoint': 'patient/info/',
         'method': 'GET',
-        'args': 'patient_id'
+        'args': ['patient_id']
     },
     {
         'name': 'task_list',
@@ -31,7 +31,7 @@ routes = [
         'name': 'single_task',
         'endpoint': 'task/',
         'method': 'GET',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'stylesheet',
@@ -97,19 +97,25 @@ routes = [
         'name': 'task_form_action',
         'endpoint': 'task/submit/',
         'method': 'POST',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'json_task_form_action',
         'endpoint': 'task/submit_ajax/',
         'method': 'POST',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'patient_form_action',
         'endpoint': 'patient/submit/',
         'method': 'POST',
-        'args': 'patient_id'
+        'args': ['patient_id']
+    },
+    {
+        'name': 'json_patient_form_action',
+        'endpoint': 'patient/submit_ajax/',
+        'method': 'POST',
+        'args': ['observation', 'patient_id']
     },
     {
         'name': 'ews_score',
@@ -121,17 +127,17 @@ routes = [
         'name': 'json_take_task',
         'endpoint': 'tasks/take_ajax/',
         'method': 'POST',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'json_cancel_take_task',
         'endpoint': 'tasks/cancel_take_ajax/',
         'method': 'POST',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'json_partial_reasons',
-        'endpoint': 'ews/partial_reasons',
+        'endpoint': 'ews/partial_reasons/',
         'method': 'GET',
         'args': False
     },
@@ -139,17 +145,17 @@ routes = [
         'name': 'confirm_clinical_notification',
         'endpoint': 'tasks/confirm_clinical/',
         'method': 'GET',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'cancel_clinical_notification',
         'endpoint': 'tasks/cancel_clinical/',
         'method': 'POST',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'ajax_task_cancellation_options',
-        'endpoint': 'tasks/cancel_reasons',
+        'endpoint': 'tasks/cancel_reasons/',
         'method': 'GET',
         'args': False
     },
@@ -157,19 +163,19 @@ routes = [
         'name': 'confirm_review_frequency',
         'endpoint': 'tasks/confirm_review_frequency/',
         'method': 'POST',
-        'args': 'task_id'
+        'args': ['task_id']
     },
     {
         'name': 'ajax_get_patient_obs',
         'endpoint': 'patient/ajax_obs/',
         'method': 'GET',
-        'args': 'patient_id'
+        'args': ['patient_id']
     },
     {
         'name': 'patient_ob',
-        'endpoint': 'patient/',
+        'endpoint': 'patient/observation/',
         'method': 'GET',
-        'args': 'patient_id'
+        'args': ['observation', 'patient_id']
     },
 ]
 

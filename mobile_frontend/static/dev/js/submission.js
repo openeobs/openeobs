@@ -55,43 +55,51 @@ function processObs(obsType){
         }
     }
 
-    if(obsType == "GCS"){
-        if($("#gcsData_eyes").val() == "" || $("#gcsData_verbal").val() == "" || $("#gcsData_motor").val() == ""){
+    if(obsType == "gcs"){
+        if($("#eyes").val() == "" || $("#verbal").val() == "" || $("motor").val() == ""){
             return false;
         }else{
             return score = gcs(
-                $("#gcsData_eyes").val(),
-                $("#gcsData_verbal").val(),
-                $("#gcsData_motor").val()
+                $("#eyes").val(),
+                $("#verbal").val(),
+                $("#motor").val()
             )
         }
     }
-    if(obsType == "STOOL"){
-        if($("#stoolsData_bowelOpen").val() == "" || $("#stoolsData_nausea").val() == "" || $("#stoolsData_vomiting").val() == "" || $("#stoolsData_quantity").val() == "" || $("#stoolsData_colour").val() == "" || $("#stoolsData_bristolType").val() == "" || $("#stoolsData_offensive").val() == "" || $("#stoolsData_strain").val() == "" || $("#stoolsData_laxatives").val() == "" || $("#stoolsData_samples").val() == "" || $("#stoolsData_rectalExam").val() == ""){
+    if(obsType == "stool"){
+        if($("#bowel_open").val() == "" || $("#nausea").val() == "" || $("#vomiting").val() == "" || $("#quantity").val() == "" || $("#colour").val() == "" || $("#bristol_type").val() == "" || $("#offensive").val() == "" || $("#strain").val() == "" || $("#laxatives").val() == "" || $("#samples").val() == "" || $("#rectal_exam").val() == ""){
             return false;
         }else{
             return true;
         }
     }
 
-    if(obsType == "BLOODS"){
-        if($("#bloodSugarData_bloodSugar").val() == "" || $("#bloodSugarData_diabetic").val() == ""){
+    if(obsType == "bloods"){
+        if($("#blood_sugar").val() == "" || $("#diabetic").val() == ""){
             return false;
         }else{
             return true;
         }
     }
 
-    if(obsType == "WEIGHT"){
-        if($("#heightWeightData_weight").val() == ""){
+    if(obsType == "weight"){
+        if($("#weight").val() == ""){
             return false;
         }else{
             return true;
         }
     }
 
-    if(obsType == "BLOODP"){
-        if($("#BloodProductData_volume").val() == "" || $("#BloodProductData_product").val() == ""){
+    if(obsType == "height"){
+        if($("#height").val() == ""){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    if(obsType == "bloodp"){
+        if($("#volume").val() == "" || $("#product").val() == ""){
             return false;
         }else{
             return true;

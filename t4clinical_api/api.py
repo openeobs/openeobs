@@ -510,7 +510,8 @@ class t4_clinical_api(orm.AbstractModel):
         user_pool = self.pool['res.users']
         access_pool = self.pool['ir.model.access']
         user = user_pool.browse(cr, SUPERUSER_ID, uid, context=context)
-        rules_ids = access_pool.search(cr, SUPERUSER_ID, [('model_id', '=', model_name), ('group_id', 'in', user.groups_id)], context=context)
+        groups = [g.id for g in user.groups_id]
+        rules_ids = access_pool.search(cr, SUPERUSER_ID, [('model_id', '=', model_name), ('group_id', 'in', groups)], context=context)
         if not rules_ids:
             raise osv.except_osv(_('Error!'), 'Access denied, there are no access rules for these activity type - user groups')
         rules_values = access_pool.read(cr, SUPERUSER_ID, rules_ids, ['perm_responsibility'], context=context)

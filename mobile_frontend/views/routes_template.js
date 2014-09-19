@@ -35,13 +35,19 @@ var frontend_routes = {}; (function(_root){
     }
     {% for route in routes %}
         _nS('{{ route.name }}');
-        _root.{{ route.name }} = function({% if route.args %}{{ route.args }}{% endif %}) {
+        _root.{{ route.name }} = function({% if route.args_list %}{{ route.args_list }}{% endif %}) {
             return _wA({
                 method:"{{ route.method }}",
                 {% if route.args %}
-                url:"{{ base_url }}{{ route.endpoint }}" + (function(k,v) {
-                    return v
-                })("{{ route.args }}", {{ route.args }})
+                url:"{{ base_url }}{{ route.endpoint }}"
+                    {% for arg in route.args %}
+                        {% if loop.index >= 2 %}
+                           + '/'
+                        {% endif %}
+                        + (function(k,v) {
+                            return v
+                           })( "{{ arg }}", {{ arg }})
+                    {% endfor %}
                 {% else %}
                 url:"{{ base_url }}{{ route.endpoint }}"
                 {% endif %}
