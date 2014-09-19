@@ -145,26 +145,47 @@ class t4_activity_data(orm.AbstractModel):
         return patient_id
 
     def get_activity_user_ids(self, cr, uid, activity_id, context=None):
-        group_pool = self.pool['res.groups']
-        location_pool = self.pool['t4.clinical.location']
-        user_pool = self.pool['res.users']
-        activity = self.pool['t4.activity'].browse(cr, uid, activity_id, context)
-        ima_pool = self.pool['ir.model.access']
-        ima_ids = ima_pool.search(cr, uid, [('model_id.model', '=', activity.data_ref._name),
-                                            ('perm_responsibility', '=', 1)])
-        group_ids = [ima.group_id.id for ima in ima_pool.browse(cr, uid, ima_ids)]
-        location_id = self.get_activity_location_id(cr, uid, activity_id, context)
-        user_ids = []
-        if location_id:
-            ids = user_pool.search(cr, uid, [['location_ids', '!=', False], ['groups_id', 'in', group_ids]])
-            if 'notification' in activity.data_model or 'observation' in activity.data_model:
-                for user in user_pool.browse(cr, uid, ids):
-                    # if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
-                    if location_id in [l.id for l in user.location_ids]:
-                        user_ids.append(user.id)
-            else:
-                for user in user_pool.browse(cr, uid, ids):
-                    if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
-                    # if location_id in [l.id for l in user.location_ids]:
-                        user_ids.append(user.id)
-        return list(set(user_ids))
+#         group_pool = self.pool['res.groups']
+#         location_pool = self.pool['t4.clinical.location']
+#         user_pool = self.pool['res.users']
+#         activity = self.pool['t4.activity'].browse(cr, uid, activity_id, context)
+#         ima_pool = self.pool['ir.model.access']
+#         ima_ids = ima_pool.search(cr, uid, [('model_id.model', '=', activity.data_ref._name),
+#                                             ('perm_responsibility', '=', 1)])
+#         group_ids = [ima.group_id.id for ima in ima_pool.browse(cr, uid, ima_ids)]
+#         location_id = self.get_activity_location_id(cr, uid, activity_id, context)
+#         user_ids = []
+#         if location_id:
+#             ids = user_pool.search(cr, uid, [['location_ids', '!=', False], ['groups_id', 'in', group_ids]])
+#             if 'notification' in activity.data_model or 'observation' in activity.data_model:
+#                 for user in user_pool.browse(cr, uid, ids):
+#                     # if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
+#                     if location_id in [l.id for l in user.location_ids]:
+#                         user_ids.append(user.id)
+#             else:
+#                 for user in user_pool.browse(cr, uid, ids):
+#                     if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
+#                     # if location_id in [l.id for l in user.location_ids]:
+#                         user_ids.append(user.id)
+        api = self.pool['t4.clinical.api']
+        activity = api.browse(cr, uid, 't4.activity', activity_id)
+        if 'notification' in activity.data_model or 'observation' in activity.data_model:
+            where_clause = "where location_activity_ids && array[%s]" % activity_id
+        else:
+            where_clause = "where parent_location_activity_ids && array[%s]" % activity_id
+        sql = """select array_agg(user_id) from t4_clinical_activity_access %s""" % where_clause
+        cr.execute(sql)
+        user_ids = cr.fetchone()[0] or []
+        print "get_activity_user_ids user_ids: %s " % user_ids
+        return user_ids
+
+
+
+
+
+
+
+
+
+
+

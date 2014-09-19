@@ -105,6 +105,10 @@ class t4_clinical_api(orm.AbstractModel):
         model_pool = self.pool[model]
         return model_pool.browse(cr, uid, ids, context)
 
+    def read(self, cr, user, model, ids, fields=None, context=None, load='_classic_read'):
+        model_pool = self.pool[model]
+        return model_pool.read(cr, user, ids, fields, context, load)
+
     def write(self, cr, uid, model, ids, values, context=None):
         model_pool = self.pool[model]
         return model_pool.write(cr, uid, ids, values, context)
@@ -668,21 +672,6 @@ with
         res = {location['location_id']: location for location in cr.dictfetchall()}
         return res
         
-#     def get_not_palced_patient_ids(self, cr, uid, location_id=None, context=None):
-#         # all current patients
-#         spell_domain = [('state','=','started')]
-#         spell_pool = self.pool['t4.clinical.spell']
-#         spell_ids = spell_pool.search(cr, uid, spell_domain)
-#         spell_patient_ids = [s.patient_id.id for s in spell_pool.browse(cr, uid, spell_ids, context)]
-#         # placed current patients
-#         placement_domain = [('activity_id.parent_id.state','=','started'),('state','=','completed')]
-#         location_id and  placement_domain.append(('activity_id.location_id','child_of',location_id))
-#         placement_pool = self.pool['t4.clinical.patient.placement']
-#         placement_ids = placement_pool.search(cr, uid, placement_domain)
-#         placed_patient_ids = [p.patient_id.id for p in placement_pool.browse(cr, uid, placement_ids, context)]       
-#         patient_ids = set(spell_patient_ids) - set(placed_patient_ids)
-#         #import pdb; pdb.set_trace()
-#         return list(patient_ids)
 
     def get_patient_spell_activity_id(self, cr, uid, patient_id, pos_id=None, context=None):
         domain = {'patient_ids': [patient_id],
@@ -716,28 +705,45 @@ with
                          % (device_id, session_activity_id))
         return session_activity_id[0]
 
-#     def get_patient_current_location_browse(self, cr, uid, patient_id, context=None):
-#         move_pool = self.pool['t4.clinical.patient.move']
-#         move_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-#         # sort parameter includes 'id' to resolve situation with equal values in 'date_terminated'
-#         move = move_pool.browse_domain(cr, uid, move_domain, limit=1, order="date_terminated desc, id desc", context=context)
-#         location_id = move and move[0].location_id or False
-#         return location_id
-# 
-#     def get_patient_current_location_id(self, cr, uid, patient_id, context=None):
-#         res = self.get_patient_current_location_browse(cr, uid, patient_id, context)
-#         res = res and res.id
-#         return res
-
-#     def get_patient_placement_location_browse(self, cr, uid, patient_id, context=None):
-#         placement_pool = self.pool['t4.clinical.patient.placement']
-#         placement_domain = [('patient_id','=',patient_id), ('state','=','completed')]
-#         placement = placement_pool.browse_domain(cr, uid, placement_domain, limit=1, order="date_terminated desc, id desc", context=context)
-#         placement = placement and placement[0]
-#         res = placement and placement.location_id or False
-#         return res    
-#     
-#     def get_patient_placement_location_id(self, cr, uid, patient_id, context=None):
-#         res = self.get_patient_placement_location_browse(cr, uid, patient_id, context)
-#         res = res and res.id
-#         return res    
+    def update_activity_users(self, cr, uid, location_ids=[], activity_ids=[], user_ids=[], child_locations=False):
+        """
+        Bulk update of activity.user_ids 
+        location_ids: activity.location_id
+        activity_ids: activity.id
+        user_ids: user.id -> user.location_ids -> actvity.location_id
+        
+        If more than one ids-parameter given, common set af all 3 searches will be updated
+        """
+        
+        where_list = []
+        if user_ids: where_list.append("user_id in (%s)" % list2sqlstr(user_ids))
+        if activity_ids: where_list.append("location_activity_ids && array[%s]" % list2sqlstr(activity_ids))
+        if location_ids: where_list.append("location_ids && array[%s]" % list2sqlstr(location_ids))
+        if child_locations and activity_ids: where_list.append("parent_location_activity_ids && array[%s]" % list2sqlstr(activity_ids))
+        if child_locations and location_ids: where_list.append("parent_location_ids && array[%s]" % list2sqlstr(location_ids))                
+        where_clause = where_list and "where %s" % " or ".join(where_list) or ""        
+        print where_clause
+        sql = """select * from t4_clinical_activity_access %s""" % where_clause
+        cr.execute(sql)
+        sql_del_template = "delete from activity_user_rel where user_id = {user_id};\n"
+        sql_ins_template = "insert into activity_user_rel (activity_id, user_id) values {values};\n"
+        sql_del = ''
+        sql_ins = ''
+        row = cr.dictfetchone()
+        while row:
+            sql_del +=  sql_del_template.format(user_id=row['user_id'])
+            values = []
+            for activity_id in row['location_activity_ids']:
+                values.append((activity_id, row['user_id']))
+            if values:
+                sql_ins += sql_ins_template.format(values="%s" % ",".join(map(str, values)))
+            row = cr.dictfetchone()
+        if sql_del:
+            cr.execute(sql_del)
+            print sql_del
+        if sql_ins:
+            cr.execute(sql_ins)
+            print sql_ins
+        return True
+        
+        
