@@ -97,6 +97,11 @@ class t4_clinical_api(orm.AbstractModel):
         else:
             return spell_pool.write(cr, SUPERUSER_ID, spell_ids, {field_name: data['frequency']}, context=context)
 
+    def _get_activities_for_patient(self, cr, uid, spell_id, activity_type, start_date=None, end_date=None, context=None):
+        spell_pool = self.pool['t4.clinical.spell']
+        spell = spell_pool.browse(cr, uid, spell_id, context=None)
+        return self.get_activities_for_patient(cr, uid, spell.patient_id.id, activity_type, start_date, end_date, context=context)
+
     # # # # # # # #
     #  ACTIVITIES #
     # # # # # # # #

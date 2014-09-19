@@ -391,7 +391,7 @@ openerp.t4clinical_ui = function (instance) {
             var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
             var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
-            var recData = this.model.call('get_activities_for_patient',[this.view.dataset.ids[0],'ews'], {context: this.view.dataset.context}).done(function(records){
+            var recData = this.model.call('_get_activities_for_patient',[this.view.dataset.ids[0],'ews'], {context: this.view.dataset.context}).done(function(records){
                 if(records.length > 0){
                     records = records.reverse();
                     context.earliestDate = svg.startParse(records[0].date_terminated);
@@ -498,7 +498,7 @@ openerp.t4clinical_ui = function (instance) {
             var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
             var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
-            var recData = this.model.call('get_activities_for_patient',[this.view.dataset.ids[0],'blood_sugar'], {context: this.view.dataset.context}).done(function(records){
+            var recData = this.model.call('_get_activities_for_patient',[this.view.dataset.ids[0],'blood_sugar'], {context: this.view.dataset.context}).done(function(records){
                 if(records.length > 0){
                     //records = records.reverse();
                     context.earliestDate = svg.startParse(records[0].date_terminated);
@@ -560,7 +560,7 @@ openerp.t4clinical_ui = function (instance) {
             var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
             var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
-            var recData = this.model.call('get_activities_for_patient',[this.view.dataset.ids[0],'weight'], {context: this.view.dataset.context}).done(function(records){
+            var recData = this.model.call('_get_activities_for_patient',[this.view.dataset.ids[0],'weight'], {context: this.view.dataset.context}).done(function(records){
                 if(records.length > 0){
                     //records = records.reverse();
                     context.earliestDate = svg.startParse(records[0].date_terminated);
