@@ -360,11 +360,3 @@ class t4_clinical_patient_admission(orm.Model):
         res[placement_pool._name] = placement_activity_id
        
         return res
-    
-        
-    
-    
-    
-    
-    
-        
