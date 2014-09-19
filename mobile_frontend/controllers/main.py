@@ -112,8 +112,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['js_routes'], type='http', auth='none')
     def javascript_routes(self, *args, **kw):
+        routes = urls.routes
+        for route in routes:
+            route['args_list'] = ','.join(route['args']) if route['args'] else False
         return request.make_response(env.get_template('routes_template.js').render({
-            'routes': urls.routes,
+            'routes': routes,
             'base_url': urls.BASE_URL
         }), headers={'Content-Type': 'text/javascript'})
 
@@ -492,7 +495,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return request.make_response(json.dumps({'obs': ews, 'obsType': 'ews'}), headers={'Content-Type': 'application/json'})
 
 
-    @http.route(URLS['patient_ob']+'<observation>/'+'<patient_id>', type='http', auth='user')
+    @http.route(URLS['patient_ob']+'<observation>/<patient_id>', type='http', auth='user')
     def take_patient_observation(self, observation, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
@@ -541,3 +544,34 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                              'section': 'task',
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
+
+    @http.route(URLS['json_patient_form_action']+'<observation>/<patient_id>', type='http', auth='user')
+    def process_patient_observation_form(self, observation, patient_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        converter_pool = request.registry('ir.fields.converter')
+        converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
+        kw_copy = kw.copy()
+        test = {}
+        timestamp = kw_copy['startTimestamp']
+        device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
+
+        del kw_copy['startTimestamp']
+        del kw_copy['taskId']
+        if device_id:
+            del kw_copy['device_id']
+        for key, value in kw_copy.items():
+            if not value:
+                del kw_copy[key]
+
+        converted_data = converter(kw_copy, test)
+        converted_data['date_started'] = datetime.fromtimestamp(int(timestamp)).strftime(DTF)
+        if device_id:
+            converted_data['device_id'] = device_id
+
+        new_activity = api.create_activity_for_patient(cr, uid, int(patient_id), observation, context=context)
+        result = api.complete(cr, uid, int(new_activity), converted_data, context)
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})

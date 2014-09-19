@@ -97,6 +97,11 @@ class t4_clinical_api(orm.AbstractModel):
         else:
             return spell_pool.write(cr, SUPERUSER_ID, spell_ids, {field_name: data['frequency']}, context=context)
 
+    def _get_activities_for_patient(self, cr, uid, spell_id, activity_type, start_date=None, end_date=None, context=None):
+        spell_pool = self.pool['t4.clinical.spell']
+        spell = spell_pool.browse(cr, uid, spell_id, context=None)
+        return self.get_activities_for_patient(cr, uid, spell.patient_id.id, activity_type, start_date, end_date, context=context)
+
     # # # # # # # #
     #  ACTIVITIES #
     # # # # # # # #
@@ -496,6 +501,7 @@ class t4_clinical_api(orm.AbstractModel):
         model_pool = self.pool['t4.clinical.patient.observation.'+activity_type] if activity_type else self.pool['t4.activity']
         domain = [
             ('patient_id', '=', patient_id),
+            ('parent_id.state', '=', 'started'),
             ('state', '=', 'completed'),
             ('date_terminated', '>=', start_date.strftime(DTF)),
             ('date_terminated', '<=', end_date.strftime(DTF))] if activity_type \
@@ -509,13 +515,21 @@ class t4_clinical_api(orm.AbstractModel):
         model_name = 't4.clinical.patient.observation.'+activity_type
         user_pool = self.pool['res.users']
         access_pool = self.pool['ir.model.access']
+        activity_pool = self.pool['t4.activity']
         user = user_pool.browse(cr, SUPERUSER_ID, uid, context=context)
-        rules_ids = access_pool.search(cr, SUPERUSER_ID, [('model_id', '=', model_name), ('group_id', 'in', user.groups_id)], context=context)
+        groups = [g.id for g in user.groups_id]
+        rules_ids = access_pool.search(cr, SUPERUSER_ID, [('model_id', '=', model_name), ('group_id', 'in', groups)], context=context)
         if not rules_ids:
             raise osv.except_osv(_('Error!'), 'Access denied, there are no access rules for these activity type - user groups')
         rules_values = access_pool.read(cr, SUPERUSER_ID, rules_ids, ['perm_responsibility'], context=context)
         if not any([r['perm_responsibility'] for r in rules_values]):
             raise osv.except_osv(_('Error!'), 'Access denied, the user is not responsible for this activity type')
+        activity_ids = activity_pool.search(cr, SUPERUSER_ID,
+                                            [('patient_id', '=', patient_id),
+                                             ('state', 'not in', ['completed', 'cancelled']),
+                                             ('data_model', '=', model_name)], context=context)
+        if activity_ids:
+            return activity_ids[0]
         return self._create_activity(cr, SUPERUSER_ID, model_name, {}, {'patient_id': patient_id}, context=context)
 
     def get_frequency(self, cr, uid, patient_id, activity_type, context=None):
