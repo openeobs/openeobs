@@ -6,7 +6,9 @@
 # import test_ajax_partial_reasons
 # import test_ajax_task_cancellation_reasons
 # import test_observation_frequency_form
-import test_assess_patient_form
+# import test_assess_patient_form
+# import test_medical_team_form
+# import test_ajax_take_cancel
 
 fast_suite = [
     # test_patient_list,
@@ -17,5 +19,7 @@ fast_suite = [
     # test_ajax_partial_reasons
     # test_ajax_task_cancellation_reasons
     # test_observation_frequency_form
-    test_assess_patient_form
+    # test_assess_patient_form
+    # test_medical_team_form
+    # test_ajax_take_cancel
 ]
