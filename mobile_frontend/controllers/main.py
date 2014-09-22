@@ -541,7 +541,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                              'name': [v['name'] for v in api_pool._active_observations if v['type'] == observation][0],
                                                                              'patient': patient,
                                                                              'form': form,
-                                                                             'section': 'task',
+                                                                             'section': 'patient',
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
 
