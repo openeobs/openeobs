@@ -56,13 +56,16 @@ class t4_activity_data(orm.AbstractModel):
         patient_id = self.get_activity_patient_id(cr, uid, activity_id)
         device_id = self.get_activity_device_id(cr, uid, activity_id)
         pos_id = self.get_activity_pos_id(cr, uid, activity_id)
-        user_ids = self.get_activity_user_ids(cr, uid, activity_id)
+        
         activity_vals.update({'location_id': location_id,
                               'patient_id': patient_id,
                               'device_id': device_id,
-                              'pos_id': pos_id,
-                              'user_ids': [(6, 0, user_ids)]})
+                              'pos_id': pos_id})
         activity_pool.write(cr, uid, activity_id, activity_vals)
+        # user_ids depend on location_id, thus separate updates
+        user_ids = self.get_activity_user_ids(cr, uid, activity_id)
+        #import pdb; pdb.set_trace()
+        activity_pool.write(cr, uid, activity_id, {'user_ids': [(6, 0, user_ids)]})
         # #print"activity_vals: %s" % activity_vals
         _logger.debug(
             "activity '%s', activity.id=%s updated with: %s" % (activity.data_model, activity.id, activity_vals))
@@ -167,19 +170,16 @@ class t4_activity_data(orm.AbstractModel):
 #                     if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
 #                     # if location_id in [l.id for l in user.location_ids]:
 #                         user_ids.append(user.id)
-        api = self.pool['t4.clinical.api']
         cr.execute("select location_id from t4_activity where id = %s" % activity_id)
         if not cr.fetchone()[0]:
             return []
-        activity = api.browse(cr, uid, 't4.activity', activity_id)
-        if 'notification' in activity.data_model or 'observation' in activity.data_model:
-            where_clause = "where location_activity_ids && array[%s]" % activity_id
-        else:
-            where_clause = "where parent_location_activity_ids && array[%s]" % activity_id
-        sql = """select array_agg(user_id) from t4_clinical_activity_access %s""" % where_clause
+        sql = """select 
+                    array_agg(user_id) 
+                from t4_clinical_activity_access 
+                where parent_location_activity_ids && array[%s]""" % activity_id
         cr.execute(sql)
         user_ids = cr.fetchone()[0] or []
-        print "get_activity_user_ids user_ids: %s " % user_ids
+        print "ACTIVITY DATA get_activity_user_ids user_ids: %s " % user_ids
         return user_ids
 
 

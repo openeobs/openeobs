@@ -81,6 +81,7 @@ def strs2sql(strs):
 
 def list2sqlstr(lst):
     res = []
+    lst = isinstance(lst, (list, tuple)) and lst or [lst]
     for l in lst:
         if isinstance(l, (int, long)):
             res.append("%s" % int(l))
@@ -102,6 +103,8 @@ class t4_clinical_api(orm.AbstractModel):
         return model_pool.create(cr, uid, values, context)
         
     def browse(self, cr, uid, model, ids, context=None):
+        if not isinstance(model, basestring):
+            return super(t4_clinical_api, self).browse(cr, uid, ids, context)
         model_pool = self.pool[model]
         return model_pool.browse(cr, uid, ids, context)
 

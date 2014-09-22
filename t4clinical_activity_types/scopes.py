@@ -35,3 +35,12 @@ class t4_clinical_spell(orm.Model):
         else:        
             res = super(t4_clinical_spell, self).create(cr, uid, vals, context)
         return res
+
+    def get_activity_user_ids(self, cr, uid, activity_id, context=None):
+        api = self.pool['t4.clinical.api']
+        user_ids = api.user_map(cr, uid, 
+                        group_xmlids=['group_t4clinical_hca', 'group_t4clinical_nurse', 
+                                      'group_t4clinical_ward_manager', 'group_t4clinical_doctor',
+                                      'group_t4clinical_dev', 'group_t4clinical_admin']).keys()
+        print "SPELL get_activity_user_ids user_ids: %s " % user_ids
+        return user_ids

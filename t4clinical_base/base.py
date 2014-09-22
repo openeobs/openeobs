@@ -113,23 +113,27 @@ class res_users(orm.Model):
     
     def write(self, cr, uid, ids, values, context=None):
         res = super(res_users, self).write(cr, uid, ids, values, context)
-        if values.get('location_ids'):
+        #import pdb; pdb.set_trace()
+        if values.get('location_ids') or values.get('groups_id'):
             api = self.pool['t4.clinical.api']
-            # FIXME:  this sections has to be rewritten in sql. see file 'user_activity_location.sql'
-            for user_id in isinstance(ids, (list, tuple)) and ids or [ids]:
-                # 1. find locations
-                user = api.read(cr, uid, 'res.users', user_id, ['location_ids'])
-#                 import pdb; pdb.set_trace()
-                api.update_activity_users(cr, uid, location_ids=user['location_ids'], child_locations=True)
-#                 activity_ids = api.activity_map(cr, uid, location_ids=user['location_ids']).keys()
-#                 # 2. update locations
-#                 for activity_id in activity_ids:
-#                     self.pool['t4.activity'].update_activity(cr, uid, activity_id)
+#             for user_id in isinstance(ids, (list, tuple)) and ids or [ids]:
+#                 user = api.read(cr, uid, 'res.users', user_id, ['location_ids'])
+            api.update_activity_users(cr, uid, user_ids=ids, child_locations=True)
         return res
+
+
+class res_groups(orm.Model):
+    _name = 'res.groups'
+    _inherit = 'res.groups'
     
-
-#         import pdb; pdb.set_trace()
-
+    def write(self, cr, uid, ids, values, context=None):
+        res = super(res_groups, self).write(cr, uid, ids, values, context)
+        if values.get('users_id'):
+            api = self.pool['t4.clinical.api']
+            for group in self.browse(cr, uid, isinstance(ids, (list, tuple)) and ids or [ids]):
+                user_ids=[u.id for u in  group.users_id]
+                user_ids and api.update_activity_users(cr, uid, user_ids=user_ids, child_locations=True)
+        return res
     
 
 
