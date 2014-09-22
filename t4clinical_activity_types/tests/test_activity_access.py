@@ -52,17 +52,19 @@ class test_activity_access(SingleTransactionCase):
         spell_ids = api.search(cr, nurse_id, 't4.clinical.spell', domain)
         assert not spell_ids
         
-        # add/remove location
+        # add location
+        print "ADD LOCATION"
         api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[4, location_id]]}) 
         nurse_user = api.browse(cr, uid, 'res.users', nurse_id)
-        #import pdb; pdb.set_trace()
         assert location_id in [l.id for l in nurse_user.location_ids]
         spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
         assert nurse_id in [u.id for u in spell_activity.user_ids]
+        # remove location
+        print "DELETE LOCATION"
         api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[3, location_id]]})
-        assert location_id in [l.id for l in nurse_user.location_ids]
+        assert location_id not in [l.id for l in nurse_user.location_ids]
         spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
-        assert nurse_id in [u.id for u in spell_activity.user_ids]
+        assert nurse_id in [u.id for u in spell_activity.user_ids], "Spell activity must be accessible anyway!"
         
         # add/remove group
 

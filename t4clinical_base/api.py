@@ -715,7 +715,7 @@ with
         activity_ids: activity.id
         user_ids: user.id -> user.location_ids -> actvity.location_id
         
-        If more than one ids-parameter given, common set af all 3 searches will be updated
+        If more than one ids-parameter given, common set of all 3 searches will be updated
         """
         
         where_list = []
