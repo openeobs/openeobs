@@ -150,16 +150,20 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         except openerp.exceptions.AccessDenied:
             values['databases'] = None
 
+        values['databases'] = [values['database']] if 'database' in values and values['database'] in values['databases'] else values['databases']
+
+        login_template = env.get_template('login.html')
+
         if request.httprequest.method == 'GET':
-            login_template = open(get_module_path('mobile_frontend') + '/views/login.html', 'rb').read()
-            return request.make_response(login_template.format(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors=''))
+            return request.make_response(login_template.render(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='', databases=values['databases']))
         if request.httprequest.method == 'POST':
-            uid = request.session.authenticate('t4clinical_default_config', request.params['username'], request.params['password'])
-            if uid is not False:
-                request.uid = uid
-                return utils.redirect(URLS['task_list'], 303)
-            login_template = open(get_module_path('mobile_frontend') + '/views/login.html', 'rb').read()
-            return request.make_response(login_template.format(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='<div class="alert alert-error">Invalid username/password</div>'))
+            database = values['database'] if 'database' in values else False
+            if database:
+                uid = request.session.authenticate(database, request.params['username'], request.params['password'])
+                if uid is not False:
+                    request.uid = uid
+                    return utils.redirect(URLS['task_list'], 303)
+            return request.make_response(login_template.format(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='<div class="alert alert-error">Invalid username/password</div>', databases=values['databases']))
 
     @http.route(URLS['logout'], type='http', auth="user")
     def mobile_logout(self, *args, **kw):

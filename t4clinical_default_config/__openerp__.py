@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Tactix4',
     'website': 'http://www.tactix4.com/',
-    'depends': ['t4clinical_ui'],
+    'depends': ['t4clinical_ui', 'mobile_frontend'],
     
     
     'data': ['trust.xml',

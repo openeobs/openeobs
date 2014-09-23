@@ -2,20 +2,20 @@
 <html>
 <head>
     <title>Open-eObs</title>
-    <link href="{stylesheet}" rel="stylesheet" type="text/css"/>
+    <link href="{{stylesheet}}" rel="stylesheet" type="text/css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
 </head>
 <body>
     <div class="header">
         <div class="header-main block">
-            <img src="{logo}" class="logo"/>
+            <img src="{{logo}}" class="logo"/>
             <ul class="header-meta">
             </ul>
         </div>
     </div>
     <div class="content block">
-        <form action="{form_action}" method="POST">
-            {errors}
+        <form action="{{form_action}}" method="POST">
+            {{errors}}
             <fieldset>
                 <legend>Sign in</legend>
                 <p>
@@ -24,6 +24,19 @@
                 <p>
                     <input type="password" name="password" id="password" placeholder="Password"/>
                 </p>
+                {% if databases|length > 1 %}
+                <p>
+                    <select name="database" id="database">
+                        {% for database in databases %}
+                           <option value="{{database}}">{{database}}</option>
+                        {% endfor %}
+                    </select>
+                </p>
+                {% else %}
+                    {% for database in databases %}
+                    <input type="hidden" name="database" id="database" value="{{database}}"/>
+                    {% endfor %}
+                {% endif %}
                 <button type="submit" id="loginbutton" class="alignright go">Login</button>
             </fieldset>
         </form>
