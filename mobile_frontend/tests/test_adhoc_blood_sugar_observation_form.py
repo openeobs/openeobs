@@ -83,14 +83,16 @@ class AdhocBSObsTest(common.SingleTransactionCase):
                                           'name': 'Blood Sugar Observation',
                                           'patient': patient,
                                           'form': form,
-                                          'section': 'task',
+                                          'section': 'patient',
                                           'username': 'norah',
                                           'urls': helpers.URLS},
                                          context=self.context)
 
         example_html = helpers.BLOOD_SUGAR_PATIENT_HTML.format(patient_url=patient['url'],
-                                               patient_name=patient['name'],
-                                               patient_id=patient['id'], timestamp=0)
+                                                               patient_name=patient['name'],
+                                                               patient_id=patient['id'],
+                                                               task_url=form['action'],
+                                                               timestamp=0)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')

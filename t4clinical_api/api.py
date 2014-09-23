@@ -239,6 +239,10 @@ class t4_clinical_api(orm.AbstractModel):
         model_pool = self.pool[data_model]
         return model_pool.is_cancellable(cr, uid, context=context) if 'notification' in data_model else False
 
+    def get_activity_score(self, cr, uid, data_model, data, context=None):
+        model_pool = self.pool[data_model]
+        return model_pool.calculate_score(data) if 'observation' in data_model else False
+
     # # # # # # #
     #  PATIENTS #
     # # # # # # #
@@ -501,7 +505,7 @@ class t4_clinical_api(orm.AbstractModel):
         model_pool = self.pool['t4.clinical.patient.observation.'+activity_type] if activity_type else self.pool['t4.activity']
         domain = [
             ('patient_id', '=', patient_id),
-            ('parent_id.state', '=', 'started'),
+            #('parent_id.state', '=', 'started'),
             ('state', '=', 'completed'),
             ('date_terminated', '>=', start_date.strftime(DTF)),
             ('date_terminated', '<=', end_date.strftime(DTF))] if activity_type \

@@ -27,10 +27,27 @@ class responsibility_allocation_wizard(osv.TransientModel):
             value['clear_locations'] = False
         return {'value': value}
 
+    def get_location_list(self, cr, uid, location_id, context=None):
+        location = self.pool['t4.clinical.location'].browse(cr, uid, location_id, context=context)
+        res = [location.id]
+        for child in location.child_ids:
+            res += self.get_location_list(cr, uid, child.id, context=context)
+        return res
+
     def submit(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context=context)
 
-        vals = {'location_ids': [[6, False, [l.id for l in data.location_ids]]]}
+        locations = []
+        if any([g.name == 'T4 Clinical Ward Manager Group' for g in data.user_id.groups_id]):
+            for l in data.location_ids:
+                if l.usage == 'ward':
+                    locations.append(l.id)
+                else:
+                    locations += self.get_location_list(cr, uid, l.id, context=context)
+        else:
+            for l in data.location_ids:
+                locations += self.get_location_list(cr, uid, l.id, context=context)
+        vals = {'location_ids': [[6, False, locations]]}
 
         user_pool = self.pool['res.users']
         user_pool.write(cr, uid, data.user_id.id, vals, context=context)

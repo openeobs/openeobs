@@ -53,6 +53,9 @@ class t4_clinical_patient_observation(orm.AbstractModel):
                 return False
         return True
 
+    def calculate_score(self, data):
+        return False
+
     def complete(self, cr, uid, activity_id, context=None):
         api = self.pool['t4.clinical.api']
         activity = api.get_activity(cr, uid, activity_id)
@@ -689,7 +692,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        res = super(t4_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context)
 
         # create next EWS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
@@ -790,14 +793,17 @@ class t4_clinical_patient_observation_gcs(orm.Model):
     _POLICY = {'ranges': [5, 9, 13, 14], 'case': '01234', 'frequencies': [30, 60, 120, 240, 720],
                'notifications': [[], [], [], [], []]}
 
+    def calculate_score(self, gcs_data):
+        eyes = 1 if gcs_data['eyes'] == 'C' else int(gcs_data['eyes'])
+        verbal = 1 if gcs_data['verbal'] == 'T' else int(gcs_data['eyes'])
+        motor = int(gcs_data['motor'])
+
+        return {'score': eyes+verbal+motor}
+
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for gcs in self.browse(cr, uid, ids, context):
-            eyes = 1 if gcs.eyes == 'C' else int(gcs.eyes)
-            verbal = 1 if gcs.verbal == 'T' else int(gcs.verbal)
-            motor = int(gcs.motor)
-
-            res[gcs.id] = {'score': eyes+verbal+motor}
+            res[gcs.id] = self.calculate_score({'eyes': gcs.eyes, 'verbal': gcs.verbal, 'motor': gcs.motor})
             _logger.debug("Observation GCS activity_id=%s gcs_id=%s score: %s" % (gcs.activity_id.id, gcs.id, res[gcs.id]))
         return res
 

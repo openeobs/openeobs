@@ -516,21 +516,19 @@ $(document).ready(function () {
             console.log(obsResult);
             $(".obsError").css("display", "none");
             if(obsResult){
-                if(obsType == "NEWS"){
+                if(obsType == "ews"){
                     displayModal("obsConfirm", "Submit NEWS of <span id=\"newsScore\" class=\"newsScore\">" + obsResult.score + "</span> for " + patientName + "?", "<p>Please confirm you want to submit this score</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", [" <a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"]);
-                }else if(obsType == "MEWS"){
-                    displayModal("obsConfirm", "Submit MEWS of <span id=\"newsScore\" class=\"newsScore\">" + obsResult.score + "</span> for " + patientName + "?", "<p>Please confirm you want to submit this score</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", [" <a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"]);
-               }else if(obsType == "BTUHMEWS"){
-//                    displayModal("obsConfirm", "Submit NEWS of <span id=\"newsScore\" class=\"newsScore\">" + obsResult.score + "</span> for " + patientName + "?", "<p>Please confirm you want to submit this score</p><p class=\"obsError error\">Data not sent, please resubmit</p>", [" <a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"]);
-                }else if(obsType == "GCS"){
+                }else if(obsType == "gcs"){
                     displayModal("obsConfirm", "Submit GCS of <span id=\"obsScore\" class=\"" + obsResult.colour + "\">" + obsResult.gcsScore + "</span> for " + patientName + "?", "<p>Please confirm you want to submit this score</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", [" <a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"]);
-                }else if(obsType == "STOOL"){
+                }else if(obsType == "stools"){
                     displayModal("obsConfirm", "Submit Stool observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
-                }else if(obsType == "BLOODS"){
+                }else if(obsType == "blood_sugar"){
                     displayModal("obsConfirm", "Submit Blood Sugar observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
-                }else if(obsType == "WEIGHT"){
-                    displayModal("obsConfirm", "Submit Height and Weight observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
-                }else if(obsType == "BLOODP"){
+                }else if(obsType == "weight") {
+                    displayModal("obsConfirm", "SubmitWeight observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>", "<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
+                }else if(obsType == "height"){
+                    displayModal("obsConfirm", "Submit Height observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
+                }else if(obsType == "blood_product"){
                     displayModal("obsConfirm", "Submit Blood Product observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
                 }
             }else{
