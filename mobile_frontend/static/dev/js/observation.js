@@ -315,7 +315,7 @@ $(document).ready(function () {
             r = frontend_routes.json_patient_form_action(obsType, patientId);
         }else{
             console.log("obsource is task");
-            r = frontend_routes.json_task_form_action(taskId);
+            r = frontend_routes.json_task_form_action(obsType, taskId);
         }
         if(!submitDisabled){
             console.log("disabling submit");
@@ -329,21 +329,21 @@ $(document).ready(function () {
                     if(data.status == 1){
                         if(data.related_tasks){
                             if(data.related_tasks.length == 1){
-                                dismissModal("obsConfirm", "hide");
+                                dismissModal("", "all");
                                 displayModal("obsConfirm", "Action required", "<p>" + data.related_tasks[0].summary + "</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>", "<a href=\""+frontend_routes.single_task(data.related_tasks[0].id).url+"\" class=\"confirm\">Proceed</a>"], 500);
                             }else if(data.related_tasks.length > 1){
                                 var taskList = "";
                                 for(var a = 0; a < data.related_tasks.length; a++){
                                     taskList += "<li><a href=\""+frontend_routes.single_task(data.related_tasks[a].id).url+"\">"+ data.related_tasks[a].summary + "</a></li>";
                                 }
-                                dismissModal("obsConfirm", "hide");
+                                dismissModal("", "all");
                                 displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+frontend_routes.task_list().url+ "\">Go to My Tasks</a>"], 500);
                             }else{
-                                dismissModal("obsConfirm", "hide");
+                                dismissModal("", "all");
                                 displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                             }
                         }else{
-                            dismissModal("obsConfirm", "hide");
+                            dismissModal("", "all");
                             displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                         }
                     }else if(data.responseText){
@@ -389,7 +389,7 @@ $(document).ready(function () {
             r = frontend_routes.json_patient_form_action(obsType, patientId);
         }else{
             console.log("partial obs for task");
-            r = frontend_routes.json_task_form_action(taskId);
+            r = frontend_routes.json_task_form_action(obsType, taskId);
         }
         if(!submitDisabled){
             console.log("disabling submit");

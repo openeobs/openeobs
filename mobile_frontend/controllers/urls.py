@@ -103,7 +103,7 @@ routes = [
         'name': 'json_task_form_action',
         'endpoint': 'task/submit_ajax/',
         'method': 'POST',
-        'args': ['task_id']
+        'args': ['observation', 'task_id']
     },
     {
         'name': 'patient_form_action',

@@ -367,12 +367,12 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return utils.redirect(URLS['task_list'])
 
 
-    @http.route(URLS['json_task_form_action']+'<task_id>', type="http", auth="user")
-    def process_ajax_form(self, task_id, *args, **kw):
+    @http.route(URLS['json_task_form_action']+'<observation>/<task_id>', type="http", auth="user")
+    def process_ajax_form(self, observation, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('t4.clinical.api.external')
         base_api = request.registry('t4.clinical.api')
-        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        ews_pool = request.registry('t4.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
         kw_copy = kw.copy()
@@ -393,7 +393,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         if device_id:
             converted_data['device_id'] = device_id
         result = api.complete(cr, uid, int(task_id), converted_data, context)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ews_score'], type="http", auth="user")

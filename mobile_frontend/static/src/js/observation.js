@@ -468,19 +468,19 @@ $(document).ready(function() {
         t.preventDefault(), timeIdle = 0, resetErrors("empty");
         var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
         console.log(r);
-        var i;
-        return "patient" == a ? (console.log("obsource is patient"), i = frontend_routes.json_patient_form_action(s, e)) : (console.log("obsource is task"), 
-        i = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+        var l;
+        return "patient" == a ? (console.log("obsource is patient"), l = frontend_routes.json_patient_form_action(s, e)) : (console.log("obsource is task"), 
+        l = frontend_routes.json_task_form_action(s, taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: i.url,
-            type: i.type,
+            url: l.url,
+            type: l.type,
             data: r,
             success: function(e) {
-                if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("obsConfirm", "hide"), 
+                if (console.log(e), 1 == e.status) if (e.related_tasks) if (1 == e.related_tasks.length) dismissModal("", "all"), 
                 displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.related_tasks[0].id).url + '" class="confirm">Proceed</a>' ], 500); else if (e.related_tasks.length > 1) {
                     for (var s = "", a = 0; a < e.related_tasks.length; a++) s += '<li><a href="' + frontend_routes.single_task(e.related_tasks[a].id).url + '">' + e.related_tasks[a].summary + "</a></li>";
-                    dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + frontend_routes.task_list().url + '">Go to My Tasks</a>' ], 500);
-                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
+                    dismissModal("", "all"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + frontend_routes.task_list().url + '">Go to My Tasks</a>' ], 500);
+                } else dismissModal("", "all"), displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("", "all"), 
                 displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else if (e.responseText) {
                     console.log("re-enabling submit"), o = !1;
                     var t = $.parseJSON(e.responseText);
@@ -498,12 +498,12 @@ $(document).ready(function() {
         t.preventDefault(), timeIdle = 0, resetErrors("empty");
         var r = $($("#obsForm")[0].elements).not(".exclude").serialize();
         console.log(r);
-        var i;
-        "patient" == a ? (console.log("partial obs for patient"), i = frontend_routes.json_patient_form_action(s, e)) : (console.log("partial obs for task"), 
-        i = frontend_routes.json_task_form_action(taskId)), o || (console.log("disabling submit"), 
+        var l;
+        "patient" == a ? (console.log("partial obs for patient"), l = frontend_routes.json_patient_form_action(s, e)) : (console.log("partial obs for task"), 
+        l = frontend_routes.json_task_form_action(s, taskId)), o || (console.log("disabling submit"), 
         o = !0, $.ajax({
-            url: i.url,
-            type: i.type,
+            url: l.url,
+            type: l.type,
             data: r,
             success: function(e) {
                 if (console.log(e), 1 == e.status || 2 == e.status) 1 == e.status ? (dismissModal("obsPartial", "hide"), 
