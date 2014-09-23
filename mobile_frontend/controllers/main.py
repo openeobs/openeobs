@@ -150,6 +150,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         except openerp.exceptions.AccessDenied:
             values['databases'] = None
 
+        values['databases'] = [values['database']] if 'database' in values and values['database'] in values['databases'] else values['databases']
+
         login_template = env.get_template('login.html')
 
         if request.httprequest.method == 'GET':
