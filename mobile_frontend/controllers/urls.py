@@ -118,10 +118,10 @@ routes = [
         'args': ['observation', 'patient_id']
     },
     {
-        'name': 'ews_score',
-        'endpoint': 'ews/score/',
+        'name': 'calculate_obs_score',
+        'endpoint': 'observation/score/',
         'method': 'POST',
-        'args': False
+        'args': ['observation']
     },
     {
         'name': 'json_take_task',

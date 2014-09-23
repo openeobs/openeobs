@@ -617,7 +617,7 @@ function processObs(a) {
                 if ("" == $("#flow_rate").val() && "" == $("#concentration").val() || "" == $("#niv_backup").val() || "" == $("#niv_ipap").val() || "" == $("#niv_epap").val()) return !1;
             } else if ("" == $("#flow_rate").val() && "" == $("#concentration").val()) return !1;
         }
-        var l = frontend_routes.ews_score(), i = $.ajax({
+        var l = frontend_routes.calculate_obs_score("ews"), i = $.ajax({
             url: l.url,
             type: l.type,
             data: $($("#obsForm")[0].elements).not(".exclude").serialize(),

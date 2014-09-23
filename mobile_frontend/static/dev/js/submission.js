@@ -25,7 +25,7 @@ function processObs(obsType){
                 }
             }
 
-            var talkToServer = frontend_routes.ews_score();
+            var talkToServer = frontend_routes.calculate_obs_score('ews');
             var getScore = $.ajax({
                url: talkToServer.url,
                type: talkToServer.type,
