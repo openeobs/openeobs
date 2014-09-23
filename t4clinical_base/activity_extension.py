@@ -148,37 +148,31 @@ class t4_activity_data(orm.AbstractModel):
         return patient_id
 
     def get_activity_user_ids(self, cr, uid, activity_id, context=None):
-#         group_pool = self.pool['res.groups']
-#         location_pool = self.pool['t4.clinical.location']
-#         user_pool = self.pool['res.users']
-#         activity = self.pool['t4.activity'].browse(cr, uid, activity_id, context)
-#         ima_pool = self.pool['ir.model.access']
-#         ima_ids = ima_pool.search(cr, uid, [('model_id.model', '=', activity.data_ref._name),
-#                                             ('perm_responsibility', '=', 1)])
-#         group_ids = [ima.group_id.id for ima in ima_pool.browse(cr, uid, ima_ids)]
-#         location_id = self.get_activity_location_id(cr, uid, activity_id, context)
-#         user_ids = []
-#         if location_id:
-#             ids = user_pool.search(cr, uid, [['location_ids', '!=', False], ['groups_id', 'in', group_ids]])
-#             if 'notification' in activity.data_model or 'observation' in activity.data_model:
-#                 for user in user_pool.browse(cr, uid, ids):
-#                     # if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
-#                     if location_id in [l.id for l in user.location_ids]:
-#                         user_ids.append(user.id)
-#             else:
-#                 for user in user_pool.browse(cr, uid, ids):
-#                     if location_id in user_pool.get_all_responsibility_location_ids(cr, uid, user.id):
-#                     # if location_id in [l.id for l in user.location_ids]:
-#                         user_ids.append(user.id)
+
         cr.execute("select location_id from t4_activity where id = %s" % activity_id)
         if not cr.fetchone()[0]:
             return []
-        sql = """select 
-                    array_agg(user_id) 
-                from t4_clinical_activity_access 
-                where parent_location_activity_ids && array[%s]""" % activity_id
+        sql = """
+                select 
+                    activity_id,
+                    array_agg(user_id) as user_ids
+                from     
+                    (select distinct on (activity.id, ulr.user_id)
+                        activity.id as activity_id,
+                        ulr.user_id
+                    from user_location_rel ulr
+                    inner join res_groups_users_rel gur on ulr.user_id = gur.uid
+                    inner join ir_model_access access on access.group_id = gur.gid and access.perm_responsibility = true
+                    inner join ir_model model on model.id = access.model_id
+                    inner join t4_activity activity on model.model = activity.data_model 
+                        and activity.location_id = ulr.location_id
+                        and activity.id = {activity_id}) data
+                group by activity_id                
+                """.format(activity_id=activity_id)
         cr.execute(sql)
-        user_ids = cr.fetchone()[0] or []
+        #import pdb; pdb.set_trace()
+        res = cr.dictfetchone()
+        user_ids = res and res['user_ids'] or []
         print "ACTIVITY DATA get_activity_user_ids user_ids: %s " % user_ids
         return user_ids
 

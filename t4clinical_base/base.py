@@ -27,15 +27,7 @@ class t4_clinical_device_type(orm.Model):
     _columns = {
         'name': fields.text("Device Type"),
         'flow_direction': fields.selection([('none', 'None'), ('in', 'In'), ('out', 'Out'), ('both', 'Both')], 'Flow Direction')
-    }
-    def demo_values(self, cr, uid, values={}):
-        fake = self.next_seed_fake()
-        flow_directions = dict(self.pool['t4.clinical.device.type']._columns['flow_direction'].selection).keys() #['none', 'in', 'out', 'both']
-        v = {
-            'name': "DEVICE_TYPE_"+str(fake.random_int(min=100, max=999)),
-            'flow_direction': fake.random_element(flow_directions),
-        }
-        return v    
+    }  
     
 
 
@@ -51,17 +43,6 @@ class t4_clinical_device(orm.Model):
         'is_available': True
     }
 
-    def demo_values(self, cr, uid, values={}):
-        fake = self.next_seed_fake()
-        if not 'type_id' in values:
-            type_id = fake.random_element(self['t4.clinical.device.type'].search(cr, uid, []))
-        else:
-            type_id = values['type_id']
-        v = {
-            'type_id': type_id
-        }
-        v.update(values)
-        return v
 
 
 
@@ -78,13 +59,6 @@ class t4_clinical_pos(orm.Model):
         'lot_discharge_id': fields.many2one('t4.clinical.location', 'Discharge Location'),
     }
 
-    def demo_values(self, cr, uid, values={}):
-        fake = self.next_seed_fake()
-        v = {
-               'name': "(POS) HOSPITAL_"+str(fake.random_int(min=100, max=999))
-        }   
-        v.update(values)     
-        return v
 
 class res_company(orm.Model):
     _name = 'res.company'
@@ -116,9 +90,7 @@ class res_users(orm.Model):
         #import pdb; pdb.set_trace()
         if values.get('location_ids') or values.get('groups_id'):
             api = self.pool['t4.clinical.api']
-#             for user_id in isinstance(ids, (list, tuple)) and ids or [ids]:
-#                 user = api.read(cr, uid, 'res.users', user_id, ['location_ids'])
-            api.update_activity_users(cr, uid, user_ids=ids, child_locations=True)
+            api.update_activity_users(cr, uid, ids)
         return res
 
 
@@ -130,9 +102,10 @@ class res_groups(orm.Model):
         res = super(res_groups, self).write(cr, uid, ids, values, context)
         if values.get('users_id'):
             api = self.pool['t4.clinical.api']
+            user_ids = []
             for group in self.browse(cr, uid, isinstance(ids, (list, tuple)) and ids or [ids]):
-                user_ids=[u.id for u in  group.users_id]
-                user_ids and api.update_activity_users(cr, uid, user_ids=user_ids, child_locations=True)
+                user_ids.extend([u.id for u in  group.users_id])
+            api.update_activity_users(cr, uid, user_ids)
         return res
     
 
@@ -332,65 +305,6 @@ class t4_clinical_location(orm.Model):
             raise osv.except_osv('Error!', "Can't deactivate a location that is being used.")
         return self.write(cr, uid, location.id, data, context=context)
     
-    def demo_values_pos(self, cr, uid, values={}):
-        fake = self.next_seed_fake()        
-        code = "POS_"+str(fake.random_int(min=100, max=999))
-        v = {
-               'name': "POS Location (%s)" % code,
-               'code': code,
-               'type': 'structural',
-               'usage': 'hospital',
-               }   
-        v.update(values)     
-        return v
-
-    def demo_values_discharge(self, cr, uid, values={}):
-        fake = self.next_seed_fake()        
-        code = "DISCHARGE_"+str(fake.random_int(min=100, max=999))
-        v = {
-               'name': "Discharge Location (%s)" % code,
-               'code': code,
-               'type': 'structural',
-               'usage': 'room',
-               }   
-        v.update(values)     
-        return v
-
-    def demo_values_admission(self, cr, uid, values={}):
-        fake = self.next_seed_fake()        
-        code = "ADMISSION_"+str(fake.random_int(min=100, max=999))
-        v = {
-               'name': "Admission Location (%s)" % code,
-               'code': code,
-               'type': 'structural',
-               'usage': 'room',
-               }   
-        v.update(values)     
-        return v
-
-    def demo_values_ward(self, cr, uid, values={}):
-        fake = self.next_seed_fake()        
-        code = "ward_"+str(fake.random_int(min=100, max=999))
-        v = {
-               'name': code,
-               'code': code,
-               'type': 'structural',
-               'usage': 'ward',
-               }   
-        v.update(values)     
-        return v
-
-    def demo_values_bed(self, cr, uid, values={}):
-        fake = self.next_seed_fake()        
-        code = "bed_"+str(fake.random_int(min=100, max=999))
-        v = {
-               'name': code,
-               'code': code,
-               'type': 'poc',
-               'usage': 'bed',
-               }   
-        v.update(values)     
-        return v
 
 
 class t4_clinical_patient(osv.Model):
@@ -443,23 +357,6 @@ class t4_clinical_patient(osv.Model):
         rec_id = super(t4_clinical_patient, self).create(cr, uid, vals, context)
         return rec_id
 
-    def demo_values(self, cr, uid, values={}):
-        fake = self.next_seed_fake()        
-        name = fake.first_name()
-        last_name =  fake.last_name(),
-        gender = fake.random_element(('M','F'))
-        v = {
-                'name': name,
-                'given_name': name,
-                'family_name': last_name,
-                'patient_identifier': "PI_"+str(fake.random_int(min=200000, max=299999)),
-                'other_identifier': "OI_"+str(fake.random_int(min=100000, max=199999)),
-                'dob': fake.date_time_between(start_date="-80y", end_date="-10y").strftime("%Y-%m-%d %H:%M:%S"),
-                'gender': gender,
-                'sex': gender,               
-        }   
-        v.update(values)     
-        return v
     
 class mail_message(osv.Model):
     _name = 'mail.message'

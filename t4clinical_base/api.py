@@ -708,7 +708,7 @@ with
                          % (device_id, session_activity_id))
         return session_activity_id[0]
 
-    def update_activity_users(self, cr, uid, location_ids=[], activity_ids=[], user_ids=[], child_locations=False):
+    def update_activity_users_old(self, cr, uid, location_ids=[], activity_ids=[], user_ids=[], child_locations=False):
         """
         Bulk update of activity.user_ids 
         location_ids: activity.location_id
@@ -749,4 +749,26 @@ with
             print sql_ins
         return True
         
-        
+    def update_activity_users(self, cr, uid, user_ids=[]):
+        if not user_ids:
+            return True
+
+        where_clause = "where user_id in (%s)" % list2sqlstr(user_ids)          
+
+        sql = """
+            delete from activity_user_rel {where_clause};
+            insert into activity_user_rel
+            select activity_id, user_id from
+                (select distinct on (activity.id, ulr.user_id)
+                        activity.id as activity_id,
+                        ulr.user_id
+                from user_location_rel ulr
+                inner join res_groups_users_rel gur on ulr.user_id = gur.uid
+                inner join ir_model_access access on access.group_id = gur.gid and access.perm_responsibility = true
+                inner join ir_model model on model.id = access.model_id
+                inner join t4_activity activity on model.model = activity.data_model 
+                            and activity.location_id = ulr.location_id) pairs  
+            {where_clause}
+        """.format(where_clause=where_clause)
+        cr.execute(sql)
+        return True       
