@@ -79,6 +79,7 @@ def ensure_db(redirect=URLS['login']):
 
 class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
+
     @http.route(URLS['stylesheet'], type='http', auth='none')
     def get_stylesheet(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
@@ -163,7 +164,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 if uid is not False:
                     request.uid = uid
                     return utils.redirect(URLS['task_list'], 303)
-            return request.make_response(login_template.format(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='<div class="alert alert-error">Invalid username/password</div>', databases=values['databases']))
+            return request.make_response(login_template.render(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='<div class="alert alert-error">Invalid username/password</div>', databases=values['databases']))
 
     @http.route(URLS['logout'], type='http', auth="user")
     def mobile_logout(self, *args, **kw):
