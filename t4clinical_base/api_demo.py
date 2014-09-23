@@ -202,13 +202,27 @@ class t4_clinical_api_demo(orm.AbstractModel):
         adt_uid = self.get_adt_user(cr, uid, pos_id)
         reg_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.register', None, {}, register_values)
         reg_data = api.get_activity_data(cr, uid, reg_activity_id)
-        admit_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', None, {}, reg_data)
+        reg_data.update(admit_values)
+        admit_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', None, {}, reg_data)     
         api.complete(cr, uid, admit_activity_id)   
         return admit_activity_id
              
-
+    def register_admission(self, cr, uid, ward_location_id, register_values={}, admit_values={}):
+        """
+        Registers and admits patient to POS. Missing data will be generated
+        """
+        api = self.pool['t4.clinical.api']
+        # ensure pos_id is set
+        ward_location = api.browse(cr, uid, 't4.clinical.location', ward_location_id)     
+        pos_id = ward_location.pos_id.id
+        admit_activity_id = self.register_admit(cr, uid, pos_id, register_values, admit_values={'location': ward_location.code})
+        admission_activity_id = api.activity_map(cr, uid, 
+                                                  data_models=['t4.clinical.patient.admission'],
+                                                  creator_ids=[admit_activity_id]).keys()[0]       
+        #api.complete(cr, uid, admission_activity_id)   
+        return admission_activity_id
         
-    def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}):
+    def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}, strict=True):
         """
         Registers, admits and places patient into bed_location_id if vacant 
         otherwise found among existing ones or created.
@@ -216,7 +230,6 @@ class t4_clinical_api_demo(orm.AbstractModel):
         """        
         api = self.pool['t4.clinical.api']
         
-        bed_location_id = self.get_available_bed(cr, uid, location_ids=[bed_location_id])
         bed_location = api.browse(cr, uid, 't4.clinical.location', bed_location_id)     
         pos_id = bed_location.pos_id.id      
         
