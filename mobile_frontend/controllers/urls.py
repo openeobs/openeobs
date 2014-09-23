@@ -177,6 +177,12 @@ routes = [
         'method': 'GET',
         'args': ['observation', 'patient_id']
     },
+    {
+        'name': 'bristol_stools_chart',
+        'endpoint': 'src/img/bristol_stools_chart.png',
+        'method': 'GET',
+        'args': False
+    }
 ]
 
 

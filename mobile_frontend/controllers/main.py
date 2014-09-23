@@ -96,6 +96,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         with open(get_module_path('mobile_frontend') + '/static/src/img/t4skrlogo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
+    @http.route(URLS['bristol_stools_chart'], type='http', auth='none')
+    def get_bristol_stools_chart(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/img/bristol_stools.png', 'r') as bsc:
+            return request.make_response(bsc.read(), headers={'Content-Type': 'image/png'})
+
     @http.route(URLS['jquery'], type='http', auth='none')
     def get_jquery(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/js/jquery.js', 'r') as jquery:

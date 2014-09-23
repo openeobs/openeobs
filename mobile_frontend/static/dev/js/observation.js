@@ -558,7 +558,8 @@ $(document).ready(function () {
         e.preventDefault();
         timeIdle = 0;
         var bristolImage =  new Image();
-        bristolImage.src="/assets/img/Bristol_stool_chart.png";
+        //bristolImage.src="/assets/img/Bristol_stool_chart.png";
+        bristolImage.src = frontend_routes.bristol_stools_chart().url;
         displayModal("bristol", "Bristol Stool Chart", bristolImage, ["<a href=\"#\" class=\"cancel\">Cancel</a>"], 0);
     });
 

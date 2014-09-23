@@ -146,6 +146,9 @@
                             <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
+                   <t t-if="item['name']=='bristol_type'">
+                       <p><a href="#" class="button" id="bristolPopup">Bristol Type Reference</a></p>
+                   </t>
                    <span class="errors"><t t-esc="item['errors']"/></span>
                    <span class="help"><t t-esc="item['info']"/></span>
                </div>

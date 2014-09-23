@@ -564,7 +564,7 @@ $(document).ready(function() {
     }), $("#bristolPopup").click(function(e) {
         e.preventDefault(), timeIdle = 0;
         var s = new Image();
-        s.src = "/assets/img/Bristol_stool_chart.png", displayModal("bristol", "Bristol Stool Chart", s, [ '<a href="#" class="cancel">Cancel</a>' ], 0);
+        s.src = frontend_routes.bristol_stools_chart().url, displayModal("bristol", "Bristol Stool Chart", s, [ '<a href="#" class="cancel">Cancel</a>' ], 0);
     }), $("#oxygen_administration_flag").change(function() {
         var e = $("#oxygen_administration_flag").val();
         if ("True" == e) {
