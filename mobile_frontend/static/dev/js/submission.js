@@ -105,4 +105,12 @@ function processObs(obsType){
             return true;
         }
     }
+
+    if(obsType == "pbp"){
+        if($('#systolic_sitting').val() == "" || $('#systolic_standing').val() == "" || $('#diastolic_sitting').val() == "" || $('#diastolic_standing').val() == ""){
+            return false;
+        }else{
+            return true;
+        }
+    }
 }

@@ -204,6 +204,62 @@ function addValidationRules(obsType) {
             }
         })
     }
+
+    if(obsType == "pbp"){
+        $("#systolic_sitting").rules("add", {
+            min: 1,
+            max: 300,
+            pimpedDigits: true,
+            required: false,
+            greaterThan: '#diastolic_sitting',
+            messages:{
+                min: "Systolic BP too low",
+                max: "Systolic BP too high",
+                pimpedDigits: "Value must be a whole number",
+                greaterThan: "Systolic must be greater than diastolic"
+            }
+        });
+        $("#diastolic_sitting").rules("add", {
+            min: 1,
+            max: 280,
+            pimpedDigits: true,
+            required: false,
+            lessThan: '#systolic_sitting',
+            messages:{
+                min: "Diastolic BP too low",
+                max: "Diastolic BP too high",
+                pimpedDigits: "Value must be a whole number",
+                lessThan: "Diastolic must be less than systolic"
+            }
+        });
+
+        $("#systolic_standing").rules("add", {
+            min: 1,
+            max: 300,
+            pimpedDigits: true,
+            required: false,
+            greaterThan: '#diastolic_standing',
+            messages:{
+                min: "Systolic BP too low",
+                max: "Systolic BP too high",
+                pimpedDigits: "Value must be a whole number",
+                greaterThan: "Systolic must be greater than diastolic"
+            }
+        });
+        $("#diastolic_standing").rules("add", {
+            min: 1,
+            max: 280,
+            pimpedDigits: true,
+            required: false,
+            lessThan: '#systolic_standing',
+            messages:{
+                min: "Diastolic BP too low",
+                max: "Diastolic BP too high",
+                pimpedDigits: "Value must be a whole number",
+                lessThan: "Diastolic must be less than systolic"
+            }
+        });
+    }
 }
 
 function resetErrors(el, mode){

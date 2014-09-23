@@ -578,5 +578,5 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         new_activity = api.create_activity_for_patient(cr, uid, int(patient_id), observation, context=context)
         result = api.complete(cr, uid, int(new_activity), converted_data, context)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
