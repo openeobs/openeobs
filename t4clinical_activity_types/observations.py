@@ -689,7 +689,7 @@ class t4_clinical_patient_observation_ews(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(t4_clinical_patient_observation_ews, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        res = super(t4_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context)
 
         # create next EWS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 

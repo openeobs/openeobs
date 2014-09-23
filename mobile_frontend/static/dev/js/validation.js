@@ -117,56 +117,56 @@ function addValidationRules(obsType) {
         });
     }
 
-    if(obsType == "GCS"){
-        $("#gcsData_eyes").rules("add", {
+    if(obsType == "gcs"){
+        $("#eyes").rules("add", {
             required: false
         });
-        $("#gcsData_verbal").rules("add", {
+        $("#verbal").rules("add", {
             required: false
         });
-        $("#gcsData_motor").rules("add", {
-            required: false
-        });
-    }
-
-    if(obsType == "STOOL"){
-        $("#stoolsData_bowelOpen").rules("add",{
-            required: false
-        });
-        $("#stoolsData_nausea").rules("add",{
-            required: false
-        });
-        $("#stoolsData_vomiting").rules("add",{
-            required: false
-        });
-        $("#stoolsData_quantity").rules("add",{
-            required: false
-        });
-        $("#stoolsData_colour").rules("add",{
-            required: false
-        });
-        $("#stoolsData_bristolType").rules("add",{
-            required: false
-        });
-        $("#stoolsData_offensive").rules("add", {
-            required: false
-        });
-        $("#stoolsData_strain").rules("add",{
-            required: false
-        });
-        $("#stoolsData_laxatives").rules("add", {
-            required: false
-        });
-        $("#stoolsData_samples").rules("add", {
-            required: false
-        });
-        $("#stoolsData_rectalExam").rules("add", {
+        $("#motor").rules("add", {
             required: false
         });
     }
 
-    if(obsType == "BLOODS"){
-        $("#bloodSugarData_bloodSugar").rules("add", {
+    if(obsType == "stools"){
+        $("#bowel_open").rules("add",{
+            required: false
+        });
+        $("#nausea").rules("add",{
+            required: false
+        });
+        $("#vomiting").rules("add",{
+            required: false
+        });
+        $("#quantity").rules("add",{
+            required: false
+        });
+        $("#colour").rules("add",{
+            required: false
+        });
+        $("#bristol_type").rules("add",{
+            required: false
+        });
+        $("#offensive").rules("add", {
+            required: false
+        });
+        $("#strain").rules("add",{
+            required: false
+        });
+        $("#laxatives").rules("add", {
+            required: false
+        });
+        $("#samples").rules("add", {
+            required: false
+        });
+        $("#rectal_exam").rules("add", {
+            required: false
+        });
+    }
+
+    if(obsType == "blood_sugar"){
+        $("#blood_sugar").rules("add", {
             min: 1.0,
             max: 99.9,
             pimpedNumber: true,
@@ -178,15 +178,17 @@ function addValidationRules(obsType) {
         });
     }
 
-    if(obsType == "WEIGHT"){
-        $("#heightWeightData_height").rules("add", {
+    if(obsType == "height") {
+        $("#height").rules("add", {
             pimpedNumber: true,
             required: false,
-            messages:{
+            messages: {
                 pimpedNumber: "Value must be a number"
             }
         });
-        $("#heightWeightData_weight").rules("add", {
+    }
+    if(obsType == "weight"){
+        $("#weight").rules("add", {
             pimpedNumber: true,
             messages:{
                 pimpedNumber: "Value must be a number"
@@ -194,8 +196,8 @@ function addValidationRules(obsType) {
         });
     }
 
-    if(obsType == "BLOODP"){
-        $("#BloodProductData_volume").rules("add", {
+    if(obsType == "blood_product"){
+        $("#vol").rules("add", {
             pimpedNumber: true,
             messages:{
                 pimpedNumber: "Value must be a number"

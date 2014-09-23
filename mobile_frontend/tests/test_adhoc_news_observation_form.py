@@ -83,7 +83,7 @@ class AdhocNewsObsTest(common.SingleTransactionCase):
                                           'name': 'NEWS Observation',
                                           'patient': patient,
                                           'form': form,
-                                          'section': 'task',
+                                          'section': 'patient',
                                           'username': 'norah',
                                           'urls': helpers.URLS},
                                          context=self.context)
@@ -93,9 +93,11 @@ class AdhocNewsObsTest(common.SingleTransactionCase):
         for device in [v['selection'] for v in form_desc if v['name'] is 'device_id'][0]:
             devices_string += helpers.DEVICE_OPTION.format(device_id=device[0], device_name=device[1])
         example_html = helpers.NEWS_PATIENT_HTML.format(patient_url=patient['url'],
-                                               patient_name=patient['name'],
-                                               patient_id=patient['id'],
-                                               device_options=devices_string, timestamp=0)
+                                                        patient_name=patient['name'],
+                                                        patient_id=patient['id'],
+                                                        device_options=devices_string,
+                                                        task_url=form['action'],
+                                                        timestamp=0)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')

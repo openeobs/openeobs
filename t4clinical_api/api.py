@@ -501,7 +501,7 @@ class t4_clinical_api(orm.AbstractModel):
         model_pool = self.pool['t4.clinical.patient.observation.'+activity_type] if activity_type else self.pool['t4.activity']
         domain = [
             ('patient_id', '=', patient_id),
-            ('parent_id.state', '=', 'started'),
+            #('parent_id.state', '=', 'started'),
             ('state', '=', 'completed'),
             ('date_terminated', '>=', start_date.strftime(DTF)),
             ('date_terminated', '<=', end_date.strftime(DTF))] if activity_type \

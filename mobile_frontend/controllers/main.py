@@ -555,9 +555,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('t4.clinical.api.external')
         base_api = request.registry('t4.clinical.api')
-        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        observation_pool = request.registry('t4.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
-        converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
+        converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
         kw_copy = kw.copy()
         test = {}
         timestamp = kw_copy['startTimestamp']
@@ -579,4 +579,4 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         new_activity = api.create_activity_for_patient(cr, uid, int(patient_id), observation, context=context)
         result = api.complete(cr, uid, int(new_activity), converted_data, context)
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
-        return request.make_response(json.dumps({'status': 1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})

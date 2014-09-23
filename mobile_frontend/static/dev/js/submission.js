@@ -56,7 +56,7 @@ function processObs(obsType){
     }
 
     if(obsType == "gcs"){
-        if($("#eyes").val() == "" || $("#verbal").val() == "" || $("motor").val() == ""){
+        if($("#eyes").val() == "" || $("#verbal").val() == "" || $("#motor").val() == ""){
             return false;
         }else{
             return score = gcs(
@@ -66,7 +66,7 @@ function processObs(obsType){
             )
         }
     }
-    if(obsType == "stool"){
+    if(obsType == "stools"){
         if($("#bowel_open").val() == "" || $("#nausea").val() == "" || $("#vomiting").val() == "" || $("#quantity").val() == "" || $("#colour").val() == "" || $("#bristol_type").val() == "" || $("#offensive").val() == "" || $("#strain").val() == "" || $("#laxatives").val() == "" || $("#samples").val() == "" || $("#rectal_exam").val() == ""){
             return false;
         }else{
@@ -74,8 +74,8 @@ function processObs(obsType){
         }
     }
 
-    if(obsType == "bloods"){
-        if($("#blood_sugar").val() == "" || $("#diabetic").val() == ""){
+    if(obsType == "blood_sugar"){
+        if($("#blood_sugar").val() == ""){
             return false;
         }else{
             return true;
@@ -98,8 +98,8 @@ function processObs(obsType){
         }
     }
 
-    if(obsType == "bloodp"){
-        if($("#volume").val() == "" || $("#product").val() == ""){
+    if(obsType == "blood_product"){
+        if($("#vol").val() == "" || $("#product").val() == ""){
             return false;
         }else{
             return true;

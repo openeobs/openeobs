@@ -162,35 +162,35 @@ function addValidationRules(e) {
         messages: {
             min: "Value too low"
         }
-    })), "GCS" == e && ($("#gcsData_eyes").rules("add", {
+    })), "gcs" == e && ($("#eyes").rules("add", {
         required: !1
-    }), $("#gcsData_verbal").rules("add", {
+    }), $("#verbal").rules("add", {
         required: !1
-    }), $("#gcsData_motor").rules("add", {
+    }), $("#motor").rules("add", {
         required: !1
-    })), "STOOL" == e && ($("#stoolsData_bowelOpen").rules("add", {
+    })), "stools" == e && ($("#bowel_open").rules("add", {
         required: !1
-    }), $("#stoolsData_nausea").rules("add", {
+    }), $("#nausea").rules("add", {
         required: !1
-    }), $("#stoolsData_vomiting").rules("add", {
+    }), $("#vomiting").rules("add", {
         required: !1
-    }), $("#stoolsData_quantity").rules("add", {
+    }), $("#quantity").rules("add", {
         required: !1
-    }), $("#stoolsData_colour").rules("add", {
+    }), $("#colour").rules("add", {
         required: !1
-    }), $("#stoolsData_bristolType").rules("add", {
+    }), $("#bristol_type").rules("add", {
         required: !1
-    }), $("#stoolsData_offensive").rules("add", {
+    }), $("#offensive").rules("add", {
         required: !1
-    }), $("#stoolsData_strain").rules("add", {
+    }), $("#strain").rules("add", {
         required: !1
-    }), $("#stoolsData_laxatives").rules("add", {
+    }), $("#laxatives").rules("add", {
         required: !1
-    }), $("#stoolsData_samples").rules("add", {
+    }), $("#samples").rules("add", {
         required: !1
-    }), $("#stoolsData_rectalExam").rules("add", {
+    }), $("#rectal_exam").rules("add", {
         required: !1
-    })), "BLOODS" == e && $("#bloodSugarData_bloodSugar").rules("add", {
+    })), "blood_sugar" == e && $("#blood_sugar").rules("add", {
         min: 1,
         max: 99.9,
         pimpedNumber: !0,
@@ -199,18 +199,18 @@ function addValidationRules(e) {
             max: "Blood sugar too high",
             pimpedNumber: "Value must be a number"
         }
-    }), "WEIGHT" == e && ($("#heightWeightData_height").rules("add", {
+    }), "height" == e && $("#height").rules("add", {
         pimpedNumber: !0,
         required: !1,
         messages: {
             pimpedNumber: "Value must be a number"
         }
-    }), $("#heightWeightData_weight").rules("add", {
+    }), "weight" == e && $("#weight").rules("add", {
         pimpedNumber: !0,
         messages: {
             pimpedNumber: "Value must be a number"
         }
-    })), "BLOODP" == e && $("#BloodProductData_volume").rules("add", {
+    }), "blood_product" == e && $("#vol").rules("add", {
         pimpedNumber: !0,
         messages: {
             pimpedNumber: "Value must be a number"
@@ -218,18 +218,18 @@ function addValidationRules(e) {
     });
 }
 
-function resetErrors(e, a) {
-    if ("delete" == a) $("#" + e).parent().parent(".obsField").removeClass("error"), 
+function resetErrors(e, r) {
+    if ("delete" == r) $("#" + e).parent().parent(".obsField").removeClass("error"), 
     $("#" + e).parent().siblings(".input-body").children(".errors").children("label.error").remove(); else {
-        if ("empty" != a) return !1;
+        if ("empty" != r) return !1;
         $("#" + e).parent().parent(".obsField").removeClass("error"), $("#" + e).parent().parent().find(".errors").text("");
     }
 }
 
 function showErrors(e) {
-    $.each(e, function(e, a) {
-        var r = e.replace(/\./g, "_");
-        $("#" + r).parent().parent().addClass("error"), $("#" + r).parent().parent().find(".input-body .errors").text(a);
+    $.each(e, function(e, r) {
+        var s = e.replace(/\./g, "_");
+        $("#" + s).parent().parent().addClass("error"), $("#" + s).parent().parent().find(".input-body .errors").text(r);
     });
 }
 function ToggleBaseSupO2(e) {
@@ -506,7 +506,7 @@ $(document).ready(function() {
     }), $("#submitButton").click(function(e) {
         if (e.preventDefault(), timeIdle = 0, t.form()) {
             var a = processObs(s);
-            console.log(a), $(".obsError").css("display", "none"), a ? "NEWS" == s ? displayModal("obsConfirm", 'Submit NEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "MEWS" == s ? displayModal("obsConfirm", 'Submit MEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "BTUHMEWS" == s || ("GCS" == s ? displayModal("obsConfirm", 'Submit GCS of <span id="obsScore" class="' + a.colour + '">' + a.gcsScore + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "STOOL" == s ? displayModal("obsConfirm", "Submit Stool observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "BLOODS" == s ? displayModal("obsConfirm", "Submit Blood Sugar observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "WEIGHT" == s ? displayModal("obsConfirm", "Submit Height and Weight observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "BLOODP" == s && displayModal("obsConfirm", "Submit Blood Product observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0)) : "ews" == s ? displayPartialObsDialog() : displayModal("obsConfirm", "Mandatory observation values not entered", "<p>Please enter all information and submit observation again</p>", [ '<a href="#" id="obsCancel" class="cancel">OK</a>' ], 0);
+            console.log(a), $(".obsError").css("display", "none"), a ? "ews" == s ? displayModal("obsConfirm", 'Submit NEWS of <span id="newsScore" class="newsScore">' + a.score + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "gcs" == s ? displayModal("obsConfirm", 'Submit GCS of <span id="obsScore" class="' + a.colour + '">' + a.gcsScore + "</span> for " + patientName + "?", '<p>Please confirm you want to submit this score</p><p class="obsError error">Input error, please correct and resubmit</p>', [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ]) : "stools" == s ? displayModal("obsConfirm", "Submit Stool observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "blood_sugar" == s ? displayModal("obsConfirm", "Submit Blood Sugar observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "weight" == s ? displayModal("obsConfirm", "SubmitWeight observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "height" == s ? displayModal("obsConfirm", "Submit Height observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "blood_product" == s && displayModal("obsConfirm", "Submit Blood Product observation for " + patientName + "?", '<p>Please confirm you want to submit this observation</p><p class="obsError error">Input error, please correct and resubmit</p>', [ '<a href="#" id="obsCancel" class="cancel">Cancel</a>', '<a href="#" id="obsSubmit">Submit</a>' ], 0) : "ews" == s ? displayPartialObsDialog() : displayModal("obsConfirm", "Mandatory observation values not entered", "<p>Please enter all information and submit observation again</p>", [ '<a href="#" id="obsCancel" class="cancel">OK</a>' ], 0);
         } else console.log(t.errors()), displayModal("obsConfirm", "Form validation errors", "<p>The observation your are trying to submit has input errors. Please correct them and resubmit.</p>", [ ' <a href="#" id="obsCancel" class="cancel">Cancel</a>' ]);
     }), $("#cancelSubmit").click(function(e) {
         e.preventDefault(), timeIdle = 0, displayTaskCancellationOptions();
@@ -585,5 +585,5 @@ function processObs(a) {
             $("#obsConfirm").addClass("clinicalrisk-" + a.class), e;
         }), !0;
     }
-    return "gcs" == a ? "" == $("#eyes").val() || "" == $("#verbal").val() || "" == $("motor").val() ? !1 : e = gcs($("#eyes").val(), $("#verbal").val(), $("#motor").val()) : "stool" == a ? "" == $("#bowel_open").val() || "" == $("#nausea").val() || "" == $("#vomiting").val() || "" == $("#quantity").val() || "" == $("#colour").val() || "" == $("#bristol_type").val() || "" == $("#offensive").val() || "" == $("#strain").val() || "" == $("#laxatives").val() || "" == $("#samples").val() || "" == $("#rectal_exam").val() ? !1 : !0 : "bloods" == a ? "" == $("#blood_sugar").val() || "" == $("#diabetic").val() ? !1 : !0 : "weight" == a ? "" == $("#weight").val() ? !1 : !0 : "height" == a ? "" == $("#height").val() ? !1 : !0 : "bloodp" == a ? "" == $("#volume").val() || "" == $("#product").val() ? !1 : !0 : void 0;
+    return "gcs" == a ? "" == $("#eyes").val() || "" == $("#verbal").val() || "" == $("#motor").val() ? !1 : e = gcs($("#eyes").val(), $("#verbal").val(), $("#motor").val()) : "stools" == a ? "" == $("#bowel_open").val() || "" == $("#nausea").val() || "" == $("#vomiting").val() || "" == $("#quantity").val() || "" == $("#colour").val() || "" == $("#bristol_type").val() || "" == $("#offensive").val() || "" == $("#strain").val() || "" == $("#laxatives").val() || "" == $("#samples").val() || "" == $("#rectal_exam").val() ? !1 : !0 : "blood_sugar" == a ? "" == $("#blood_sugar").val() ? !1 : !0 : "weight" == a ? "" == $("#weight").val() ? !1 : !0 : "height" == a ? "" == $("#height").val() ? !1 : !0 : "blood_product" == a ? "" == $("#vol").val() || "" == $("#product").val() ? !1 : !0 : void 0;
 }

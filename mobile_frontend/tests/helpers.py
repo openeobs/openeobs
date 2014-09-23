@@ -556,20 +556,20 @@ GCS_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="gcs" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="gcs" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <div>
                     <div class="block obsSelectField" id="parent_eyes">
                         <div class="input-header">
-                            <label for="eyes">Eye response</label>
+                            <label for="eyes">Eyes</label>
                         </div>
                        <div class="input-body">
                             <select name="eyes" id="eyes">
-                                <option value="">Please select</option>
-                                <option value="4">Spontaneous</option>
-                                <option value="3">Speech</option>
-                                <option value="2">Pain</option>
-                                <option value="1">None</option>
-                                <option value="C">Swelling</option>
+                                <option value="">Please Select</option>
+                                <option value="1">1: Does not open eyes</option>
+                                <option value="2">2: Opens eyes in response to painful stimuli</option>
+                                <option value="3">3: Opens eyes in response to voice</option>
+                                <option value="4">4: Opens eyes spontaneously</option>
+                                <option value="C">C: Closed by swelling</option>
                             </select>
                            <span class="errors"></span>
                            <span class="help"></span>
@@ -579,17 +579,17 @@ GCS_PATIENT_HTML = """
                 <div>
                     <div class="block obsSelectField" id="parent_verbal">
                         <div class="input-header">
-                            <label for="verbal">Verbal response</label>
+                            <label for="verbal">Verbal</label>
                         </div>
                        <div class="input-body">
-                            <select name="eyes" id="verbal">
-                                <option value="">Please select</option>
-                                <option value="5">Orientated</option>
-                                <option value="4">Confused</option>
-                                <option value="3">Inappropriate words</option>
-                                <option value="2">Incomprehensible sounds</option>
-                                <option value="1">None</option>
-                                <option value="T">Intubated</option>
+                            <select name="verbal" id="verbal">
+                                <option value="">Please Select</option>
+                                <option value="1">1: Makes no sounds</option>
+                                <option value="2">2: Incomprehensible sounds</option>
+                                <option value="3">3: Utters inappropiate words</option>
+                                <option value="4">4: Confused, disoriented</option>
+                                <option value="5">5: Oriented, converses normally</option>
+                                <option value="T">T: Intubated</option>
                             </select>
                            <span class="errors"></span>
                            <span class="help"></span>
@@ -599,24 +599,24 @@ GCS_PATIENT_HTML = """
                 <div>
                     <div class="block obsSelectField" id="parent_motor">
                         <div class="input-header">
-                            <label for="motor">Motor response</label>
+                            <label for="motor">Motor</label>
                         </div>
                        <div class="input-body">
-                            <select name="eyes" id="motor">
-                                <option value="">Please select</option>
-                                <option value="6">Obeys commands</option>
-                                <option value="5">Localises to pain</option>
-                                <option value="4">Reflexion to pain</option>
-                                <option value="3">Abnormal reflexion</option>
-                                <option value="2">Extension to pain</option>
-                                <option value="1">None</option>
+                            <select name="motor" id="motor">
+                                <option value="">Please Select</option>
+                                <option value="1">1: Makes no movements</option>
+                                <option value="2">2: Extension to painful stimuli (decerebrate response)</option>
+                                <option value="3">3: Abnormal flexion to painful stimuli (decorticate response)</option>
+                                <option value="4">4: Flexion / Withdrawal to painful stimuli</option>
+                                <option value="5">5: Localizes painful stimuli</option>
+                                <option value="6">6: Obeys commands</option>
                             </select>
                            <span class="errors"></span>
                            <span class="help"></span>
                        </div>
                    </div>
                 </div>
-                <input value="{patient_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
@@ -659,7 +659,7 @@ BLOOD_PRODUCT_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="blood_product" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="blood_product" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <div>
                     <div class="block obsField" id="parent_vol">
                         <div class="input-header">
@@ -678,8 +678,8 @@ BLOOD_PRODUCT_PATIENT_HTML = """
                             <label for="product">Blood Product</label>
                         </div>
                        <div class="input-body">
-                            <select name="eyes" id="product">
-                                <option value="">Please select</option>
+                            <select name="product" id="product">
+                                <option value="">Please Select</option>
                                 <option value="rbc">RBC</option>
                                 <option value="ffp">FFP</option>
                                 <option value="platelets">Platelets</option>
@@ -692,7 +692,7 @@ BLOOD_PRODUCT_PATIENT_HTML = """
                        </div>
                    </div>
                 </div>
-                <input value="{patient_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
@@ -736,7 +736,7 @@ BLOOD_SUGAR_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="blood_sugar" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="blood_sugar" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <div>
                     <div class="block obsField" id="parent_blood_sugar">
                         <div class="input-header">
@@ -749,7 +749,7 @@ BLOOD_SUGAR_PATIENT_HTML = """
                         </div>
                     </div>
                 </div>
-                <input value="{patient_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
@@ -792,7 +792,7 @@ HEIGHT_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="height" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="height" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <div>
                     <div class="block obsField" id="parent_height">
                         <div class="input-header">
@@ -805,7 +805,7 @@ HEIGHT_PATIENT_HTML = """
                         </div>
                     </div>
                 </div>
-                <input value="{patient_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
@@ -848,7 +848,7 @@ WEIGHT_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="weight" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="weight" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <div>
                     <div class="block obsField" id="parent_weight">
                         <div class="input-header">
@@ -861,7 +861,7 @@ WEIGHT_PATIENT_HTML = """
                         </div>
                     </div>
                 </div>
-                <input value="{patient_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
@@ -904,7 +904,7 @@ PBP_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="pbp" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="pbp" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <h3 class="block">Lying/Sitting Blood Pressure</h3>
                 <div>
                     <div class="block obsField" id="parent_systolic_sitting">
@@ -955,7 +955,7 @@ PBP_PATIENT_HTML = """
                         </div>
                     </div>
                 </div>
-                <input value="{patient_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
@@ -999,7 +999,7 @@ STOOLS_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="stools" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="stools" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <div>
                     <div class="block obsSelectField" id="parent_bowel_open">
                         <div class="input-header">
@@ -1007,7 +1007,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="bowel_open" id="bowel_open">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
@@ -1023,7 +1023,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="nausea" id="nausea">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
@@ -1039,7 +1039,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="vomiting" id="vomiting">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
@@ -1055,7 +1055,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="quantity" id="quantity">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="large">Large</option>
                                 <option value="medium">Medium</option>
                                 <option value="small">Small</option>
@@ -1072,7 +1072,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="colour" id="colour">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="brown">Brown</option>
                                 <option value="yellow">Yellow</option>
                                 <option value="black">Black/Tarry</option>
@@ -1091,7 +1091,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="bristol_type" id="bristol_type">
-                                <option value="" >Please select</option>
+                                <option value="" >Please Select</option>
                                 <option value="1">Type 1</option>
                                 <option value="2">Type 2</option>
                                 <option value="3">Type 3</option>
@@ -1112,7 +1112,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="offensive" id="offensive">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
@@ -1128,7 +1128,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="strain" id="strain">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
@@ -1144,7 +1144,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="laxatives" id="laxatives">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
@@ -1160,7 +1160,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="samples" id="samples">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="none">None</option>
                                 <option value="micro">Micro</option>
                                 <option value="virol">Virol</option>
@@ -1178,7 +1178,7 @@ STOOLS_PATIENT_HTML = """
                         </div>
                        <div class="input-body">
                             <select name="rectal_exam" id="rectal_exam">
-                                <option value="">Please select</option>
+                                <option value="">Please Select</option>
                                 <option value="True">Yes</option>
                                 <option value="False">No</option>
                             </select>
@@ -1187,7 +1187,7 @@ STOOLS_PATIENT_HTML = """
                        </div>
                    </div>
                 </div>
-                <input value="{patient_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
@@ -1230,7 +1230,7 @@ NEWS_PATIENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="block" patient-id="{patient_id}" data-type="ews" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form patient-id="{patient_id}" data-type="ews" action="{task_url}" method="POST" data-source="patient" id="obsForm">
                 <div>
                     <div class="block obsField" id="parent_respiration_rate">
                         <div class="input-header">
@@ -1424,7 +1424,7 @@ NEWS_PATIENT_HTML = """
                         </div>
                     </div>
                 </div>
-                <input value="{task_id}" type="hidden" name="taskId"/>
+                <input type="hidden" name="taskId"/>
                 <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
                 <div class="block obsSubmit">
                     <input type="submit" id="submitButton" value="Submit"/>
