@@ -103,7 +103,7 @@ routes = [
         'name': 'json_task_form_action',
         'endpoint': 'task/submit_ajax/',
         'method': 'POST',
-        'args': ['task_id']
+        'args': ['observation', 'task_id']
     },
     {
         'name': 'patient_form_action',
@@ -118,10 +118,10 @@ routes = [
         'args': ['observation', 'patient_id']
     },
     {
-        'name': 'ews_score',
-        'endpoint': 'ews/score/',
+        'name': 'calculate_obs_score',
+        'endpoint': 'observation/score/',
         'method': 'POST',
-        'args': False
+        'args': ['observation']
     },
     {
         'name': 'json_take_task',
@@ -177,6 +177,12 @@ routes = [
         'method': 'GET',
         'args': ['observation', 'patient_id']
     },
+    {
+        'name': 'bristol_stools_chart',
+        'endpoint': 'src/img/bristol_stools_chart.png',
+        'method': 'GET',
+        'args': False
+    }
 ]
 
 

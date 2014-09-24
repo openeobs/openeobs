@@ -25,7 +25,7 @@ function processObs(obsType){
                 }
             }
 
-            var talkToServer = frontend_routes.ews_score();
+            var talkToServer = frontend_routes.calculate_obs_score('ews');
             var getScore = $.ajax({
                url: talkToServer.url,
                type: talkToServer.type,
@@ -100,6 +100,14 @@ function processObs(obsType){
 
     if(obsType == "blood_product"){
         if($("#vol").val() == "" || $("#product").val() == ""){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    if(obsType == "pbp"){
+        if($('#systolic_sitting').val() == "" || $('#systolic_standing').val() == "" || $('#diastolic_sitting').val() == "" || $('#diastolic_standing').val() == ""){
             return false;
         }else{
             return true;

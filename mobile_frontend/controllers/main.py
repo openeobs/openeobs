@@ -96,6 +96,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         with open(get_module_path('mobile_frontend') + '/static/src/img/t4skrlogo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
+    @http.route(URLS['bristol_stools_chart'], type='http', auth='none')
+    def get_bristol_stools_chart(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/img/bristol_stools.png', 'r') as bsc:
+            return request.make_response(bsc.read(), headers={'Content-Type': 'image/png'})
+
     @http.route(URLS['jquery'], type='http', auth='none')
     def get_jquery(self, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/js/jquery.js', 'r') as jquery:
@@ -367,12 +372,12 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return utils.redirect(URLS['task_list'])
 
 
-    @http.route(URLS['json_task_form_action']+'<task_id>', type="http", auth="user")
-    def process_ajax_form(self, task_id, *args, **kw):
+    @http.route(URLS['json_task_form_action']+'<observation>/<task_id>', type="http", auth="user")
+    def process_ajax_form(self, observation, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('t4.clinical.api.external')
         base_api = request.registry('t4.clinical.api')
-        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        ews_pool = request.registry('t4.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
         kw_copy = kw.copy()
@@ -393,15 +398,17 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         if device_id:
             converted_data['device_id'] = device_id
         result = api.complete(cr, uid, int(task_id), converted_data, context)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
-    @http.route(URLS['ews_score'], type="http", auth="user")
-    def calculate_ews_score(self, *args, **kw):
+    @http.route(URLS['calculate_obs_score']+'<observation>', type="http", auth="user")
+    def calculate_obs_score(self, observation, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        api_pool = request.registry('t4.clinical.api.external')
+        model = 't4.clinical.patient.observation.'+observation
         converter_pool = request.registry('ir.fields.converter')
-        converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
+        observation_pool = request.registry(model)
+        converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
 
         data = kw.copy()
         test = {}
@@ -409,12 +416,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             del data['startTimestamp']
         if 'taskId' in data:
             del data['taskId']
-        for key, value in data.items():
-            if not value or key not in ['avpu_text', 'blood_pressure_systolic', 'body_temperature', 'indirect_oxymetry_spo2', 'oxygen_administration_flag', 'pulse_rate', 'respiration_rate']:
-                del data[key]
+        if observation == 'ews':
+            for key, value in data.items():
+                if not value or key not in ['avpu_text', 'blood_pressure_systolic', 'body_temperature', 'indirect_oxymetry_spo2', 'oxygen_administration_flag', 'pulse_rate', 'respiration_rate']:
+                    del data[key]
         converted_data = converter(data, test)
 
-        return request.make_response(json.dumps(ews_pool.calculate_score(converted_data)), headers={'Content-Type': 'application/json'})
+        return request.make_response(json.dumps(api_pool.get_activity_score(cr, uid, model, converted_data, context=context)), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['json_partial_reasons'], type="http", auth="user")
     def get_partial_reasons(self, *args, **kw):
@@ -578,5 +586,5 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         new_activity = api.create_activity_for_patient(cr, uid, int(patient_id), observation, context=context)
         result = api.complete(cr, uid, int(new_activity), converted_data, context)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
+        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})

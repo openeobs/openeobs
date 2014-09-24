@@ -14,7 +14,7 @@ class t4clinical_userboard(orm.Model):
         'hca': fields.boolean('HCA'),
         'nurse': fields.boolean('Nurse'),
         'ward_manager': fields.boolean('Ward Manager'),
-        'doctor': fields.boolean('Doctor'),
+        'doctor': fields.boolean('Doctor')
     }
 
     def responsibility_allocation(self, cr, uid, ids, context=None):
@@ -281,6 +281,6 @@ class t4clinical_admin_userboard(orm.Model):
                 from res_users users
                 inner join res_partner partner on partner.id = users.partner_id
                 inner join user_groups ug on ug.id = users.id
-                where ug.groups @> '{"T4 Clinical HCA Group"}' or ug.groups @> '{"T4 Clinical Nurse Group"}' or ug.groups @> '{"T4 Clinical Ward Manager Group"}' or ug.groups @> '{"T4 Clinical Doctor Group"}' or ug.groups @> '{"T4 Clinical Admin Group"}'
+                where users.id != 1 and (ug.groups @> '{"T4 Clinical HCA Group"}' or ug.groups @> '{"T4 Clinical Nurse Group"}' or ug.groups @> '{"T4 Clinical Ward Manager Group"}' or ug.groups @> '{"T4 Clinical Doctor Group"}' or ug.groups @> '{"T4 Clinical Admin Group"}')
             )
         """ % (self._table, self._table))

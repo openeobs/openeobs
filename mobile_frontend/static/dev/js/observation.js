@@ -169,7 +169,7 @@ $(document).ready(function () {
         }, "Systolic must be greater than diastolic");
 
 
-        jQuery.validator.addMethod("mewsO2", function(value, element){
+        /*jQuery.validator.addMethod("mewsO2", function(value, element){
             if(element.value <= 94 && element.value !== ""){
                 $(element).parent().parent().addClass("warning");
                 $(element).parent().siblings(".input-body").children(".help").text("O2 less than 95%, action required");
@@ -179,7 +179,7 @@ $(document).ready(function () {
                 $(element).parent().parent().removeClass("warning");
                 return true;
             }
-        }, "O2 less than 95%, action required");
+        }, "O2 less than 95%, action required");      */
 
         jQuery.validator.addMethod("pimpedDigits", function(value, element){
            if(/^[-+]?\d+$/.test(value)){
@@ -315,7 +315,7 @@ $(document).ready(function () {
             r = frontend_routes.json_patient_form_action(obsType, patientId);
         }else{
             console.log("obsource is task");
-            r = frontend_routes.json_task_form_action(taskId);
+            r = frontend_routes.json_task_form_action(obsType, taskId);
         }
         if(!submitDisabled){
             console.log("disabling submit");
@@ -329,21 +329,21 @@ $(document).ready(function () {
                     if(data.status == 1){
                         if(data.related_tasks){
                             if(data.related_tasks.length == 1){
-                                dismissModal("obsConfirm", "hide");
+                                dismissModal("", "all");
                                 displayModal("obsConfirm", "Action required", "<p>" + data.related_tasks[0].summary + "</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>", "<a href=\""+frontend_routes.single_task(data.related_tasks[0].id).url+"\" class=\"confirm\">Proceed</a>"], 500);
                             }else if(data.related_tasks.length > 1){
                                 var taskList = "";
                                 for(var a = 0; a < data.related_tasks.length; a++){
                                     taskList += "<li><a href=\""+frontend_routes.single_task(data.related_tasks[a].id).url+"\">"+ data.related_tasks[a].summary + "</a></li>";
                                 }
-                                dismissModal("obsConfirm", "hide");
+                                dismissModal("", "all");
                                 displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+frontend_routes.task_list().url+ "\">Go to My Tasks</a>"], 500);
                             }else{
-                                dismissModal("obsConfirm", "hide");
+                                dismissModal("", "all");
                                 displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                             }
                         }else{
-                            dismissModal("obsConfirm", "hide");
+                            dismissModal("", "all");
                             displayModal("obsConfirm", "Successfully submitted", "<p>The observations have been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                         }
                     }else if(data.responseText){
@@ -389,7 +389,7 @@ $(document).ready(function () {
             r = frontend_routes.json_patient_form_action(obsType, patientId);
         }else{
             console.log("partial obs for task");
-            r = frontend_routes.json_task_form_action(taskId);
+            r = frontend_routes.json_task_form_action(obsType, taskId);
         }
         if(!submitDisabled){
             console.log("disabling submit");
@@ -530,6 +530,8 @@ $(document).ready(function () {
                     displayModal("obsConfirm", "Submit Height observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
                 }else if(obsType == "blood_product"){
                     displayModal("obsConfirm", "Submit Blood Product observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
+                }else if(obsType == "pbp"){
+                    displayModal("obsConfirm", "Submit Postural Blood Pressure observation for " + patientName + "?", "<p>Please confirm you want to submit this observation</p><p class=\"obsError error\">Input error, please correct and resubmit</p>", ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>","<a href=\"#\" id=\"obsSubmit\">Submit</a>"], 0);
                 }
             }else{
                 if(obsType == "ews"){
@@ -556,30 +558,12 @@ $(document).ready(function () {
         e.preventDefault();
         timeIdle = 0;
         var bristolImage =  new Image();
-        bristolImage.src="/assets/img/Bristol_stool_chart.png";
+        //bristolImage.src="/assets/img/Bristol_stool_chart.png";
+        bristolImage.src = frontend_routes.bristol_stools_chart().url;
         displayModal("bristol", "Bristol Stool Chart", bristolImage, ["<a href=\"#\" class=\"cancel\">Cancel</a>"], 0);
     });
 
-    // On MEWS if consciousness selector changed then show the correct one
-    $("#obsData_consciousnessToggle").change(function(e){
-        var value =  $("#obsData_consciousnessToggle").val();
-        if(value == "avpu"){
-            $("#parent_obsData_avpu").removeClass("valHide");
-            $("#parent_obsData_eyes").addClass("valHide");
-            $("#parent_obsData_verbal").addClass("valHide");
-            $("#parent_obsData_motor").addClass("valHide");
-        }else if(value == "gcs"){
-            $("#parent_obsData_avpu").addClass("valHide");
-            $("#parent_obsData_eyes").removeClass("valHide");
-            $("#parent_obsData_verbal").removeClass("valHide");
-            $("#parent_obsData_motor").removeClass("valHide");
-        }else{
-            $("#parent_obsData_avpu").addClass("valHide");
-            $("#parent_obsData_eyes").addClass("valHide");
-            $("#parent_obsData_verbal").addClass("valHide");
-            $("#parent_obsData_motor").addClass("valHide");
-        }
-    });
+
 
     $("#oxygen_administration_flag").change(function(e){
        var value = $("#oxygen_administration_flag").val();
@@ -632,6 +616,26 @@ $(document).ready(function () {
            ToggleCPAPSupO2("hide");
            ToggleNIVSupO2("hide");
        }
+    });
+
+    $('#systolic_sitting').on('input', function(e){
+        var sys = $('#systolic_sitting');
+        var dia = $('#diastolic_sitting');
+        if(sys.val() !== '' && dia.val() !== ''){
+            ShowStandingPBP('show');
+        }else{
+            ShowStandingPBP('hide');
+        }
+    });
+
+    $('#diastolic_sitting').on('input', function(e){
+        var sys = $('#systolic_sitting');
+        var dia = $('#diastolic_sitting');
+        if(sys.val() !== '' && dia.val() !== ''){
+            ShowStandingPBP('show');
+        }else{
+            ShowStandingPBP('hide');
+        }
     });
 });
 
@@ -734,6 +738,22 @@ function displayPartialObsDialog(){
         }
     });
     return;
+}
+
+function ShowStandingPBP(whichWay){
+    if(whichWay == "show"){
+        $("#parent_systolic_standing").removeClass("valHide");
+        $("#parent_diastolic_standing").removeClass("valHide");
+        $("#standing_title").removeClass("valHide");
+        $("#systolic_standing").removeClass("exclude");
+        $("#diastolic_standing").removeClass("exclude");
+    }else{
+        $("#parent_systolic_standing").addClass("valHide");
+        $("#parent_diastolic_standing").addClass("valHide");
+        $("#standing_title").addClass("valHide");
+        $("#systolic_standing").addClass("exclude");
+        $("#diastolic_standing").addClass("exclude");
+    }
 }
 
 
