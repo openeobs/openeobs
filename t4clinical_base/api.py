@@ -461,9 +461,9 @@ with
             return self.pool['t4.clinical.location'].browse(cr, uid, location_ids)
 
     def get_occupied_bed_ids(self, cr, uid, parent_location_id):
-        api = self.pool['t4.clinical.api']
-        location_ids = api.search(cr, uid, 't4.clinical.location', [['id','child_of',parent_location_id],['usage','=','bed']])
-#         bed_ids = 
+        bed_ids = self.search(cr, uid, 't4.clinical.location', [['id','child_of',parent_location_id],['usage','=','bed']])
+        occupied_bed_ids = self.location_map(cr, uid, location_ids=bed_ids, available_range=[1,1]).keys()
+        return occupied_bed_ids
 
     def activity_rank_map(self, cr, uid, 
                         partition_by="patient_id, state", partition_order="sequence desc", rank_order="desc",

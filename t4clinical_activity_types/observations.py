@@ -32,20 +32,6 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         #print 'is_partial: %s' % res
         #import pdb; pdb.set_trace()
         return res
-    
-    def get_activity_user_ids(self, cr, uid, activity_id, context=None):
-        api = self.pool['t4.clinical.api']
-        cr.execute("select location_id from t4_activity where id = %s" % activity_id)
-        if not cr.fetchone()[0]:
-            return []
-        sql = """select 
-                    array_agg(user_id) 
-                from t4_clinical_activity_access 
-                where location_activity_ids && array[%s]""" % activity_id
-        cr.execute(sql)
-        user_ids = cr.fetchone()[0] or []
-        print "OBSERVATION get_activity_user_ids user_ids: %s " % user_ids
-        return user_ids
 
     def _partial_observation_has_reason(self, cr, uid, ids, context=None):
         for o in self.browse(cr, uid, ids, context=context):

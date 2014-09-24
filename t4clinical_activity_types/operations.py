@@ -25,20 +25,6 @@ class t4_clinical_notification(orm.AbstractModel):
 
     def is_cancellable(self, cr, uid, context=None):
         return False
-
-    def get_activity_user_ids(self, cr, uid, activity_id, context=None):
-        api = self.pool['t4.clinical.api']
-        cr.execute("select location_id from t4_activity where id = %s" % activity_id)
-        if not cr.fetchone()[0]:
-            return []
-        sql = """select 
-                    array_agg(user_id) 
-                from t4_clinical_activity_access 
-                where location_activity_ids && array[%s]""" % activity_id
-        cr.execute(sql)
-        user_ids = cr.fetchone()[0] or []
-        print "NOTIFICATION get_activity_user_ids user_ids: %s " % user_ids
-        return user_ids
     
     
 class t4_clinical_notification_hca(orm.Model):

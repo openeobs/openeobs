@@ -246,6 +246,49 @@ class t4_clinical_api_demo(orm.AbstractModel):
         api.submit_complete(cr, uid, placement_activity_id, {'location_id': bed_location_id})     
         return placement_activity_id     
     
+    def greenford_ews(self, cr, uid, bed_codes=[], ews_count=3):
+        api = self.pool['t4.clinical.api']
+        imd_ids = api.search(cr, uid, 'ir.model.data', [['model','=','t4.clinical.pos'], ['name','=','t4c_def_conf_pos_hospital']])
+        pos = api.read(cr, uid, 'ir.model.data', imd_ids, ['res_id'])
+        if not pos:
+            print "POS with xmlid='t4c_def_conf_pos_hospital' is not found. Exiting..."
+            exit(1) 
+        pos_id = pos[0]['res_id']    
+        print bed_codes
+        if not bed_codes:
+            beds = api.location_map(cr, uid, pos_ids=[pos_id], usages=['bed'])
+        else:
+            beds = api.location_map(cr, uid, codes=bed_codes)
+#         import pdb; pdb.set_trace()
+        #setting up admin as a nurse
+
+        imd_ids = api.search(cr, uid, 'ir.model.data', [['model','=','res.groups'], ['name','=','group_t4clinical_nurse']])
+        nurse_group_id = api.read(cr, uid, 'ir.model.data', imd_ids[0], ['res_id'])['res_id']        
+        api.write(cr, uid, 'res.users', SUPERUSER_ID, {'groups_id': [(4, nurse_group_id)]})
+        nurse_uid = SUPERUSER_ID        
+        for bed_id, bed_data in beds.items():
+            if not bed_data['patient_ids']:
+                print "Patient is not placed into bed '%s'. Skipping..." % bed_data['code']
+            else:
+                patient_id = bed_data['patient_ids'][0]
+                print "Patient id: %s placed into bed '%s'. Applying EWS..." % (patient_id, bed_data['code']) 
+                ews_activities = api.activity_map(cr, uid,
+                                                  data_models=['t4.clinical.patient.observation.ews'],
+                                                  patient_ids=[patient_id],
+                                                  states=['new', 'scheduled']).values()  
+             
+                for i in range(ews_count):
+                    for ews in ews_activities:
+                        api.assign(cr, uid, ews['id'], nurse_uid)
+                        api.submit_complete(cr, nurse_uid, ews['id'], self.demo_data(cr, uid, 't4.clinical.patient.observation.ews'))
+                        #api.unassign(cr, uid, ews['id'])
+                    ews_activities = api.activity_map(cr, uid, 
+                                                  data_models=['t4.clinical.patient.observation.ews'],
+                                                  patient_ids=[patient_id],
+                                                  states=['new', 'scheduled']).values() 
+        api.write(cr, uid, 'res.users', SUPERUSER_ID, {'groups_id': [(3, nurse_group_id)]})               
+        return True
+        
     def build_patient(self, cr, uid, bed_location_id=None, nurse_user_id=None, wm_user_id=None,
                       ews_count=3, gcs_count=2):
         """
@@ -259,7 +302,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
         if not nurse_user_id:
             nurse_user_id = self.get_nurse(cr, uid)
         print nurse_user_id
-        import pdb; pdb.set_trace()
+        
         self.user_add_location(cr, uid, nurse_user_id, placement_activity.location_id.id)
         if wm_user_id:
             self.user_add_location(cr, uid, wm_user_id, placement_activity.location_id.id)
