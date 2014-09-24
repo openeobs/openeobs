@@ -10,6 +10,11 @@
                     <field name="login"/>
                     <group expand="1" string="Filters">
                         <filter name="filter_inactive" string="Inactive Users" domain="[['active','=',False]]"/>
+                        <filter name="filter_hca" string="HCA Users" domain="[['hca','=',True]]"/>
+                        <filter name="filter_nurse" string="Nurse Users" domain="[['nurse','=',True]]"/>
+                        <filter name="filter_ward_manager" string="Ward Manager Users" domain="[['ward_manager','=',True]]"/>
+                        <filter name="filter_doctor" string="Doctor Users" domain="[['doctor','=',True]]"/>
+                        <filter name="filter_admin" string="Admin Users" domain="[['admin','=',True]]"/>
                     </group>
                 </search>
             </field>
@@ -22,7 +27,12 @@
                 <tree string="Users" version="7.0">
                     <field name="name"/>
                     <field name="login"/>
-                    <field name="groups_id" string="Roles"/>
+                    <field name="hca"/>
+                    <field name="nurse"/>
+                    <field name="ward_manager"/>
+                    <field name="doctor"/>
+                    <field name="admin"/>
+                    <!--<field name="groups_id" string="Roles"/>-->
                     <field name="location_ids"/>
                 </tree>
             </field>
@@ -97,14 +107,12 @@
                 <search string="UserBoard">
                     <field name="name"/>
                     <field name="login"/>
-                    <!--<group expand="1" string="Filters">-->
-                        <!--<filter name="filter_has_common_pos" string="Responsible for your locations"-->
-                            <!--domain="[( 'has_common_pos','=', True )]"/>-->
-                        <!--<filter name="filter_hca" string="HCAs" domain="[ ['is_hca','=',True ]]"/>-->
-                        <!--<filter name="filter_nurses" string="Nurses" domain="[ ['is_nurse','=',True ]]"/>-->
-                        <!--<filter name="filter_ward_manager" string="Ward Managers" domain="[ ['is_wm','=',True ]]"/>-->
-                        <!--<filter name="filter_doctor" string="Doctors" domain="[ ['is_doctor','=',True ]]"/>-->
-                    <!--</group>-->
+                    <group expand="1" string="Filters">
+                        <filter name="filter_hca" string="HCA Users" domain="[['hca','=',True]]"/>
+                        <filter name="filter_nurse" string="Nurse Users" domain="[['nurse','=',True]]"/>
+                        <filter name="filter_ward_manager" string="Ward Manager Users" domain="[['ward_manager','=',True]]"/>
+                        <filter name="filter_doctor" string="Doctor Users" domain="[['doctor','=',True]]"/>
+                    </group>
                 </search>
             </field>
         </record>
@@ -115,7 +123,11 @@
                 <tree string="Users" version="7.0">
                     <field name="name"/>
                     <field name="login"/>
-                    <field name="groups_id" string="Roles"/>
+                    <field name="hca"/>
+                    <field name="nurse"/>
+                    <field name="ward_manager"/>
+                    <field name="doctor"/>
+                    <!--<field name="groups_id" string="Roles"/>-->
                     <field name="location_ids"/>
                 </tree>
             </field>

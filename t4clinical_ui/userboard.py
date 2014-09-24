@@ -14,7 +14,7 @@ class t4clinical_userboard(orm.Model):
         'hca': fields.boolean('HCA'),
         'nurse': fields.boolean('Nurse'),
         'ward_manager': fields.boolean('Ward Manager'),
-        'doctor': fields.boolean('Doctor'),
+        'doctor': fields.boolean('Doctor')
     }
 
     def responsibility_allocation(self, cr, uid, ids, context=None):
