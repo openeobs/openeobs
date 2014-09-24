@@ -37,10 +37,45 @@ class t4_clinical_spell(orm.Model):
         return res
 
     def get_activity_user_ids(self, cr, uid, activity_id, context=None):
-        api = self.pool['t4.clinical.api']
-        user_ids = api.user_map(cr, uid, 
-                        group_xmlids=['group_t4clinical_hca', 'group_t4clinical_nurse', 
-                                      'group_t4clinical_ward_manager', 'group_t4clinical_doctor',
-                                      'group_t4clinical_dev', 'group_t4clinical_admin']).keys()
-        print "SPELL get_activity_user_ids user_ids: %s " % user_ids
+        cr.execute("select location_id from t4_activity where id = %s" % activity_id)
+        if not cr.fetchone()[0]:
+            return []
+        sql = """
+            with 
+                recursive route(level, path, parent_id, id) as (
+                        select 0, id::text, parent_id, id 
+                        from t4_clinical_location 
+                        where parent_id is null
+                    union
+                        select level + 1, path||','||location.id, location.parent_id, location.id 
+                        from t4_clinical_location location 
+                        join route on location.parent_id = route.id
+                ),
+                parent_location as (
+                    select 
+                        id as location_id, 
+                        ('{'||path||'}')::int[] as ids 
+                    from route
+                    order by path
+                )
+            select
+                activity.id as activity_id,
+                array_agg(ulr.user_id) as user_ids
+            from user_location_rel ulr
+            inner join res_groups_users_rel gur on ulr.user_id = gur.uid
+            inner join ir_model_access access on access.group_id = gur.gid and access.perm_responsibility = true
+            inner join ir_model model on model.id = access.model_id and model.model = 't4.clinical.spell'
+            inner join parent_location on parent_location.ids  && array[ulr.location_id]
+            inner join t4_activity activity on model.model = activity.data_model 
+                and activity.location_id = parent_location.location_id
+                and activity.id = %s
+            group by activity_id               
+                """ % activity_id
+        cr.execute(sql)
+        #import pdb; pdb.set_trace()
+        res = cr.dictfetchone()
+        user_ids = res and res['user_ids'] or []
+        print "SPELL DATA get_activity_user_ids user_ids: %s " % user_ids
         return user_ids
+    
+    

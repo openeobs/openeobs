@@ -460,6 +460,11 @@ with
         else:
             return self.pool['t4.clinical.location'].browse(cr, uid, location_ids)
 
+    def get_occupied_bed_ids(self, cr, uid, parent_location_id):
+        api = self.pool['t4.clinical.api']
+        location_ids = api.search(cr, uid, 't4.clinical.location', [['id','child_of',parent_location_id],['usage','=','bed']])
+#         bed_ids = 
+
     def activity_rank_map(self, cr, uid, 
                         partition_by="patient_id, state", partition_order="sequence desc", rank_order="desc",
                         ranks=[],
@@ -708,48 +713,12 @@ with
                          % (device_id, session_activity_id))
         return session_activity_id[0]
 
-    def update_activity_users_old(self, cr, uid, location_ids=[], activity_ids=[], user_ids=[], child_locations=False):
-        """
-        Bulk update of activity.user_ids 
-        location_ids: activity.location_id
-        activity_ids: activity.id
-        user_ids: user.id -> user.location_ids -> actvity.location_id
-        
-        If more than one ids-parameter given, common set of all 3 searches will be updated
-        """
-        
-        where_list = []
-        if user_ids: where_list.append("user_id in (%s)" % list2sqlstr(user_ids))
-        if activity_ids: where_list.append("location_activity_ids && array[%s]" % list2sqlstr(activity_ids))
-        if location_ids: where_list.append("location_ids && array[%s]" % list2sqlstr(location_ids))
-        if child_locations and activity_ids: where_list.append("parent_location_activity_ids && array[%s]" % list2sqlstr(activity_ids))
-        if child_locations and location_ids: where_list.append("parent_location_ids && array[%s]" % list2sqlstr(location_ids))                
-        where_clause = where_list and "where %s" % " or ".join(where_list) or ""        
-        print where_clause
-        sql = """select * from t4_clinical_activity_access %s""" % where_clause
-        cr.execute(sql)
-        sql_del_template = "delete from activity_user_rel where user_id = {user_id};\n"
-        sql_ins_template = "insert into activity_user_rel (activity_id, user_id) values {values};\n"
-        sql_del = ''
-        sql_ins = ''
-        row = cr.dictfetchone()
-        while row:
-            sql_del +=  sql_del_template.format(user_id=row['user_id'])
-            values = []
-            for activity_id in row['location_activity_ids']:
-                values.append((activity_id, row['user_id']))
-            if values:
-                sql_ins += sql_ins_template.format(values="%s" % ",".join(map(str, values)))
-            row = cr.dictfetchone()
-        if sql_del:
-            cr.execute(sql_del)
-            print sql_del
-        if sql_ins:
-            cr.execute(sql_ins)
-            print sql_ins
-        return True
         
     def update_activity_users(self, cr, uid, user_ids=[]):
+        """
+        Deletes all passed user_ids from all activities and
+        Updates activities with user_ids who are responsible for activity location
+        """
         if not user_ids:
             return True
 
@@ -771,4 +740,60 @@ with
             {where_clause}
         """.format(where_clause=where_clause)
         cr.execute(sql)
-        return True       
+        self.update_spell_activity_users(cr, uid, user_ids)
+        
+        return True
+
+    def update_spell_activity_users(self, cr, uid, user_ids=[]):
+        """
+        Updates spell activities with user_ids who are responsible for parent locations of spell location
+        """
+        
+        if not user_ids:
+            return True
+        
+        where_clause = "where user_id in (%s)" % list2sqlstr(user_ids)          
+        sql = """
+           with 
+               recursive route(level, path, parent_id, id) as (
+                       select 0, id::text, parent_id, id 
+                       from t4_clinical_location 
+                       where parent_id is null
+                   union
+                       select level + 1, path||','||location.id, location.parent_id, location.id 
+                       from t4_clinical_location location 
+                       join route on location.parent_id = route.id
+               ),
+               parent_location as (
+                   select 
+                       id as location_id, 
+                       ('{'||path||'}')::int[] as ids 
+                   from route
+                   order by path
+               )
+           insert into activity_user_rel
+           select activity_id, user_id from (
+               select distinct on (activity.id, ulr.user_id)
+                   activity.id as activity_id,
+                   ulr.user_id
+               from user_location_rel ulr
+               inner join res_groups_users_rel gur on ulr.user_id = gur.uid
+               inner join ir_model_access access on access.group_id = gur.gid and access.perm_responsibility = true
+               inner join ir_model model on model.id = access.model_id and model.model = 't4.clinical.spell'
+               inner join parent_location on parent_location.ids  && array[ulr.location_id]
+               inner join t4_activity activity on model.model = activity.data_model 
+                   and activity.location_id = parent_location.location_id
+               where not exists (select 1 from activity_user_rel where activity_id=activity.id and user_id=ulr.user_id )) pairs   
+           %s      
+        """ % where_clause
+        
+        cr.execute(sql)
+        return True    
+    
+           
+    def get_activity_user_ids(self, cr, uid, activity_ids=[]):
+        pass
+    
+    
+    def get_user_activity_ids(self, cr, uid, activity_ids=[]):
+        pass        

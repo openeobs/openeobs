@@ -9,7 +9,17 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-
+def list2sqlstr(lst):
+    res = []
+    lst = isinstance(lst, (list, tuple)) and lst or [lst]
+    for l in lst:
+        if isinstance(l, (int, long)):
+            res.append("%s" % int(l))
+        elif isinstance(l, basestring):
+            res.append("'%s'" % l) 
+        elif l is None:
+            res.append("0")
+    return ",".join(res)
 
 class t4_cancel_reason(orm.Model):
     """cancellation reason
@@ -147,6 +157,7 @@ class t4_activity_data(orm.AbstractModel):
             patient_id = data.patient_id and data.patient_id.id or False
         return patient_id
 
+    
     def get_activity_user_ids(self, cr, uid, activity_id, context=None):
 
         cr.execute("select location_id from t4_activity where id = %s" % activity_id)
