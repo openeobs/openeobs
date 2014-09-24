@@ -70,7 +70,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
         raise orm.except_orm('Not Implemented', 'Method place patient is not implemented yet!')
         return patient_id
 
-    def build_uat_env(self, cr, uid, pos=1, ward='E8', wm='winifred', nurse='norah', patients=16, placements=8, ews=2,
+    def build_uat_env(self, cr, uid, pos=1, ward='A', wm='winifred', nurse='norah', patients=8, placements=4, ews=1,
                       context=None):
         """
         Creates UAT environment in the provided ward. Adds patients and observations
