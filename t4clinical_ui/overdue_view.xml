@@ -39,7 +39,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_show_overdue" >
-            <field name="name">Overdue Activities</field>
+            <field name="name">Overdue Tasks</field>
             <field name="res_model">t4.clinical.overdue</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree</field>

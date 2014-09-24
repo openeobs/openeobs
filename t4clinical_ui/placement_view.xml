@@ -15,7 +15,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_show_placements" >
-            <field name="name">Patient Placements</field>
+            <field name="name">Patients without bed</field>
             <field name="res_model">t4.clinical.placement</field>
             <field name="view_type">form</field>
             <!--<field name="search_view_id" ref="t4activity.view_t4_activity_search"/>-->
