@@ -3,13 +3,14 @@
     <data>
         <menuitem name="Open eObs" id="menu_t4ui_top_root" groups="t4clinical_base.group_t4clinical_base,base.user_root"/>
         <menuitem name="Patient Management"
-                  sequence="2"
+                  sequence="1"
                   id="menu_t4ui_left_patient"
                   parent="menu_t4ui_top_root"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_hca,t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
-        <menuitem name="Patient Placements"
+        <menuitem name="Patients without bed"
                   id="menu_t4ui_left_placement"
+                  sequence="5"
                   parent="menu_t4ui_left_patient"
                   action="action_show_placements"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
@@ -41,14 +42,14 @@
                   action="action_show_inactive_locations"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin,base.user_root"/>
 
-        <menuitem name="Points of Care Management"
+        <menuitem name="Ward Dashboard"
                   id="menu_t4ui_left_poc_management"
                   sequence="5"
                   parent="menu_t4ui_left_ward"
                   action="action_show_poc_management"
                   groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin,base.user_root"/>
 
-        <menuitem name="User Management"
+        <menuitem name="Staff Management"
                   id="menu_t4ui_left_user_management"
                   sequence="4"
                   parent="menu_t4ui_left_ward"
@@ -99,46 +100,40 @@
                   groups="t4clinical_base.group_t4clinical_dev,t4clinical_base.group_t4clinical_admin"/>
 
     	<!-- WARDBOARD -->
-        <menuitem name="Wardboard"
-            sequence="1"
-          	id="menu_left_wardboard" 
-          	parent="menu_t4ui_top_root"
-          	action=""
-          	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
-          	
+
         <menuitem name="Patients Board"
           	id="menu_left_sub_wardboard" 
-          	parent="menu_left_wardboard"
+          	parent="menu_t4ui_left_patient"
           	action="action_wardboard"
             sequence="1"
           	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Patients by Ward"
           	id="menu_left_patients_by_ward"
-          	parent="menu_left_wardboard"
+          	parent="menu_t4ui_left_patient"
           	action="action_patients_by_ward"
             sequence="2"
           	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Recently Discharged"
           	id="menu_left_discharged_patients"
-          	parent="menu_left_wardboard"
+          	parent="menu_t4ui_left_patient"
           	action="action_wardboard_discharged"
             sequence="3"
           	groups="t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
-        <menuitem name="Doctor Activities"
+        <menuitem name="Doctor Tasks"
           	id="menu_left_doctor_activities"
-          	parent="menu_left_wardboard"
+          	parent="menu_t4ui_left_patient"
           	action="action_show_doctor_activities"
-            sequence="4"
+            sequence="6"
           	groups="t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
-        <menuitem name="Overdue Activities"
+        <menuitem name="Overdue Tasks"
           	id="menu_left_overdue"
-          	parent="menu_left_wardboard"
+          	parent="menu_t4ui_left_patient"
           	action="action_show_overdue"
-            sequence="5"
+            sequence="7"
           	groups="t4clinical_base.group_t4clinical_doctor,t4clinical_base.group_t4clinical_ward_manager,t4clinical_base.group_t4clinical_admin,t4clinical_base.group_t4clinical_dev,base.user_root"/>
 
         <menuitem name="Activity Workload" 

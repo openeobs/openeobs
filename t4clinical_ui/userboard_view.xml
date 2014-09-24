@@ -170,7 +170,7 @@
             </field>
         </record>
         <record id="action_t4c_userboard" model="ir.actions.act_window">
-            <field name="name">User Management</field>
+            <field name="name">Staff Management</field>
             <field name="res_model">t4.clinical.userboard</field>
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_t4c_userboard_search"/>

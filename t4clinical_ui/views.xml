@@ -267,7 +267,7 @@
         <!--</record>-->
 
         <record id="action_show_poc_management" model="ir.actions.act_window">
-            <field name="name">Points of Care Management</field>
+            <field name="name">Ward Dashboard</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">t4.clinical.location</field>
             <field name="domain">[('usage','=','ward'),('user_ids','in',uid)]</field>
@@ -523,7 +523,7 @@
             </field>
         </record>
         <record model="ir.actions.act_window" id="action_show_doctor_activities">
-            <field name="name">Doctor Activities</field>
+            <field name="name">Doctor Tasks</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">t4.clinical.doctor_activities</field>
             <field name="view_type">form</field>
