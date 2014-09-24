@@ -110,6 +110,12 @@
                     </h2>
                     <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']">
                         <div t-foreach="inputs" t-as="item">
+                            <t t-if="item['name']=='systolic_sitting'">
+                                <h3 class="block">Lying/Sitting Blood Pressure</h3>
+                            </t>
+                            <t t-if="item['name']=='systolic_standing'">
+                                <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
+                            </t>
                             <t t-if="item['type']=='number'">
                                 <t t-call="mobile_frontend.observation_data_input"/>
                             </t>

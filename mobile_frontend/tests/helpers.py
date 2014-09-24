@@ -852,7 +852,7 @@ WEIGHT_PATIENT_HTML = """
                 <div>
                     <div class="block obsField" id="parent_weight">
                         <div class="input-header">
-                            <label for="weight">Weight</label>
+                            <label for="weight">Weight (Kg)</label>
                             <input step="0.1" name="weight" max="999.9" min="1.0" type="number" id="weight"/>
                         </div>
                         <div class="input-body">
@@ -905,8 +905,8 @@ PBP_PATIENT_HTML = """
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
             <form patient-id="{patient_id}" data-type="pbp" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <h3 class="block">Lying/Sitting Blood Pressure</h3>
                 <div>
+                    <h3 class="block">Lying/Sitting Blood Pressure</h3>
                     <div class="block obsField" id="parent_systolic_sitting">
                         <div class="input-header">
                             <label for="systolic_sitting">Sitting Blood Pressure Systolic</label>
@@ -930,12 +930,12 @@ PBP_PATIENT_HTML = """
                         </div>
                     </div>
                 </div>
-                <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
                 <div>
+                    <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
                     <div class="block obsField valHide" id="parent_systolic_standing">
                         <div class="input-header">
                             <label for="systolic_standing">Standing Blood Pressure Systolic</label>
-                            <input step="1" name="systolic_standing" max="300" min="1" type="number" id="systolic_standing" class="exclude"/>
+                            <input class="exclude" step="1" name="systolic_standing" max="300" min="1" type="number" id="systolic_standing"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -947,7 +947,7 @@ PBP_PATIENT_HTML = """
                     <div class="block obsField valHide" id="parent_diastolic_standing">
                         <div class="input-header">
                             <label for="diastolic_standing">Standing Blood Pressure Diastolic</label>
-                            <input step="1" name="diastolic_standing" max="280" min="1" type="number" id="diastolic_standing" class="exclude"/>
+                            <input class="exclude" step="1" name="diastolic_standing" max="280" min="1" type="number" id="diastolic_standing"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -1075,6 +1075,7 @@ STOOLS_PATIENT_HTML = """
                                 <option value="">Please Select</option>
                                 <option value="brown">Brown</option>
                                 <option value="yellow">Yellow</option>
+                                <option value="green">Green</option>
                                 <option value="black">Black/Tarry</option>
                                 <option value="red">Red (fresh blood)</option>
                                 <option value="clay">Clay</option>
@@ -1100,6 +1101,7 @@ STOOLS_PATIENT_HTML = """
                                 <option value="6">Type 6</option>
                                 <option value="7">Type 7</option>
                             </select>
+                            <p><a href="#" class="button" id="bristolPopup">Bristol Type Reference</a></p>
                            <span class="errors"></span>
                            <span class="help"></span>
                        </div>
@@ -1448,7 +1450,7 @@ NEWS_PATIENT_HTML = """
 # check frontend_routes has been added correctly
 # call the score endpoint with data
 # on success check the results were as expected
-AJAX_SCORE_CALCULATION_CODE = "frontend_routes.ews_score().ajax({{" \
+AJAX_SCORE_CALCULATION_CODE = "frontend_routes.calculate_obs_score('ews').ajax({{" \
                               "data:'respiration_rate={respiration_rate}&pulse_rate={pulse_rate}&indirect_oxymetry_spo2={spo2}&body_temperature={body_temp}&blood_pressure_systolic={bp}&avpu_text={avpu}&oxygen_administration_flag={oxygen_flag}'," \
                               "success:function(data){{" \
                               "if(data.score=={score}&&data.clinical_risk=={clinical_risk}&&data.three_in_one=={three_in_one}){{" \
