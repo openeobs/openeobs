@@ -18,6 +18,7 @@
              'overdue_view.xml',
              'views.xml',
              'menuitem.xml',
+             'report_template.xml',
              'ir.model.access.csv'],
     'qweb': ['static/src/xml/t4clinical_ui.xml'],
     'application': True,

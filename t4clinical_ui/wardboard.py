@@ -44,7 +44,6 @@ class wardboard_device_session_start(orm.TransientModel):
                                                 {'parent_id': spell_activity_id},
                                                 {'patient_id': wiz.patient_id.id, 'device_id': wiz.device_id.id})
         self.pool['t4.activity'].start(cr, uid, device_activity_id, context)        
-        import pdb; pdb.set_trace()
 class wardboard_device_session_complete(orm.TransientModel):
     _name = "wardboard.device.session.complete"
 

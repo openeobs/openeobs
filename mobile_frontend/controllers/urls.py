@@ -1,4 +1,3 @@
-__author__ = 'colin'
 URL_PREFIX = '/mobile/'
 BASE_URL = 'http://localhost:8169'+URL_PREFIX
 
@@ -71,6 +70,12 @@ routes = [
     },
     {
         'name': 'patient_graph',
+        'endpoint': 'src/js/draw_ews_graph.js',
+        'method': 'GET',
+        'args': False
+    },
+    {
+        'name': 'graph_lib',
         'endpoint': 'src/js/graph_lib.js',
         'method': 'GET',
         'args': False

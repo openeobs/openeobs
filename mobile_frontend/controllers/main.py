@@ -126,9 +126,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             'base_url': urls.BASE_URL
         }), headers={'Content-Type': 'text/javascript'})
 
-    @http.route(URLS['patient_graph'], type='http', auth='none')
+    @http.route(URLS['graph_lib'], type='http', auth='none')
     def graph_lib(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/js/patient_graph.js', 'r') as js:
+        with open(get_module_path('nhc_d3') + '/static/src/js/patient_graph.js', 'r') as pg:
+            return request.make_response(pg.read(), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['patient_graph'], type='http', auth='none')
+    def patient_graph_js(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/draw_ews_graph.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['data_driven_documents'], type='http', auth='none')
@@ -287,7 +292,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             #return 'unable to take task'
             a = 0
 
-        if 'notification' in task['data_model']:
+        if 'notification' in task['data_model'] or 'placement' in task['data_model']:
             # load notification foo
             obs_reg = request.registry['t4.clinical.api.external']
             form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
@@ -314,7 +319,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                         form_input['selection_options'].append(opt)
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
-            form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
+            if 'notification' in task['data_model']:
+                form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
+            else:
+                form['type'] = 'placement'
             return request.render('mobile_frontend.notification_confirm_cancel', qcontext={'name': task['summary'],
                                                                                            'inputs': form_desc,
                                                                                            'cancellable': cancellable,
@@ -490,7 +498,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
-        obs = api_pool._active_observations
+        obs = api_pool.get_active_observations(cr, uid, context=context)
         return request.render('mobile_frontend.patient', qcontext={'patient': patient,
                                                                    'urls': URLS,
                                                                    'section': 'patient',

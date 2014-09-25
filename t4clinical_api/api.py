@@ -115,7 +115,8 @@ class t4_clinical_api(orm.AbstractModel):
         domain = [('id', 'in', ids)] if ids else [
             ('state', 'not in', ['completed', 'cancelled']),
             '|', ('date_scheduled', '<=', (dt.now()+td(days=1)).strftime(DTF)),
-            ('date_deadline', '<=', (dt.now()+td(days=1)).strftime(DTF))
+            ('date_deadline', '<=', (dt.now()+td(days=1)).strftime(DTF)),
+            ('user_ids', 'in', [uid])
         ]
         activity_pool = self.pool['t4.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
@@ -243,6 +244,13 @@ class t4_clinical_api(orm.AbstractModel):
         model_pool = self.pool[data_model]
         return model_pool.calculate_score(data) if 'observation' in data_model else False
 
+    def get_active_observations(self, cr, uid, context=None):
+        user = self.pool['res.users'].browse(cr, 1, uid, context=context)
+        groups = [g.name for g in user.groups_id]
+        if 'T4 Clinical Nurse Group' in groups or 'T4 Clinical HCA Group' in groups:
+            return self._active_observations
+        return []
+
     # # # # # # #
     #  PATIENTS #
     # # # # # # #
@@ -258,7 +266,8 @@ class t4_clinical_api(orm.AbstractModel):
             ('data_model', '=', 't4.clinical.spell')
         ] if ids else [
             ('state', '=', 'started'),
-            ('data_model', '=', 't4.clinical.spell')
+            ('data_model', '=', 't4.clinical.spell'),
+            ('user_ids', 'in', [uid])
         ]
         activity_pool = self.pool['t4.activity']
         spell_ids = activity_pool.search(cr, uid, domain, context=context)

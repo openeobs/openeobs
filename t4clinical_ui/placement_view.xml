@@ -19,7 +19,7 @@
             <field name="res_model">t4.clinical.placement</field>
             <field name="view_type">form</field>
             <!--<field name="search_view_id" ref="t4activity.view_t4_activity_search"/>-->
-            <!--<field name="domain">[('data_model','=','t4.clinical.patient.placement'),('state','not in',['completed','cancelled'])]</field>-->
+            <field name="domain">[('user_ids','in',uid)]</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_t4_clinical_placement_tree"/>
         </record>

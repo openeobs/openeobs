@@ -199,6 +199,39 @@ class t4_clinical_patient_placement(orm.Model):
         'pos_id': fields.related('activity_id', 'pos_id', type='many2one', relation='t4.clinical.pos', string='POS'),
     }
 
+    _form_description = [
+        {
+            'name': 'location_id',
+            'type': 'selection',
+            'label': 'Location',
+            'initially_hidden': False
+        }
+    ]
+
+    def get_form_description(self, cr, uid, patient_id, context=None):
+        activity_pool = self.pool['t4.activity']
+        location_pool = self.pool['t4.clinical.location']
+        fd = list(self._form_description)
+        # Find Available Beds
+        placement_ids = activity_pool.search(cr, uid, [
+            ('patient_id', '=', patient_id),
+            ('state', 'not in', ['completed', 'cancelled']),
+            ('data_model', '=', 't4.clinical.patient.placement')
+        ])
+        location_selection = []
+        if placement_ids:
+            placement = activity_pool.browse(cr, uid, placement_ids[0], context=context)
+            location_ids = location_pool.search(cr, uid, [
+                ('usage', '=', 'bed'),
+                ('parent_id', 'child_of', placement.location_id.id),
+                ('is_available', '=', True)
+            ], context=context)
+            location_selection = [[l, location_pool.read(cr, uid, l, ['name'], context=context)['name']] for l in location_ids]
+        for field in fd:
+            if field['name'] == 'location_id':
+                field['selection'] = location_selection
+        return fd
+
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)

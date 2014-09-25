@@ -49,6 +49,8 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         #o = self.browse(cr, uid, activity_id)
         except_if(activity.data_ref.is_partial and not activity.data_ref.partial_reason,
                   msg="Partial observation didn't have reason")
+        if not activity.date_started:
+            self.pool['t4.activity'].write(cr, uid, activity_id, {'date_started': activity.date_terminated}, context=context)
         return res
     
     _columns = {
