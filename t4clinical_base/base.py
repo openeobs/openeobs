@@ -200,6 +200,9 @@ class t4_clinical_location(orm.Model):
             for user in loc.user_ids:
                 if any([g.name == 'T4 Clinical Doctor Group' for g in user.groups_id]):
                     user_ids.append(user.id)
+            for child in loc.child_ids:
+                child_res = self._get_doctor_ids(cr, uid, child.id, 'assigned_doctor_ids', None, context=context)
+                user_ids += child_res[child.id]
             res[loc.id] = list(set(user_ids))
         return res
 
