@@ -23,12 +23,12 @@ svg: {
         landscape: 5
     },
     data: null,
-        windowWidthDelta: $(window).width(),
-        ticks: 10,
-        printing: false,
-        focusOnly: false,
-        timePadding: 6,
-        printTimePadding: 20
+    windowWidthDelta: $(window).width(),
+    ticks: 10,
+    printing: false,
+    focusOnly: false,
+    timePadding: 6,
+    printTimePadding: 20
 },
 
 context: {
@@ -129,6 +129,7 @@ initGraph: function(maxScore) {
     context.xAxis = d3.svg.axis().scale(context.xScale).orient("top");
     focus.xScale = d3.time.scale().domain([ earliestDate, now ]).range([context.chartXOffset, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]);
     focus.xAxis = d3.svg.axis().scale(focus.xScale).orient("top");
+
     this.drawChart();
     this.drawGraph();
 },

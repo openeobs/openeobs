@@ -126,9 +126,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             'base_url': urls.BASE_URL
         }), headers={'Content-Type': 'text/javascript'})
 
-    @http.route(URLS['patient_graph'], type='http', auth='none')
+    @http.route(URLS['graph_lib'], type='http', auth='none')
     def graph_lib(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/js/patient_graph.js', 'r') as js:
+        with open(get_module_path('nhc_d3') + '/static/src/js/patient_graph.js', 'r') as pg:
+            return request.make_response(pg.read(), headers={'Content-Type': 'text/javascript'})
+
+    @http.route(URLS['patient_graph'], type='http', auth='none')
+    def patient_graph_js(self, *args, **kw):
+        with open(get_module_path('mobile_frontend') + '/static/src/js/draw_ews_graph.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['data_driven_documents'], type='http', auth='none')

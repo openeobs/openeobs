@@ -21,16 +21,16 @@ contextMouseOver: function(text, position) {
         right: 0,
         bottom: 20
     };
-    svg.popup.style("left", (position.left + popupMargins.left) + "px").style("top", (position.top - popupMargins.bottom) + "px").text(text);
-    svg.popup.transition().duration(500).style("opacity", 1);
+    graph_lib.svg.popup.style("left", (position.left + popupMargins.left) + "px").style("top", (position.top - popupMargins.bottom) + "px").text(text);
+    graph_lib.svg.popup.transition().duration(500).style("opacity", 1);
 },
 
 contextMouseOut: function(el) {
-    this.svg.popup.transition().duration(500).style("opacity", 1e-6);
+    graph_lib.svg.popup.transition().duration(500).style("opacity", 1e-6);
 },
 
 brushed: function() {
-    var context = this.context, focus = this.focus;
+    var context = graph_lib.context, focus = graph_lib.focus;
     focus.xScale.domain(context.brush.empty() ? context.xScale.domain() : context.brush.extent());
 
     if (!context.brush.empty()) {
@@ -42,7 +42,7 @@ brushed: function() {
     } else {
         $("#x_range").html("");
     }
-    this.redrawFocus(false);
+    graph_lib.redrawFocus(false);
 },
 
 rangifyFocus: function(transition) {

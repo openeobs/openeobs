@@ -110,26 +110,26 @@ graph_lib = function() {
             }
             e.attr("y", "-" + (n.length * a + a));
         },
-        contextMouseOver: function(t, e) {
-            var a = (this.context, this.focus, this.svg), r = {
+        contextMouseOver: function(e, a) {
+            var r = (this.context, this.focus, this.svg, {
                 top: 0,
                 left: 3,
                 right: 0,
                 bottom: 20
-            };
-            a.popup.style("left", e.left + r.left + "px").style("top", e.top - r.bottom + "px").text(t), 
-            a.popup.transition().duration(500).style("opacity", 1);
+            });
+            t.svg.popup.style("left", a.left + r.left + "px").style("top", a.top - r.bottom + "px").text(e), 
+            t.svg.popup.transition().duration(500).style("opacity", 1);
         },
         contextMouseOut: function() {
-            this.svg.popup.transition().duration(500).style("opacity", 1e-6);
+            t.svg.popup.transition().duration(500).style("opacity", 1e-6);
         },
         brushed: function() {
-            var t = this.context, e = this.focus;
-            if (e.xScale.domain(t.brush.empty() ? t.xScale.domain() : t.brush.extent()), t.brush.empty()) $("#x_range").html(""); else {
-                var a = t.brush.extent()[0], r = t.brush.extent()[1], i = ("0" + a.getHours()).slice(-2) + ":" + ("0" + a.getMinutes()).slice(-2) + " " + ("0" + a.getDate()).slice(-2) + "/" + ("0" + a.getMonth()).slice(-2), n = ("0" + r.getHours()).slice(-2) + ":" + ("0" + r.getMinutes()).slice(-2) + " " + ("0" + r.getDate()).slice(-2) + "/" + ("0" + r.getMonth()).slice(-2);
-                $("#x_range").html("for " + i + " - " + n);
+            var e = t.context, a = t.focus;
+            if (a.xScale.domain(e.brush.empty() ? e.xScale.domain() : e.brush.extent()), e.brush.empty()) $("#x_range").html(""); else {
+                var r = e.brush.extent()[0], i = e.brush.extent()[1], n = ("0" + r.getHours()).slice(-2) + ":" + ("0" + r.getMinutes()).slice(-2) + " " + ("0" + r.getDate()).slice(-2) + "/" + ("0" + r.getMonth()).slice(-2), s = ("0" + i.getHours()).slice(-2) + ":" + ("0" + i.getMinutes()).slice(-2) + " " + ("0" + i.getDate()).slice(-2) + "/" + ("0" + i.getMonth()).slice(-2);
+                $("#x_range").html("for " + n + " - " + s);
             }
-            this.redrawFocus(!1);
+            t.redrawFocus(!1);
         },
         rangifyFocus: function() {
             var t = this.context, e = this.focus, a = this.svg;
@@ -270,10 +270,10 @@ graph_lib = function() {
             t.obj.append("g").attr("class", "x brush").call(t.brush).selectAll("rect").attr("y", -6).attr("height", t.height + 7).style({
                 fill: "#333",
                 opacity: "0.5"
-            }), t.area = d3.svg.line().interpolate("step-after").defined(function(t) {
-                return t.complete === !0 ? t : void 0;
+            }), console.log("about to draw the line"), t.area = d3.svg.line().interpolate("step-after").defined(function(t) {
+                return "[]" == t.none_values ? t : void 0;
             }).x(function(e) {
-                return t.xScale(e.date_started);
+                return console.log(e), t.xScale(e.date_started);
             }).y(function(e) {
                 return t.yScale(e.score);
             }), t.obj.append("path").datum(a.data).attr("d", t.area).style({
@@ -281,7 +281,7 @@ graph_lib = function() {
                 "stroke-width": "1",
                 fill: "none"
             }).attr("class", "contextPath"), t.obj.selectAll("circle.contextPoint").data(a.data.filter(function(t) {
-                return t.complete === !0 ? t : void 0;
+                return "[]" == t.none_values ? t : void 0;
             })).enter().append("circle").attr("cx", function(e) {
                 return t.xScale(e.date_started);
             }).attr("cy", function(e) {
@@ -293,7 +293,7 @@ graph_lib = function() {
                 stroke: "rgba(0,0,0,0)",
                 "stroke-width": "3"
             }), t.obj.selectAll("circle.emptyContextPoint").data(a.data.filter(function(t) {
-                return t.complete === !1 ? t : void 0;
+                return "[]" !== t.none_values ? t : void 0;
             })).enter().append("circle").attr("cx", function(e) {
                 return t.xScale(e.date_started);
             }).attr("cy", function() {
@@ -414,7 +414,7 @@ graph_lib = function() {
                 }).on("mouseover", function(t) {
                     return a.contextMouseOver("s:" + t.blood_pressure_systolic + " d:" + t.blood_pressure_diastolic, $(this).position());
                 }).on("mouseout", a.contextMouseOut), t.obj.selectAll("#" + i.label).data(e.data.filter(function(t) {
-                    return t.blood_pressure_diastolic_null || t.blood_pressure_systolic_null ? void 0 : t;
+                    return t.blood_pressure_diastolic && t.blood_pressure_systolic ? t : void 0;
                 })).enter().append("rect").attr({
                     width: 2,
                     height: function(t) {
@@ -467,20 +467,20 @@ graph_lib = function() {
                     "text-anchor": "start",
                     "class": "info infovalue3-" + i.label
                 })) : (i.area = d3.svg.line().interpolate("linear").defined(function(t) {
-                    return t[i.key + "_null"] === !1 ? t : void 0;
+                    return t[i.key] !== !1 ? t : void 0;
                 }).x(function(e) {
                     return t.xScale(e.date_started);
                 }).y(function(t) {
                     return i.yScale(t[i.key]);
                 }), t.obj.append("path").datum(e.data.filter(function(t) {
-                    return t[i.key + "_null"] === !1 ? t : void 0;
+                    return t[i.key] !== !1 ? t : void 0;
                 })).attr("d", i.area).style({
                     stroke: e.printing ? "#222222" : "#888888",
                     "stroke-width": "1",
                     fill: "none"
                 }).attr("class", "focusPath").attr("id", "path-" + i.key).attr("clip-path", "url(#clip)"), 
                 t.obj.selectAll("#" + i.label).data(e.data.filter(function(t) {
-                    return t[i.key + "_null"] === !1 ? t : void 0;
+                    return t[i.key] !== !1 ? t : void 0;
                 })).enter().append("circle").attr("cx", function(e) {
                     return t.xScale(e.date_started);
                 }).attr("cy", function(t) {
@@ -554,7 +554,7 @@ graph_lib = function() {
                 stroke: e.printing ? "#eeeeee" : "rgba(0,0,0,0.1)",
                 "stroke-width": "1px"
             }), t.area = d3.svg.line().interpolate("step-after").defined(function(t) {
-                return t.complete === !0 ? t : void 0;
+                return "[]" == t.none_values ? t : void 0;
             }).x(function(e) {
                 return t.xScale(e.date_started);
             }).y(function(e) {

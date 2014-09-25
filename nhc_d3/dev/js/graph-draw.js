@@ -68,10 +68,14 @@ drawChart: function() {
             fill: "#333",
             opacity: "0.5"
         });
+
+        console.log('about to draw the line');
+
         context.area = d3.svg.line()
             .interpolate("step-after")
-            .defined(function(d){ if(d.complete === true){ return d; }})
+            .defined(function(d){ if(d.none_values == "[]"){ return d; }})
             .x(function(d) {
+                console.log(d);
                 return context.xScale(d.date_started);
             })
             .y(function(d) {
@@ -84,7 +88,7 @@ drawChart: function() {
         }).attr("class", "contextPath");
 
         context.obj.selectAll("circle.contextPoint")
-            .data(svg.data.filter(function(d){ if(d.complete === true){ return d; }}))
+            .data(svg.data.filter(function(d){ if(d.none_values == "[]"){ return d; }}))
             .enter().append("circle").attr("cx", function(d) {
                 return context.xScale(d.date_started);
             }).attr("cy", function(d) {
@@ -99,7 +103,7 @@ drawChart: function() {
             });
 
         context.obj.selectAll("circle.emptyContextPoint").data(svg.data.filter(function(d){
-            if(d.complete === false){
+            if(d.none_values !== "[]"){
                 return d;
             }
         }))
@@ -255,7 +259,7 @@ drawGraph: function() {
             //}
 
             focus.obj.selectAll("#" + thisEntry.label)
-                .data(svg.data.filter(function(d){ if(!d.blood_pressure_diastolic_null && !d.blood_pressure_systolic_null){ return d; }}))
+                .data(svg.data.filter(function(d){ if(d.blood_pressure_diastolic && d.blood_pressure_systolic){ return d; }}))
                 .enter().append("rect").attr({
                     width: 2,
                     height: function(d) {
@@ -326,14 +330,14 @@ drawGraph: function() {
             });
         } else {
             thisEntry.area = d3.svg.line().interpolate("linear")
-                .defined(function(d){ if(d[thisEntry.key+"_null"] === false){ return d; }})
+                .defined(function(d){ if(d[thisEntry.key] !== false){ return d; }})
                 .x(function(d) {
                     return focus.xScale(d.date_started);
                 }).y(function(d) {
                     return thisEntry.yScale(d[thisEntry.key]);
                 });
             focus.obj.append("path")
-                .datum(svg.data.filter(function(d){ if(d[thisEntry.key+"_null"] === false){ return d; }}))
+                .datum(svg.data.filter(function(d){ if(d[thisEntry.key] !== false){ return d; }}))
                 .attr("d", thisEntry.area).style({
                     stroke: svg.printing ? "#222222" : "#888888",
                     "stroke-width": "1",
@@ -341,7 +345,7 @@ drawGraph: function() {
                 }).attr("class", "focusPath").attr("id", "path-" + thisEntry.key).attr("clip-path", "url(#clip)");
 
             focus.obj.selectAll("#" + thisEntry.label)
-                .data(svg.data.filter(function(d){ if(d[thisEntry.key+"_null"] === false){ return d; }}))
+                .data(svg.data.filter(function(d){ if(d[thisEntry.key] !== false){ return d; }}))
                 .enter().append("circle").attr("cx", function(d) {
                     return focus.xScale(d.date_started);
                 }).attr("cy", function(d) {
@@ -431,7 +435,7 @@ redrawContext: function(){
 
     context.area = d3.svg.line()
         .interpolate("step-after")
-        .defined(function(d){ if(d.complete === true){ return d; }})
+        .defined(function(d){ if(d.none_values == "[]"){ return d; }})
         .x(function(d) {
             return context.xScale(d.date_started);
         })

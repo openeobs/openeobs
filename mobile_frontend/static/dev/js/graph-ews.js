@@ -1,8 +1,11 @@
 // AJAX call to get the data
-var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
+
+
+var route = frontend_routes.ajax_get_patient_obs(graph_lib.svg.patientId).ajax({
     dataType: "json",
     success: function (obsData) { // on success process it
         console.log(obsData);
+        var svg = graph_lib.svg, context = graph_lib.context, focus = graph_lib.focus;
         // set the chart type
         svg.chartType = obsData.obsType;
 
@@ -44,8 +47,7 @@ var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
 
         var plotO2 = false;
 
-        // setup data to be stored in svg object
-        svg.data = data;
+
 
         // got through the data and clean it
         data.forEach(function(d) {
@@ -85,9 +87,13 @@ var route = frontend_routes.ajax_get_patient_obs(svg.patientId).ajax({
         if(plotO2){
             focus.tables.push({key:"inspired_oxygen", label:"Inspired oxygen"});
         }
-        initGraph(20);
-        initTable();
-        drawTabularObs('#table-content');
+
+        // setup data to be stored in svg object
+        svg.data = data;
+
+        graph_lib.initGraph(20);
+        graph_lib.initTable();
+        //graph_lib.drawTabularObs('#table-content');
     },
     error: function (err) {
         console.log(err)
@@ -102,10 +108,11 @@ $(document).ready(function(){
         e.preventDefault();
         var content = "<ul class=\"menu\">";
         var obs_options = $('#obsMenu').html();
+        var patientName = $('h3.name strong').first().text().trim();
         content += obs_options;
 //        content += "<li class='rightContent'><a href='/mobile/patients/takeMewsObs/71'>NEWS <span class='aside'>overdue: 169.57&nbsp;hours</span></a></li>";content += "<li><a href='/mobile/patients/takeGcsObs/71'>GCS</a></li>";content += "<li><a href='/mobile/patients/takeBloodProductObs/71'>Blood Product</a></li>";content += "<li><a href='/mobile/patients/takeHeightWeightObs/71'>Height and Weight</a></li>";content += "<li><a href='/mobile/patients/takeBloodSugarObs/71'>Blood Sugar</a></li>";content += "<li><a href='/mobile/patients/takeStoolsObs/71'>Stools</a></li>";
         content += "</ul>";
-        displayModal("obsPick", "Pick an observation for", content, ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>"],0)
+        displayModal("obsPick", "Pick an observation for " + patientName, content, ["<a href=\"#\" id=\"obsCancel\" class=\"cancel\">Cancel</a>"],0)
     });
     $(".tabs li a").click(function(e){
         e.preventDefault();

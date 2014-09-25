@@ -251,6 +251,7 @@
                     <script t-att-src="urls['jquery']" type="text/javascript"></script>
                     <script t-att-src="urls['js_routes']" type="text/javascript"></script>
                     <script t-att-src="urls['data_driven_documents']" type="text/javascript"></script>
+                    <script t-att-src="urls['graph_lib']" type="text/javascript"></script>
                     <script t-att-src="urls['patient_graph']" type="text/javascript"></script>
                 </div>
             </t>
