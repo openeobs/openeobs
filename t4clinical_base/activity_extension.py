@@ -183,7 +183,7 @@ class t4_activity_data(orm.AbstractModel):
         cr.execute(sql)
         #import pdb; pdb.set_trace()
         res = cr.dictfetchone()
-        user_ids = res and res['user_ids'] or []
+        user_ids = list(res and set(res['user_ids']) or [])
         print "ACTIVITY DATA get_activity_user_ids user_ids: %s " % user_ids
         return user_ids
 

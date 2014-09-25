@@ -242,7 +242,7 @@ class t4_clinical_api(orm.AbstractModel):
         return res       
 
     def get_patients(self, cr, uid, patient_ids=[], pos_ids=[], location_ids=[], parent_location_ids=[], return_id=False):
-        patient_ids = self.patient_map(self, cr, uid, 
+        patient_ids = self.patient_map(cr, uid, 
                                        patient_ids=patient_ids, 
                                        pos_ids=pos_ids,
                                        location_ids=location_ids,
@@ -250,9 +250,9 @@ class t4_clinical_api(orm.AbstractModel):
         if return_id:
             return patient_ids
         else:
-            return self.pool['t4.clinical.patient'].brpwse(cr, uid, patient_ids)
+            return self.pool['t4.clinical.patient'].browse(cr, uid, patient_ids)
 
-    def patient_map(self, cr, uid, patient_ids=[], pos_ids=[], location_ids=[], parent_location_ids=[]):  
+    def patient_map(self, cr, uid, patient_ids=[], pos_ids=[], location_ids=[], parent_location_ids=[], recently_transfered_interval='5d'):  
         """
         Arguments and Return Parameters may be extended at later stages
         Returns:
@@ -312,7 +312,8 @@ with
             patient_id,
             location_id,
             pos_id,
-            h.parent_ids
+            h.parent_ids,
+            a.date_terminated
         from t4_activity a 
         inner join activity_parent_child_hierarchy h on h.id = a.id
         where data_model = 't4.clinical.patient.move' and state = 'completed'
@@ -342,7 +343,8 @@ with
             location_hierarchy.parent_ids as parent_location_ids,
             spell_activity.max_id as spell_activity_id,
             previous_spell_activity.ids as previous_spell_activity_ids,
-            pos.id as pos_id
+            pos.id as pos_id,
+            now() at time zone 'UTC' - move_activity.date_terminated < interval '%s' as recently_transferred 
         from t4_clinical_patient patient
         left join spell_activity on spell_activity.patient_id = patient.id and spell_activity.state = 'started'
         left join spell_activity previous_spell_activity on previous_spell_activity.patient_id = patient.id and previous_spell_activity.state != 'started'
@@ -351,7 +353,7 @@ with
         left join location_hierarchy on location_hierarchy.id = move_activity.location_id
     )
 
-             select * from map %s""" % where_clause
+             select * from map %s""" % (recently_transfered_interval, where_clause)
         cr.execute(sql)
         res = {r['id']: r for r in cr.dictfetchall()}
         #import pdb; pdb.set_trace()
@@ -736,7 +738,8 @@ with
                 inner join ir_model_access access on access.group_id = gur.gid and access.perm_responsibility = true
                 inner join ir_model model on model.id = access.model_id
                 inner join t4_activity activity on model.model = activity.data_model 
-                            and activity.location_id = ulr.location_id) pairs  
+                            and activity.location_id = ulr.location_id
+                where not exists (select 1 from activity_user_rel where activity_id=activity.id and user_id=ulr.user_id )) pairs  
             {where_clause}
         """.format(where_clause=where_clause)
         cr.execute(sql)

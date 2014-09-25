@@ -16,15 +16,20 @@ class wardboard_patient_placement(orm.TransientModel):
     }
     def do_move(self, cr, uid, ids, context=None):
         wiz = self.browse(cr, uid, ids[0])
-        spell_activity_id = self.pool['t4.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
-        placement_activity_id = self.pool['t4.clinical.patient.placement']\
-                                .create_activity(cr, SUPERUSER_ID, {'parent_id': spell_activity_id}, 
-                                                           {
-                                                            'suggested_location_id': wiz.bed_dst_location_id.id,
-                                                            'location_id': wiz.bed_dst_location_id.id,
-                                                            'patient_id': wiz.patient_id.id
-                                                           })
-        self.pool['t4.activity'].complete(cr, uid, placement_activity_id, context)
+        api = self.pool['t4.clinical.api']
+        pos_id = wiz.bed_src_location_id.pos_id.id
+        spell_activity_id = api.get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
+        ews_activity_ids = api.activity_map(cr, uid, pos_ids=[pos_id], 
+                                            patient_ids=[wiz.patient_id.id], states=['new','scheduled'],
+                                            data_models=['t4.clinical.patient.observation.ews']).keys()
+        if ews_activity_ids:
+            api.cancel(cr, uid, ews_activity_ids[0])
+        api.create_complete(cr, SUPERUSER_ID, 't4.clinical.patient.placement',
+                            {'parent_id': spell_activity_id}, 
+                            {'suggested_location_id': wiz.bed_dst_location_id.id,
+                             'location_id': wiz.bed_dst_location_id.id,
+                             'patient_id': wiz.patient_id.id})
+        
 
 class wardboard_device_session_start(orm.TransientModel):
     _name = "wardboard.device.session.start"
@@ -252,10 +257,32 @@ class t4_clinical_wardboard(orm.Model):
         # assumed that patient's placement is completed
         # parent location of bed is taken as ward
         except_if(wardboard.location_id.usage != 'bed', msg="Patient must be placed to bed before moving!")
+        sql = """
+        with 
+            recursive route(level, path, parent_id, id) as (
+                    select 0, id::text, parent_id, id 
+                    from t4_clinical_location 
+                    where parent_id is null
+                union
+                    select level + 1, path||','||location.id, location.parent_id, location.id 
+                    from t4_clinical_location location 
+                    join route on location.parent_id = route.id
+            )
+            select 
+                route.id as location_id, 
+                ('{'||path||'}')::int[] as parent_ids 
+            from route
+            where id = %s 
+            order by path
+        """ % wardboard.location_id.id
+        cr.execute(sql)
+        parent_ids = (cr.dictfetchone() or {}).get('parent_ids')
+        ward_location_ids = self.pool['t4.clinical.location'].search(cr, uid, [['id','in',parent_ids], ['usage','=','ward']])
+        ward_location_id = ward_location_ids and ward_location_ids[0] or False
         res_id = self.pool['wardboard.patient.placement'].create(cr, uid, 
                                                         {
                                                          'patient_id': wardboard.patient_id.id,
-                                                         'ward_location_id': wardboard.location_id.parent_id.id,
+                                                         'ward_location_id': ward_location_id or wardboard.location_id.parent_id.id,
                                                          'bed_src_location_id': wardboard.location_id.id,
                                                          'bed_dst_location_id': None
                                                          })

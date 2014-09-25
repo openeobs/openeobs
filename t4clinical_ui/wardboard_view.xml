@@ -13,7 +13,7 @@
                     </group>
                     <group string="To" colspan="4" col="2">
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
-                                                                             ('id','!=',ward_location_id),
+                                                                             ('usage','=','bed'),
                                                                              ('id','!=',bed_src_location_id)]"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>

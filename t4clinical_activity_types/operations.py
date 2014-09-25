@@ -149,6 +149,7 @@ class t4_clinical_patient_move(orm.Model):
         'location_id': fields.many2one('t4.clinical.location', 'Destination Location', required=True),
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
+        'from_location_id': fields.many2one('t4.clinical.location', 'Source Location'),
         
     }
     
@@ -163,6 +164,16 @@ class t4_clinical_patient_move(orm.Model):
         activity_pool = self.pool['t4.activity']
         patient_pool = self.pool['t4.clinical.patient']
         activity = activity_pool.browse(cr, uid, activity_id, context)
+        sql = """
+            select location_id from t4_activity
+            where data_model = 't4.clinical.patient.move' and state = 'completed' and patient_id = %s
+            order by sequence desc limit 1
+        """ % activity.patient_id.id or 0
+        cr.execute(sql)
+        res = cr.fetchone()
+#         import pdb; pdb.set_trace()
+        from_location_id = res and res[0] or False
+        self.write(cr, uid, activity.data_ref.id, {'from_location_id': from_location_id})
         patient_pool.write(cr, uid, activity.data_ref.patient_id.id, {'current_location_id': activity.data_ref.location_id.id}, context)
         super(t4_clinical_patient_move, self).complete(cr, uid, activity_id, context)
         return {}         
