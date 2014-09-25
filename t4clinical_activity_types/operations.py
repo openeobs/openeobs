@@ -211,7 +211,8 @@ class t4_clinical_patient_placement(orm.Model):
         if placement_ids:
             placement = activity_pool.browse(cr, uid, placement_ids[0], context=context)
             location_ids = location_pool.search(cr, uid, [
-                ('parent_id', '=', placement.location_id.id),
+                ('usage', '=', 'bed'),
+                ('parent_id', 'child_of', placement.location_id.id),
                 ('is_available', '=', True)
             ], context=context)
             location_selection = [[l, location_pool.read(cr, uid, l, ['name'], context=context)['name']] for l in location_ids]
