@@ -192,7 +192,8 @@ class t4_clinical_patient_placement(orm.Model):
         {
             'name': 'location_id',
             'type': 'selection',
-            'label': 'Location'
+            'label': 'Location',
+            'initially_hidden': False
         }
     ]
 

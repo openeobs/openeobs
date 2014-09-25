@@ -287,7 +287,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             #return 'unable to take task'
             a = 0
 
-        if 'notification' in task['data_model']:
+        if 'notification' in task['data_model'] or 'placement' in task['data_model']:
             # load notification foo
             obs_reg = request.registry['t4.clinical.api.external']
             form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
@@ -314,7 +314,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                         form_input['selection_options'].append(opt)
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
-            form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
+            if 'notification' in task['data_model']:
+                form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
+            else:
+                form['type'] = 'placement'
             return request.render('mobile_frontend.notification_confirm_cancel', qcontext={'name': task['summary'],
                                                                                            'inputs': form_desc,
                                                                                            'cancellable': cancellable,
