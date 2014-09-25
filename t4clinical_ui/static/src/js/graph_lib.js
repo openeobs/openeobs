@@ -245,7 +245,7 @@ graph_lib = (function() {
                     .interpolate("step-after")
                     .defined(function(d){ if(d.is_partial !== true){ return d; }})
                     .x(function(d) {
-                        return context.xScale(d.date_start);
+                        return context.xScale(d.date_started);
                     })
                     .y(function(d) {
                         return context.yScale(d.score);
@@ -259,7 +259,7 @@ graph_lib = (function() {
                 context.obj.selectAll("circle.contextPoint")
                    .data(svg.data.filter(function(d){ if(d.is_partial !== true){ return d; }}))
                     .enter().append("circle").attr("cx", function(d) {
-                return context.xScale(d.date_start);
+                return context.xScale(d.date_started);
                 }).attr("cy", function(d) {
                 return context.yScale(d.score);
                 }).attr("r", 3).attr("class", "contextPoint").on("mouseover", function(d) {
@@ -278,7 +278,7 @@ graph_lib = (function() {
                     }))
                     .enter().append("circle")
                     .attr("cx", function(d) {
-                            return context.xScale(d.date_start);
+                            return context.xScale(d.date_started);
                     })
                     .attr("cy", function(d) {
                         return context.yScale(context.yScale.domain()[1] / 2);
@@ -386,7 +386,7 @@ graph_lib = (function() {
                             return "triangle-up";
                         }),
                         transform: function(d) {
-                            return "translate(" + context.xScale(d.date_start) + "," + (thisEntry.yScale(d.blood_pressure_systolic) + 3) + ")";
+                            return "translate(" + context.xScale(d.date_started) + "," + (thisEntry.yScale(d.blood_pressure_systolic) + 3) + ")";
                         },
                         "class": "data_symbols " + thisEntry.label + "up-arrows"
                     }).style("display", function(d) {
@@ -409,7 +409,7 @@ graph_lib = (function() {
                             return "triangle-down";
                         }),
                         transform: function(d) {
-                            return "translate(" + context.xScale(d.date_start) + "," + (thisEntry.yScale(d.blood_pressure_diastolic) - 3) + ")";
+                            return "translate(" + context.xScale(d.date_started) + "," + (thisEntry.yScale(d.blood_pressure_diastolic) - 3) + ")";
                         },
                         "class": "data_symbols " + thisEntry.label + "down-arrows"
                     }).style("display", function(d) {
@@ -431,7 +431,7 @@ graph_lib = (function() {
                         return thisEntry.yScale(d["blood_pressure_diastolic"]) - thisEntry.yScale(d["blood_pressure_systolic"]);
                     },
                     x: function(d) {
-                        return focus.xScale(d.date_start) - 1;
+                        return focus.xScale(d.date_started) - 1;
                     },
                     y: function(d) {
                         return thisEntry.yScale(d["blood_pressure_systolic"]);
@@ -497,7 +497,7 @@ graph_lib = (function() {
                 thisEntry.area = d3.svg.line().interpolate("linear")
                     .defined(function(d){ if((d['none_values'].indexOf(thisEntry.key) > -1) === false){ return d; }})
                     .x(function(d) {
-                    return focus.xScale(d.date_start);
+                    return focus.xScale(d.date_started);
                 }).y(function(d) {
                     return thisEntry.yScale(d[thisEntry.key]);
                 });
@@ -512,7 +512,7 @@ graph_lib = (function() {
                 focus.obj.selectAll("#" + thisEntry.label)
                     .data(svg.data.filter(function(d){ if((d['none_values'].indexOf(thisEntry.key) > -1) === false){ return d; }}))
                     .enter().append("circle").attr("cx", function(d) {
-                    return focus.xScale(d.date_start);
+                    return focus.xScale(d.date_started);
                 }).attr("cy", function(d) {
                     return thisEntry.yScale(d[thisEntry.key]);
                 }).attr("r", 3).attr("class", "data_points data-" + thisEntry.label).style("display", function(d) {
@@ -555,7 +555,7 @@ graph_lib = (function() {
             var context = this.context, focus = this.focus, svg = this.svg;
             var self = this;
             focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d) {
-            return focus.xScale(d.date_start);
+            return focus.xScale(d.date_started);
             });
 
             if (transition) {
@@ -566,7 +566,7 @@ graph_lib = (function() {
             for (var i = 0; i < focus.graphs.length; i++) {
             var thisEntry = focus.graphs[i];
             thisEntry.area = d3.svg.line().interpolate("linear").x(function(d) {
-                return focus.xScale(d.date_start);
+                return focus.xScale(d.date_started);
             }).y(function(d) {
                 return thisEntry.yScale(d[thisEntry.key]);
             });
@@ -588,15 +588,15 @@ graph_lib = (function() {
             }
             focus.obj.select(".x.axis").call(focus.xAxis).style("stroke-width", "1");
             focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d) {
-                return focus.xScale(d.date_start);
+                return focus.xScale(d.date_started);
             });
             focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(d) {
-                return focus.xScale(d.date_start);
+                return focus.xScale(d.date_started);
             });
             if(svg.chartType == 'BTUH'){
                 focus.obj.selectAll(".data_symbols").remove();
                 focus.obj.selectAll(".BPup-arrows").data(svg.data.filter(function(d) {
-                    if (d.blood_pressure_systolic && d.date_start >= focus.xScale.domain()[0] && d.date_start <= focus.xScale.domain()[1]) {
+                    if (d.blood_pressure_systolic && d.date_started >= focus.xScale.domain()[0] && d.date_started <= focus.xScale.domain()[1]) {
                         console.log(d);
                         return d;
                     }
@@ -610,7 +610,7 @@ graph_lib = (function() {
                     }),
                     transform: function(d) {
                         console.log("calling transform");
-                        return "translate(" + (focus.xScale(d.date_start) + 1) + "," + (focus.graphs[focus.graphs.length - 1].yScale(d.blood_pressure_systolic) + 3) + ")";
+                        return "translate(" + (focus.xScale(d.date_started) + 1) + "," + (focus.graphs[focus.graphs.length - 1].yScale(d.blood_pressure_systolic) + 3) + ")";
                     },
                     "class": "data_symbols BPup-arrows"
                 }).style("display", function(d) {
@@ -623,7 +623,7 @@ graph_lib = (function() {
                     return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
                 }).on("mouseout", self.contextMouseOut);
                 focus.obj.selectAll(".BPdown-arrows").data(svg.data.filter(function(d) {
-                    if (d.blood_pressure_diastolic && d.date_start >= focus.xScale.domain()[0] && d.date_start <= focus.xScale.domain()[1]) {
+                    if (d.blood_pressure_diastolic && d.date_started >= focus.xScale.domain()[0] && d.date_started <= focus.xScale.domain()[1]) {
                         return d;
                     }
                 })).enter().append("path").attr({
@@ -633,7 +633,7 @@ graph_lib = (function() {
                         return "triangle-down";
                     }),
                     transform: function(d) {
-                        return "translate(" + (focus.xScale(d.date_start) + 1) + "," + (focus.graphs[focus.graphs.length - 1].yScale(d.blood_pressure_diastolic) - 3) + ")";
+                        return "translate(" + (focus.xScale(d.date_started) + 1) + "," + (focus.graphs[focus.graphs.length - 1].yScale(d.blood_pressure_diastolic) - 3) + ")";
                     },
                     "class": "data_symbols BPdown-arrows"
                 }).style("display", function(d) {
@@ -663,13 +663,13 @@ graph_lib = (function() {
             context.xAxis.scale(context.xScale);
             context.obj.selectAll(".x.axis").call(context.xAxis).style("stroke-width", "1");
             context.area.x(function(d) {
-            return context.xScale(d.date_start);
+            return context.xScale(d.date_started);
             }).y(function(d) {
             return context.yScale(d.score);
             });
             context.obj.selectAll(".contextPath").transition().duration(svg.transitionDuration).attr("d", context.area);
             context.obj.selectAll(".contextPoint").transition().duration(svg.transitionDuration).attr("cx", function(d) {
-            return context.xScale(d.date_start);
+            return context.xScale(d.date_started);
             });
             context.obj.selectAll(".x.axis g text").each(this.insertLinebreaks);
             context.obj.selectAll(".horizontalGrid").transition().duration(svg.transitionDuration).attr("x2", w - svg.infoAreaRight - 10);
@@ -711,8 +711,8 @@ graph_lib = (function() {
                 var startDate = new Date(focus.xScale.domain()[0]);
                 var endDate = new Date(focus.xScale.domain()[1]);
                 for (var i = 0; i < svg.data.length; i++) {
-                if (svg.data[i].date_start >= startDate && svg.data[i].date_start <= endDate) {
-                    headerData.push(svg.data[i].date_start);
+                if (svg.data[i].date_started >= startDate && svg.data[i].date_started <= endDate) {
+                    headerData.push(svg.data[i].date_started);
                 }
                 }
                 dataTableTr = d3.select("#chartTable").append("tr");
@@ -737,7 +737,7 @@ graph_lib = (function() {
             var startDate = new Date(focus.xScale.domain()[0]);
             var endDate = new Date(focus.xScale.domain()[1]);
             for (var j = 0; j < svg.data.length; j++) {
-                if (svg.data[j].date_start >= startDate && svg.data[j].date_start <= endDate) {
+                if (svg.data[j].date_started >= startDate && svg.data[j].date_started <= endDate) {
                     tableData.push(svg.data[j][thisEntry.key]);
                 }
             }
