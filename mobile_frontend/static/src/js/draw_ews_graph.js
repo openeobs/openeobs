@@ -83,7 +83,7 @@ var route = frontend_routes.ajax_get_patient_obs(graph_lib.svg.patientId).ajax({
         }), i && n.tables.push({
             key: "inspired_oxygen",
             label: "Inspired oxygen"
-        }), a.data = r, graph_lib.initGraph(20), graph_lib.initTable();
+        }), a.data = r, graph_lib.initGraph(20), graph_lib.initTable(), graph_lib.drawTabularObs("#table-content");
     },
     error: function(e) {
         console.log(e);

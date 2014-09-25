@@ -152,3 +152,28 @@ initTable: function() {
         $("#the_unplottables").remove();
     }
 },
+
+process_obs_name: function(key_name){
+    switch(key_name){
+        case "avpu_text":
+            return "AVPU";
+        case "pulse_rate":
+            return "Pulse Rate";
+        case "indirect_oxymetry_spo2":
+            return "Indirect Oxymetry spO2";
+        case "oxygen_administration_flag":
+            return "Oxygen Administration Flag";
+        case "respiration_rate":
+            return "Respiration Rate";
+        case "body_temperature":
+            return "Body Temperature";
+        case "blood_pressure_systolic":
+            return "Blood Pressure Systolic";
+        case "blood_pressure_diastolic":
+            return "Blood Pressure Diastolic";
+        case "score":
+            return "NEWS Score";
+        case "inspired_oxygen":
+            return "Inspired Oxygen Parameters";
+    }
+},

@@ -623,3 +623,27 @@ drawTable: function() {
         }).attr("class", thisEntry.label).style({"padding": "0.3em 0.5%",  "text-align": function(d){ if(d != thisEntry.label){ return "center";}},  "border-left": function(d){ if(d != thisEntry.label){ return "1px solid #262626";}}});
     }
 },
+drawTabularObs: function(el){
+    //var container = d3.select(el).append('div');
+    var context = this.context, focus = this.focus, svg = this.svg;
+    var container = d3.select('#table-content').append('div').attr('style', 'padding-top: 1em');
+    var cards = container.selectAll('.card').data(svg.data.reverse()).enter().append('div').attr('class','card');
+    var header = cards.append('h3').text(function(d){
+        return ("0" + d.date_started.getHours()).slice(-2) + ":" + ("0" + d.date_started.getMinutes()).slice(-2) + " " + ("0" + d.date_started.getDate()).slice(-2) + "/" + ("0" + (d.date_started.getMonth() + 1)).slice(-2) + "/" + d.date_started.getFullYear(); });
+    var list = cards.append('table');
+    var list_items = list.selectAll('tr').data(function(d){ return $.map(d, function(v,k){ if(k !== "indirect_oxymetry_spo2_label"){ var name = graph_lib.process_obs_name(k); if(typeof(name) !== "undefined"){ return {key: name, value: v};}} }); }).enter();
+    list_items.append('tr').html(function(d){
+        if(typeof(d.value) == "object"){
+            if(d.key == "Oxygen Administration Flag"){
+                //return process_oxygen_administration_flag_object(d.value);
+                if(d.value.onO2 == true){
+                    return '<td>' + d.key + '</td><td> true </td>';
+                }else{
+                    return '<td>'+ d.key+'</td><td> false </td>';
+                }
+            }
+        }else{
+            return '<td>'+ d.key+'</td><td>' + d.value + '</td>';
+        }
+    });
+},

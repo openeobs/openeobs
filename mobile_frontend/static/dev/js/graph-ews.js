@@ -93,7 +93,7 @@ var route = frontend_routes.ajax_get_patient_obs(graph_lib.svg.patientId).ajax({
 
         graph_lib.initGraph(20);
         graph_lib.initTable();
-        //graph_lib.drawTabularObs('#table-content');
+        graph_lib.drawTabularObs('#table-content');
     },
     error: function (err) {
         console.log(err)
