@@ -493,7 +493,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('t4.clinical.api.external')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
-        obs = api_pool._active_observations
+        obs = api_pool.get_active_observations(cr, uid, context=context)
         return request.render('mobile_frontend.patient', qcontext={'patient': patient,
                                                                    'urls': URLS,
                                                                    'section': 'patient',
