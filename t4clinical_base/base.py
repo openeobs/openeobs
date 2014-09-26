@@ -114,9 +114,6 @@ class t4_clinical_location(orm.Model):
     """ Clinical LOCATION """
 
     _name = 't4.clinical.location'
-    #_parent_name = 'location_id'
-    #TODO Why is the code the rec_name if it's not required? name should be rec_name
-    # _rec_name = 'code'
     _types = [('poc', 'Point of Care'), ('structural', 'Structural'), ('virtual', 'Virtual'), ('pos', 'POS')]
     _usages = [('bed', 'Bed'), ('bay', 'Bay'),('ward', 'Ward'), ('room', 'Room'),('department', 'Department'), ('hospital', 'Hospital')]
     
@@ -244,12 +241,84 @@ class t4_clinical_location(orm.Model):
                 sum += len(child.patient_ids)
             res[loc.id] = sum
         return res
-
+    
+    def _get_parent_ids(self, cr, uid, ids, field, args, context=None):
+        res = {location_id: False for location_id in ids}
+        sql = """
+        with 
+            recursive route(level, path, parent_id, id) as (
+                    select 0 as level, id::text, parent_id, id 
+                    from t4_clinical_location 
+                    where parent_id is null
+                union
+                    select level + 1, path||','||location.id, location.parent_id, location.id 
+                    from t4_clinical_location location 
+                    join route on location.parent_id = route.id 
+            ), 
+            map as( 
+                select 
+                    route.id as location_id, 
+                    ('{'||path||'}')::int[] as parent_ids 
+                from route
+            )
+            select 
+                location_id, 
+                parent_ids[1:array_length(parent_ids, 1)-1] as parent_ids 
+            from map
+            where location_id in (%s) 
+            order by path
+        """ % ",".join(map(str, ids))
+        cr.execute(sql)
+        [res.update({row['location_id']: row['parent_ids']}) for row in cr.dictfetchall()]        
+        return res
+    
+    def _parent_ids_search(self, cr, uid, obj, name, args, domain=None, context=None):
+        arg1, op, arg2 = args[0]
+        arg2 = isinstance(arg2, (list, tuple)) and arg2 or [arg2]
+        all_ids = self.search(cr, uid, [])
+        child_parent_map = self._get_parent_ids(cr, uid, all_ids, 'parent_ids', None)
+        location_ids = [k for k, v in child_parent_map.items() if set(v or []) & set(arg2 or [])]
+        return [('id', 'in', location_ids)]       
+    
+    def _get_path(self, cr, uid, ids, field, args, context=None):
+        res = {location_id: False for location_id in ids}
+        sql = """
+        with 
+            recursive route(level, path, parent_id, id, code) as (
+                    select 0 as level, code::text, parent_id, id, code::text
+                    from t4_clinical_location 
+                    where parent_id is null
+                union
+                    select level + 1, path||','||location.code::text, location.parent_id, location.id, location.code::text
+                    from t4_clinical_location location 
+                    join route on location.parent_id = route.id 
+            ), 
+            map as( 
+                select
+                    level,
+                    route.id as location_id, 
+                    ('{'||path||'}')::text[] as path 
+                from route
+            )
+            select 
+                location_id, 
+                '/'||array_to_string(path[1:array_length(path, 1)-1], '/') as path 
+            from map
+            where location_id in (%s) 
+            order by path
+        """ % ",".join(map(str, ids))
+        cr.execute(sql)
+        [res.update({row['location_id']: row['path']}) for row in cr.dictfetchall()]        
+        return res        
+        
+        
     _columns = {
         'name': fields.char('Location', size=100, required=True, select=True),
         'code': fields.char('Code', size=256),
         'parent_id': fields.many2one('t4.clinical.location', 'Parent Location'),
         'child_ids': fields.one2many('t4.clinical.location', 'parent_id', 'Child Locations'),
+        'parent_ids': fields.function(_get_parent_ids, fnct_search=_parent_ids_search, type='many2many', relation='t4.clinical.location', string='Parent Locations'),
+        'path': fields.function(_get_path, type='text', string='Location Path'),
         'type': fields.selection(_types, 'Location Type'),
         'usage': fields.selection(_usages, 'Location Usage'),
         'active': fields.boolean('Active'),
