@@ -55,13 +55,13 @@ class t4_clinical_overdue(orm.Model):
                             else 0
                         end  as delay,
                         case
-                            when activity.data_model ilike '%%hca%%'
+                            when strpos(activity.data_model, 'hca') != 0
                             then 'HCA'
-                            when activity.data_model ilike '%%doctor%%'
+                            when strpos(activity.data_model, 'doctor') != 0
                             then 'Doctor'
-                            when activity.data_model ilike '%%notification%%'
+                            when strpos(activity.data_model, 'notification') != 0
                             then 'Nurse'
-                            when activity.data_model ilike '%%observation%%'
+                            when strpos(activity.data_model, 'observation') != 0
                             then 'HCA, Nurse'
                             else 'Ward Manager'
                         end as groups
