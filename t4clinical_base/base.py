@@ -260,13 +260,13 @@ class t4_clinical_location(orm.Model):
                     route.id as location_id, 
                     ('{'||path||'}')::int[] as parent_ids 
                 from route
+                order by path
             )
             select 
                 location_id, 
                 parent_ids[1:array_length(parent_ids, 1)-1] as parent_ids 
             from map
             where location_id in (%s) 
-            order by path
         """ % ",".join(map(str, ids))
         cr.execute(sql)
         [res.update({row['location_id']: row['parent_ids']}) for row in cr.dictfetchall()]        
@@ -299,13 +299,13 @@ class t4_clinical_location(orm.Model):
                     route.id as location_id, 
                     ('{'||path||'}')::text[] as path 
                 from route
+                order by path
             )
             select 
                 location_id, 
                 '/'||array_to_string(path[1:array_length(path, 1)-1], '/') as path 
             from map
             where location_id in (%s) 
-            order by path
         """ % ",".join(map(str, ids))
         cr.execute(sql)
         [res.update({row['location_id']: row['path']}) for row in cr.dictfetchall()]        
