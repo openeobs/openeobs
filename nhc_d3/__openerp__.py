@@ -9,7 +9,7 @@
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': [],
-    'data': [],
+    'data': ['template.xml'],
     'qweb': [],
     'application': True,
     'installable': True,

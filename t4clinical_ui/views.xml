@@ -30,8 +30,10 @@
         <template id="assets_backend" name="t4clinical assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
                 <link rel="stylesheet" href="/t4clinical_ui/static/src/css/t4clinical_ui.css"/>
-                <script type="text/javascript" src="/t4clinical_ui/static/src/js/d3.js"></script>
-                <script type="text/javascript" src="/t4clinical_ui/static/src/js/graph_lib.js"></script>
+                <script type="text/javascript" src="/nhc_d3/static/lib/js/d3.js"></script>
+                <script type="text/javascript" src="/nhc_d3/static/src/js/patient_graph.js"></script>
+                <!-- <script type="text/javascript" src="/t4clinical_ui/static/src/js/graph_lib.js"></script> -->
+
                 <script type="text/javascript" src="/t4clinical_ui/static/src/js/t4clinical_ui.js"></script>
             </xpath>
         </template>

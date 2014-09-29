@@ -30,7 +30,9 @@ drawChart: function() {
                 return context.yScale(d.s) - (context.yScale(d.e) - 1);
             }
         });
-        context.obj.selectAll("line.verticalGrid").data(context.xScale.ticks()).enter().append("line").attr({
+
+
+        context.obj.selectAll("line.verticalGrid").data(graph_lib.context.xScale.ticks()).enter().append("line").attr({
             "class": "verticalGrid",
             x1: function(d) {
                 return context.xScale(d);
@@ -63,7 +65,7 @@ drawChart: function() {
             "class": "y axis",
             transform: "translate("+context.chartXOffset+",0)"
         }).call(context.yAxis).style("stroke-width", "1");
-        context.brush = d3.svg.brush().x(context.xScale).on("brush", self.brushed);
+        context.brush = nhc_d3.svg.brush().x(context.xScale).on("brush", self.brushed);
         context.obj.append("g").attr("class", "x brush").call(context.brush).selectAll("rect").attr("y", -6).attr("height", context.height + 7).style({
             fill: "#333",
             opacity: "0.5"
@@ -71,7 +73,7 @@ drawChart: function() {
 
         console.log('about to draw the line');
 
-        context.area = d3.svg.line()
+        context.area = nhc_d3.svg.line()
             .interpolate("step-after")
             .defined(function(d){ if(d.none_values == "[]"){ return d; }})
             .x(function(d) {
@@ -130,7 +132,7 @@ drawChart: function() {
         context.obj.selectAll(".axis .domain").style({"stroke-width": "1", "fill": "none","shape-rendering": "crispEdges", "stroke":"black"});
         context.obj.selectAll(".axis .tick line").style({"stroke-width": "1", "fill": "none","shape-rendering": "crispEdges", "stroke":"black"});
     }
-    svg.popup = d3.select(".t4skr_ewschart").append("div").attr("class", "contextPopup").style({"opacity": "0",
+    svg.popup = nhc_d3.select(".t4skr_ewschart").append("div").attr("class", "contextPopup").style({"opacity": "0",
         "position": "absolute",
         "text-align": "center",
         "width": "5%",
@@ -162,7 +164,7 @@ drawGraph: function() {
         thisEntry.offset = i * focus.chartHeight + focus.chartPadding * (i - 1);
         focus.obj.select("defs").append("clipPath").attr("id", "clip-" + thisEntry.label).append("rect").attr("width", (svg.width - svg.infoAreaRight) - (10 + focus.chartXOffset)).attr("height", focus.chartHeight).attr("y", thisEntry.offset).attr("x", focus.chartXOffset);
 
-        thisEntry.yScale = d3.scale.linear().domain([ thisEntry.min, thisEntry.max ]).range([ focus.chartHeight + thisEntry.offset, thisEntry.offset ]);
+        thisEntry.yScale = nhc_d3.scale.linear().domain([ thisEntry.min, thisEntry.max ]).range([ focus.chartHeight + thisEntry.offset, thisEntry.offset ]);
         thisEntry.diffNorm = thisEntry.yScale(thisEntry.normMin) - thisEntry.yScale(thisEntry.normMax);
         focus.obj.append("line").attr("x1", focus.chartXOffset).attr("x2", svg.width - svg.infoAreaRight - 11).attr("y1", focus.chartHeight + thisEntry.offset).attr("y2", focus.chartHeight + thisEntry.offset).style("stroke", "black").style("opacity", 1).style("stroke-width", 2).attr("class", "line line-" + thisEntry.label);
         if (thisEntry.label != "BP") {
@@ -173,7 +175,7 @@ drawGraph: function() {
 
         var shift = thisEntry.diffNorm - 10;
         if (shift > 0) shift = 0;
-        thisEntry.yAxis = d3.svg.axis().scale(thisEntry.yScale).orient("left").ticks(10);
+        thisEntry.yAxis = nhc_d3.svg.axis().scale(thisEntry.yScale).orient("left").ticks(10);
         var ti = focus.obj.append("g").call(thisEntry.yAxis).style("stroke-width", "1").attr('transform', 'translate('+focus.chartXOffset+',0)').attr('class', 'y axis axis-'+thisEntry.label);
         var hTicks = thisEntry.yScale.ticks();
         //ti.remove();
@@ -329,7 +331,7 @@ drawGraph: function() {
                 "class": "info infovalue3-" + thisEntry.label
             });
         } else {
-            thisEntry.area = d3.svg.line().interpolate("linear")
+            thisEntry.area = nhc_d3.svg.line().interpolate("linear")
                 .defined(function(d){ if(d[thisEntry.key] !== false){ return d; }})
                 .x(function(d) {
                     return focus.xScale(d.date_started);
@@ -433,7 +435,7 @@ redrawContext: function(){
         "stroke-width": "1px"
     });
 
-    context.area = d3.svg.line()
+    context.area = nhc_d3.svg.line()
         .interpolate("step-after")
         .defined(function(d){ if(d.none_values == "[]"){ return d; }})
         .x(function(d) {
@@ -453,7 +455,7 @@ redrawContext: function(){
             return context.yScale(context.yScale.domain()[1] / 2);
         });
 
-    context.yAxis = d3.svg.axis().scale(context.yScale).orient("left").tickFormat(d3.format("d"));
+    context.yAxis = nhc_d3.svg.axis().scale(context.yScale).orient("left").tickFormat(nhc_d3.format("d"));
     context.obj.select('.y.axis').call(context.yAxis);
 },
 
@@ -471,9 +473,9 @@ redrawFocusYAxis: function(){
         var shift = newDiffNorm - 10;
         if (shift > 0) shift = 0;
         if (thisEntry.label != "Temp") {
-            thisEntry.yAxis = d3.svg.axis().scale(thisEntry.yScale).orient("left").tickFormat(d3.format("d"));//.ticks(10);
+            thisEntry.yAxis = nhc_d3.svg.axis().scale(thisEntry.yScale).orient("left").tickFormat(nhc_d3.format("d"));//.ticks(10);
         }else{
-            thisEntry.yAxis = d3.svg.axis().scale(thisEntry.yScale).orient("left").ticks(10);
+            thisEntry.yAxis = nhc_d3.svg.axis().scale(thisEntry.yScale).orient("left").ticks(10);
         }
         focus.obj.select('.y.axis-'+thisEntry.label).call(thisEntry.yAxis);
         hTicks = thisEntry.yScale.ticks();
@@ -542,7 +544,7 @@ redrawFocus: function(transition) {
     }
     for (var i = 0; i < focus.graphs.length; i++) {
         var thisEntry = focus.graphs[i];
-        thisEntry.area = d3.svg.line().interpolate("linear").x(function(d) {
+        thisEntry.area = nhc_d3.svg.line().interpolate("linear").x(function(d) {
             return focus.xScale(d.date_started);
         }).y(function(d) {
             return thisEntry.yScale(d[thisEntry.key]);
@@ -616,7 +618,7 @@ drawTable: function() {
                 tableData.push(svg.data[j][thisEntry.key]);
             }
         }
-        var tableTR = d3.select("#chartTable").append("tr").style({"background-color": (i % 2 == 0 ? "#ffffff" : "#eeeeee")});
+        var tableTR = nhc_d3.select("#chartTable").append("tr").style({"background-color": (i % 2 == 0 ? "#ffffff" : "#eeeeee")});
 
         tableTR.selectAll("td." + thisEntry.label).data(tableData).enter().append("td").html(function(d) {
             return d;
@@ -624,9 +626,9 @@ drawTable: function() {
     }
 },
 drawTabularObs: function(el){
-    //var container = d3.select(el).append('div');
+    //var container = nhc_d3.select(el).append('div');
     var context = this.context, focus = this.focus, svg = this.svg;
-    var container = d3.select('#table-content').append('div').attr('style', 'padding-top: 1em');
+    var container = nhc_d3.select('#table-content').append('div').attr('style', 'padding-top: 1em');
     var cards = container.selectAll('.card').data(svg.data.reverse()).enter().append('div').attr('class','card');
     var header = cards.append('h3').text(function(d){
         return ("0" + d.date_started.getHours()).slice(-2) + ":" + ("0" + d.date_started.getMinutes()).slice(-2) + " " + ("0" + d.date_started.getDate()).slice(-2) + "/" + ("0" + (d.date_started.getMonth() + 1)).slice(-2) + "/" + d.date_started.getFullYear(); });
