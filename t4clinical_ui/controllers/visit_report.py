@@ -98,8 +98,15 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
 
     @http.route(endpoint + 'src/<type>/<resource>', type='http', auth='none')
     def get_resource(self, type, resource, *args, **kw):
-        with open(get_module_path('t4clinical_ui') + '/static/src/{type}/{resource}'.format(type=type, resource=resource), 'r') as resource:
-            return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
+        if resource == 'd3.js':
+            with open(get_module_path('nhc_d3') + '/static/lib/js/d3.js'.format(type=type, resource=resource), 'r') as resource:
+                return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
+        elif resource == 'graph_lib.js':
+            with open(get_module_path('nhc_d3') + '/static/src/js/patient_graph.js'.format(type=type, resource=resource), 'r') as resource:
+                return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
+        else:
+            with open(get_module_path('t4clinical_ui') + '/static/src/{type}/{resource}'.format(type=type, resource=resource), 'r') as resource:
+                return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
 
     @http.route(endpoint+'<spell_id>', type='http', auth='user')
     def get_report_for_spell(self, spell_id, *args, **kw):
