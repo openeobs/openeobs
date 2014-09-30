@@ -94,8 +94,6 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             none_values = list(set(eval(obs['none_values'])) - set(vals.keys()))
             null_values = list(set(eval(obs['null_values'])) - set(vals.keys()))
             vals.update({'none_values': none_values, 'null_values': null_values})
-            print "write none_values: %s" % none_values
-            print "write null_values: %s" % null_values
             super(t4_clinical_patient_observation, self).write(cr, uid, obs['id'], vals, context)
         if 'frequency' in vals:
             activity_pool = self.pool['t4.activity']

@@ -78,7 +78,6 @@ class t4_clinical_demo_location(orm.TransientModel):
         data.pop('id')
         parent_id = data.pop('parent_id')[0]
         data.update({'parent_id': parent_id}) 
-        print data
         location_id = api.create(cr, uid, 't4.clinical.location', data)
 
  
@@ -111,7 +110,6 @@ class t4_clinical_demo_user(orm.TransientModel):
         groups_id = [[4, id] for id in data.pop('groups_id') or []]
         location_ids = [[4, id] for id in data.pop('location_ids') or []]
         data.update({'groups_id': groups_id, 'pos_id': pos_id, 'location_ids': location_ids}) 
-        print data
         user_id = api.create(cr, uid, 'res.users', data)
         
 

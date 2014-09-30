@@ -227,8 +227,6 @@ class t4_clinical_wardboard(orm.Model):
     }
     
     def device_session_start(self, cr, uid, ids, context=None):
-        from pprint import pprint as pp
-        print "ids: %s" % ids
         wardboard = self.browse(cr, uid, ids[0], context=context)
         res_id = self.pool['wardboard.device.session.start'].create(cr, uid, 
                                                         {

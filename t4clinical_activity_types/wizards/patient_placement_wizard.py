@@ -33,8 +33,6 @@ class t4_clinical_patient_placement_wizard(orm.TransientModel):
      }
     
     def apply(self, cr, uid, ids, context=None):
-        #import pdb; pdb.set_trace()
-        print "apply ids:", ids
         activity_pool = self.pool['t4.activity']
         for placement in self.browse(cr, uid, ids[0], context).placement_ids:
             if placement.location_id:

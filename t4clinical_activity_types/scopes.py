@@ -61,7 +61,6 @@ class t4_clinical_spell(orm.Model):
             where stl.spell_id in (%s)
             group by activity_id, stl.spell_id        
         """ % ",".join(map(str,ids))
-        print sql
         cr.execute(sql)
         rows = cr.dictfetchall()
         [res.update({row['spell_id']: list(set(row['user_ids']))}) for row in rows]
@@ -140,7 +139,6 @@ class t4_clinical_spell(orm.Model):
         #import pdb; pdb.set_trace()
         res = cr.dictfetchone()
         user_ids = list(res and set(res['user_ids']) or [])
-        print "SPELL DATA get_activity_user_ids user_ids: %s " % user_ids
         return user_ids
     
     

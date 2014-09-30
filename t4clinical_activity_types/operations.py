@@ -377,7 +377,6 @@ class t4_clinical_patient_admission(orm.Model):
                            'con_doctor_ids': [[4, d.id] for d in activity.creator_id.data_ref.con_doctor_ids],
                            'ref_doctor_ids': [[4, d.id] for d in activity.creator_id.data_ref.ref_doctor_ids]
                            }
-            print doctor_data
             activity_pool.submit(cr, uid, spell_activity_id, doctor_data, context)
             
         res[spell_pool._name] = spell_activity_id

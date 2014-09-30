@@ -87,7 +87,6 @@ class res_users(orm.Model):
     
     def write(self, cr, uid, ids, values, context=None):
         res = super(res_users, self).write(cr, uid, ids, values, context)
-        #import pdb; pdb.set_trace()
         if values.get('location_ids') or values.get('groups_id'):
             api = self.pool['t4.clinical.api']
             api.update_activity_users(cr, uid, ids)

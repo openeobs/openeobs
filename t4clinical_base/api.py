@@ -281,7 +281,6 @@ class t4_clinical_api(orm.AbstractModel):
         if location_ids: where_list.append("location_id in (%s)" % ','.join([str(int(id)) for id in location_ids]))
         if parent_location_ids: where_list.append("parent_location_ids && array[%s]" % ','.join([str(int(id)) for id in parent_location_ids]))
         where_clause = where_list and "where %s" % " and ".join(where_list) or ""
-        print where_clause     
         sql = """
 with
     location_hierarchy  as (
@@ -504,7 +503,6 @@ with
             select * from activity
             {where}
             """.format(**args)
-        print sql
         cr.execute(sql)
         res = {r['id']: r['rank'] for r in cr.dictfetchall()}
         return res 

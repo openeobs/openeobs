@@ -59,7 +59,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
     
     def create_activity(self, cr, uid, model, values_method=None, activity_values={}, data_values={}, context=None):
         model_pool = self.pool[model]
-        print "create activity data_values: %s" % data_values
+        #print "create activity data_values: %s" % data_values
         v = self.demo_data(cr, uid, model, values_method, data_values)
         _logger.info("Creating DEMO resource '%s', values: %s" % (model, v))
         activity_id = model_pool.create_activity(cr, uid, activity_values, v, context)
@@ -438,8 +438,6 @@ class t4_clinical_api_demo(orm.AbstractModel):
         pos_id = placement_activity.pos_id.id
         if not nurse_user_id:
             nurse_user_id = self.get_nurse(cr, uid)
-        print nurse_user_id
-        
         self.user_add_location(cr, uid, nurse_user_id, placement_activity.location_id.id)
         if wm_user_id:
             self.user_add_location(cr, uid, wm_user_id, placement_activity.location_id.id)
@@ -638,13 +636,7 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
 
     ##### res.users #####
     def _user_base(self, cr, uid, values={}):        
-        pos_id = values.get('pos_id', False)
         fake = self.next_seed_fake()
-        api = self.pool['t4.clinical.api']
-        imd_pool = self.pool['ir.model.data']
-        group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_nurse")
-        location_ids = api.location_map(cr, uid, usages=['ward'], pos_ids=[pos_id])
-        # unique login
         i = 0
         login = (values.get('name') or fake.first_name()).lower()
         while i <= 1000:
@@ -659,8 +651,6 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
             'name': login.capitalize(),
             'login': login,
             'password': login,
-#             'groups_id': [(4, group.id)],
-            'location_ids': [(4,location_id) for location_id in location_ids]
         }  
         return v 
     
@@ -847,7 +837,6 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
         return v
     
     def adt_admit(self, cr, uid, values={}):
-        print "api_demo.adt_admit values:", values
         fake = self.next_seed_fake()
         api =self.pool['t4.clinical.api']
         api_demo = self.pool['t4.clinical.api.demo']
