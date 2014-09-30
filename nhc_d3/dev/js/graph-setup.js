@@ -12,7 +12,7 @@ svg: {
     infoAreaRight: null,
     labelGap: 10,
     popup: null,
-    startParse: d3.time.format("%Y-%m-%d %H:%M:%S").parse,
+    startParse: nhc_d3.time.format("%Y-%m-%d %H:%M:%S").parse,
     patientId:$('.name').attr("data-id"),
     transitionDuration: 1e3,
     chartType: null,
@@ -97,14 +97,16 @@ initGraph: function(maxScore) {
     svg.infoAreaRight = svg.width / 18;
     focus.height = (focus.graphs.length + 1) * focus.chartHeight;
     svg.height = context.height + focus.height + context.margins.bottom + context.margins.top + focus.margins.bottom + focus.margins.top;
-    svg.obj.context = d3.select("#contextChart").append("svg").attr("width", svg.width + svg.margins.left + svg.margins.right).attr("height", context.height + context.margins.bottom + context.margins.top).append("g").attr("transform", "translate(" + 0 + "," + context.margins.top + ")");
-    svg.obj.focus = d3.select("#focusChart").append("svg").attr("width", svg.width + svg.margins.left + svg.margins.right).attr("height", focus.height + focus.margins.bottom + focus.margins.top).append("g").attr("transform", "translate(" + 0 + "," + focus.margins.top / 3 + ")");
-    context.yScale = d3.scale.linear().domain([ 0, maxScore ]).range([ context.height, 0 ]);
-    context.yAxis = d3.svg.axis().scale(context.yScale).orient("left");
+    svg.obj.context = nhc_d3.select("#contextChart").append("svg").attr("width", svg.width + svg.margins.left + svg.margins.right).attr("height", context.height + context.margins.bottom + context.margins.top).append("g").attr("transform", "translate(" + 0 + "," + context.margins.top + ")");
+    svg.obj.focus = nhc_d3.select("#focusChart").append("svg").attr("width", svg.width + svg.margins.left + svg.margins.right).attr("height", focus.height + focus.margins.bottom + focus.margins.top).append("g").attr("transform", "translate(" + 0 + "," + focus.margins.top / 3 + ")");
+    context.yScale = nhc_d3.scale.linear().domain([ 0, maxScore ]).range([ context.height, 0 ]);
+    context.yAxis = nhc_d3.svg.axis().scale(context.yScale).orient("left");
 
 
-    var earliestDate = new Date(context.earliestDate.toString());
-    var now = new Date(context.now.toString());
+    //var earliestDate = new Date(context.earliestDate.toString());
+    //var now = new Date(context.now.toString());
+    var earliestDate = context.earliestDate;
+    var now = context.now;
     var dateDiffHours = (now - earliestDate) / 1e3 / 60 / 60;
     if (dateDiffHours >= 2) {
         earliestDate.setHours(earliestDate.getHours() - 1);
@@ -124,12 +126,13 @@ initGraph: function(maxScore) {
         svg.obj.context.attr("printing", "true");
     }
 
-    context.now = now;
-    context.xScale = d3.time.scale().domain([ earliestDate, now ]).range([context.chartXOffset, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]);
-    context.xAxis = d3.svg.axis().scale(context.xScale).orient("top");
-    focus.xScale = d3.time.scale().domain([ earliestDate, now ]).range([context.chartXOffset, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]);
-    focus.xAxis = d3.svg.axis().scale(focus.xScale).orient("top");
+    //context.now = now;
+    context.xScale = nhc_d3.time.scale().domain([ earliestDate, now ]).range([context.chartXOffset, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]);
+    context.xAxis = nhc_d3.svg.axis().scale(context.xScale).orient("top");
+    focus.xScale = nhc_d3.time.scale().domain([ earliestDate, now ]).range([context.chartXOffset, svg.width - (svg.infoAreaRight + svg.margins.right / 4) ]);
+    focus.xAxis = nhc_d3.svg.axis().scale(focus.xScale).orient("top");
 
     this.drawChart();
     this.drawGraph();
 },
+

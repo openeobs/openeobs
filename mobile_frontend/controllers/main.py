@@ -138,7 +138,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['data_driven_documents'], type='http', auth='none')
     def d_three(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/js/d3.js', 'r') as js:
+        with open(get_module_path('nhc_d3') + '/static/lib/js/d3.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URL_PREFIX, type='http', auth='none')

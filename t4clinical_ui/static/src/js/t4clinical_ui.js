@@ -386,10 +386,10 @@ openerp.t4clinical_ui = function (instance) {
 
             var vid = this.view.dataset.context.active_id;
             var plotO2 = false;
-            var start_date = new Date(0);
-            var end_date = new Date();
-            var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
-            var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
+            //var start_date = new Date();
+            //var end_date = new Date();
+            //var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
+            //var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'ews'], {context: this.view.dataset.context}).done(function(records){
                 if(records.length > 0){
@@ -401,7 +401,7 @@ openerp.t4clinical_ui = function (instance) {
                                 {"class": "amber",s: 5,e: 7},
                                 {"class": "red",s: 7,e: 18} ];
                     records.forEach(function(d){
-                        d.date_start = svg.startParse(d.date_terminated);
+                        d.date_started = svg.startParse(d.date_terminated);
                         if (d.flow_rate > -1){
                             plotO2 = true;
                             d.inspired_oxygen = "";
@@ -492,11 +492,11 @@ openerp.t4clinical_ui = function (instance) {
             focus.tables = new Array();
 
             var vid = this.view.dataset.context.active_id;
-            var start_date = new Date(0);
-            var end_date = new Date();
+            //var start_date = new Date(0);
+            //var end_date = new Date();
             this.model = new instance.web.Model('t4.clinical.api.external');
-            var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
-            var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
+            //var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
+            //var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'blood_sugar'], {context: this.view.dataset.context}).done(function(records){
                 if(records.length > 0){
@@ -506,7 +506,7 @@ openerp.t4clinical_ui = function (instance) {
                     context.scoreRange = [];
 
                     records.forEach(function(d){
-                        d.date_start = svg.startParse(d.date_terminated);
+                        d.date_started = svg.startParse(d.date_terminated);
                         d.score = d.blood_sugar;
                         d.blood_sugar_null = false;
                     });
@@ -554,11 +554,11 @@ openerp.t4clinical_ui = function (instance) {
 
             var vid = this.view.dataset.context.active_id;
             var height = this.view.dataset.context.height;
-            var start_date = new Date(0);
-            var end_date = new Date();
+            //var start_date = new Date(0);
+            //var end_date = new Date();
             this.model = new instance.web.Model('t4.clinical.api.external');
-            var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
-            var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
+            //var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
+            //var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'weight'], {context: this.view.dataset.context}).done(function(records){
                 if(records.length > 0){
@@ -568,7 +568,7 @@ openerp.t4clinical_ui = function (instance) {
                     context.scoreRange = [];
 
                     records.forEach(function(d){
-                        d.date_start = svg.startParse(d.date_terminated);
+                        d.date_started = svg.startParse(d.date_terminated);
                         d.score = d.weight;
                         d.weight_null = false;
                     });
