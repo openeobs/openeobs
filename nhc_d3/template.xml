@@ -3,7 +3,8 @@
     <data>
         <template id="assets_backend" name="nhc_d3 assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
-               <script type="text/javascript" src="/nhc_d3/static/src/js/patient_graph.js"></script>
+                <script type="text/javascript" src="/nhc_d3/static/lib/js/d3.js"></script>
+                <script type="text/javascript" src="/nhc_d3/static/src/js/patient_graph.js"></script>
             </xpath>
         </template>
    </data>
