@@ -65,10 +65,25 @@ class t4_clinical_api_demo(orm.AbstractModel):
         activity_id = model_pool.create_activity(cr, uid, activity_values, v, context)
         return activity_id
     
-    def place_patient(self, cr, uid, pos_id, bed_location_id=None):
-        patient_id = None
-        raise orm.except_orm('Not Implemented', 'Method place patient is not implemented yet!')
-        return patient_id
+#     def place_patient(self, cr, uid, patient_id, bed_location_id, register_values={}, admit_values={}):
+#         """
+#         Places a patient to a bed. Patient must be admitted to a ward.
+#         If patient not admitted, exception is raised.
+#         """
+#         api = self.pool['t4.clinical.api']
+#         api.activity_map(cr, uid, patient_ids=[patient_id], data_models=['t4.clinical.patient.'])
+#         
+#         bed_location = api.browse(cr, uid, 't4.clinical.location', bed_location_id)     
+#         pos_id = bed_location.pos_id.id      
+#         admit_activity_id = self.register_admit(cr, uid, pos_id, register_values, admit_values)
+#           
+#         admission_activity_id = api.activity_map(cr, uid, 
+#                                                   data_models=['t4.clinical.patient.admission'],
+#                                                   creator_ids=[admit_activity_id]).keys()[0]
+#                         
+#         placement_activity_id = api.activity_map(cr, uid, 
+#                                                   data_models=['t4.clinical.patient.placement'],
+#                                                   creator_ids=[admission_activity_id]).keys()[0] 
 
     def build_uat_env(self, cr, uid, pos=1, ward='A', wm='winifred', nurse='norah', patients=8, placements=4, ews=1,
                       context=None):
@@ -202,9 +217,13 @@ class t4_clinical_api_demo(orm.AbstractModel):
         adt_uid = self.get_adt_user(cr, uid, pos_id)
         reg_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.register', None, {}, register_values)
         reg_data = api.get_activity_data(cr, uid, reg_activity_id)
-        reg_data.update(admit_values)
-        admit_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', None, {}, reg_data)     
-        api.complete(cr, uid, admit_activity_id)   
+        
+        admit_data = {
+            'other_identifier': reg_data['other_identifier'],
+        }
+        admit_data.update(admit_values)
+        admit_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', None, {}, admit_data)     
+        #api.complete(cr, uid, admit_activity_id)   
         return admit_activity_id
              
     def register_admission(self, cr, uid, ward_location_id, register_values={}, admit_values={}):
@@ -216,13 +235,14 @@ class t4_clinical_api_demo(orm.AbstractModel):
         ward_location = api.browse(cr, uid, 't4.clinical.location', ward_location_id)     
         pos_id = ward_location.pos_id.id
         admit_activity_id = self.register_admit(cr, uid, pos_id, register_values, admit_values={'location': ward_location.code})
+        api.complete(cr, uid, admit_activity_id)
         admission_activity_id = api.activity_map(cr, uid, 
                                                   data_models=['t4.clinical.patient.admission'],
                                                   creator_ids=[admit_activity_id]).keys()[0]       
         #api.complete(cr, uid, admission_activity_id)   
         return admission_activity_id
         
-    def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}, strict=True):
+    def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}):
         """
         Registers, admits and places patient into bed_location_id if vacant 
         otherwise found among existing ones or created.
@@ -232,9 +252,8 @@ class t4_clinical_api_demo(orm.AbstractModel):
         
         bed_location = api.browse(cr, uid, 't4.clinical.location', bed_location_id)     
         pos_id = bed_location.pos_id.id      
-        
         admit_activity_id = self.register_admit(cr, uid, pos_id, register_values, admit_values)
-          
+        api.complete(cr, uid, admit_activity_id) 
         admission_activity_id = api.activity_map(cr, uid, 
                                                   data_models=['t4.clinical.patient.admission'],
                                                   creator_ids=[admit_activity_id]).keys()[0]
@@ -522,7 +541,7 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
             'name': login.capitalize(),
             'login': login,
             'password': login,
-            'groups_id': [(4, group.id)],
+#             'groups_id': [(4, group.id)],
             'location_ids': [(4,location_id) for location_id in location_ids]
         }  
         return v 
@@ -710,7 +729,7 @@ class t4_clinical_api_demo_data(orm.AbstractModel):
         return v
     
     def adt_admit(self, cr, uid, values={}):
-        print values
+        print "api_demo.adt_admit values:", values
         fake = self.next_seed_fake()
         api =self.pool['t4.clinical.api']
         api_demo = self.pool['t4.clinical.api.demo']

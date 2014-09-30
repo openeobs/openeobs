@@ -100,11 +100,11 @@ class res_groups(orm.Model):
     
     def write(self, cr, uid, ids, values, context=None):
         res = super(res_groups, self).write(cr, uid, ids, values, context)
-        if values.get('users_id'):
+        if values.get('users'):
             api = self.pool['t4.clinical.api']
             user_ids = []
             for group in self.browse(cr, uid, isinstance(ids, (list, tuple)) and ids or [ids]):
-                user_ids.extend([u.id for u in  group.users_id])
+                user_ids.extend([u.id for u in  group.users])
             api.update_activity_users(cr, uid, user_ids)
         return res
     

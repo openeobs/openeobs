@@ -38,47 +38,64 @@ class test_activity_access(SingleTransactionCase):
         ward_id = api_demo.create(cr, uid, 't4.clinical.location', 'location_ward', {'pos_id': pos_id})
         bed_id = api_demo.create(cr, uid, 't4.clinical.location', 'location_bed', {'parent_id': ward_id}) 
         nurse_id = api_demo.create(cr, uid, 'res.users', 'user_nurse')
-        placement_activity_id = api_demo.register_admit_place(cr, uid, bed_id)
+        bed_id = bed_id
+        ward = api.browse(cr, uid, 't4.clinical.location', ward_id)
+        
+        # before SPELL creation: TEST of t4.clinical.spell update() 
+        print "ADD LOCATION"
+        api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[4, bed_id]]}) 
+        nurse_user = api.browse(cr, uid, 'res.users', nurse_id)
+        assert bed_id in [l.id for l in nurse_user.location_ids] 
+        placement_activity_id = api_demo.register_admit_place(cr, uid, bed_id, {}, admit_values={'location': ward.code})    
         placement_activity = api.browse(cr, uid, 't4.activity', placement_activity_id)
+        assert placement_activity.parent_id.data_model == 't4.clinical.spell'
         spell_activity_id = placement_activity.parent_id.id
-        assert spell_activity_id
-        location_id = placement_activity.parent_id.location_id.id
-        assert location_id
+        spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
+        assert spell_activity.location_id.id == bed_id
+#         import pdb; pdb.set_trace()
+        assert nurse_id in [u.id for u in spell_activity.user_ids], "spell.user_ids: %s" % [u.id for u in spell_activity.user_ids]
+        print "DELETE LOCATION"
+        api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[3, bed_id]]})
+        assert bed_id not in [l.id for l in nurse_user.location_ids]
         nurse_user = api.browse(cr, uid, 'res.users', nurse_id)
         assert not nurse_user.location_ids
-        # ORM ACL
-        # user.location_ids is False
-        domain = [('id', '=', spell_activity_id)]
-        spell_ids = api.search(cr, nurse_id, 't4.clinical.spell', domain)
-        assert not spell_ids
         
-        # add location
+        # WRITE location_ids ON RES.USER
         print "ADD LOCATION"
-        api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[4, location_id]]}) 
+        api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[4, bed_id]]}) 
         nurse_user = api.browse(cr, uid, 'res.users', nurse_id)
-        assert location_id in [l.id for l in nurse_user.location_ids]
+        assert bed_id in [l.id for l in nurse_user.location_ids]
         spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
         assert nurse_id in [u.id for u in spell_activity.user_ids]
-        # remove location
         print "DELETE LOCATION"
-        api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[3, location_id]]})
-        assert location_id not in [l.id for l in nurse_user.location_ids]
+        api.write(cr, uid, 'res.users', nurse_id, {'location_ids': [[3, bed_id]]})
+        assert bed_id not in [l.id for l in nurse_user.location_ids]
         spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
+        assert nurse_id not in [u.id for u in spell_activity.user_ids], "Spell activity must be accessible anyway!"
         
-        
-        # FIXME!
-        #assert nurse_id in [u.id for u in spell_activity.user_ids], "Spell activity must be accessible anyway!"
-        
-        # add/remove group
+        # WRITE groups_id ON RES.USER
+        print "NEW USER without 't4clinical' groups"
+        user_id = api_demo.create(cr, uid, 'res.users', '_user_base')
+        api.write(cr, uid, 'res.users', user_id, {'location_ids': [[4, bed_id]]}) 
+        spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
+        assert user_id not in [u.id for u in spell_activity.user_ids], "User must not appear in activity.user_ids"
+        print "NEW USER: adding group"
+        imd_pool = self.registry('ir.model.data')
+        group = imd_pool.get_object(cr, uid, "t4clinical_base", "group_t4clinical_nurse")
+        api.write(cr, uid, 'res.users', user_id, {'groups_id': [[4, group.id]]}) 
+        spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
+        assert user_id in [u.id for u in spell_activity.user_ids], "User must appear in activity.user_ids after nurse group added!"
 
+        # WRITE users ON RES.GROUPS
+        print "NEW USER without 't4clinical' groups"
+        user_id = api_demo.create(cr, uid, 'res.users', '_user_base')
+        api.write(cr, uid, 'res.users', user_id, {'location_ids': [[4, bed_id]]}) 
+        spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
+        assert user_id not in [u.id for u in spell_activity.user_ids], "User must not appear in activity.user_ids"        
 
-
-
-
-
-
-
-
+        api.write(cr, uid, 'res.groups', group.id, {'users': [[4, user_id]]})
+        spell_activity = api.browse(cr, uid, 't4.activity', spell_activity_id)
+        assert user_id in [u.id for u in spell_activity.user_ids], "User must appear in activity.user_ids after user added to nurse group!"       
 
 
 
