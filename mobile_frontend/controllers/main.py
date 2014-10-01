@@ -8,8 +8,8 @@ from werkzeug import utils, exceptions
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 URL_PREFIX = '/mobile/'
-
 URLS = urls.URLS
+
 
 db_list = http.db_list
 
@@ -118,12 +118,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['js_routes'], type='http', auth='none')
     def javascript_routes(self, *args, **kw):
+        urls.BASE_URL = request.httprequest.host_url[:-1] + URL_PREFIX
+        URLS = urls.URLS
         routes = urls.routes
         for route in routes:
             route['args_list'] = ','.join(route['args']) if route['args'] else False
         return request.make_response(env.get_template('routes_template.js').render({
             'routes': routes,
-            'base_url': urls.BASE_URL
+            'base_url': request.httprequest.host_url[:-1] + URL_PREFIX
         }), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['graph_lib'], type='http', auth='none')

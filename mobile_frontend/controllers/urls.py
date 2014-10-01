@@ -1,5 +1,8 @@
+SERVER_PROTOCOL = "http"
+SERVER_ADDRESS = "localhost"
+SERVER_PORT = "8169"
 URL_PREFIX = '/mobile/'
-BASE_URL = 'http://localhost:8169'+URL_PREFIX
+BASE_URL = SERVER_PROTOCOL+'://'+SERVER_ADDRESS+':'+SERVER_PORT+URL_PREFIX
 
 routes = [
     {
