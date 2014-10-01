@@ -112,10 +112,9 @@ openerp.t4clinical_ui = function (instance) {
                 this.model = new instance.web.Model("t4.clinical.wardboard");
                 var attachment_id = this.model.call('print_report',[[this.view.datarecord.id]], {context: this.view.dataset.context}).done(function(response){
                     if (response[0]){
-                        //var dataToSend = {"data":'{"data": null, "model":"ir.attachment","field":"datas","filename_field":"datas_fname","id":'+response[0]+', "context": '+JSON.stringify(response[1])+'}'}
-                        //var options = {url: '/web/binary/saveas_ajax', data: dataToSend};
-                        //openerp.instances.instance0.session.get_file(options);
-                        console.log(response);
+                        var dataToSend = {"data":'{"data": null, "model":"ir.attachment","field":"datas","filename_field":"datas_fname","id":'+response[0]+', "context": '+JSON.stringify(response[1])+'}'}
+                        var options = {url: '/web/binary/saveas_ajax', data: dataToSend};
+                        openerp.instances.instance0.session.get_file(options);
                     }
                 });
             }
