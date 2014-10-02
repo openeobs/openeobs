@@ -320,7 +320,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
             adt_uid = adt_uid and adt_uid[0] or self.create(cr, uid, 'res.users', 'user_adt', {'pos_id': pos_id})    
         return adt_uid
     
-    def register_admit(self, cr, uid, pos_id, register_values={}, admit_values={}):
+    def register_admit(self, cr, uid, pos_id, register_values={}, admit_values={}, return_id=False):
         """
         Registers and admits patient to POS. Missing data will be generated
         """
@@ -342,9 +342,12 @@ class t4_clinical_api_demo(orm.AbstractModel):
         admit_data.update(admit_values)
         admit_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', None, {}, admit_data)     
         #api.complete(cr, uid, admit_activity_id)   
-        return api.browse(cr, uid, 't4.activity', admit_activity_id)
+        if return_id:
+            return admit_activity_id
+        else:
+            return api.browse(cr, uid, 't4.activity', admit_activity_id)
              
-    def register_admission(self, cr, uid, ward_location_id, register_values={}, admit_values={}):
+    def register_admission(self, cr, uid, ward_location_id, register_values={}, admit_values={}, return_id=False):
         """
         Registers and admits patient to POS. Missing data will be generated
         """
@@ -358,9 +361,12 @@ class t4_clinical_api_demo(orm.AbstractModel):
                                                   data_models=['t4.clinical.patient.admission'],
                                                   creator_ids=[admit_activity.id]).keys()[0]       
         #api.complete(cr, uid, admission_activity_id)   
-        return api.browse(cr, uid, 't4.activity', admission_activity_id)
+        if return_id:
+            return admission_activity_id
+        else:    
+            return api.browse(cr, uid, 't4.activity', admission_activity_id)
         
-    def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}):
+    def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}, return_id=False):
         """
         Registers, admits and places patient into bed_location_id if vacant 
         otherwise found among existing ones or created.
@@ -380,8 +386,11 @@ class t4_clinical_api_demo(orm.AbstractModel):
                                                   data_models=['t4.clinical.patient.placement'],
                                                   creator_ids=[admission_activity_id]).keys()[0]   
         
-        api.submit_complete(cr, uid, placement_activity_id, {'location_id': bed_location_id})     
-        return api.browse(cr, uid, 't4.activity', placement_activity_id)     
+        api.submit_complete(cr, uid, placement_activity_id, {'location_id': bed_location_id})  
+        if return_id:
+            return placement_activity_id
+        else:           
+            return api.browse(cr, uid, 't4.activity', placement_activity_id)     
     
     def greenford_ews(self, cr, uid, bed_codes=[], ews_count=3):
         api = self.pool['t4.clinical.api']

@@ -94,6 +94,7 @@
                 <form string="Wardboard Form View" version="7.0" create="0" delete="0">
                     <header>
                         <button name="wardboard_patient_placement" string="Move Patient"  type="object"/>
+                        <button name="wardboard_patient_swap_beds" string="Swap Beds"  type="object"/>
                         <button name="print_report" string="Print Report" type="object"/>
                         <button name="wardboard_chart" string="NEWS Chart" type="object"/>
                         <button name="wardboard_ews" string="NEWS List" type="object"/>
