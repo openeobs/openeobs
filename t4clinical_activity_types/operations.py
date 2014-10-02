@@ -367,8 +367,10 @@ class t4_clinical_patient_discharge(orm.Model):
         
     _columns = {
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True),
-        'location_id': fields.related('activity_id','location_id', type='many2one', relation='t4.clinical.location', string='Location')
+        'location_id': fields.related('activity_id', 'location_id', type='many2one', relation='t4.clinical.location', string='Location'),
+        'discharge_date': fields.datetime('Discharge Date')
     }
+
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
@@ -397,6 +399,9 @@ class t4_clinical_patient_discharge(orm.Model):
         # complete spell 
 
         activity_pool.complete(cr, uid, spell_activity.id, context)
+        if activity.data_ref.discharge_date:
+            activity_pool.write(cr, SUPERUSER_ID, activity_id, {'date_terminated': activity.data_ref.discharge_date})
+            activity_pool.write(cr, SUPERUSER_ID, spell_activity.id, {'date_terminated': activity.data_ref.discharge_date})
         return {}  
              
 class t4_clinical_patient_admission(orm.Model):
@@ -406,7 +411,8 @@ class t4_clinical_patient_admission(orm.Model):
         'patient_id': fields.many2one('t4.clinical.patient', 'Patient', required=True), 
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', required=True),
         'suggested_location_id': fields.many2one('t4.clinical.location', 'Suggested Location'),
-        'location_id': fields.related('activity_id','location_id', type='many2one', relation='t4.clinical.location', string='Location')
+        'location_id': fields.related('activity_id','location_id', type='many2one', relation='t4.clinical.location', string='Location'),
+        'start_date': fields.datetime("Admission Start Date"),
     }
             
             
@@ -434,7 +440,10 @@ class t4_clinical_patient_admission(orm.Model):
         spell_pool = self.pool['t4.clinical.spell']
         spell_activity_id = spell_pool.create_activity(cr, SUPERUSER_ID, 
            {'creator_id': activity_id},
-           {'patient_id': admission.patient_id.id, 'location_id': admission.location_id.id, 'pos_id': admission.pos_id.id},
+           {'patient_id': admission.patient_id.id,
+            'location_id': admission.location_id.id,
+            'pos_id': admission.pos_id.id,
+            'start_date': admission.start_date},
            context=None)
         # copy doctors
         #import pdb; pdb.set_trace()
