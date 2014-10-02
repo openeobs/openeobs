@@ -375,6 +375,8 @@ DEVICE_OPTION = """<option value="{device_id}">{device_name}</option>"""
 
 OBS_FREQ_OPTION = """<option value="{freq_time}">{freq_name}</option>"""
 
+BED_PLACEMENT_OPTION = """<option value="{location_id}">{location_name}</option>"""
+
 OBS_FREQ_HTML = """
 <!DOCTYPE html>
 <html>
@@ -430,6 +432,66 @@ OBS_FREQ_HTML = """
         </div>
         <div class="footer block">
             <p class="user">norah</p>
+        </div>
+    </body>
+</html>
+"""
+
+BED_PLACEMENT_HTML = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Open-eObs</title>
+        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-main block">
+                <img class="logo" src="/mobile/src/img/logo.png"/>
+                <ul class="header-meta">
+                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
+                </ul>
+            </div>
+            <ul class="header-menu two-col">
+                <li><a id="taskNavItem" href="/mobile/tasks/" class="selected">Tasks</a></li>
+                <li><a id="patientNavItem" href="/mobile/patients/">My Patients</a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <h2 id="patientName" class="block">
+                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
+            </h2>
+            <form class="obsChange block" task-id="{task_id}" patient-id="{patient_id}" data-type="placement" action="{task_url}" method="POST" data-source="task" id="obsForm">
+                <h3>Confirm action taken?</h3>
+                <p>Press the button below to confirm that you can completed the task Patient Placement</p>
+                <div>
+                    <div class="block obsSelectField" id="parent_location_id">
+                        <div class="input-header">
+                            <label for="location_id">Location</label>
+                        </div>
+                        <div class="input-body">
+                            <select name="location_id"  id="location_id">
+                                {bed_options}
+                            </select>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <input value="{task_id}" type="hidden" name="taskId"/>
+                <input value="0" type="hidden" name="startTimestamp" id="startTimestamp"/>
+                <p class="obsSubmit">
+                    <a id="bedSubmit" class="button submitButton" href="{task_url}">Confirm action</a>
+                </p>
+            </form>
+            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
+            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
+            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
+            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
+        </div>
+        <div class="footer block">
+            <p class="user">winifred</p>
         </div>
     </body>
 </html>

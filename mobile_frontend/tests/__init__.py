@@ -17,6 +17,7 @@ import test_adhoc_news_observation_form
 import test_adhoc_pbp_observation_form
 import test_adhoc_stools_observation_form
 import test_adhoc_weight_observation_form
+import test_bed_placement_form
 
 fast_suite = [
     test_patient_list,
@@ -37,5 +38,6 @@ fast_suite = [
     test_adhoc_news_observation_form,
     test_adhoc_pbp_observation_form,
     test_adhoc_stools_observation_form,
-    test_adhoc_weight_observation_form
+    test_adhoc_weight_observation_form,
+    test_bed_placement_form
 ]
