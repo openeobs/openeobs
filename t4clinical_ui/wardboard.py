@@ -5,6 +5,7 @@ _logger = logging.getLogger(__name__)
 from openerp import tools
 from openerp.addons.t4activity.activity import except_if
 from openerp import SUPERUSER_ID
+import controllers.visit_report as visit_report
 
 class wardboard_patient_placement(orm.TransientModel):
     _name = "wardboard.patient.placement"
@@ -394,24 +395,42 @@ class t4_clinical_wardboard(orm.Model):
 
     def print_report(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
-
-        model_data_pool = self.pool['ir.model.data']
-        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_print_report_form')], context=context)
-        if not model_data_ids:
-            pass
-        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
-        context.update({'printing': 'true'})
-        return {
-            'name': wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 't4.clinical.wardboard',
-            'res_id': ids[0],
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'inline',
-            'context': context,
-            'view_id': int(view_id)
+        users = self.pool['res.users']
+        config = self.pool['ir.config_parameter']
+        base_url = config.read(cr, uid, config.search(cr, uid, [('key', '=', 'web.base.url')]),['value'])[0]['value']
+        user = users.read(cr, uid, uid, ['name'])['name']
+        # get spell id
+        spell_id = wardboard.id
+        # Format URL for report
+        url = '{base_url}{endpoint}{spell_id}/?user={user}'.format(base_url=base_url,
+                                                                   endpoint=visit_report.endpoint,
+                                                                   spell_id=spell_id,
+                                                                   user=user)
+        # Create filename
+        fname = '/tmp/open_eobs/{spell_id}.pdf'.format(spell_id=spell_id)
+        # Create options dict
+        data_fname = '{hospital_number}_report.pdf'.format(hospital_number=wardboard.hospital_number)
+        name = 'Patient Report for {patient_name}'.format(patient_name=wardboard.full_name)
+        description = 'Patient Report for {patient_name}'.format(patient_name=wardboard.full_name)
+        options = {
+            'url': url,
+            'fname': fname,
+            'res_model': 't4.clinical.spell',
+            'res_id': spell_id,
+            'datas_fname': data_fname,
+            'name': name,
+            'description': description,
+            'database': cr.dbname
         }
+
+        # Call the print function
+        phantomjs = self.pool['phantomjs.pdf']
+        print_result = phantomjs.phantomjs_print(cr, uid, options, context=context)
+        if isinstance(print_result, int):
+            return print_result
+        else:
+            _logger.warn(print_result)
+            return False
 
     def write(self, cr, uid, ids, vals, context=None):
         activity_pool = self.pool['t4.activity']

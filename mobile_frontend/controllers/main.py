@@ -88,7 +88,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
         with open(get_module_path('mobile_frontend') + '/static/src/fonts/' + xmlid, 'r') as font:
-            return request.make_response(font.read(), headers={'Content-Type':'application/font-woff'})
+            return request.make_response(font.read(), headers={'Content-Type': 'application/font-woff'})
 
 
     @http.route(URLS['logo'], type='http', auth='none')
