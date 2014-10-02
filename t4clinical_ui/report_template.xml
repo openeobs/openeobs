@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 <div class="full-page page">
-                    <t t-if="json_ews">
+                    <t t-if="ews_code">
                         <div class="row">
                             <div class="table-wrapper" id="the_unplottables">
                                 <h3>Tabular EWS Values</h3>

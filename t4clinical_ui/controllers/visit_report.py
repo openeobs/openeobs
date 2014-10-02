@@ -34,14 +34,18 @@ graph_js = """
     context.scoreRange = [{{"class": "green",s: 0,e: 5}},{{"class": "amber",s: 5,e: 7}},{{"class": "red",s: 7,e: 18}}];
     records.forEach(function(d){{
     d.date_started = svg.startParse(d.date_started);
-    if (d.flow_rate > -1){{
+    if (d.flow_rate !== false || d.concentration !== false){{
     plotO2 = true;
     d.inspired_oxygen = "";
-    d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
-    d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
-    if(d.cpap_peep > -1){{
+    if(d.flow_rate !== false){{
+        d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
+    }}
+    if(d.concentration !== false){{
+        d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
+    }}
+    if(d.cpap_peep !== false){{
     d.inspired_oxygen += "CPAP PEEP: " + d.cpap_peep + "<br>";
-    }}else if(d.niv_backup > -1){{
+    }}else if(d.niv_backup !== false){{
     d.inspired_oxygen += "NIV Backup Rate: " + d.niv_backup + "<br>";
     d.inspired_oxygen += "NIV EPAP: " + d.niv_epap + "<br>";
     d.inspired_oxygen += "NIV IPAP: " + d.niv_ipap + "<br>";
@@ -70,7 +74,7 @@ graph_js = """
     if (plotO2==true){{
     focus.tables.push({{key:"inspired_oxygen", label:"Inspired oxygen"}});
     }}
-    graph_lib.initTable();
+    //graph_lib.initTable();
 """
 
 phantom_code = """
