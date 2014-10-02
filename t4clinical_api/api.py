@@ -56,7 +56,7 @@ class t4_clinical_api(orm.AbstractModel):
 
     def check_activity_access(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['t4.activity']
-        domain = [('id', '=', activity_id)]
+        domain = [('id', '=', activity_id), ('user_ids', 'in', [uid])]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         if not activity_ids:
             return False
@@ -185,6 +185,8 @@ class t4_clinical_api(orm.AbstractModel):
         return activity_values
 
     def cancel(self, cr, uid, activity_id, data, context=None):
+        if not data:
+            data = {}
         activity_pool = self.pool['t4.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
         activity_pool.submit(cr, uid, activity_id, data, context=context)
@@ -201,6 +203,8 @@ class t4_clinical_api(orm.AbstractModel):
         return activity_pool.unassign(cr, uid, activity_id, context=context)
 
     def assign(self, cr, uid, activity_id, data, context=None):
+        if not data:
+            data = {}
         activity_pool = self.pool['t4.activity']
         user_pool = self.pool['res.users']
         user_id = uid
@@ -479,8 +483,10 @@ class t4_clinical_api(orm.AbstractModel):
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['t4.activity']
+        patient_pool = self.pool['t4.clinical.patient']
+        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         data.update({'other_identifier': patient_id})
-        transfer_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.transfer', {}, {}, context=context)
+        transfer_activity = self._create_activity(cr, uid, 't4.clinical.adt.patient.transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
         activity_pool.submit(cr, uid, transfer_activity, data, context=context)
         activity_pool.complete(cr, uid, transfer_activity, context=context)
         _logger.info("Patient transferred\n data: %s" % data)
