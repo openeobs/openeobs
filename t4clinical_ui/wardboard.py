@@ -402,10 +402,9 @@ class t4_clinical_wardboard(orm.Model):
         # get spell id
         spell_id = wardboard.id
         # Format URL for report
-        url = '{base_url}{endpoint}{spell_id}/?user={user}'.format(base_url=base_url,
-                                                                   endpoint=visit_report.endpoint,
-                                                                   spell_id=spell_id,
-                                                                   user=user)
+        url = '{base_url}{endpoint}{spell_id}/'.format(base_url=base_url,
+                                                       endpoint=visit_report.endpoint,
+                                                       spell_id=spell_id)
         # Create filename
         fname = '/tmp/open_eobs/{spell_id}.pdf'.format(spell_id=spell_id)
         # Create options dict

@@ -174,6 +174,12 @@ routes = [
         'args': ['task_id']
     },
     {
+        'name': 'confirm_bed_placement',
+        'endpoint': 'tasks/confirm_bed_placement/',
+        'method': 'POST',
+        'args': ['task_id']
+    },
+    {
         'name': 'ajax_get_patient_obs',
         'endpoint': 'patient/ajax_obs/',
         'method': 'GET',
