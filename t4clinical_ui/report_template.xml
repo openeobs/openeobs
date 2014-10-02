@@ -61,7 +61,15 @@
                                 <h2>Hospital Visit</h2>
                                 <table>
                                     <tr>
-                                        <td>Location:</td><td><t t-esc="patient['bed']"/>, <t t-esc="patient['ward']"/></td>
+                                        <td>Location:</td>
+                                        <td>
+                                            <t t-if="'bed' in patient">
+                                                <t t-esc="patient['bed']"/>,
+                                            </t>
+                                            <t t-if="'ward' in patient">
+                                                <t t-esc="patient['ward']"/>
+                                            </t>
+                                        </td>
                                     </tr>
                                     <t t-if="len(transfer_history) > 1">
                                         <tr>
@@ -121,7 +129,7 @@
                                 <tbody>
                                     <t t-foreach="weights" t-as="weight">
                                         <tr>
-                                            <td><t t-esc="weight['values']['date_started']"/></td>
+                                            <td><t t-esc="weight['values']['date_terminated']"/></td>
                                             <td><t t-esc="weight['values']['weight']"/></td>
                                         </tr>
                                     </t>
@@ -146,8 +154,8 @@
                                     <t t-foreach="pbps" t-as="pbp_ob">
                                         <tr>
                                             <td><t t-esc="pbp_ob['date_terminated']"/></td>
-                                            <td><t t-esc="pbp_ob['user_id'][1]"/></td>
-                                            <td><t t-esc="pbp_on['dehydrated']"/></td>
+                                            <td><t t-esc="pbp_ob['terminate_uid'][1]"/></td>
+                                            <td><t t-esc="pbp_ob['values']['result']"/></td>
                                             <td>
                                                 <table class="pbp-data striped">
                                                     <thead>
@@ -160,13 +168,13 @@
                                                     <tbody>
                                                         <tr>
                                                             <td>Sitting</td>
-                                                            <td><t t-esc="pbp_ob['systolic_sitting']"/></td>
-                                                            <td><t t-esc="pbp_ob['diastolic_sitting']"/></td>
+                                                            <td><t t-esc="pbp_ob['values']['systolic_sitting']"/></td>
+                                                            <td><t t-esc="pbp_ob['values']['diastolic_sitting']"/></td>
                                                         </tr>
                                                         <tr>
                                                             <td>Standing</td>
-                                                            <td><t t-esc="pbp_ob['systolic_standing']"/></td>
-                                                            <td><t t-esc="pbp_ob['diastolic_standing']"/></td>
+                                                            <td><t t-esc="pbp_ob['values']['systolic_standing']"/></td>
+                                                            <td><t t-esc="pbp_ob['values']['diastolic_standing']"/></td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -191,11 +199,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <t t-foreach="targeto2_history" t-as="targeto2">
+                                    <t t-foreach="targeto2" t-as="o2">
                                         <tr class="main-entry">
-                                            <td><t t-esc="targeto2['values']['create_date']"/></td>
-                                            <td><t t-esc="targeto2['values']['o2target']"/></td>
-                                            <td><t t-esc="targeto2['values']['user_id']"/></td>
+                                            <td><t t-esc="o2['values']['date_terminated']"/></td>
+                                            <td><t t-esc="o2['values']['level_id'][1]"/></td>
+                                            <td><t t-esc="o2['write_uid'][1]"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -218,7 +226,7 @@
                                 <tbody>
                                     <t t-foreach="transfer_history" t-as="transfer">
                                         <tr class="main-entry">
-                                            <td><t t-esc="transfer['create_date']"/></td>
+                                            <td><t t-esc="transfer['date_terminated']"/></td>
                                             <td><t t-esc="transfer['bed']"/></td>
                                             <td><t t-esc="transfer['ward']"/></td>
                                         </tr>
@@ -287,7 +295,5 @@
             </body>
             </html>
         </template>
-
-
     </data>
 </openerp>
