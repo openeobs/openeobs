@@ -342,7 +342,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
         admit_data.update(admit_values)
         admit_activity_id = self.create_activity(cr, adt_uid, 't4.clinical.adt.patient.admit', None, {}, admit_data)     
         #api.complete(cr, uid, admit_activity_id)   
-        return admit_activity_id
+        return api.browse(cr, uid, 't4.activity', admit_activity_id)
              
     def register_admission(self, cr, uid, ward_location_id, register_values={}, admit_values={}):
         """
@@ -352,13 +352,13 @@ class t4_clinical_api_demo(orm.AbstractModel):
         # ensure pos_id is set
         ward_location = api.browse(cr, uid, 't4.clinical.location', ward_location_id)     
         pos_id = ward_location.pos_id.id
-        admit_activity_id = self.register_admit(cr, uid, pos_id, register_values, admit_values={'location': ward_location.code})
-        api.complete(cr, uid, admit_activity_id)
+        admit_activity = self.register_admit(cr, uid, pos_id, register_values, admit_values={'location': ward_location.code})
+        api.complete(cr, uid, admit_activity.id)
         admission_activity_id = api.activity_map(cr, uid, 
                                                   data_models=['t4.clinical.patient.admission'],
-                                                  creator_ids=[admit_activity_id]).keys()[0]       
+                                                  creator_ids=[admit_activity.id]).keys()[0]       
         #api.complete(cr, uid, admission_activity_id)   
-        return admission_activity_id
+        return api.browse(cr, uid, 't4.activity', admission_activity_id)
         
     def register_admit_place(self, cr, uid, bed_location_id=None, register_values={}, admit_values={}):
         """
@@ -370,18 +370,18 @@ class t4_clinical_api_demo(orm.AbstractModel):
         
         bed_location = api.browse(cr, uid, 't4.clinical.location', bed_location_id)     
         pos_id = bed_location.pos_id.id      
-        admit_activity_id = self.register_admit(cr, uid, pos_id, register_values, admit_values)
-        api.complete(cr, uid, admit_activity_id) 
+        admit_activity = self.register_admit(cr, uid, pos_id, register_values, admit_values)
+        api.complete(cr, uid, admit_activity.id) 
         admission_activity_id = api.activity_map(cr, uid, 
                                                   data_models=['t4.clinical.patient.admission'],
-                                                  creator_ids=[admit_activity_id]).keys()[0]
+                                                  creator_ids=[admit_activity.id]).keys()[0]
                         
         placement_activity_id = api.activity_map(cr, uid, 
                                                   data_models=['t4.clinical.patient.placement'],
                                                   creator_ids=[admission_activity_id]).keys()[0]   
         
         api.submit_complete(cr, uid, placement_activity_id, {'location_id': bed_location_id})     
-        return placement_activity_id     
+        return api.browse(cr, uid, 't4.activity', placement_activity_id)     
     
     def greenford_ews(self, cr, uid, bed_codes=[], ews_count=3):
         api = self.pool['t4.clinical.api']

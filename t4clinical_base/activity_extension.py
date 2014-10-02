@@ -44,6 +44,7 @@ class t4_activity(orm.Model):
         'device_id': fields.many2one('t4.clinical.device', 'Device', readonly=True),
         'location_id': fields.many2one('t4.clinical.location', 'Location', readonly=True),
         'pos_id': fields.many2one('t4.clinical.pos', 'POS', readonly=True),
+        'spell_activity_id': fields.many2one('t4.activity', 'Spell Activity', readonly=True),
         'cancel_reason_id': fields.many2one('t4.cancel.reason', 'Cancellation Reason')
     }
     
@@ -59,24 +60,25 @@ class t4_activity_data(orm.AbstractModel):
         'cancelled': []
     }      
     def update_activity(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['t4.activity']
-        activity = activity_pool.browse(cr, uid, activity_id, context)
+        api = self.pool['t4.clinical.api']
+        activity = api.browse(cr, uid, 't4.activity', activity_id, context)
         activity_vals = {}
         location_id = self.get_activity_location_id(cr, uid, activity_id)
         patient_id = self.get_activity_patient_id(cr, uid, activity_id)
         device_id = self.get_activity_device_id(cr, uid, activity_id)
         pos_id = self.get_activity_pos_id(cr, uid, activity_id)
-        
+
         activity_vals.update({'location_id': location_id,
                               'patient_id': patient_id,
                               'device_id': device_id,
                               'pos_id': pos_id})
-        activity_pool.write(cr, uid, activity_id, activity_vals)
+        api.write(cr, uid, 't4.activity', activity_id, activity_vals)
+        activities = api.activity_map(cr, uid, pos_ids=[pos_id], patient_ids=[patient_id],
+                         data_models=['t4.clinical.spell'], states=['started'])
+        spell_activity_id = activities and activities.keys()[0] or False
         # user_ids depend on location_id, thus separate updates
         user_ids = self.get_activity_user_ids(cr, uid, activity_id)
-        #import pdb; pdb.set_trace()
-        activity_pool.write(cr, uid, activity_id, {'user_ids': [(6, 0, user_ids)]})
-        # #print"activity_vals: %s" % activity_vals
+        api.write(cr, uid, 't4.activity', activity_id, {'user_ids': [(6, 0, user_ids)], 'spell_activity_id': spell_activity_id})
         _logger.debug(
             "activity '%s', activity.id=%s updated with: %s" % (activity.data_model, activity.id, activity_vals))
         return {}
@@ -146,7 +148,12 @@ class t4_activity_data(orm.AbstractModel):
         if 'location_id' in self._columns.keys():
             location_id = data.location_id and data.location_id.id or False
         if not location_id:
+            location_id = data.activity_id.patient_id.current_location_id.id
+        if not location_id:
+            location_id = data.activity_id.spell_activity_id and data.activity_id.spell_activity_id.location_id.id or False
+        if not location_id:
             location_id = data.activity_id.parent_id and data.activity_id.parent_id.location_id.id or False
+        print "location_id: %s" % location_id
         return location_id
 
     def get_activity_patient_id(self, cr, uid, activity_id, context=None):

@@ -7,7 +7,7 @@ from pprint import pprint as pp
 from openerp import tools
 from openerp.osv import orm, fields, osv
 from openerp.addons.t4clinical_base.tests.test_base import BaseTest
-
+from openerp.tools import config 
 import logging        
 from pprint import pprint as pp
 _logger = logging.getLogger(__name__)
@@ -24,7 +24,16 @@ def next_seed():
 
 
 class test_operations(common.SingleTransactionCase):
-
+    @classmethod
+    def tearDownClass(cls):
+        if config['test_commit']:
+            cls.cr.commit()
+            print "COMMIT"
+        else:
+            cls.cr.rollback()
+            print "ROLLBACK"
+        cls.cr.close()
+        
     def setUp(self):
         super(test_operations, self).setUp()
         
@@ -59,3 +68,31 @@ class test_operations(common.SingleTransactionCase):
         assert placement_activity.data_ref.patient_id.id == placement_activity.patient_id.id
         assert placement_activity.data_ref.suggested_location_id
         assert placement_activity.location_id.id == placement_activity.data_ref.suggested_location_id.id
+        
+    def test_swap_beds(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('t4.clinical.api')
+        api_demo = self.registry('t4.clinical.api.demo')
+        print "TEST SWAP BEDS"
+        pos_id = api_demo.create(cr, uid, 't4.clinical.pos') 
+        ward_id = api_demo.create(cr, uid, 't4.clinical.location', 'location_ward', {'pos_id': pos_id})
+        bed1_id = api_demo.create(cr, uid, 't4.clinical.location', 'location_bed', {'parent_id': ward_id}) 
+        bed2_id = api_demo.create(cr, uid, 't4.clinical.location', 'location_bed', {'parent_id': ward_id})
+        placement_activity1 = api_demo.register_admit_place(cr, uid, bed1_id)
+        placement_activity2 = api_demo.register_admit_place(cr, uid, bed2_id)
+        swap_activity = api.create_complete(cr, uid, 't4.clinical.patient.swap_beds', {},
+                                            {'location1_id': bed1_id, 'location2_id': bed2_id})
+        patient1 = api.browse(cr, uid, 't4.clinical.patient', placement_activity1.patient_id.id)
+        patient2 = api.browse(cr, uid, 't4.clinical.patient', placement_activity2.patient_id.id)
+        assert patient1.current_location_id.id == bed2_id
+        assert patient2.current_location_id.id == bed1_id
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        

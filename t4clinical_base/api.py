@@ -93,7 +93,16 @@ def list2sqlstr(lst):
     
 class t4_clinical_api(orm.AbstractModel):
     _name = 't4.clinical.api'
-
+    
+    def get_submodels(self, cr, uid, base_models=[]):
+        res = []
+        for model_name, model in self.pool.models.items():
+            for mro_class in model.__class__.mro():
+                if hasattr(mro_class, '_name') and mro_class._name in base_models:
+                    res.append(model_name)
+                    continue
+        return res
+    
     def search(self, cr, uid, model, args, offset=0, limit=None, order=None, context=None, count=False):
         model_pool = self.pool[model]
         return model_pool.search(cr, uid, args, offset, limit, order, context, count)
@@ -343,7 +352,7 @@ with
             spell_activity.max_id as spell_activity_id,
             previous_spell_activity.ids as previous_spell_activity_ids,
             pos.id as pos_id,
-            now() at time zone 'UTC' - move_activity.date_terminated < interval '%s' as recently_transferred 
+            now() at time zone 'UTC' - move_activity.date_terminated < interval '%s' as recently_transferred -- to be removed
         from t4_clinical_patient patient
         left join spell_activity on spell_activity.patient_id = patient.id and spell_activity.state = 'started'
         left join spell_activity previous_spell_activity on previous_spell_activity.patient_id = patient.id and previous_spell_activity.state != 'started'
@@ -670,7 +679,8 @@ with
                         ppl.patient_qty as occupied,
                         l.patient_capacity as capacity,
                         coalesce(l.patient_capacity, 0) - coalesce(ppl.patient_qty, 0) as available,
-                        ppl.patient_ids as patient_ids
+                        ppl.patient_ids as patient_ids,
+                        l.parent_id
                     from t4_clinical_location l
                     left join patient_per_location ppl on l.id = ppl.location_id
                 )

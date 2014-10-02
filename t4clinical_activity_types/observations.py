@@ -27,10 +27,7 @@ class t4_clinical_patient_observation(orm.AbstractModel):
             return {id: False for id in ids}
         res = {}
         for obs in self.read(cr, uid, ids, ['none_values'], context):
-            #print 'inside read {0} - {1}'.format(self._required, obs['none_values'])
             res.update({obs['id']: bool(set(self._required) & set(eval(obs['none_values'])))})
-        #print 'is_partial: %s' % res
-        #import pdb; pdb.set_trace()
         return res
 
     def _partial_observation_has_reason(self, cr, uid, ids, context=None):
@@ -46,7 +43,6 @@ class t4_clinical_patient_observation(orm.AbstractModel):
         api = self.pool['t4.clinical.api']
         activity = api.get_activity(cr, uid, activity_id)
         res = super(t4_clinical_patient_observation, self).complete(cr, uid, activity_id, context)
-        #o = self.browse(cr, uid, activity_id)
         except_if(activity.data_ref.is_partial and not activity.data_ref.partial_reason,
                   msg="Partial observation didn't have reason")
         if not activity.date_started:
@@ -65,16 +61,11 @@ class t4_clinical_patient_observation(orm.AbstractModel):
 
     }
     _form_description = []
-
-    # _constraints = [
-    #     (_partial_observation_has_reason, 'You cannot say observation is partial without supplying a reason', ['partial_reason'])
-    # ]
     
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))
         null_values = list(set(self._num_fields) - set(vals.keys()))
         vals.update({'none_values': none_values, 'null_values': null_values})
-        #print "create none_values: %s" % none_values
         return super(t4_clinical_patient_observation, self).create(cr, uid, vals, context)
     
     def create_activity(self, cr, uid, activity_vals={}, data_vals={}, context=None):

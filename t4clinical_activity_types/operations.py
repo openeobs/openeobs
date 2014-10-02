@@ -138,7 +138,6 @@ class t4_clinical_notification_doctor_assessment(orm.Model):
 class t4_clinical_patient_move(orm.Model):
     _name = 't4.clinical.patient.move'
     _inherit = ['t4.activity.data']  
-    #_rec_name = 'patient_id'    
     _description = "Patient Move"
     _start_view_xmlid = "view_patient_move_form"
     _schedule_view_xmlid = "view_patient_move_form"
@@ -178,6 +177,73 @@ class t4_clinical_patient_move(orm.Model):
         super(t4_clinical_patient_move, self).complete(cr, uid, activity_id, context)
         return {}         
     
+
+class t4_clinical_patient_swap_beds(orm.Model):
+    _name = 't4.clinical.patient.swap_beds'
+    _inherit = ['t4.activity.data']  
+    _description = "Patient Swap"
+    _columns = {
+        'location1_id': fields.many2one('t4.clinical.location', 'Location 1', domain=[['usage','=','bed']], required=True),
+        'location2_id': fields.many2one('t4.clinical.location', 'Location 2', domain=[['usage','=','bed']], required=True),        
+    }
+    
+    
+    # activity.location_id -> bed1, bed2 or closest common parent
+    # cross-POS allowed? no
+    
+    
+    # FIXME: implementation simple, but wrong
+    # consider 'move policies'
+    def complete(self, cr, uid, activity_id, context=None):
+        api = self.pool['t4.clinical.api']
+        activity = api.browse(cr, uid, 't4.activity', activity_id)
+        location1_id = activity.data_ref.location1_id.id
+        location2_id = activity.data_ref.location2_id.id
+        
+        locations = api.location_map(cr, uid, location_ids=[location1_id, location2_id])
+        except_if(not (location1_id in locations and location2_id in locations), msg="Locations not found!")
+        except_if(not locations[location1_id]['patient_ids'], msg="No patient in location '%s'" % activity.data_ref.location1_id.name)
+        except_if(not locations[location2_id]['patient_ids'], msg="No patient in location '%s'" % activity.data_ref.location2_id.name)
+        except_if(not (locations[location2_id]['parent_id'] and locations[location2_id]['parent_id']),
+                        msg="At least one of the beds have no parent location!")
+        parent_location_id = locations[location2_id]['parent_id']
+        patient1_id = locations[location1_id]['patient_ids'][0]
+        patient2_id = locations[location2_id]['patient_ids'][0]
+        patients = api.patient_map(cr, uid, patient_ids=[patient1_id, patient2_id])
+        except_if(not (patient1_id in patients and patient2_id in patients), msg="Patients not found!")
+        pos_id = patients[patient1_id]['pos_id']
+        spell1_activity_id = patients[patient1_id]['spell_activity_id']
+        spell2_activity_id = patients[patient2_id]['spell_activity_id']
+        
+        obs_data_models = api.get_submodels(cr, uid, ['t4.clinical.patient.observation'])
+        
+        obs1_activity_ids = api.activity_map(cr, uid, pos_ids=[pos_id], 
+                                            patient_ids=[patient1_id], states=['new','scheduled'],
+                                            data_models=obs_data_models).keys()
+ 
+        obs2_activity_ids = api.activity_map(cr, uid, pos_ids=[pos_id], 
+                                            patient_ids=[patient2_id], states=['new','scheduled'],
+                                            data_models=obs_data_models).keys()
+        
+
+        for activity_id in obs1_activity_ids + obs2_activity_ids:
+            api.cancel(cr, uid, activity_id)
+
+        api.create_complete(cr, SUPERUSER_ID, 't4.clinical.patient.move',
+                            {'parent_id': spell1_activity_id}, 
+                            {'location_id': parent_location_id, 'patient_id': patient1_id}) 
+        api.create_complete(cr, SUPERUSER_ID, 't4.clinical.patient.placement',
+                            {'parent_id': spell2_activity_id}, 
+                            {'location_id': location1_id, 'patient_id': patient2_id,
+                             'suggested_location_id': locations[location1_id]['parent_id']}) 
+        api.create_complete(cr, SUPERUSER_ID, 't4.clinical.patient.placement',
+                            {'parent_id': spell1_activity_id}, 
+                            {'location_id': location2_id, 'patient_id': patient1_id,
+                             'suggested_location_id': locations[location2_id]['parent_id']}) 
+        api.submit(cr, uid, spell1_activity_id, {'location_id': location2_id})
+        api.submit(cr, uid, spell2_activity_id, {'location_id': location1_id})
+    
+
 
 class t4_clinical_patient_placement(orm.Model):
     _name = 't4.clinical.patient.placement'
