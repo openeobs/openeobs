@@ -360,7 +360,7 @@ class t4_clinical_api_demo(orm.AbstractModel):
         admission_activity_id = api.activity_map(cr, uid, 
                                                   data_models=['t4.clinical.patient.admission'],
                                                   creator_ids=[admit_activity.id]).keys()[0]       
-        #api.complete(cr, uid, admission_activity_id)   
+        api.complete(cr, uid, admission_activity_id)   
         if return_id:
             return admission_activity_id
         else:    
