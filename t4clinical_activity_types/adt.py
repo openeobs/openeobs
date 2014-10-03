@@ -399,32 +399,44 @@ class t4_clinical_adt_patient_merge(orm.Model):
         'from_identifier': fields.text('From patient Identifier'),
         'into_identifier': fields.text('Into Patient Identifier'),        
     }
-    
-    def submit(self, cr, uid, activity_id, vals, context=None):
-        except_if(not ('from_identifier' in vals and 'into_identifier' in vals), msg="from_identifier or into_identifier not found in submitted data!")
+
+    def complete(self, cr, uid, activity_id, context=None):
+        res = {}
+        super(t4_clinical_adt_patient_merge, self).complete(cr, uid, activity_id, context=context)
+        activity_pool = self.pool['t4.activity']
+        merge_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
+        except_if(not (merge_activity.data_ref.from_identifier and merge_activity.data_ref.into_identifier), msg="from_identifier or into_identifier not found in submitted data!")
         patient_pool = self.pool['t4.clinical.patient']
-        from_id = self.search(cr, uid, [('other_identifier', '=', vals['from_identifier'])])
-        into_id = self.search(cr, uid, [('other_identifier', '=', vals['into_identifier'])])
-        except_if(not(from_id and into_id), msg="Source or destination patient not found!")    
+        from_id = patient_pool.search(cr, uid, [('other_identifier', '=', merge_activity.data_ref.from_identifier)])
+        into_id = patient_pool.search(cr, uid, [('other_identifier', '=', merge_activity.data_ref.into_identifier)])
+        except_if(not(from_id and into_id), msg="Source or destination patient not found!")
+        from_id = from_id[0]
+        into_id = into_id[0]
         # compare and combine data. may need new cursor to have the update in one transaction
-        for model_pool in self.pool._models.values():
-            if model_pool._name.startswith("t4.clinical") and 'patient_id' in model_pool.columns.keys() and model_pool._name != self._name:
-                ids = model_pool.search(cr, uid, [('patient_id','=',from_id)])
-                ids and model_pool.write(cr, uid, ids, {'patient_id': into_id})
-        from_data = patient_pool.read(cr, uid, from_id, context)        
+        for model_name in self.pool.models.keys():
+            model_pool = self.pool[model_name]
+            if model_name.startswith("t4.clinical") and 'patient_id' in model_pool._columns.keys() and model_name != self._name and model_name != 't4.clinical.notification' and model_name != 't4.clinical.patient.observation':
+                ids = model_pool.search(cr, uid, [('patient_id', '=', from_id)], context=context)
+                if ids:
+                    model_pool.write(cr, uid, ids, {'patient_id': into_id}, context=context)
+        activity_ids = activity_pool.search(cr, uid, [('patient_id', '=', from_id)], context=context)
+        activity_pool.write(cr, uid, activity_ids, {'patient_id': into_id}, context=context)
+        from_data = patient_pool.read(cr, uid, from_id, context)
         into_data = patient_pool.read(cr, uid, into_id, context)
         vals_into = {}
         for fk, fv in from_data.iteritems():
-            for ik, iv in into_data.iteritems():
-                if not fv:
-                    continue
-                if fv and iv and fv != iv:
-                    pass # which to choose ?
-                if fv and not iv:
-                    vals_into.update({ik: fv})
-        patient_pool.write(cr, uid, into_id, vals_into, context)
-        patient_pool.write(cr, uid, from_id, {'active': False}, context)
-        super(t4_clinical_adt_patient_merge, self).submit(cr, uid, activity_id, vals, context)
+            if not fv:
+                continue
+            if fv and into_data[fk] and fv != into_data[fk]:
+                pass
+            if fv and not into_data[fk]:
+                if '_id' == fk[-3:]:
+                    vals_into.update({fk: fv[0]})
+                else:
+                    vals_into.update({fk: fv})
+        res['merge_into_update'] = patient_pool.write(cr, uid, into_id, vals_into, context)
+        res['merge_from_deactivate'] = patient_pool.write(cr, uid, from_id, {'active': False}, context)
+        return res
         
 
 class t4_clinical_adt_patient_update(orm.Model):
