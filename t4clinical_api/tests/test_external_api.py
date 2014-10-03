@@ -336,3 +336,67 @@ class TestExternalAPI(SingleTransactionCase):
         self.assertTrue(placement_activity_id, msg='No placement found after cancel transfer')
         placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
         self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wt_id, msg='Placement activity does not have the correct location after cancel transfer')
+
+    def test_patient_merge(self):
+        cr, uid = self.cr, self.uid
+
+        dob = (dt.now()+td(days=-7300)).strftime(dtf)
+        patient_data = {
+            'patient_identifier': 'TESTNHS0005',
+            'family_name': "al'Meara",
+            'given_name': 'Nynaeve',
+            'dob': dob,
+            'gender': 'F',
+            'sex': 'F'
+        }
+        patient2_data = {
+            'family_name': 'Merrilin',
+            'given_name': 'Thomdril',
+            'gender': 'M',
+            'sex': 'M'
+        }
+
+        self.extapi.register(cr, self.adt_id, 'TESTP0005', patient_data)
+        self.extapi.register(cr, self.adt_id, 'TESTP0006', patient2_data)
+
+        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0005')])
+        patient2_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0006')])
+        self.assertTrue(patient_id)
+        self.assertTrue(patient2_id)
+        doa = dt.now().strftime(dtf)
+        admit_data = {
+            'location': 'T',
+            'start_date': doa,
+            'doctors': False
+        }
+
+        self.extapi.admit(cr, self.adt_id, 'TESTP0005', admit_data)
+
+        spell_activity_id = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 't4.clinical.spell'),
+            ('patient_id', '=', patient_id[0])])
+        other_activity_ids = self.activity_pool.search(cr, uid, [('patient_id', '=', patient_id[0])])
+        spell2_activity_id = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 't4.clinical.spell'),
+            ('patient_id', '=', patient2_id[0])])
+        self.assertFalse(spell2_activity_id, msg='Spell found for patient not admitted')
+
+        self.extapi.merge(cr, self.adt_id, 'TESTP0006', {'from_identifier': 'TESTP0005'})
+
+        spell2_activity_id = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 't4.clinical.spell'),
+            ('patient_id', '=', patient2_id[0])])
+        self.assertTrue(spell2_activity_id, msg='Spell not found for patient after patient merge')
+        self.assertTrue(spell2_activity_id[0] == spell_activity_id[0], msg='Spell id does not match after patient merge')
+        for activity in self.activity_pool.browse(cr, uid, other_activity_ids):
+            self.assertTrue(activity.patient_id.id == patient2_id[0], msg='Patient not updated on activities after merge')
+        patient2 = self.patient_pool.browse(cr, uid, patient2_id[0])
+        self.assertTrue(patient2.family_name == 'Merrilin', msg='Patient family name does not match after merge')
+        self.assertTrue(patient2.given_name == 'Thomdril', msg='Patient given name does not match after merge')
+        self.assertTrue(patient2.gender == 'M', msg='Patient gender does not match after merge')
+        self.assertTrue(patient2.sex == 'M', msg='Patient sex does not match after merge')
+        self.assertTrue(patient2.patient_identifier == 'TESTNHS0005', msg='Patient NHS number does not match after merge')
+        self.assertTrue(patient2.other_identifier == 'TESTP0006', msg='Patient hospital number does not match after merge')
+        self.assertTrue(patient2.dob == dob, msg='Patient date of birth does not match after merge')
+        patient = self.patient_pool.browse(cr, uid, patient_id[0])
+        self.assertFalse(patient.active, msg='First patient remains active after merge')
