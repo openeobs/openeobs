@@ -7,6 +7,36 @@ from openerp.addons.t4activity.activity import except_if
 from openerp import SUPERUSER_ID
 import controllers.visit_report as visit_report
 
+
+class wardboard_swap_beds(orm.TransientModel):
+    _name = 'wardboard.swap_beds'
+    
+    _columns = {
+        'patient1_id': fields.many2one('t4.clinical.patient', 'Current Patient'),
+        'patient2_id': fields.many2one('t4.clinical.patient', 'Patient To Swap With'),
+        'ward_location_id':  fields.many2one('t4.clinical.location', "Ward"),
+        'location1_id':  fields.many2one('t4.clinical.location', "Current Patient's Location"),
+        'location2_id':  fields.many2one('t4.clinical.location', "Location To Swap With"),
+    }
+    def do_swap(self, cr, uid, ids, context=None):
+        data = self.browse(cr, uid, ids[0])
+        values = {
+            'location1_id': data.location1_id.id,
+            'location2_id': data.location2_id.id
+        }
+        api = self.pool['t4.clinical.api']
+        api.create_complete(cr, uid, 't4.clinical.patient.swap_beds', {}, values)
+        
+    
+    def onchange_location2(self, cr, uid, ids, location2_id, context=None):
+        if not location2_id:
+            return {'value': {'patient2_id': False}}
+        api = self.pool['t4.clinical.api']
+        patient = api.patient_map(cr, uid, location_ids=[location2_id])
+        if not patient:
+            return {'value': {'patient2_id': False, 'location2_id': False}}
+        return {'value': {'patient2_id': patient.values()[0]['id']}} 
+
 class wardboard_patient_placement(orm.TransientModel):
     _name = "wardboard.patient.placement"
     _columns = {
@@ -30,6 +60,8 @@ class wardboard_patient_placement(orm.TransientModel):
                             {'suggested_location_id': wiz.bed_dst_location_id.id,
                              'location_id': wiz.bed_dst_location_id.id,
                              'patient_id': wiz.patient_id.id})
+
+
         
 
 class wardboard_device_session_start(orm.TransientModel):
@@ -248,6 +280,25 @@ class t4_clinical_wardboard(orm.Model):
         }
 
 
+    def wardboard_swap_beds(self, cr, uid, ids, context=None):
+        api = self.pool['t4.clinical.api']
+        wb = self.browse(cr, uid, ids[0])
+        res_id = api.create(cr, uid, 'wardboard.swap_beds', 
+                                     {'patient1_id':  wb.patient_id.id,
+                                      'location1_id': wb.location_id.id,
+                                      'ward_location_id': wb.location_id.parent_id.id})
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 't4clinical_ui', 'view_wardboard_swap_beds_form')[1]
+        return {
+            'name': "Swap Beds",
+            'type': 'ir.actions.act_window',
+            'res_model': 'wardboard.swap_beds',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': view_id
+        }
 
     
     def wardboard_patient_placement(self, cr, uid, ids, context=None):
