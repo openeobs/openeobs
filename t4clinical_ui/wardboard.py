@@ -476,7 +476,7 @@ class t4_clinical_wardboard(orm.Model):
         # Call the print function
         phantomjs = self.pool['phantomjs.pdf']
         print_result = phantomjs.phantomjs_print(cr, uid, options, context=context)
-        if isinstance(print_result, int):
+        if not isinstance(print_result, str):
             return print_result
         else:
             _logger.warn(print_result)
