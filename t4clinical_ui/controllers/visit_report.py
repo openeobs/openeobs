@@ -6,6 +6,7 @@ from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
 from openerp.osv import fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 endpoint = '/visit_report/'
 
@@ -33,14 +34,18 @@ graph_js = """
     context.scoreRange = [{{"class": "green",s: 0,e: 5}},{{"class": "amber",s: 5,e: 7}},{{"class": "red",s: 7,e: 18}}];
     records.forEach(function(d){{
     d.date_started = svg.startParse(d.date_started);
-    if (d.flow_rate > -1){{
+    if (d.flow_rate !== false || d.concentration !== false){{
     plotO2 = true;
     d.inspired_oxygen = "";
-    d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
-    d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
-    if(d.cpap_peep > -1){{
+    if(d.flow_rate !== false){{
+        d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
+    }}
+    if(d.concentration !== false){{
+        d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
+    }}
+    if(d.cpap_peep !== false){{
     d.inspired_oxygen += "CPAP PEEP: " + d.cpap_peep + "<br>";
-    }}else if(d.niv_backup > -1){{
+    }}else if(d.niv_backup !== false){{
     d.inspired_oxygen += "NIV Backup Rate: " + d.niv_backup + "<br>";
     d.inspired_oxygen += "NIV EPAP: " + d.niv_epap + "<br>";
     d.inspired_oxygen += "NIV IPAP: " + d.niv_ipap + "<br>";
@@ -84,6 +89,8 @@ phantom_code = """
     };
 """
 
+pretty_date_format = '%d/%m/%Y %H:%M'
+
 
 
 class VisitReportController(openerp.addons.web.controllers.main.Home):
@@ -95,6 +102,25 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
             return 'text/javascript'
         if type == 'tsv':
             return 'text/tab-separated-values'
+
+    def create_search_filter(self, spell_activity_id, model, start_date, end_date):
+        filter = []
+        if model in ['t4.clinical.patient.o2target', 't4.clinical.patient.move']:
+            filter = [['parent_id', '=', spell_activity_id], ['data_model', '=', model]]
+        else:
+            filter = [['parent_id', '=', spell_activity_id], ['data_model', '=', model], ['state', '=', 'completed']]
+        if start_date:
+            filter.append(['date_started', '>=', start_date.strftime(dtf)])
+        if end_date:
+            filter.append(['date_terminated', '<=', end_date.strftime(dtf)])
+        return filter
+
+    def convert_db_date_to_context_date(self, cr, uid, date_string, format, context):
+        if format:
+            return fields.datetime.context_timestamp(cr, uid, date_string, context=context).strftime(format)
+        else:
+            return fields.datetime.context_timestamp(cr, uid, date_string, context=context)
+
 
     @http.route(endpoint + 'src/<type>/<resource>', type='http', auth='none')
     def get_resource(self, type, resource, *args, **kw):
@@ -116,6 +142,9 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
         user = options['user'] if 'user' in options else 'Administrator'
         database = openerp.modules.registry.RegistryManager.get(options['database']) if 'database' in options else request.session.db
         cr = database.db.cursor if 'database' in options else request.cr
+        # timestamps be UTC
+        start_date = datetime.fromtimestamp(int(options['start_date'])) if 'start_date' in options else False
+        end_date = datetime.fromtimestamp(int(options['end_date'])) if 'end_date' in options else False
 
         # Setup API calls
         uid, context = 1, request.context
@@ -146,16 +175,19 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
 
             # generate report timestamp
             time_generated = fields.datetime.context_timestamp(cr, user_id, datetime.now(), context=context) \
-                .strftime('%d/%m/%Y %H:%M')
+                .strftime(pretty_date_format)
 
             # get spell
             spell_id = int(spell_id)
             spell = spell_pool.read(cr, uid, [spell_id])[0]
             # - get the start and end date of spell
-            spell_start = datetime.strptime(spell['date_started'], '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y %H:%M')
+            spell_start = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(spell['date_started'], dtf), pretty_date_format, context=context)
             spell_end = spell['date_terminated']
-            report_start = spell_start
-            report_end = spell_end if spell_end else time_generated
+            report_start = start_date.strftime(pretty_date_format) if start_date else spell_start
+            if end_date:
+                report_end = end_date.strftime(pretty_date_format)
+            else:
+                report_end = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(spell_end, dtf), pretty_date_format, context=context) if spell_end else time_generated
 
             spell_activity_id = spell['activity_id'][0]
             spell['consultants'] = partner_pool.read(cr, uid, spell['con_doctor_ids']) if len(spell['con_doctor_ids']) > 0 else False
@@ -165,55 +197,73 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
 
             # get patient information
             patient = patient_pool.read(cr, uid, [patient_id])[0]
+            patient['dob'] = self.convert_db_date_to_context_date(cr, uid,  datetime.strptime(patient['dob'], dtf), '%d/%m/%Y', context=context)
 
             # get ews observations for patient
             # - search ews model with parent_id of spell id (maybe dates for refined foo) - activity: search with data_model of ews
-            ews_ids = activity_pool.search(cr, uid, [['parent_id', '=', spell_activity_id], ['data_model', '=', 't4.clinical.patient.observation.ews'], ['state', '=', 'completed']])
+            ews_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 't4.clinical.patient.observation.ews', start_date, end_date))
             ews = activity_pool.read(cr, uid, ews_ids)
 
             # get triggered actions from ews
             # - search activity with ews ids as creator_id filter out EWS tasks
             for observation in ews:
+                observation['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format, context=context)
+                observation['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format, context=context) if observation['date_terminated'] else False
                 triggered_actions_ids = activity_pool.search(cr, uid, [['creator_id', '=', observation['id']]])
                 observation['values'] = ews_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), dtf, context=context) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), dtf, context=context) if observation['values']['date_terminated'] else False
                 observation['triggered_actions'] = [v for v in activity_pool.read(cr, uid, triggered_actions_ids) if v['data_model'] != 't4.clinical.patient.observation.ews']
+                for t in observation['triggered_actions']:
+                    t['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(t['date_started'], dtf), pretty_date_format, context=context) if t['date_started'] else False
+                    t['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(t['date_terminated'], dtf), pretty_date_format, context=context) if t['date_terminated'] else False
 
             # get weight observations
             # - search weight model with parent_id of spell - dates
-            weight_ids = activity_pool.search(cr, uid, [['parent_id', '=', spell_activity_id], ['data_model', '=', 't4.clinical.patient.observation.weight'], ['state', '=', 'completed']])
+            weight_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 't4.clinical.patient.observation.weight', start_date, end_date))
             weights = activity_pool.read(cr, uid, weight_ids)
             for observation in weights:
                 observation['values'] = weight_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format, context=context) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format, context=context) if observation['values']['date_terminated'] else False
             patient['weight'] = weights[-1]['values']['weight'] if len(weights) > 0 else False
 
             # get height observations
             # - search height model with parent_id of spell - dates
-            height_ids = activity_pool.search(cr, uid, [['parent_id', '=', spell_activity_id], ['data_model', '=', 't4.clinical.patient.observation.height'], ['state', '=', 'completed']])
+            height_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 't4.clinical.patient.observation.height', start_date, end_date))
             heights = activity_pool.read(cr, uid, height_ids)
             for observation in heights:
                 observation['values'] = height_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format, context=context) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format, context=context) if observation['values']['date_terminated'] else False
             patient['height'] = heights[-1]['values']['height'] if len(heights) > 0 else False
 
             # get PBP observations
             # - search pbp model with parent_id of spell - dates
-            pbp_ids = activity_pool.search(cr, uid, [['parent_id', '=', spell_activity_id], ['data_model', '=', 't4.clinical.patient.observation.pbp'], ['state', '=', 'completed']])
+            pbp_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 't4.clinical.patient.observation.pbp', start_date, end_date))
             pbps = activity_pool.read(cr, uid, pbp_ids)
             for observation in pbps:
                 observation['values'] = pbp_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format, context=context) if observation['date_started'] else False
+                observation['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format, context=context) if observation['date_terminated'] else False
 
             # get o2 target history
             # - search o2target model on patient with parent_id of spell - dates
-            oxygen_history_ids = activity_pool.search(cr, uid, [['parent_id', '=', spell_activity_id], ['data_model', '=', 't4.clinical.patient.o2target']])
+            oxygen_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 't4.clinical.patient.o2target', start_date, end_date))
             oxygen_history = activity_pool.read(cr, uid, oxygen_history_ids)
             for observation in oxygen_history:
                 observation['values'] = oxygen_target_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format, context=context) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format, context=context) if observation['values']['date_terminated'] else False
 
             # get transfer history
             # - search move on patient with parent_id of spell - dates
-            transfer_history_ids = activity_pool.search(cr, uid, [['parent_id', '=', spell_activity_id], ['data_model', '=', 't4.clinical.patient.move']])
+            transfer_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 't4.clinical.patient.move', start_date, end_date))
             transfer_history = activity_pool.read(cr, uid, transfer_history_ids)
             for observation in transfer_history:
                 observation['values'] = transfer_history_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format, context=context) if observation['date_started'] else False
+                observation['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format, context=context) if observation['date_terminated'] else False
                 patient_location = location_pool.read(cr, uid, observation['values']['location_id'][0], [])
                 observation['bed'] = patient_location['name'] if patient_location['name'] else False
                 observation['ward'] = patient_location['parent_id'][1] if patient_location['parent_id'] else False

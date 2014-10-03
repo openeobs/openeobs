@@ -301,6 +301,53 @@ $(document).ready(function () {
         return true;
     });
 
+    $('.content').on("click", "#bedSubmit", function(e){
+        e.preventDefault();
+        timeIdle = 0;
+        var formData = $($("#obsForm")[0].elements).not(".exclude").serialize();
+        var r = frontend_routes.confirm_bed_placement(taskId);
+        $.ajax({
+            url: r.url,
+            type: r.type,
+            data: formData,
+            success: function(data){
+                console.log(data);
+                if(data.status == 1){
+                    if(data.related_tasks){
+                        if(data.related_tasks.length == 1){
+                            dismissModal("obsConfirm", "hide");
+                            displayModal("obsConfirm", "Action required", "<p>" + data.related_tasks[0].summary + "</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>", "<a href=\""+frontend_routes.single_task(data.relatedTasks[0].id).url+"\" class=\"confirm\">Confirm</a>"], 500);
+                        }else if(data.related_tasks.length > 1){
+                            var taskList = "";
+                            for(var a = 0; a < data.related_tasks.length; a++){
+                                taskList += "<li><a href=\""+frontend_routes.single_task(data.relatedTasks[a].id).url+"\">"+ data.related_tasks[a].summary + "</a></li>";
+                            }
+                            dismissModal("obsConfirm", "hide");
+                            displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+frontend_routes.task_list().url+ "\">Go to My Tasks</a>"], 500);
+                        }else{
+                            dismissModal("obsConfirm", "hide");
+                            displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                        }
+                    }else{
+                        dismissModal("obsConfirm", "hide");
+                        displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                    }
+                }},
+            error: function(err){
+                console.log("re-enabling submit");
+                submitDisabled = false;
+                console.log(err)
+                console.log(err.responseText);
+                $(".obsConfirm .error").css("display", "block");
+                var errResp = $.parseJSON(err.responseText);
+                if(errResp.errors){
+                    showErrors(errResp.errors);
+                }
+            }
+        });
+        return true;
+    });
+
 
     // on submitting the obs do an ajax call and display any messages from the server
     $('.content').on("click", "#obsSubmit", function(e){

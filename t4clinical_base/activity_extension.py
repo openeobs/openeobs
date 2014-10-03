@@ -68,8 +68,10 @@ class t4_activity_data(orm.AbstractModel):
         device_id = self.get_activity_device_id(cr, uid, activity_id)
         pos_id = self.get_activity_pos_id(cr, uid, activity_id)
 
+        if 'patient_id' in self._columns.keys():
+            activity_vals.update({'patient_id': patient_id})
+
         activity_vals.update({'location_id': location_id,
-                              'patient_id': patient_id,
                               'device_id': device_id,
                               'pos_id': pos_id})
         api.write(cr, uid, 't4.activity', activity_id, activity_vals)
@@ -163,7 +165,6 @@ class t4_activity_data(orm.AbstractModel):
         if 'patient_id' in self._columns.keys():
             patient_id = data.patient_id and data.patient_id.id or False
         return patient_id
-
     
     def get_activity_user_ids(self, cr, uid, activity_id, context=None):
 

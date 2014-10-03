@@ -180,7 +180,8 @@ class t4_clinical_adt_patient_admit(orm.Model):
                                        # FIXME! pos_id should be taken from adt_user.pos_id
                                        {'pos_id': admit_activity.data_ref.suggested_location_id.pos_id.id,
                                         'patient_id': admit_activity.patient_id.id,
-                                        'suggested_location_id':admit_activity.data_ref.suggested_location_id.id})
+                                        'suggested_location_id': admit_activity.data_ref.suggested_location_id.id,
+                                        'start_date': admit_activity.data_ref.start_date})
         spell_activity = [a for a in admission_activity.created_ids if a.data_model == 't4.clinical.spell'][0]
         api_pool.write_activity(cr, SUPERUSER_ID, activity_id, {'parent_id': spell_activity.id})
         return res  
@@ -262,7 +263,8 @@ class t4_clinical_adt_patient_cancel_admit(orm.Model):
         activity_id in activity_ids and activity_ids.remove(activity_id)
         _logger.info("Starting activities cancellation due to adt.pateint.cancel_admit activity completion...")       
         for activity in activity_pool.browse(cr, uid, activity_ids):
-            activity_pool.cancel(cr, uid, activity.id)
+            if activity.state not in ['completed', 'cancelled']:
+                activity_pool.cancel(cr, uid, activity.id)
         res = super(t4_clinical_adt_patient_cancel_admit, self).complete(cr, uid, activity_id, context)
         return res
 
@@ -291,8 +293,10 @@ class t4_clinical_adt_patient_discharge(orm.Model):
         discharge_pool = self.pool['t4.clinical.patient.discharge']
         discharge_activity_id = discharge_pool.create_activity(
             cr, SUPERUSER_ID,
-            {'creator_id': activity_id},
-            {'patient_id': patient_id}, context=context)
+            {'creator_id': activity_id,
+             'parent_id': spell_activity.id},
+            {'patient_id': patient_id,
+             'discharge_date': discharge_activity.data_ref.discharge_date}, context=context)
         activity_pool.complete(cr, SUPERUSER_ID, discharge_activity_id, context=context)
         return res 
 
@@ -323,8 +327,8 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         patient_id = patient_pool.search(cr, uid, domain)
         except_if(not patient_id, msg="Patient not found!")
         #activity = activity_pool.browse(cr, uid, activity_id, context)
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
-        except_if(not spell_activity_id, msg="Active spell not found for patient.id=%s !" % patient_id)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, uid, patient_id[0], context=context)
+        except_if(not spell_activity_id, msg="Active spell not found for patient.id=%s !" % patient_id[0])
         spell_activity = activity_pool.browse(cr, uid, spell_activity_id, context=context)
         patient_id = patient_id[0]           
         location_pool = self.pool['t4.clinical.location']
@@ -341,7 +345,16 @@ class t4_clinical_adt_patient_transfer(orm.Model):
             }, context=context)
         else:
             location_id = location_id[0]
-        vals.update({'location_id': location_id, 'from_location_id': spell_activity.location_id.id})
+        from_location_id = spell_activity.location_id.parent_id.id if spell_activity.location_id.usage == 'bed' else spell_activity.location_id.id
+        if spell_activity.location_id.usage not in ['ward', 'bed']:
+            placement_activity_id = activity_pool.search(cr, uid, [
+                ('state', 'not in', ['completed', 'cancelled']),
+                ('data_model', '=', 't4.clinical.patient.placement'),
+                ('patient_id', '=', patient_id)], context=context)
+            if placement_activity_id:
+                placement_activity = activity_pool.browse(cr, uid, placement_activity_id[0], context=context)
+                from_location_id = placement_activity.data_ref.suggested_location_id.id
+        vals.update({'location_id': location_id, 'from_location_id': from_location_id})
         super(t4_clinical_adt_patient_transfer, self).submit(cr, uid, activity_id, vals, context)
 
     def complete(self, cr, uid, activity_id, context=None):
@@ -352,13 +365,13 @@ class t4_clinical_adt_patient_transfer(orm.Model):
         move_pool = self.pool['t4.clinical.patient.move']
         transfer_activity = activity_pool.browse(cr, SUPERUSER_ID, activity_id, context=context)
         # patient move
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, transfer_activity.data_ref.patient_id.id, context=context)
+        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, transfer_activity.patient_id.id, context=context)
         except_if(not spell_activity_id, msg="Spell not found!")
         move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,{
             'parent_id': spell_activity_id,
             'creator_id': activity_id
         }, {
-            'patient_id': transfer_activity.data_ref.patient_id.id,
+            'patient_id': transfer_activity.patient_id.id,
             'location_id': transfer_activity.data_ref.location_id.pos_id.lot_admission_id.id},
             context=context)
         res[move_pool._name] = move_activity_id
@@ -371,7 +384,7 @@ class t4_clinical_adt_patient_transfer(orm.Model):
             'parent_id': spell_activity_id, 'date_deadline': (dt.now()+td(minutes=5)).strftime(DTF),
             'creator_id': activity_id
         }, {
-            'patient_id': transfer_activity.data_ref.patient_id.id,
+            'patient_id': transfer_activity.patient_id.id,
             'suggested_location_id': transfer_activity.data_ref.location_id.id
         }, context=context)
         res[placement_pool._name] = placement_activity_id
@@ -448,7 +461,7 @@ class t4_clinical_adt_patient_update(orm.Model):
         patient_id = patient_pool.search(cr, uid, patient_domain, context=context)
         except_if(not patient_id, msg="Patient doesn't exist! Data: %s" % patient_domain)
         res = patient_pool.write(cr, uid, patient_id, vals_copy, context=context)
-        vals_copy.update({'patient_id': patient_id, 'other_identifier': hospital_number, 'patient_identifier': nhs_number})
+        vals_copy.update({'patient_id': patient_id[0], 'other_identifier': hospital_number, 'patient_identifier': nhs_number})
         super(t4_clinical_adt_patient_update, self).submit(cr, uid, activity_id, vals_copy, context)
         return res
 
@@ -552,13 +565,13 @@ class t4_clinical_adt_spell_update(orm.Model):
         except_if(not spell_activity_id, msg="Spell not found!")
         spell_activity = activity_pool.browse(cr, SUPERUSER_ID, spell_activity_id, context=context)
         data = {
-            'con_doctor_ids': [[6, 0,  [d.id for d in update_activity.data_ref.data_ref.con_doctor_ids]]],
-            'ref_doctor_ids': [[6, 0, [d.id for d in update_activity.data_ref.data_ref.ref_doctor_ids]]],
+            'con_doctor_ids': [[6, 0,  [d.id for d in update_activity.data_ref.con_doctor_ids]]],
+            'ref_doctor_ids': [[6, 0, [d.id for d in update_activity.data_ref.ref_doctor_ids]]],
             'location_id': update_activity.data_ref.pos_id.lot_admission_id.id,
             'code': update_activity.data_ref.code,
             'start_date': update_activity.data_ref.start_date if update_activity.data_ref.start_date < spell_activity.data_ref.start_date else spell_activity.data_ref.start_date
         }
-        res = activity_pool.submit(cr, uid, spell_activity_id, {}, data, context=context)
+        res = activity_pool.submit(cr, uid, spell_activity_id, data, context=context)
         activity_pool.write(cr, SUPERUSER_ID, activity_id, {'parent_id': spell_activity_id})
         # patient move
         move_pool = self.pool['t4.clinical.patient.move']
@@ -629,12 +642,14 @@ class t4_clinical_adt_patient_cancel_discharge(orm.Model):
 #         
 #         spell_activity_id = dict(api_pool.patient_map(cr, uid, patient_ids=[cancel_activity.data_ref.patient_id.id])[0][1])['previous']
 #         #api_pool.get_patient_last_spell_activity_id(cr, SUPERUSER_ID, cancel_activity.data_ref.patient_id.id, context=context)
-        except_if(not spell_activity_id, msg="Patient was not discharged!")
+        except_if(spell_activity_id, msg="Patient was not discharged!")
         domain = [('data_model', '=', 't4.clinical.adt.patient.discharge'),
                   ('state', '=', 'completed'),
                   ('patient_id', '=', cancel_activity.data_ref.patient_id.id)]
         last_discharge_activity_id = activity_pool.search(cr, uid, domain, order='date_terminated desc', context=context)
         except_if(not last_discharge_activity_id, msg='Patient was not discharged!')
+        spell_activity_id = api_pool.activity_map(cr, uid, patient_ids=[patient_id],
+                                                  data_models=['t4.clinical.spell'], states=['completed']).keys()[0]
         domain = [('data_model', '=', 't4.clinical.patient.move'),
                   ('state', '=', 'completed'),
                   ('patient_id', '=', cancel_activity.data_ref.patient_id.id)]
@@ -670,6 +685,7 @@ class t4_clinical_adt_patient_cancel_discharge(orm.Model):
                     'suggested_location_id': move_activity.location_id.parent_id.id
                 }, context=context)
                 res[placement_pool._name] = placement_activity_id
+        res['spell_state_change'] = activity_pool.write(cr, uid, spell_activity_id, {'state': 'started'}, context=context)
         return res
 
 

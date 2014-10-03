@@ -480,6 +480,19 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
+    @http.route(URLS['confirm_bed_placement']+'<task_id>', type="http", auth="user")
+    def confirm_review_frequency(self, task_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry('t4.clinical.api.external')
+        base_api = request.registry('t4.clinical.api')
+        kw_copy = kw.copy()
+        del kw_copy['taskId']
+        kw_copy['location_id'] = int(kw_copy['location_id'])
+        result = api.complete(cr, uid, int(task_id), kw_copy)
+        # triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
+        return request.make_response(json.dumps({'status': 1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})
+
+
     @http.route(URLS['cancel_clinical_notification']+'<task_id>', type="http", auth="user")
     def cancel_clinical(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
