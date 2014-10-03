@@ -27,6 +27,8 @@ class TestExternalAPI(SingleTransactionCase):
         cls.pos_id = cls.location_pool.read(cr, uid, cls.wu_id, ['pos_id'])['pos_id'][0]
         cls.pos_location_id = cls.pos_pool.read(cr, uid, cls.pos_id, ['location_id'])['location_id'][0]
 
+        cls.wmu_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMU')])[0]
+        cls.wmt_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMT')])[0]
         cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
         cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['T4 Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
@@ -400,3 +402,125 @@ class TestExternalAPI(SingleTransactionCase):
         self.assertTrue(patient2.dob == dob, msg='Patient date of birth does not match after merge')
         patient = self.patient_pool.browse(cr, uid, patient_id[0])
         self.assertFalse(patient.active, msg='First patient remains active after merge')
+
+    def test_submit_complete_activity_and_get_activities_for_patient_or_spell(self):
+        cr, uid = self.cr, self.uid
+
+        dob = (dt.now()+td(days=-7300)).strftime(dtf)
+        patient_data = {
+            'patient_identifier': 'TESTNHS0007',
+            'family_name': 'Mandragoran',
+            'given_name': 'Lan',
+            'dob': dob,
+            'gender': 'M',
+            'sex': 'M'
+        }
+
+        self.extapi.register(cr, self.adt_id, 'TESTP0007', patient_data)
+
+        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0007')])
+        self.assertTrue(patient_id)
+        doa = dt.now().strftime(dtf)
+        admit_data = {
+            'location': 'U',
+            'start_date': doa,
+            'doctors': False
+        }
+
+        self.extapi.admit(cr, self.adt_id, 'TESTP0007', admit_data)
+
+        placement_activity_id = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 't4.clinical.patient.placement'),
+            ('patient_id', '=', patient_id[0]),
+            ('state', 'not in', ['completed', 'cancelled'])])
+        self.assertTrue(placement_activity_id, msg='No placement found after admission')
+        bed_ids = self.location_pool.search(cr, uid, [('usage', '=', 'bed'), ('id', 'child_of', self.wu_id), ('is_available', '=', True)])
+        self.assertTrue(bed_ids, msg='No available beds in ward U after admission')
+        self.extapi.complete(cr, self.wmu_id, placement_activity_id[0], {'location_id': bed_ids[0]})
+
+        ews_activity_id = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 't4.clinical.patient.observation.ews'),
+            ('patient_id', '=', patient_id[0]),
+            ('state', 'not in', ['completed', 'cancelled'])])
+        self.assertTrue(ews_activity_id, msg='No observation found after placement')
+        ews_data = {
+            'respiration_rate': 40,
+            'indirect_oxymetry_spo2': 99,
+            'oxygen_administration_flag': False,
+            'body_temperature': 37.0,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 55,
+            'avpu_text': 'A'
+        }
+        self.extapi.complete(cr, self.nu_id, ews_activity_id[0], ews_data)
+        
+        ews_activities = self.extapi.get_activities_for_patient(cr, uid, patient_id[0], 'ews')
+        self.assertTrue(ews_activities, msg='No EWS found after ews activity submit/complete')
+        self.assertTrue(ews_activities[0]['respiration_rate'] == ews_data['respiration_rate'], msg='respiration rate does not match')
+        self.assertTrue(ews_activities[0]['indirect_oxymetry_spo2'] == ews_data['indirect_oxymetry_spo2'], msg='O2 saturation does not match')
+        self.assertTrue(ews_activities[0]['oxygen_administration_flag'] == ews_data['oxygen_administration_flag'], msg='oxygen flag does not match')
+        self.assertTrue(ews_activities[0]['body_temperature'] == ews_data['body_temperature'], msg='body temperature does not match')
+        self.assertTrue(ews_activities[0]['blood_pressure_systolic'] == ews_data['blood_pressure_systolic'], msg='systolic does not match')
+        self.assertTrue(ews_activities[0]['blood_pressure_diastolic'] == ews_data['blood_pressure_diastolic'], msg='diastolic rate does not match')
+        self.assertTrue(ews_activities[0]['pulse_rate'] == ews_data['pulse_rate'], msg='pulse rate does not match')
+        self.assertTrue(ews_activities[0]['avpu_text'] == ews_data['avpu_text'], msg='avpu does not match')
+
+    def test_create_activity_for_patient(self):
+        cr, uid = self.cr, self.uid
+
+        dob = (dt.now()+td(days=-7300)).strftime(dtf)
+        patient_data = {
+            'patient_identifier': 'TESTNHS0008',
+            'family_name': 'Trakand',
+            'given_name': 'Elayne',
+            'dob': dob,
+            'gender': 'F',
+            'sex': 'F'
+        }
+
+        self.extapi.register(cr, self.adt_id, 'TESTP0008', patient_data)
+
+        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0008')])
+        self.assertTrue(patient_id)
+        doa = dt.now().strftime(dtf)
+        admit_data = {
+            'location': 'T',
+            'start_date': doa,
+            'doctors': False
+        }
+
+        self.extapi.admit(cr, self.adt_id, 'TESTP0008', admit_data)
+
+        placement_activity_id = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 't4.clinical.patient.placement'),
+            ('patient_id', '=', patient_id[0]),
+            ('state', 'not in', ['completed', 'cancelled'])])
+        self.assertTrue(placement_activity_id, msg='No placement found after admission')
+        bed_ids = self.location_pool.search(cr, uid, [('usage', '=', 'bed'), ('id', 'child_of', self.wt_id), ('is_available', '=', True)])
+        self.assertTrue(bed_ids, msg='No available beds in ward T after admission')
+        self.extapi.complete(cr, self.wmt_id, placement_activity_id[0], {'location_id': bed_ids[0]})
+
+        ews_data = {
+            'respiration_rate': 40,
+            'indirect_oxymetry_spo2': 99,
+            'oxygen_administration_flag': False,
+            'body_temperature': 37.0,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 55,
+            'avpu_text': 'A'
+        }
+        ews_id = self.extapi.create_activity_for_patient(cr, self.nt_id, patient_id[0], 'ews')
+        self.extapi.complete(cr, self.nu_id, ews_id, ews_data)
+
+        ews_activities = self.extapi.get_activities_for_patient(cr, uid, patient_id[0], 'ews')
+        self.assertTrue(ews_activities, msg='No EWS found after ews activity submit/complete')
+        self.assertTrue(ews_activities[0]['respiration_rate'] == ews_data['respiration_rate'], msg='respiration rate does not match')
+        self.assertTrue(ews_activities[0]['indirect_oxymetry_spo2'] == ews_data['indirect_oxymetry_spo2'], msg='O2 saturation does not match')
+        self.assertTrue(ews_activities[0]['oxygen_administration_flag'] == ews_data['oxygen_administration_flag'], msg='oxygen flag does not match')
+        self.assertTrue(ews_activities[0]['body_temperature'] == ews_data['body_temperature'], msg='body temperature does not match')
+        self.assertTrue(ews_activities[0]['blood_pressure_systolic'] == ews_data['blood_pressure_systolic'], msg='systolic does not match')
+        self.assertTrue(ews_activities[0]['blood_pressure_diastolic'] == ews_data['blood_pressure_diastolic'], msg='diastolic rate does not match')
+        self.assertTrue(ews_activities[0]['pulse_rate'] == ews_data['pulse_rate'], msg='pulse rate does not match')
+        self.assertTrue(ews_activities[0]['avpu_text'] == ews_data['avpu_text'], msg='avpu does not match')
