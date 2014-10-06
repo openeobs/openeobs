@@ -6,8 +6,8 @@
     'license': 'AGPL-3',
     'summary': '',
     'description': """    """,
-    'author': 'Tactix4',
-    'website': 'http://www.tactix4.com/',
+    'author': 'Neova Health',
+    'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_clinical_ui', 'mobile_frontend'],
     
     
