@@ -1,0 +1,123 @@
+<templates>
+
+    <t t-extend="UserMenu">
+        <t t-jquery=".dropdown-menu" t-operation="replace">
+            <ul class="dropdown-menu">
+                <li><a href="#" data-menu="settings">Preferences</a></li>
+                <li><a href="#" data-menu="about">About Odoo</a></li>
+                <li><a href="#" data-menu="help">Help</a></li>
+                <li><a href="#" data-menu="logout">Log out</a></li>
+            </ul>
+        </t>
+    </t>
+
+    <button t-name="nh.ListView.row.button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
+            t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
+        <img t-if="widget.nh_icon" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/#{widget.nh_icon}.png" t-att-alt="widget.string"/>
+        <img t-if="widget.icon" t-attf-src="#{prefix}/web/static/src/img/icons/#{widget.icon}.png" t-att-alt="widget.string"/>
+    </button>
+
+    <button t-name="nh.ListView.row.act_button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
+            t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
+        <img t-if="active" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/times.png" t-att-alt="widget.string"/>
+        <img t-if="inactive" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/check.png" t-att-alt="widget.string"/>
+    </button>
+
+    <t t-name="nh_maleCell"
+        ><img t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="nh_femaleCell"
+        ><img t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="nh_genderCell"
+        ><img t-if="male" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+        <img t-if="female" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="nh_trendCell"
+        ><img t-if="up" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/level-up.png" t-att-alt="widget.string"/>
+        <img t-if="down" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/level-down.png" t-att-alt="widget.string"/>
+        <img t-if="same" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/level-same.png" t-att-alt="widget.string"/>
+    </t>
+
+    <div t-name="nh_ewschart" class="nh_ewschart">
+        <h3 id="chartTitle">Score</h3>
+        <div id="contextChart" class="chart"></div>
+        <h3 id="focusTitle">Individual values</h3>
+        <div id="focusChart" class="chart"></div>
+        <div class="table-wrapper" id="the_unplottables" style="position:relative;">
+            <h3>Tabular values</h3>
+            <div class="table-wrapper" style="width: 91.5%; overflow: auto;">
+                <table id="chartTable" style="width: 100%;"></table>
+            </div>
+        </div>
+    </div>
+
+    <div t-name="nh_bschart" class="nh_ewschart">
+        <h3 id="chartTitle">Blood Sugar</h3>
+        <div id="focusChart" class="chart"></div>
+    </div>
+
+    <div t-name="nh_weightchart" class="nh_ewschart">
+        <h3 id="chartTitle">Weight</h3>
+        <div id="focusChart" class="chart"></div>
+    </div>
+
+    <table t-name="ListViewPBP" class="oe_list_content">
+        <t t-set="columns_count" t-value="visible_columns.length + (options.selectable ? 1 : 0) + (options.deletable ? 1 : 0)"/>
+        <thead>
+            <tr t-if="(!!options.action_buttons and !options.$buttons) or (!!options.pager and !options.$pager)">
+                <th t-att-colspan="columns_count">
+                    <div class="oe_list_buttons"/>
+                    <div class="oe_list_sidebar"/>
+                    <div class="oe_list_pager"/>
+                </th>
+            </tr>
+            <tr t-if="options.header" class="oe_list_header_columns">
+                <t t-foreach="columns" t-as="column">
+                    <th t-if="!column.meta and column.invisible !== '1' and column.id !== 'systolic_standing' and column.id !== 'systolic_sitting' and column.id !== 'diastolic_sitting' and column.id !== 'diastolic_standing'" t-att-data-id="column.id"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)} nhskr_pbp"><div>
+                        <t t-if="column.tag !== 'button'"/>
+                    </div></th>
+                    <th t-if="!column.meta and column.invisible !== '1' and column.id == 'systolic_sitting'" t-att-data-id="column.id" t-att-colspan="2"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)} nhskr_pbp"><div>
+                        <t t-if="column.tag !== 'button'">Sitting/Lying</t>
+                    </div></th>
+                    <th t-if="!column.meta and column.invisible !== '1' and column.id == 'systolic_standing'" t-att-data-id="column.id" t-att-colspan="2"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)} nh  skr_pbp"><div>
+                        <t t-if="column.tag !== 'button'">Standing</t>
+                    </div></th>
+                </t>
+            </tr>
+            <tr t-if="options.header" class="oe_list_header_columns">
+                <t t-foreach="columns" t-as="column">
+                    <th t-if="column.meta">
+                        <t t-esc="column.string"/>
+                    </th>
+                </t>
+                <th t-if="options.selectable" width="1"  >
+                    <input type="checkbox" class="oe_list_record_selector"/>
+                </th>
+                <t t-foreach="columns" t-as="column">
+                    <th t-if="!column.meta and column.invisible !== '1'" t-att-data-id="column.id"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)}"><div>
+                        <t t-if="column.tag !== 'button'"><t t-esc="column.string"/></t>
+                    </div></th>
+                </t>
+                <th t-if="options.deletable" class="oe_list_record_delete" width="13px"/>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <td t-if="options.selectable"/>
+                <td t-foreach="aggregate_columns" t-as="column" class="oe_list_footer oe_number"
+                    t-att-data-field="column.id" t-att-title="column.label">
+                </td>
+                <td t-if="options.deletable" class="oe_list_record_delete"/>
+            </tr>
+        </tfoot>
+    </table>
+
+</templates>

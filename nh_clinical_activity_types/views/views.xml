@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>  
+        <record model="ir.ui.view" id="view_patient_move_form">
+            <field name="name">Patient Transfer Form</field>
+            <field name="model">nh.clinical.patient.move</field>
+            <field name="arch" type="xml">
+                <form string="Patient Transfer Form">
+                   <field name="patient_id" />
+                   <field name="location_id" />
+                   <field name="reason" />
+                    <button name="submit_ui" type="object" string="Submit"/>
+                </form>
+            </field>
+        </record>
+        <!-- PLACEMENT VIEWS  -->
+
+
+        <record model="ir.ui.view" id="view_patient_placement_complete">
+            <field name="name">Patient Placement</field>
+            <field name="model">nh.clinical.patient.placement</field>
+            <field name="arch" type="xml">
+                <form string="Patient Placement" version="7.0">
+                   <label for="patient_id" string="Patient"/>
+                   <field name="patient_id" readonly="1"/>
+                   <label for="location_id" string="Location"/>
+                   <field name="suggested_location_id" invisible="1"/>
+                   <field name="location_id" required="True" domain="[('is_available','=',True),('usage','=','bed'),('id','child_of',suggested_location_id)]" widget="nh_many2one"/>
+                    <button name="complete_ui" type="object" string="Confirm Placement"/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_observation_height_weight">
+            <field name="name">Observation Height, Weight</field>
+            <field name="model">nh.clinical.patient.observation.height_weight</field>
+            <field name="arch" type="xml">
+                <form string="Patient Transfer Form">
+                   <field name="patient_id" />
+                   <field name="height" />
+                   <field name="weight" />
+                    <button name="submit_ui" type="object" string="Submit"/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_tree_observation_ews">
+            <field name="name">Tree View Observation EWS</field>
+            <field name="model">nh.clinical.patient.observation.ews</field>
+            <field name="arch" type="xml">
+                <tree string="Early Warning Scores" class="nhc_obs_list">
+                    <field name="date_terminated"/>
+                    <field name="score"/>
+                    <field name="pulse_rate"/>
+                    <field name="body_temperature"/>
+                    <field name="blood_pressure_systolic"/>
+                    <field name="blood_pressure_diastolic"/>
+                    <field name="respiration_rate"/>
+                    <field name="indirect_oxymetry_spo2"/>
+                    <field name="oxygen_administration_flag"/>
+                    <field name="avpu_text"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</openerp>

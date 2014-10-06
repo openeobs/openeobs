@@ -12,23 +12,22 @@ class AdhocBPObsTest(common.SingleTransactionCase):
         super(AdhocBPObsTest, self).setUp()
 
         # set up database connection objects
-        self.registry = openerp.modules.registry.RegistryManager.get('t4clinical_test')
         self.uid = 1
         self.host = 'http://localhost:8169'
 
         # set up pools
-        self.patient = self.registry.get('t4.clinical.patient')
-        self.patient_visits = self.registry.get('t4.clinical.patient.visit')
-        self.tasks = self.registry.get('t4.clinical.task.base')
-        self.location = self.registry.get('t4.clinical.pos.delivery')
-        self.location_type = self.registry.get('t4.clinical.pos.delivery.type')
+        self.patient = self.registry.get('nh.clinical.patient')
+        self.patient_visits = self.registry.get('nh.clinical.patient.visit')
+        self.tasks = self.registry.get('nh.clinical.task.base')
+        self.location = self.registry.get('nh.clinical.pos.delivery')
+        self.location_type = self.registry.get('nh.clinical.pos.delivery.type')
         self.users = self.registry.get('res.users')
 
     def test_blood_product_obs_form(self):
         cr, uid = self.cr, self.uid
 
         # create environment
-        api_demo = self.registry('t4.clinical.api.demo')
+        api_demo = self.registry('nh.clinical.api.demo')
         api_demo.build_uat_env(cr, uid, patients=8, placements=4, ews=0, context=None)
 
         # get a nurse user
@@ -40,7 +39,7 @@ class AdhocBPObsTest(common.SingleTransactionCase):
             'uid': 1
         }
 
-        patient_api = self.registry['t4.clinical.api.external']
+        patient_api = self.registry['nh.clinical.api.external']
         test_patient = patient_api.get_patients(cr, norah_user, [], context=self.context)[0]
 
         patient = dict()
@@ -59,7 +58,7 @@ class AdhocBPObsTest(common.SingleTransactionCase):
         form['start'] = '0'
 
 
-        form_desc = patient_api.get_form_description(cr, uid, test_patient['id'], 't4.clinical.patient.observation.blood_product', context=self.context)
+        form_desc = patient_api.get_form_description(cr, uid, test_patient['id'], 'nh.clinical.patient.observation.blood_product', context=self.context)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
                 form_input['step'] = 0.1 if form_input['type'] is 'float' else 1

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+       <!-- OPERATION Left -->
+          <menuitem name="Operations" 
+          	id="menu_left_nhc_operation"
+          	parent="nh_clinical_base.menu_nh_clinical" 
+          	action="" 
+          	groups="nh_clinical_base.group_nhc_base"/>
+          	           		
+          	           		
+          <menuitem name="Patient Placement Activities" 
+          	id="menu_nhc_patient_placement_activity"
+          	parent="menu_left_nhc_operation"
+          	action="action_nhc_placement_activity"
+          	groups="nh_clinical_base.group_nhc_ward_manager"/>
+    </data>
+</openerp>

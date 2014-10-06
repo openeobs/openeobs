@@ -12,23 +12,22 @@ class NewsObsTest(common.SingleTransactionCase):
         super(NewsObsTest, self).setUp()
 
         # set up database connection objects
-        self.registry = openerp.modules.registry.RegistryManager.get('t4clinical_test')
         self.uid = 1
         self.host = 'http://localhost:8169'
 
         # set up pools
-        self.patient = self.registry.get('t4.clinical.patient')
-        self.patient_visits = self.registry.get('t4.clinical.patient.visit')
-        self.tasks = self.registry.get('t4.clinical.task.base')
-        self.location = self.registry.get('t4.clinical.pos.delivery')
-        self.location_type = self.registry.get('t4.clinical.pos.delivery.type')
+        self.patient = self.registry.get('nh.clinical.patient')
+        self.patient_visits = self.registry.get('nh.clinical.patient.visit')
+        self.tasks = self.registry.get('nh.clinical.task.base')
+        self.location = self.registry.get('nh.clinical.pos.delivery')
+        self.location_type = self.registry.get('nh.clinical.pos.delivery.type')
         self.users = self.registry.get('res.users')
 
     def test_news_obs_form(self):
         cr, uid = self.cr, self.uid
 
         # create environment
-        api_demo = self.registry('t4.clinical.api.demo')
+        api_demo = self.registry('nh.clinical.api.demo')
         api_demo.build_uat_env(cr, uid, patients=8, placements=4, ews=0, context=None)
 
         # get a nurse user
@@ -41,12 +40,12 @@ class NewsObsTest(common.SingleTransactionCase):
         }
 
         # Grab the NEWS Obs task from task list
-        task_api = self.registry['t4.clinical.api.external']
+        task_api = self.registry['nh.clinical.api.external']
         task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
 
         # Take the Task
-        activity_reg = self.registry['t4.activity']
-        api_reg = self.registry['t4.clinical.api.external']
+        activity_reg = self.registry['nh.activity']
+        api_reg = self.registry['nh.clinical.api.external']
         task_id = int(task_id)
         task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=self.context)
         patient = dict()
@@ -77,7 +76,7 @@ class NewsObsTest(common.SingleTransactionCase):
         # Grab the form Def and compile the data to send to template
         obs_reg = self.registry[task['data_model']]
         form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=self.context)
-        form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
+        form['type'] = re.match(r'nh\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
                 form_input['step'] = 0.1 if form_input['type'] is 'float' else 1

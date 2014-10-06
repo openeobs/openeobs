@@ -1,0 +1,33 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_nh_clinical_placement_tree">
+            <field name="name">NH Clinical Placement Tree View</field>
+            <field name="model">nh.clinical.placement</field>
+            <field name="arch" type="xml">
+                <tree string="NH Clinical Placement Tree View" version="7.0" create="0">
+                    <button name="complete" type="object" string="Complete" class="oe_highlight" nh_icon="down-caret-1"/>
+                    <field name="location_id" />
+                    <field name="patient_id" />
+                    <field name="hospital_number" />
+                    <field name="pos_id" />
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_placements" >
+            <field name="name">Patients without bed</field>
+            <field name="res_model">nh.clinical.placement</field>
+            <field name="view_type">form</field>
+            <field name="domain">[('user_ids','in',uid)]</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_nh_clinical_placement_tree"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_view_placement_tree">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_nh_clinical_placement_tree"/>
+            <field name="act_window_id" ref="action_show_placements"/>
+        </record>
+    </data>
+</openerp>

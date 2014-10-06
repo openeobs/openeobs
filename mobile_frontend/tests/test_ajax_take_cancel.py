@@ -18,16 +18,15 @@ class TestAjaxTakeCancel(openerp.tests.HttpCase):
         global cr, uid
 
         # set up database connection objects
-        self.registry = openerp.modules.registry.RegistryManager.get('t4clinical_test')
         self.uid = 1
         self.host = 'http://localhost:8169'
 
         # set up pools
-        self.patient = self.registry.get('t4.clinical.patient')
-        self.patient_visits = self.registry.get('t4.clinical.patient.visit')
-        self.tasks = self.registry.get('t4.clinical.task.base')
+        self.patient = self.registry.get('nh.clinical.patient')
+        self.patient_visits = self.registry.get('nh.clinical.patient.visit')
+        self.tasks = self.registry.get('nh.clinical.task.base')
         self.users = self.registry.get('res.users')
-        self.activities = self.registry.get('t4.activity')
+        self.activities = self.registry.get('nh.activity')
 
 
     # test task taking and cancel taking via ajax
@@ -38,7 +37,7 @@ class TestAjaxTakeCancel(openerp.tests.HttpCase):
         test_save_point = self.savepoint_create()
 
         # create environment
-        api_demo = self.registry('t4.clinical.api.demo')
+        api_demo = self.registry('nh.clinical.api.demo')
         api_demo.build_uat_env(cr, uid, patients=8, placements=4, ews=0, context=None)
         cr.commit()
         # get a nurse user
@@ -51,7 +50,7 @@ class TestAjaxTakeCancel(openerp.tests.HttpCase):
         }
 
         # Grab the NEWS Obs task from task list
-        task_api = self.registry['t4.clinical.api.external']
+        task_api = self.registry['nh.clinical.api.external']
         task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
 
         take = helpers.TAKE_TASK_AJAX.format(task_id=task_id)
@@ -61,7 +60,7 @@ class TestAjaxTakeCancel(openerp.tests.HttpCase):
 
         assigned_to = self.activities.read(cr, uid, task_id, [])
 
-        self.phantom_js('/ajax_test/', cancel, 'document', login='norah', db='t4clinical_test')
+        self.phantom_js('/ajax_test/', cancel, 'document', login='norah', db='nhclinical_test')
 
         # rollback to save point cos otherwise them changes be made
         self.savepoint_rollback(test_save_point)

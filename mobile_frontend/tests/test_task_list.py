@@ -11,24 +11,23 @@ class TaskListTest(common.SingleTransactionCase):
         super(TaskListTest, self).setUp()
 
         # set up database connection objects
-        self.registry = openerp.modules.registry.RegistryManager.get('t4clinical_test')
         self.uid = 1
         self.host = 'http://localhost:8169'
 
         # set up pools
-        self.patient = self.registry.get('t4.clinical.patient')
-        self.patient_visits = self.registry.get('t4.clinical.patient.visit')
-        self.tasks = self.registry.get('t4.clinical.task.base')
-        self.location = self.registry.get('t4.clinical.location')
-        #self.location_type = self.registry.get('t4.clinical.location.type')
+        self.patient = self.registry.get('nh.clinical.patient')
+        self.patient_visits = self.registry.get('nh.clinical.patient.visit')
+        self.tasks = self.registry.get('nh.clinical.task.base')
+        self.location = self.registry.get('nh.clinical.location')
+        #self.location_type = self.registry.get('nh.clinical.location.type')
         self.users = self.registry.get('res.users')
-        self.activities = self.registry.get('t4.activity')
+        self.activities = self.registry.get('nh.activity')
 
     def test_task_list(self):
         cr, uid = self.cr, self.uid
 
         # create environment
-        api_demo = self.registry('t4.clinical.api.demo')
+        api_demo = self.registry('nh.clinical.api.demo')
         api_demo.build_uat_env(cr, uid, patients=8, placements=4, context=None)
 
         # get a nurse user
@@ -43,7 +42,7 @@ class TaskListTest(common.SingleTransactionCase):
         }
 
         # Call controller
-        task_api = self.registry['t4.clinical.api.external']
+        task_api = self.registry['nh.clinical.api.external']
         tasks = task_api.get_activities(cr, norah_user, [], context=self.context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(helpers.URLS['single_task'], task['id'])

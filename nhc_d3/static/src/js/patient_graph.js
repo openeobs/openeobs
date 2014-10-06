@@ -275,7 +275,7 @@ drawChart: function() {
         context.obj.selectAll(".axis .domain").style({"stroke-width": "1", "fill": "none","shape-rendering": "crispEdges", "stroke":"black"});
         context.obj.selectAll(".axis .tick line").style({"stroke-width": "1", "fill": "none","shape-rendering": "crispEdges", "stroke":"black"});
     }
-    svg.popup = nhc_d3.select(".t4skr_ewschart").append("div").attr("class", "contextPopup").style({"opacity": "0",
+    svg.popup = nhc_d3.select(".nh_ewschart").append("div").attr("class", "contextPopup").style({"opacity": "0",
         "position": "absolute",
         "text-align": "center",
         "width": "5%",

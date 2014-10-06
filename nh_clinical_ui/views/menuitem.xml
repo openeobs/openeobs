@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <menuitem name="Open eObs" id="menu_nhui_top_root" groups="nh_clinical_base.group_nhc_base,base.user_root"/>
+        <menuitem name="Patient Management"
+                  sequence="1"
+                  id="menu_nhui_left_patient"
+                  parent="menu_nhui_top_root"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_hca,nh_clinical_base.group_nhc_doctor,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Patients without bed"
+                  id="menu_nhui_left_placement"
+                  sequence="5"
+                  parent="menu_nhui_left_patient"
+                  action="action_show_placements"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Ward Management"
+                  sequence="3"
+                  id="menu_nhui_left_ward"
+                  parent="menu_nhui_top_root"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin,base.user_root"/>
+
+        <menuitem name="Cancel Notifications"
+                  id="menu_nhui_left_cancel_notifications"
+                  sequence="0"
+                  parent="menu_nhui_left_ward"
+                  action="action_nhc_cancel_notifications"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin,base.user_root"/>
+
+        <menuitem name="Active Points of Care"
+                  id="menu_nhui_left_active_poc"
+                  sequence="1"
+                  parent="menu_nhui_left_ward"
+                  action="action_show_active_locations"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin,base.user_root"/>
+
+        <menuitem name="Inactive Points of Care"
+                  id="menu_nhui_left_inactive_poc"
+                  sequence="2"
+                  parent="menu_nhui_left_ward"
+                  action="action_show_inactive_locations"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin,base.user_root"/>
+
+        <menuitem name="Ward Dashboard"
+                  id="menu_nhui_left_poc_management"
+                  sequence="5"
+                  parent="menu_nhui_left_ward"
+                  action="action_show_poc_management"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin,base.user_root"/>
+
+        <menuitem name="Staff Management"
+                  id="menu_nhui_left_user_management"
+                  sequence="4"
+                  parent="menu_nhui_left_ward"
+                  action="action_nhc_userboard"
+                  groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin,base.user_root"/>
+
+        <menuitem name="Administration" id="menu_nhui_admin_top_root" groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+        <menuitem name="Data Management"
+                  sequence="1"
+                  id="menu_nhui_admin_left_data"
+                  parent="menu_nhui_admin_top_root"
+                  groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+        <menuitem name="Manage O2 Targets"
+                  id="menu_nhui_left_o2_targets"
+                  parent="menu_nhui_admin_left_data"
+                  action="action_show_o2_targets"
+                  groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+        <menuitem name="Devices Management"
+                  sequence="2"
+                  id="menu_nhui_admin_left_devices"
+                  parent="menu_nhui_admin_top_root"
+                  groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+        <menuitem name="Devices"
+                  id="menu_nhui_left_devices"
+                  parent="menu_nhui_admin_left_devices"
+                  action="action_show_devices"
+                  groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+        <menuitem name="Device Types"
+                  id="menu_nhui_left_device_types"
+                  parent="menu_nhui_admin_left_devices"
+                  action="action_show_device_types"
+                  groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+        <menuitem name="User Management"
+                  id="menu_nhui_admin_left_users"
+                  parent="menu_nhui_admin_top_root"
+                  groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+        <menuitem name="Open eObs Users"
+                  id="menu_nhui_left_users"
+                  parent="menu_nhui_admin_left_users"
+                  action="action_nhc_admin_userboard"
+                  groups="nh_clinical_base.group_nhc_dev,nh_clinical_base.group_nhc_admin"/>
+
+    	<!-- WARDBOARD -->
+
+        <menuitem name="Patients Board"
+          	id="menu_left_sub_wardboard" 
+          	parent="menu_nhui_left_patient"
+          	action="action_wardboard"
+            sequence="1"
+          	groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Patients by Ward"
+          	id="menu_left_patients_by_ward"
+          	parent="menu_nhui_left_patient"
+          	action="action_patients_by_ward"
+            sequence="2"
+          	groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Recently Discharged"
+          	id="menu_left_discharged_patients"
+          	parent="menu_nhui_left_patient"
+          	action="action_wardboard_discharged"
+            sequence="3"
+          	groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Doctor Tasks"
+          	id="menu_left_doctor_activities"
+          	parent="menu_nhui_left_patient"
+          	action="action_show_doctor_activities"
+            sequence="6"
+          	groups="nh_clinical_base.group_nhc_doctor,nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Overdue Tasks"
+          	id="menu_left_overdue"
+          	parent="menu_nhui_left_patient"
+          	action="action_show_overdue"
+            sequence="7"
+          	groups="nh_clinical_base.group_nhc_doctor,nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Activity Workload" 
+        	id="menu_left_sub_activity_workload"
+            sequence="3"
+        	parent="menu_nhui_left_ward"
+            action="act_activity_workload_kanban" 
+            groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev,base.user_root"/>
+
+        <!-- HIDE MENUS WE DON'T WANT TO SHOW -->
+        <record model="ir.ui.menu" id="base.menu_main_pm">
+            <field name="groups_id" eval="[(6, 0, [ref('nh_clinical_base.group_nhc_dev')])]"/>
+        </record>
+        <record model="ir.ui.menu" id="hr.menu_hr_root">
+            <field name="groups_id" eval="[(6, 0, [ref('nh_clinical_base.group_nhc_dev')])]"/>
+        </record>
+        <record model="ir.ui.menu" id="base.menu_reporting">
+            <field name="groups_id" eval="[(6, 0, [ref('nh_clinical_base.group_nhc_dev')])]"/>
+        </record>
+        <record model="ir.ui.menu" id="mail.menu_mail_message">
+            <field name="groups_id" eval="[(6, 0, [ref('nh_clinical_base.group_nhc_dev')])]"/>
+        </record>
+        <record model="ir.ui.menu" id="mail.mail_feeds_main">
+            <field name="groups_id" eval="[(6, 0, [ref('nh_clinical_base.group_nhc_dev')])]"/>
+        </record>
+        <record model="ir.ui.menu" id="nh_clinical_base.menu_nh_clinical">
+            <field name="groups_id" eval="[(6, 0, [ref('nh_clinical_base.group_nhc_dev')])]"/>
+        </record>
+
+    </data>
+</openerp>

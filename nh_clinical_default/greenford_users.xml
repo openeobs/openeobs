@@ -1,0 +1,672 @@
+<openerp>
+    <data>
+        <!--Users-->
+        
+        <record id="nhc_def_conf_adt_user" model="res.users">
+            <field name="name">GUH-ADT</field>
+            <field name="login">adt</field>
+            <field name="password">adt</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_admin'))]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
+        </record>
+
+        <record id="nhc_def_conf_hca_hudson_user" model="res.users">
+            <field name="name">Hudson Butler</field>
+            <field name="login">hudson</field>
+            <field name="password">hudson</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, []]]"/>
+        </record>
+
+        <record id="nhc_def_conf_hca_heather_user" model="res.users">
+            <field name="name">Heather Walder</field>
+            <field name="login">heather</field>
+            <field name="password">heather</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, []]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_hca_harold_user" model="res.users">
+            <field name="name">Harold Bishop</field>
+            <field name="login">harold</field>
+            <field name="password">harold</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wa_b1'),
+            ref('nhc_def_conf_location_wa_b2'),
+            ref('nhc_def_conf_location_wa_b3'),
+            ref('nhc_def_conf_location_wa_b4'),
+            ref('nhc_def_conf_location_wa_b5'),
+            ref('nhc_def_conf_location_wa_b6'),
+            ref('nhc_def_conf_location_wa_b7'),
+            ref('nhc_def_conf_location_wa_b8'),
+            ref('nhc_def_conf_location_wa_b9'),
+            ref('nhc_def_conf_location_wa_b10'),
+            ref('nhc_def_conf_location_wa_b11'),
+            ref('nhc_def_conf_location_wa_b12'),
+            ref('nhc_def_conf_location_wa_b13'),
+            ref('nhc_def_conf_location_wa_b14'),
+            ref('nhc_def_conf_location_wa_b15'),
+            ref('nhc_def_conf_location_wa_b16'),
+            ref('nhc_def_conf_location_wa_b17'),
+            ref('nhc_def_conf_location_wa_b18'),
+            ref('nhc_def_conf_location_wa_b19'),
+            ref('nhc_def_conf_location_wa_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_hca_henry_user" model="res.users">
+            <field name="name">Henry Higgins</field>
+            <field name="login">henry</field>
+            <field name="password">henry</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wb_b1'),
+            ref('nhc_def_conf_location_wb_b2'),
+            ref('nhc_def_conf_location_wb_b3'),
+            ref('nhc_def_conf_location_wb_b4'),
+            ref('nhc_def_conf_location_wb_b5'),
+            ref('nhc_def_conf_location_wb_b6'),
+            ref('nhc_def_conf_location_wb_b7'),
+            ref('nhc_def_conf_location_wb_b8'),
+            ref('nhc_def_conf_location_wb_b9'),
+            ref('nhc_def_conf_location_wb_b10'),
+            ref('nhc_def_conf_location_wb_b11'),
+            ref('nhc_def_conf_location_wb_b12'),
+            ref('nhc_def_conf_location_wb_b13'),
+            ref('nhc_def_conf_location_wb_b14'),
+            ref('nhc_def_conf_location_wb_b15'),
+            ref('nhc_def_conf_location_wb_b16'),
+            ref('nhc_def_conf_location_wb_b17'),
+            ref('nhc_def_conf_location_wb_b18'),
+            ref('nhc_def_conf_location_wb_b19'),
+            ref('nhc_def_conf_location_wb_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_hca_hannah_user" model="res.users">
+            <field name="name">Hannah Mitchell</field>
+            <field name="login">hannah</field>
+            <field name="password">hannah</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wc_b1'),
+            ref('nhc_def_conf_location_wc_b2'),
+            ref('nhc_def_conf_location_wc_b3'),
+            ref('nhc_def_conf_location_wc_b4'),
+            ref('nhc_def_conf_location_wc_b5'),
+            ref('nhc_def_conf_location_wc_b6'),
+            ref('nhc_def_conf_location_wc_b7'),
+            ref('nhc_def_conf_location_wc_b8'),
+            ref('nhc_def_conf_location_wc_b9'),
+            ref('nhc_def_conf_location_wc_b10'),
+            ref('nhc_def_conf_location_wc_b11'),
+            ref('nhc_def_conf_location_wc_b12'),
+            ref('nhc_def_conf_location_wc_b13'),
+            ref('nhc_def_conf_location_wc_b14'),
+            ref('nhc_def_conf_location_wc_b15'),
+            ref('nhc_def_conf_location_wc_b16'),
+            ref('nhc_def_conf_location_wc_b17'),
+            ref('nhc_def_conf_location_wc_b18'),
+            ref('nhc_def_conf_location_wc_b19'),
+            ref('nhc_def_conf_location_wc_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_hca_harper_user" model="res.users">
+            <field name="name">Harper Ransom</field>
+            <field name="login">harper</field>
+            <field name="password">harper</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wc_b1'),
+            ref('nhc_def_conf_location_wc_b2'),
+            ref('nhc_def_conf_location_wc_b3'),
+            ref('nhc_def_conf_location_wc_b4'),
+            ref('nhc_def_conf_location_wc_b5'),
+            ref('nhc_def_conf_location_wc_b6'),
+            ref('nhc_def_conf_location_wc_b7'),
+            ref('nhc_def_conf_location_wc_b8'),
+            ref('nhc_def_conf_location_wc_b9'),
+            ref('nhc_def_conf_location_wc_b10'),
+            ref('nhc_def_conf_location_wc_b11'),
+            ref('nhc_def_conf_location_wc_b12'),
+            ref('nhc_def_conf_location_wc_b13'),
+            ref('nhc_def_conf_location_wc_b14'),
+            ref('nhc_def_conf_location_wc_b15'),
+            ref('nhc_def_conf_location_wc_b16'),
+            ref('nhc_def_conf_location_wc_b17'),
+            ref('nhc_def_conf_location_wc_b18'),
+            ref('nhc_def_conf_location_wc_b19'),
+            ref('nhc_def_conf_location_wc_b20')]]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_hca_harriet_user" model="res.users">
+            <field name="name">Harriet Kendall</field>
+            <field name="login">harriet</field>
+            <field name="password">harriet</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wd_b1'),
+            ref('nhc_def_conf_location_wd_b2'),
+            ref('nhc_def_conf_location_wd_b3'),
+            ref('nhc_def_conf_location_wd_b4'),
+            ref('nhc_def_conf_location_wd_b5'),
+            ref('nhc_def_conf_location_wd_b6'),
+            ref('nhc_def_conf_location_wd_b7'),
+            ref('nhc_def_conf_location_wd_b8'),
+            ref('nhc_def_conf_location_wd_b9'),
+            ref('nhc_def_conf_location_wd_b10'),
+            ref('nhc_def_conf_location_wd_b11'),
+            ref('nhc_def_conf_location_wd_b12'),
+            ref('nhc_def_conf_location_wd_b13'),
+            ref('nhc_def_conf_location_wd_b14'),
+            ref('nhc_def_conf_location_wd_b15'),
+            ref('nhc_def_conf_location_wd_b16'),
+            ref('nhc_def_conf_location_wd_b17'),
+            ref('nhc_def_conf_location_wd_b18'),
+            ref('nhc_def_conf_location_wd_b19'),
+            ref('nhc_def_conf_location_wd_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_hca_hugo_user" model="res.users">
+            <field name="name">Hugo Burlatsky</field>
+            <field name="login">hugo</field>
+            <field name="password">hugo</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wd_b1'),
+            ref('nhc_def_conf_location_wd_b2'),
+            ref('nhc_def_conf_location_wd_b3'),
+            ref('nhc_def_conf_location_wd_b4'),
+            ref('nhc_def_conf_location_wd_b5'),
+            ref('nhc_def_conf_location_wd_b6'),
+            ref('nhc_def_conf_location_wd_b7'),
+            ref('nhc_def_conf_location_wd_b8'),
+            ref('nhc_def_conf_location_wd_b9'),
+            ref('nhc_def_conf_location_wd_b10'),
+            ref('nhc_def_conf_location_wd_b11'),
+            ref('nhc_def_conf_location_wd_b12'),
+            ref('nhc_def_conf_location_wd_b13'),
+            ref('nhc_def_conf_location_wd_b14'),
+            ref('nhc_def_conf_location_wd_b15'),
+            ref('nhc_def_conf_location_wd_b16'),
+            ref('nhc_def_conf_location_wd_b17'),
+            ref('nhc_def_conf_location_wd_b18'),
+            ref('nhc_def_conf_location_wd_b19'),
+            ref('nhc_def_conf_location_wd_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_natalia_user" model="res.users">
+            <field name="name">Natalia Gonzalez</field>
+            <field name="login">natalia</field>
+            <field name="password">natalia</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, []]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_noemi_user" model="res.users">
+            <field name="name">Noemi Simpson</field>
+            <field name="login">noemi</field>
+            <field name="password">noemi</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, []]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_noah_user" model="res.users">
+            <field name="name">Noah Connolly</field>
+            <field name="login">noah</field>
+            <field name="password">noah</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, []]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_neil_user" model="res.users">
+            <field name="name">Neil Hawking</field>
+            <field name="login">neil</field>
+            <field name="password">neil</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, []]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_norah_user" model="res.users">
+            <field name="name">Norah Miller</field>
+            <field name="login">norah</field>
+            <field name="password">norah</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wa_b1'),
+            ref('nhc_def_conf_location_wa_b2'),
+            ref('nhc_def_conf_location_wa_b3'),
+            ref('nhc_def_conf_location_wa_b4'),
+            ref('nhc_def_conf_location_wa_b5'),
+            ref('nhc_def_conf_location_wa_b6'),
+            ref('nhc_def_conf_location_wa_b7'),
+            ref('nhc_def_conf_location_wa_b8'),
+            ref('nhc_def_conf_location_wa_b9'),
+            ref('nhc_def_conf_location_wa_b10')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_nadine_user" model="res.users">
+            <field name="name">Nadine Bullock</field>
+            <field name="login">nadine</field>
+            <field name="password">nadine</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wa_b11'),
+            ref('nhc_def_conf_location_wa_b12'),
+            ref('nhc_def_conf_location_wa_b13'),
+            ref('nhc_def_conf_location_wa_b14'),
+            ref('nhc_def_conf_location_wa_b15'),
+            ref('nhc_def_conf_location_wa_b16'),
+            ref('nhc_def_conf_location_wa_b17'),
+            ref('nhc_def_conf_location_wa_b18'),
+            ref('nhc_def_conf_location_wa_b19'),
+            ref('nhc_def_conf_location_wa_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_nathan_user" model="res.users">
+            <field name="name">Nathan Lewis</field>
+            <field name="login">nathan</field>
+            <field name="password">nathan</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wb_b1'),
+            ref('nhc_def_conf_location_wb_b2'),
+            ref('nhc_def_conf_location_wb_b3'),
+            ref('nhc_def_conf_location_wb_b4'),
+            ref('nhc_def_conf_location_wb_b5'),
+            ref('nhc_def_conf_location_wb_b6'),
+            ref('nhc_def_conf_location_wb_b7'),
+            ref('nhc_def_conf_location_wb_b8'),
+            ref('nhc_def_conf_location_wb_b9'),
+            ref('nhc_def_conf_location_wb_b10')]]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_nurse_nicolas_user" model="res.users">
+            <field name="name">Nicolas Stockly</field>
+            <field name="login">nicolas</field>
+            <field name="password">nicolas</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wb_b11'),
+            ref('nhc_def_conf_location_wb_b12'),
+            ref('nhc_def_conf_location_wb_b13'),
+            ref('nhc_def_conf_location_wb_b14'),
+            ref('nhc_def_conf_location_wb_b15'),
+            ref('nhc_def_conf_location_wb_b16'),
+            ref('nhc_def_conf_location_wb_b17'),
+            ref('nhc_def_conf_location_wb_b18'),
+            ref('nhc_def_conf_location_wb_b19'),
+            ref('nhc_def_conf_location_wb_b20')]]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_nurse_ned_user" model="res.users">
+            <field name="name">Ned Muzio</field>
+            <field name="login">ned</field>
+            <field name="password">ned</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wc_b1'),
+            ref('nhc_def_conf_location_wc_b2'),
+            ref('nhc_def_conf_location_wc_b3'),
+            ref('nhc_def_conf_location_wc_b4'),
+            ref('nhc_def_conf_location_wc_b5'),
+            ref('nhc_def_conf_location_wc_b6'),
+            ref('nhc_def_conf_location_wc_b7'),
+            ref('nhc_def_conf_location_wc_b8'),
+            ref('nhc_def_conf_location_wc_b9'),
+            ref('nhc_def_conf_location_wc_b10'),
+            ref('nhc_def_conf_location_wc_b11'),
+            ref('nhc_def_conf_location_wc_b12'),
+            ref('nhc_def_conf_location_wc_b13'),
+            ref('nhc_def_conf_location_wc_b14'),
+            ref('nhc_def_conf_location_wc_b15'),
+            ref('nhc_def_conf_location_wc_b16'),
+            ref('nhc_def_conf_location_wc_b17'),
+            ref('nhc_def_conf_location_wc_b18'),
+            ref('nhc_def_conf_location_wc_b19'),
+            ref('nhc_def_conf_location_wc_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_natasha_user" model="res.users">
+            <field name="name">Natasha Goldner</field>
+            <field name="login">natasha</field>
+            <field name="password">natasha</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wc_b1'),
+            ref('nhc_def_conf_location_wc_b2'),
+            ref('nhc_def_conf_location_wc_b3'),
+            ref('nhc_def_conf_location_wc_b4'),
+            ref('nhc_def_conf_location_wc_b5'),
+            ref('nhc_def_conf_location_wc_b6'),
+            ref('nhc_def_conf_location_wc_b7'),
+            ref('nhc_def_conf_location_wc_b8'),
+            ref('nhc_def_conf_location_wc_b9'),
+            ref('nhc_def_conf_location_wc_b10'),
+            ref('nhc_def_conf_location_wc_b11'),
+            ref('nhc_def_conf_location_wc_b12'),
+            ref('nhc_def_conf_location_wc_b13'),
+            ref('nhc_def_conf_location_wc_b14'),
+            ref('nhc_def_conf_location_wc_b15'),
+            ref('nhc_def_conf_location_wc_b16'),
+            ref('nhc_def_conf_location_wc_b17'),
+            ref('nhc_def_conf_location_wc_b18'),
+            ref('nhc_def_conf_location_wc_b19'),
+            ref('nhc_def_conf_location_wc_b20')]]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_nurse_nichole_user" model="res.users">
+            <field name="name">Nichole Smith</field>
+            <field name="login">nichole</field>
+            <field name="password">nichole</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wd_b1'),
+            ref('nhc_def_conf_location_wd_b2'),
+            ref('nhc_def_conf_location_wd_b3'),
+            ref('nhc_def_conf_location_wd_b4'),
+            ref('nhc_def_conf_location_wd_b5'),
+            ref('nhc_def_conf_location_wd_b6'),
+            ref('nhc_def_conf_location_wd_b7'),
+            ref('nhc_def_conf_location_wd_b8'),
+            ref('nhc_def_conf_location_wd_b9'),
+            ref('nhc_def_conf_location_wd_b10'),
+            ref('nhc_def_conf_location_wd_b11'),
+            ref('nhc_def_conf_location_wd_b12'),
+            ref('nhc_def_conf_location_wd_b13'),
+            ref('nhc_def_conf_location_wd_b14'),
+            ref('nhc_def_conf_location_wd_b15'),
+            ref('nhc_def_conf_location_wd_b16'),
+            ref('nhc_def_conf_location_wd_b17'),
+            ref('nhc_def_conf_location_wd_b18'),
+            ref('nhc_def_conf_location_wd_b19'),
+            ref('nhc_def_conf_location_wd_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_nurse_nasir_user" model="res.users">
+            <field name="name">Nasir Patel</field>
+            <field name="login">nasir</field>
+            <field name="password">nasir</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wd_b1'),
+            ref('nhc_def_conf_location_wd_b2'),
+            ref('nhc_def_conf_location_wd_b3'),
+            ref('nhc_def_conf_location_wd_b4'),
+            ref('nhc_def_conf_location_wd_b5'),
+            ref('nhc_def_conf_location_wd_b6'),
+            ref('nhc_def_conf_location_wd_b7'),
+            ref('nhc_def_conf_location_wd_b8'),
+            ref('nhc_def_conf_location_wd_b9'),
+            ref('nhc_def_conf_location_wd_b10'),
+            ref('nhc_def_conf_location_wd_b11'),
+            ref('nhc_def_conf_location_wd_b12'),
+            ref('nhc_def_conf_location_wd_b13'),
+            ref('nhc_def_conf_location_wd_b14'),
+            ref('nhc_def_conf_location_wd_b15'),
+            ref('nhc_def_conf_location_wd_b16'),
+            ref('nhc_def_conf_location_wd_b17'),
+            ref('nhc_def_conf_location_wd_b18'),
+            ref('nhc_def_conf_location_wd_b19'),
+            ref('nhc_def_conf_location_wd_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_ward_manager_winifred_user" model="res.users">
+            <field name="name">Winifred Kirrin</field>
+            <field name="login">winifred</field>
+            <field name="password">winifred</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wa')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_ward_manager_walter_user" model="res.users">
+            <field name="name">Walter Smith</field>
+            <field name="login">walter</field>
+            <field name="password">walter</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wb')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_ward_manager_whitney_user" model="res.users">
+            <field name="name">Whitney Williams</field>
+            <field name="login">whitney</field>
+            <field name="password">whitney</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wc')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_ward_manager_william_user" model="res.users">
+            <field name="name">William Roberts</field>
+            <field name="login">william</field>
+            <field name="password">william</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wd')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_dave_user" model="res.users">
+            <field name="name">Dave Chas</field>
+            <field name="login">dave</field>
+            <field name="password">dave</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wa_b1'),
+            ref('nhc_def_conf_location_wa_b2'),
+            ref('nhc_def_conf_location_wa_b3'),
+            ref('nhc_def_conf_location_wa_b4'),
+            ref('nhc_def_conf_location_wa_b5'),
+            ref('nhc_def_conf_location_wa_b6'),
+            ref('nhc_def_conf_location_wa_b7')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_davina_user" model="res.users">
+            <field name="name">Davina McCall</field>
+            <field name="login">davina</field>
+            <field name="password">davina</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wa_b8'),
+            ref('nhc_def_conf_location_wa_b9'),
+            ref('nhc_def_conf_location_wa_b10'),
+            ref('nhc_def_conf_location_wa_b11'),
+            ref('nhc_def_conf_location_wa_b12'),
+            ref('nhc_def_conf_location_wa_b13')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_don_user" model="res.users">
+            <field name="name">Don Jones</field>
+            <field name="login">don</field>
+            <field name="password">don</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wa_b14'),
+            ref('nhc_def_conf_location_wa_b15'),
+            ref('nhc_def_conf_location_wa_b16'),
+            ref('nhc_def_conf_location_wa_b17'),
+            ref('nhc_def_conf_location_wa_b18'),
+            ref('nhc_def_conf_location_wa_b19'),
+            ref('nhc_def_conf_location_wa_b20')]]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_doctor_dakota_user" model="res.users">
+            <field name="name">Dakota Fox</field>
+            <field name="login">dakota</field>
+            <field name="password">dakota</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wb_b1'),
+            ref('nhc_def_conf_location_wb_b2'),
+            ref('nhc_def_conf_location_wb_b3'),
+            ref('nhc_def_conf_location_wb_b4'),
+            ref('nhc_def_conf_location_wb_b5'),
+            ref('nhc_def_conf_location_wb_b6'),
+            ref('nhc_def_conf_location_wb_b7')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_damien_user" model="res.users">
+            <field name="name">Damien Jenkins</field>
+            <field name="login">damien</field>
+            <field name="password">damien</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wb_b8'),
+            ref('nhc_def_conf_location_wb_b9'),
+            ref('nhc_def_conf_location_wb_b10'),
+            ref('nhc_def_conf_location_wb_b11'),
+            ref('nhc_def_conf_location_wb_b12'),
+            ref('nhc_def_conf_location_wb_b13')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_delilah_user" model="res.users">
+            <field name="name">Delilah Fletcher</field>
+            <field name="login">delilah</field>
+            <field name="password">delilah</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wb_b14'),
+            ref('nhc_def_conf_location_wb_b15'),
+            ref('nhc_def_conf_location_wb_b16'),
+            ref('nhc_def_conf_location_wb_b17'),
+            ref('nhc_def_conf_location_wb_b18'),
+            ref('nhc_def_conf_location_wb_b19'),
+            ref('nhc_def_conf_location_wb_b20')]]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_doctor_dawson_user" model="res.users">
+            <field name="name">Dawson West</field>
+            <field name="login">dawson</field>
+            <field name="password">dawson</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wc_b1'),
+            ref('nhc_def_conf_location_wc_b2'),
+            ref('nhc_def_conf_location_wc_b3'),
+            ref('nhc_def_conf_location_wc_b4'),
+            ref('nhc_def_conf_location_wc_b5'),
+            ref('nhc_def_conf_location_wc_b6'),
+            ref('nhc_def_conf_location_wc_b7')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_dana_user" model="res.users">
+            <field name="name">Dana Wallace</field>
+            <field name="login">dana</field>
+            <field name="password">dana</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wc_b8'),
+            ref('nhc_def_conf_location_wc_b9'),
+            ref('nhc_def_conf_location_wc_b10'),
+            ref('nhc_def_conf_location_wc_b11'),
+            ref('nhc_def_conf_location_wc_b12'),
+            ref('nhc_def_conf_location_wc_b13')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_diego_user" model="res.users">
+            <field name="name">Diego Garcia</field>
+            <field name="login">diego</field>
+            <field name="password">diego</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wc_b14'),
+            ref('nhc_def_conf_location_wc_b15'),
+            ref('nhc_def_conf_location_wc_b16'),
+            ref('nhc_def_conf_location_wc_b17'),
+            ref('nhc_def_conf_location_wc_b18'),
+            ref('nhc_def_conf_location_wc_b19'),
+            ref('nhc_def_conf_location_wc_b20')]]]"/>
+        </record>
+        
+        <record id="nhc_def_conf_doctor_daniella_user" model="res.users">
+            <field name="name">Daniella Rossi</field>
+            <field name="login">daniella</field>
+            <field name="password">daniella</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wd_b1'),
+            ref('nhc_def_conf_location_wd_b2'),
+            ref('nhc_def_conf_location_wd_b3'),
+            ref('nhc_def_conf_location_wd_b4'),
+            ref('nhc_def_conf_location_wd_b5'),
+            ref('nhc_def_conf_location_wd_b6'),
+            ref('nhc_def_conf_location_wd_b7')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_denzel_user" model="res.users">
+            <field name="name">Denzel Davies</field>
+            <field name="login">denzel</field>
+            <field name="password">denzel</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wd_b8'),
+            ref('nhc_def_conf_location_wd_b9'),
+            ref('nhc_def_conf_location_wd_b10'),
+            ref('nhc_def_conf_location_wd_b11'),
+            ref('nhc_def_conf_location_wd_b12'),
+            ref('nhc_def_conf_location_wd_b13')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_doctor_diana_user" model="res.users">
+            <field name="name">Diana Fowler</field>
+            <field name="login">diana</field>
+            <field name="password">diana</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="location_ids" eval="[[6, False, [
+            ref('nhc_def_conf_location_wd_b14'),
+            ref('nhc_def_conf_location_wd_b15'),
+            ref('nhc_def_conf_location_wd_b16'),
+            ref('nhc_def_conf_location_wd_b17'),
+            ref('nhc_def_conf_location_wd_b18'),
+            ref('nhc_def_conf_location_wd_b19'),
+            ref('nhc_def_conf_location_wd_b20')]]]"/>
+        </record>
+
+        <record id="nhc_def_conf_admin_olga_user" model="res.users">
+            <field name="name">Olga Chapman</field>
+            <field name="login">olga</field>
+            <field name="password">olga</field>
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_admin'))]"/>
+            <field name="location_ids" eval="[[6, False, []]]"/>
+        </record>
+
+        <record id="base.user_root" model="res.users">
+            <field name="tz">Europe/London</field>
+            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_admin'))]"/>
+        </record>
+        
+    </data>
+</openerp>

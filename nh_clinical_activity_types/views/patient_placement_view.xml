@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+            <record model="ir.ui.view" id="view_patient_placement_search">
+                <field name="name">Patient Placement Search View</field>
+                <field name="model">nh.clinical.patient.placement</field>
+                <field name="arch" type="xml">
+                    <search string="Patient Placement Search View">
+                        <group expand="1" string="Group By...">
+                          <filter name="name" string="Name" domain="[]" context="{'group_by':'name'}" help="Name"/>
+                        </group>
+                    </search>
+                </field>
+            </record>
+            <record model="ir.ui.view" id="view_patient_placement_tree">
+                <field name="name">Patient Placement Tree View</field>
+                <field name="model">nh.clinical.patient.placement</field>
+                <field name="arch" type="xml">
+                    <tree string="Patient Placement Tree View" editable="top" create="false">
+                       <field name="name" />
+                       <field name="patient_id" />
+                       <field name="location_id"/>
+                       <field name="pos_id" />    
+                    </tree>
+                </field>
+            </record>    
+             <record model="ir.ui.view" id="view_patient_placement_form">
+                <field name="name">Patient Placement Form View</field>
+                <field name="model">nh.clinical.patient.placement</field>
+                <field name="arch" type="xml">
+                    <form string="Patient Placement Form View">
+                       <field name="name" />
+                       <field name="patient_id" />
+                       <field name="location_id" domain="[('is_available','=',True)]"/>
+                       <field name="pos_id" />                 
+                    </form>
+                </field>
+            </record>
+            <record model="ir.actions.act_window" id="action_patient_placement" >
+                <field name="name">nh.clinical.patient.placement</field>
+                <field name="res_model">nh.clinical.patient.placement</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="search_view_id" ref="view_patient_placement_search"/>
+<!--                 <field name="target">inline</field> -->
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_patient_placement_tree">
+                <field eval="0" name="sequence"/>
+                <field name="view_mode">tree</field>
+                <field name="view_id" ref="view_patient_placement_tree"/>
+                <field name="act_window_id" ref="action_patient_placement"/>
+            </record>
+             <record model="ir.actions.act_window.view" id="act_view_patient_placement_form">
+                <field eval="1" name="sequence"/>
+                <field name="view_mode">form</field>
+                <field name="view_id" ref="view_patient_placement_form"/>
+                <field name="act_window_id" ref="action_patient_placement"/>
+            </record>
+            
+            <!-- activity VIEW  -->
+            <record model="ir.actions.act_window" id="action_nhc_placement_activity" >
+                <field name="name">Patient Placement Activities</field>
+                <field name="res_model">nh.activity</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="search_view_id" ref="nh_activity.view_nh_activity_search"/>
+                <field name="domain">[('data_model','=','nh.clinical.patient.placement')]</field>
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_nhc_placement_activity_tree">
+                <field eval="0" name="sequence"/>
+                <field name="view_mode">tree</field>
+                <field name="view_id" ref="nh_activity.view_nh_activity_tree"/>
+                <field name="act_window_id" ref="action_nhc_placement_activity"/>                
+            </record>
+            <record model="ir.actions.act_window.view" id="act_view_nhc_placement_activity_form">
+                <field eval="1" name="sequence"/>
+                <field name="view_mode">form</field>
+                <field name="view_id" ref="nh_activity.view_nh_activity_form"/>
+                <field name="act_window_id" ref="action_nhc_placement_activity"/>
+            </record>       
+    </data>
+</openerp>

@@ -82,7 +82,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['stylesheet'], type='http', auth='none')
     def get_stylesheet(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/css/t4skr.css', 'r') as stylesheet:
+        with open(get_module_path('mobile_frontend') + '/static/src/css/nhc.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
@@ -93,7 +93,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['logo'], type='http', auth='none')
     def get_logo(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/img/t4skrlogo.png', 'r') as logo:
+        with open(get_module_path('mobile_frontend') + '/static/src/img/open_eobs_logo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
     @http.route(URLS['bristol_stools_chart'], type='http', auth='none')
@@ -199,7 +199,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['patient_list'], type='http', auth="user")
     def get_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.session.uid, request.context
-        patient_api = request.registry['t4.clinical.api.external']
+        patient_api = request.registry['nh.clinical.api.external']
         patients = patient_api.get_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
@@ -215,7 +215,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        task_api = request.registry['t4.clinical.api.external']
+        task_api = request.registry['nh.clinical.api.external']
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
@@ -230,8 +230,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def take_task_ajax(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         task_id = int(task_id)
-        activity_reg = request.registry['t4.activity']
-        api_reg = request.registry['t4.clinical.api.external']
+        activity_reg = request.registry['nh.activity']
+        api_reg = request.registry['nh.clinical.api.external']
         task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
         if 'user_id' in task and task['user_id'][0] != uid:
             return request.make_response(json.dumps({'status': 'false', 'reason': 'task assigned to another user'}), headers={'Content-Type': 'application/json'})
@@ -247,8 +247,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def cancel_take_task_ajax(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         task_id = int(task_id)
-        activity_reg = request.registry['t4.activity']
-        api_reg = request.registry['t4.clinical.api.external']
+        activity_reg = request.registry['nh.activity']
+        api_reg = request.registry['nh.clinical.api.external']
         task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
         if task.get('user_id') and task['user_id'][0] != uid:
             return request.make_response(json.dumps({'status': 'false', 'reason': "Can't cancel other user's task"}), headers={'Content-Type': 'application/json'})
@@ -262,8 +262,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        activity_reg = request.registry['t4.activity']
-        api_reg = request.registry['t4.clinical.api.external']
+        activity_reg = request.registry['nh.activity']
+        api_reg = request.registry['nh.clinical.api.external']
         task_id = int(task_id)
         task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=context)
         patient = dict()
@@ -296,7 +296,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         if 'notification' in task['data_model'] or 'placement' in task['data_model']:
             # load notification foo
-            obs_reg = request.registry['t4.clinical.api.external']
+            obs_reg = request.registry['nh.clinical.api.external']
             form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
             cancellable = obs_reg.is_cancellable(cr, uid, task['data_model'], context=context)
             form['confirm_url'] = "{0}{1}".format(URLS['confirm_clinical_notification'], task_id)
@@ -322,7 +322,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
             if 'notification' in task['data_model']:
-                form['type'] = re.match(r't4\.clinical\.notification\.(.*)', task['data_model']).group(1)
+                form['type'] = re.match(r'nh\.clinical\.notification\.(.*)', task['data_model']).group(1)
             else:
                 form['type'] = 'placement'
             return request.render('mobile_frontend.notification_confirm_cancel', qcontext={'name': task['summary'],
@@ -335,9 +335,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                                            'urls': URLS})
         elif 'observation' in task['data_model']:
             # load obs foo
-            obs_reg = request.registry['t4.clinical.api.external']
+            obs_reg = request.registry['nh.clinical.api.external']
             form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
-            form['type'] = re.match(r't4\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
+            form['type'] = re.match(r'nh\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
             for form_input in form_desc:
                 if form_input['type'] in ['float', 'integer']:
                     form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
@@ -373,7 +373,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="user")
     def process_form(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api')
+        api = request.registry('nh.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         kw_copy['date_started'] = datetime.fromtimestamp(int(kw_copy['startTimestamp'])).strftime(DTF)
@@ -385,9 +385,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['json_task_form_action']+'<observation>/<task_id>', type="http", auth="user")
     def process_ajax_form(self, observation, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api.external')
-        base_api = request.registry('t4.clinical.api')
-        ews_pool = request.registry('t4.clinical.patient.observation.'+observation)
+        api = request.registry('nh.clinical.api.external')
+        base_api = request.registry('nh.clinical.api')
+        ews_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
         kw_copy = kw.copy()
@@ -414,8 +414,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['calculate_obs_score']+'<observation>', type="http", auth="user")
     def calculate_obs_score(self, observation, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api_pool = request.registry('t4.clinical.api.external')
-        model = 't4.clinical.patient.observation.'+observation
+        api_pool = request.registry('nh.clinical.api.external')
+        model = 'nh.clinical.patient.observation.'+observation
         converter_pool = request.registry('ir.fields.converter')
         observation_pool = request.registry(model)
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
@@ -437,13 +437,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['json_partial_reasons'], type="http", auth="user")
     def get_partial_reasons(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        ews_pool = request.registry('t4.clinical.patient.observation.ews')
+        ews_pool = request.registry('nh.clinical.patient.observation.ews')
         return request.make_response(json.dumps(ews_pool._partial_reasons), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['json_patient_info']+'<patient_id>', type="http", auth="user")
     def get_patient_info(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api_pool = request.registry('t4.clinical.api.external')
+        api_pool = request.registry('nh.clinical.api.external')
         patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
         if len(patient_info) > 0:
             return request.make_response(json.dumps(patient_info[0]), headers={'Content-Type': 'application/json'})
@@ -459,8 +459,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['confirm_clinical_notification']+'<task_id>', type="http", auth="user")
     def confirm_clinical(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api.external')
-        base_api = request.registry('t4.clinical.api')
+        api = request.registry('nh.clinical.api.external')
+        base_api = request.registry('nh.clinical.api')
         kw_copy = kw.copy()
         if 'taskId' in kw_copy:
             del kw_copy['taskId']
@@ -471,8 +471,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['confirm_review_frequency']+'<task_id>', type="http", auth="user")
     def confirm_review_frequency(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api.external')
-        base_api = request.registry('t4.clinical.api')
+        api = request.registry('nh.clinical.api.external')
+        base_api = request.registry('nh.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         kw_copy['frequency'] = int(kw_copy['frequency'])
@@ -483,8 +483,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['confirm_bed_placement']+'<task_id>', type="http", auth="user")
     def confirm_review_frequency(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api.external')
-        base_api = request.registry('t4.clinical.api')
+        api = request.registry('nh.clinical.api.external')
+        base_api = request.registry('nh.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         kw_copy['location_id'] = int(kw_copy['location_id'])
@@ -496,7 +496,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['cancel_clinical_notification']+'<task_id>', type="http", auth="user")
     def cancel_clinical(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api_pool = request.registry('t4.clinical.api.external')
+        api_pool = request.registry('nh.clinical.api.external')
         kw_copy = kw.copy()
         kw_copy['reason'] = int(kw_copy['reason'])
         result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
@@ -505,13 +505,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['ajax_task_cancellation_options'], type='http', auth='user')
     def cancel_reasons(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api_pool = request.registry('t4.clinical.api.external')
+        api_pool = request.registry('nh.clinical.api.external')
         return request.make_response(json.dumps(api_pool.get_cancel_reasons(cr, uid, context=context)), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['single_patient']+'<patient_id>', type='http', auth='user')
     def get_patient(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api_pool = request.registry('t4.clinical.api.external')
+        api_pool = request.registry('nh.clinical.api.external')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
         obs = api_pool.get_active_observations(cr, uid, context=context)
         return request.render('mobile_frontend.patient', qcontext={'patient': patient,
@@ -526,7 +526,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['ajax_get_patient_obs']+'<patient_id>', type='http', auth='user')
     def get_patient_obs(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api_pool = request.registry('t4.clinical.api.external')
+        api_pool = request.registry('nh.clinical.api.external')
         ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
         return request.make_response(json.dumps({'obs': ews, 'obsType': 'ews'}), headers={'Content-Type': 'application/json'})
 
@@ -534,7 +534,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['patient_ob']+'<observation>/<patient_id>', type='http', auth='user')
     def take_patient_observation(self, observation, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api_pool = request.registry('t4.clinical.api.external')
+        api_pool = request.registry('nh.clinical.api.external')
 
         patient = dict()
         patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
@@ -552,7 +552,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['source'] = "patient"
         form['start'] = datetime.now().strftime('%s')
 
-        form_desc = api_pool.get_form_description(cr, uid, int(patient_id), 't4.clinical.patient.observation.{0}'.format(observation), context=context)
+        form_desc = api_pool.get_form_description(cr, uid, int(patient_id), 'nh.clinical.patient.observation.{0}'.format(observation), context=context)
 
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
@@ -584,9 +584,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['json_patient_form_action']+'<observation>/<patient_id>', type='http', auth='user')
     def process_patient_observation_form(self, observation, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('t4.clinical.api.external')
-        base_api = request.registry('t4.clinical.api')
-        observation_pool = request.registry('t4.clinical.patient.observation.'+observation)
+        api = request.registry('nh.clinical.api.external')
+        base_api = request.registry('nh.clinical.api')
+        observation_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
         kw_copy = kw.copy()
