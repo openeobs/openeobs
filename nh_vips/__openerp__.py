@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'NH Clinical Basic Observations',
+    'name': 'NH Clinical VIPS Observation',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
@@ -8,12 +8,8 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_clinical'],
-    'data': [
-             'views/views.xml',
-             'security/notif/ir.model.access.csv',
-             'security/obs/ir.model.access.csv',
-             'security/params/ir.model.access.csv',],
+    'depends': ['nh_observations'],
+    'data': [],
     'demo': [],
     'css': [],
     'js': [],
