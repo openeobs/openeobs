@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_clinical_ui', 'mobile_frontend'],
+    'depends': ['mobile_frontend'],
     
     
     'data': ['trust.xml',

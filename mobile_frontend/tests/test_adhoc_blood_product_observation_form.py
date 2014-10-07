@@ -39,7 +39,7 @@ class AdhocBPObsTest(common.SingleTransactionCase):
             'uid': 1
         }
 
-        patient_api = self.registry['nh.clinical.api.external']
+        patient_api = self.registry['nh.eobs.api']
         test_patient = patient_api.get_patients(cr, norah_user, [], context=self.context)[0]
 
         patient = dict()
