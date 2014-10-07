@@ -29,7 +29,8 @@ var route = frontend_routes.ajax_get_patient_obs(graph_lib.svg.patientId).ajax({
         } ];
         var i = !1;
         r.forEach(function(e) {
-            e.date_started = a.startParse(e.date_started), e.indirect_oxymetry_spo2 && (e.indirect_oxymetry_spo2_label = e.indirect_oxymetry_spo2 + "%"), 
+            e.date_started = a.startParse(e.date_started), e.body_temperature = e.body_temperature.toFixed(1), 
+            e.indirect_oxymetry_spo2 && (e.indirect_oxymetry_spo2_label = e.indirect_oxymetry_spo2 + "%"), 
             e.oxygen_administration_flag && (i = !0, e.inspired_oxygen = "", "undefined" != typeof e.flow_rate && (e.inspired_oxygen += "Flow: " + e.flow_rate + "l/hr<br>"), 
             "undefined" != typeof e.concentration && (e.inspired_oxygen += "Concentration: " + e.concentration + "%<br>"), 
             e.cpap_peep && (e.inspired_oxygen += "CPAP PEEP: " + e.cpap_peep + "<br>"), e.niv_backup && (e.inspired_oxygen += "NIV Backup Rate: " + e.niv_backup + "<br>"), 

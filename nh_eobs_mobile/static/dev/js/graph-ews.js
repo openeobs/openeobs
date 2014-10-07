@@ -53,6 +53,7 @@ var route = frontend_routes.ajax_get_patient_obs(graph_lib.svg.patientId).ajax({
         data.forEach(function(d) {
 
             d.date_started = svg.startParse(d.date_started);
+            d.body_temperature = d.body_temperature.toFixed(1);
             if(d.indirect_oxymetry_spo2){
                 d.indirect_oxymetry_spo2_label = d.indirect_oxymetry_spo2 + "%";
             }
