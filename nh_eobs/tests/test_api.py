@@ -3,11 +3,11 @@ from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 
-class TestExternalAPI(SingleTransactionCase):
+class TestAPI(SingleTransactionCase):
     
     @classmethod
     def setUpClass(cls):
-        super(TestExternalAPI, cls).setUpClass()
+        super(TestAPI, cls).setUpClass()
         cr, uid = cls.cr, cls.uid
         
         cls.users_pool = cls.registry('res.users')
@@ -17,7 +17,7 @@ class TestExternalAPI(SingleTransactionCase):
         cls.patient_pool = cls.registry('nh.clinical.patient')
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
-        cls.extapi = cls.registry('nh.clinical.api.external')
+        cls.extapi = cls.registry('nh.eobs.api')
         cls.apidemo = cls.registry('nh.clinical.api.demo')
 
         cls.apidemo.build_unit_test_env(cr, uid)

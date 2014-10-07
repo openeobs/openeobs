@@ -131,7 +131,7 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
             with open(get_module_path('nhc_d3') + '/static/src/js/patient_graph.js'.format(type=type, resource=resource), 'r') as resource:
                 return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
         else:
-            with open(get_module_path('nh_clinical_ui') + '/static/src/{type}/{resource}'.format(type=type, resource=resource), 'r') as resource:
+            with open(get_module_path('nh_eobs') + '/static/src/{type}/{resource}'.format(type=type, resource=resource), 'r') as resource:
                 return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
 
     @http.route(endpoint+'<spell_id>', type='http', auth='user')
@@ -274,7 +274,7 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
             json_ews = json.dumps([v['values'] for v in ews])
             ews_code = graph_js.format(json=json_ews)
 
-            return request.render('nh_clinical_ui.visit_report_base', qcontext={'spell': spell,
+            return request.render('nh_eobs.visit_report_base', qcontext={'spell': spell,
                                                                                'user': user,
                                                                                'hospital_logo': company_logo,
                                                                                'hosptial_name': company_name,

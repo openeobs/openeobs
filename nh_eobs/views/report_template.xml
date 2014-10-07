@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <template t-name="nh_clinical_ui.visit_report_base" name="Base layout for visit report">&lt;!DOCTYPE html&gt;
+        <template t-name="nh_eobs.visit_report_base" name="Base layout for visit report">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
                     <meta http-equiv="content-type" content="text/html; charset=utf-8" />

@@ -27,10 +27,10 @@
             </div>
         </template>
 
-        <template id="assets_backend" name="nh clinical assets" inherit_id="web.assets_backend">
+        <template id="assets_backend" name="eobs assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
-                <link rel="stylesheet" href="/nh_clinical_ui/static/src/css/nh_clinical_ui.css"/>
-                <script type="text/javascript" src="/nh_clinical_ui/static/src/js/nh_clinical_ui.js"></script>
+                <link rel="stylesheet" href="/nh_eobs/static/src/css/nh_eobs.css"/>
+                <script type="text/javascript" src="/nh_eobs/static/src/js/nh_eobs.js"></script>
             </xpath>
         </template>
 
@@ -39,7 +39,7 @@
                 <title>Open eObs</title>
             </xpath>
             <xpath expr="html/head/link[@rel='shortcut icon']" position="replace">
-                <link rel="shortcut icon" href="/nh_clinical_ui/static/src/img/favicon.ico" type="image/x-icon"/>
+                <link rel="shortcut icon" href="/nh_eobs/static/src/img/favicon.ico" type="image/x-icon"/>
             </xpath>
         </template>
 

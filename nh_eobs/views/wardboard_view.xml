@@ -481,21 +481,21 @@
                                     <div><field name="location"/></div>
                                     <div><b><field name="full_name"/></b> (<field name="age"/>)
                                         <t t-if="record.sex.raw_value === 'M'">
-                                            <img t-attf-src="/nh_clinical_ui/static/src/img/icons/male.png" t-att-alt="Male"/>
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/male.png" t-att-alt="Male"/>
                                         </t>
                                         <t t-if="record.sex.raw_value === 'F'">
-                                            <img t-attf-src="/nh_clinical_ui/static/src/img/icons/female.png" t-att-alt="Female"/>
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/female.png" t-att-alt="Female"/>
                                         </t>
                                     </div>
                                     <div>Score: <field name="ews_score_string"/>
                                         <t t-if="record.ews_trend_string.raw_value === 'up'">
-                                            <img t-attf-src="/nh_clinical_ui/static/src/img/icons/level-up.png" t-att-alt="up"/>
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-up.png" t-att-alt="up"/>
                                         </t>
                                         <t t-if="record.ews_trend_string.raw_value === 'down'">
-                                            <img t-attf-src="/nh_clinical_ui/static/src/img/icons/level-down.png" t-att-alt="down"/>
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-down.png" t-att-alt="down"/>
                                         </t>
                                         <t t-if="record.ews_trend_string.raw_value === 'same'">
-                                            <img t-attf-src="/nh_clinical_ui/static/src/img/icons/level-same.png" t-att-alt="same"/>
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-same.png" t-att-alt="same"/>
                                         </t>
                                         <t t-if="record.ews_trend_string.raw_value === 'one'">
                                             n/a

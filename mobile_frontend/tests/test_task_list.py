@@ -42,7 +42,7 @@ class TaskListTest(common.SingleTransactionCase):
         }
 
         # Call controller
-        task_api = self.registry['nh.clinical.api.external']
+        task_api = self.registry['nh.eobs.api']
         tasks = task_api.get_activities(cr, norah_user, [], context=self.context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(helpers.URLS['single_task'], task['id'])

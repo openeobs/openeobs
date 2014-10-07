@@ -93,7 +93,7 @@ class wardboard_device_session_complete(orm.TransientModel):
         spell_activity_id = wiz.session_id.activity_id.parent_id.id
         wardboard_pool = self.pool['nh.clinical.wardboard']
         wardboard_id = wardboard_pool.search(cr, uid, [['spell_activity_id','=',spell_activity_id]])[0]
-        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_clinical_ui', 'view_wardboard_form')[1]
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_form')[1]
         #FIXME should be done more elegantly on client side
         return {
             'type': 'ir.actions.act_window',
@@ -115,7 +115,7 @@ class nh_clinical_device_session(orm.TransientModel):
 
         device_session = self.browse(cr, uid, ids[0], context=context)
         res_id = self.pool['wardboard.device.session.complete'].create(cr, uid, {'session_id': device_session.id})
-        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_clinical_ui', 'view_wardboard_device_session_complete_form')[1]
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_device_session_complete_form')[1]
 
         return {
             'name': "Complete Device Session: %s" % device_session.patient_id.full_name,
@@ -266,7 +266,7 @@ class nh_clinical_wardboard(orm.Model):
                                                          'patient_id': wardboard.patient_id.id,
                                                          'device_id': None
                                                          })
-        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_clinical_ui', 'view_wardboard_device_session_start_form')[1]
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_device_session_start_form')[1]
         return {
             'name': "Start Device Session: %s" % wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -287,7 +287,7 @@ class nh_clinical_wardboard(orm.Model):
                                      {'patient1_id':  wb.patient_id.id,
                                       'location1_id': wb.location_id.id,
                                       'ward_location_id': wb.location_id.parent_id.id})
-        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_clinical_ui', 'view_wardboard_swap_beds_form')[1]
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_swap_beds_form')[1]
         return {
             'name': "Swap Beds",
             'type': 'ir.actions.act_window',
@@ -335,7 +335,7 @@ class nh_clinical_wardboard(orm.Model):
                                                          'bed_src_location_id': wardboard.location_id.id,
                                                          'bed_dst_location_id': None
                                                          })
-        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_clinical_ui', 'view_wardboard_patient_placement_form')[1]
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_patient_placement_form')[1]
         return {
             'name': "Move Patient: %s" % wardboard.full_name,
             'type': 'ir.actions.act_window',

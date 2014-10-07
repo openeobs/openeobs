@@ -13,33 +13,33 @@
 
     <button t-name="nh.ListView.row.button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
             t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
-        <img t-if="widget.nh_icon" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/#{widget.nh_icon}.png" t-att-alt="widget.string"/>
+        <img t-if="widget.nh_icon" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/#{widget.nh_icon}.png" t-att-alt="widget.string"/>
         <img t-if="widget.icon" t-attf-src="#{prefix}/web/static/src/img/icons/#{widget.icon}.png" t-att-alt="widget.string"/>
     </button>
 
     <button t-name="nh.ListView.row.act_button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
             t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
-        <img t-if="active" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/times.png" t-att-alt="widget.string"/>
-        <img t-if="inactive" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/check.png" t-att-alt="widget.string"/>
+        <img t-if="active" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/times.png" t-att-alt="widget.string"/>
+        <img t-if="inactive" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/check.png" t-att-alt="widget.string"/>
     </button>
 
     <t t-name="nh_maleCell"
-        ><img t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+        ><img t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/male.png" t-att-alt="widget.string"/>
     </t>
 
     <t t-name="nh_femaleCell"
-        ><img t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+        ><img t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/female.png" t-att-alt="widget.string"/>
     </t>
 
     <t t-name="nh_genderCell"
-        ><img t-if="male" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/male.png" t-att-alt="widget.string"/>
-        <img t-if="female" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+        ><img t-if="male" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+        <img t-if="female" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/female.png" t-att-alt="widget.string"/>
     </t>
 
     <t t-name="nh_trendCell"
-        ><img t-if="up" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/level-up.png" t-att-alt="widget.string"/>
-        <img t-if="down" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/level-down.png" t-att-alt="widget.string"/>
-        <img t-if="same" t-attf-src="#{prefix}/nh_clinical_ui/static/src/img/icons/level-same.png" t-att-alt="widget.string"/>
+        ><img t-if="up" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/level-up.png" t-att-alt="widget.string"/>
+        <img t-if="down" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/level-down.png" t-att-alt="widget.string"/>
+        <img t-if="same" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/level-same.png" t-att-alt="widget.string"/>
     </t>
 
     <div t-name="nh_ewschart" class="nh_ewschart">

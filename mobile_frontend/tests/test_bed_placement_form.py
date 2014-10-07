@@ -42,13 +42,13 @@ class BedPlacementTest(common.SingleTransactionCase):
         }
 
         # Grab the NEWS Obs task from task list
-        task_api = self.registry['nh.clinical.api.external']
+        task_api = self.registry['nh.eobs.api']
 
         task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "Placement" in a['summary']][0]['id']
 
         # Take the Task
         activity_reg = self.registry['nh.activity']
-        api_reg = self.registry['nh.clinical.api.external']
+        api_reg = self.registry['nh.eobs.api']
         task_id = int(task_id)
         task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=self.context)
         patient = dict()

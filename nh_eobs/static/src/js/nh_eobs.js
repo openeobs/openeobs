@@ -1,6 +1,6 @@
 var logout_time = 1200000;
 
-openerp.nh_clinical_ui = function (instance) {
+openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
@@ -34,7 +34,7 @@ openerp.nh_clinical_ui = function (instance) {
 
     instance.web.views.add('tree', 'instance.web.NHTreeView');
 
-    instance.nh_clinical_ui.Button = instance.web.list.Column.extend({
+    instance.nh_eobs.Button = instance.web.list.Column.extend({
         format: function (row_data, options) {
             options = options || {};
             var attrs = {};
@@ -65,7 +65,7 @@ openerp.nh_clinical_ui = function (instance) {
         }
     });
 
-    instance.web.list.columns.add('button', 'instance.nh_clinical_ui.Button');
+    instance.web.list.columns.add('button', 'instance.nh_eobs.Button');
 
     instance.web.UserMenu.include({
         on_menu_help: function() {
@@ -97,9 +97,9 @@ openerp.nh_clinical_ui = function (instance) {
         },
     });
 
-    /*instance.web.form.widgets.add('button', 'instance.nh_clinical_ui.WidgetButton');
+    /*instance.web.form.widgets.add('button', 'instance.nh_eobs.WidgetButton');
 
-    instance.nh_clinical_ui.WidgetButton = instance.web.form.WidgetButton.extend({
+    instance.nh_eobs.WidgetButton = instance.web.form.WidgetButton.extend({
         execute_action: function() {
             var self = this;
 
@@ -242,7 +242,7 @@ openerp.nh_clinical_ui = function (instance) {
 
     });
 
-    instance.nh_clinical_ui.NHMany2One = instance.web.form.FieldMany2One.extend({
+    instance.nh_eobs.NHMany2One = instance.web.form.FieldMany2One.extend({
         get_search_result: function(search_val) {
             var self = this;
 
@@ -284,9 +284,9 @@ openerp.nh_clinical_ui = function (instance) {
         }
     });
 
-    instance.web.form.widgets.add('nh_many2one', 'instance.nh_clinical_ui.NHMany2One');
+    instance.web.form.widgets.add('nh_many2one', 'instance.nh_eobs.NHMany2One');
 
-    instance.nh_clinical_ui.GenderWidget = instance.web.list.Column.extend({
+    instance.nh_eobs.GenderWidget = instance.web.list.Column.extend({
         _format: function (row_data, options) {
             if (row_data.sex.value == 'M'){
                 return QWeb.render('nh_genderCell', {
@@ -308,9 +308,9 @@ openerp.nh_clinical_ui = function (instance) {
         },
     });
 
-    instance.web.list.columns.add('field.nh_gender', 'instance.nh_clinical_ui.GenderWidget');
+    instance.web.list.columns.add('field.nh_gender', 'instance.nh_eobs.GenderWidget');
 
-    instance.nh_clinical_ui.ScoreTrendWidget = instance.web.list.Column.extend({
+    instance.nh_eobs.ScoreTrendWidget = instance.web.list.Column.extend({
         _format: function (row_data, options) {
             if (row_data.ews_trend_string.value == 'up'){
                 return QWeb.render('nh_trendCell', {
@@ -346,9 +346,9 @@ openerp.nh_clinical_ui = function (instance) {
         },
     });
 
-    instance.web.list.columns.add('field.nh_scoretrend', 'instance.nh_clinical_ui.ScoreTrendWidget');
+    instance.web.list.columns.add('field.nh_scoretrend', 'instance.nh_eobs.ScoreTrendWidget');
 
-    instance.nh_clinical_ui.WidgetButton = instance.web.form.WidgetButton.extend({
+    instance.nh_eobs.WidgetButton = instance.web.form.WidgetButton.extend({
         on_click: function() {
             var self = this;
             this.force_disabled = true;
@@ -376,9 +376,9 @@ openerp.nh_clinical_ui = function (instance) {
             }
         },
     });
-    instance.web.form.tags.add('button', 'instance.nh_clinical_ui.WidgetButton');
+    instance.web.form.tags.add('button', 'instance.nh_eobs.WidgetButton');
 
-    instance.nh_clinical_ui.EwsChartWidget = instance.web.form.AbstractField.extend({
+    instance.nh_eobs.EwsChartWidget = instance.web.form.AbstractField.extend({
         template: 'nh_ewschart',
         className: 'nh_ewschart',
 
@@ -424,7 +424,7 @@ openerp.nh_clinical_ui = function (instance) {
             focus.tables = null;
             focus.tables = new Array();
 
-            this.model = new instance.web.Model('nh.clinical.api.external');
+            this.model = new instance.web.Model('nh.eobs.api');
 
             var vid = this.view.dataset.context.active_id;
             var plotO2 = false;
@@ -504,9 +504,9 @@ openerp.nh_clinical_ui = function (instance) {
         },
     });
 
-    instance.web.form.widgets.add('nh_ewschart', 'instance.nh_clinical_ui.EwsChartWidget');
+    instance.web.form.widgets.add('nh_ewschart', 'instance.nh_eobs.EwsChartWidget');
 
-    instance.nh_clinical_ui.BloodSugarChartWidget = instance.web.form.AbstractField.extend({
+    instance.nh_eobs.BloodSugarChartWidget = instance.web.form.AbstractField.extend({
         template: 'nh_bschart',
         className: 'nh_ewschart',
 
@@ -536,7 +536,7 @@ openerp.nh_clinical_ui = function (instance) {
             var vid = this.view.dataset.context.active_id;
             //var start_date = new Date(0);
             //var end_date = new Date();
-            this.model = new instance.web.Model('nh.clinical.api.external');
+            this.model = new instance.web.Model('nh.eobs.api');
             //var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
             //var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
@@ -565,9 +565,9 @@ openerp.nh_clinical_ui = function (instance) {
         },
     });
 
-    instance.web.form.widgets.add('nh_bschart', 'instance.nh_clinical_ui.BloodSugarChartWidget');
+    instance.web.form.widgets.add('nh_bschart', 'instance.nh_eobs.BloodSugarChartWidget');
 
-    instance.nh_clinical_ui.WeightChartWidget = instance.web.form.AbstractField.extend({
+    instance.nh_eobs.WeightChartWidget = instance.web.form.AbstractField.extend({
         template: 'nh_weightchart',
         className: 'nh_ewschart',
 
@@ -598,7 +598,7 @@ openerp.nh_clinical_ui = function (instance) {
             var height = this.view.dataset.context.height;
             //var start_date = new Date(0);
             //var end_date = new Date();
-            this.model = new instance.web.Model('nh.clinical.api.external');
+            this.model = new instance.web.Model('nh.eobs.api');
             //var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
             //var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
@@ -631,9 +631,9 @@ openerp.nh_clinical_ui = function (instance) {
         },
     });
 
-    instance.web.form.widgets.add('nh_weightchart', 'instance.nh_clinical_ui.WeightChartWidget');
+    instance.web.form.widgets.add('nh_weightchart', 'instance.nh_eobs.WeightChartWidget');
 
-    instance.nh_clinical_ui.FormView = instance.web.FormView.extend({
+    instance.nh_eobs.FormView = instance.web.FormView.extend({
         init: function(parent, dataset, view_id, options) {
             this._super(parent, dataset, view_id, options);
             if (typeof(logout_timeout) != 'undefined'){
@@ -648,9 +648,9 @@ openerp.nh_clinical_ui = function (instance) {
         }
     });
 
-    instance.web.views.add('form', 'instance.nh_clinical_ui.FormView');
+    instance.web.views.add('form', 'instance.nh_eobs.FormView');
 
-    instance.nh_clinical_ui.KanbanView = instance.web_kanban.KanbanView.extend({
+    instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
     	
     	on_groups_started: function() {
             if (this.group_by == 'clinical_risk'){
@@ -676,7 +676,7 @@ openerp.nh_clinical_ui = function (instance) {
     	}
     });
 
-    instance.web.views.add('kanban', 'instance.nh_clinical_ui.KanbanView');
+    instance.web.views.add('kanban', 'instance.nh_eobs.KanbanView');
 
     var normalize_format = function (format) {
         return Date.normalizeFormat(instance.web.strip_raw_chars(format));

@@ -8,8 +8,8 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class nh_clinical_api(orm.AbstractModel):
-    _name = 'nh.clinical.api.external'
+class nh_eobs_api(orm.AbstractModel):
+    _name = 'nh.eobs.api'
     _active_observations = [
         {
             'type': 'ews',
