@@ -40,7 +40,7 @@ class PatientListTest(common.SingleTransactionCase):
         }
 
         # Call controller
-        patient_api = self.registry['nh.clinical.api.external']
+        patient_api = self.registry['nh.eobs.api']
         patients = patient_api.get_patients(cr, norah_user, [], context=self.context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'], patient['id'])

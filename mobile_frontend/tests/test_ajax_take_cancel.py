@@ -50,7 +50,7 @@ class TestAjaxTakeCancel(openerp.tests.HttpCase):
         }
 
         # Grab the NEWS Obs task from task list
-        task_api = self.registry['nh.clinical.api.external']
+        task_api = self.registry['nh.eobs.api']
         task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
 
         take = helpers.TAKE_TASK_AJAX.format(task_id=task_id)
