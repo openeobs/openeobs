@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_clinical_activity_types.parameters import frequencies
+from openerp.addons.nh_observations.parameters import frequencies
 import logging
 _logger = logging.getLogger(__name__)
 

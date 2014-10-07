@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
 from openerp.addons.nh_activity.activity import except_if
-from openerp.addons.nh_clinical_activity_types.parameters import frequencies
+from openerp.addons.nh_observations.parameters import frequencies
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from dateutil.relativedelta import relativedelta as rd
