@@ -69,7 +69,7 @@ openerp.nh_clinical_ui = function (instance) {
 
     instance.web.UserMenu.include({
         on_menu_help: function() {
-            window.open('http://www.tactix4.net', '_blank');
+            window.open('http://www.neovahealth.co.uk', '_blank');
         },
         do_update: function(){
             var self = this;

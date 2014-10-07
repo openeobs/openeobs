@@ -1,12 +1,3 @@
-/**
- * Created by colin on 30/12/13.
- */
-/**
- * User: max@tactix4.com
- * Date: 11/1/13
- * Time: 10:52 AM
- */
-
 var timeIdle = 0;
 var idleTime = 2400;
 var timing = true;
