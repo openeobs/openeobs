@@ -444,6 +444,7 @@ openerp.nh_eobs = function (instance) {
                                 {"class": "red",s: 7,e: 18} ];
                     records.forEach(function(d){
                         d.date_started = svg.startParse(d.date_terminated);
+                        d.body_temperature = d.body_temperature.toFixed(1);
                         if (d.flow_rate > -1){
                             plotO2 = true;
                             d.inspired_oxygen = "";
