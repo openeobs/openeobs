@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'NH Clinical Basic Observations',
+    'name': 'NH Clinical Bristol Stool Observations',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',

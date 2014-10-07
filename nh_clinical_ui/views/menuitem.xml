@@ -144,9 +144,9 @@
             groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <!-- HIDE MENUS WE DON'T WANT TO SHOW -->
-        <record model="ir.ui.menu" id="base.menu_main_pm">
-            <field name="groups_id" eval="[(6, 0, [ref('nh_clinical.group_nhc_dev')])]"/>
-        </record>
+        <!--<record model="ir.ui.menu" id="base.menu_main_pm">-->
+            <!--<field name="groups_id" eval="[(6, 0, [ref('nh_clinical.group_nhc_dev')])]"/>-->
+        <!--</record>-->
         <record model="ir.ui.menu" id="hr.menu_hr_root">
             <field name="groups_id" eval="[(6, 0, [ref('nh_clinical.group_nhc_dev')])]"/>
         </record>

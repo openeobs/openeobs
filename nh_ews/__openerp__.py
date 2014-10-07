@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'NH Clinical Glasgow Coma Score Observation',
+    'name': 'NH Clinical Early Warning Score Observation',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
@@ -10,7 +10,10 @@
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_observations'],
     'data': [
-             'security/ir.model.access.csv',],
+        'views/views.xml',
+        'security/notif/ir.model.access.csv',
+        'security/params/ir.model.access.csv',
+        'security/ir.model.access.csv',],
     'demo': [],
     'css': [],
     'js': [],
