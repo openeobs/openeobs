@@ -53,7 +53,7 @@ class TaskListTest(common.SingleTransactionCase):
 
         view_obj = self.registry("ir.ui.view")
         get_tasks_html = view_obj.render(
-            cr, uid, 'mobile_frontend.patient_task_list', {'items': tasks,
+            cr, uid, 'nh_eobs_mobile.patient_task_list', {'items': tasks,
                                                            'section': 'task',
                                                            'username': 'norah',
                                                            'urls': helpers.URLS},

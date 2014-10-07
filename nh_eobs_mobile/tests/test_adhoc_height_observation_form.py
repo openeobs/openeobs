@@ -6,10 +6,10 @@ import helpers
 import re
 
 
-class AdhocWeightObsTest(common.SingleTransactionCase):
+class AdhocHeightObsTest(common.SingleTransactionCase):
 
     def setUp(self):
-        super(AdhocWeightObsTest, self).setUp()
+        super(AdhocHeightObsTest, self).setUp()
 
         # set up database connection objects
         self.uid = 1
@@ -50,15 +50,15 @@ class AdhocWeightObsTest(common.SingleTransactionCase):
         else:
             patient = False
         form = dict()
-        form['action'] = helpers.URLS['patient_form_action']+'{0}/{1}'.format('weight', test_patient['id'])
-        form['type'] = 'weight'
+        form['action'] = helpers.URLS['patient_form_action']+'{0}/{1}'.format('height', test_patient['id'])
+        form['type'] = 'height'
         form['task-id'] = False
         form['patient-id'] = test_patient['id']
         form['source'] = "patient"
         form['start'] = '0'
 
 
-        form_desc = patient_api.get_form_description(cr, uid, test_patient['id'], 'nh.clinical.patient.observation.weight', context=self.context)
+        form_desc = patient_api.get_form_description(cr, uid, test_patient['id'], 'nh.clinical.patient.observation.height', context=self.context)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
                 form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
@@ -77,9 +77,9 @@ class AdhocWeightObsTest(common.SingleTransactionCase):
                     form_input['selection_options'].append(opt)
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'mobile_frontend.observation_entry',
+        get_tasks_html = view_obj.render(cr, uid, 'nh_eobs_mobile.observation_entry',
                                          {'inputs': form_desc,
-                                          'name': 'Weight Observation',
+                                          'name': 'Height Observation',
                                           'patient': patient,
                                           'form': form,
                                           'section': 'patient',
@@ -87,7 +87,7 @@ class AdhocWeightObsTest(common.SingleTransactionCase):
                                           'urls': helpers.URLS},
                                          context=self.context)
 
-        example_html = helpers.WEIGHT_PATIENT_HTML.format(patient_url=patient['url'],
+        example_html = helpers.HEIGHT_PATIENT_HTML.format(patient_url=patient['url'],
                                                           patient_name=patient['name'],
                                                           patient_id=patient['id'],
                                                           task_url=form['action'],

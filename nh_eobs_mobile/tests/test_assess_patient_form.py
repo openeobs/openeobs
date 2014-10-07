@@ -8,10 +8,10 @@ import datetime
 import helpers
 
 
-class BedPlacementTest(common.SingleTransactionCase):
+class AssessPatientTest(common.SingleTransactionCase):
 
     def setUp(self):
-        super(BedPlacementTest, self).setUp()
+        super(AssessPatientTest, self).setUp()
 
         # set up database connection objects
         self.uid = 1
@@ -25,15 +25,15 @@ class BedPlacementTest(common.SingleTransactionCase):
         self.location_type = self.registry.get('nh.clinical.pos.delivery.type')
         self.users = self.registry.get('res.users')
 
-    def test_obs_freq_form(self):
+    def test_assess_patient_form(self):
         cr, uid = self.cr, self.uid
 
         # create environment
         api_demo = self.registry('nh.clinical.api.demo')
-        api_demo.build_uat_env(cr, uid, patients=8, placements=1, ews=0, context=None)
+        api_demo.build_uat_env(cr, uid, patients=8, placements=4, ews=0, context=None)
 
         # get a nurse user
-        norah_user = self.users.search(cr, uid, [['login', '=', 'winifred']])[0]
+        norah_user = self.users.search(cr, uid, [['login', '=', 'norah']])[0]
 
         self.context = {
             'lang': 'en_GB',
@@ -44,7 +44,23 @@ class BedPlacementTest(common.SingleTransactionCase):
         # Grab the NEWS Obs task from task list
         task_api = self.registry['nh.eobs.api']
 
-        task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "Placement" in a['summary']][0]['id']
+        ews_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
+        ews_data = {
+            'respiration_rate': 20,
+            'indirect_oxymetry_spo2': 99,
+            'body_temperature': 37.5,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 80,
+            'avpu_text': 'A',
+            'oxygen_administration_flag': True,
+            'device_id': 36,
+            'flow_rate': 3,
+            'startTimestamp': datetime.datetime.now().strftime('%s')
+        }
+        task_api.complete(cr, norah_user, ews_id, ews_data, context=self.context)
+
+        task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "Assess" in a['summary']][0]['id']
 
         # Take the Task
         activity_reg = self.registry['nh.activity']
@@ -103,23 +119,19 @@ class BedPlacementTest(common.SingleTransactionCase):
 
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'mobile_frontend.notification_confirm_cancel', {'name': task['summary'],
+        get_tasks_html = view_obj.render(cr, uid, 'nh_eobs_mobile.notification_confirm_cancel', {'name': task['summary'],
                                                                                        'inputs': form_desc,
                                                                                        'cancellable': cancellable,
                                                                                        'patient': patient,
                                                                                        'form': form,
                                                                                        'section': 'task',
-                                                                                       'username': 'winifred',
+                                                                                       'username': 'norah',
                                                                                        'urls': urls}, context=self.context)
 
-        example_options = """<option value="">Please Select</option>"""
-        for option in [v['selection'] for v in form_desc if v['name'] is 'location_id'][0]:
-            example_options += helpers.BED_PLACEMENT_OPTION.format(location_id=option[0], location_name=option[1])
-        example_html = helpers.BED_PLACEMENT_HTML.format(task_url=form['confirm_url'],
+        example_html = helpers.ASSESS_PATIENT_HTML.format(task_url=form['confirm_url'],
                                                patient_name=patient['name'],
                                                patient_id=patient['id'],
-                                               task_id=task_id,
-                                               frequency_options=example_options)
+                                               task_id=task_id)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')

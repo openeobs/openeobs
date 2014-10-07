@@ -51,7 +51,7 @@ class PatientListTest(common.SingleTransactionCase):
 
         view_obj = self.registry("ir.ui.view")
         get_patients_html = view_obj.render(
-            cr, uid, 'mobile_frontend.patient_task_list', {'items': patients,
+            cr, uid, 'nh_eobs_mobile.patient_task_list', {'items': patients,
                                                            'section': 'patient',
                                                            'username': 'norah',
                                                            'urls': helpers.URLS},

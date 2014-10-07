@@ -6,10 +6,10 @@ import helpers
 import re
 
 
-class NewsObsTest(common.SingleTransactionCase):
+class AdhocStoolsObsTest(common.SingleTransactionCase):
 
     def setUp(self):
-        super(NewsObsTest, self).setUp()
+        super(AdhocStoolsObsTest, self).setUp()
 
         # set up database connection objects
         self.uid = 1
@@ -39,44 +39,26 @@ class NewsObsTest(common.SingleTransactionCase):
             'uid': 1
         }
 
-        # Grab the NEWS Obs task from task list
-        task_api = self.registry['nh.eobs.api']
-        task_id = [a for a in task_api.get_activities(cr, norah_user, [], context=self.context) if "NEWS" in a['summary']][0]['id']
+        patient_api = self.registry['nh.eobs.api']
+        test_patient = patient_api.get_patients(cr, norah_user, [], context=self.context)[0]
 
-        # Take the Task
-        activity_reg = self.registry['nh.activity']
-        api_reg = self.registry['nh.eobs.api']
-        task_id = int(task_id)
-        task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=self.context)
         patient = dict()
-        if task['patient_id']:
-            patient_info = api_reg.get_patients(cr, uid, [task['patient_id'][0]], context=self.context)
-            if len(patient_info) >0:
-                patient_info = patient_info[0]
-            patient['url'] = helpers.URLS['single_patient'] + '{0}'.format(patient_info['id'])
-            patient['name'] = patient_info['full_name']
-            patient['id'] = patient_info['id']
+        if test_patient:
+            patient['url'] = helpers.URLS['single_patient'] + '{0}'.format(test_patient['id'])
+            patient['name'] = test_patient['full_name']
+            patient['id'] = test_patient['id']
         else:
             patient = False
         form = dict()
-        form['action'] = helpers.URLS['task_form_action']+'{0}'.format(task_id)
-        form['type'] = task['data_model']
-        form['task-id'] = int(task_id)
-        form['patient-id'] = task['patient_id'][0]
-        form['source'] = "task"
+        form['action'] = helpers.URLS['patient_form_action']+'{0}/{1}'.format('stools', test_patient['id'])
+        form['type'] = 'stools'
+        form['task-id'] = False
+        form['patient-id'] = test_patient['id']
+        form['source'] = "patient"
         form['start'] = '0'
-        #if task.get('user_id') and task['user_id'][0] != new_uid:
-        if task.get('user_id') and task['user_id'][0] != norah_user:
-            self.fail('Task is already taken by another user')
-        try:
-            task_api.assign(cr, uid, task_id, {'user_id': norah_user}, context=self.context)
-        except Exception:
-            self.fail("Wasn't able to take Task")
 
-        # Grab the form Def and compile the data to send to template
-        obs_reg = self.registry[task['data_model']]
-        form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=self.context)
-        form['type'] = re.match(r'nh\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
+
+        form_desc = patient_api.get_form_description(cr, uid, test_patient['id'], 'nh.clinical.patient.observation.stools', context=self.context)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
                 form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
@@ -95,25 +77,21 @@ class NewsObsTest(common.SingleTransactionCase):
                     form_input['selection_options'].append(opt)
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'mobile_frontend.observation_entry',
+        get_tasks_html = view_obj.render(cr, uid, 'nh_eobs_mobile.observation_entry',
                                          {'inputs': form_desc,
-                                          'name': task['summary'],
+                                          'name': 'Stools Observation',
                                           'patient': patient,
                                           'form': form,
-                                          'section': 'task',
+                                          'section': 'patient',
                                           'username': 'norah',
                                           'urls': helpers.URLS},
                                          context=self.context)
 
-        # Create BS instances
-        devices_string = ""
-        for device in [v['selection'] for v in form_desc if v['name'] is 'device_id'][0]:
-            devices_string += helpers.DEVICE_OPTION.format(device_id=device[0], device_name=device[1])
-        example_html = helpers.NEWS_OBS.format(patient_url=patient['url'],
-                                               patient_name=patient['name'],
-                                               patient_id=patient['id'],
-                                               device_options=devices_string,
-                                               task_id=task_id, timestamp=0)
+        example_html = helpers.STOOLS_PATIENT_HTML.format(patient_url=patient['url'],
+                                                          patient_name=patient['name'],
+                                                          patient_id=patient['id'],
+                                                          task_url=form['action'],
+                                                          timestamp=0)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')

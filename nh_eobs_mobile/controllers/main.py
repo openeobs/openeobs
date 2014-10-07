@@ -15,7 +15,7 @@ db_list = http.db_list
 
 db_monodb = http.db_monodb
 
-loader = jinja2.FileSystemLoader(get_module_path('mobile_frontend') + '/views/')
+loader = jinja2.FileSystemLoader(get_module_path('nh_eobs_mobile') + '/views/')
 env = jinja2.Environment(loader=loader)
 
 
@@ -82,38 +82,38 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['stylesheet'], type='http', auth='none')
     def get_stylesheet(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/css/nhc.css', 'r') as stylesheet:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/css/nhc.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/fonts/' + xmlid, 'r') as font:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid, 'r') as font:
             return request.make_response(font.read(), headers={'Content-Type': 'application/font-woff'})
 
 
     @http.route(URLS['logo'], type='http', auth='none')
     def get_logo(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/img/open_eobs_logo.png', 'r') as logo:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/img/open_eobs_logo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
     @http.route(URLS['bristol_stools_chart'], type='http', auth='none')
     def get_bristol_stools_chart(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/img/bristol_stools.png', 'r') as bsc:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/img/bristol_stools.png', 'r') as bsc:
             return request.make_response(bsc.read(), headers={'Content-Type': 'image/png'})
 
     @http.route(URLS['jquery'], type='http', auth='none')
     def get_jquery(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/js/jquery.js', 'r') as jquery:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/js/jquery.js', 'r') as jquery:
             return request.make_response(jquery.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['observation_form_js'], type='http', auth='none')
     def get_observation_js(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/js/observation.js', 'r') as js:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/js/observation.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['observation_form_validation'], type='http', auth='none')
     def get_observation_validation(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/js/validation.js', 'r') as js:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/js/validation.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['js_routes'], type='http', auth='none')
@@ -135,7 +135,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['patient_graph'], type='http', auth='none')
     def patient_graph_js(self, *args, **kw):
-        with open(get_module_path('mobile_frontend') + '/static/src/js/draw_ews_graph.js', 'r') as js:
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/js/draw_ews_graph.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['data_driven_documents'], type='http', auth='none')
@@ -207,7 +207,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
-        return request.render('mobile_frontend.patient_task_list', qcontext={'items': patients,
+        return request.render('nh_eobs_mobile.patient_task_list', qcontext={'items': patients,
                                                                              'section': 'patient',
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
@@ -221,7 +221,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
             task['color'] = self.calculate_ews_class(task['clinical_risk'])
             task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
-        return request.render('mobile_frontend.patient_task_list', qcontext={'items': tasks,
+        return request.render('nh_eobs_mobile.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
@@ -284,7 +284,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['source'] = "task"
         form['start'] = datetime.now().strftime('%s')
         if task.get('user_id') and task['user_id'][0] != uid:
-            return request.render('mobile_frontend.error', qcontext={'error_string': 'Task is taken by another user',
+            return request.render('nh_eobs_mobile.error', qcontext={'error_string': 'Task is taken by another user',
                                                                      'section': 'task',
                                                                      'username': request.session['login'],
                                                                      'urls': URLS})
@@ -325,7 +325,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form['type'] = re.match(r'nh\.clinical\.notification\.(.*)', task['data_model']).group(1)
             else:
                 form['type'] = 'placement'
-            return request.render('mobile_frontend.notification_confirm_cancel', qcontext={'name': task['summary'],
+            return request.render('nh_eobs_mobile.notification_confirm_cancel', qcontext={'name': task['summary'],
                                                                                            'inputs': form_desc,
                                                                                            'cancellable': cancellable,
                                                                                            'patient': patient,
@@ -357,7 +357,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                         opt['label'] = option[1]
                         form_input['selection_options'].append(opt)
 
-            return request.render('mobile_frontend.observation_entry', qcontext={'inputs': form_desc,
+            return request.render('nh_eobs_mobile.observation_entry', qcontext={'inputs': form_desc,
                                                                                       'name': task['summary'],
                                                                                       'patient': patient,
                                                                                       'form': form,
@@ -365,7 +365,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                                       'username': request.session['login'],
                                                                                       'urls': URLS})
         else:
-            return request.render('mobile_frontend.error', qcontext={'error_string': 'Task is neither a notification nor an observation',
+            return request.render('nh_eobs_mobile.error', qcontext={'error_string': 'Task is neither a notification nor an observation',
                                                                      'section': 'task',
                                                                      'username': request.session['login'],
                                                                      'urls': URLS})
@@ -514,7 +514,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api_pool = request.registry('nh.eobs.api')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
         obs = api_pool.get_active_observations(cr, uid, context=context)
-        return request.render('mobile_frontend.patient', qcontext={'patient': patient,
+        return request.render('nh_eobs_mobile.patient', qcontext={'patient': patient,
                                                                    'urls': URLS,
                                                                    'section': 'patient',
                                                                    'obs_list': obs,
@@ -573,7 +573,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     opt['label'] = option[1]
                     form_input['selection_options'].append(opt)
 
-        return request.render('mobile_frontend.observation_entry', qcontext={'inputs': form_desc,
+        return request.render('nh_eobs_mobile.observation_entry', qcontext={'inputs': form_desc,
                                                                              'name': [v['name'] for v in api_pool._active_observations if v['type'] == observation][0],
                                                                              'patient': patient,
                                                                              'form': form,

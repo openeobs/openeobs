@@ -5,7 +5,7 @@
     <data>
 
 
-        <template t-name="mobile_frontend.base" name="Base layout">&lt;!DOCTYPE html&gt;
+        <template t-name="nh_eobs_mobile.base" name="Base layout">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
                     <title>Open-eObs</title>
@@ -39,8 +39,8 @@
             </html>
         </template>
 
-        <template t-name="mobile_frontend.patient_task_list" name="List of Tasks or Patients">
-            <t t-call="mobile_frontend.base">
+        <template t-name="nh_eobs_mobile.patient_task_list" name="List of Tasks or Patients">
+            <t t-call="nh_eobs_mobile.base">
                 <div class="content">
                     <ul class="tasklist">
                         <li t-foreach="items" t-as="item">
@@ -67,8 +67,8 @@
             </t>
         </template>
 
-         <template name="Notification Confirm/Cancel Screen" t-name="mobile_frontend.notification_confirm_cancel">
-             <t t-call="mobile_frontend.base">
+         <template name="Notification Confirm/Cancel Screen" t-name="nh_eobs_mobile.notification_confirm_cancel">
+             <t t-call="nh_eobs_mobile.base">
                  <div class="content">
                      <h2 id="patientName" class="block">
                          <a t-att-href="patient['url']"><t t-esc="patient['name']"/><i class="icon-info"></i></a>
@@ -79,7 +79,7 @@
                          <t t-if="len(inputs) > 0">
                             <div t-foreach="inputs" t-as="item">
                                 <t t-if="item['type']=='selection'">
-                                    <t t-call="mobile_frontend.observation_data_select"/>
+                                    <t t-call="nh_eobs_mobile.observation_data_select"/>
                                 </t>
                             </div>
                          </t>
@@ -102,8 +102,8 @@
              </t>
         </template>
 
-        <template name="Observation Data Entry Screen" t-name="mobile_frontend.observation_entry">
-            <t t-call="mobile_frontend.base">
+        <template name="Observation Data Entry Screen" t-name="nh_eobs_mobile.observation_entry">
+            <t t-call="nh_eobs_mobile.base">
                 <div class="content">
                     <h2 id="patientName" class="block">
                         <a t-att-href="patient['url']"><t t-esc="patient['name']"/><i class="icon-info"></i></a>
@@ -117,10 +117,10 @@
                                 <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
                             </t>
                             <t t-if="item['type']=='number'">
-                                <t t-call="mobile_frontend.observation_data_input"/>
+                                <t t-call="nh_eobs_mobile.observation_data_input"/>
                             </t>
                             <t t-if="item['type']=='selection'">
-                                <t t-call="mobile_frontend.observation_data_select"/>
+                                <t t-call="nh_eobs_mobile.observation_data_select"/>
                             </t>
                         </div>
                         <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
@@ -138,7 +138,7 @@
         </template>
 
 
-        <template name="Selection box input" t-name="mobile_frontend.observation_data_select">
+        <template name="Selection box input" t-name="nh_eobs_mobile.observation_data_select">
            <div t-att-class="'block obsSelectField valHide' if item['initially_hidden']==True else 'block obsSelectField'" t-att-id="'parent_'+item['name']">
                <div class="input-header">
                    <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
@@ -161,7 +161,7 @@
            </div>
        </template>
 
-        <template name="Input box" t-name="mobile_frontend.observation_data_input">
+        <template name="Input box" t-name="nh_eobs_mobile.observation_data_input">
             <div t-att-class="'block obsField valHide' if item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
                     <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
@@ -185,10 +185,10 @@
 
 
 
-        <template name="Error Screen" t-name="mobile_frontend.error">
-            <t t-call="mobile_frontend.assets_new"/>
-            <t t-call="mobile_frontend.logged_in_header"/>
-            <t t-call="mobile_frontend.base">
+        <template name="Error Screen" t-name="nh_eobs_mobile.error">
+            <t t-call="nh_eobs_mobile.assets_new"/>
+            <t t-call="nh_eobs_mobile.logged_in_header"/>
+            <t t-call="nh_eobs_mobile.base">
                 <div class="content">
                     <h1>Application Error</h1>
                     <p>There was an error while processing your request.</p>
@@ -196,11 +196,11 @@
                     <p><t t-esc="error_string"></t></p>
                 </div>
             </t>
-            <t t-call="mobile_frontend.logged_in_footer"/>
+            <t t-call="nh_eobs_mobile.logged_in_footer"/>
         </template>
 
-        <template t-name="mobile_frontend.patient" name="Patient screen">
-            <t t-call="mobile_frontend.base">
+        <template t-name="nh_eobs_mobile.patient" name="Patient screen">
+            <t t-call="nh_eobs_mobile.base">
                 <div class="content">
                     <div class="block">
                         <a class="patientInfo" href="#" id="obsButton">

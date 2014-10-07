@@ -6,10 +6,10 @@ import helpers
 import re
 
 
-class AdhocPBPObsTest(common.SingleTransactionCase):
+class AdhocBPObsTest(common.SingleTransactionCase):
 
     def setUp(self):
-        super(AdhocPBPObsTest, self).setUp()
+        super(AdhocBPObsTest, self).setUp()
 
         # set up database connection objects
         self.uid = 1
@@ -23,7 +23,7 @@ class AdhocPBPObsTest(common.SingleTransactionCase):
         self.location_type = self.registry.get('nh.clinical.pos.delivery.type')
         self.users = self.registry.get('res.users')
 
-    def test_news_obs_form(self):
+    def test_blood_product_obs_form(self):
         cr, uid = self.cr, self.uid
 
         # create environment
@@ -50,15 +50,15 @@ class AdhocPBPObsTest(common.SingleTransactionCase):
         else:
             patient = False
         form = dict()
-        form['action'] = helpers.URLS['patient_form_action']+'{0}/{1}'.format('pbp', test_patient['id'])
-        form['type'] = 'pbp'
+        form['action'] = helpers.URLS['patient_form_action']+'{0}/{1}'.format('blood-product', test_patient['id'])
+        form['type'] = 'blood_product'
         form['task-id'] = False
         form['patient-id'] = test_patient['id']
         form['source'] = "patient"
         form['start'] = '0'
 
 
-        form_desc = patient_api.get_form_description(cr, uid, test_patient['id'], 'nh.clinical.patient.observation.pbp', context=self.context)
+        form_desc = patient_api.get_form_description(cr, uid, test_patient['id'], 'nh.clinical.patient.observation.blood_product', context=self.context)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
                 form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
@@ -77,9 +77,9 @@ class AdhocPBPObsTest(common.SingleTransactionCase):
                     form_input['selection_options'].append(opt)
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'mobile_frontend.observation_entry',
+        get_tasks_html = view_obj.render(cr, uid, 'nh_eobs_mobile.observation_entry',
                                          {'inputs': form_desc,
-                                          'name': 'Postural Blood Pressure Observation',
+                                          'name': 'Blood Product Observation',
                                           'patient': patient,
                                           'form': form,
                                           'section': 'patient',
@@ -87,11 +87,11 @@ class AdhocPBPObsTest(common.SingleTransactionCase):
                                           'urls': helpers.URLS},
                                          context=self.context)
 
-        example_html = helpers.PBP_PATIENT_HTML.format(patient_url=patient['url'],
-                                                       patient_name=patient['name'],
-                                                       patient_id=patient['id'],
-                                                       task_url=form['action'],
-                                                       timestamp=0)
+        example_html = helpers.BLOOD_PRODUCT_PATIENT_HTML.format(patient_url=patient['url'],
+                                                                 patient_name=patient['name'],
+                                                                 patient_id=patient['id'],
+                                                                 task_url=form['action'],
+                                                                 timestamp=0)
 
         get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
         example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')

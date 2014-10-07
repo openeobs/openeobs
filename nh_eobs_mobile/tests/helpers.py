@@ -1,5 +1,5 @@
 __author__ = 'colin'
-from openerp.addons.mobile_frontend.controllers import urls
+from openerp.addons.nh_eobs_mobile.controllers import urls
 
 # URL structure
 URL_PREFIX = '/mobile/'
