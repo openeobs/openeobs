@@ -313,7 +313,7 @@ class nh_clinical_demo_env(orm.Model):
         imd_pool = self.pool['ir.model.data']
         env = self.browse(cr, SUPERUSER_ID, env_id)
         assert env.pos_id, "POS is not created/set in the env id=%s" % env_id
-        adt_group = imd_pool.get_object(cr, uid, "nh_clinical_base", "group_nhc_adt")
+        adt_group = imd_pool.get_object(cr, uid, "nh_clinical", "group_nhc_adt")
         ids = user_pool.search(cr, uid, [['groups_id','in',adt_group.id],['pos_id','=',env.pos_id.id]])
         return ids
 

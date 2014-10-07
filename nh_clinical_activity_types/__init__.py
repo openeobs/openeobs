@@ -1,6 +1,6 @@
 import notifications
 import observations
 import parameters
-import nh_clinical_base_extension
+import nh_clinical_extension
 
 import demo

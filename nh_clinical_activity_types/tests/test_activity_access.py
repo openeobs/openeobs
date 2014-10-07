@@ -56,7 +56,7 @@ class test_user_activity_responsibility(SingleTransactionCase):
         global cr, uid
         api = self.registry('nh.clinical.api') 
         imd_pool = self.registry('ir.model.data')
-        group = imd_pool.get_object(cr, uid, "nh_clinical_base", group_xmlid)
+        group = imd_pool.get_object(cr, uid, "nh_clinical", group_xmlid)
         assert group
         api.write(cr, uid, 'res.users', user_id, {'groups_id': [[4, group.id]]})    
         return api.browse(cr, uid, 'res.users', user_id)
@@ -65,7 +65,7 @@ class test_user_activity_responsibility(SingleTransactionCase):
         global cr, uid
         api = self.registry('nh.clinical.api') 
         imd_pool = self.registry('ir.model.data')
-        group = imd_pool.get_object(cr, uid, "nh_clinical_base", group_xmlid)
+        group = imd_pool.get_object(cr, uid, "nh_clinical", group_xmlid)
         assert group
         api.write(cr, uid, 'res.users', user_id, {'groups_id': [[3, group.id]]})      
         return api.browse(cr, uid, 'res.users', user_id)
@@ -74,7 +74,7 @@ class test_user_activity_responsibility(SingleTransactionCase):
         global cr, uid
         api = self.registry('nh.clinical.api') 
         imd_pool = self.registry('ir.model.data')
-        group = imd_pool.get_object(cr, uid, "nh_clinical_base", group_xmlid)
+        group = imd_pool.get_object(cr, uid, "nh_clinical", group_xmlid)
         assert group
         api.write(cr, uid, 'res.groups', group.id, {'users': [[4, user_id]]})    
         return api.browse(cr, uid, 'res.groups', group.id)
@@ -83,7 +83,7 @@ class test_user_activity_responsibility(SingleTransactionCase):
         global cr, uid
         api = self.registry('nh.clinical.api') 
         imd_pool = self.registry('ir.model.data')
-        group = imd_pool.get_object(cr, uid, "nh_clinical_base", group_xmlid)
+        group = imd_pool.get_object(cr, uid, "nh_clinical", group_xmlid)
         assert group
         api.write(cr, uid, 'res.groups', group.id, {'users': [[3, user_id]]})      
         return api.browse(cr, uid, 'res.groups', group.id)

@@ -6,7 +6,7 @@ from pprint import pprint as pp
 
 from openerp import tools
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_clinical_base.tests.test_base import BaseTest
+from openerp.addons.nh_clinical.tests.test_base import BaseTest
 
 import logging        
 from pprint import pprint as pp

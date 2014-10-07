@@ -2,19 +2,6 @@
 <openerp>
     <data>
 
-        <record model="ir.ui.view" id="view_observation_height_weight">
-            <field name="name">Observation Height, Weight</field>
-            <field name="model">nh.clinical.patient.observation.height_weight</field>
-            <field name="arch" type="xml">
-                <form string="Patient Transfer Form">
-                   <field name="patient_id" />
-                   <field name="height" />
-                   <field name="weight" />
-                    <button name="submit_ui" type="object" string="Submit"/>
-                </form>
-            </field>
-        </record>
-
         <record model="ir.ui.view" id="view_tree_observation_ews">
             <field name="name">Tree View Observation EWS</field>
             <field name="model">nh.clinical.patient.observation.ews</field>

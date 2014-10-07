@@ -119,17 +119,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     def get_form_description(self, cr, uid, patient_id, context=None):
         return self._form_description
 
-# deprecated
-class nh_clinical_patient_observation_height_weight(orm.Model):
-    _name = 'nh.clinical.patient.observation.height_weight'
-    _inherit = ['nh.clinical.patient.observation']
-    _required = ['height', 'weight']
-    _description = "Height & Weight Observation"
-    _columns = {
-                       
-        'height': fields.float('Height'),
-        'weight': fields.float('Weight'),
-    }
 
 class nh_clinical_patient_observation_height(orm.Model):
     _name = 'nh.clinical.patient.observation.height'

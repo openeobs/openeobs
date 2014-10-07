@@ -336,10 +336,10 @@
             <field name="res_model">res.users</field>
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_nhc_user_search"/>
-            <field name="domain" eval="[['groups_id','in',[ref('nh_clinical_base.group_nhc_hca'),
-														  ref('nh_clinical_base.group_nhc_nurse'),
-														  ref('nh_clinical_base.group_nhc_doctor'),
-														  ref('nh_clinical_base.group_nhc_ward_manager'),
+            <field name="domain" eval="[['groups_id','in',[ref('nh_clinical.group_nhc_hca'),
+														  ref('nh_clinical.group_nhc_nurse'),
+														  ref('nh_clinical.group_nhc_doctor'),
+														  ref('nh_clinical.group_nhc_ward_manager'),
 															  ]]]"/>
         </record>
         <record model="ir.actions.act_window.view" id="act_nhc_user_tree_view">

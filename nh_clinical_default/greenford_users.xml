@@ -6,7 +6,7 @@
             <field name="name">GUH-ADT</field>
             <field name="login">adt</field>
             <field name="password">adt</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_admin'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_admin'))]"/>
             <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
@@ -15,7 +15,7 @@
             <field name="login">hudson</field>
             <field name="password">hudson</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
         </record>
 
@@ -24,7 +24,7 @@
             <field name="login">heather</field>
             <field name="password">heather</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
         </record>
         
@@ -33,7 +33,7 @@
             <field name="login">harold</field>
             <field name="password">harold</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wa_b1'),
             ref('nhc_def_conf_location_wa_b2'),
@@ -62,7 +62,7 @@
             <field name="login">henry</field>
             <field name="password">henry</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wb_b1'),
             ref('nhc_def_conf_location_wb_b2'),
@@ -91,7 +91,7 @@
             <field name="login">hannah</field>
             <field name="password">hannah</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wc_b1'),
             ref('nhc_def_conf_location_wc_b2'),
@@ -120,7 +120,7 @@
             <field name="login">harper</field>
             <field name="password">harper</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wc_b1'),
             ref('nhc_def_conf_location_wc_b2'),
@@ -149,7 +149,7 @@
             <field name="login">harriet</field>
             <field name="password">harriet</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wd_b1'),
             ref('nhc_def_conf_location_wd_b2'),
@@ -178,7 +178,7 @@
             <field name="login">hugo</field>
             <field name="password">hugo</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_hca'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wd_b1'),
             ref('nhc_def_conf_location_wd_b2'),
@@ -207,7 +207,7 @@
             <field name="login">natalia</field>
             <field name="password">natalia</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
         </record>
 
@@ -216,7 +216,7 @@
             <field name="login">noemi</field>
             <field name="password">noemi</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
         </record>
 
@@ -225,7 +225,7 @@
             <field name="login">noah</field>
             <field name="password">noah</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
         </record>
 
@@ -234,7 +234,7 @@
             <field name="login">neil</field>
             <field name="password">neil</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
         </record>
 
@@ -243,7 +243,7 @@
             <field name="login">norah</field>
             <field name="password">norah</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wa_b1'),
             ref('nhc_def_conf_location_wa_b2'),
@@ -262,7 +262,7 @@
             <field name="login">nadine</field>
             <field name="password">nadine</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wa_b11'),
             ref('nhc_def_conf_location_wa_b12'),
@@ -281,7 +281,7 @@
             <field name="login">nathan</field>
             <field name="password">nathan</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wb_b1'),
             ref('nhc_def_conf_location_wb_b2'),
@@ -300,7 +300,7 @@
             <field name="login">nicolas</field>
             <field name="password">nicolas</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wb_b11'),
             ref('nhc_def_conf_location_wb_b12'),
@@ -319,7 +319,7 @@
             <field name="login">ned</field>
             <field name="password">ned</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wc_b1'),
             ref('nhc_def_conf_location_wc_b2'),
@@ -348,7 +348,7 @@
             <field name="login">natasha</field>
             <field name="password">natasha</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wc_b1'),
             ref('nhc_def_conf_location_wc_b2'),
@@ -377,7 +377,7 @@
             <field name="login">nichole</field>
             <field name="password">nichole</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wd_b1'),
             ref('nhc_def_conf_location_wd_b2'),
@@ -406,7 +406,7 @@
             <field name="login">nasir</field>
             <field name="password">nasir</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_nurse'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wd_b1'),
             ref('nhc_def_conf_location_wd_b2'),
@@ -435,7 +435,7 @@
             <field name="login">winifred</field>
             <field name="password">winifred</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wa')]]]"/>
         </record>
 
@@ -444,7 +444,7 @@
             <field name="login">walter</field>
             <field name="password">walter</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wb')]]]"/>
         </record>
 
@@ -453,7 +453,7 @@
             <field name="login">whitney</field>
             <field name="password">whitney</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wc')]]]"/>
         </record>
 
@@ -462,7 +462,7 @@
             <field name="login">william</field>
             <field name="password">william</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wd')]]]"/>
         </record>
 
@@ -471,7 +471,7 @@
             <field name="login">dave</field>
             <field name="password">dave</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wa_b1'),
             ref('nhc_def_conf_location_wa_b2'),
@@ -487,7 +487,7 @@
             <field name="login">davina</field>
             <field name="password">davina</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wa_b8'),
             ref('nhc_def_conf_location_wa_b9'),
@@ -502,7 +502,7 @@
             <field name="login">don</field>
             <field name="password">don</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wa_b14'),
             ref('nhc_def_conf_location_wa_b15'),
@@ -518,7 +518,7 @@
             <field name="login">dakota</field>
             <field name="password">dakota</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wb_b1'),
             ref('nhc_def_conf_location_wb_b2'),
@@ -534,7 +534,7 @@
             <field name="login">damien</field>
             <field name="password">damien</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wb_b8'),
             ref('nhc_def_conf_location_wb_b9'),
@@ -549,7 +549,7 @@
             <field name="login">delilah</field>
             <field name="password">delilah</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wb_b14'),
             ref('nhc_def_conf_location_wb_b15'),
@@ -565,7 +565,7 @@
             <field name="login">dawson</field>
             <field name="password">dawson</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wc_b1'),
             ref('nhc_def_conf_location_wc_b2'),
@@ -581,7 +581,7 @@
             <field name="login">dana</field>
             <field name="password">dana</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wc_b8'),
             ref('nhc_def_conf_location_wc_b9'),
@@ -596,7 +596,7 @@
             <field name="login">diego</field>
             <field name="password">diego</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wc_b14'),
             ref('nhc_def_conf_location_wc_b15'),
@@ -612,7 +612,7 @@
             <field name="login">daniella</field>
             <field name="password">daniella</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wd_b1'),
             ref('nhc_def_conf_location_wd_b2'),
@@ -628,7 +628,7 @@
             <field name="login">denzel</field>
             <field name="password">denzel</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wd_b8'),
             ref('nhc_def_conf_location_wd_b9'),
@@ -643,7 +643,7 @@
             <field name="login">diana</field>
             <field name="password">diana</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_doctor'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_doctor'))]"/>
             <field name="location_ids" eval="[[6, False, [
             ref('nhc_def_conf_location_wd_b14'),
             ref('nhc_def_conf_location_wd_b15'),
@@ -659,13 +659,13 @@
             <field name="login">olga</field>
             <field name="password">olga</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_admin'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_admin'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
         </record>
 
         <record id="base.user_root" model="res.users">
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical_base.group_nhc_admin'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_admin'))]"/>
         </record>
         
     </data>

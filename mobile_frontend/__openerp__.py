@@ -8,7 +8,7 @@
     'description': """Mobile Frontend for Open-eObs """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['web', 'nh_clinical_api', 'nh_clinical_base', 'nh_clinical_activity_types', 'nhc_d3'],
+    'depends': ['web', 'nh_clinical_api', 'nh_clinical_activity_types', 'nhc_d3'],
     'data': ['views/template.xml'],
     'demo': [],
     'images': [],

@@ -44,7 +44,7 @@
             res_model="change.password.wizard"
             view_type="form" view_mode="form"
             key2="client_action_multi" target="new"
-            groups="nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev"/>
+            groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
 
         <record id="view_nhc_admin_userboard_form" model="ir.ui.view">
             <field name="name">NHC Admin Userboard Form</field>
@@ -139,7 +139,7 @@
             res_model="change.password.wizard"
             view_type="form" view_mode="form"
             key2="client_action_multi" target="new"
-            groups="nh_clinical_base.group_nhc_ward_manager,nh_clinical_base.group_nhc_admin,nh_clinical_base.group_nhc_dev"/>
+            groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
 
         <record id="view_nhc_userboard_form" model="ir.ui.view">
             <field name="name">nhc.userboard.form.view</field>

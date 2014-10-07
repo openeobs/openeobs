@@ -1,12 +1,4 @@
 from openerp.tests import common
-from datetime import datetime as dt
-from dateutil.relativedelta import relativedelta as rd
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from pprint import pprint as pp
-
-from openerp import tools
-from openerp.osv import orm, fields, osv
-from openerp.addons.nh_clinical_base.tests.test_base import BaseTest
 
 import logging        
 from pprint import pprint as pp

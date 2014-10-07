@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_clinical_base','nh_clinical_activity_types'],
+    'depends': ['nh_clinical_activity_types'],
     'data': [],
     'application': True,
     'installable': True,
