@@ -143,8 +143,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         assert self.user_location_resp(ward_user_id, ward_id)    
         assert not self.user_activity_resp(bed_user_id, spell_activity_id)
         assert not self.user_activity_resp(ward_user_id, spell_activity_id)
-        self.user_add_group(bed_user_id, 'group_nh_clinical_nurse')
-        self.user_add_group(ward_user_id, 'group_nh_clinical_nurse')
+        self.user_add_group(bed_user_id, 'group_nhc_nurse')
+        self.user_add_group(ward_user_id, 'group_nhc_nurse')
         assert self.user_activity_resp(bed_user_id, spell_activity_id)
         assert self.user_activity_resp(ward_user_id, spell_activity_id)        
 
@@ -157,8 +157,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         assert self.user_location_resp(ward_user_id, ward_id)         
         assert not self.user_activity_resp(bed_user_id, spell_activity_id)
         assert not self.user_activity_resp(ward_user_id, spell_activity_id)
-        self.group_add_user('group_nh_clinical_nurse', bed_user_id)
-        self.group_add_user('group_nh_clinical_nurse', ward_user_id)
+        self.group_add_user('group_nhc_nurse', bed_user_id)
+        self.group_add_user('group_nhc_nurse', ward_user_id)
         assert self.user_activity_resp(bed_user_id, spell_activity_id)
         assert self.user_activity_resp(ward_user_id, spell_activity_id)
 
@@ -220,8 +220,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         assert self.user_location_resp(ward_user_id, ward_id)    
         assert not self.user_activity_resp(bed_user_id, ews_activity_id)
         assert not self.user_activity_resp(ward_user_id, ews_activity_id)
-        self.user_add_group(bed_user_id, 'group_nh_clinical_nurse')
-        self.user_add_group(ward_user_id, 'group_nh_clinical_nurse')
+        self.user_add_group(bed_user_id, 'group_nhc_nurse')
+        self.user_add_group(ward_user_id, 'group_nhc_nurse')
         assert self.user_activity_resp(bed_user_id, ews_activity_id)
         assert not self.user_activity_resp(ward_user_id, ews_activity_id)        
  
@@ -234,8 +234,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         assert self.user_location_resp(ward_user_id, ward_id)         
         assert not self.user_activity_resp(bed_user_id, ews_activity_id)
         assert not self.user_activity_resp(ward_user_id, ews_activity_id)
-        self.group_add_user('group_nh_clinical_nurse', bed_user_id)
-        self.group_add_user('group_nh_clinical_nurse', ward_user_id)
+        self.group_add_user('group_nhc_nurse', bed_user_id)
+        self.group_add_user('group_nhc_nurse', ward_user_id)
         assert self.user_activity_resp(bed_user_id, ews_activity_id)
         assert not self.user_activity_resp(ward_user_id, ews_activity_id)        
         

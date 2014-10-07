@@ -3,3 +3,8 @@ import activity_extension
 import api
 import demo
 import api_demo
+import spell
+import operations
+import adt
+import devices
+import wizards

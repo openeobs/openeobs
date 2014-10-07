@@ -11,12 +11,6 @@
     'depends': ['nh_clinical_base','project','hr'],
     'data': [
              'views/views.xml',
-             'views/patient_placement_view.xml',
-             'wizards/placement_wizard_view.xml',
-             'data/types.xml', 
-             'views/menuitem.xml',
-             'security/adt/ir.model.access.csv',
-             'security/core/ir.model.access.csv',
              'security/notif/ir.model.access.csv',
              'security/obs/ir.model.access.csv',
              'security/params/ir.model.access.csv',],

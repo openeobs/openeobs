@@ -63,12 +63,19 @@
           	parent="menu_left_nh_activity" 
           	action="nh_activity.action_nh_activity_hierarchy"
           	groups="group_nhc_admin,base.user_root"/>
-          	
-<!--           <menuitem name="Patient activity Trigger" 
-          	id="menu_left_sub_patient_activity_trigger" 
-          	parent="menu_left_nh_activity" 
-          	action="action_patient_activity_trigger" 
-          	groups="group_nhc_admin"/> -->        	
+
+          <menuitem name="Operations"
+          	id="menu_left_nhc_operation"
+          	parent="nh_clinical_base.menu_nh_clinical"
+          	action=""
+          	groups="group_nhc_base"/>
+
+
+          <menuitem name="Patient Placement Activities"
+          	id="menu_nhc_patient_placement_activity"
+          	parent="menu_left_nhc_operation"
+          	action="action_nhc_placement_activity"
+          	groups="group_nhc_ward_manager"/>
 
     </data>
 </openerp>
