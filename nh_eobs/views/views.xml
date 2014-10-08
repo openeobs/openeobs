@@ -280,7 +280,7 @@
             <field name="act_window_id" ref="action_show_poc_management"/>
         </record>
         <record model="ir.actions.act_window.view" id="act_view_location_form">
-            <field eval="1" name="sequence"/>
+            <field eval="2" name="sequence"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="poc_management_form_view"/>
             <field name="act_window_id" ref="action_show_poc_management"/>
