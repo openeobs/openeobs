@@ -125,10 +125,10 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
     @http.route(endpoint + 'src/<type>/<resource>', type='http', auth='none')
     def get_resource(self, type, resource, *args, **kw):
         if resource == 'd3.js':
-            with open(get_module_path('nhc_d3') + '/static/lib/js/d3.js'.format(type=type, resource=resource), 'r') as resource:
+            with open(get_module_path('nh_graphs') + '/static/lib/js/d3.js'.format(type=type, resource=resource), 'r') as resource:
                 return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
         elif resource == 'graph_lib.js':
-            with open(get_module_path('nhc_d3') + '/static/src/js/patient_graph.js'.format(type=type, resource=resource), 'r') as resource:
+            with open(get_module_path('nh_graphs') + '/static/src/js/patient_graph.js'.format(type=type, resource=resource), 'r') as resource:
                 return request.make_response(resource.read(), headers={'Content-Type': self.mimeifier(type)})
         else:
             with open(get_module_path('nh_eobs') + '/static/src/{type}/{resource}'.format(type=type, resource=resource), 'r') as resource:
