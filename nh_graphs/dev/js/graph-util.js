@@ -1,6 +1,6 @@
 insertLinebreaks: function(d) {
     var context = this.context, focus = this.focus, svg = this.svg;
-    var el = nhc_d3.select(this);
+    var el = nh_graphs.select(this);
     var textHeight = 10;
     var days = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ];
     var dateString = days[d.getDay()] + " " + d.getDate() + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
@@ -82,7 +82,7 @@ resizeGraphs: function() {
     var ori = win.width() > win.height() ? "landscape" : "portrait";
     w = win.width() - svg.margins.left - svg.margins.right;
     svg.width = w + svg.margins.left + svg.margins.right;
-    svg.obj = nhc_d3.select("svg").transition().duration(svg.transitionDuration).attr("width", svg.width);
+    svg.obj = nh_graphs.select("svg").transition().duration(svg.transitionDuration).attr("width", svg.width);
     context.xScale.range([ svg.margins.left / 4, w - (svg.infoAreaRight + svg.margins.right / 4) ]);
     context.xAxis.scale(context.xScale);
     context.obj.selectAll(".x.axis").call(context.xAxis).style("stroke-width", "1");
@@ -119,7 +119,7 @@ resizeGraphs: function() {
     focus.obj.select("#clip").transition().duration(svg.transitionDuration).select("rect").attr("width", w - (svg.infoAreaRight + svg.margins.right / 4));
     focus.xScale.range([ svg.margins.left / 4, w - (svg.infoAreaRight + svg.margins.right / 4) ]);
     focus.xAxis.scale(focus.xScale);
-    nhc_d3.select("#focusChart").select("svg").transition().duration(svg.transitionDuration).attr("width", w + svg.infoAreaRight + svg.margins.right);
+    nh_graphs.select("#focusChart").select("svg").transition().duration(svg.transitionDuration).attr("width", w + svg.infoAreaRight + svg.margins.right);
     focus.obj.selectAll(".line").transition().duration(svg.transitionDuration).attr("x2", w - (svg.infoAreaRight + svg.margins.right / 4));
     focus.obj.selectAll(".norm").transition().duration(svg.transitionDuration).attr("width", w - (svg.infoAreaRight + svg.margins.right / 3));
     focus.obj.selectAll(".info").transition().duration(svg.transitionDuration).attr("x", w - (svg.infoAreaRight + svg.margins.right / 4) + svg.labelGap);
@@ -131,7 +131,7 @@ initTable: function() {
     var context = this.context, focus = this.focus, svg = this.svg;
     if (focus.tables.length != 0){
         var headerData = [ "Type" ];
-        nhc_d3.select("#chartTable").selectAll("tr").remove();
+        nh_graphs.select("#chartTable").selectAll("tr").remove();
         var startDate = new Date(focus.xScale.domain()[0]);
         var endDate = new Date(focus.xScale.domain()[1]);
         for (var i = 0; i < svg.data.length; i++) {
@@ -139,7 +139,7 @@ initTable: function() {
                 headerData.push(svg.data[i].date_started);
             }
         }
-        dataTableTr = nhc_d3.select("#chartTable").append("tr");
+        dataTableTr = nh_graphs.select("#chartTable").append("tr");
         dataTableTr.selectAll("th").data(headerData).enter().append("th").html(function(d) {
             if (d == "Type") {
                 return d;
