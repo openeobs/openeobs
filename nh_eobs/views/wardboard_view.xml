@@ -42,6 +42,7 @@
                     <group string="To" colspan="4" col="2">
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
                                                                              ('usage','=','bed'),
+                                                                             ('is_available','=',True),
                                                                              ('id','!=',bed_src_location_id)]"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
