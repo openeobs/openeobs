@@ -251,7 +251,7 @@ class nh_eobs_api(orm.AbstractModel):
     def get_active_observations(self, cr, uid, context=None):
         user = self.pool['res.users'].browse(cr, 1, uid, context=context)
         groups = [g.name for g in user.groups_id]
-        if 'T4 Clinical Nurse Group' in groups or 'T4 Clinical HCA Group' in groups:
+        if 'NH Clinical Nurse Group' in groups or 'NH Clinical HCA Group' in groups:
             return self._active_observations
         return []
 

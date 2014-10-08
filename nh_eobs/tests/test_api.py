@@ -31,7 +31,7 @@ class TestAPI(SingleTransactionCase):
         cls.wmt_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMT')])[0]
         cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
-        cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['T4 Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
+        cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
 
     def test_check_activity_access(self):
         cr, uid = self.cr, self.uid
