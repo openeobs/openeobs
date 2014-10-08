@@ -467,8 +467,8 @@ $(document).ready(function() {
                 displayModal("obsConfirm", "Action required", "<p>" + e.related_tasks[0].summary + "</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>', '<a href="' + frontend_routes.single_task(e.relatedTasks[0].id).url + '" class="confirm">Confirm</a>' ], 500); else if (e.related_tasks.length > 1) {
                     for (var s = "", a = 0; a < e.related_tasks.length; a++) s += '<li><a href="' + frontend_routes.single_task(e.relatedTasks[a].id).url + '">' + e.related_tasks[a].summary + "</a></li>";
                     dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Action required", '<ul class="menu">' + s + "</ul>", [ '<a href="' + frontend_routes.task_list().url + '">Go to My Tasks</a>' ], 500);
-                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
-                displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500);
+                } else dismissModal("obsConfirm", "hide"), displayModal("obsConfirm", "Successfully submitted", "<p>The patient placement has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500); else dismissModal("obsConfirm", "hide"), 
+                displayModal("obsConfirm", "Successfully submitted", "<p>The  patient placement has been successfully submitted.</p>", [ '<a href="' + frontend_routes.task_list().url + '" class="action">Go to My Tasks</a>' ], 500);
             },
             error: function(e) {
                 console.log("re-enabling submit"), o = !1, console.log(e), console.log(e.responseText), 

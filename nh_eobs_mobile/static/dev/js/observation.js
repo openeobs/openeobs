@@ -317,11 +317,11 @@ $(document).ready(function () {
                             displayModal("obsConfirm", "Action required", "<ul class=\"menu\">" + taskList + "</ul>", ["<a href=\""+frontend_routes.task_list().url+ "\">Go to My Tasks</a>"], 500);
                         }else{
                             dismissModal("obsConfirm", "hide");
-                            displayModal("obsConfirm", "Successfully submitted", "<p>The observation frequency has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                            displayModal("obsConfirm", "Successfully submitted", "<p>The patient placement has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                         }
                     }else{
                         dismissModal("obsConfirm", "hide");
-                        displayModal("obsConfirm", "Successfully submitted", "<p>The  observation frequency has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
+                        displayModal("obsConfirm", "Successfully submitted", "<p>The  patient placement has been successfully submitted.</p>", ["<a href=\""+frontend_routes.task_list().url+ "\" class=\"action\">Go to My Tasks</a>"], 500);
                     }
                 }},
             error: function(err){
