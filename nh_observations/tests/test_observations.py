@@ -164,7 +164,7 @@ class test_observations(common.SingleTransactionCase):
         # cancel adt.cancel_admit
         cancel_activity = env_pool.create_complete(cr, adt_user_id, env_id, 'nh.clinical.adt.patient.cancel_admit')
         
-        for a in gcs + height + weight + blood_sugar + blood_product + stools:
+        for a in height + weight + blood_sugar + blood_product:
             if a.patient_id.id == cancel_activity.patient_id.id:
                 assert a.state in ['completed', 'cancelled'], "state: %s, data_model: %s" % (a.state, a.data_model)
 

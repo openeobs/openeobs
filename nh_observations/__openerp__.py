@@ -10,7 +10,6 @@
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_clinical'],
     'data': [
-             'views/views.xml',
              'security/notif/ir.model.access.csv',
              'security/obs/ir.model.access.csv',
              'security/params/ir.model.access.csv',],
