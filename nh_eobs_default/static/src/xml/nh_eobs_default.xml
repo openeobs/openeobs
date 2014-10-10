@@ -1,0 +1,14 @@
+<templates>
+
+    <t t-extend="Login">
+        <t t-jquery=".oe_login_logo" t-operation="replace">
+            <div class="oe_login_logo">
+                <img src="/nh_eobs_default/static/src/img/Open_eObs_logo.png"/>
+            </div>
+        </t>
+        <t t-jquery="div.oe_login_footer" t-operation="replace">
+            <a href="http://www.openerp.com" target="_blank">Powered by <span>Open eObs / Odoo</span></a>
+        </t>
+    </t>
+
+</templates>
