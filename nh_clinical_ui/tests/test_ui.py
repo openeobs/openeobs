@@ -135,7 +135,8 @@ class test_ui_data(SingleTransactionCase):
             height_activity = api.create_complete(cr, uid, 'nh.clinical.patient.observation.height', 
                                                 {}, {'patient_id': patient_id, 'height': fake.random_int(120, 220)})
             o2level_ids = self.registry('nh.clinical.o2level').search(cr, uid, [])
-            o2target_activity = api.create_complete(cr, uid, 'nh.clinical.patient.o2target', 
+            if o2level_ids:
+                o2target_activity = api.create_complete(cr, uid, 'nh.clinical.patient.o2target', 
                                                 {}, {'patient_id': patient_id, 
                                                      'level_id': fake.random_element(o2level_ids)})
             
@@ -156,7 +157,10 @@ class test_ui_data(SingleTransactionCase):
                 wardboard_ids = wardboard_model.search(cr, SUPERUSER_ID, [['patient_id','=',patient_id],['pos_id','=',env.pos_id.id]])
                 #import pdb; pdb.set_trace()
                 assert len(wardboard_ids) == 1
+#                 import pdb; pdb.set_trace()
                 wardboard = wardboard_model.browse(cr, SUPERUSER_ID, wardboard_ids[0])
+                #wardboard_read = wardboard_model.read(cr, SUPERUSER_ID, wardboard_ids[0], [])
+                
                 assert wardboard.clinical_risk == activity.data_ref.clinical_risk,\
                     "wardboard.clinical_risk: %s, activity.data_ref.clinical_risk: %s"\
                     %(wardboard.clinical_risk, activity.data_ref.clinical_risk)

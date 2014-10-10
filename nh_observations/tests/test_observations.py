@@ -137,7 +137,7 @@ class test_observations(common.SingleTransactionCase):
         env = env_pool.browse(cr, uid, env_id)
         pos = env.pos_id
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nh_clinical_nurse']).keys()[0]
+        nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nhc_nurse']).keys()[0]
         
         #Complete observation.ews
         ews_activities = api.get_activities(cr, uid, pos_ids=[pos.id], data_models=['nh.clinical.patient.observation.ews'])
@@ -162,11 +162,11 @@ class test_observations(common.SingleTransactionCase):
         # Complete observation.stools
         stools = [env_pool.create_complete(cr, uid, env_id, 'nh.clinical.patient.observation.stools') for i in range(env.patient_qty)]
         # cancel adt.cancel_admit
-        cancel = [env_pool.create_complete(cr, adt_user_id, env_id, 'nh.clinical.adt.patient.cancel_admit') for i in range(1)]
+        cancel_activity = env_pool.create_complete(cr, adt_user_id, env_id, 'nh.clinical.adt.patient.cancel_admit')
         
         for a in gcs + height + weight + blood_sugar + blood_product + stools:
-            if a.patient_id.id == cancel[0].patient_id.id:
-                assert a.state == 'cancelled'
+            if a.patient_id.id == cancel_activity.patient_id.id:
+                assert a.state in ['completed', 'cancelled'], "state: %s, data_model: %s" % (a.state, a.data_model)
 
     def test_gcs_observations_policy_static(self):
         #return
@@ -275,7 +275,7 @@ class test_observations(common.SingleTransactionCase):
                 'pulse_rate': ews_test_data['PR'][i],
                 'avpu_text': ews_test_data['AVPU'][i]
             }
-            nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nh_clinical_nurse']).keys()[0]
+            nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nhc_nurse']).keys()[0]
 
             # completion must be made as nurse user, otherwise notifications are not created
             api.assign(cr, uid, ews_activity.id, nurse_user_id)

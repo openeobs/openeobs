@@ -137,7 +137,7 @@ class test_observations(common.SingleTransactionCase):
         env = env_pool.browse(cr, uid, env_id)
         pos = env.pos_id
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
-        nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nh_clinical_nurse']).keys()[0]
+        nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nhc_nurse']).keys()[0]
         
         # Complete observation.stools
         stools = [env_pool.create_complete(cr, uid, env_id, 'nh.clinical.patient.observation.stools') for i in range(env.patient_qty)]

@@ -103,21 +103,21 @@ class test_api(common.SingleTransactionCase):
             'bed_qty': 3,
             'user_qty': 3
         }
-        nurse_count = len(api.user_map(cr, uid, group_xmlids=['group_nh_clinical_nurse']))
-        adt_count = len(api.user_map(cr, uid, group_xmlids=['group_nh_clinical_adt']))
-        ward_manager_count = len(api.user_map(cr, uid, group_xmlids=['group_nh_clinical_ward_manager']))
+        nurse_count = len(api.user_map(cr, uid, group_xmlids=['group_nhc_nurse']))
+        adt_count = len(api.user_map(cr, uid, group_xmlids=['group_nhc_adt']))
+        ward_manager_count = len(api.user_map(cr, uid, group_xmlids=['group_nhc_ward_manager']))
             
         env_id = env_pool.create(cr, uid, config)
         env = env_pool.browse(cr, uid, env_id)
         
         # test group_xmlids
-        umap = api.user_map(cr, uid, group_xmlids=['group_nh_clinical_ward_manager'])    
+        umap = api.user_map(cr, uid, group_xmlids=['group_nhc_ward_manager'])    
         assert len(umap) - ward_manager_count == env.ward_manager_user_qty, \
             "Unexpected ward manager users count. before: %s, after: %s, env: %s" % (ward_manager_count, len(umap), env.ward_manager_user_qty)
-        umap = api.user_map(cr, uid, group_xmlids=['group_nh_clinical_adt'])
+        umap = api.user_map(cr, uid, group_xmlids=['group_nhc_adt'])
         assert len(umap) - adt_count == env.adt_user_qty, \
             "Unexpected adt users count. before: %s, after: %s, env: %s" % (adt_count, len(umap), env.adt_user_qty)
-        umap = api.user_map(cr, uid, group_xmlids=['group_nh_clinical_nurse'])
+        umap = api.user_map(cr, uid, group_xmlids=['group_nhc_nurse'])
         assert len(umap) - nurse_count == env.nurse_user_qty, \
             "Unexpected nurse users count. before: %s, after: %s, env: %s" % (nurse_count, len(umap), env.nurse_user_qty)        
         
