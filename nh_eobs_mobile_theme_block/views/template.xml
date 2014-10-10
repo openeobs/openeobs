@@ -126,6 +126,80 @@
             </t>
         </template>
 
+        <template inherit_id="nh_eobs_mobile.observation_entry" id="nh_eobs_mobile_theme_block.observation_form">
+            <xpath expr="//h2[@id='patientName']" position="replace">
+                <p class="news-title"><t t-esc="name"/></p>
+
+                <div class="mypatient-news">
+
+                    <div class="info-tri">
+                    </div>
+
+                    <a class="info" href="info.html" data-lightbox="info"><img src="/mobile/src/img/info-icon.png"/></a>
+
+                    <p class="name-news"><t t-esc="patient['name']"/></p>
+
+                </div>
+
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.notification_confirm_cancel" id="nh_eobs_mobile_theme_block.notification_form">
+            <xpath expr="//h2[@id='patientName']" position="replace">
+                <p class="news-title"><t t-esc="name"/></p>
+
+                <div class="mypatient-news">
+
+                    <div class="info-tri">
+                    </div>
+
+                    <a class="info" href="info.html" data-lightbox="info"><img src="/mobile/src/img/info-icon.png"/></a>
+
+                    <p class="name-news"><t t-esc="patient['name']"/></p>
+
+                </div>
+
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.observation_data_input" id="nh_eobs_mobile_theme_block.observation_data_input">
+            <xpath expr="//div" position="replace">
+                <div class="news-item">
+                    <label class="news-item-title" t-att-for="item['name']"><t t-esc="item['label']"/></label>
+                    <div class="box">
+                        <input class="news-entry" t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if item['initially_hidden']==True else ''"/>
+                    </div>
+                    <div class="news=item-error">
+                        <p class="news-error-text">Meh</p>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.observation_data_select" id="nh_eobs_mobile_theme_block.observation_data_select">
+            <xpath expr="//div" position="replace">
+                <div class="news-item">
+                    <label class="news-item-title-longer" t-att-for="item['name']"><t t-esc="item['label']"/></label>
+                    <t t-if="len(item['selection_options']) &lt; 5">
+                       <ul class="select-avpu">
+                           <t t-foreach="item['selection_options']" t-as="option">
+                               <li><a t-att-data-value="option['value']" href="#"><t t-esc="option['label']"/></a></li>
+                           </t>
+                       </ul>
+                    </t>
+                    <t t-if="len(item['selection_options']) >= 5">
+                         <div class="scroll-box">
+                             <ul class="box-list">
+                                 <t t-foreach="item['selection_options']" t-as="option">
+                                     <li><a t-att-data-value="option['value']" href="#"><t t-esc="option['label']"/></a></li>
+                                 </t>
+                             </ul>
+                         </div>
+                    </t>
+                </div>
+            </xpath>
+        </template>
+
 
        </data>
     </openerp>

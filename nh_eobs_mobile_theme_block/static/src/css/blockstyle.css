@@ -1060,7 +1060,7 @@ left:60px;
 
 position:relative;
 z-index:2;
-top:-6px;
+top:0;
 left:10px;
 float:left;
 
@@ -1085,11 +1085,12 @@ border-top-style: solid;
 border-top-width: 5px;
 
 width:90px;
-height:22px;
+height:31px;
 background-color: #ed558b;
 /* padding:10px; */
 margin-bottom:10px;
 box-shadow:0px 1px 0px #ffffff;
+   font-size: 0.8em;
 
 }
 
@@ -1155,46 +1156,40 @@ box-shadow:0px 1px 0px #ffffff;
 
 }
 
+#obsFrom{
+    margin-top: 1em;
+}
+
 .news-entry {
 
 position:relative;
 z-index:5;
-top:-10px;
-left:-130px;
+
+    left:15px;
 color:#3e3e3e;
 font-size: 18px;
-width:285px;
+    border-right-color: #c3bebe;
+    border-left-color: #c3bebe;
+    border-bottom-color: #c3bebe;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+
+    border-top-color: #a6a6a6;
+    border-top-style: solid;
+    border-top-width: 3px;
+
+    width:160px;
+    height:35px;
+    background-color: #ffffff;
+    /* padding:10px; */
+    box-shadow:0px 1px 0px #ffffff;
 }
 
 
-.box{
-
-position:relative;
-z-index:4;
-top:0px;
-left:155px;
-
-border-right-color: #c3bebe;
-border-left-color: #c3bebe;
-border-bottom-color: #c3bebe;
-border-right-style: solid;
-border-left-style: solid;
-border-bottom-style: solid;
-border-right-width: 1px;
-border-left-width: 1px;
-border-bottom-width: 1px;
-
-border-top-color: #a6a6a6;
-border-top-style: solid;
-border-top-width: 3px;
-
-width:160px;
-height:35px;
-background-color: #ffffff;
-/* padding:10px; */
-box-shadow:0px 1px 0px #ffffff;
-
-}
 
 .scroll-box{
 
@@ -1418,7 +1413,7 @@ border-top-width: 5px;
 
 /* Supplemental 02 End */
 
-p.news-item-title {
+.news-item-title {
 
 position:relative;
 z-index:3;
@@ -1431,10 +1426,11 @@ height:45px;
 
 color:#4e4e4e;
 text-align: center;
+font-size: 0.8em;
 
 }
 
-p.news-item-title-longer {
+.news-item-title-longer {
 
 position:relative;
 z-index:3;
@@ -1447,7 +1443,7 @@ height:45px;
 
 color:#4e4e4e;
 text-align: center;
-
+    font-size: 0.8em;
 }
 
 .news-item-error {
@@ -1586,6 +1582,9 @@ font-family: sans-serif, Helvetica, Verdana, Arial;
     width: 50%;
     font-size: 1.05em;
 
+}
+select.login-box{
+    width: 55%;
 }
 
 .login-button {
@@ -1746,6 +1745,32 @@ text-align: center;
     z-index: 2;
     top: -25px;
     left: 0px;
+    text-align: center;
+}
+
+.mypatient-news {
+    position: relative;
+    z-index: 1;
+    top: 15px;
+    left: 110px;
+    border-right-color: #c3bebe;
+    border-left-color: #c3bebe;
+    border-bottom-color: #c3bebe;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: #f4e2c5;
+    border-top-style: solid;
+    border-top-width: 5px;
+    width: 360px;
+    height: 37px;
+    background-color: #f4f4f4;
+    /* padding: 10px; */
+    margin-bottom: 10px;
+    box-shadow: 0px 1px 0px #ffffff;
 }
 
 .peach-tri {
@@ -1824,6 +1849,7 @@ position: absolute;
 
 }
 
+
 .mypatient-item .info-tri, .mypatient-item-alt .info-tri {
     position: absolute;
     z-index: 1;
@@ -1835,6 +1861,15 @@ position: absolute;
     border-bottom: 28px solid transparent;
     border-left: 28px solid transparent;
 }
+
+.mypatient-news .info-tri{
+    border-top: 28px solid #f4e2c5;
+}
+
+.mypatient-news .info{
+    background-color: #f4e2c5;
+}
+
 
 
 /* Pin Overlay End */
