@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="assets_backend" name="nh_graphs assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/nh_graphs/static/lib/js/d3.js"></script>
+                <script type="text/javascript" src="/nh_graphs/static/src/js/patient_graph.js"></script>
+            </xpath>
+        </template>
+   </data>
+</openerp>
