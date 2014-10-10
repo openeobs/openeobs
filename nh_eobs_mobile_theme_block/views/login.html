@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Open eObs - Login</title>
+        <link rel="stylesheet" type="text/css" href="{{stylesheet}}">
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+    </head>
+    <body>
+        <div id="wrapper-login">
+            <div id="header">
+
+                <div id="topbar">
+
+                    <img class="logo" src="{{logo}}">
+
+                    <p class="welcome-text">Welcome to open-eObs, please sign in</p>
+                </div>
+            </div>
+            <form action="{{form_action}}" method="POST">
+                <div class="login-section">
+                    <label class="login-item" for="username">Username</label>
+                    <input type="text" class="login-box" name="username" id="username"/>
+                   <!--  <div class="login-box">
+                        >
+                    </div> -->
+                </div>
+                <div class="login-section">
+                    <label class="login-item" for="password">Password</label>
+                    <input type="password" class="login-box" name="password" id="password"/>
+                    <!-- <div class="login-box">
+
+                    </div> -->
+                </div>
+                <input type="hidden" name="database" id="database" value="nhclinical_block"/>
+                <button type="submit" class="login-button">Login</button>
+                {{errors}}
+            </form>
+        </div>
+    </body>
+</html>
