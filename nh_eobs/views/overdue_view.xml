@@ -25,7 +25,7 @@
             <field name="name">NH Clinical Overdue Activities Tree</field>
             <field name="model">nh.clinical.overdue</field>
             <field name="arch" type="xml">
-                <tree string="NH Clinical Overdue Activities Tree" version="7.0" create="0">
+                <tree string="NH Clinical Overdue Activities Tree" version="7.0" create="0" class="nh_eobs_overdue">
                     <field name="patient_name"/>
                     <field name="parent_location"/>
                     <field name="location"/>
