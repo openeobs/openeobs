@@ -31,7 +31,20 @@
 
                     </div> -->
                 </div>
-                <input type="hidden" name="database" id="database" value="nhclinical_block"/>
+                {% if databases|length > 1 %}
+                <div class="login-section">
+                    <label class="login-item" for="database">Database</label>
+                    <select name="database" class="login-box" id="database">
+                        {% for database in databases %}
+                        <option value="{{database}}">{{database}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% else %}
+                    {% for database in databases %}
+                        <input type="hidden" name="database" id="database" value="{{database}}"/>
+                    {% endfor %}
+                {% endif %}
                 <button type="submit" class="login-button">Login</button>
                 {{errors}}
             </form>
