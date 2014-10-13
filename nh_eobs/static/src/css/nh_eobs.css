@@ -50,6 +50,10 @@
     height: 25px;
 }
 
+.nh_eobs_overdue .oe_list_content td.oe_number{
+    text-align: left !important;
+}
+
 .nhc_obs [data-id="date_terminated"]{
     width: 250px;
 }
