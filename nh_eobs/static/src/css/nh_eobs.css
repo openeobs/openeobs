@@ -60,6 +60,9 @@
 .nhc_obs [data-id="terminate_uid"]{
     width: 250px;
 }
+.nhc_obs .oe_list_content td.oe_number{
+    text-align: left !important;
+}
 
 .nh_ewschart {
     position: relative !important;
