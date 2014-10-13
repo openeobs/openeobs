@@ -132,7 +132,7 @@ class nh_clinical_patient_observation_height(orm.Model):
         {
             'name': 'height',
             'type': 'float',
-            'label': 'Height',
+            'label': 'Height (m)',
             'min': 0.1,
             'max': 3.0,
             'digits': [1, 1],
