@@ -6,7 +6,8 @@ from helpers import URLS as urls
 import re
 import datetime
 import helpers
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class AssessPatientTest(common.SingleTransactionCase):
 
@@ -30,6 +31,9 @@ class AssessPatientTest(common.SingleTransactionCase):
 
         # create environment
         api_demo = self.registry('nh.clinical.api.demo')
+        if not api_demo.demo_data_loaded(cr, uid):
+            _logger.warn("Demo data is not loaded and this test relies on it! Skiping test.")
+            return
         api_demo.build_uat_env(cr, uid, patients=8, placements=4, ews=0, context=None)
 
         # get a nurse user

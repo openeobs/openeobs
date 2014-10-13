@@ -2,7 +2,8 @@ __author__ = 'colin'
 
 import openerp.tests
 import helpers
-
+import logging
+_logger = logging.getLogger(__name__)
 from faker import Faker
 fake = Faker()
 seed = fake.random_int(min=0, max=9999999)
@@ -38,6 +39,9 @@ class TestAjaxTakeCancel(openerp.tests.HttpCase):
 
         # create environment
         api_demo = self.registry('nh.clinical.api.demo')
+        if not api_demo.demo_data_loaded(cr, uid):
+            _logger.warn("Demo data is not loaded and this test relies on it! Skiping test.")
+            return
         api_demo.build_uat_env(cr, uid, patients=8, placements=4, ews=0, context=None)
         cr.commit()
         # get a nurse user
