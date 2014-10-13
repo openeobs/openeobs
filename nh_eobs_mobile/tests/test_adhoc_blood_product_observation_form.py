@@ -14,7 +14,7 @@ class AdhocBPObsTest(common.SingleTransactionCase):
 
         # set up database connection objects
         self.uid = 1
-        self.host = 'http://localhost:8169'
+        self.host = 'http://localhost:%s' % openerp.tools.config['xmlrpc_port']
 
         # set up pools
         self.patient = self.registry.get('nh.clinical.patient')
