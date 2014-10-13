@@ -46,6 +46,7 @@ class test_observations(common.SingleTransactionCase):
         api = self.registry('nh.clinical.api')
         activity_pool = self.registry('nh.activity')
         env_id = env_pool.create(cr, uid)
+        env_pool.build(cr, uid, env_id)
         env = env_pool.browse(cr, uid, env_id)
 
         # gcs

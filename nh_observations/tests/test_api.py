@@ -38,6 +38,7 @@ class test_api(common.SingleTransactionCase):
             'patient_qty': 2
         }       
         env_id = env_pool.create(cr, uid, config)
+        env_pool.build(cr, uid, env_id)
         env = env_pool.browse(cr, uid, env_id)
         # get patients
         spell_activities = api.get_activities(cr, uid, data_models=['nh.clinical.spell'], states=['started'], pos_ids=[env.pos_id.id])
@@ -78,6 +79,7 @@ class test_api(common.SingleTransactionCase):
             'patient_qty': 3
         }       
         env_id = env_pool.create(cr, uid, config)
+        env_pool.build(cr, uid, env_id)
         env = env_pool.browse(cr, uid, env_id)
         patients = api.patient_map(cr, uid, parent_location_ids=[env.pos_id.location_id.id])
         assert len(patients) == config['patient_qty'], "parent_location_ids patient_qty: %s is wrong!" % len(patients)
@@ -106,8 +108,12 @@ class test_api(common.SingleTransactionCase):
         nurse_count = len(api.user_map(cr, uid, group_xmlids=['group_nhc_nurse']))
         adt_count = len(api.user_map(cr, uid, group_xmlids=['group_nhc_adt']))
         ward_manager_count = len(api.user_map(cr, uid, group_xmlids=['group_nhc_ward_manager']))
+
+        placement_model = self.registry('nh.clinical.patient.placement')
+        placement_model._POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews', 'type': 'recurring'}]}
             
         env_id = env_pool.create(cr, uid, config)
+        env_pool.build(cr, uid, env_id)
         env = env_pool.browse(cr, uid, env_id)
         
         # test group_xmlids
@@ -146,6 +152,7 @@ class test_api(common.SingleTransactionCase):
             'patient_qty': 2
         }       
         env_id = env_model.create(cr, uid, config)
+        env_model.build(cr, uid, env_id)
         env = env_model.browse(cr, uid, env_id)
         
         args = {

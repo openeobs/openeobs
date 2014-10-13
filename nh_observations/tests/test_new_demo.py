@@ -28,12 +28,12 @@ class test_activity_types_nhdemo(SingleTransactionCase):
         
         super(test_activity_types_nhdemo, self).setUp()
         
-    def test_adt(self):
-        global cr, uid, seed
-        api = self.registry('nh.clinical.api')
-        api_demo = self.registry('nh.clinical.api.demo')
-        
-        api_demo.build_uat_pos(cr, uid)
+#     def test_adt(self):
+#         global cr, uid, seed
+#         api = self.registry('nh.clinical.api')
+#         api_demo = self.registry('nh.clinical.api.demo')
+#         
+#         api_demo.build_uat_pos(cr, uid)
         
         
 #         pos_id = api_demo.create(cr, uid, 'nh.clinical.pos')  

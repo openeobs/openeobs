@@ -134,6 +134,7 @@ class test_observations(common.SingleTransactionCase):
               'bed_qty': 7 
         }
         env_id = env_pool.create(cr, uid, config)
+        env_pool.build(cr, uid, env_id)
         env = env_pool.browse(cr, uid, env_id)
         pos = env.pos_id
         adt_user_id = env_pool.get_adt_user_ids(cr, uid, env_id)[0]
@@ -146,4 +147,4 @@ class test_observations(common.SingleTransactionCase):
         
         for a in stools:
             if a.patient_id.id == cancel[0].patient_id.id:
-                assert a.state == 'cancelled'
+                assert a.state in ['cancelled', 'completed']

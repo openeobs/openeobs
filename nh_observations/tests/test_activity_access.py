@@ -92,7 +92,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         global cr, uid, seed
         api = self.registry('nh.clinical.api')
         api_demo = self.registry('nh.clinical.api.demo')
-        
+#         placement_model = self.registry('nh.clinical.patient.placement')
+#         placement_model._POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews', 'type': 'recurring'}]}
         pos_id = api_demo.create(cr, uid, 'nh.clinical.pos') 
         
         ward_id = api_demo.create(cr, uid, 'nh.clinical.location', 'location_ward', {'pos_id': pos_id})
@@ -106,8 +107,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         self.user_add_location(ward_nurse_id, ward_id)
         assert self.user_location_resp(bed_nurse_id, bed_id)
         assert self.user_location_resp(ward_nurse_id, ward_id)
-        placement_activity_id = api_demo.register_admit_place(cr, uid, bed_id, {}, admit_values={'location': ward.code})    
-        placement_activity = api.browse(cr, uid, 'nh.activity', placement_activity_id)
+        placement_activity = api_demo.register_admit_place(cr, uid, bed_id, {}, admit_values={'location': ward.code})    
+#         placement_activity = api.browse(cr, uid, 'nh.activity', placement_activity_id)
         assert placement_activity.parent_id.data_model == 'nh.clinical.spell'
         spell_activity_id = placement_activity.parent_id.id
         
@@ -166,7 +167,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         global cr, uid, seed
         api = self.registry('nh.clinical.api')
         api_demo = self.registry('nh.clinical.api.demo')
-        
+        placement_model = self.registry('nh.clinical.patient.placement')
+        placement_model._POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews', 'type': 'recurring'}]}
         pos_id = api_demo.create(cr, uid, 'nh.clinical.pos') 
         
         ward_id = api_demo.create(cr, uid, 'nh.clinical.location', 'location_ward', {'pos_id': pos_id})
@@ -180,8 +182,8 @@ class test_user_activity_responsibility(SingleTransactionCase):
         self.user_add_location(ward_nurse_id, ward_id)
         assert self.user_location_resp(bed_nurse_id, bed_id)
         assert self.user_location_resp(ward_nurse_id, ward_id)
-        placement_activity_id = api_demo.register_admit_place(cr, uid, bed_id, {}, admit_values={'location': ward.code})    
-        placement_activity = api.browse(cr, uid, 'nh.activity', placement_activity_id)
+        placement_activity = api_demo.register_admit_place(cr, uid, bed_id, {}, admit_values={'location': ward.code})    
+#         placement_activity = api.browse(cr, uid, 'nh.activity', placement_activity_id)
         
         ews_activities = api.activity_map(cr, uid, pos_ids=[placement_activity.pos_id.id], patient_ids=[placement_activity.patient_id.id],
                                           data_models=['nh.clinical.patient.observation.ews'])

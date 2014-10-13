@@ -49,7 +49,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
 
     def calculate_score(self, gcs_data):
         eyes = 1 if gcs_data['eyes'] == 'C' else int(gcs_data['eyes'])
-        verbal = 1 if gcs_data['verbal'] == 'T' else int(gcs_data['eyes'])
+        verbal = 1 if gcs_data['verbal'] == 'T' else int(gcs_data['verbal'])
         motor = int(gcs_data['motor'])
 
         return {'score': eyes+verbal+motor}
