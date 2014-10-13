@@ -462,6 +462,7 @@ class nh_eobs_api(orm.AbstractModel):
         :param data: dictionary parameter that may contain the following keys:
             from_identifier: Hospital number of the patient we want to merge FROM
         """
+        
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['nh.activity']

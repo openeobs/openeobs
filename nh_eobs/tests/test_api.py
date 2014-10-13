@@ -382,7 +382,6 @@ class TestAPI(SingleTransactionCase):
             ('data_model', '=', 'nh.clinical.spell'),
             ('patient_id', '=', patient2_id[0])])
         self.assertFalse(spell2_activity_id, msg='Spell found for patient not admitted')
-
         self.extapi.merge(cr, self.adt_id, 'TESTP0006', {'from_identifier': 'TESTP0005'})
 
         spell2_activity_id = self.activity_pool.search(cr, uid, [

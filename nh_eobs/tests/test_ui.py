@@ -57,7 +57,8 @@ class test_ui_data(SingleTransactionCase):
         }
         #import pdb; pdb.set_trace()
 
-        env_id = env_model.create(cr, uid, config)        
+        env_id = env_model.create(cr, uid, config)    
+        env_model.build(cr, uid, env_id)    
         env = env_model.browse(cr, uid, env_id)#env_model.build(cr, uid, env_id)  
 
         # patient data test
