@@ -18,6 +18,8 @@ def next_seed():
 class test_observations(common.SingleTransactionCase):
 
     def setUp(self):
+        placement_model = self.registry('nh.clinical.patient.placement')
+        placement_model._POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews', 'type': 'recurring'}]}
         super(test_observations, self).setUp()
 
     def test_ews_observations_policy_static(self):
@@ -51,6 +53,7 @@ class test_observations(common.SingleTransactionCase):
         activity_pool = self.registry('nh.activity')
         ews_pool = self.registry('nh.clinical.patient.observation.ews')
         env_id = env_pool.create(cr, uid)
+        env_pool.build(cr, uid, env_id)
         env = env_pool.browse(cr, uid, env_id)
         # ews
         ews_activity = api.get_activities(cr, uid,
@@ -69,7 +72,7 @@ class test_observations(common.SingleTransactionCase):
                 'pulse_rate': ews_test_data['PR'][i],
                 'avpu_text': ews_test_data['AVPU'][i]
             }
-            nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nh_clinical_nurse']).keys()[0]
+            nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nhc_nurse']).keys()[0]
 
             # completion must be made as nurse user, otherwise notifications are not created
             api.assign(cr, uid, ews_activity.id, nurse_user_id)
