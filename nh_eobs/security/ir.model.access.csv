@@ -29,6 +29,7 @@ wm_access_placement,manager:access_placement,model_nh_clinical_placement,nh_clin
 wm_access_overdue,manager:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_userboard,manager:access_userboard,model_nh_clinical_userboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_admin_userboard,manager:access_admin_userboard,model_nh_clinical_admin_userboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
+wm_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_ward_manager,1,1,1,0
 ,,,,,,,
 adt_access_wardboard,manager:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_workload,manager:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_adt,1,1,1,0
@@ -36,4 +37,12 @@ adt_access_placement,manager:access_placement,model_nh_clinical_placement,nh_cli
 adt_access_overdue,manager:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_userboard,manager:access_userboard,model_nh_clinical_userboard,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_admin_userboard,manager:access_admin_userboard,model_nh_clinical_admin_userboard,nh_clinical.group_nhc_adt,1,1,1,0
-adt_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_adt,1,1,1,0wm_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_ward_manager,1,1,1,0
+adt_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_adt,1,1,1,0
+,,,,,,,
+kiosk_access_wardboard,kiosk:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_kiosk,1,0,0,0
+kiosk_access_workload,kiosk:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_kiosk,1,0,0,0
+kiosk_access_placement,kiosk:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_kiosk,1,0,0,0
+kiosk_access_overdue,kiosk:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_kiosk,1,0,0,0
+kiosk_access_userboard,kiosk:access_userboard,model_nh_clinical_userboard,nh_clinical.group_nhc_kiosk,1,0,0,0
+kiosk_access_admin_userboard,kiosk:access_admin_userboard,model_nh_clinical_admin_userboard,nh_clinical.group_nhc_kiosk,1,0,0,0
+kiosk_access_doctor_activities,kiosk:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_kiosk,1,0,0,0

@@ -1,6 +1,24 @@
 from openerp.osv import orm, fields, osv
 
 
+class nh_change_password_wizard(osv.TransientModel):
+    _name = "change.password.wizard"
+    _inherit = "change.password.wizard"
+
+    def _default_user_ids(self, cr, uid, context=None):
+        if context is None:
+            context = {}
+        user_model = self.pool['res.users']
+        user_ids = context.get('active_ids') or []
+        return [
+            (0, 0, {'user_id': user.id, 'user_login': user.login})
+            for user in user_model.browse(cr, uid, user_ids, context=context)
+        ]
+
+    _defaults = {
+        'user_ids': _default_user_ids,
+    }
+
 class nh_clinical_userboard(orm.Model):
     _name = "nh.clinical.userboard"
     _inherits = {'res.users': 'user_id'}
@@ -147,6 +165,7 @@ class nh_clinical_admin_userboard(orm.Model):
         'nurse': fields.boolean('Nurse'),
         'ward_manager': fields.boolean('Ward Manager'),
         'doctor': fields.boolean('Doctor'),
+        'kiosk': fields.boolean('eObs Kiosk'),
         'admin': fields.boolean('Open eObs Administrator')
     }
 
@@ -182,7 +201,8 @@ class nh_clinical_admin_userboard(orm.Model):
         ward_manager = vals.get('ward_manager')
         doctor = vals.get('doctor')
         admin = vals.get('admin')
-        check_groups = any([hca, nurse, ward_manager, doctor, admin])
+        kiosk = vals.get('kiosk')
+        check_groups = any([hca, nurse, ward_manager, doctor, admin, kiosk])
         if not check_groups:
             raise osv.except_osv('Error!', 'At least one role must be selected.')
         user_pool = self.pool['res.users']
@@ -201,6 +221,8 @@ class nh_clinical_admin_userboard(orm.Model):
             groups += groups_pool.search(cr, uid, [('name', '=', 'NH Clinical Doctor Group')], context=context)
         if admin:
             groups += groups_pool.search(cr, uid, [('name', 'in', ['NH Clinical Admin Group', 'Contact Creation'])], context=context)
+        if kiosk:
+            groups += groups_pool.search(cr, uid, [('name', 'in', ['NH Clinical Kiosk Group'])], context=context)
         groups += groups_pool.search(cr, uid, [('name', '=', 'Employee')], context=context)
         user_write_vals.update({'groups_id': [[6, False, groups]]})
         return user_pool.create(cr, uid, user_write_vals, context=context)
@@ -212,6 +234,7 @@ class nh_clinical_admin_userboard(orm.Model):
             ward_manager = vals.get('ward_manager') if isinstance(vals.get('ward_manager'), bool) else user.ward_manager
             doctor = vals.get('doctor') if isinstance(vals.get('doctor'), bool) else user.doctor
             admin = vals.get('admin') if isinstance(vals.get('admin'), bool) else user.admin
+            kiosk = vals.get('kiosk') if isinstance(vals.get('kiosk'), bool) else user.kiosk
             check_groups = any([hca, nurse, ward_manager, doctor, admin])
             if not check_groups:
                 raise osv.except_osv('Error!', 'At least one role must be selected.')
@@ -233,6 +256,8 @@ class nh_clinical_admin_userboard(orm.Model):
                 groups += groups_pool.search(cr, uid, [('name', '=', 'NH Clinical Doctor Group')], context=context)
             if admin:
                 groups += groups_pool.search(cr, uid, [('name', 'in', ['NH Clinical Admin Group', 'Contact Creation'])], context=context)
+            if kiosk:
+                groups += groups_pool.search(cr, uid, [('name', 'in', ['NH Clinical Kiosk Group'])], context=context)
             groups += groups_pool.search(cr, uid, [('name', '=', 'Employee')], context=context)
             user_write_vals.update({'groups_id': [[6, False, groups]]})
             user_pool.write(cr, uid, [user.user_id.id], user_write_vals, context=context)
@@ -275,12 +300,16 @@ class nh_clinical_admin_userboard(orm.Model):
                         else false
                     end as doctor,
                     case
+                        when ug.groups @> '{"NH Clinical Kiosk Group"}' then true
+                        else false
+                    end as kiosk,
+                    case
                         when ug.groups @> '{"NH Clinical Admin Group"}' then true
                         else false
                     end as admin
                 from res_users users
                 inner join res_partner partner on partner.id = users.partner_id
                 inner join user_groups ug on ug.id = users.id
-                where users.id != 1 and (ug.groups @> '{"NH Clinical HCA Group"}' or ug.groups @> '{"NH Clinical Nurse Group"}' or ug.groups @> '{"NH Clinical Ward Manager Group"}' or ug.groups @> '{"NH Clinical Doctor Group"}' or ug.groups @> '{"NH Clinical Admin Group"}')
+                where users.id != 1 and (ug.groups @> '{"NH Clinical HCA Group"}' or ug.groups @> '{"NH Clinical Nurse Group"}' or ug.groups @> '{"NH Clinical Ward Manager Group"}' or ug.groups @> '{"NH Clinical Doctor Group"}' or ug.groups @> '{"NH Clinical Kiosk Group"}' or ug.groups @> '{"NH Clinical Admin Group"}')
             )
         """ % (self._table, self._table))

@@ -7,6 +7,14 @@
     width: 40%;
 }
 
+.nh_eobs_hide {
+    display: none;
+}
+
+.nh_eobs_show {
+    display: table-cell;
+}
+
 .nhc_obs_list .oe-treeview-table td.oe_number{
     text-align: center !important;
 }

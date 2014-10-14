@@ -78,15 +78,15 @@ graph_js = """
 """
 
 phantom_code = """
-   var PhantomJSPrinting = {
-    footer: {
+   var PhantomJSPrinting = {{
+    footer: {{
     height: "1cm",
-    contents: function(pageNum, numPages) {
-    return "<div style='width: 17.5cm; font-size: 6pt; font-family: DejaVu Sans, sans-serif;  padding-left: 0.5cm; padding-right: 1.5cm;'><div style='float: left; padding-right: 1.2cm;'><p><strong>REF:</strong> {{user}} - {{time_generated}} - {{hospital_name}} - {{other_identifier}}</p></div><div style='float: right; padding-left: 1.2cm'><p id='pageNumbers'>Page "+pageNum+" of "+numPages+"</p></div></div>";
-    //                        return "<div style='width: 16.5cm; font-size: 6pt; font-family: DejaVu Sans, sans-serif;  padding-left: 0.5cm; padding-right: 1.5cm;'><div style='float: left; padding-right: 1.2cm;'><p><strong>REF:</strong> {{user}} - {{time_generated}} - {{hospital_name}} - {{other_identifier}}</p></div><div style='float: right; padding-left: 1.2cm'><p>Page "+$(document).height()+"</p></div></div>";
-    }
-    }
-    };
+    contents: function(pageNum, numPages) {{
+    return "<div style='width: 17.5cm; font-size: 6pt; font-family: DejaVu Sans, sans-serif;  padding-left: 0.5cm; padding-right: 1.5cm;'><div style='float: left; padding-right: 1.2cm;'><p><strong>REF:</strong> {user} - {time_generated} - {hospital_name} - {other_identifier}</p></div><div style='float: right; padding-left: 1.2cm'><p id='pageNumbers'>Page "+pageNum+" of "+numPages+"</p></div></div>";
+    //                        return "<div style='width: 16.5cm; font-size: 6pt; font-family: DejaVu Sans, sans-serif;  padding-left: 0.5cm; padding-right: 1.5cm;'><div style='float: left; padding-right: 1.2cm;'><p><strong>REF:</strong> {user} - {time_generated} - {hospital_name} - {other_identifier}</p></div><div style='float: right; padding-left: 1.2cm'><p>Page "+$(document).height()+"</p></div></div>";
+    }}
+    }}
+    }};
 """
 
 pretty_date_format = '%d/%m/%Y %H:%M'
@@ -273,6 +273,7 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
 
             json_ews = json.dumps([v['values'] for v in ews])
             ews_code = graph_js.format(json=json_ews)
+            phantom_footer_code = phantom_code.format(user=user, time_generated=time_generated, hospital_name=company_name, other_identifier=patient['other_identifier'])
 
             return request.render('nh_eobs.visit_report_base', qcontext={'spell': spell,
                                                                                'user': user,
@@ -288,7 +289,7 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
                                                                                'report_end': report_end,
                                                                                'spell_start': spell_start,
                                                                                'ews_code': ews_code,
-                                                                               'phantom_code': phantom_code})
+                                                                               'phantom_code': phantom_footer_code})
 
 
 

@@ -66,6 +66,21 @@
             <field name="view_mode">kanban</field>
             <field name="view_id" ref="view_activity_workload_kanban"/>
             <field name="act_window_id" ref="act_activity_workload_kanban"/>
-        </record>        
+        </record>
+
+        <record model="ir.actions.act_window" id="action_kiosk_workload">
+            <field name="name">Kiosk Workload</field>
+            <field name="res_model">nh.activity.workload</field>
+            <field name="view_mode">kanban</field>
+			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','completed']],['user_ids','in',uid]]</field>
+            <field name="context">{'search_default_observations_news':1}</field>
+            <field name="search_view_id" ref="view_activity_workload_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_workload_kiosk">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_activity_workload_kanban"/>
+            <field name="act_window_id" ref="action_kiosk_workload"/>
+        </record>
      </data>
 </openerp>

@@ -6,7 +6,7 @@
                   sequence="1"
                   id="menu_nhui_left_patient"
                   parent="menu_nhui_top_root"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Patients without bed"
                   id="menu_nhui_left_placement"
@@ -107,6 +107,20 @@
           	action="action_wardboard"
             sequence="1"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Kiosk Patients Board"
+          	id="menu_left_sub_wardboard_kiosk"
+          	parent="menu_nhui_left_patient"
+          	action="action_kiosk_patients_board"
+            sequence="20"
+          	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
+
+        <menuitem name="Kiosk Workload"
+          	id="menu_left_sub_workload_kiosk"
+          	parent="menu_nhui_left_patient"
+          	action="action_kiosk_workload"
+            sequence="21"
+          	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
 
         <menuitem name="Patients by Ward"
           	id="menu_left_patients_by_ward"
