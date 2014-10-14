@@ -34,39 +34,43 @@ class nh_clinical_workload(orm.Model):
         cr.execute("""
                 drop view if exists %s;
                 create or replace view %s as (
-                    select
-                        activity.id as id,
-                        spell.id as activity_id,
-                        case
-                            when activity.date_scheduled is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_scheduled)::int/60 < -46 then 10
-                            when activity.date_scheduled is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_scheduled)::int/60 between -45 and -31 then 20
-                            when activity.date_scheduled is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_scheduled)::int/60 between -30 and -16 then 30
-                            when activity.date_scheduled is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_scheduled)::int/60 between -15 and 0 then 40
-                            when activity.date_scheduled is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_scheduled)::int/60 between 1 and 15 then 50
-                            when activity.date_scheduled is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_scheduled)::int/60 > 16 then 60
-                            when activity.date_deadline is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_deadline)::int/60 < -46 then 10
-                            when activity.date_deadline is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_deadline)::int/60 between -45 and -31 then 20
-                            when activity.date_deadline is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_deadline)::int/60 between -30 and -16 then 30
-                            when activity.date_deadline is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_deadline)::int/60 between -15 and 0 then 40
-                            when activity.date_deadline is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_deadline)::int/60 between 1 and 15 then 50
-                            when activity.date_deadline is not null and extract (epoch from  now() at time zone 'UTC' - activity.date_deadline)::int/60 > 16 then 60
-                        else null end as proximity_interval,
-                        activity.summary as summary,
-                        activity.state as state,
-                        activity.user_id as user_id,
-                        case
-                            when activity.date_scheduled is not null then activity.date_scheduled
-                            when activity.date_deadline is not null then activity.date_deadline
-                            else null
-                        end as date_scheduled,
-                        activity.data_model as data_model,
-                        patient.other_identifier as patient_other_id,
-                        ward.id as ward_id
-                    from nh_activity activity
-                    inner join nh_clinical_patient patient on activity.patient_id = patient.id
-                    inner join nh_clinical_location bed on activity.location_id = bed.id
-                    inner join nh_clinical_location ward on bed.parent_id = ward.id
-                    left join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
+                    with activity as (
+                        select
+                            activity.id as id,
+                            spell.id as activity_id,
+                            extract (epoch from  (now() at time zone 'UTC' - coalesce(activity.date_scheduled, activity.date_deadline)))::int/60 as proximity,
+                            activity.summary as summary,
+                            activity.state as state,
+                            activity.user_id as user_id,
+                            coalesce(activity.date_scheduled, activity.date_deadline) as date_scheduled,
+                            activity.data_model as data_model,
+                            patient.other_identifier as patient_other_id,
+                            ward.id as ward_id
+                        from nh_activity activity
+                        inner join nh_clinical_patient patient on activity.patient_id = patient.id
+                        inner join nh_clinical_location bed on activity.location_id = bed.id
+                        inner join nh_clinical_location ward on bed.parent_id = ward.id
+                        left join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
+                        )
+                        select
+                            id,
+                            activity_id,
+                            case
+                                when proximity < -46 then 10
+                                when proximity between -45 and -31 then 20
+                                when proximity between -30 and -16 then 30
+                                when proximity between -15 and 0 then 40
+                                when proximity between 1 and 15 then 50
+                                when proximity > 16 then 60
+                            else null end as proximity_interval,
+                            summary,
+                            state,
+                            user_id,
+                            date_scheduled,
+                            data_model,
+                            patient_other_id,
+                            ward_id
+                        from activity
                 )
         """ % (self._table, self._table))
         

@@ -17,6 +17,7 @@ class nh_clinical_overdue(orm.Model):
         'activity_id': fields.many2one('nh.activity', 'Activity', required=1, ondelete='restrict'),
         'name': fields.char('Activity Name', size=100),
         'delay': fields.integer('Delay'),
+        'delay_string': fields.char('Overdue Time', size=100),
         'location': fields.char('Location', size=100),
         'parent_location': fields.char('Parent Location', size=100),
         'patient_name': fields.char('Patient Name', size=100),
@@ -31,6 +32,7 @@ class nh_clinical_overdue(orm.Model):
         cr.execute("""
                 drop view if exists %s;
                 create or replace view %s as (
+                with activity as (    
                     select
                         activity.id as id,
                         case
@@ -41,28 +43,17 @@ class nh_clinical_overdue(orm.Model):
                         activity.summary as name,
                         location.name as location,
                         parent_location.name as parent_location,
-                        coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as patient_name,
+                        coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') 
+                            || ' ' || coalesce(patient.middle_names,'') as patient_name,
                         patient.patient_identifier as nhs_number,
                         partner.name as user_name,
                         activity.state as state,
-                        now() at time zone 'UTC',
-                        now() at time zone 'UTC' > activity.date_scheduled,
+                        now() at time zone 'UTC' - coalesce(activity.date_scheduled,activity.date_deadline) as delay_interval,
                         case
-                            when activity.date_scheduled is not null and now() at time zone 'UTC' > activity.date_scheduled
-                            then (extract(epoch from (now() at time zone 'UTC' - activity.date_scheduled))/60)::int
-                            when activity.date_deadline is not null and now() at time zone 'UTC' > activity.date_deadline
-                            then (extract(epoch from (now() at time zone 'UTC' - activity.date_deadline))/60)::int
-                            else 0
-                        end  as delay,
-                        case
-                            when strpos(activity.data_model, 'hca') != 0
-                            then 'HCA'
-                            when strpos(activity.data_model, 'doctor') != 0
-                            then 'Doctor'
-                            when strpos(activity.data_model, 'notification') != 0
-                            then 'Nurse'
-                            when strpos(activity.data_model, 'observation') != 0
-                            then 'HCA, Nurse'
+                            when strpos(activity.data_model, 'hca') != 0 then 'HCA'
+                            when strpos(activity.data_model, 'doctor') != 0 then 'Doctor'
+                            when strpos(activity.data_model, 'notification') != 0 then 'Nurse'
+                            when strpos(activity.data_model, 'observation') != 0 then 'HCA, Nurse'
                             else 'Ward Manager'
                         end as groups
                     from nh_activity activity
@@ -73,6 +64,27 @@ class nh_clinical_overdue(orm.Model):
                     left join res_partner partner on u.partner_id = partner.id
                     left join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
                     where activity.state not in ('completed','cancelled') and activity.data_model != 'nh.clinical.spell'
+                    )
+                    select
+                        id,
+                        activity_id,
+                        name,
+                        location,
+                        parent_location,
+                        patient_name,
+                        nhs_number,
+                        user_name,
+                        state,
+                        case when extract(epoch from delay_interval) > 0 then
+                            case when extract(days from delay_interval) > 0 
+                                then  extract(days from delay_interval) || ' day(s) ' else '' 
+                            end || to_char(delay_interval, 'HH24:MI')
+                        else '' end as delay_string,
+                        case when extract(epoch from delay_interval) > 0 
+                            then(extract(epoch from delay_interval)/60)::int 
+                        else 0 end as delay,         
+                        groups
+                    from activity
                     order by delay
                 )
         """ % (self._table, self._table))
