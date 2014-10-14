@@ -11,6 +11,8 @@ openerp.nh_eobs = function (instance) {
     var _t = instance.web._t;
     var logout_timeout, session;
     var wardboard_groups_opened = false;
+    var kiosk_mode = false;
+    var kiosk_t;
 
     instance.web.NHTreeView = instance.web.TreeView.extend({
 
@@ -123,8 +125,6 @@ openerp.nh_eobs = function (instance) {
 //    instance.web.form.tags = new instance.web.Registry({
 //        'button' : 'instance.web.form.WidgetButton',
 //    });
-
-
 
     instance.web.ListView.include({
         init: function(parent, dataset, view_id, options) {
@@ -674,6 +674,29 @@ openerp.nh_eobs = function (instance) {
             	
             }    		
     		this._super();
+    		if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload"){
+                $(".oe_leftbar").attr("style", "");
+                $(".oe_leftbar").addClass("nh_eobs_hide");
+                $(".oe_searchview").hide();
+                kiosk_mode = true;
+                if (typeof(kiosk_t) != 'undefined'){
+                    clearInterval(kiosk_t);
+                }
+                kiosk_t = window.setInterval(function(){
+                    var button =  $('li:not(.active) .oe_menu_leaf');
+                    if (kiosk_mode){
+                        button.click();
+                    }
+                }, 15000);
+            }
+            else{
+                kiosk_mode = false;
+                if (typeof(kiosk_t) != 'undefined'){
+                    clearInterval(kiosk_t);
+                }
+                $(".oe_leftbar").addClass("nh_eobs_show");
+                $(".oe_searchview").show();
+            }
     	}
     });
 

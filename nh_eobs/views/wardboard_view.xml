@@ -96,6 +96,7 @@
                 </search>
             </field>
         </record>
+
         <record model="ir.ui.view" id="view_wardboard_tree">
             <field name="name">Wardboard Tree View</field>
             <field name="model">nh.clinical.wardboard</field>
@@ -816,6 +817,22 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_wardboard_form_discharged"/>
             <field name="act_window_id" ref="action_wardboard_discharged"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_kiosk_patients_board">
+            <field name="name">Kiosk Board</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban</field>
+            <field name="domain">[('next_diff','!=',False),('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
+            <field name="context">{'search_default_clinical_risk':1}</field>
+            <field name="search_view_id" ref="view_wardboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_kiosk">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_wardboard_kanban"/>
+            <field name="act_window_id" ref="action_kiosk_patients_board"/>
         </record>
     </data>
 </openerp>

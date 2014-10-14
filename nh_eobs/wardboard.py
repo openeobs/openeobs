@@ -855,5 +855,3 @@ select * from nh_clinical_wardboard;
 
 
         """)
-        
-        
