@@ -1,6 +1,7 @@
+from openerp.tools import config
 SERVER_PROTOCOL = "http"
 SERVER_ADDRESS = "localhost"
-SERVER_PORT = "8169"
+SERVER_PORT = "{0}".format(config['xmlrpc_port'])
 URL_PREFIX = '/mobile/'
 BASE_URL = SERVER_PROTOCOL+'://'+SERVER_ADDRESS+':'+SERVER_PORT+URL_PREFIX
 

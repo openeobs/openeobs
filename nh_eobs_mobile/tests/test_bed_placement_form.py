@@ -1,7 +1,7 @@
 __author__ = 'colin'
 from openerp.tests import common
 import openerp.modules.registry
-from BeautifulSoup import BeautifulSoup
+import xml.etree.ElementTree as et
 from helpers import URLS as urls
 import re
 import datetime
@@ -16,7 +16,7 @@ class BedPlacementTest(common.SingleTransactionCase):
 
         # set up database connection objects
         self.uid = 1
-        self.host = 'http://localhost:8169'
+        self.host = 'http://localhost:%s' % openerp.tools.config['xmlrpc_port']
 
         # set up pools
         self.patient = self.registry.get('nh.clinical.patient')
@@ -83,7 +83,7 @@ class BedPlacementTest(common.SingleTransactionCase):
         # Grab the form Def and compile the data to send to template
         obs_reg = self.registry[task['data_model']]
         form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=self.context)
-        cancellable = obs_reg.is_cancellable(cr, uid, context=self.context)
+        cancellable = False # obs_reg.is_cancellable(cr, uid, context=self.context)
         form['confirm_url'] = "{0}{1}".format(urls['confirm_clinical_notification'], task_id)
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
@@ -103,11 +103,11 @@ class BedPlacementTest(common.SingleTransactionCase):
                     form_input['selection_options'].append(opt)
         if cancellable:
             form['cancel_url'] = "{0}{1}".format(urls['cancel_clinical_notification'], task_id)
-        form['type'] = re.match(r'nh\.clinical\.notification\.(.*)', task['data_model']).group(1)
+        form['type'] = re.match(r'nh\.clinical\.patient\.(.*)', task['data_model']).group(1)
 
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'nh_eobs_mobile.notification_confirm_cancel', {'name': task['summary'],
+        generated_html = view_obj.render(cr, uid, 'nh_eobs_mobile.notification_confirm_cancel', {'name': task['summary'],
                                                                                        'inputs': form_desc,
                                                                                        'cancellable': cancellable,
                                                                                        'patient': patient,
@@ -123,12 +123,12 @@ class BedPlacementTest(common.SingleTransactionCase):
                                                patient_name=patient['name'],
                                                patient_id=patient['id'],
                                                task_id=task_id,
-                                               frequency_options=example_options)
+                                               bed_options=example_options)
 
-        get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
-        example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')
+        generated_tree = et.tostring(et.fromstring(generated_html)).replace('\n', '').replace(' ', '')  # str(BeautifulSoup(get_patients_html)).replace('\n', '')
+        example_tree = et.tostring(et.fromstring(example_html)).replace('\n', '').replace(' ', '')  # str(Beauti
 
         # Assert that shit
-        self.assertEqual(get_tasks_bs,
-                         example_tasks_bs,
+        self.assertEqual(generated_tree,
+                         example_tree,
                          'DOM from Controller ain\'t the same as DOM from example')

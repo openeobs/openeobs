@@ -1,7 +1,7 @@
 __author__ = 'colin'
 from openerp.tests import common
 import openerp.modules.registry
-from BeautifulSoup import BeautifulSoup
+import xml.etree.ElementTree as et
 from helpers import URLS as urls
 import re
 import datetime
@@ -16,7 +16,7 @@ class AssessPatientTest(common.SingleTransactionCase):
 
         # set up database connection objects
         self.uid = 1
-        self.host = 'http://localhost:8169'
+        self.host = 'http://localhost:%s' % openerp.tools.config['xmlrpc_port']
 
         # set up pools
         self.patient = self.registry.get('nh.clinical.patient')
@@ -123,7 +123,7 @@ class AssessPatientTest(common.SingleTransactionCase):
 
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'nh_eobs_mobile.notification_confirm_cancel', {'name': task['summary'],
+        generated_html = view_obj.render(cr, uid, 'nh_eobs_mobile.notification_confirm_cancel', {'name': task['summary'],
                                                                                        'inputs': form_desc,
                                                                                        'cancellable': cancellable,
                                                                                        'patient': patient,
@@ -137,10 +137,11 @@ class AssessPatientTest(common.SingleTransactionCase):
                                                patient_id=patient['id'],
                                                task_id=task_id)
 
-        get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
-        example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')
+        generated_tree = et.tostring(et.fromstring(generated_html)).replace('\n', '').replace(' ', '')  # str(BeautifulSoup(get_patients_html)).replace('\n', '')
+        example_tree = et.tostring(et.fromstring(example_html)).replace('\n', '').replace(' ', '')  # str(Beauti
 
         # Assert that shit
-        self.assertEqual(get_tasks_bs,
-                         example_tasks_bs,
+        self.assertEqual(generated_tree,
+                         example_tree,
                          'DOM from Controller ain\'t the same as DOM from example')
+
