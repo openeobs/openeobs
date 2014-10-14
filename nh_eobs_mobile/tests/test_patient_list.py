@@ -1,19 +1,21 @@
 __author__ = 'colin'
 from openerp.tests import common
 import openerp.modules.registry
-from BeautifulSoup import BeautifulSoup
+import xml.etree.ElementTree as et
 import helpers
 import logging
 _logger = logging.getLogger(__name__)
+from openerp.tools import config
 
 class PatientListTest(common.SingleTransactionCase):
+
 
     def setUp(self):
         super(PatientListTest, self).setUp()
 
         # set up database connection objects
         self.uid = 1
-        self.host = 'http://localhost:8169'
+        self.host = self.host = "http://localhost:%s" % config['xmlrpc_port']
 
         # set up pools
         self.patient = self.registry.get('nh.clinical.patient')
@@ -73,10 +75,13 @@ class PatientListTest(common.SingleTransactionCase):
                                                                    patient['parent_location'])
         example_html = helpers.PATIENT_LIST_HTML.format(patient_list_string)
 
-        get_patients_bs = str(BeautifulSoup(get_patients_html)).replace('\n', '')
-        example_patients_bs = str(BeautifulSoup(example_html)).replace('\n', '')
+        generated_tree = et.tostring(et.fromstring(get_patients_html)).replace('\n', '').replace(' ', '')  # str(BeautifulSoup(get_patients_html)).replace('\n', '')
+        example_tree = et.tostring(et.fromstring(example_html)).replace('\n', '').replace(' ', '')  # str(BeautifulSoup(example_html)).replace('\n', '')
+
+        # strip whitespace in get_patients_tree
+
 
         # Assert that shit
-        self.assertEqual(get_patients_bs,
-                         example_patients_bs,
+        self.assertEqual(generated_tree,
+                         example_tree,
                          'DOM from Controller ain\'t the same as DOM from example')

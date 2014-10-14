@@ -1,7 +1,7 @@
 __author__ = 'colin'
 from openerp.tests import common
 import openerp.modules.registry
-from BeautifulSoup import BeautifulSoup
+import xml.etree.ElementTree as et
 import helpers
 import re
 import logging
@@ -81,7 +81,7 @@ class AdhocGCSObsTest(common.SingleTransactionCase):
                     form_input['selection_options'].append(opt)
 
         view_obj = self.registry("ir.ui.view")
-        get_tasks_html = view_obj.render(cr, uid, 'nh_eobs_mobile.observation_entry',
+        generated_html = view_obj.render(cr, uid, 'nh_eobs_mobile.observation_entry',
                                          {'inputs': form_desc,
                                           'name': 'GCS Observation',
                                           'patient': patient,
@@ -97,10 +97,10 @@ class AdhocGCSObsTest(common.SingleTransactionCase):
                                                        task_url=form['action'],
                                                        timestamp=0)
 
-        get_tasks_bs = str(BeautifulSoup(get_tasks_html)).replace('\n', '')
-        example_tasks_bs = str(BeautifulSoup(example_html)).replace('\n', '')
+        generated_tree = et.tostring(et.fromstring(generated_html)).replace('\n', '').replace(' ', '')  # str(BeautifulSoup(get_patients_html)).replace('\n', '')
+        example_tree = et.tostring(et.fromstring(example_html)).replace('\n', '').replace(' ', '')  # str(Beauti
 
         # Assert that shit
-        self.assertEqual(get_tasks_bs,
-                         example_tasks_bs,
+        self.assertEqual(generated_tree,
+                         example_tree,
                          'DOM from Controller ain\'t the same as DOM from example')

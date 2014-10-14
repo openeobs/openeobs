@@ -462,7 +462,7 @@ BED_PLACEMENT_HTML = """
             <h2 id="patientName" class="block">
                 <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
             </h2>
-            <form class="obsChange block" task-id="{task_id}" patient-id="{patient_id}" data-type="placement" action="{task_url}" method="POST" data-source="task" id="obsForm">
+            <form class="block" task-id="{task_id}" patient-id="{patient_id}" data-type="placement" action="{task_url}" method="POST" data-source="task" id="obsForm">
                 <h3>Confirm action taken?</h3>
                 <p>Press the button below to confirm that you can completed the task Patient Placement</p>
                 <div>
@@ -858,7 +858,7 @@ HEIGHT_PATIENT_HTML = """
                 <div>
                     <div class="block obsField" id="parent_height">
                         <div class="input-header">
-                            <label for="height">Height</label>
+                            <label for="height">Height (m)</label>
                             <input step="0.1" name="height" max="3.0" min="0.1" type="number" id="height"/>
                         </div>
                         <div class="input-body">

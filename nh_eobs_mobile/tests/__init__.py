@@ -30,7 +30,7 @@ fast_suite = [
     test_observation_frequency_form,
     test_assess_patient_form,
     test_medical_team_form,
-    # test_ajax_take_cancel,
+    # # test_ajax_take_cancel,
     test_adhoc_blood_product_observation_form,
     test_adhoc_blood_sugar_observation_form,
     test_adhoc_gcs_observation_form,
