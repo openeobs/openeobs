@@ -702,6 +702,55 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.views.add('kanban', 'instance.nh_eobs.KanbanView');
 
+    instance.web.Menu.include({
+        open_menu: function (id) {
+            this.current_menu = id;
+            this.session.active_id = id;
+            var $clicked_menu, $sub_menu, $main_menu;
+            $clicked_menu = this.$el.add(this.$secondary_menus).find('a[data-menu=' + id + ']');
+            this.trigger('open_menu', id, $clicked_menu);
+
+            if (this.$secondary_menus.has($clicked_menu).length) {
+                $sub_menu = $clicked_menu.parents('.oe_secondary_menu');
+                $main_menu = this.$el.find('a[data-menu=' + $sub_menu.data('menu-parent') + ']');
+            } else {
+                $sub_menu = this.$secondary_menus.find('.oe_secondary_menu[data-menu-parent=' + $clicked_menu.attr('data-menu') + ']');
+                $main_menu = $clicked_menu;
+            }
+
+            // Activate current main menu
+            this.$el.find('.active').removeClass('active');
+            $main_menu.parent().addClass('active');
+
+            // Show current sub menu
+            this.$secondary_menus.find('.oe_secondary_menu').hide();
+            $sub_menu.show();
+
+            // Hide/Show the leftbar menu depending of the presence of sub-items
+            if (! kiosk_mode){
+                this.$secondary_menus.parent('.oe_leftbar').toggle(!!$sub_menu.children().length);
+            }
+
+            // Activate current menu item and show parents
+            this.$secondary_menus.find('.active').removeClass('active');
+
+            if ($main_menu !== $clicked_menu) {
+                if (! kiosk_mode){
+                    $clicked_menu.parents().show();
+                }
+                if ($clicked_menu.is('.oe_menu_toggler')) {
+                    $clicked_menu.toggleClass('oe_menu_opened').siblings('.oe_secondary_submenu:first').toggle();
+                } else {
+                    $clicked_menu.parent().addClass('active');
+                }
+            }
+            // add a tooltip to cropped menu items
+            this.$secondary_menus.find('.oe_secondary_submenu li a span').each(function() {
+                $(this).tooltip(this.scrollWidth > this.clientWidth ? {title: $(this).text().trim(), placement: 'right'} :'destroy');
+           });
+        }
+    });
+
     var normalize_format = function (format) {
         return Date.normalizeFormat(instance.web.strip_raw_chars(format));
     };

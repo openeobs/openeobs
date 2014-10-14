@@ -7,11 +7,11 @@
     width: 40%;
 }
 
-.nh_eobs_hide {
+.nh_eobs_hide > div {
     display: none;
 }
 
-.nh_eobs_show {
+.nh_eobs_show > div {
     display: table-cell;
 }
 
