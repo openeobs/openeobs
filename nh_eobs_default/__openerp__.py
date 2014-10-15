@@ -10,7 +10,7 @@
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_eobs_mobile'],
     'data': ['trust.xml',
-             'greenford_pos.xml', 'greenford_locations.xml', 'greenford_users.xml','greenford_devices.xml','greenford_params.xml'],
+             'greenford_pos.xml', 'greenford_locations.xml', 'greenford_users.xml', 'greenford_params.xml'],
              
     'qweb': ['static/src/xml/nh_eobs_default.xml'],
     'css': ['static/src/css/nh_eobs_default.css'],
