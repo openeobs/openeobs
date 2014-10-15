@@ -342,17 +342,17 @@ class nh_clinical_patient_observation_ews(orm.Model):
         device_on_change = {}
         for ds in device_selection:
             if ds[1] == 'CPAP':
-                device_on_change[ds[1]] = {
+                device_on_change[str(ds[0])] = {
                     'show': ['flow_rate', 'concentration', 'cpap_peep'],
                     'hide': ['niv_backup', 'niv_ipap', 'niv_epap']
                 }
             elif ds[1] == 'NIV BiPAP':
-                device_on_change[ds[1]] = {
+                device_on_change[str(ds[0])] = {
                     'show': ['flow_rate', 'concentration', 'niv_backup', 'niv_ipap', 'niv_epap'],
                     'hide': ['cpap_peep']
                 }
             else:
-                device_on_change[ds[1]] = {
+                device_on_change[str(ds[0])] = {
                     'show': ['flow_rate', 'concentration'],
                     'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
                 }
