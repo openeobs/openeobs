@@ -1,0 +1,8 @@
+<openerp>
+    <data>
+        <record id="nh_eobs_context" model="nh.clinical.context">
+            <field name="name">eobs</field>
+            <field name="models">['nh.clinical.location']</field>
+        </record>
+    </data>
+</openerp>
