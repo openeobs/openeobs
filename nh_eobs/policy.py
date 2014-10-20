@@ -15,8 +15,8 @@ class nh_clinical_patient_admission(orm.Model):
     _name = 'nh.clinical.patient.admission'
     _inherit = 'nh.clinical.patient.admission'
 
-    _POLICY = {'activities': [{'model': 'nh.clinical.patient.placement', 
-                               'type': 'schedule', 
+    _POLICY = {'activities': [{'model': 'nh.clinical.patient.placement',
+                               'type': 'schedule',
                                'context': 'eobs',
                                'create_data': {
                                    'suggested_location_id': 'data_ref.suggested_location_id.id'
