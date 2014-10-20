@@ -33,14 +33,8 @@ NHLib = (function() {
 
 })();
 
-if (typeof module !== "undefined" && module !== null) {
-  module.exports.NHLib = NHLib;
-}
-
-if (typeof window !== "undefined" && window !== null) {
+if (!window.NH) {
   window.NH = {};
 }
 
-if (typeof window !== "undefined" && window !== null) {
-  window.NH.NHLib = NHLib;
-}
+window.NH.NHLib = NHLib;

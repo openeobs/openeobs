@@ -119,11 +119,7 @@ NHModal = (function() {
 
 })();
 
-if (typeof module !== "undefined" && module !== null) {
-  module.exports.NHModal = NHModal;
-}
-
-if (typeof window !== "undefined" && window !== null) {
+if (!window.NH) {
   window.NH = {};
 }
 

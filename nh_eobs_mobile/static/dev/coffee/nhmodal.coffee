@@ -102,9 +102,9 @@ class NHModal
 
 
 
-     
 
 
-module?.exports.NHModal = NHModal
-window?.NH = {}
+
+if !window.NH
+  window.NH = {}
 window?.NH.NHModal = NHModal

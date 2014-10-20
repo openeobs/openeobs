@@ -4,6 +4,8 @@ class NHMobileForm extends NHMobile
  constructor: () ->
    # find the form on the page
    @form = document.getElementsByTagName('form')?[0]
+   self = @
+   super()
    
    # for each input in the form set up the event listeners
    for input in @form.elements
@@ -11,32 +13,23 @@ class NHMobileForm extends NHMobile
        switch input.localName
          when 'input'
            switch input.type
-             when 'number' then input.addEventListener('change', (event) ->
-               event.preventDefault()
-               console.log('validate')
-             )
-             when 'submit' then input.addEventListener('click', (event) ->
-               event.preventDefault()
-               console.log('submit')
-             )
-         when 'select' then input.addEventListener('change', (event) ->
-           event.preventDefault()
-           console.log('trigger')
-         )
+             when 'number' then input.addEventListener('change', self.validate)
+             when 'submit' then input.addEventListener('click', self.submit)
+         when 'select' then input.addEventListener('change', self.trigger_actions)
    
- validate: (event) ->
+ validate: (event) =>
    event.preventDefault()
    console.log('validate')
    
- trigger_actions: (event) ->
+ trigger_actions: (event) =>
    event.preventDefault()
    console.log('trigger')
    
- submit: (event) ->
+ submit: (event) =>
    event.preventDefault()
    console.log('submit')
-   
-module?.exports.NHMobileForm = NHMobileForm
-window?.NH = {}
+
+if !window.NH
+  window.NH = {}
 window?.NH.NHMobileForm = NHMobileForm
 

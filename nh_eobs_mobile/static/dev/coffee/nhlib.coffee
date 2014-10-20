@@ -28,8 +28,8 @@ class NHLib
 
    # add a zero string to the date and get the last two digits - if date_element is double digit then will return them else it with leading zero
    return ("0" + date_element).slice(-2)
-   
-module?.exports.NHLib = NHLib
-window?.NH = {}
-window?.NH.NHLib = NHLib
+
+if !window.NH
+  window.NH = {}
+window.NH.NHLib = NHLib
 
