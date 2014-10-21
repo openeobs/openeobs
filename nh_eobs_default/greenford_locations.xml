@@ -1,41 +1,46 @@
 <openerp>
     <data>
-        
+
         <!-- Location - Wards -->
         <record id="nhc_def_conf_location_wa" model="nh.clinical.location">
             <field name="name">Ward A</field>
             <field name="code">A</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">ward</field>
-          <field name="parent_id" ref="nhc_def_conf_location_guh"/>
+            <field name="parent_id" ref="nhc_def_conf_location_guh"/>
         </record>
         <record id="nhc_def_conf_location_wb" model="nh.clinical.location">
             <field name="name">Ward B</field>
             <field name="code">B</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">ward</field>
-          <field name="parent_id" ref="nhc_def_conf_location_guh"/>
+            <field name="parent_id" ref="nhc_def_conf_location_guh"/>
         </record>
         <record id="nhc_def_conf_location_wc" model="nh.clinical.location">
             <field name="name">Ward C</field>
             <field name="code">C</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">ward</field>
-          <field name="parent_id" ref="nhc_def_conf_location_guh"/>
+            <field name="parent_id" ref="nhc_def_conf_location_guh"/>
         </record>
         <record id="nhc_def_conf_location_wd" model="nh.clinical.location">
             <field name="name">Ward D</field>
             <field name="code">D</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">ward</field>
-          <field name="parent_id" ref="nhc_def_conf_location_guh"/>
+            <field name="parent_id" ref="nhc_def_conf_location_guh"/>
         </record>
-        
+
         <!--Ward A Beds-->
         <record id="nhc_def_conf_location_wa_b1" model="nh.clinical.location">
             <field name="name">Bed 01</field>
             <field name="code">A01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -43,6 +48,7 @@
             <field name="name">Bed 02</field>
             <field name="code">A02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -50,6 +56,7 @@
             <field name="name">Bed 03</field>
             <field name="code">A03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -57,6 +64,7 @@
             <field name="name">Bed 04</field>
             <field name="code">A04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -64,6 +72,7 @@
             <field name="name">Bed 05</field>
             <field name="code">A05</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -71,6 +80,7 @@
             <field name="name">Bed 06</field>
             <field name="code">A06</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -78,6 +88,7 @@
             <field name="name">Bed 07</field>
             <field name="code">A07</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -85,6 +96,7 @@
             <field name="name">Bed 08</field>
             <field name="code">A08</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -92,6 +104,7 @@
             <field name="name">Bed 09</field>
             <field name="code">A09</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -99,6 +112,7 @@
             <field name="name">Bed 10</field>
             <field name="code">A10</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -106,6 +120,7 @@
             <field name="name">Bed 11</field>
             <field name="code">A11</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -113,6 +128,7 @@
             <field name="name">Bed 12</field>
             <field name="code">A12</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -120,6 +136,7 @@
             <field name="name">Bed 13</field>
             <field name="code">A13</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -127,6 +144,7 @@
             <field name="name">Bed 14</field>
             <field name="code">A14</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -134,6 +152,7 @@
             <field name="name">Bed 15</field>
             <field name="code">A15</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -141,6 +160,7 @@
             <field name="name">Bed 16</field>
             <field name="code">A16</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -148,6 +168,7 @@
             <field name="name">Bed 17</field>
             <field name="code">A17</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -155,6 +176,7 @@
             <field name="name">Bed 18</field>
             <field name="code">A18</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -162,6 +184,7 @@
             <field name="name">Bed 19</field>
             <field name="code">A19</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
@@ -169,15 +192,17 @@
             <field name="name">Bed 20</field>
             <field name="code">A20</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wa"/>
         </record>
-        
+
         <!--Ward B Rooms & Beds-->
         <record id="nhc_def_conf_location_wb_r1" model="nh.clinical.location">
             <field name="name">Room 01 (Ward B)</field>
             <field name="code">R01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -185,6 +210,7 @@
             <field name="name">Room 02 (Ward B)</field>
             <field name="code">R02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -192,6 +218,7 @@
             <field name="name">Room 03 (Ward B)</field>
             <field name="code">R03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -199,6 +226,7 @@
             <field name="name">Room 04 (Ward B)</field>
             <field name="code">R04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -206,6 +234,7 @@
             <field name="name">Room 05 (Ward B)</field>
             <field name="code">R05</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -213,6 +242,7 @@
             <field name="name">Room 06 (Ward B)</field>
             <field name="code">R06</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -220,6 +250,7 @@
             <field name="name">Room 07 (Ward B)</field>
             <field name="code">R07</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -227,6 +258,7 @@
             <field name="name">Room 08 (Ward B)</field>
             <field name="code">R08</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -234,6 +266,7 @@
             <field name="name">Room 09 (Ward B)</field>
             <field name="code">R09</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -241,6 +274,7 @@
             <field name="name">Room 10 (Ward B)</field>
             <field name="code">R10</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -248,6 +282,7 @@
             <field name="name">Room 11 (Ward B)</field>
             <field name="code">R11</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -255,6 +290,7 @@
             <field name="name">Room 12 (Ward B)</field>
             <field name="code">R12</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -262,6 +298,7 @@
             <field name="name">Room 13 (Ward B)</field>
             <field name="code">R13</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -269,6 +306,7 @@
             <field name="name">Room 14 (Ward B)</field>
             <field name="code">R14</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -276,6 +314,7 @@
             <field name="name">Room 15 (Ward B)</field>
             <field name="code">R15</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -283,6 +322,7 @@
             <field name="name">Room 16 (Ward B)</field>
             <field name="code">R16</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -290,6 +330,7 @@
             <field name="name">Room 17 (Ward B)</field>
             <field name="code">R17</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -297,6 +338,7 @@
             <field name="name">Room 18 (Ward B)</field>
             <field name="code">R18</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -304,6 +346,7 @@
             <field name="name">Room 19 (Ward B)</field>
             <field name="code">R19</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -311,6 +354,7 @@
             <field name="name">Room 20 (Ward B)</field>
             <field name="code">R20</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb"/>
         </record>
@@ -318,6 +362,7 @@
             <field name="name">Bed 01</field>
             <field name="code">B01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r1"/>
         </record>
@@ -325,6 +370,7 @@
             <field name="name">Bed 02</field>
             <field name="code">B02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r2"/>
         </record>
@@ -332,6 +378,7 @@
             <field name="name">Bed 03</field>
             <field name="code">B03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r3"/>
         </record>
@@ -339,6 +386,7 @@
             <field name="name">Bed 04</field>
             <field name="code">B04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r4"/>
         </record>
@@ -346,6 +394,7 @@
             <field name="name">Bed 05</field>
             <field name="code">B05</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r5"/>
         </record>
@@ -353,6 +402,7 @@
             <field name="name">Bed 06</field>
             <field name="code">B06</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r6"/>
         </record>
@@ -360,6 +410,7 @@
             <field name="name">Bed 07</field>
             <field name="code">B07</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r7"/>
         </record>
@@ -367,6 +418,7 @@
             <field name="name">Bed 08</field>
             <field name="code">B08</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r8"/>
         </record>
@@ -374,6 +426,7 @@
             <field name="name">Bed 09</field>
             <field name="code">B09</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r9"/>
         </record>
@@ -381,6 +434,7 @@
             <field name="name">Bed 10</field>
             <field name="code">B10</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r10"/>
         </record>
@@ -388,6 +442,7 @@
             <field name="name">Bed 11</field>
             <field name="code">B11</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r11"/>
         </record>
@@ -395,6 +450,7 @@
             <field name="name">Bed 12</field>
             <field name="code">B12</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r12"/>
         </record>
@@ -402,6 +458,7 @@
             <field name="name">Bed 13</field>
             <field name="code">B13</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r13"/>
         </record>
@@ -409,6 +466,7 @@
             <field name="name">Bed 14</field>
             <field name="code">B14</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r14"/>
         </record>
@@ -416,6 +474,7 @@
             <field name="name">Bed 15</field>
             <field name="code">B15</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r15"/>
         </record>
@@ -423,6 +482,7 @@
             <field name="name">Bed 16</field>
             <field name="code">B16</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r16"/>
         </record>
@@ -430,6 +490,7 @@
             <field name="name">Bed 17</field>
             <field name="code">B17</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r17"/>
         </record>
@@ -437,6 +498,7 @@
             <field name="name">Bed 18</field>
             <field name="code">B18</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r18"/>
         </record>
@@ -444,6 +506,7 @@
             <field name="name">Bed 19</field>
             <field name="code">B19</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r19"/>
         </record>
@@ -451,15 +514,17 @@
             <field name="name">Bed 20</field>
             <field name="code">B20</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wb_r20"/>
         </record>
-        
+
         <!--Ward C Bays, Beds & Side Rooms-->
         <record id="nhc_def_conf_location_wc_bay1" model="nh.clinical.location">
             <field name="name">Bay 01 (Ward C)</field>
             <field name="code">BAY01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -467,6 +532,7 @@
             <field name="name">Bay 02 (Ward C)</field>
             <field name="code">BAY02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -474,6 +540,7 @@
             <field name="name">Bay 03 (Ward C)</field>
             <field name="code">BAY03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -481,6 +548,7 @@
             <field name="name">Bay 04 (Ward C)</field>
             <field name="code">BAY04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -488,6 +556,7 @@
             <field name="name">Side Room 01 (Ward C)</field>
             <field name="code">SR01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -495,6 +564,7 @@
             <field name="name">Side Room 02 (Ward C)</field>
             <field name="code">SR02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -502,6 +572,7 @@
             <field name="name">Side Room 03 (Ward C)</field>
             <field name="code">SR03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -509,6 +580,7 @@
             <field name="name">Side Room 04 (Ward C)</field>
             <field name="code">SR04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc"/>
         </record>
@@ -516,6 +588,7 @@
             <field name="name">Bed 01</field>
             <field name="code">C01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay1"/>
         </record>
@@ -523,6 +596,7 @@
             <field name="name">Bed 02</field>
             <field name="code">C02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay1"/>
         </record>
@@ -530,6 +604,7 @@
             <field name="name">Bed 03</field>
             <field name="code">C03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay1"/>
         </record>
@@ -537,6 +612,7 @@
             <field name="name">Bed 04</field>
             <field name="code">C04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay1"/>
         </record>
@@ -544,6 +620,7 @@
             <field name="name">Bed 05</field>
             <field name="code">C05</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay2"/>
         </record>
@@ -551,6 +628,7 @@
             <field name="name">Bed 06</field>
             <field name="code">C06</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay2"/>
         </record>
@@ -558,6 +636,7 @@
             <field name="name">Bed 07</field>
             <field name="code">C07</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay2"/>
         </record>
@@ -565,6 +644,7 @@
             <field name="name">Bed 08</field>
             <field name="code">C08</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay2"/>
         </record>
@@ -572,6 +652,7 @@
             <field name="name">Bed 09</field>
             <field name="code">C09</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay3"/>
         </record>
@@ -579,6 +660,7 @@
             <field name="name">Bed 10</field>
             <field name="code">C10</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay3"/>
         </record>
@@ -586,6 +668,7 @@
             <field name="name">Bed 11</field>
             <field name="code">C11</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay3"/>
         </record>
@@ -593,6 +676,7 @@
             <field name="name">Bed 12</field>
             <field name="code">C12</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay3"/>
         </record>
@@ -600,6 +684,7 @@
             <field name="name">Bed 13</field>
             <field name="code">C13</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay4"/>
         </record>
@@ -607,6 +692,7 @@
             <field name="name">Bed 14</field>
             <field name="code">C14</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay4"/>
         </record>
@@ -614,6 +700,7 @@
             <field name="name">Bed 15</field>
             <field name="code">C15</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay4"/>
         </record>
@@ -621,6 +708,7 @@
             <field name="name">Bed 16</field>
             <field name="code">C16</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_bay4"/>
         </record>
@@ -628,6 +716,7 @@
             <field name="name">Bed 17</field>
             <field name="code">C17</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_r1"/>
         </record>
@@ -635,6 +724,7 @@
             <field name="name">Bed 18</field>
             <field name="code">C18</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_r2"/>
         </record>
@@ -642,6 +732,7 @@
             <field name="name">Bed 19</field>
             <field name="code">C19</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_r3"/>
         </record>
@@ -649,15 +740,17 @@
             <field name="name">Bed 20</field>
             <field name="code">C20</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wc_r4"/>
         </record>
-        
+
         <!--Ward D Rooms, Bays & Beds-->
         <record id="nhc_def_conf_location_wd_r1" model="nh.clinical.location">
             <field name="name">Room 01 (Ward D)</field>
             <field name="code">DR01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd"/>
         </record>
@@ -665,6 +758,7 @@
             <field name="name">Room 02 (Ward D)</field>
             <field name="code">DR02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">room</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd"/>
         </record>
@@ -672,6 +766,7 @@
             <field name="name">Bay 01 (Ward D)</field>
             <field name="code">DBAY01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_r1"/>
         </record>
@@ -679,6 +774,7 @@
             <field name="name">Bay 02 (Ward D)</field>
             <field name="code">DBAY02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_r1"/>
         </record>
@@ -686,6 +782,7 @@
             <field name="name">Bay 03 (Ward D)</field>
             <field name="code">DBAY03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_r2"/>
         </record>
@@ -693,6 +790,7 @@
             <field name="name">Bay 04 (Ward D)</field>
             <field name="code">DBAY04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bay</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_r2"/>
         </record>
@@ -700,6 +798,7 @@
             <field name="name">Bed 01</field>
             <field name="code">D01</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay1"/>
         </record>
@@ -707,6 +806,7 @@
             <field name="name">Bed 02</field>
             <field name="code">D02</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay1"/>
         </record>
@@ -714,6 +814,7 @@
             <field name="name">Bed 03</field>
             <field name="code">D03</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay1"/>
         </record>
@@ -721,6 +822,7 @@
             <field name="name">Bed 04</field>
             <field name="code">D04</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay1"/>
         </record>
@@ -728,6 +830,7 @@
             <field name="name">Bed 05</field>
             <field name="code">D05</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay1"/>
         </record>
@@ -735,6 +838,7 @@
             <field name="name">Bed 06</field>
             <field name="code">D06</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay2"/>
         </record>
@@ -742,6 +846,7 @@
             <field name="name">Bed 07</field>
             <field name="code">D07</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay2"/>
         </record>
@@ -749,6 +854,7 @@
             <field name="name">Bed 08</field>
             <field name="code">D08</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay2"/>
         </record>
@@ -756,6 +862,7 @@
             <field name="name">Bed 09</field>
             <field name="code">D09</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay2"/>
         </record>
@@ -763,6 +870,7 @@
             <field name="name">Bed 10</field>
             <field name="code">D10</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay2"/>
         </record>
@@ -770,6 +878,7 @@
             <field name="name">Bed 11</field>
             <field name="code">D11</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay3"/>
         </record>
@@ -777,6 +886,7 @@
             <field name="name">Bed 12</field>
             <field name="code">D12</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay3"/>
         </record>
@@ -784,6 +894,7 @@
             <field name="name">Bed 13</field>
             <field name="code">D13</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay3"/>
         </record>
@@ -791,6 +902,7 @@
             <field name="name">Bed 14</field>
             <field name="code">D14</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay3"/>
         </record>
@@ -798,6 +910,7 @@
             <field name="name">Bed 15</field>
             <field name="code">D15</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay3"/>
         </record>
@@ -805,6 +918,7 @@
             <field name="name">Bed 16</field>
             <field name="code">D16</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay4"/>
         </record>
@@ -812,6 +926,7 @@
             <field name="name">Bed 17</field>
             <field name="code">D17</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay4"/>
         </record>
@@ -819,6 +934,7 @@
             <field name="name">Bed 18</field>
             <field name="code">D18</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay4"/>
         </record>
@@ -826,6 +942,7 @@
             <field name="name">Bed 19</field>
             <field name="code">D19</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay4"/>
         </record>
@@ -833,6 +950,7 @@
             <field name="name">Bed 20</field>
             <field name="code">D20</field>
             <field name="type">poc</field>
+            <field name="context_ids" eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]"/>
             <field name="usage">bed</field>
             <field name="parent_id" ref="nhc_def_conf_location_wd_bay4"/>
         </record>
