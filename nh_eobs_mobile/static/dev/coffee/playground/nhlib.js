@@ -106,6 +106,7 @@
       this.validate = __bind(this.validate, this);
       var input, self, _fn, _i, _len, _ref, _ref1;
       this.form = (_ref = document.getElementsByTagName('form')) != null ? _ref[0] : void 0;
+      this.form_timeout = 240 * 1000;
       self = this;
       NHMobileForm.__super__.constructor.call(this);
       _ref1 = this.form.elements;
@@ -127,21 +128,125 @@
         input = _ref1[_i];
         _fn();
       }
+      document.addEventListener('form_timeout', function(event) {
+        return console.log('oh noes the form timed out');
+      });
+      this.timeout_func = function() {
+        var timeout;
+        timeout = new CustomEvent('form_timeout', {
+          'detail': 'form timed out'
+        });
+        return document.dispatchEvent(timeout);
+      };
+      window.form_timeout = setTimeout(window.timeout_func, this.form_timeout);
     }
 
     NHMobileForm.prototype.validate = function(event) {
+      var container_el, criteria, error_el, input, max, min, other_input, value, _ref;
       event.preventDefault();
-      return console.log('validate');
+      clearTimeout(window.form_timeout);
+      window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
+      input = event.srcElement;
+      container_el = input.parentNode.parentNode;
+      error_el = container_el.getElementsByClassName('input-body')[0].getElementsByClassName('errors')[0];
+      if (input.type === 'number') {
+        value = parseFloat(input.value);
+        min = parseFloat(input.min);
+        max = parseFloat(input.max);
+        container_el.classList.remove('error');
+        input.classList.remove('error');
+        error_el.innerHTML = '';
+        if (input.step === '1' && value % 1 !== 0) {
+          container_el.classList.add('error');
+          input.classList.add('error');
+          error_el.innerHTML = '<label for="' + input.name + '" class="error">Must be whole number</label>';
+          return;
+        }
+        if (value < min) {
+          container_el.classList.add('error');
+          input.classList.add('error');
+          error_el.innerHTML = '<label for="' + input.name + '" class="error">Input too low</label>';
+          return;
+        }
+        if (value > max) {
+          container_el.classList.add('error');
+          input.classList.add('error');
+          error_el.innerHTML = '<label for="' + input.name + '" class="error">Input too high</label>';
+          return;
+        }
+        if (input.getAttribute('data-validation')) {
+          criteria = eval(input.getAttribute('data-validation'))[0];
+          other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
+          if (other_input && !eval(value + ' ' + criteria[0] + ' ' + other_input)) {
+            container_el.classList.add('error');
+            input.classList.add('error');
+            error_el.innerHTML = '<label for="' + input.name + '" class="error">Input must be ' + criteria[0] + ' ' + criteria[1] + '</label>';
+          }
+        }
+      } else {
+
+      }
     };
 
     NHMobileForm.prototype.trigger_actions = function(event) {
+      var actions, el, field, input, value, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _results;
       event.preventDefault();
-      return console.log('trigger');
+      clearTimeout(window.form_timeout);
+      window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
+      input = event.srcElement;
+      value = input.value;
+      if (input.getAttribute('data-onchange')) {
+        actions = eval(input.getAttribute('data-onchange'))[0];
+        _ref1 = (_ref = actions[value]) != null ? _ref['hide'] : void 0;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          field = _ref1[_i];
+          el = document.getElementById('parent_' + field);
+          el.style.display = 'none';
+        }
+        _ref3 = (_ref2 = actions[value]) != null ? _ref2['show'] : void 0;
+        _results = [];
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          field = _ref3[_j];
+          el = document.getElementById('parent_' + field);
+          _results.push(el.style.display = 'block');
+        }
+        return _results;
+      }
     };
 
     NHMobileForm.prototype.submit = function(event) {
+      var element, form_elements, partial_dialog, valid_form;
       event.preventDefault();
-      return console.log('submit');
+      clearTimeout(window.form_timeout);
+      window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
+      form_elements = (function() {
+        var _i, _len, _ref, _results;
+        _ref = this.form.elements;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          element = _ref[_i];
+          if (!element.classList.contains('exclude')) {
+            _results.push(element);
+          }
+        }
+        return _results;
+      }).call(this);
+      valid_form = function() {
+        var _i, _len;
+        for (_i = 0, _len = form_elements.length; _i < _len; _i++) {
+          element = form_elements[_i];
+          if (element.classList.contains('error') || !element.value) {
+            return false;
+          }
+        }
+        return true;
+      };
+      if (valid_form()) {
+        return console.log('submit');
+      } else {
+        partial_dialog = new window.NH.NHModal('partial_reasons', 'Submit partial observation', 'Please state reason for submitting partial observation', ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, this.form);
+        return console.log('partial');
+      }
     };
 
     return NHMobileForm;
@@ -158,7 +263,7 @@
 
   NHModal = (function() {
     function NHModal(id, title, content, options, popupTime, el) {
-      var dialog, self;
+      var cover, dialog, self;
       this.id = id;
       this.title = title;
       this.content = content;
@@ -170,6 +275,14 @@
       this.create_dialog = __bind(this.create_dialog, this);
       self = this;
       dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
+      cover = document.createElement('div');
+      cover.setAttribute('class', 'cover');
+      cover.setAttribute('id', 'cover');
+      cover.setAttribute('data-action', 'close');
+      cover.setAttribute('data-target', this.id);
+      cover.style.height = (el.clientHeight * 1.5) + 'px';
+      cover.addEventListener('click', self.handle_button_events);
+      this.el.appendChild(cover);
       this.el.appendChild(dialog);
       this.calculate_dimensions(dialog, dialog.getElementsByClassName('dialogContent')[0], this.el);
     }
@@ -241,8 +354,8 @@
     };
 
     NHModal.prototype.calculate_dimensions = function(dialog, dialog_content, el) {
-      var available_space, margins, max_height;
-      margins = 40;
+      var available_space, margins, max_height, top_offset;
+      margins = 80;
       available_space = function(dialog, el) {
         var dialog_header_height, dialog_options_height, el_height, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
         dialog_header_height = (_ref = dialog.getElementsByTagName('h2')) != null ? (_ref1 = _ref[0]) != null ? _ref1.clientHeight : void 0 : void 0;
@@ -251,18 +364,22 @@
         return el_height - ((dialog_header_height + dialog_options_height) + (margins * 2));
       };
       max_height = available_space(dialog, el);
-      dialog.style.top = margins + 'px';
+      top_offset = el.offsetTop + margins;
+      dialog.style.top = top_offset + 'px';
+      dialog.style.display = 'inline-block';
       if (max_height) {
         dialog_content.style.maxHeight = max_height + 'px';
       }
     };
 
     NHModal.prototype.handle_button_events = function(event) {
-      var dialog_id;
+      var cover, dialog_id;
       event.preventDefault();
       switch (event.srcElement.getAttribute('data-action')) {
         case 'close':
           dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
+          cover = document.getElementById('cover');
+          dialog_id.parentNode.removeChild(cover);
           return dialog_id.parentNode.removeChild(dialog_id);
         case 'confirm':
           return console.log('yay');
