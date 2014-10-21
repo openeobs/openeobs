@@ -32,8 +32,33 @@ class NHMobileForm extends NHMobile
    event.preventDefault()
    clearTimeout(window.form_timeout)
    window.form_timeout = setTimeout(@timeout_func, @form_timeout)
-
-   console.log('validate')
+   input = event.srcElement
+   container_el = input.parentNode.parentNode
+   error_el = container_el.getElementsByClassName('input-body')[0].getElementsByClassName('errors')[0]
+   value = parseFloat(input.value)
+   min = parseFloat(input.min)
+   max = parseFloat(input.max)
+   container_el.classList.remove('error')
+   error_el.innerHTML = ''
+   if input.step is '1' and value % 1 isnt 0
+     container_el.classList.add('error')
+     error_el.innerHTML = 'Must be whole number'
+     return
+   if value < min
+     container_el.classList.add('error')
+     error_el.innerHTML = 'Input too low'
+     return
+   if value > max
+     container_el.classList.add('error')
+     error_el.innerHTML = 'Input too high'
+     return
+   if input.getAttribute('data-validation')
+     criteria = eval(input.getAttribute('data-validation'))[0]
+     other_input = document.getElementById(criteria[1])?.value
+     if other_input and not eval(value + ' ' + criteria[0] + ' ' + other_input)
+       container_el.classList.add('error')
+       error_el.innerHTML = 'Input must be ' + criteria[0] + ' ' + criteria[1]
+       return
    
  trigger_actions: (event) =>
    event.preventDefault()

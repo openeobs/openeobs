@@ -49,10 +49,41 @@ NHMobileForm = (function(_super) {
   }
 
   NHMobileForm.prototype.validate = function(event) {
+    var container_el, criteria, error_el, input, max, min, other_input, value, _ref;
     event.preventDefault();
     clearTimeout(window.form_timeout);
     window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
-    return console.log('validate');
+    input = event.srcElement;
+    container_el = input.parentNode.parentNode;
+    error_el = container_el.getElementsByClassName('input-body')[0].getElementsByClassName('errors')[0];
+    value = parseFloat(input.value);
+    min = parseFloat(input.min);
+    max = parseFloat(input.max);
+    container_el.classList.remove('error');
+    error_el.innerHTML = '';
+    if (input.step === '1' && value % 1 !== 0) {
+      container_el.classList.add('error');
+      error_el.innerHTML = 'Must be whole number';
+      return;
+    }
+    if (value < min) {
+      container_el.classList.add('error');
+      error_el.innerHTML = 'Input too low';
+      return;
+    }
+    if (value > max) {
+      container_el.classList.add('error');
+      error_el.innerHTML = 'Input too high';
+      return;
+    }
+    if (input.getAttribute('data-validation')) {
+      criteria = eval(input.getAttribute('data-validation'))[0];
+      other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
+      if (other_input && !eval(value + ' ' + criteria[0] + ' ' + other_input)) {
+        container_el.classList.add('error');
+        error_el.innerHTML = 'Input must be ' + criteria[0] + ' ' + criteria[1];
+      }
+    }
   };
 
   NHMobileForm.prototype.trigger_actions = function(event) {
