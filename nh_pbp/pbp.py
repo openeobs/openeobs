@@ -112,7 +112,7 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(nh_clinical_patient_observation_pbp, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        res = super(nh_clinical_patient_observation_pbp, self).complete(cr, uid, activity_id, context)
 
         api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
 

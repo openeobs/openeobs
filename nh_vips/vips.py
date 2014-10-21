@@ -133,7 +133,7 @@ class nh_clinical_patient_observation_vips(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(nh_clinical_patient_observation_vips, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        res = super(nh_clinical_patient_observation_vips, self).complete(cr, uid, activity_id, context)
 
         # create next VIPS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID,

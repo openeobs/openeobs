@@ -179,7 +179,7 @@ class nh_clinical_patient_observation_weight(orm.Model):
         api_pool = self.pool['nh.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
 
-        res = super(nh_clinical_patient_observation_weight, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        res = super(nh_clinical_patient_observation_weight, self).complete(cr, uid, activity_id, context)
 
         api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
 
@@ -833,7 +833,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(nh_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        res = super(nh_clinical_patient_observation_gcs, self).complete(cr, uid, activity_id, context)
 
         # create next GCS
         next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
@@ -960,7 +960,7 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(nh_clinical_patient_observation_pbp, self).complete(cr, SUPERUSER_ID, activity_id, context)
+        res = super(nh_clinical_patient_observation_pbp, self).complete(cr, uid, activity_id, context)
 
         api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
 
