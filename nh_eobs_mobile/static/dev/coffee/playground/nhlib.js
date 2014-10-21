@@ -55,12 +55,15 @@
           successResultCodes = [200, 304];
           if (_ref = req.status, __indexOf.call(successResultCodes, _ref) >= 0) {
             data = eval('(' + req.responseText + ')');
-            return console.log('data message: ', data.message);
+            console.log('data message: ', data.message);
+            return true;
           } else {
-            return new NHModal('data_error', 'Error while processing request', 'The server returned an error while processing the request. Please check your input and resubmit', ['<a href="#" data-action="close" data-target="data_error">Ok</a>'], 0, document.getElementsByTagName('body')[0]);
+            new NHModal('data_error', 'Error while processing request', 'The server returned an error while processing the request. Please check your input and resubmit', ['<a href="#" data-action="close" data-target="data_error">Ok</a>'], 0, document.getElementsByTagName('body')[0]);
+            return false;
           }
         } else {
-          return new NHModal('ajax_error', 'Error communicating with server', 'There was an error communicating with the server, please check your network connection and try again', ['<a href="#" data-action="close" data-target="ajax_error">Ok</a>'], 0, document.getElementsByTagName('body')[0]);
+          new NHModal('ajax_error', 'Error communicating with server', 'There was an error communicating with the server, please check your network connection and try again', ['<a href="#" data-action="close" data-target="ajax_error">Ok</a>'], 0, document.getElementsByTagName('body')[0]);
+          return false;
         }
       });
       req.open(verb, resource, false);
