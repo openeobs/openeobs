@@ -28,7 +28,7 @@
 <h2 id="patientName" class="block">
     <a href="/mobile/patient/11">Hegmann, Linden <i class="icon-info"></i></a>
 </h2>
-<form action="/mobile/task/submit/704" method="POST" data-type="ews" task-id="704" patient-id="11" id="obsForm" data-source="task">
+<form action="/mobile/task/submit/704" method="POST" data-type="ews" task-id="704" patient-id="11" id="obsForm" data-source="task" ajax-action="json_task_form_action" ajax-args="ews,7309">
 <div>
 
 
@@ -351,7 +351,7 @@
 <input type="hidden" name="taskId" value="704"/>
 <input type="hidden" name="startTimestamp" id="startTimestamp" value="1413900855"/>
 <div class="block obsSubmit">
-    <input type="submit" value="Submit" id="submitButton"/>
+    <input type="submit" value="Submit" id="submitButton" class="exclude"/>
 </div>
 </form>
 <script src="http://localhost:8169/mobile/src/js/routes.js" type="text/javascript"></script>

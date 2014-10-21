@@ -36,7 +36,7 @@ class Promise
 
 class NHMobile extends NHLib
 
- process_request: (verb, resource) ->
+ process_request: (verb, resource, data) ->
    promise = new Promise()
    req = new XMLHttpRequest()
    req.addEventListener 'readystatechange', ->
@@ -52,8 +52,12 @@ class NHMobile extends NHLib
      #else
      #    new NHModal('ajax_error', 'Error communicating with server', '<div class="block">There was an error communicating with the server, please check your network connection and try again</div>', ['<a href="#" data-action="close" data-target="ajax_error">Ok</a>'], 0, document.getElementsByTagName('body')[0])
      #    return false
-   req.open verb, resource, false
-   req.send()
+   req.open verb, resource, true
+   if data
+     req.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+     req.send(data)
+   else
+     req.send()
    return promise
 
  constructor: () ->

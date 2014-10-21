@@ -79,11 +79,15 @@ class NHMobileForm extends NHMobile
      for field in actions[value]?['hide']
        el = document.getElementById('parent_'+field)
        el.style.display = 'none'
+       inp = document.getElementById(field)
+       inp.classList.add('exclude')
+       console.log('hiding')
      for field in actions[value]?['show']
        el = document.getElementById('parent_'+field)
        el.style.display = 'block'
-
-
+       inp = document.getElementById(field)
+       inp.classList.remove('exclude')
+       console.log('showing')
    
  submit: (event) =>
    event.preventDefault()
@@ -97,6 +101,7 @@ class NHMobileForm extends NHMobile
      return true
    if valid_form()
      # do something with the form
+     @submit_observation(@, form_elements, @form.getAttribute('ajax-action'), @form.getAttribute('ajax-args'))
      console.log('submit')
    else
      # display the partial obs dialog
@@ -112,6 +117,14 @@ class NHMobileForm extends NHMobile
        options += '<option value="'+option_val+'">'+option_name+'</option>'
      select = '<select name="partial_reason">'+options+'</select>'
      new window.NH.NHModal('partial_reasons', 'Submit partial observation', '<p class="block">Please state reason for submitting partial observation</p>'+select, ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form)
+
+ submit_observation: (self, elements, endpoint, args) =>
+   # turn form data in to serialised string and ping off to server
+   serialised_string = (el.name+'='+el.value for el in elements).join("&")
+   url = @.urls[endpoint].apply(this, args.split(','))
+   Promise.when(@call_resource(url, serialised_string)).then (data) ->
+     new window.NH.NHModal('submit_success', 'Observation successfully submitted', '<p class="block">Observation was submitted</p>', ['<a href="#" data-action="close" data-target="submit_success">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form)
+   console.log(serialised_string)
 
 
 if !window.NH

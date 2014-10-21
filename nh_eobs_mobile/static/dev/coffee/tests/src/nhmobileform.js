@@ -8,6 +8,7 @@ NHMobileForm = (function(_super) {
   __extends(NHMobileForm, _super);
 
   function NHMobileForm() {
+    this.submit_observation = __bind(this.submit_observation, this);
     this.display_partial_reasons = __bind(this.display_partial_reasons, this);
     this.submit = __bind(this.submit, this);
     this.trigger_actions = __bind(this.trigger_actions, this);
@@ -97,7 +98,7 @@ NHMobileForm = (function(_super) {
   };
 
   NHMobileForm.prototype.trigger_actions = function(event) {
-    var actions, el, field, input, value, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _results;
+    var actions, el, field, inp, input, value, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _results;
     event.preventDefault();
     clearTimeout(window.form_timeout);
     window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
@@ -110,13 +111,19 @@ NHMobileForm = (function(_super) {
         field = _ref1[_i];
         el = document.getElementById('parent_' + field);
         el.style.display = 'none';
+        inp = document.getElementById(field);
+        inp.classList.add('exclude');
+        console.log('hiding');
       }
       _ref3 = (_ref2 = actions[value]) != null ? _ref2['show'] : void 0;
       _results = [];
       for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
         field = _ref3[_j];
         el = document.getElementById('parent_' + field);
-        _results.push(el.style.display = 'block');
+        el.style.display = 'block';
+        inp = document.getElementById(field);
+        inp.classList.remove('exclude');
+        _results.push(console.log('showing'));
       }
       return _results;
     }
@@ -150,6 +157,7 @@ NHMobileForm = (function(_super) {
       return true;
     };
     if (valid_form()) {
+      this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
       return console.log('submit');
     } else {
       return this.display_partial_reasons(this);
@@ -171,6 +179,24 @@ NHMobileForm = (function(_super) {
       select = '<select name="partial_reason">' + options + '</select>';
       return new window.NH.NHModal('partial_reasons', 'Submit partial observation', '<p class="block">Please state reason for submitting partial observation</p>' + select, ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form);
     });
+  };
+
+  NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args) {
+    var el, serialised_string, url;
+    serialised_string = ((function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = elements.length; _i < _len; _i++) {
+        el = elements[_i];
+        _results.push(el.name + '=' + el.value);
+      }
+      return _results;
+    })()).join("&");
+    url = this.urls[endpoint].apply(this, args.split(','));
+    Promise.when(this.call_resource(url, serialised_string)).then(function(data) {
+      return new window.NH.NHModal('submit_success', 'Observation successfully submitted', '<p class="block">Observation was submitted</p>', ['<a href="#" data-action="close" data-target="submit_success">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form);
+    });
+    return console.log(serialised_string);
   };
 
   return NHMobileForm;

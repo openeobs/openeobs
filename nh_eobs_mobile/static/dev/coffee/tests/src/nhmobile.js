@@ -62,12 +62,12 @@ Promise = (function() {
 NHMobile = (function(_super) {
   __extends(NHMobile, _super);
 
-  NHMobile.prototype.process_request = function(verb, resource) {
+  NHMobile.prototype.process_request = function(verb, resource, data) {
     var promise, req;
     promise = new Promise();
     req = new XMLHttpRequest();
     req.addEventListener('readystatechange', function() {
-      var data, successResultCodes, _ref;
+      var successResultCodes, _ref;
       if (req.readyState === 4) {
         successResultCodes = [200, 304];
         if (_ref = req.status, __indexOf.call(successResultCodes, _ref) >= 0) {
@@ -80,8 +80,13 @@ NHMobile = (function(_super) {
         }
       }
     });
-    req.open(verb, resource, false);
-    req.send();
+    req.open(verb, resource, true);
+    if (data) {
+      req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      req.send(data);
+    } else {
+      req.send();
+    }
     return promise;
   };
 
