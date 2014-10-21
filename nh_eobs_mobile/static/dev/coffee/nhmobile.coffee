@@ -9,10 +9,13 @@ class NHMobile extends NHLib
        if req.status in successResultCodes
          data = eval '(' + req.responseText + ')'
          console.log 'data message: ', data.message
+         return true
        else
          new NHModal('data_error', 'Error while processing request', 'The server returned an error while processing the request. Please check your input and resubmit', ['<a href="#" data-action="close" data-target="data_error">Ok</a>'], 0, document.getElementsByTagName('body')[0])
+         return false
      else
          new NHModal('ajax_error', 'Error communicating with server', 'There was an error communicating with the server, please check your network connection and try again', ['<a href="#" data-action="close" data-target="ajax_error">Ok</a>'], 0, document.getElementsByTagName('body')[0])
+         return false
    req.open verb, resource, false
    req.send()
 
