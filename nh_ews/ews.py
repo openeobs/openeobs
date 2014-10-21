@@ -182,6 +182,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'name': 'avpu_text',
             'type': 'selection',
             'selection': _avpu_values,
+            'selection_type': 'text',
             'label': 'AVPU',
             'initially_hidden': False,
         },
@@ -190,6 +191,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'type': 'selection',
             'label': 'Patient on supplemental O2',
             'selection': [[False, 'No'], [True, 'Yes']],
+            'selection_type': 'boolean',
             'initially_hidden': False,
             'on_change': {
                 'True': {
@@ -205,6 +207,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         {
             'name': 'device_id',
             'type': 'selection',
+            'selection_type': 'number',
             'label': 'O2 Device',
             'initially_hidden': True
         },
