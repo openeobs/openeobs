@@ -13,6 +13,7 @@ NHMobileForm = (function(_super) {
     this.validate = __bind(this.validate, this);
     var input, self, _fn, _i, _len, _ref, _ref1;
     this.form = (_ref = document.getElementsByTagName('form')) != null ? _ref[0] : void 0;
+    this.form_timeout = 10 * 1000;
     self = this;
     NHMobileForm.__super__.constructor.call(this);
     _ref1 = this.form.elements;
@@ -34,20 +35,37 @@ NHMobileForm = (function(_super) {
       input = _ref1[_i];
       _fn();
     }
+    document.addEventListener('form_timeout', function(event) {
+      return console.log('oh noes the form timed out');
+    });
+    this.timeout_func = function() {
+      var timeout;
+      timeout = new CustomEvent('form_timeout', {
+        'detail': 'form timed out'
+      });
+      return document.dispatchEvent(timeout);
+    };
+    window.form_timeout = setTimeout(window.timeout_func, this.form_timeout);
   }
 
   NHMobileForm.prototype.validate = function(event) {
     event.preventDefault();
+    clearTimeout(window.form_timeout);
+    window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
     return console.log('validate');
   };
 
   NHMobileForm.prototype.trigger_actions = function(event) {
     event.preventDefault();
+    clearTimeout(window.form_timeout);
+    window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
     return console.log('trigger');
   };
 
   NHMobileForm.prototype.submit = function(event) {
     event.preventDefault();
+    clearTimeout(window.form_timeout);
+    window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
     return console.log('submit');
   };
 
