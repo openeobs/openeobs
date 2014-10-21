@@ -16,5 +16,9 @@ npm install --save-dev gulp-concat
 #install less
 npm install --save-dev less
 
+#install coffeescript
+
+npm install --save-dev coffee
+
 #compile
 sh build-all.sh

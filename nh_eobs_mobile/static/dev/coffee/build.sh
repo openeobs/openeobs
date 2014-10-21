@@ -1,0 +1,7 @@
+#! /bin/bash
+
+# build libs ready for tests
+coffee -o tests/src/ -b -c *.coffee 
+
+# build libs for browser foo
+cat nhlib.coffee nhmobile.coffee nhmobileform.coffee nhmodal.coffee | coffee  --compile --stdio > playground/nhlib.js
