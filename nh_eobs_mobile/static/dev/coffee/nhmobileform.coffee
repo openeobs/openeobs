@@ -40,25 +40,30 @@ class NHMobileForm extends NHMobile
      min = parseFloat(input.min)
      max = parseFloat(input.max)
      container_el.classList.remove('error')
+     input.classList.remove('error')
      error_el.innerHTML = ''
      if input.step is '1' and value % 1 isnt 0
        container_el.classList.add('error')
-       error_el.innerHTML = 'Must be whole number'
+       input.classList.add('error')
+       error_el.innerHTML = '<label for="'+input.name+'" class="error">Must be whole number</label>'
        return
      if value < min
        container_el.classList.add('error')
-       error_el.innerHTML = 'Input too low'
+       input.classList.add('error')
+       error_el.innerHTML = '<label for="'+input.name+'" class="error">Input too low</label>'
        return
      if value > max
        container_el.classList.add('error')
-       error_el.innerHTML = 'Input too high'
+       input.classList.add('error')
+       error_el.innerHTML = '<label for="'+input.name+'" class="error">Input too high</label>'
        return
      if input.getAttribute('data-validation')
        criteria = eval(input.getAttribute('data-validation'))[0]
        other_input = document.getElementById(criteria[1])?.value
        if other_input and not eval(value + ' ' + criteria[0] + ' ' + other_input)
          container_el.classList.add('error')
-         error_el.innerHTML = 'Input must be ' + criteria[0] + ' ' + criteria[1]
+         input.classList.add('error')
+         error_el.innerHTML = '<label for="'+input.name+'" class="error">Input must be ' + criteria[0] + ' ' + criteria[1] + '</label>'
          return
    else
      # to be continued
@@ -84,7 +89,19 @@ class NHMobileForm extends NHMobile
    event.preventDefault()
    clearTimeout(window.form_timeout)
    window.form_timeout = setTimeout(@timeout_func, @form_timeout)
-   console.log('submit')
+   form_elements = (element for element in @form.elements when not element.classList.contains('exclude'))
+   valid_form = () ->
+     for element in form_elements
+       if element.classList.contains('error') or not element.value
+         return false
+     return true
+   if valid_form()
+     # do something with the form
+     console.log('submit')
+   else
+     # display the partial obs dialog
+     partial_dialog = new window.NH.NHModal('partial_reasons', 'Submit partial observation', 'Please state reason for submitting partial observation', ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, @form)
+     console.log('partial')
 
 if !window.NH
   window.NH = {}
