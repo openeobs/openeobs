@@ -180,7 +180,7 @@
             <label for="oxygen_administration_flag">Patient on supplemental O2</label>
         </div>
         <div class="input-body">
-            <select id="oxygen_administration_flag" name="oxygen_administration_flag" data-onchange="{'False': {'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': []}, 'True': {'hide': [], 'show': ['device_id']}}">
+            <select id="oxygen_administration_flag" name="oxygen_administration_flag" data-onchange="[{'False': {'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': []}, 'True': {'hide': [], 'show': ['device_id']}}]">
 
                 <option value="">Please Select</option>
 
@@ -208,7 +208,7 @@
             <label for="device_id">O2 Device</label>
         </div>
         <div class="input-body">
-            <select id="device_id" name="device_id" class="exclude" data-onchange="{'88': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '89': {'hide': ['niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration', 'cpap_peep']}, '90': {'hide': ['cpap_peep'], 'show': ['flow_rate', 'concentration', 'niv_backup', 'niv_ipap', 'niv_epap']}, '82': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '83': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '81': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '86': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '87': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '84': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '85': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}}">
+            <select id="device_id" name="device_id" class="exclude" data-onchange="[{'88': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '89': {'hide': ['niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration', 'cpap_peep']}, '90': {'hide': ['cpap_peep'], 'show': ['flow_rate', 'concentration', 'niv_backup', 'niv_ipap', 'niv_epap']}, '82': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '83': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '81': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '86': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '87': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '84': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}, '85': {'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'], 'show': ['flow_rate', 'concentration']}}]">
 
 
                 <option value="81">Nasal Cannula</option>

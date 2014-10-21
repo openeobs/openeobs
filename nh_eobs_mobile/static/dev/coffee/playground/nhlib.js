@@ -106,7 +106,7 @@
       this.validate = __bind(this.validate, this);
       var input, self, _fn, _i, _len, _ref, _ref1;
       this.form = (_ref = document.getElementsByTagName('form')) != null ? _ref[0] : void 0;
-      this.form_timeout = 10 * 1000;
+      this.form_timeout = 240 * 1000;
       self = this;
       NHMobileForm.__super__.constructor.call(this);
       _ref1 = this.form.elements;
@@ -149,41 +149,64 @@
       input = event.srcElement;
       container_el = input.parentNode.parentNode;
       error_el = container_el.getElementsByClassName('input-body')[0].getElementsByClassName('errors')[0];
-      value = parseFloat(input.value);
-      min = parseFloat(input.min);
-      max = parseFloat(input.max);
-      container_el.classList.remove('error');
-      error_el.innerHTML = '';
-      if (input.step === '1' && value % 1 !== 0) {
-        container_el.classList.add('error');
-        error_el.innerHTML = 'Must be whole number';
-        return;
-      }
-      if (value < min) {
-        container_el.classList.add('error');
-        error_el.innerHTML = 'Input too low';
-        return;
-      }
-      if (value > max) {
-        container_el.classList.add('error');
-        error_el.innerHTML = 'Input too high';
-        return;
-      }
-      if (input.getAttribute('data-validation')) {
-        criteria = eval(input.getAttribute('data-validation'))[0];
-        other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
-        if (other_input && !eval(value + ' ' + criteria[0] + ' ' + other_input)) {
+      if (input.type === 'number') {
+        value = parseFloat(input.value);
+        min = parseFloat(input.min);
+        max = parseFloat(input.max);
+        container_el.classList.remove('error');
+        error_el.innerHTML = '';
+        if (input.step === '1' && value % 1 !== 0) {
           container_el.classList.add('error');
-          error_el.innerHTML = 'Input must be ' + criteria[0] + ' ' + criteria[1];
+          error_el.innerHTML = 'Must be whole number';
+          return;
         }
+        if (value < min) {
+          container_el.classList.add('error');
+          error_el.innerHTML = 'Input too low';
+          return;
+        }
+        if (value > max) {
+          container_el.classList.add('error');
+          error_el.innerHTML = 'Input too high';
+          return;
+        }
+        if (input.getAttribute('data-validation')) {
+          criteria = eval(input.getAttribute('data-validation'))[0];
+          other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
+          if (other_input && !eval(value + ' ' + criteria[0] + ' ' + other_input)) {
+            container_el.classList.add('error');
+            error_el.innerHTML = 'Input must be ' + criteria[0] + ' ' + criteria[1];
+          }
+        }
+      } else {
+
       }
     };
 
     NHMobileForm.prototype.trigger_actions = function(event) {
+      var actions, el, field, input, value, _i, _j, _len, _len1, _ref, _ref1, _results;
       event.preventDefault();
       clearTimeout(window.form_timeout);
       window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
-      return console.log('trigger');
+      input = event.srcElement;
+      value = input.value;
+      if (input.getAttribute('data-onchange')) {
+        actions = eval(input.getAttribute('data-onchange'))[0];
+        _ref = actions[value]['hide'];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          field = _ref[_i];
+          el = document.getElementById('parent_' + field);
+          el.style.display = 'none';
+        }
+        _ref1 = actions[value]['show'];
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          field = _ref1[_j];
+          el = document.getElementById('parent_' + field);
+          _results.push(el.style.display = 'block');
+        }
+        return _results;
+      }
     };
 
     NHMobileForm.prototype.submit = function(event) {
