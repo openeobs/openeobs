@@ -100,8 +100,19 @@ class NHMobileForm extends NHMobile
      console.log('submit')
    else
      # display the partial obs dialog
-     partial_dialog = new window.NH.NHModal('partial_reasons', 'Submit partial observation', 'Please state reason for submitting partial observation', ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, @form)
-     console.log('partial')
+     @display_partial_reasons(@)
+
+ display_partial_reasons: (self) =>
+   Promise.when(@call_resource(@.urls.json_partial_reasons())).then (data) ->
+     console.log(data)
+     options = ''
+     for option in data[0]
+       option_val = option[0]
+       option_name = option[1]
+       options += '<option value="'+option_val+'">'+option_name+'</option>'
+     select = '<select name="partial_reason">'+options+'</select>'
+     new window.NH.NHModal('partial_reasons', 'Submit partial observation', '<p class="block">Please state reason for submitting partial observation</p>'+select, ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form)
+
 
 if !window.NH
   window.NH = {}

@@ -417,7 +417,7 @@ a.patientInfo .obs {
   left: 0px;
   background-color: #ffffff;
   width: 100%;
-  z-index: 999999999;
+  z-index: 99;
 }
 .header.no-menu {
   padding-bottom: 0.7em;
@@ -932,7 +932,7 @@ a.patientInfo .obs {
   height: 100%;
   width: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: 9999;
   position: absolute;
   top: 0px;
   left: 0px;

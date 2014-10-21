@@ -8,6 +8,7 @@ NHMobileForm = (function(_super) {
   __extends(NHMobileForm, _super);
 
   function NHMobileForm() {
+    this.display_partial_reasons = __bind(this.display_partial_reasons, this);
     this.submit = __bind(this.submit, this);
     this.trigger_actions = __bind(this.trigger_actions, this);
     this.validate = __bind(this.validate, this);
@@ -122,7 +123,7 @@ NHMobileForm = (function(_super) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var element, form_elements, partial_dialog, valid_form;
+    var element, form_elements, valid_form;
     event.preventDefault();
     clearTimeout(window.form_timeout);
     window.form_timeout = setTimeout(this.timeout_func, this.form_timeout);
@@ -151,9 +152,25 @@ NHMobileForm = (function(_super) {
     if (valid_form()) {
       return console.log('submit');
     } else {
-      partial_dialog = new window.NH.NHModal('partial_reasons', 'Submit partial observation', 'Please state reason for submitting partial observation', ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, this.form);
-      return console.log('partial');
+      return this.display_partial_reasons(this);
     }
+  };
+
+  NHMobileForm.prototype.display_partial_reasons = function(self) {
+    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(data) {
+      var option, option_name, option_val, options, select, _i, _len, _ref;
+      console.log(data);
+      options = '';
+      _ref = data[0];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        option = _ref[_i];
+        option_val = option[0];
+        option_name = option[1];
+        options += '<option value="' + option_val + '">' + option_name + '</option>';
+      }
+      select = '<select name="partial_reason">' + options + '</select>';
+      return new window.NH.NHModal('partial_reasons', 'Submit partial observation', '<p class="block">Please state reason for submitting partial observation</p>' + select, ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form);
+    });
   };
 
   return NHMobileForm;
