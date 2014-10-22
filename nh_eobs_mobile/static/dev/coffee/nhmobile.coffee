@@ -43,7 +43,7 @@ class NHMobile extends NHLib
      if req.readyState is 4                        # ReadyState Complete
        successResultCodes = [200, 304]
        if req.status in successResultCodes
-         data = eval(req.responseText)
+         data = eval('['+req.responseText+']')
          console.log 'data: ', data
          promise.complete data
        else
