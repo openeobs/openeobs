@@ -7,25 +7,30 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Patient swap_beds">
                     <!-- <field name="patient_id" readonly="1"/> -->
-                    <group string="Current Location" colspan="2" col="2">
-                        <field name="ward_location_id" readonly="1"/>
-                        <group string="Current Bed / Patient" colspan="4" col="4">
-                        	<field name="location1_id" readonly="1" widget="selection" width="200" />
-                        	<field name="patient1_id" readonly="1"/>
-                       	</group>
-                    </group>
-                    <group string="Bed / Patient Swap With" colspan="4" col="4">
-                        <field name="location2_id"
-	                        domain="[('id','child_of',ward_location_id),
-		                        ('usage','=','bed'),
-		                        ('id','!=',location1_id),
-		                        ('is_available','=',False)]"
-		                    widget="selection" width="200" 
-		                    required="1"
-		                    on_change="onchange_location2(location2_id)"/>
-	                    <field name="patient2_id" readonly="1"/>                                                        
-                    </group>
-                    <button name="do_swap" type="object" string="Swap"/>
+                    <h1><field name="ward_location_id" readonly="1" widget="selection"/></h1>
+                    <group colspan="3" col="3">
+                    	<group string="Patient 1" colspan="1" col="2">
+							<field name="patient1_id" readonly="1"/>
+	                       	<field name="location1_id" readonly="1" widget="selection" width="70" />
+						</group>
+						<group colspan="1" col="1">
+							<div align="center">
+								<button name="do_swap" type="object" string="Swap"/>
+							</div>	
+						</group>
+	                    <group string="Patient 2" colspan="1" col="2">
+	                        <field name="patient2_id" readonly="1"/>
+	                        <field name="location2_id"
+		                        domain="[('id','child_of',ward_location_id),
+			                        ('usage','=','bed'),
+			                        ('id','!=',location1_id),
+			                        ('is_available','=',False)]"
+			                    widget="selection" width="70" 
+			                    required="1"
+			                    on_change="onchange_location2(location2_id)"/>
+	                    </group>
+	                </group>
+                    
                 </form>
             </field>
         </record>
