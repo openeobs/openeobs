@@ -68,12 +68,26 @@ class wardboard_device_session_start(orm.TransientModel):
     _name = "wardboard.device.session.start"
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
+        'device_category_id': fields.many2one('nh.clinical.device.category', 'Device Category'),
         'device_type_id':  fields.many2one('nh.clinical.device.type', "Device Type"),
         'device_id':  fields.many2one('nh.clinical.device', "Device"),
     }
 
-    def onchange_device_type_id(self, cr, uid, ids, context=None):
-        return {'value': {'device_id': False}}
+    def onchange_device_category_id(self, cr, uid, ids, device_category_id, context=None):
+        response = False
+        if device_category_id:
+            response = {'value': {'device_id': False, 'device_type_id': False}}
+            ids = self.pool['nh.clinical.device.type'].search(cr, uid, [('category_id', '=', device_category_id)])
+            response.update({'domain': {'device_type_id': [('id', 'in', ids)]}})
+        return response
+
+    def onchange_device_type_id(self, cr, uid, ids, device_type_id, context=None):
+        response = False
+        if device_type_id:
+            response = {'value': {'device_id': False}}
+            ids = self.pool['nh.clinical.device'].search(cr, uid, [('type_id', '=', device_type_id)])
+            response.update({'domain': {'device_id': [('id', 'in', ids), ('is_available', '=', True)]}})
+        return response
 
     def onchange_device_id(self, cr, uid, ids, device_id, context=None):
         device_pool = self.pool['nh.clinical.device']
