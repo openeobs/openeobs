@@ -4,7 +4,7 @@ var NHModal,
 
 NHModal = (function() {
   function NHModal(id, title, content, options, popupTime, el) {
-    var dialog, self;
+    var cover, dialog, self;
     this.id = id;
     this.title = title;
     this.content = content;
@@ -16,6 +16,14 @@ NHModal = (function() {
     this.create_dialog = __bind(this.create_dialog, this);
     self = this;
     dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
+    cover = document.createElement('div');
+    cover.setAttribute('class', 'cover');
+    cover.setAttribute('id', 'cover');
+    cover.setAttribute('data-action', 'close');
+    cover.setAttribute('data-target', this.id);
+    cover.style.height = (el.clientHeight * 1.5) + 'px';
+    cover.addEventListener('click', self.handle_button_events);
+    this.el.appendChild(cover);
     this.el.appendChild(dialog);
     this.calculate_dimensions(dialog, dialog.getElementsByClassName('dialogContent')[0], this.el);
   }
@@ -87,8 +95,8 @@ NHModal = (function() {
   };
 
   NHModal.prototype.calculate_dimensions = function(dialog, dialog_content, el) {
-    var available_space, margins, max_height;
-    margins = 40;
+    var available_space, margins, max_height, top_offset;
+    margins = 80;
     available_space = function(dialog, el) {
       var dialog_header_height, dialog_options_height, el_height, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
       dialog_header_height = (_ref = dialog.getElementsByTagName('h2')) != null ? (_ref1 = _ref[0]) != null ? _ref1.clientHeight : void 0 : void 0;
@@ -97,18 +105,22 @@ NHModal = (function() {
       return el_height - ((dialog_header_height + dialog_options_height) + (margins * 2));
     };
     max_height = available_space(dialog, el);
-    dialog.style.top = margins + 'px';
+    top_offset = el.offsetTop + margins;
+    dialog.style.top = top_offset + 'px';
+    dialog.style.display = 'inline-block';
     if (max_height) {
       dialog_content.style.maxHeight = max_height + 'px';
     }
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var dialog_id;
+    var cover, dialog_id;
     event.preventDefault();
     switch (event.srcElement.getAttribute('data-action')) {
       case 'close':
         dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
+        cover = document.getElementById('cover');
+        dialog_id.parentNode.removeChild(cover);
         return dialog_id.parentNode.removeChild(dialog_id);
       case 'confirm':
         return console.log('yay');

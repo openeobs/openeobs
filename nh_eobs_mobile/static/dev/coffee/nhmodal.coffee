@@ -13,8 +13,16 @@ class NHModal
 
    # create the dialog
    dialog = @create_dialog(self, @id, @title, @content, @options)
+   cover = document.createElement('div')
+   cover.setAttribute('class', 'cover')
+   cover.setAttribute('id', 'cover')
+   cover.setAttribute('data-action', 'close')
+   cover.setAttribute('data-target', @id)
+   cover.style.height = (el.clientHeight*1.5)+'px'
+   cover.addEventListener('click', self.handle_button_events)
 
    # append it to the DOM
+   @el.appendChild(cover)
    @el.appendChild(dialog)
    
    # calculate the size of the modal and adjust
@@ -74,7 +82,7 @@ class NHModal
    
  # calculate the correct size of the dialog
  calculate_dimensions: (dialog, dialog_content, el) =>
-   margins = 40
+   margins = 80
    #sibling_space = () ->
    #  sibling_height = 0
    #  sibling_height += child.clientHeight for child in el.children when child.innerHTML isnt el.innerHTML
@@ -86,7 +94,9 @@ class NHModal
      el_height = el.clientHeight
      return el_height - ((dialog_header_height + dialog_options_height) + (margins*2))
    max_height = available_space(dialog, el)
-   dialog.style.top = margins+'px'
+   top_offset = el.offsetTop + margins
+   dialog.style.top = top_offset+'px'
+   dialog.style.display = 'inline-block'
    if max_height
      dialog_content.style.maxHeight = max_height+'px'
    return
@@ -95,8 +105,10 @@ class NHModal
    event.preventDefault()
    switch event.srcElement.getAttribute('data-action')
      when 'close'
-       dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'))
-       dialog_id.parentNode.removeChild(dialog_id)
+         dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'))
+         cover = document.getElementById('cover')
+         dialog_id.parentNode.removeChild(cover)
+         dialog_id.parentNode.removeChild(dialog_id)
      when 'confirm' then console.log('yay')
 
 
