@@ -132,13 +132,13 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Form View" version="7.0" create="0" delete="0">
                     <header>
-                        <button name="wardboard_patient_placement" string="Move Patient"  type="object"/>
-                        <button name="wardboard_swap_beds" string="Swap Beds"  type="object"/>
-                        <button name="print_report" string="Print Report" type="object"/>
-                        <button name="wardboard_chart" string="NEWS Chart" type="object"/>
-                        <button name="wardboard_ews" string="NEWS List" type="object"/>
-                        <button name="wardboard_weight_chart" string="Weight Chart" type="object"/>
-                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object"/>
+                        <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button name="print_report" string="Print Report" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user"/>
+                        <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object" groups="base.group_user"/>
                     </header>
                     <sheet>
 
@@ -272,7 +272,7 @@
                                     <group string="Active Device Sessions">
                                     <div>
                                         <group>
-                                            <button name="device_session_start" type="object" string="Start Device Session"/>
+                                            <button name="device_session_start" type="object" string="Start Device Session" groups="base.group_user"/>
                                         </group>
                                         <newline/>
                                         <field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
