@@ -109,7 +109,7 @@
         if (req.readyState === 4) {
           successResultCodes = [200, 304];
           if (_ref = req.status, __indexOf.call(successResultCodes, _ref) >= 0) {
-            data = eval(req.responseText);
+            data = eval([req.responseText]);
             console.log('data: ', data);
             return promise.complete(data);
           } else {
