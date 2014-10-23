@@ -61,9 +61,9 @@
                 <form string="Wardboard Device Session">
                     <group string="Device Details">
                         <field name="patient_id" readonly="1"/>
-                        <field name="device_category_id" on_change="onchange_device_category_id(device_category_id)"/>
-                        <field name="device_type_id" on_change="onchange_device_type_id(device_type_id)" required="1"/>
-                        <field name="device_id" invisible="1" domain="[('is_available','=',1)]" on_change="onchange_device_id(device_id)"/>
+                        <field name="device_category_id" on_change="onchange_device_category_id(device_category_id)" widget="nh_many2one"/>
+                        <field name="device_type_id" on_change="onchange_device_type_id(device_type_id)" required="1" widget="nh_many2one"/>
+                        <field name="device_id" invisible="1" domain="[('is_available','=',1)]" on_change="onchange_device_id(device_id)" widget="nh_many2one"/>
                     </group>
                     <button name="do_start" type="object" string="Start"/>
                 </form>
