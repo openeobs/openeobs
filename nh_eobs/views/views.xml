@@ -92,7 +92,7 @@
                     <field name="parent_id"/>
                     <field name="name"/>
                     <field name="code" />
-                    <field name="is_available"/>
+                    <field name="patient_ids" widget="many2many_tags" string="Patient"/>
                     <field name="pos_id"/>
                 </tree>
             </field>
