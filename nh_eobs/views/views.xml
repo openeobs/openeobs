@@ -506,6 +506,56 @@
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_nhc_device_type_search"/>
         </record>
+        
+        <!--Admin Views - Device Categories-->
+        <record model="ir.ui.view" id="view_nhc_device_category_search">
+            <field name="name">NHC Device Category Search</field>
+            <field name="model">nh.clinical.device.category</field>
+            <field name="arch" type="xml">
+                <search string="Device Categories">
+                    <field name="name"/>
+                    <group expand="1" string="Group By...">
+                        <filter name="flow_direction" string="Flow direction" domain="[]" context="{'group_by':'flow_direction'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_nhc_device_category_tree">
+            <field name="name">NHC Device Category Tree</field>
+            <field name="model">nh.clinical.device.category</field>
+            <field name="arch" type="xml">
+                <tree string="Device Categories" version="7.0">
+                    <field name="name"/>
+                    <field name="flow_direction"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_nhc_device_category_form">
+            <field name="name">NHC Device Category Form</field>
+            <field name="model">nh.clinical.device.category</field>
+            <field name="arch" type="xml">
+                <form string="Device Category" version="7.0">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group string="Parameters">
+                            <field name="flow_direction"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_device_categories">
+            <field name="name">Device Categories</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">nh.clinical.device.category</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_nhc_device_category_search"/>
+        </record>
 
         <!--Doctor Tasks-->
         <record model="ir.ui.view" id="view_nhc_doctor_activities_tree">

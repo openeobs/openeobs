@@ -88,6 +88,12 @@
                   action="action_show_device_types"
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
+        <menuitem name="Device Categories"
+                  id="menu_nhui_left_device_categories"
+                  parent="menu_nhui_admin_left_devices"
+                  action="action_show_device_categories"
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+
         <menuitem name="User Management"
                   id="menu_nhui_admin_left_users"
                   parent="menu_nhui_admin_top_root"
