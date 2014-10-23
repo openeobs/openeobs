@@ -53,14 +53,15 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="is_available"/>
+                    <field name="patient_ids"/>
                     <group expand="1" string="Filters">
                         <filter name="active" string="Active Locations" domain="[('active','=',True)]"/>
                         <filter name="inactive" string="Inactive Locations" domain="[('active','=',False)]"/>
                     </group>
                     <group expand="1" string="Group By...">
                         <filter name="group_by_parent" string="Ward" domain="[]" context="{'group_by':'parent_id'}" help="Group by Ward"/>
-                        <filter name="group_by_type" string="Type" domain="[]" context="{'group_by':'type'}" help="Group by Type"/>
-                        <filter name="group_by_usage" string="Usage" domain="[]" context="{'group_by':'usage'}" help="Group by Usage"/>
+                        <!--<filter name="group_by_type" string="Type" domain="[]" context="{'group_by':'type'}" help="Group by Type"/>-->
+                        <!--<filter name="group_by_usage" string="Usage" domain="[]" context="{'group_by':'usage'}" help="Group by Usage"/>-->
                     </group>
                 </search>
             </field>
@@ -201,7 +202,7 @@
                                         <field name="name" readonly="1"/>
                                         <field name="assigned_hca_ids" widget="many2many_tags"/>
                                         <field name="assigned_nurse_ids" widget="many2many_tags"/>
-                                        <field name="is_available" readonly="1"/>
+                                        <field name="patient_ids" widget="many2many_tags" readonly="1"/>
                                     </tree>
                                 </field>
                             </page>
