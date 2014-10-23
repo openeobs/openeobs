@@ -342,7 +342,6 @@
             <field name="arch" type="xml">
                 <form string="Wardboard EWS Chart Form View" version="7.0" create="0">
                     <sheet>
-                        <button name="print_chart" string="Print" type="object" class="oe_highlight"/>
                         <field name="ews_ids" widget="nh_ewschart"/>
                     </sheet>
                 </form>
@@ -488,6 +487,13 @@
                     <templates>
                         <t t-name="kanban-box">
                             <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user">
+                                    <span class="oe_e">í</span>
+                                    <ul class="oe_dropdown_menu">
+                                        <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
+                                        <li><a name="wardboard_ews" type="object">NEWS List</a></li>
+                                    </ul>
+                                </div>
                                 <div class="oe_kanban_content">
                                     <div><field name="location"/></div>
                                     <div><b><field name="full_name"/></b> (<field name="age"/>)
