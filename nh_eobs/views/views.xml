@@ -98,7 +98,7 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_show_active_locations" >
+        <record model="ir.actions.act_window" id="action_show_active_locations">
             <field name="name">Active Points of Care</field>
             <field name="res_model">nh.clinical.location</field>
             <field name="view_type">form</field>

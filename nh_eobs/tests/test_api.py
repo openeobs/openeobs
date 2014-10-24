@@ -20,7 +20,7 @@ class TestAPI(SingleTransactionCase):
         cls.extapi = cls.registry('nh.eobs.api')
         cls.apidemo = cls.registry('nh.clinical.api.demo')
 
-        cls.apidemo.build_unit_test_env(cr, uid)
+        cls.apidemo.build_unit_test_env(cr, uid, context='eobs')
 
         cls.wu_id = cls.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
         cls.wt_id = cls.location_pool.search(cr, uid, [('code', '=', 'T')])[0]
