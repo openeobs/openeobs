@@ -160,7 +160,7 @@
                         <div class="dropdown-space">
                             <select>
                                 <t t-foreach="item['selection_options']" t-as="option">
-                                    <option t-att-data-value="option['value']" href="#"><t t-esc="option['label']"/></option>
+                                    <option t-att-data-value="option['value']"><t t-esc="option['label']"/></option>
                                 </t>
                             </select>
                         </div>
