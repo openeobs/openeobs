@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+    <data>
+        <template t-name="nh_eobs_mobile_theme_loz.base_head" inherit_id="nh_eobs_mobile.base">
+            <xpath expr="//head" position="replace">                                                                                                                                                                                                                                                                                                                                          ]
+                <head>
+                    <title>Welcome to open e-Obs</title>
+                    <link rel="stylesheet" type="text/css" t-att-href="urls['stylesheet']"/>
+                    <meta name="viewport" content="width=device-width, user-scalable=no"/>
+                </head>
+            </xpath>
+        </template>
+
+        <template t-name="nh_eobs_mobile_theme_loz.base_body" inherit_id="nh_eobs_mobile.base">
+            <xpath expr="//body" position="replace">
+                <body>
+                    <div id="wrapper">
+                        <div id="header">
+
+                            <div id="topbar">
+                                <ul>
+                                    <li class="logo">
+                                        <img t-att-src="urls['logo']"/>
+                                    </li>
+                                    <li class="key">
+                                        <a href="pin.html">
+                                            <i class="pin-key"></i>
+                                        </a>
+                                    </li>
+                                    <li class="user">
+                                        <t t-esc="username"/>
+                                    </li>
+                                    <li class="bell">22<i class="bell-orange"></i>
+                                    </li>
+                                    <li class="logout">
+                                        <a t-att-href="urls['logout']">Logout</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div id="navbar">
+                                <ul>
+                                    <li><a t-att-class="'' if section=='task' else 'on'" t-att-href="urls['task_list']">My Tasks</a></li>
+                                    <li><a t-att-class="'' if section=='patient' else 'on'" t-att-href="urls['patient_list']">My Patients</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <div id="main">
+                            <t t-raw="0"></t>
+
+                        </div>
+                    </div>
+                </body>
+            </xpath>
+        </template>
+
+        <template id="nh_eobs_mobile_theme_loz.task_list">
+            <t t-call="nh_eobs_mobile.base">
+                <t t-foreach="items" t-as="item">
+                    <div class="task">
+                        <a t-att-class="'row-one {0}'.format(item['color'])" t-att-href="item['url']">
+                            <div t-att-class="'task-{0}'.format(item['color'])">
+                                <div class="task-name"><t t-esc="item['summary']"/></div> <span>Start Task</span></div>
+                                <div t-att-class="'due-{0}'.format(item['color'])"><t t-if="item['overdue']">Overdue:</t><t t-if="item['overdue']==False">Due in:</t></div>
+                        </a>
+                        <div class="row-two">
+                            <div class="name"><a href="info.html"><i class="info"></i></a><t t-esc="item['full_name']"/></div>
+                            <div class="news">
+                                <div class="news-arrow"><i t-att-class="item['trend_icon']"></i></div><div class="news-score"><t t-esc="item['ews_score']"/></div>
+
+                            </div>
+                            <div t-att-class="'clockspace-{0}'.format(item['color'])"><i t-att-class="'clock-{0}'.format(item['color'])"></i></div>
+                        </div>
+                        <div class="row-three">
+                            <div class="bed"><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></div>
+                            <div t-att-class="'task-time-{0}'.format(item['color'])"><t t-esc="item['deadline_time']"/></div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+        <template id="nh_eobs_mobile_theme_loz.patient_list">
+            <t t-call="nh_eobs_mobile.base">
+                <t t-foreach="items" t-as="item">
+                    <a t-att-href="item['url']" class="patient-item">
+                        <div class="row-one mypatients">
+                            <div class="patient-info"><i class="info"></i></div><div class="name"><t t-esc="item['full_name']"/> </div>
+                            <div class="news">
+                                <div class="news-arrow"><i t-att-class="item['trend_icon']"></i></div><div class="news-score"><t t-esc="item['ews_score']"/></div>
+                            </div>
+                            <div class="due-patient"><t t-if="item['overdue']">Next Obs Overdue:</t><t t-if="item['overdue']==False">Next Obs Due:</t></div>
+                        </div>
+                        <div class="row-two mypatients">
+                            <div class="bed-patient"><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></div>
+                            <div class="time-patient"><t t-esc="item['deadline_time']"/></div>
+                        </div>
+                    </a>
+                </t>
+            </t>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.observation_entry" id="nh_eobs_mobile_theme_loz.observation_form">
+            <xpath expr="//div[@class='content']/h2[@id='patientName']" position="replace">
+                <div class="news-patient-bar">
+                    <div class="news-title"><t t-esc="name"/></div>
+                    <div class="news-name"><t t-esc="patient['name']"/></div>
+                    <div class="info-news"><a href="#"><i class="info"></i></a></div>
+                </div>
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.notification_confirm_cancel" id="nh_eobs_mobile_theme_loz.notification_form">
+            <xpath expr="//div[@class='content']/h2[@id='patientName']" position="replace">
+                <div class="news-patient-bar">
+                    <div class="news-title"><t t-esc="name"/></div>
+                    <div class="news-name"><t t-esc="patient['name']"/></div>
+                    <div class="info-news"><a href="#"><i class="info"></i></a></div>
+                </div>
+            </xpath>
+        </template>
+
+
+        <template inherit_id="nh_eobs_mobile.observation_data_input" id="nh_eobs_mobile_theme_loz.observation_data_input">
+            <xpath expr="//div" position="replace">
+                <div class="news-item">
+                    <div class="news-desc">
+                        <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
+                    </div>
+                    <input class="box" t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if item['initially_hidden']==True else ''"/>
+                    <!-- <t t-if="'error' in item"><div class="news-error"><t t-esc="item['error']"/></div></t>  -->
+                    <div class="news-error">Meh</div>
+                </div>
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.observation_data_select" id="nh_eobs_mobile_theme_loz.observation_data_select">
+            <xpath expr="//div" position="replace">
+                <div class="news-item">
+                    <div class="news-desc">
+                        <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
+                    </div>
+                    <t t-if="len(item['selection_options']) &lt; 5">
+                        <div class="option-space">
+                            <ul class="avpu">
+                                <t t-foreach="item['selection_options']" t-as="option">
+                                    <li>
+                                        <span class="avpu"><t t-esc="option['label']"/></span>
+                                        <input class="avpu" type="radio" t-att-data-value="option['value']" t-att-name="item['name']"/>
+                                        <span class="avpu selected"><t t-esc="option['label']"/></span>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </t>
+                    <t t-if="len(item['selection_options']) >= 5">
+                        <div class="dropdown-space">
+                            <select>
+                                <t t-foreach="item['selection_options']" t-as="option">
+                                    <option t-att-data-value="option['value']" href="#"><t t-esc="option['label']"/></option>
+                                </t>
+                            </select>
+                        </div>
+                    </t>
+                    <!-- <t t-if="'error' in item"><div class="news-error"><t t-esc="item['error']"/></div></t>  -->
+                    <div class="news-error">Meh</div>
+                </div>
+            </xpath>
+        </template>
+
+
+
+        <template id="nh_eobs_mobile_theme_loz.patient" inherit_id="nh_eobs_mobile.patient">
+            <xpath expr="//div[@class='content']/div[@class='block']/a[@id='obsButton']" position="replace">
+                <div id="chart-block-top">
+                    <div class="chart-patient-info name" t-att-data-id="patient['id']"><strong><t t-esc="patient['full_name']"/></strong><br/><em>
+                        <t t-if="'parent_location' in patient">
+                            <t t-esc="patient['parent_location']"/>,
+                        </t>
+                        <t t-if="'location' in patient">
+                            <t t-esc="patient['location']"/>
+                        </t></em>
+                    </div>
+                    <h3 class="obs"><a href="#">Take Observation</a></h3>
+                </div>
+        </xpath>
+        </template>
+
+
+
+    </data>
+</openerp>

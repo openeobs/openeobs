@@ -1,0 +1,54 @@
+<html>
+	<head>
+		<title>Open eObs - Login</title>
+		<link rel="stylesheet" type="text/css" href="{{stylesheet}}">
+		<meta name="viewport" content="width=device-width, user-scalable=no">
+	</head>
+	<body>
+	
+	<div id="header">
+	
+		<div id="topbar">
+			<ul>
+				<li class="logo"><img src="{{logo}}"><!-- <i class="logo-icon"></i> --></li>
+				<li class="welcome-text">Welcome to open-eObs, please sign in</div>
+			</ul>
+		</div>
+	</div>	
+					
+	<div id="main">
+        <form action="{{form_action}}" method="POST">
+            {{errors}}
+            <div class="login-section">
+                    <label for="username">Username</label>
+                    <input class="login-box" type="text" name="username" placeholder="Username" id="username"/>
+            </div>
+
+            <div class="login-section">
+                    <label for="password">Password</label>
+                    <input class="login-box" type="password" name="password" id="password" placeholder="Password"/>
+            </div>
+            {% if databases|length > 1 %}
+            <div class="login-section">
+                    <label for="database">Database</label>
+                <select name="database" id="database" class="login-box">
+                    {% for database in databases %}
+                    <option value="{{database}}">{{database}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% else %}
+            {% for database in databases %}
+            <input type="hidden" name="database" id="database" value="{{database}}"/>
+            {% endfor %}
+            {% endif %}
+            <ul class="login-screen">
+                <li class="login-button"><button type="submit">Login</button></li>
+
+                <li class="login-button"><a href="#">Forgot Password?</a></li>
+            </ul>
+        </form>
+	</div>		
+
+	</body>
+</html>
