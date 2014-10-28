@@ -453,9 +453,8 @@ background-color: white;
 }
 
 .row-three {
-	
-width: 98%;	
-display:inline-block;
+    width: 98%;
+    display:inline-block;
 border-bottom-left-radius: 10px;
 border-bottom-right-radius: 10px;
 background-color: #ffffff;
@@ -506,22 +505,21 @@ border-right-width: 1px;
 }
 
 .task-orange span, .task-yellow span, .task-green span, .task-white span {
-		
-text-decoration: none;
-margin-right: 1%;
-padding-left: 2%;
-padding-right: 2%;
-float: right;
-text-shadow: 0px 1px 1px #5d5f63;
-color: #ffffff;
-font-weight: 300;
-background-color: #4491ce;
-text-align: center;
-border-color: #e6e6e6;
--webkit-border-radius: 5px;
-border-radius: 5px;
-box-shadow: 0px 2px 0px #7f7f7f;
-
+	text-decoration: none;
+    margin-right: 1%;
+    padding-left: 2%;
+    padding-right: 2%;
+    float: right;
+    text-shadow: 0px 1px 1px #5d5f63;
+    color: #ffffff;
+    font-weight: 300;
+    background-color: #4491ce;
+    text-align: center;
+    border-color: #e6e6e6;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 0px #7f7f7f;
+    width: 13%;
 }
 
 .due-orange {

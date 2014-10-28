@@ -37,11 +37,39 @@ describe('NHMobileForm - EventListeners', function(){
         expect(window.NHMobileForm.prototype.submit).toHaveBeenCalled();
     });
 
+    it('submit partial is triggered', function(){
+       spyOn(window.NHMobileForm.prototype, "display_partial_reasons");
+        var mobile_form = new window.NHMobileForm();
+        var test_input = document.getElementById('submitButton');
+        test_input.click();
+        expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
+    });
+
+    it('submit full is triggered', function(){
+        spyOn(window.NHMobileForm.prototype, "submit_observation");
+        var mobile_form = new window.NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        test_input.click();
+        expect(window.NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+    });
+
+    it('sets up the form  timeout', function() {
+        var mobile_form = new window.NHMobileForm();
+        expect(typeof(window.form_timeout)).toBe('number');
+    });
+
 
     afterEach(function(){
         var test = document.getElementById('test');
         if(test != null){
             test.parentNode.removeChild(test);
         }
+        clearInterval(window.form_timeout);
     });
+
+
 });
