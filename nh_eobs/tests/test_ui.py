@@ -11,10 +11,13 @@ def next_seed():
 
 class test_ui_data(SingleTransactionCase):
 
-    def setUp(self):
-        super(test_ui_data, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super(test_ui_data, cls).setUpClass()
+        cr, uid = cls.cr, cls.uid
+        cls.apidemo = cls.registry('nh.clinical.api.demo')
+        cls.apidemo.build_unit_test_env(cr, uid, context='eobs')
 
-        #self.activity_pool = self.registry('nh.activity')
 
 #     def test_workload(self):
 #         #return
@@ -49,23 +52,14 @@ class test_ui_data(SingleTransactionCase):
         #return
         cr, uid = self.cr, self.uid
         wardboard_model = self.registry('nh.clinical.wardboard')
-        env_model = self.registry('nh.clinical.demo.env')
         api = self.registry('nh.clinical.api')
-        config = {
-            'bed_qty': 3,
-            'patient_qty': 2,
-        }
-        #import pdb; pdb.set_trace()
-
-        env_id = env_model.create(cr, uid, config)    
-        env_model.build(cr, uid, env_id)    
-        env = env_model.browse(cr, uid, env_id)#env_model.build(cr, uid, env_id)  
+        location = self.registry('nh.clinical.location')
 
         # patient data test
-        patient_ids = wardboard_model.search(cr, uid, [['pos_id','=',env.pos_id.id]])
-        assert len(patient_ids) == config['patient_qty'], "Wrong patient_qty in the POS: %s" % len(patient_ids)
-        patients = api.patient_map(cr, uid, parent_location_ids=[env.pos_id.location_id.id])
-        wardboard_ids = wardboard_model.search(cr, uid, [['patient_id','in',patients.keys()]])
+        location_id = location.search(cr, uid, [['code', '=', 'U']])
+        wu = location.browse(cr, uid, location_id[0])
+        patients = api.patient_map(cr, uid, parent_location_ids=[wu.parent_id.id])
+        wardboard_ids = wardboard_model.search(cr, uid, [['patient_id', 'in', patients.keys()]])
         wardboards = wardboard_model.browse(cr, uid, wardboard_ids, [])
         print "================ PATIENT DATA =================="
         for wardboard in wardboards:
@@ -122,7 +116,7 @@ class test_ui_data(SingleTransactionCase):
         }
         case_count = 5
         print "================ EWS DATA =================="
-        nurse_user_id = api.user_map(cr,uid, group_xmlids=['group_nhc_nurse']).keys()[0]
+        nurse_user_id = api.user_map(cr, uid, group_xmlids=['group_nhc_nurse']).keys()[0]
         for patient_id in patients.keys():
             print "patient_id: %s" % patient_id
             mrsa_activity = api.create_complete(cr, uid, 'nh.clinical.patient.mrsa', 
@@ -146,7 +140,7 @@ class test_ui_data(SingleTransactionCase):
                 case = fake.random_element(data)
                 activities = api.activity_map(cr, uid, patient_ids=[patient_id],
                                                 data_models=['nh.clinical.patient.observation.ews'],
-                                                pos_ids=[env.pos_id.id],
+                                                pos_ids=[wu.parent_id.pos_id.id],
                                                 states=['new', 'scheduled'])
                 assert len(activities) == 1, "More than 1 or None ews activities open!"
                 activity_id = activities.keys()[0]
@@ -155,19 +149,15 @@ class test_ui_data(SingleTransactionCase):
                 activity = api.submit_complete(cr, nurse_user_id, activity_id, ews_data)
                 print "score: %s" % activity.data_ref.score
                 
-                wardboard_ids = wardboard_model.search(cr, SUPERUSER_ID, [['patient_id','=',patient_id],['pos_id','=',env.pos_id.id]])
-                #import pdb; pdb.set_trace()
+                wardboard_ids = wardboard_model.search(cr, SUPERUSER_ID, [['patient_id', '=', patient_id], ['pos_id', '=', wu.parent_id.pos_id.id]])
                 assert len(wardboard_ids) == 1
-#                 import pdb; pdb.set_trace()
                 wardboard = wardboard_model.browse(cr, SUPERUSER_ID, wardboard_ids[0])
-                #wardboard_read = wardboard_model.read(cr, SUPERUSER_ID, wardboard_ids[0], [])
-                
+
                 assert wardboard.clinical_risk == activity.data_ref.clinical_risk,\
                     "wardboard.clinical_risk: %s, activity.data_ref.clinical_risk: %s"\
                     %(wardboard.clinical_risk, activity.data_ref.clinical_risk)
                 assert wardboard.clinical_risk == case['RISK'], "wardboard.clinical_risk: %s, case['RISK']: %s"\
                     % (wardboard.clinical_risk, case['RISK'])    
-                # trend             
                 if not previous_result:
                     assert wardboard.ews_trend_string == 'first'
                     
@@ -186,14 +176,12 @@ class test_ui_data(SingleTransactionCase):
                 ews_ids = [ews.id for ews in wardboard.ews_ids]
                 
                 print "id = %s, ews_ids = %s" % (activity.data_ref.id, ews_ids)
-#                 import pdb; pdb.set_trace()
                 assert activity.data_ref.id in ews_ids, "ews.data_ref.id not in wardboard.ews_ids: id = %s, ews_ids = %s" % (activity.data_ref.id, ews_ids)
-                #import pdb; pdb.set_trace()
             # other obs
             mrsa_activity_map = api.activity_rank_map(cr, uid, 
                                                         partition_by="patient_id, data_model, state", 
                                                         partition_order="sequence desc",
-                                                        ranks=[1], pos_ids=[env.pos_id.id], 
+                                                        ranks=[1], pos_ids=[wu.parent_id.pos_id.id],
                                                         patient_ids=[patient_id],
                                                         data_models=['nh.clinical.patient.mrsa'], 
                                                         states=['completed']
@@ -205,6 +193,4 @@ class test_ui_data(SingleTransactionCase):
             assert wardboard.diabetes == diabetes_activity.data_ref.diabetes and 'yes' or 'no'
             assert wardboard.pbp_monitoring == pbpm_activity.data_ref.pbp_monitoring and 'yes' or 'no'  
             assert wardboard.weight_monitoring == weightm_activity.data_ref.weight_monitoring and 'yes' or 'no' 
-#             import pdb; pdb.set_trace()
             assert wardboard.height == height_activity.data_ref.height
-            #assert wardboard.o2target.id == o2target_activity.data_ref.level_id.id
