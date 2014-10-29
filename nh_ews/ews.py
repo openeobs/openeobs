@@ -202,6 +202,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 'False': {
                     'show': [],
                     'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                },
+                'Default': {
+                    'show': [],
+                    'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
                 }
             }
         },
@@ -385,6 +389,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     'show': ['flow_rate', 'concentration'],
                     'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
                 }
+        device_on_change['Default'] = {
+            'show': [],
+            'hide': ['flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+        }
 
         for field in fd:
             if field['name'] == 'indirect_oxymetry_spo2' and o2target:
