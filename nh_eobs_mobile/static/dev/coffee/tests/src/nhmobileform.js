@@ -8,6 +8,7 @@ NHMobileForm = (function(_super) {
   __extends(NHMobileForm, _super);
 
   function NHMobileForm() {
+    this.cancel_notification = __bind(this.cancel_notification, this);
     this.handle_timeout = __bind(this.handle_timeout, this);
     this.submit_observation = __bind(this.submit_observation, this);
     this.display_partial_reasons = __bind(this.display_partial_reasons, this);
@@ -32,6 +33,8 @@ NHMobileForm = (function(_super) {
               return input.addEventListener('change', self.validate);
             case 'submit':
               return input.addEventListener('click', self.submit);
+            case 'reset':
+              return input.addEventListener('click', self.cancel_notification);
           }
           break;
         case 'select':
@@ -85,7 +88,9 @@ NHMobileForm = (function(_super) {
         return _results;
       })();
       reason = document.getElementsByName('partial_reason')[0];
-      form_elements.push(reason);
+      if (reason) {
+        form_elements.push(reason);
+      }
       details = event.detail;
       self.submit_observation(self, form_elements, details.action, self.form.getAttribute('ajax-args'));
       dialog_id = document.getElementById(details.target);
@@ -271,9 +276,11 @@ NHMobileForm = (function(_super) {
           }
           triggered_tasks = '<ul class="menu">' + tasks + '</ul>';
         }
-        task_list = triggered_tasks ? triggered_tasks : '<p class="block">Observation was submitted</p>';
+        task_list = triggered_tasks ? triggered_tasks : '<p>Observation was submitted</p>';
         title = triggered_tasks ? 'Action required' : 'Observation successfully submitted';
         return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, self.form);
+      } else if (data.status === 4) {
+        return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', ['<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">Go to My Tasks</a>'], 0, self.form);
       } else {
         return new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form);
       }
@@ -283,6 +290,22 @@ NHMobileForm = (function(_super) {
   NHMobileForm.prototype.handle_timeout = function(self, id) {
     return Promise.when(self.call_resource(self.urls['json_cancel_take_task'](id))).then(function(server_data) {
       return new window.NH.NHModal('form_timeout', 'Task window expired', '<p class="block">Please pick the task again from the task list if you wish to complete it</p>', ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'], 0, document.getElementsByTagName('body')[0]);
+    });
+  };
+
+  NHMobileForm.prototype.cancel_notification = function(self) {
+    return Promise.when(this.call_resource(this.urls.ajax_task_cancellation_options())).then(function(data) {
+      var option, option_name, option_val, options, select, _i, _len, _ref;
+      options = '';
+      _ref = data[0][0];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        option = _ref[_i];
+        option_val = option.id;
+        option_name = option.name;
+        options += '<option value="' + option_val + '">' + option_name + '</option>';
+      }
+      select = '<select name="reason">' + options + '</select>';
+      return new window.NH.NHModal('cancel_reasons', 'Cancel task', '<p>Please state reason for cancelling task</p>' + select, ['<a href="#" data-action="close" data-target="cancel_reasons">Cancel</a>', '<a href="#" data-target="cancel_reasons" data-action="partial_submit" data-ajax-action="cancel_clinical_notification">Confirm</a>'], 0, document.getElementsByTagName('form')[0]);
     });
   };
 

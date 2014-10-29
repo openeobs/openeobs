@@ -338,6 +338,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             obs_reg = request.registry['nh.eobs.api']
             form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], task['data_model'], context=context)
             form['type'] = re.match(r'nh\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
+            form['obs_needs_score'] = False
             for form_input in form_desc:
                 if form_input['type'] in ['float', 'integer']:
                     form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
@@ -356,14 +357,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                         opt['value'] = '{0}'.format(option[0])
                         opt['label'] = option[1]
                         form_input['selection_options'].append(opt)
+                elif form_input['type'] == 'meta':
+                    form['obs_needs_score'] = form_input['score'] if 'score' in form_input else False
 
-            return request.render('nh_eobs_mobile.observation_entry', qcontext={'inputs': form_desc,
-                                                                                      'name': task['summary'],
-                                                                                      'patient': patient,
-                                                                                      'form': form,
-                                                                                      'section': 'task',
-                                                                                      'username': request.session['login'],
-                                                                                      'urls': URLS})
+            return request.render('nh_eobs_mobile.observation_entry', qcontext={'inputs': [i for i in form_desc if i['type'] is not 'meta'],
+                                                                                'name': task['summary'],
+                                                                                'patient': patient,
+                                                                                'form': form,
+                                                                                'section': 'task',
+                                                                                'username': request.session['login'],
+                                                                                'urls': URLS})
         else:
             return request.render('nh_eobs_mobile.error', qcontext={'error_string': 'Task is neither a notification nor an observation',
                                                                      'section': 'task',
@@ -419,7 +422,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         converter_pool = request.registry('ir.fields.converter')
         observation_pool = request.registry(model)
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
-
         data = kw.copy()
         test = {}
         if 'startTimestamp' in data:
@@ -432,7 +434,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     del data[key]
         converted_data = converter(data, test)
 
-        return request.make_response(json.dumps(api_pool.get_activity_score(cr, uid, model, converted_data, context=context)), headers={'Content-Type': 'application/json'})
+        score_dict = api_pool.get_activity_score(cr, uid, model, converted_data, context=context)
+        modal_vals = {}
+        modal_vals['next_action'] = 'json_task_form_action'
+        modal_vals['title'] = 'Submit {score_type} of {score}'.format(score_type=observation.upper(), score=score_dict['score'])
+        if 'clinical_risk' in score_dict:
+            modal_vals['content'] = '<p><strong>Clinical risk: {risk}</strong></p><p>Please confirm you want to submit this score</p>'.format(risk=score_dict['clinical_risk'])
+        else:
+            modal_vals['content'] = '<p>Please confirm you want to submit this score</p>'
+
+        return request.make_response(json.dumps({'status': 3, 'score': score_dict, 'modal_vals': modal_vals}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['json_partial_reasons'], type="http", auth="user")
     def get_partial_reasons(self, *args, **kw):
@@ -464,9 +475,15 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         kw_copy = kw.copy()
         if 'taskId' in kw_copy:
             del kw_copy['taskId']
+        if 'frequency' in kw_copy:
+            kw_copy['frequency'] = int(kw_copy['frequency'])
+        if 'location_id' in kw_copy:
+            kw_copy['location_id'] = int(kw_copy['location_id'])
         result = api.complete(cr, uid, int(task_id), kw_copy)
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
+
+    # TODO: remove this once switch to coffeescript
 
     @http.route(URLS['confirm_review_frequency']+'<task_id>', type="http", auth="user")
     def confirm_review_frequency(self, task_id, *args, **kw):
@@ -480,8 +497,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
+    # TODO: remove this once switch to coffeescript
+
     @http.route(URLS['confirm_bed_placement']+'<task_id>', type="http", auth="user")
-    def confirm_review_frequency(self, task_id, *args, **kw):
+    def confirm_bed_placement(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
         base_api = request.registry('nh.clinical.api')
@@ -500,7 +519,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         kw_copy = kw.copy()
         kw_copy['reason'] = int(kw_copy['reason'])
         result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
-        return request.make_response(json.dumps({'status':1}), headers={'Content-Type': 'application/json'})
+        return request.make_response(json.dumps({'status':1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['ajax_task_cancellation_options'], type='http', auth='user')
     def cancel_reasons(self, *args, **kw):

@@ -19,6 +19,7 @@ class NHMobileForm extends NHMobile
            switch input.type
              when 'number' then input.addEventListener('change', self.validate)
              when 'submit' then input.addEventListener('click', self.submit)
+             when 'reset' then input.addEventListener('click', self.cancel_notification)
          when 'select' then input.addEventListener('change', self.trigger_actions)
 
 
@@ -37,7 +38,8 @@ class NHMobileForm extends NHMobile
    document.addEventListener 'partial_submit', (event) ->
      form_elements = (element for element in self.form.elements when not element.classList.contains('exclude'))
      reason = document.getElementsByName('partial_reason')[0]
-     form_elements.push(reason)
+     if reason
+       form_elements.push(reason)
      details = event.detail
      self.submit_observation(self, form_elements, details.action, self.form.getAttribute('ajax-args'))
      dialog_id = document.getElementById(details.target)
@@ -163,15 +165,28 @@ class NHMobileForm extends NHMobile
          for task in data.related_tasks
            tasks += '<li><a href="'+self.urls['single_task'](task.id).url+'">'+task.summary+'</a></li>'
          triggered_tasks = '<ul class="menu">'+tasks+'</ul>'
-       task_list = if triggered_tasks then triggered_tasks else '<p class="block">Observation was submitted</p>'
+       task_list = if triggered_tasks then triggered_tasks else '<p>Observation was submitted</p>'
        title = if triggered_tasks then 'Action required' else 'Observation successfully submitted'
        new window.NH.NHModal('submit_success', title , task_list, buttons, 0, self.form)
+     else if data.status is 4
+       new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', ['<a href="'+self.urls['task_list']().url+'" data-action="confirm" data-target="cancel_success">Go to My Tasks</a>'], 0, self.form)
      else
        new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form)
 
  handle_timeout: (self, id) =>
    Promise.when(self.call_resource(self.urls['json_cancel_take_task'](id))).then (server_data) ->
      new window.NH.NHModal('form_timeout', 'Task window expired', '<p class="block">Please pick the task again from the task list if you wish to complete it</p>', ['<a href="'+self.urls['task_list']().url+'" data-action="confirm">Go to My Tasks</a>'], 0, document.getElementsByTagName('body')[0])
+
+ cancel_notification: (self) =>
+   Promise.when(@call_resource(@.urls.ajax_task_cancellation_options())).then (data) ->
+     options = ''
+     for option in data[0][0]
+       option_val = option.id
+       option_name = option.name
+       options += '<option value="'+option_val+'">'+option_name+'</option>'
+     select = '<select name="reason">'+options+'</select>'
+     new window.NH.NHModal('cancel_reasons', 'Cancel task', '<p>Please state reason for cancelling task</p>'+select, ['<a href="#" data-action="close" data-target="cancel_reasons">Cancel</a>', '<a href="#" data-target="cancel_reasons" data-action="partial_submit" data-ajax-action="cancel_clinical_notification">Confirm</a>'], 0, document.getElementsByTagName('form')[0])
+
 
 if !window.NH
   window.NH = {}

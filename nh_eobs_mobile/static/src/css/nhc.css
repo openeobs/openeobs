@@ -32,6 +32,7 @@ html {
 }
 body {
   margin: 0;
+  height: 100%;
 }
 a {
   background: transparent;
@@ -1191,7 +1192,7 @@ rect.green {
 .card table tr td {
   vertical-align: top;
 }
-#loadObs {
+.patient_obs {
   padding: 0.3em 2%;
   border-radius: 5px;
   color: #ffffff;
