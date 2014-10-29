@@ -112,7 +112,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         placement_pool = self.pool['nh.clinical.patient.placement']
         # FIXME + placement.id child_of current_spell_activity
         placement = placement_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
-        #import pdb; pdb.set_trace()
         location_id = placement and placement[0].location_id.id or False
         return location_id
 

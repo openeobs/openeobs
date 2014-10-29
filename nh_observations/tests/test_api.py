@@ -63,7 +63,6 @@ class test_api(common.SingleTransactionCase):
             if i > 0: assert amap[available_ids[i-1]]['available']
             # patient
             amap = api.location_map(cr, uid, usages=['bed'], patient_ids=[patient_id], available_range=[0,1], pos_ids=[env.pos_id.id])
-            #import pdb; pdb.set_trace()
             assert len(amap) == 1, "Patient must be in one location only!"
             assert len(amap[location_id]['patient_ids']) == 1, "More patients returned than expected!"
             assert amap[location_id]['patient_ids'][0] == patient_id, "Wrong patient returned!"
