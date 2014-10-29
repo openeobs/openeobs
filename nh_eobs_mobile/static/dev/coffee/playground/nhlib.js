@@ -129,6 +129,7 @@
     };
 
     function NHMobile() {
+      this.fullscreen_patient_info = __bind(this.fullscreen_patient_info, this);
       this.get_patient_info = __bind(this.get_patient_info, this);
       this.call_resource = __bind(this.call_resource, this);
       var self;
@@ -176,12 +177,29 @@
         }
         patient_details = '<dl>' + patient_details + '</dl><p><a href="' + self.urls['single_patient'](patient_id).url + '" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>';
         new NHModal('patient_info', patient_name, patient_details, ['<a href="#" data-target="patient_info" data-action="close">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
-        document.getElementById('patient_obs_fullscreen').addEventListener('click', function(event) {
-          event.preventDefault();
-          return console.log('yay');
-        });
-        return true;
+        return document.getElementById('patient_obs_fullscreen').addEventListener('click', self.fullscreen_patient_info);
       });
+    };
+
+    NHMobile.prototype.fullscreen_patient_info = function(event) {
+      var container, options, options_close, page;
+      event.preventDefault();
+      container = document.createElement('div');
+      container.setAttribute('class', 'full-modal');
+      options = document.createElement('p');
+      options_close = document.createElement('a');
+      options_close.setAttribute('href', '#');
+      options_close.setAttribute('id', 'closeFullModal');
+      options_close.innerText = 'Close popup';
+      options_close.addEventListener('click', function() {
+        return document.getElementsByTagName('body')[0].removeChild(document.getElementsByClassName('full-modal')[0]);
+      });
+      options.appendChild(options_close);
+      container.appendChild(options);
+      page = document.createElement('iframe');
+      page.setAttribute('src', event.srcElement.getAttribute('href'));
+      container.appendChild(page);
+      return document.getElementsByTagName('body')[0].appendChild(container);
     };
 
     return NHMobile;

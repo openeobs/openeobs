@@ -94,13 +94,27 @@ class NHMobile extends NHLib
        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_id + "</dd>"
      patient_details = '<dl>'+patient_details+'</dl><p><a href="'+self.urls['single_patient'](patient_id).url+'" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>'
      new NHModal('patient_info', patient_name, patient_details, ['<a href="#" data-target="patient_info" data-action="close">Cancel</a>'], 0, document.getElementsByTagName('body')[0])
+     document.getElementById('patient_obs_fullscreen').addEventListener('click', self.fullscreen_patient_info)
 
-     document.getElementById('patient_obs_fullscreen').addEventListener('click', (event) ->
-       event.preventDefault()
-       console.log('yay')
-     )
 
-     return true
+ fullscreen_patient_info: (event) =>
+   event.preventDefault()
+   container = document.createElement('div')
+   container.setAttribute('class', 'full-modal')
+   options = document.createElement('p')
+   options_close = document.createElement('a')
+   options_close.setAttribute('href', '#')
+   options_close.setAttribute('id', 'closeFullModal')
+   options_close.innerText = 'Close popup'
+   options_close.addEventListener('click', () ->
+     document.getElementsByTagName('body')[0].removeChild(document.getElementsByClassName('full-modal')[0])
+   )
+   options.appendChild(options_close)
+   container.appendChild(options)
+   page = document.createElement('iframe')
+   page.setAttribute('src', event.srcElement.getAttribute('href'))
+   container.appendChild(page)
+   document.getElementsByTagName('body')[0].appendChild(container)
 
 
 
