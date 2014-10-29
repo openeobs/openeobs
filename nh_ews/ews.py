@@ -129,6 +129,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     _form_description = [
         {
+            'type': 'meta',
+            'score': True
+        },
+        {
             'name': 'respiration_rate',
             'type': 'integer',
             'label': 'Respiration Rate',

@@ -76,6 +76,10 @@ class nh_clinical_patient_observation_gcs(orm.Model):
 
     _form_description = [
         {
+            'type': 'meta',
+            'score': True
+        },
+        {
             'name': 'eyes',
             'type': 'selection',
             'label': 'Eyes',

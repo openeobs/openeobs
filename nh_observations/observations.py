@@ -60,7 +60,12 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     _defaults = {
 
     }
-    _form_description = []
+    _form_description = [
+        {
+            'type': 'meta',
+            'score': False
+        }
+    ]
     
     def create(self, cr, uid, vals, context=None):
         none_values = list(set(self._required) - set(vals.keys()))

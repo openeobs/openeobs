@@ -74,6 +74,10 @@ class nh_clinical_patient_observation_vips(orm.Model):
 
     _form_description = [
         {
+            'type': 'meta',
+            'score': True
+        },
+        {
             'name': 'pain',
             'type': 'selection',
             'label': 'Pain',
