@@ -23,8 +23,8 @@ class NHMobileForm extends NHMobile
 
 
    document.addEventListener 'form_timeout', (event) ->
-     console.log('oh noes the form timed out')
-   @timeout_func = () ->
+     self.handle_timeout(self, self.form.getAttribute('task-id'))
+   window.timeout_func = () ->
      timeout = new CustomEvent('form_timeout', {'detail': 'form timed out'})
      document.dispatchEvent(timeout)
    window.form_timeout = setTimeout(window.timeout_func, @form_timeout)
@@ -168,6 +168,10 @@ class NHMobileForm extends NHMobile
        new window.NH.NHModal('submit_success', title , task_list, buttons, 0, self.form)
      else
        new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form)
+
+ handle_timeout: (self, id) =>
+   Promise.when(self.call_resource(self.urls['json_cancel_take_task'](id))).then (server_data) ->
+     new window.NH.NHModal('form_timeout', 'Task window expired', '<p class="block">Please pick the task again from the task list if you wish to complete it</p>', ['<a href="'+self.urls['task_list']().url+'" data-action="confirm">Go to My Tasks</a>'], 0, document.getElementsByTagName('body')[0])
 
 if !window.NH
   window.NH = {}

@@ -8,6 +8,7 @@ NHMobileForm = (function(_super) {
   __extends(NHMobileForm, _super);
 
   function NHMobileForm() {
+    this.handle_timeout = __bind(this.handle_timeout, this);
     this.submit_observation = __bind(this.submit_observation, this);
     this.display_partial_reasons = __bind(this.display_partial_reasons, this);
     this.submit = __bind(this.submit, this);
@@ -42,9 +43,9 @@ NHMobileForm = (function(_super) {
       _fn();
     }
     document.addEventListener('form_timeout', function(event) {
-      return console.log('oh noes the form timed out');
+      return self.handle_timeout(self, self.form.getAttribute('task-id'));
     });
-    this.timeout_func = function() {
+    window.timeout_func = function() {
       var timeout;
       timeout = new CustomEvent('form_timeout', {
         'detail': 'form timed out'
@@ -276,6 +277,12 @@ NHMobileForm = (function(_super) {
       } else {
         return new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form);
       }
+    });
+  };
+
+  NHMobileForm.prototype.handle_timeout = function(self, id) {
+    return Promise.when(self.call_resource(self.urls['json_cancel_take_task'](id))).then(function(server_data) {
+      return new window.NH.NHModal('form_timeout', 'Task window expired', '<p class="block">Please pick the task again from the task list if you wish to complete it</p>', ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'], 0, document.getElementsByTagName('body')[0]);
     });
   };
 
