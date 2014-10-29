@@ -222,11 +222,8 @@ class nh_clinical_wardboard(orm.Model):
                              % (model_name, ", ".join([str(spell_id) for spell_id in ids]))
             cr.execute(sql)
             rows = cr.dictfetchall()
-#             import pdb; pdb.set_trace()
             for row in rows:
                 res[row['spell_id']][field_name] = row['ids']
-#             if field_name == 'ews_ids': 
-#                 import pdb; pdb.set_trace()
         return res
     
     _columns = {
