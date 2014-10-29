@@ -129,6 +129,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     _form_description = [
         {
+            'name': 'meta',
             'type': 'meta',
             'score': True
         },
