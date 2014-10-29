@@ -113,13 +113,40 @@
             </xpath>
         </template>
 
-        <template inherit_id="nh_eobs_mobile.notification_confirm_cancel" id="nh_eobs_mobile_theme_loz.notification_form">
+        <template inherit_id="nh_eobs_mobile.notification_confirm_cancel" id="nh_eobs_mobile_theme_loz.notification_form_bar">
             <xpath expr="//div[@class='content']/h2[@id='patientName']" position="replace">
                 <div class="news-patient-bar">
                     <div class="news-title"><t t-esc="name"/></div>
                     <div class="news-name"><t t-esc="patient['name']"/></div>
                     <div class="info-news"><a href="#"><i class="info"></i></a></div>
                 </div>
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.notification_confirm_cancel" id="nh_eobs_mobile_theme_loz.notification_form">
+            <xpath expr="//div[@class='content']/form" position="replace">
+                <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange action-text' if form['type']=='frequency' else 'action-text'" t-att-data-type="form['type']">
+                    <h3>Confirm action taken?</h3>
+                    <p>Press the button below to confirm that you can completed the task <t t-esc="name"/></p>
+                    <t t-if="len(inputs) > 0">
+                        <div t-foreach="inputs" t-as="item">
+                            <t t-if="item['type']=='selection'">
+                                <t t-call="nh_eobs_mobile.observation_data_select"/>
+                            </t>
+                        </div>
+                    </t>
+                    <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                    <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                    <div class="confirm-cancel">
+                        <ul class="cancel-buttons">
+                            <li><a t-att-href="form['confirm_url']" class="button submitButton" t-att-id="'obsFreqSubmit' if form['type']=='frequency' else 'bedSubmit' if form['type']=='placement' else 'confirmSubmit'">Confirm action</a></li>
+                        <t t-if="cancellable==True">
+                                <li><a t-att-href="form['cancel_url']" class="button cancelButton" id="cancelSubmit">Cancel action</a></li>
+
+                        </t>
+                        </ul>
+                    </div>
+                </form>
             </xpath>
         </template>
 

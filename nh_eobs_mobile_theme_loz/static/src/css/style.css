@@ -2832,7 +2832,6 @@ ul.tabs {
 }
 
 .tabs a  {
-
     padding:0.5em 5%;
     background-color: #f0f0f0;
     color: #4185bb;
@@ -2840,9 +2839,7 @@ ul.tabs {
     line-height:1em;
     text-align:center;
     text-decoration:none;
-    border-color: #d9d7d7;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid #d9d7d7;
     display:inline-block;
     border-radius: 5px;
     box-shadow:1px 1px 10px 0px #efeeee inset;
@@ -2897,9 +2894,172 @@ ul.tabs {
     box-shadow:1px 1px 7px 0px #a6a2a2 inset;
 }
 
+h3.table-title {
+    font-size:1.5em;
+    /*width:96%;*/
+    display: inline-block;
+    line-height:2em;
+    text-align: center;
+    background-color:#dae5f4;
+    margin:0;
+    padding:0 5%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+#table-content {
+    background: white;
+    padding: 2em 2% 0 2%;
+}
+
+.patient-values-container {
+    border-radius: 10px;
+    margin-bottom: 2em;
+}
+
+.cat {
+    color:#363636;
+    font-weight:bold;
+    font-size:1.2em;
+}
+
+.top-left {
+    color:#363636;
+    font-weight:bold;
+    font-size:1.2em;
+    border-top-left-radius: 10px;
+}
+
+.top-right {
+    border-top-right-radius: 10px;
+}
+
+
+.bottom-left {
+    color:#363636;
+    font-weight:bold;
+    font-size:1.2em;
+    border-bottom-left-radius: 10px;
+}
+
+.bottom-right {
+    border-bottom-right-radius: 10px;
+}
+
+.values-time tr {
+    width:100%;
+}
+
+.patient-values td {
+    width:10%;
+    padding:0.3em 0 0 2%;
+    vertical-align: top;
+}
+
+.patient-values tr:nth-child(odd) {
+    background: #b8d1f3;
+}
+
+.patient-values tr:nth-child(even) {
+    background: #dae5f4;
+}
+
+
+/* Charts End */
+
 
 @media (max-width: 800px){
     .mobDT {
         width: 100%;
+    }
+}
+
+/* Confirm Action */
+
+
+
+.action-patient-bar {
+    width:100%;
+    display:block;
+    height:2em;
+    margin-bottom:2em;
+}
+
+
+
+.action-text {
+    width:96%;
+    display:block;
+    padding:0.2em 2% 1.2em 2%;
+    height:8.5em;
+    margin-bottom:1em;
+    background-color:#f4f4f4;
+    box-shadow: 0 0 12px 5px #f4f4f4;
+}
+
+
+
+.action-dropdown {
+    width:100%;
+    text-align: center;
+    height:4em;
+}
+
+
+
+.confirrm-cancel {
+    width:100%;
+    margin-top:2.5em;
+    height:4em;
+}
+
+
+
+ul.cancel-buttons {
+    list-style: none;
+    text-align: center;
+}
+
+
+
+.cancel-buttons li {
+    text-shadow: 0px 1px 1px #292929;
+    display:inline;
+    text-align: center;
+    padding:1em 2%;
+    width:25%;
+    margin-right:5%;
+    background-color: #4491ce;
+    text-shadow: 0px 1px 1px #5d5f63;
+    color: #ffffff;
+    font-weight:300;
+    text-align: center;
+    border-color: #e6e6e6;
+    border-radius: 5px;
+    box-shadow:0px 2px 0px #7f7f7f;
+}
+
+
+
+.cancel-buttons li a {
+    width:100%;
+    text-decoration: none;
+    color: #ffffff;
+    font-size:1.2em;
+}
+
+
+
+/* Confirm Action End */
+
+@media (max-width : 480px) {
+    .action-text {
+        width:96%;
+        display:block;
+        padding:0.2em 2% 1.2em 2%;
+        height:10em;
+        margin-bottom:1em;
+        background-color:#f4f4f4;
+        box-shadow: 0 0 12px 5px #f4f4f4;
     }
 }

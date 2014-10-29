@@ -42,7 +42,7 @@ class NHModal
    # create the h2 header
    dialog_header = (title) ->
      header = document.createElement('h2')
-     header.textContent = title
+     header.innerHTML = title
      return header
    
    # create the content div
@@ -102,14 +102,26 @@ class NHModal
    return
 
  handle_button_events: (event) =>
-   event.preventDefault()
    switch event.srcElement.getAttribute('data-action')
      when 'close'
+         event.preventDefault()
          dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'))
          cover = document.getElementById('cover')
          dialog_id.parentNode.removeChild(cover)
          dialog_id.parentNode.removeChild(dialog_id)
-     when 'confirm' then console.log('yay')
+     when 'submit'
+         event.preventDefault()
+         submit_event = new CustomEvent 'post_score_submit', {'detail': event.srcElement.getAttribute('data-ajax-action')}
+         document.dispatchEvent submit_event
+         dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'))
+         cover = document.getElementById('cover')
+         dialog_id.parentNode.removeChild(cover)
+         dialog_id.parentNode.removeChild(dialog_id)
+     when 'partial_submit'
+       event.preventDefault()
+       submit_event = new CustomEvent 'partial_submit', {'detail': {'action':event.srcElement.getAttribute('data-ajax-action'),'target': event.srcElement.getAttribute('data-target')}}
+       document.dispatchEvent submit_event
+
 
 
 

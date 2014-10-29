@@ -40,7 +40,7 @@ NHModal = (function() {
     dialog_header = function(title) {
       var header;
       header = document.createElement('h2');
-      header.textContent = title;
+      header.innerHTML = title;
       return header;
     };
     dialog_content = function(message) {
@@ -114,16 +114,33 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var cover, dialog_id;
-    event.preventDefault();
+    var cover, dialog_id, submit_event;
     switch (event.srcElement.getAttribute('data-action')) {
       case 'close':
+        event.preventDefault();
         dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
         cover = document.getElementById('cover');
         dialog_id.parentNode.removeChild(cover);
         return dialog_id.parentNode.removeChild(dialog_id);
-      case 'confirm':
-        return console.log('yay');
+      case 'submit':
+        event.preventDefault();
+        submit_event = new CustomEvent('post_score_submit', {
+          'detail': event.srcElement.getAttribute('data-ajax-action')
+        });
+        document.dispatchEvent(submit_event);
+        dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
+        cover = document.getElementById('cover');
+        dialog_id.parentNode.removeChild(cover);
+        return dialog_id.parentNode.removeChild(dialog_id);
+      case 'partial_submit':
+        event.preventDefault();
+        submit_event = new CustomEvent('partial_submit', {
+          'detail': {
+            'action': event.srcElement.getAttribute('data-ajax-action'),
+            'target': event.srcElement.getAttribute('data-target')
+          }
+        });
+        return document.dispatchEvent(submit_event);
     }
   };
 

@@ -62,15 +62,45 @@ class NHMobile extends NHLib
 
  constructor: () ->
    @urls = frontend_routes
-   #self = @
+   self = @
    super()
 
  call_resource: (url_object, data) =>
    @process_request(url_object.method, url_object.url, data)
 
- get_patient_info: (patient_id) =>
-   @process_request('GET', this.urls.json_patient_info(patient_id).url)
+ get_patient_info: (patient_id, self) =>
+   Promise.when(@process_request('GET', this.urls.json_patient_info(patient_id).url)).then (server_data) ->
+     data = server_data[0][0]
+     patient_name = ''
+     patient_details = ''
+     if data.full_name
+       patient_name += " " + data.full_name
+     if data.gender
+       patient_name += '<span class="alignright">' + data.gender + '</span>'
+     if data.dob
+       patientDOB = self.date_from_string(data.dob);
+       patient_details += "<dt>DOB:</dt><dd>" + self.date_to_string(patientDOB) + "</dd>"
+     if data.location
+       patient_details += "<dt>Location:</dt><dd>" + data.location
+     if data.parent_location
+       patient_details += ',' + data.parent_location + '</dd>'
+     else
+       patient_details += '</dd>'
+     if data.ews_score
+       patient_details += "<dt class='twoline'>Latest Score:</dt><dd class='twoline'>" + data.ews_score + "</dd>"
+     if data.other_identifier
+       patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier + "</dd>"
+     if data.patient_id
+       patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_id + "</dd>"
+     patient_details = '<dl>'+patient_details+'</dl><p><a href="'+self.urls['single_patient'](patient_id).url+'" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>'
+     new NHModal('patient_info', patient_name, patient_details, ['<a href="#" data-target="patient_info" data-action="close">Cancel</a>'], 0, document.getElementsByTagName('body')[0])
 
+     document.getElementById('patient_obs_fullscreen').addEventListener('click', (event) ->
+       event.preventDefault()
+       console.log('yay')
+     )
+
+     return true
 
 
 

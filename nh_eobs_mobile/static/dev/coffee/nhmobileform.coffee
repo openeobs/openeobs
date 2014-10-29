@@ -5,6 +5,9 @@ class NHMobileForm extends NHMobile
    # find the form on the page
    @form = document.getElementsByTagName('form')?[0]
    @form_timeout = 240*1000
+   @patient_name_el = document.getElementById('patientName').getElementsByTagName('a')[0]
+   @patient_name = () ->
+     @patient_name_el.text
    self = @
    super()
    
@@ -25,6 +28,27 @@ class NHMobileForm extends NHMobile
      timeout = new CustomEvent('form_timeout', {'detail': 'form timed out'})
      document.dispatchEvent(timeout)
    window.form_timeout = setTimeout(window.timeout_func, @form_timeout)
+
+   document.addEventListener 'post_score_submit', (event) ->
+     form_elements = (element for element in self.form.elements when not element.classList.contains('exclude'))
+     endpoint = event.detail
+     self.submit_observation(self, form_elements, endpoint, self.form.getAttribute('ajax-args'))
+
+   document.addEventListener 'partial_submit', (event) ->
+     form_elements = (element for element in self.form.elements when not element.classList.contains('exclude'))
+     reason = document.getElementsByName('partial_reason')[0]
+     form_elements.push(reason)
+     details = event.detail
+     self.submit_observation(self, form_elements, details.action, self.form.getAttribute('ajax-args'))
+     dialog_id = document.getElementById(details.target)
+     cover = document.getElementById('cover')
+     dialog_id.parentNode.removeChild(cover)
+     dialog_id.parentNode.removeChild(dialog_id)
+
+   @patient_name_el.addEventListener 'click', (event) ->
+     event.preventDefault()
+     patient_id = event.srcElement.getAttribute('patient-id')
+     if patient_id then self.get_patient_info(patient_id, self) else new window.NH.NHModal('patient_info_error', 'Error getting patient information', '', ['<a href="#" data-action="close" data-target="patient_info_error">Cancel</a>'], 0, document.getElementsByTagName('body')[0])
 
 
 
@@ -74,6 +98,8 @@ class NHMobileForm extends NHMobile
    window.form_timeout = setTimeout(@timeout_func, @form_timeout)
    input = event.srcElement
    value = input.value
+   if value is ''
+     value = 'Default'
    if input.getAttribute('data-onchange')
      actions = eval(input.getAttribute('data-onchange'))[0]
      for field in actions[value]?['hide']
@@ -109,23 +135,39 @@ class NHMobileForm extends NHMobile
 
  display_partial_reasons: (self) =>
    Promise.when(@call_resource(@.urls.json_partial_reasons())).then (data) ->
-     console.log(data)
      options = ''
-     for option in data[0]
+     for option in data[0][0]
        option_val = option[0]
        option_name = option[1]
        options += '<option value="'+option_val+'">'+option_name+'</option>'
      select = '<select name="partial_reason">'+options+'</select>'
-     new window.NH.NHModal('partial_reasons', 'Submit partial observation', '<p class="block">Please state reason for submitting partial observation</p>'+select, ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form)
+     new window.NH.NHModal('partial_reasons', 'Submit partial observation', '<p class="block">Please state reason for submitting partial observation</p>'+select, ['<a href="#" data-action="close" data-target="partial_reasons">Cancel</a>', '<a href="#" data-target="partial_reasons" data-action="partial_submit" data-ajax-action="json_task_form_action">Confirm</a>'], 0, self.form)
 
  submit_observation: (self, elements, endpoint, args) =>
    # turn form data in to serialised string and ping off to server
    serialised_string = (el.name+'='+el.value for el in elements).join("&")
    url = @.urls[endpoint].apply(this, args.split(','))
-   Promise.when(@call_resource(url, serialised_string)).then (data) ->
-     new window.NH.NHModal('submit_success', 'Observation successfully submitted', '<p class="block">Observation was submitted</p>', ['<a href="#" data-action="close" data-target="submit_success">Cancel</a>', '<a href="#" data-action="confirm">Confirm</a>'], 0, self.form)
-   console.log(serialised_string)
-
+   Promise.when(@call_resource(url, serialised_string)).then (server_data) ->
+     data = server_data[0][0]
+     if data.status is 3
+       new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], ['<a href="#" data-action="close" data-target="submit_observation">Cancel</a>', '<a href="#" data-target="submit_observation" data-action="submit" data-ajax-action="'+data.modal_vals['next_action']+'">Submit</a>'], 0, self.form)
+       document.getElementById('submit_observation').classList.add('clinicalrisk-'+data.score['clinical_risk'].toLowerCase())
+     else if data.status is 1
+       triggered_tasks = ''
+       buttons = ['<a href="'+self.urls['task_list']().url+'" data-action="confirm">Go to My Tasks</a>']
+       if data.related_tasks.length is 1
+         triggered_tasks = '<p>' + data.related_tasks[0].summary + '</p>'
+         buttons.push('<a href="'+self.urls['single_task'](data.related_tasks[0].id).url+'">Confirm</a>')
+       else if data.related_tasks.length > 1
+         tasks = ''
+         for task in data.related_tasks
+           tasks += '<li><a href="'+self.urls['single_task'](task.id).url+'">'+task.summary+'</a></li>'
+         triggered_tasks = '<ul class="menu">'+tasks+'</ul>'
+       task_list = if triggered_tasks then triggered_tasks else '<p class="block">Observation was submitted</p>'
+       title = if triggered_tasks then 'Action required' else 'Observation successfully submitted'
+       new window.NH.NHModal('submit_success', title , task_list, buttons, 0, self.form)
+     else
+       new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form)
 
 if !window.NH
   window.NH = {}
