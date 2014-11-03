@@ -1454,7 +1454,7 @@ text-align: center;
 
 }
 
-.news-error {
+.errors {
     text-shadow: 1px 2px 1px black;
     width:28%;
     float:right;
@@ -1810,13 +1810,13 @@ select {
 }
 
 
-select:active {
+/*select:active {
     color: #ffffff;
     text-shadow: 0px 1px 1px #292929;
     background-color: #ed558b;
     border-bottom: 2px solid #762a45;
     border-radius: 5px;
-}
+} */
 
 
 
@@ -1873,140 +1873,135 @@ margin-top:1em;
 }
 
 
+
+
 /* Info Overlay */
 
-#lightbox-effect {
+/*#lightbox-effect {
 	height:100%;
 	width: 480px;
 	
 	background-color: #000000;
 	opacity: 0.7;
-	filter: alpha(opacity=50); /* For IE8 and earlier */
-	
 	font-family: sans-serif, Helvetica, Verdana, Arial;
-}
+} */
 
-#info-overlay {
+#info-overlay, .dialog{
 
 position:absolute;
-z-index:1; 
-top:240px;
-left:85px;
+z-index:101;
+left:40%;
 
-background-color: #efecbf;
+background-color: #fdf39c;
 width: 300px;
-height:245px;
-padding:10px;
+padding: 0 2% 1em 2%;
 
 box-shadow:0px 2px 0px #1f1f1f;
-
--moz-border-radius: 10px;
--webkit-border-radius: 10px;
-border-radius: 10px; 
--khtml-border-radius: 10px; 
+border-radius: 10px;
 
 }
 
-td.info-overlay-name {
-
-position: relative;
-z-index: 3;
-top:10px;
-left:-5px;
-
-padding-bottom:10px;
-height:60px;
-width:100px;
+td.info-overlay-name, .dialog h2 {
+padding-bottom: 0.2em;
+width:100%;
 font-weight: 900;
 color:#303030;
 font-size:20px;
 
 }
 
-td.info-overlay-sex {
-
-position: relative;
-z-index: 3;
-top:10px;
-right:-170px;
-
-padding-bottom:10px;
-font-weight: bold;
-color:#303030;
-font-size:24px;
-
+td.info-overlay-sex, .dialog .alignright {
+float: right;
+}
+.dialog dl{
+    display: inline-block;
+    clear: both;
+    float: none;
+    width: 100%;
 }
 
-td.question {
-
-position: relative;
-z-index: 3;
-top:10px;
-right:0px;
-
-font-weight:600;
-color:#303030;
-font-size:16px;
-width:100px;
-padding-right:10px;
-padding-left:5px;
-padding-bottom:5px;
-
+td.question, .dialog dt {
+    font-weight:600;
+    color:#303030;
+    width:45%;
+    padding: 0.2em 2.5%;
+    float: left;
+    margin: 0;
+    height: 2em;
 }
 
-td.answer {
-
-position: relative;
-z-index: 3;
-top:10px;
-right:0px;
-
-font-weight:200;
-color:#303030;
-font-size:16px;
-padding-bottom:5px;
-
+td.answer, .dialog dd {
+    font-weight:200;
+    color:#303030;
+    padding:0.2em 2.5%;
+    float: right;
+    width: 45%;
+    margin: 0;
+    height: 2em;
 }
 
-a.info-button {
+a.info-button, #patient_obs_fullscreen{
 
-position: relative;
-z-index: 3;
-top:35px;
-right:-40px;
-
-text-shadow: 0px 1px 1px #292929;
 
 color: #ffffff;
-font-size:18px;
 text-align: center;
-padding:10px;
+padding:0.8em 13%;
 text-decoration: none;
 
-position: relative;
 z-index:1;
 
-width:180px;
-height:20px;
+width:96%;
+height:1.5em;
 
-background-color: #4489a8;
-
-text-decoration: none;
 text-shadow: 0px 1px 1px #5d5f63;
-font-size:18px;
-color: #ffffff;
 font-weight:300;
 background-color: #4491ce;
-text-align: center;
 border-color: #e6e6e6;
-
--moz-border-radius: 5px;
--webkit-border-radius: 5px;
-border-radius: 5px; 
--khtml-border-radius: 5px; 
+border-radius: 5px;
 
 box-shadow:0px 2px 0px #7f7f7f;
 
+}
+
+#patient_info .options{
+    display: none;
+}
+
+.dialog .options{
+    width: 100%;
+    padding: 0;
+    margin: 2em 0 1em 0;
+    list-style: none;
+    text-align: center;
+}
+.dialog .options li{
+   display: inline;
+    margin-right: 5%;
+}
+.dialog .options li:last-child{
+    margin-right: 0;
+}
+.dialog .options li a{
+    color: #ffffff;
+    text-decoration: none;
+    text-shadow: 0px 1px 1px #5d5f63;
+    font-weight:300;
+    background-color: #4491ce;
+    border-color: #e6e6e6;
+    border-radius: 5px;
+    box-shadow:0px 2px 0px #7f7f7f;
+    text-align: center;
+    padding: 0.5em 5%;
+}
+
+.cover{
+    background-color: #262626;
+    width: 100%;
+    z-index: 100;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    opacity: 0.85;
 }
 
 /* Info Overlay End */
@@ -3041,11 +3036,12 @@ ul.cancel-buttons {
 
 
 
-.cancel-buttons li a {
-    width:100%;
+.cancel-buttons li input {
     text-decoration: none;
     color: #ffffff;
     font-size:1.2em;
+    background: none;
+    border: none;
 }
 
 
@@ -3062,4 +3058,8 @@ ul.cancel-buttons {
         background-color:#f4f4f4;
         box-shadow: 0 0 12px 5px #f4f4f4;
     }
+}
+
+.hidden_el{
+    display: none;
 }

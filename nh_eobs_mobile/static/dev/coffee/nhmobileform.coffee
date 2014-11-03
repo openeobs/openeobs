@@ -9,7 +9,10 @@ class NHMobileForm extends NHMobile
    @patient_name = () ->
      @patient_name_el.text
    self = @
+   @setup_event_listeners(self)
    super()
+
+ setup_event_listeners: (self) ->
    
    # for each input in the form set up the event listeners
    for input in @form.elements
@@ -20,6 +23,7 @@ class NHMobileForm extends NHMobile
              when 'number' then input.addEventListener('change', self.validate)
              when 'submit' then input.addEventListener('click', self.submit)
              when 'reset' then input.addEventListener('click', self.cancel_notification)
+             when 'radio' then input.addEventListener('click', self.trigger_actions)
          when 'select' then input.addEventListener('change', self.trigger_actions)
 
 
@@ -56,71 +60,54 @@ class NHMobileForm extends NHMobile
 
  validate: (event) =>
    event.preventDefault()
-   clearTimeout(window.form_timeout)
-   window.form_timeout = setTimeout(@timeout_func, @form_timeout)
+   @.reset_form_timeout(@)
    input = event.srcElement
-   container_el = input.parentNode.parentNode
-   error_el = container_el.getElementsByClassName('input-body')[0].getElementsByClassName('errors')[0]
+   @reset_input_errors(input)
    if input.type is 'number'
      value = parseFloat(input.value)
      min = parseFloat(input.min)
      max = parseFloat(input.max)
-     container_el.classList.remove('error')
-     input.classList.remove('error')
-     error_el.innerHTML = ''
      if input.step is '1' and value % 1 isnt 0
-       container_el.classList.add('error')
-       input.classList.add('error')
-       error_el.innerHTML = '<label for="'+input.name+'" class="error">Must be whole number</label>'
+       @.add_input_errors(input, 'Must be whole number')
        return
      if value < min
-       container_el.classList.add('error')
-       input.classList.add('error')
-       error_el.innerHTML = '<label for="'+input.name+'" class="error">Input too low</label>'
+       @.add_input_errors(input, 'Input too low')
        return
      if value > max
-       container_el.classList.add('error')
-       input.classList.add('error')
-       error_el.innerHTML = '<label for="'+input.name+'" class="error">Input too high</label>'
+       @.add_input_errors(input, 'Input too high')
        return
      if input.getAttribute('data-validation')
        criteria = eval(input.getAttribute('data-validation'))[0]
        other_input = document.getElementById(criteria[1])?.value
        if other_input and not eval(value + ' ' + criteria[0] + ' ' + other_input)
-         container_el.classList.add('error')
-         input.classList.add('error')
-         error_el.innerHTML = '<label for="'+input.name+'" class="error">Input must be ' + criteria[0] + ' ' + criteria[1] + '</label>'
+         @.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1])
          return
    else
      # to be continued
 
  trigger_actions: (event) =>
-   event.preventDefault()
-   clearTimeout(window.form_timeout)
-   window.form_timeout = setTimeout(@timeout_func, @form_timeout)
+   # event.preventDefault()
+   @.reset_form_timeout(@)
    input = event.srcElement
    value = input.value
+   if input.type is 'radio'
+     for el in document.getElementsByName(input.name)
+       if el.value isnt value
+         el.classList.add('exclude')
+       else
+         el.classList.remove('exclude')
    if value is ''
      value = 'Default'
    if input.getAttribute('data-onchange')
      actions = eval(input.getAttribute('data-onchange'))[0]
      for field in actions[value]?['hide']
-       el = document.getElementById('parent_'+field)
-       el.style.display = 'none'
-       inp = document.getElementById(field)
-       inp.classList.add('exclude')
-       console.log('hiding')
+       @.hide_triggered_elements(field)
      for field in actions[value]?['show']
-       el = document.getElementById('parent_'+field)
-       el.style.display = 'block'
-       inp = document.getElementById(field)
-       inp.classList.remove('exclude')
-       console.log('showing')
+       @.show_triggered_elements(field)
    
  submit: (event) =>
    event.preventDefault()
-   clearTimeout(window.form_timeout)
-   window.form_timeout = setTimeout(@timeout_func, @form_timeout)
+   @.reset_form_timeout(@)
    form_elements = (element for element in @form.elements when not element.classList.contains('exclude'))
    valid_form = () ->
      for element in form_elements
@@ -186,6 +173,37 @@ class NHMobileForm extends NHMobile
        options += '<option value="'+option_val+'">'+option_name+'</option>'
      select = '<select name="reason">'+options+'</select>'
      new window.NH.NHModal('cancel_reasons', 'Cancel task', '<p>Please state reason for cancelling task</p>'+select, ['<a href="#" data-action="close" data-target="cancel_reasons">Cancel</a>', '<a href="#" data-target="cancel_reasons" data-action="partial_submit" data-ajax-action="cancel_clinical_notification">Confirm</a>'], 0, document.getElementsByTagName('form')[0])
+
+ reset_form_timeout: (self) =>
+   clearTimeout(window.form_timeout)
+   window.form_timeout = setTimeout(window.timeout_func, self.form_timeout)
+
+ reset_input_errors: (input) =>
+   container_el = input.parentNode.parentNode
+   error_el = container_el.getElementsByClassName('errors')[0]
+   container_el.classList.remove('error')
+   input.classList.remove('error')
+   error_el.innerHTML = ''
+
+ add_input_errors: (input, error_string) =>
+   container_el = input.parentNode.parentNode
+   error_el = container_el.getElementsByClassName('errors')[0]
+   container_el.classList.add('error')
+   input.classList.add('error')
+   error_el.innerHTML = '<label for="'+input.name+'" class="error">'+error_string+'</label>'
+
+ hide_triggered_elements: (field) =>
+   el = document.getElementById('parent_'+field)
+   el.style.display = 'none'
+   inp = document.getElementById(field)
+   inp.classList.add('exclude')
+
+ show_triggered_elements: (field) =>
+   el = document.getElementById('parent_'+field)
+   el.style.display = 'block'
+   inp = document.getElementById(field)
+   inp.classList.remove('exclude')
+
 
 
 if !window.NH

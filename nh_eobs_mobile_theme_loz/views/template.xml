@@ -107,8 +107,8 @@
             <xpath expr="//div[@class='content']/h2[@id='patientName']" position="replace">
                 <div class="news-patient-bar">
                     <div class="news-title"><t t-esc="name"/></div>
-                    <div class="news-name"><t t-esc="patient['name']"/></div>
-                    <div class="info-news"><a href="#"><i class="info"></i></a></div>
+                    <div class="news-name" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/></div>
+                    <div class="info-news" t-att-patient-id="form['patient-id']" id="patientName"><a t-att-patient-id="form['patient-id']" href="#"><i t-att-patient-id="form['patient-id']" class="info"></i></a></div>
                 </div>
             </xpath>
         </template>
@@ -117,15 +117,31 @@
             <xpath expr="//div[@class='content']/h2[@id='patientName']" position="replace">
                 <div class="news-patient-bar">
                     <div class="news-title"><t t-esc="name"/></div>
-                    <div class="news-name"><t t-esc="patient['name']"/></div>
-                    <div class="info-news"><a href="#"><i class="info"></i></a></div>
+                    <div class="news-name" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/></div>
+                    <div class="info-news" t-att-patient-id="form['patient-id']" id="patientName"><a href="#"><i class="info"></i></a></div>
                 </div>
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.observation_entry" id="nh_eobs_mobile_theme_loz.observation_js">
+            <xpath expr="//script[last()]" position="replace">
+                <script type="text/javascript">
+                      document.addEventListener('DOMContentLoaded', new window.NH.NHMobileFormLoz(), false);
+                </script>
+            </xpath>
+        </template>
+
+        <template inherit_id="nh_eobs_mobile.notification_confirm_cancel" id="nh_eobs_mobile_theme_loz.notification_js">
+            <xpath expr="//script[last()]" position="replace">
+                <script type="text/javascript">
+                    document.addEventListener('DOMContentLoaded', new window.NH.NHMobileFormLoz(), false);
+                </script>
             </xpath>
         </template>
 
         <template inherit_id="nh_eobs_mobile.notification_confirm_cancel" id="nh_eobs_mobile_theme_loz.notification_form">
             <xpath expr="//div[@class='content']/form" position="replace">
-                <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange action-text' if form['type']=='frequency' else 'action-text'" t-att-data-type="form['type']">
+                <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange action-text' if form['type']=='frequency' else 'action-text'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
                     <h3>Confirm action taken?</h3>
                     <p>Press the button below to confirm that you can completed the task <t t-esc="name"/></p>
                     <t t-if="len(inputs) > 0">
@@ -139,9 +155,9 @@
                     <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
                     <div class="confirm-cancel">
                         <ul class="cancel-buttons">
-                            <li><a t-att-href="form['confirm_url']" class="button submitButton" t-att-id="'obsFreqSubmit' if form['type']=='frequency' else 'bedSubmit' if form['type']=='placement' else 'confirmSubmit'">Confirm action</a></li>
+                            <li><input type="submit" t-att-ajax-action="form['confirm_url']" class="button submitButton exclude" value="Confirm action"/></li>
                         <t t-if="cancellable==True">
-                                <li><a t-att-href="form['cancel_url']" class="button cancelButton" id="cancelSubmit">Cancel action</a></li>
+                                <li><input type="reset" t-att-ajax-action="form['cancel_url']" class="button cancelButton exclude" value="Cancel action"/></li>
 
                         </t>
                         </ul>
@@ -153,20 +169,19 @@
 
         <template inherit_id="nh_eobs_mobile.observation_data_input" id="nh_eobs_mobile_theme_loz.observation_data_input">
             <xpath expr="//div" position="replace">
-                <div class="news-item">
+                <div t-att-class="'news-item hidden_el' if item['initially_hidden']==True else 'news-item'" t-att-id="'parent_{0}'.format(item['name'])">
                     <div class="news-desc">
                         <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                     </div>
-                    <input class="box" t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if item['initially_hidden']==True else ''"/>
-                    <!-- <t t-if="'error' in item"><div class="news-error"><t t-esc="item['error']"/></div></t>  -->
-                    <div class="news-error">Meh</div>
+                    <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'box exclude' if item['initially_hidden']==True else 'box'"/>
+                    <t t-if="'error' in item"><div class="errors"><t t-esc="item['error']"/></div></t>
                 </div>
             </xpath>
         </template>
 
         <template inherit_id="nh_eobs_mobile.observation_data_select" id="nh_eobs_mobile_theme_loz.observation_data_select">
             <xpath expr="//div" position="replace">
-                <div class="news-item">
+                <div t-att-class="'news-item hidden_el' if item['initially_hidden']==True else 'news-item'" t-att-id="'parent_{0}'.format(item['name'])">
                     <div class="news-desc">
                         <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                     </div>
@@ -176,7 +191,7 @@
                                 <t t-foreach="item['selection_options']" t-as="option">
                                     <li>
                                         <span class="avpu"><t t-esc="option['label']"/></span>
-                                        <input class="avpu" type="radio" t-att-data-value="option['value']" t-att-name="item['name']"/>
+                                        <input type="radio" t-att-value="option['value']" t-att-name="item['name']" class="avpu exclude" t-att-data-onchange="'[{0}]'.format(item['on_change']) if 'on_change' in item else ''"/>
                                         <span class="avpu selected"><t t-esc="option['label']"/></span>
                                     </li>
                                 </t>
@@ -185,15 +200,15 @@
                     </t>
                     <t t-if="len(item['selection_options']) >= 5">
                         <div class="dropdown-space">
-                            <select>
+                            <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-onchange="'[{0}]'.format(item['on_change']) if 'on_change' in item else ''">
+                                <option value="">Please Select</option>
                                 <t t-foreach="item['selection_options']" t-as="option">
-                                    <option t-att-data-value="option['value']"><t t-esc="option['label']"/></option>
+                                    <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
                                 </t>
                             </select>
                         </div>
                     </t>
-                    <!-- <t t-if="'error' in item"><div class="news-error"><t t-esc="item['error']"/></div></t>  -->
-                    <div class="news-error">Meh</div>
+                    <t t-if="'error' in item"><div class="news-error"><t t-esc="item['error']"/></div></t>
                 </div>
             </xpath>
         </template>
