@@ -399,7 +399,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
 
         del kw_copy['startTimestamp']
-        del kw_copy['taskId']
+        if 'taskId' in kw_copy:
+            del kw_copy['taskId']
         if device_id:
             del kw_copy['device_id']
         for key, value in kw_copy.items():
@@ -424,6 +425,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
         data = kw.copy()
         test = {}
+        section = 'task' if 'taskId' in data else 'patient'
         if 'startTimestamp' in data:
             del data['startTimestamp']
         if 'taskId' in data:
@@ -436,7 +438,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         score_dict = api_pool.get_activity_score(cr, uid, model, converted_data, context=context)
         modal_vals = {}
-        modal_vals['next_action'] = 'json_task_form_action'
+        modal_vals['next_action'] = 'json_task_form_action' if section == 'task' else 'json_patient_form_action'
         modal_vals['title'] = 'Submit {score_type} of {score}'.format(score_type=observation.upper(), score=score_dict['score'])
         if 'clinical_risk' in score_dict:
             modal_vals['content'] = '<p><strong>Clinical risk: {risk}</strong></p><p>Please confirm you want to submit this score</p>'.format(risk=score_dict['clinical_risk'])
@@ -570,6 +572,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['patient-id'] = int(patient_id)
         form['source'] = "patient"
         form['start'] = datetime.now().strftime('%s')
+        form['obs_needs_score'] = False
 
         form_desc = api_pool.get_form_description(cr, uid, int(patient_id), 'nh.clinical.patient.observation.{0}'.format(observation), context=context)
 
@@ -591,6 +594,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     opt['value'] = '{0}'.format(option[0])
                     opt['label'] = option[1]
                     form_input['selection_options'].append(opt)
+            elif form_input['type'] == 'meta':
+                form['obs_needs_score'] = form_input['score'] if 'score' in form_input else False
 
         return request.render('nh_eobs_mobile.observation_entry', qcontext={'inputs': form_desc,
                                                                              'name': [v['name'] for v in api_pool._active_observations if v['type'] == observation][0],
@@ -614,7 +619,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
 
         del kw_copy['startTimestamp']
-        del kw_copy['taskId']
+        if 'taskId' in kw_copy:
+            del kw_copy['taskId']
         if device_id:
             del kw_copy['device_id']
         for key, value in kw_copy.items():

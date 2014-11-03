@@ -2004,6 +2004,75 @@ box-shadow:0px 2px 0px #7f7f7f;
     opacity: 0.85;
 }
 
+
+
+.full-modal{
+    height: 100%;
+    width: 100%;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    background-color: #ffffff;
+
+}
+.full-modal p{
+    text-align: right;
+}
+.full-modal #closeFullModal{
+    color: #ffffff;
+    text-decoration: none;
+    text-shadow: 0px 1px 1px #5d5f63;
+    font-weight:300;
+    background-color: #4491ce;
+    border-color: #e6e6e6;
+    border-radius: 5px;
+    box-shadow:0px 2px 0px #7f7f7f;
+    text-align: center;
+    padding: 0.5em 5%;
+
+}
+.full-modal iframe{
+    height: 100%;
+    width: 100%;
+
+}
+
+.dialogContent ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dialogContent li{
+    padding-bottom: 1.5em;
+}
+
+.dialogContent li a{
+    color: #ffffff;
+    text-decoration: none;
+    text-shadow: 0px 1px 1px #5d5f63;
+    font-weight:300;
+    background-color: #4491ce;
+    border-color: #e6e6e6;
+    border-radius: 5px;
+    box-shadow:0px 2px 0px #7f7f7f;
+    text-align: left;
+    padding: 0.5em 5%;
+}
+
+.dialogContent .rightContent a{
+    width: 100%;
+    display: inline-block;
+}
+
+.dialogContent .aside{
+    /*width: 25%;
+    float: right;*/
+    display: none;
+}
+
 /* Info Overlay End */
 
 
@@ -2635,6 +2704,10 @@ width:97%;
 
 @media (min-width : 750px)  {
 
+
+.chartDates{
+    display: none;
+}
 .news-arrow {
 	
 margin-left:15%;
@@ -2917,13 +2990,35 @@ h3.table-title {
     font-weight:bold;
     font-size:1.2em;
 }
+.card{
+    margin-bottom: 2em;
+}
 
-.top-left {
+.top-left, .card h3{
     color:#363636;
     font-weight:bold;
     font-size:1.2em;
     border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: #dae5f4;
+    margin: 0;
+    padding: 0.5em 2%;
+    width: 46%;
 }
+
+
+
+.card tr:first-child td:last-child{
+    border-top-right-radius: 10px;
+}
+
+.card tr:last-child td:first-child{
+    border-bottom-left-radius: 10px;
+}
+.card tr:last-child td:last-child{
+    border-bottom-right-radius: 10px;
+}
+
 
 .top-right {
     border-top-right-radius: 10px;
@@ -2945,17 +3040,17 @@ h3.table-title {
     width:100%;
 }
 
-.patient-values td {
+.patient-values td, .card td {
     width:10%;
     padding:0.3em 0 0 2%;
     vertical-align: top;
 }
 
-.patient-values tr:nth-child(odd) {
+.patient-values tr:nth-child(odd), .card tr:nth-child(odd) {
     background: #b8d1f3;
 }
 
-.patient-values tr:nth-child(even) {
+.patient-values tr:nth-child(even), .card tr:nth-child(even) {
     background: #dae5f4;
 }
 

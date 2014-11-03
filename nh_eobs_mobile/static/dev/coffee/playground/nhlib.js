@@ -469,7 +469,9 @@
         data = server_data[0][0];
         if (data.status === 3) {
           new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], ['<a href="#" data-action="close" data-target="submit_observation">Cancel</a>', '<a href="#" data-target="submit_observation" data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>'], 0, self.form);
-          return document.getElementById('submit_observation').classList.add('clinicalrisk-' + data.score['clinical_risk'].toLowerCase());
+          if (__indexOf.call(data.score, 'clinical_risk') >= 0) {
+            return document.getElementById('submit_observation').classList.add('clinicalrisk-' + data.score['clinical_risk'].toLowerCase());
+          }
         } else if (data.status === 1) {
           triggered_tasks = '';
           buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'];
@@ -573,30 +575,188 @@
     __extends(NHMobilePatient, _super);
 
     function NHMobilePatient() {
+      this.draw_graph = __bind(this.draw_graph, this);
+      this.show_obs_menu = __bind(this.show_obs_menu, this);
+      this.handle_tabs = __bind(this.handle_tabs, this);
       var obs_menu, self, tab, table_view, tabs, _i, _len;
       self = this;
       NHMobilePatient.__super__.constructor.call(this);
       obs_menu = document.getElementById('obsMenu');
-      obs_menu.addEventListener('click', this.show_obs_menu);
       obs_menu.style.display = 'none';
       table_view = document.getElementById('table-content');
       table_view.style.display = 'none';
+      document.getElementsByClassName('obs')[0].addEventListener('click', this.show_obs_menu);
       tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
       for (_i = 0, _len = tabs.length; _i < _len; _i++) {
         tab = tabs[_i];
         tab.addEventListener('click', this.handle_tabs);
       }
       Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](document.getElementById('graph-content').getAttribute('data-id')))).then(function(server_data) {
-        var a, e, n, r, t;
-        a = graph_lib.svg;
-        t = graph_lib.context;
-        n = graph_lib.focus;
-        e = server_data[0][0];
-        a.chartType = e.obsType;
-        r = e.obs.reverse();
-        return console.log(r);
+        return self.draw_graph(self, server_data);
       });
     }
+
+    NHMobilePatient.prototype.handle_tabs = function(event) {
+      var tab, tabs, _i, _len;
+      event.preventDefault();
+      tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
+      for (_i = 0, _len = tabs.length; _i < _len; _i++) {
+        tab = tabs[_i];
+        tab.classList.remove('selected');
+      }
+      document.getElementById('graph-content').style.display = 'none';
+      document.getElementById('table-content').style.display = 'none';
+      event.srcElement.classList.add('selected');
+      return $(event.srcElement.getAttribute('href')).show();
+    };
+
+    NHMobilePatient.prototype.show_obs_menu = function(event) {
+      var obs_menu;
+      event.preventDefault();
+      obs_menu = document.getElementById('obsMenu');
+      return new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul>' + obs_menu.innerHTML + '</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
+    };
+
+    NHMobilePatient.prototype.draw_graph = function(self, server_data) {
+      var cED, context, d, data, focus, max, min, obs, plotO2, svg, _i, _len;
+      svg = graph_lib.svg;
+      context = graph_lib.context;
+      focus = graph_lib.focus;
+      data = server_data[0][0];
+      svg.chartType = data.obsType;
+      obs = data.obs.reverse();
+      console.log(obs);
+      if (obs.length < 1) {
+        console.log('no data');
+      }
+      svg.ticks = Math.floor(svg.width / 100);
+      context.earliestDate = svg.startParse(obs[0].date_started);
+      context.now = svg.startParse(obs[obs.length - 1].date_started);
+      context.height = 200;
+      focus.chartHeight = 200;
+      if (svg.isMob) {
+        if ($(window).width() > $(window).height()) {
+          cED = new Date(context.now);
+          cED.setDate(cED.getDate() - svg.dateRange.landscape);
+          context.earliestDate = cED;
+        } else {
+          cED = new Date(context.now);
+          cED.setDate(cED.getDate() - svg.dateRange.portrait);
+          context.earliestDate = cED;
+        }
+      }
+      context.scoreRange = [
+        {
+          "class": "green",
+          s: 0,
+          e: 4
+        }, {
+          "class": "amber",
+          s: 4,
+          e: 6
+        }, {
+          "class": "red",
+          s: 6,
+          e: 21
+        }
+      ];
+      min = null;
+      max = null;
+      plotO2 = false;
+      for (_i = 0, _len = obs.length; _i < _len; _i++) {
+        d = obs[_i];
+        d.date_started = svg.startParse(d.date_started);
+        d.body_temperature = d.body_temperature.toFixed(1);
+        if (d.indirect_oxymetry_spo2) {
+          d.indirect_oxymetry_spo2_label = d.indirect_oxymetry_spo2 + '%';
+        }
+        if (d.oxygen_administration_flag) {
+          plotO2 = true;
+          d.inspired_oxygen = '';
+          if (d.flow_rate) {
+            d.inspired_oxygen += 'Flow: ' + d.flow_rate + 'l/hr<br>';
+          }
+          if (d.concentration) {
+            d.inspired_oxygen += 'Concentration: ' + d.concentration + '%<br>';
+          }
+          if (d.cpap_peep) {
+            d.inspired_oxygen += 'CPAP PEEP: ' + d.cpap_peep + '<br>';
+          }
+          if (d.niv_backup) {
+            d.inspired_oxygen += 'NIV Backup Rate: ' + d.niv_backup + '<br>';
+          }
+          if (d.niv_ipap) {
+            d.inspired_oxygen += 'NIV IPAP: ' + d.niv_ipap + '<br>';
+          }
+          if (d.niv_epap) {
+            d.inspired_oxygen += 'NIV EPAP: ' + d.niv_epap + '<br>';
+          }
+        }
+      }
+      focus.graphs.push({
+        key: "respiration_rate",
+        label: "RR",
+        measurement: "/min",
+        max: 60,
+        min: 0,
+        normMax: 20,
+        normMin: 12
+      });
+      focus.graphs.push({
+        key: "indirect_oxymetry_spo2",
+        label: "Spo2",
+        measurement: "%",
+        max: 100,
+        min: 70,
+        normMax: 100,
+        normMin: 96
+      });
+      focus.graphs.push({
+        key: "body_temperature",
+        label: "Temp",
+        measurement: "°C",
+        max: 50,
+        min: 15,
+        normMax: 37.1,
+        normMin: 35
+      });
+      focus.graphs.push({
+        key: "pulse_rate",
+        label: "HR",
+        measurement: "/min",
+        max: 200,
+        min: 30,
+        normMax: 100,
+        normMin: 50
+      });
+      focus.graphs.push({
+        key: "blood_pressure",
+        label: "BP",
+        measurement: "mmHg",
+        max: 260,
+        min: 30,
+        normMax: 150,
+        normMin: 50
+      });
+      focus.tables.push({
+        key: "avpu_text",
+        label: "AVPU"
+      });
+      focus.tables.push({
+        key: "indirect_oxymetry_spo2_label",
+        label: "Oxygen saturation"
+      });
+      if (plotO2) {
+        focus.tables.push({
+          key: "inspired_oxygen",
+          label: "Inspired oxygen"
+        });
+      }
+      svg.data = obs;
+      graph_lib.initGraph(21);
+      graph_lib.initTable();
+      return graph_lib.drawTabularObs('#table-content');
+    };
 
     return NHMobilePatient;
 
@@ -771,8 +931,61 @@
       this.show_triggered_elements = __bind(this.show_triggered_elements, this);
       this.add_input_errors = __bind(this.add_input_errors, this);
       this.reset_input_errors = __bind(this.reset_input_errors, this);
+      this.submit_observation = __bind(this.submit_observation, this);
+      var self;
       NHMobileFormLoz.__super__.constructor.call(this);
+      this.patient_name_el = document.getElementsByClassName('news-name')[0];
+      this.patient_name = function() {
+        return this.patient_name_el.textContent;
+      };
+      self = this;
     }
+
+    NHMobileFormLoz.prototype.submit_observation = function(self, elements, endpoint, args) {
+      var el, serialised_string, url;
+      serialised_string = ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = elements.length; _i < _len; _i++) {
+          el = elements[_i];
+          _results.push(el.name + '=' + el.value);
+        }
+        return _results;
+      })()).join("&");
+      url = this.urls[endpoint].apply(this, args.split(','));
+      return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
+        var buttons, data, task, task_list, tasks, title, triggered_tasks, _i, _len, _ref;
+        data = server_data[0][0];
+        if (data.status === 3) {
+          new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], ['<a href="#" data-action="close" data-target="submit_observation">Cancel</a>', '<a href="#" data-target="submit_observation" data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>'], 0, self.form);
+          if (__indexOf.call(data.score, 'clinical_risk') >= 0) {
+            return document.getElementById('submit_observation').classList.add('clinicalrisk-' + data.score['clinical_risk'].toLowerCase());
+          }
+        } else if (data.status === 1) {
+          triggered_tasks = '';
+          buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'];
+          if (data.related_tasks.length === 1) {
+            triggered_tasks = '<p>' + data.related_tasks[0].summary + '</p>';
+            buttons.push('<a href="' + self.urls['single_task'](data.related_tasks[0].id).url + '">Confirm</a>');
+          } else if (data.related_tasks.length > 1) {
+            tasks = '';
+            _ref = data.related_tasks;
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              task = _ref[_i];
+              tasks += '<li><a href="' + self.urls['single_task'](task.id).url + '">' + task.summary + '</a></li>';
+            }
+            triggered_tasks = '<ul class="menu">' + tasks + '</ul>';
+          }
+          task_list = triggered_tasks ? triggered_tasks : '<p>Observation was submitted</p>';
+          title = triggered_tasks ? 'Action required' : 'Observation successfully submitted';
+          return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, self.form);
+        } else if (data.status === 4) {
+          return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', ['<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">Go to My Tasks</a>'], 0, self.form);
+        } else {
+          return new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form);
+        }
+      });
+    };
 
     NHMobileFormLoz.prototype.reset_input_errors = function(input) {
       var container_el, error_el;
