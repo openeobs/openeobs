@@ -82,7 +82,9 @@ class test_observations(common.SingleTransactionCase):
         
         self.assertTrue(check_height.summary == self.height_pool._description, msg="Height Observation: Activity summary not submitted correctly")
         self.assertTrue(check_height.data_ref.patient_id.id == patient_id, msg="Height Observation: Patient id not submitted correctly")
-        self.assertTrue(float(check_height.data_ref.height) == float(height_data['height']), msg="Height Observation: Height not submitted correctly")
+        height = self.height_pool.read(cr, uid, check_height.data_ref.id, ['height'])['height']
+        self.assertTrue(height == height_data['height'], msg="Height Observation: Height not submitted correctly - Read comparison")
+        # self.assertTrue(check_height.data_ref.height == height_data['height'], msg="Height Observation: Height not submitted correctly")
         self.activity_pool.complete(cr, user_id, height_activity_id)
         check_height = self.activity_pool.browse(cr, user_id, height_activity_id)
         self.assertTrue(check_height.state == 'completed', msg="Height Observation Completed: State not updated")
@@ -99,7 +101,9 @@ class test_observations(common.SingleTransactionCase):
         
         self.assertTrue(check_weight.summary == self.weight_pool._description, msg="Weight Observation: Activity summary not submitted correctly")
         self.assertTrue(check_weight.data_ref.patient_id.id == patient_id, msg="Weight Observation: Patient id not submitted correctly")
-        self.assertTrue(float(check_weight.data_ref.weight) == float(weight_data['weight']), msg="Weight Observation: weight not submitted correctly")
+        weight = self.weight_pool.read(cr, uid, check_weight.data_ref.id, ['weight'])['weight']
+        self.assertTrue(weight == weight_data['weight'], msg="Weight Observation: Weight not submitted correctly - Read comparison")
+        # self.assertTrue(check_weight.data_ref.weight == weight_data['weight'], msg="Weight Observation: weight not submitted correctly")
         self.activity_pool.complete(cr, user_id, weight_activity_id)
         check_weight = self.activity_pool.browse(cr, user_id, weight_activity_id)
         self.assertTrue(check_weight.state == 'completed', msg="Weight Observation Completed: State not updated")
@@ -113,10 +117,12 @@ class test_observations(common.SingleTransactionCase):
         blood_sugar_activity_id = self.blood_sugar_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, blood_sugar_activity_id, blood_sugar_data)
         check_blood_sugar = self.activity_pool.browse(cr, user_id, blood_sugar_activity_id)
-        
+
         self.assertTrue(check_blood_sugar.summary == self.blood_sugar_pool._description, msg="Blood Sugar Observation: Activity summary not submitted correctly")
         self.assertTrue(check_blood_sugar.data_ref.patient_id.id == patient_id, msg="Blood Sugar Observation: Patient id not submitted correctly")
-        self.assertTrue(float(check_blood_sugar.data_ref.blood_sugar) == float(blood_sugar_data['blood_sugar']), msg="Blood Sugar Observation: Blood Sugar not submitted correctly")
+        blood_sugar = self.blood_sugar_pool.read(cr, uid, check_blood_sugar.data_ref.id, ['blood_sugar'])['blood_sugar']
+        self.assertTrue(blood_sugar == blood_sugar_data['blood_sugar'], msg="Blood Sugar Observation: Blood Sugar not submitted correctly - Read comparison")
+        # self.assertTrue(check_blood_sugar.data_ref.blood_sugar == blood_sugar_data['blood_sugar'], msg="Blood Sugar Observation: Blood Sugar not submitted correctly")
         self.activity_pool.complete(cr, user_id, blood_sugar_activity_id)
         check_blood_sugar = self.activity_pool.browse(cr, user_id, blood_sugar_activity_id)
         self.assertTrue(check_blood_sugar.state == 'completed', msg="Blood Sugar Observation Completed: State not updated")
@@ -135,7 +141,9 @@ class test_observations(common.SingleTransactionCase):
         self.assertTrue(check_blood_product.summary == self.blood_product_pool._description, msg="Blood Product Observation: Activity summary not submitted correctly")
         self.assertTrue(check_blood_product.data_ref.patient_id.id == patient_id, msg="Blood Product Observation: Patient id not submitted correctly")
         self.assertTrue(check_blood_product.data_ref.product == blood_product_data['product'], msg="Blood Product Observation: Blood Product not submitted correctly")
-        self.assertTrue(float(check_blood_product.data_ref.vol) == float(blood_product_data['vol']), msg="Blood Product Observation: Blood Product volume not submitted correctly")
+        blood_product = self.blood_product_pool.read(cr, uid, check_blood_product.data_ref.id, ['vol'])['vol']
+        self.assertTrue(blood_product == blood_product_data['vol'], msg="Blood Product Observation: volume not submitted correctly - Read comparison")
+        # self.assertTrue(check_blood_product.data_ref.vol == blood_product_data['vol'], msg="Blood Product Observation: Blood Product volume not submitted correctly")
         self.activity_pool.complete(cr, user_id, blood_product_activity_id)
         check_blood_product = self.activity_pool.browse(cr, user_id, blood_product_activity_id)
         self.assertTrue(check_blood_product.state == 'completed', msg="Blood Product Observation Completed: State not updated")

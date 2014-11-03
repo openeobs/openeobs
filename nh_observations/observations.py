@@ -102,6 +102,10 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read'):
         # if not self._num_fields:
         #     return super(nh_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        nolist = False
+        if not isinstance(ids, list):
+            ids = [ids]
+            nolist = True
         if fields and 'null_values' not in fields:
             fields.append('null_values')
         res = super(nh_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
@@ -116,6 +120,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                         _logger.warn("You might be reading a wrong float from the DB. Define digits attribute for float columns to avoid this problem.")
                     else:
                         d[key] = round(d[key], self._columns[key].digits[1])
+        res = res[0] if nolist and len(res) > 0 else res
         return res
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
