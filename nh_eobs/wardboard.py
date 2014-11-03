@@ -68,20 +68,48 @@ class wardboard_device_session_start(orm.TransientModel):
     _name = "wardboard.device.session.start"
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
-        'device_id':  fields.many2one('nh.clinical.device',"Device"),
+        'device_category_id': fields.many2one('nh.clinical.device.category', 'Device Category'),
+        'device_type_id':  fields.many2one('nh.clinical.device.type', "Device Type"),
+        'device_id':  fields.many2one('nh.clinical.device', "Device"),
     }
+
+    def onchange_device_category_id(self, cr, uid, ids, device_category_id, context=None):
+        response = False
+        if device_category_id:
+            response = {'value': {'device_id': False, 'device_type_id': False}}
+            ids = self.pool['nh.clinical.device.type'].search(cr, uid, [('category_id', '=', device_category_id)])
+            response.update({'domain': {'device_type_id': [('id', 'in', ids)]}})
+        return response
+
+    def onchange_device_type_id(self, cr, uid, ids, device_type_id, context=None):
+        response = False
+        if device_type_id:
+            response = {'value': {'device_id': False}}
+            ids = self.pool['nh.clinical.device'].search(cr, uid, [('type_id', '=', device_type_id)])
+            response.update({'domain': {'device_id': [('id', 'in', ids), ('is_available', '=', True)]}})
+        return response
+
+    def onchange_device_id(self, cr, uid, ids, device_id, context=None):
+        device_pool = self.pool['nh.clinical.device']
+        if not device_id:
+            return {}
+        device = device_pool.browse(cr, uid, device_id, context=context)
+        return {'value': {'device_type_id': device.type_id.id}}
+
     def do_start(self, cr, uid, ids, context=None):
         wiz = self.browse(cr, uid, ids[0])
         spell_activity_id = self.pool['nh.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
         device_activity_id = self.pool['nh.clinical.device.session'].create_activity(cr, SUPERUSER_ID, 
                                                 {'parent_id': spell_activity_id},
-                                                {'patient_id': wiz.patient_id.id, 'device_id': wiz.device_id.id})
-        self.pool['nh.activity'].start(cr, uid, device_activity_id, context)        
+                                                {'patient_id': wiz.patient_id.id,
+                                                 'device_type_id': wiz.device_type_id.id,
+                                                 'device_id': wiz.device_id.id if wiz.device_id else False})
+        self.pool['nh.activity'].start(cr, uid, device_activity_id, context)
+
 class wardboard_device_session_complete(orm.TransientModel):
     _name = "wardboard.device.session.complete"
 
     _columns = {
-
         'session_id': fields.many2one('nh.clinical.device.session', 'Session'),
     }   
     
@@ -194,11 +222,8 @@ class nh_clinical_wardboard(orm.Model):
                              % (model_name, ", ".join([str(spell_id) for spell_id in ids]))
             cr.execute(sql)
             rows = cr.dictfetchall()
-#             import pdb; pdb.set_trace()
             for row in rows:
                 res[row['spell_id']][field_name] = row['ids']
-#             if field_name == 'ews_ids': 
-#                 import pdb; pdb.set_trace()
         return res
     
     _columns = {
@@ -235,8 +260,8 @@ class nh_clinical_wardboard(orm.Model):
         'height': fields.float("Height"),
         'o2target': fields.many2one('nh.clinical.o2level', 'O2 Target'),
         'consultant_names': fields.text("Consulting Doctors"),
-        'terminated_device_session_ids': fields.function(_get_data_ids_multi, multi='terminated_device_session_ids', type='many2many', relation='nh.clinical.device.session', string='Device Session History'),
-        'started_device_session_ids': fields.function(_get_data_ids_multi, multi='started_device_session_ids', type='many2many', relation='nh.clinical.device.session', string='Started Device Sessions'),
+        'terminated_device_session_ids': fields.function(_get_terminated_device_session_ids, type='many2many', relation='nh.clinical.device.session', string='Device Session History'),
+        'started_device_session_ids': fields.function(_get_started_device_session_ids, type='many2many', relation='nh.clinical.device.session', string='Started Device Sessions'),
         'spell_ids': fields.function(_get_data_ids_multi, multi='spell_ids', type='many2many', relation='nh.clinical.spell', string='Spells'),
         'move_ids': fields.function(_get_data_ids_multi, multi='move_ids', type='many2many', relation='nh.clinical.patient.move', string='Patient Moves'),
         'o2target_ids': fields.function(_get_data_ids_multi, multi='o2target_ids',type='many2many', relation='nh.clinical.patient.o2target', string='O2 Targets'),

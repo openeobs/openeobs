@@ -35,7 +35,7 @@ class TestUsers(SingleTransactionCase):
             }
         }
 
-        self.apidemo.build_unit_test_env(cr, uid, users=users)
+        self.apidemo.build_unit_test_env(cr, uid, context='eobs', users=users)
 
         wm1_id = self.users_pool.search(cr, uid, [('login', '=', 'wm1')])[0]
 

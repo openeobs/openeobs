@@ -64,7 +64,7 @@ class nh_eobs_api(orm.AbstractModel):
     def _create_activity(self, cr, uid, data_model, vals_activity=None, vals_data=None, context=None):
         model_pool = self.pool[data_model]
         activity_id = model_pool.create_activity(cr, uid, vals_activity, vals_data, context=context)
-        _logger.info("Activity created id=%s, data_model=%s\n vals_activity: %s\n vals_data: %s"
+        _logger.debug("Activity created id=%s, data_model=%s\n vals_activity: %s\n vals_data: %s"
                      % (activity_id, data_model, vals_activity, vals_data))
         return activity_id
 
@@ -351,7 +351,7 @@ class nh_eobs_api(orm.AbstractModel):
         update_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.update', {}, {}, context=context)
         res = activity_pool.submit(cr, uid, update_activity, data, context=context)
         activity_pool.complete(cr, uid, update_activity, context=context)
-        _logger.info("Patient updated\n data: %s" % data)
+        _logger.debug("Patient updated\n data: %s" % data)
         return res
 
     def register(self, cr, uid, patient_id, data, context=None):
@@ -372,7 +372,7 @@ class nh_eobs_api(orm.AbstractModel):
         data.update({'other_identifier': patient_id})
         activity_pool.submit(cr, uid, register_activity, data, context=context)
         activity_pool.complete(cr, uid, register_activity, context=context)
-        _logger.info("Patient registered\n data: %s" % data)
+        _logger.debug("Patient registered\n data: %s" % data)
         return True
 
     def admit(self, cr, uid, patient_id, data, context=None):
@@ -396,7 +396,7 @@ class nh_eobs_api(orm.AbstractModel):
         admit_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, admit_activity, data, context=context)
         activity_pool.complete(cr, uid, admit_activity, context=context)
-        _logger.info("Patient admitted\n data: %s" % data)
+        _logger.debug("Patient admitted\n data: %s" % data)
         return True
     
     def admit_update(self, cr, uid, patient_id, data, context=None):
@@ -408,7 +408,7 @@ class nh_eobs_api(orm.AbstractModel):
         update_activity = self._create_activity(cr, uid, 'nh.clinical.adt.spell.update', {}, {}, context=context)
         activity_pool.submit(cr, uid, update_activity, data, context=context)
         activity_pool.complete(cr, uid, update_activity, context=context)
-        _logger.info("Admission updated\n data: %s" % data)
+        _logger.debug("Admission updated\n data: %s" % data)
         return True
         
     def cancel_admit(self, cr, uid, patient_id, context=None):
@@ -420,7 +420,7 @@ class nh_eobs_api(orm.AbstractModel):
         cancel_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_activity, data, context=context)
         activity_pool.complete(cr, uid, cancel_activity, context=context)
-        _logger.info("Admission cancelled\n data: %s" % data)
+        _logger.debug("Admission cancelled\n data: %s" % data)
         return True
 
     def discharge(self, cr, uid, patient_id, data, context=None):
@@ -437,7 +437,7 @@ class nh_eobs_api(orm.AbstractModel):
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.discharge', {'patient_id': patientdb_id[0]}, {'other_identifier': patient_id, 'discharge_date': data.get('discharge_date')}, context=context)
         activity_pool.complete(cr, uid, discharge_activity, context=context)
-        _logger.info("Patient discharged: %s" % patient_id)
+        _logger.debug("Patient discharged: %s" % patient_id)
         return True
 
     def cancel_discharge(self, cr, uid, patient_id, context=None):
@@ -452,7 +452,7 @@ class nh_eobs_api(orm.AbstractModel):
         cancel_discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_discharge', {'patient_id': patientdb_id[0]}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_discharge_activity, {'other_identifier': patient_id}, context=context)
         activity_pool.complete(cr, uid, cancel_discharge_activity, context=context)
-        _logger.info("Discharge cancelled for patient: %s" % patient_id)
+        _logger.debug("Discharge cancelled for patient: %s" % patient_id)
         return True
 
     def merge(self, cr, uid, patient_id, data, context=None):
@@ -470,7 +470,7 @@ class nh_eobs_api(orm.AbstractModel):
         merge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.merge', {}, {}, context=context)
         activity_pool.submit(cr, uid, merge_activity, data, context=context)
         activity_pool.complete(cr, uid, merge_activity, context=context)
-        _logger.info("Patient merged\n data: %s" % data)
+        _logger.debug("Patient merged\n data: %s" % data)
         return True
 
     def transfer(self, cr, uid, patient_id, data, context=None):
@@ -489,7 +489,7 @@ class nh_eobs_api(orm.AbstractModel):
         transfer_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
         activity_pool.submit(cr, uid, transfer_activity, data, context=context)
         activity_pool.complete(cr, uid, transfer_activity, context=context)
-        _logger.info("Patient transferred\n data: %s" % data)
+        _logger.debug("Patient transferred\n data: %s" % data)
         return True
 
     def cancel_transfer(self, cr, uid, patient_id, context=None):
@@ -504,7 +504,7 @@ class nh_eobs_api(orm.AbstractModel):
         cancel_transfer_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_transfer_activity, {'other_identifier': patient_id}, context=context)
         activity_pool.complete(cr, uid, cancel_transfer_activity, context=context)
-        _logger.info("Transfer cancelled for patient: %s" % patient_id)
+        _logger.debug("Transfer cancelled for patient: %s" % patient_id)
         return True
 
     def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=None,

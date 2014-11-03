@@ -59,8 +59,8 @@
                     </group>
                     <group expand="1" string="Group By...">
                         <filter name="group_by_parent" string="Ward" domain="[]" context="{'group_by':'parent_id'}" help="Group by Ward"/>
-                        <filter name="group_by_type" string="Type" domain="[]" context="{'group_by':'type'}" help="Group by Type"/>
-                        <filter name="group_by_usage" string="Usage" domain="[]" context="{'group_by':'usage'}" help="Group by Usage"/>
+                        <!--<filter name="group_by_type" string="Type" domain="[]" context="{'group_by':'type'}" help="Group by Type"/>-->
+                        <!--<filter name="group_by_usage" string="Usage" domain="[]" context="{'group_by':'usage'}" help="Group by Usage"/>-->
                     </group>
                 </search>
             </field>
@@ -92,13 +92,13 @@
                     <field name="parent_id"/>
                     <field name="name"/>
                     <field name="code" />
-                    <field name="is_available"/>
+                    <field name="patient_ids" widget="many2many_tags" string="Patient"/>
                     <field name="pos_id"/>
                 </tree>
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_show_active_locations" >
+        <record model="ir.actions.act_window" id="action_show_active_locations">
             <field name="name">Active Points of Care</field>
             <field name="res_model">nh.clinical.location</field>
             <field name="view_type">form</field>
@@ -201,7 +201,7 @@
                                         <field name="name" readonly="1"/>
                                         <field name="assigned_hca_ids" widget="many2many_tags"/>
                                         <field name="assigned_nurse_ids" widget="many2many_tags"/>
-                                        <field name="is_available" readonly="1"/>
+                                        <field name="patient_ids" widget="many2many_tags" readonly="1"/>
                                     </tree>
                                 </field>
                             </page>
@@ -398,9 +398,9 @@
             <field name="model">nh.clinical.device</field>
             <field name="arch" type="xml">
                 <search string="Devices">
-                    <field name="name"/>
+                    <field name="serial_number"/>
                     <group expand="1" string="Group By...">
-                        <filter name="type" string="Type" domain="[]" context="{'group_by':'type_id'}" help="Type"/>
+                        <filter name="type_id" string="Type" domain="[]" context="{'group_by':'type_id'}" help="Type"/>
                     </group>
                 </search>
             </field>
@@ -410,7 +410,7 @@
             <field name="model">nh.clinical.device</field>
             <field name="arch" type="xml">
                 <tree string="Devices" version="7.0">
-                    <field name="name"/>
+                    <field name="serial_number"/>
                     <field name="type_id"/>
                     <field name="is_available"/>
                 </tree>
@@ -423,8 +423,8 @@
                 <form string="Device" version="7.0">
                     <sheet>
                         <div class="oe_title">
-                            <label for="name"/>
-                            <h1><field name="name"/></h1>
+                            <label for="serial_number"/>
+                            <h1><field name="serial_number"/></h1>
                         </div>
                         <group string="Device Information">
                             <field name="type_id"/>
@@ -465,7 +465,7 @@
                 <search string="Device Types">
                     <field name="name"/>
                     <group expand="1" string="Group By...">
-                        <filter name="flow_direction" string="Flow Direction" domain="[]" context="{'group_by':'flow_direction'}"/>
+                        <filter name="category_id" string="Category" domain="[]" context="{'group_by':'category_id'}"/>
                     </group>
                 </search>
             </field>
@@ -476,7 +476,7 @@
             <field name="arch" type="xml">
                 <tree string="Device Types" version="7.0">
                     <field name="name"/>
-                    <field name="flow_direction"/>
+                    <field name="category_id"/>
                 </tree>
             </field>
         </record>
@@ -491,7 +491,7 @@
                             <h1><field name="name"/></h1>
                         </div>
                         <group string="Parameters">
-                            <field name="flow_direction"/>
+                            <field name="category_id"/>
                         </group>
                     </sheet>
                 </form>
@@ -505,6 +505,56 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="search_view_id" ref="view_nhc_device_type_search"/>
+        </record>
+        
+        <!--Admin Views - Device Categories-->
+        <record model="ir.ui.view" id="view_nhc_device_category_search">
+            <field name="name">NHC Device Category Search</field>
+            <field name="model">nh.clinical.device.category</field>
+            <field name="arch" type="xml">
+                <search string="Device Categories">
+                    <field name="name"/>
+                    <group expand="1" string="Group By...">
+                        <filter name="flow_direction" string="Flow direction" domain="[]" context="{'group_by':'flow_direction'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_nhc_device_category_tree">
+            <field name="name">NHC Device Category Tree</field>
+            <field name="model">nh.clinical.device.category</field>
+            <field name="arch" type="xml">
+                <tree string="Device Categories" version="7.0">
+                    <field name="name"/>
+                    <field name="flow_direction"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_nhc_device_category_form">
+            <field name="name">NHC Device Category Form</field>
+            <field name="model">nh.clinical.device.category</field>
+            <field name="arch" type="xml">
+                <form string="Device Category" version="7.0">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group string="Parameters">
+                            <field name="flow_direction"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_device_categories">
+            <field name="name">Device Categories</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">nh.clinical.device.category</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_nhc_device_category_search"/>
         </record>
 
         <!--Doctor Tasks-->
