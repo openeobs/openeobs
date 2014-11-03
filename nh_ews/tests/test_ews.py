@@ -90,7 +90,6 @@ class test_observations(common.SingleTransactionCase):
             # # # # # # # # # # # # # # # # # # # # # # # # #
             # Check the score, frequency and clinical risk  #
             # # # # # # # # # # # # # # # # # # # # # # # # #
-            #import pdb; pdb.set_trace()
             self.assertEqual(ews_activity.data_ref.score, ews_test_data['SCORE'][i], msg='Score not matching')
             self.assertEqual(ews_activity.data_ref.clinical_risk, clinical_risk, msg='Risk not matching')
             domain = [

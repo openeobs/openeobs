@@ -121,7 +121,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         'niv_backup': fields.integer('NIV: Back-up rate (br/min)'),
         'niv_ipap': fields.integer('NIV: IPAP (cmH2O)'),
         'niv_epap': fields.integer('NIV: EPAP (cmH2O)'),
-        'device_id': fields.many2one('nh.clinical.device', 'Device'),
+        'device_id': fields.many2one('nh.clinical.device.type', 'Device'),
         'order_by': fields.related('activity_id', 'date_terminated', type='datetime', string='Date Terminated', store={
             'nh.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['activity_id'], 10),
             'nh.activity.data': (_data2ews_ids, ['date_terminated'], 20)
@@ -129,6 +129,11 @@ class nh_clinical_patient_observation_ews(orm.Model):
     }
 
     _form_description = [
+        {
+            'name': 'meta',
+            'type': 'meta',
+            'score': True
+        },
         {
             'name': 'respiration_rate',
             'type': 'integer',
@@ -201,6 +206,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     'hide': []
                 },
                 'False': {
+                    'show': [],
+                    'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                },
+                'Default': {
                     'show': [],
                     'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
                 }
@@ -294,6 +303,31 @@ class nh_clinical_patient_observation_ews(orm.Model):
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         spell_activity_id = activity.parent_id.id
         except_if(not group, cap="Are you sure you are supposed to complete this activity?", msg="Current user is not found in groups Nurse, HCA")
+        # OXYGEN ADMINISTRATION STUFF
+        device_activity_ids = activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.device.session'],
+            ['state', 'not in', ['completed', 'cancelled']]], context=context)
+        da_browse = activity_pool.browse(cr, uid, device_activity_ids, context=context)
+        device_activity_ids = [da.id for da in da_browse if da.data_ref.device_type_id.category_id.name == 'Supplemental O2']
+        if not activity.data_ref.oxygen_administration_flag:
+            [activity_pool.complete(cr, uid, dai, context=context) for dai in device_activity_ids]
+        elif activity.data_ref.device_id:
+            add_device = False
+            if not device_activity_ids:
+                add_device = True
+            else:
+                device_activity_ids = [da.id for da in da_browse if da.data_ref.device_type_id.category_id.name != activity.data_ref.device_id.name]
+                if not any([da.id for da in da_browse if da.data_ref.device_type_id.name == activity.data_ref.device_id.name]):
+                    add_device = True
+                [activity_pool.complete(cr, uid, dai, context=context) for dai in device_activity_ids]
+            if add_device:
+                device_activity_id = self.pool['nh.clinical.device.session'].create_activity(cr, SUPERUSER_ID,
+                                                        {'parent_id': spell_activity_id},
+                                                        {'patient_id': activity.patient_id.id,
+                                                         'device_type_id': activity.data_ref.device_id.id,
+                                                         'device_id': False})
+                activity_pool.start(cr, uid, device_activity_id, context)
+
         # TRIGGER NOTIFICATIONS
         api_pool.trigger_notifications(cr, uid, {
             'notifications': self._POLICY['notifications'][case],
@@ -329,7 +363,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     def get_form_description(self, cr, uid, patient_id, context=None):
         activity_pool = self.pool['nh.activity']
-        device_pool = self.pool['nh.clinical.device']
+        device_pool = self.pool['nh.clinical.device.type']
         fd = list(self._form_description)
         # Find the O2 target
         o2target_ids = activity_pool.search(cr, uid, [
@@ -342,7 +376,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             o2tactivity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
             o2target = o2tactivity.data_ref.level_id.name
         # Find O2 devices
-        device_ids = device_pool.search(cr, uid, [('type_id.name', '=', 'Supplemental O2')], context=context)
+        device_ids = device_pool.search(cr, uid, [('category_id.name', '=', 'Supplemental O2')], context=context)
         device_selection = [[d, device_pool.read(cr, uid, d, ['name'], context=context)['name']] for d in device_ids]
         device_on_change = {}
         for ds in device_selection:
@@ -361,6 +395,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     'show': ['flow_rate', 'concentration'],
                     'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
                 }
+        device_on_change['Default'] = {
+            'show': [],
+            'hide': ['flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+        }
 
         for field in fd:
             if field['name'] == 'indirect_oxymetry_spo2' and o2target:
