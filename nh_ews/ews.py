@@ -83,7 +83,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for ews in self.browse(cr, uid, ids, context):
-            res[ews.id] = self.calculate_score(ews)
+            if ews.is_partial:
+                res[ews.id] = {'score': False, 'three_in_one': False, 'clinical_risk': 'None'}
+            else:
+                res[ews.id] = self.calculate_score(ews)
             _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res
 
@@ -327,14 +330,15 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 activity_pool.start(cr, uid, device_activity_id, context)
 
         # TRIGGER NOTIFICATIONS
-        api_pool.trigger_notifications(cr, uid, {
-            'notifications': self._POLICY['notifications'][case],
-            'parent_id': spell_activity_id,
-            'creator_id': activity_id,
-            'patient_id': activity.data_ref.patient_id.id,
-            'model': self._name,
-            'group': group
-        }, context=context)
+        if not activity.data_ref.is_partial:
+            api_pool.trigger_notifications(cr, uid, {
+                'notifications': self._POLICY['notifications'][case],
+                'parent_id': spell_activity_id,
+                'creator_id': activity_id,
+                'patient_id': activity.data_ref.patient_id.id,
+                'model': self._name,
+                'group': group
+            }, context=context)
 
         res = super(nh_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context)
 
@@ -342,10 +346,13 @@ class nh_clinical_patient_observation_ews(orm.Model):
         next_activity_id = self.create_activity(cr, SUPERUSER_ID,
                              {'creator_id': activity_id, 'parent_id': spell_activity_id},
                              {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.change_activity_frequency(cr, SUPERUSER_ID,
-                                           activity.data_ref.patient_id.id,
-                                           self._name,
-                                           self._POLICY['frequencies'][case], context=context)
+        if activity.data_ref.is_partial:
+            activity_pool.schedule(cr, uid, next_activity_id, date_scheduled=activity.date_scheduled, context=context)
+        else:
+            api_pool.change_activity_frequency(cr, SUPERUSER_ID,
+                                               activity.data_ref.patient_id.id,
+                                               self._name,
+                                               self._POLICY['frequencies'][case], context=context)
         return res
 
     def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
