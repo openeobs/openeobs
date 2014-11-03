@@ -1,4 +1,4 @@
-describe('NHMobile', function() {
+describe('NHMobile - Object', function() {
     var mobile, request;
     beforeEach(function () {
         if(mobile == null){
@@ -27,7 +27,7 @@ describe('NHMobile', function() {
 
 });
 
-describe('NHMobile AJAX - method', function(){
+describe('NHMobile - Calls process_request function', function(){
     var mobile;
     beforeEach(function(){
         if (mobile == null) {
@@ -53,8 +53,8 @@ describe('NHMobile AJAX - method', function(){
     });
 
     it("should call process_request when calling calculate_obs_score", function(){
-        mobile.call_resource(mobile.urls.calculate_obs_score('gcs'), {'eyes': 1, 'verbal': 1, 'motor': 1});
-        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('POST', 'http://localhost:8169/mobile/observation/score/gcs', {'eyes': 1, 'verbal': 1, 'motor': 1});
+        mobile.call_resource(mobile.urls.calculate_obs_score('gcs'), 'eyes=1&verbal=1&motor=1');
+        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('POST', 'http://localhost:8169/mobile/observation/score/gcs', 'eyes=1&verbal=1&motor=1');
     });
 
     afterEach(function () {
@@ -65,21 +65,67 @@ describe('NHMobile AJAX - method', function(){
     });
 });
 
-describe("NHMobile AJAX - XHR request", function(){
+describe("NHMobile AJAX - process request is calling xhr send", function(){
+
     beforeEach(function(){
         spyOn(XMLHttpRequest.prototype, 'send');
-        spyOn(NHModal.prototype, 'create_dialog');
+
     });
 
     it("is calling process_request which is triggering the XMLHTTPRequest", function() {
-        mobile = new NHMobile();
+        var mobile = new NHMobile();
         mobile.get_patient_info(1);
         expect(XMLHttpRequest.prototype.send).toHaveBeenCalled();
     });
 
-    it("is triggering NHModal when AJAX fails", function() {
-        mobile = new NHMobile();
-        mobile.get_patient_info(1);
-        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+    it('is calling process_request which is sending args', function(){
+       var mobile = new NHMobile();
+        mobile.call_resource(mobile.urls.calculate_obs_score('gcs'), 'eyes=1&verbal=1&motor=1');
+        expect(XMLHttpRequest.prototype.send).toHaveBeenCalledWith('eyes=1&verbal=1&motor=1');
     });
+
+});
+
+describe("NHMobile AJAX - Invalid URL / server error", function(){
+    var resp, resp_val;
+    beforeEach(function(done){
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        var mobile = new NHMobile();
+        resp = Promise.when(mobile.call_resource({url: 'meh', method: 'GET'})).then(function(data){
+            resp_val = data;
+            done();
+        }, function(fail){
+            console.log('promise failed');
+            done();
+        });
+
+    });
+    it('is showing modal when invalid ajax', function(){
+        expect(window.NHModal.prototype.create_dialog).toHaveBeenCalled();
+    });
+
+    afterEach(function(){
+        var test = document.getElementById('data_error');
+        if(test != null){
+            test.parentNode.removeChild(test);
+        }
+    });
+});
+
+describe("NHMobile AJAX - Promise", function(){
+    var resp, resp_val;
+    beforeEach(function(done){
+        var mobile = new NHMobile();
+        resp = Promise.when(mobile.get_patient_info(1)).then(function(data){
+            resp_val = data;
+            done();
+        }, function(fail){
+            console.log('promise failed');
+            done();
+        });
+    });
+    it("promise resolves ", function() {
+        expect(typeof(resp_val)).toEqual('object');
+    });
+
 });

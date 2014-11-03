@@ -153,7 +153,7 @@ routes = [
     {
         'name': 'confirm_clinical_notification',
         'endpoint': 'tasks/confirm_clinical/',
-        'method': 'GET',
+        'method': 'POST',
         'args': ['task_id']
     },
     {
