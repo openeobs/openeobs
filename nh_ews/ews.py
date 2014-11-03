@@ -37,12 +37,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     {'model': 'nurse', 'summary': 'Informed about patient status (NEWS)', 'groups': ['hca']}],
                    [{'model': 'medical_team', 'summary': 'Urgently inform medical team', 'groups': ['nurse', 'hca']},
                     {'model': 'hca', 'summary': 'Inform registered nurse', 'groups': ['hca']},
-                    {'model': 'nurse', 'summary': 'Informed about patient status (NEWS)', 'groups': ['hca']},
-                    {'model': 'assessment', 'groups': ['nurse']}],
+                    {'model': 'nurse', 'summary': 'Informed about patient status (NEWS)', 'groups': ['hca']}],
                    [{'model': 'medical_team', 'summary': 'Immediately inform medical team', 'groups': ['nurse', 'hca']},
                     {'model': 'hca', 'summary': 'Inform registered nurse', 'groups': ['hca']},
-                    {'model': 'nurse', 'summary': 'Informed about patient status (NEWS)', 'groups': ['hca']},
-                    {'model': 'assessment', 'groups': ['nurse']}]
+                    {'model': 'nurse', 'summary': 'Informed about patient status (NEWS)', 'groups': ['hca']}]
                ],
                'risk': ['None', 'Low', 'Medium', 'High']}
 
