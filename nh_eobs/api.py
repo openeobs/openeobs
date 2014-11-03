@@ -133,7 +133,7 @@ class nh_eobs_api(orm.AbstractModel):
                 from nh_clinical_spell spell
                 left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
                 inner join nh_activity activity on ews.activity_id = activity.id
-                where activity.state = 'completed'
+                where activity.state = 'completed' and ews.none_values = '[]'
             )
         select activity.id,
             activity.summary,
@@ -288,7 +288,7 @@ class nh_eobs_api(orm.AbstractModel):
                 from nh_clinical_spell spell
                 left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
                 inner join nh_activity activity on ews.activity_id = activity.id
-                where activity.state = 'completed'
+                where activity.state = 'completed' and ews.none_values = '[]'
             ),
             scheduled_ews as(
                 select
