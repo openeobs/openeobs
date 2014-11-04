@@ -8,6 +8,7 @@ NHLib = (function() {
   function NHLib() {
     this.leading_zero = __bind(this.leading_zero, this);
     this.get_timestamp = __bind(this.get_timestamp, this);
+    this.date_to_dob_string = __bind(this.date_to_dob_string, this);
     this.date_to_string = __bind(this.date_to_string, this);
     this.date_from_string = __bind(this.date_from_string, this);
     this.version = '0.0.1';
@@ -19,6 +20,10 @@ NHLib = (function() {
 
   NHLib.prototype.date_to_string = function(date) {
     return date.getFullYear() + "-" + this.leading_zero(date.getMonth() + 1) + "-" + this.leading_zero(date.getDate()) + " " + this.leading_zero(date.getHours()) + ":" + this.leading_zero(date.getMinutes()) + ":" + this.leading_zero(date.getSeconds());
+  };
+
+  NHLib.prototype.date_to_dob_string = function(date) {
+    return date.getFullYear() + "-" + this.leading_zero(date.getMonth() + 1) + "-" + this.leading_zero(date.getDate());
   };
 
   NHLib.prototype.get_timestamp = function() {

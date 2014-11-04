@@ -118,7 +118,7 @@ NHMobile = (function(_super) {
       }
       if (data.dob) {
         patientDOB = self.date_from_string(data.dob);
-        patient_details += "<dt>DOB:</dt><dd>" + self.date_to_string(patientDOB) + "</dd>";
+        patient_details += "<dt>DOB:</dt><dd>" + self.date_to_dob_string(patientDOB) + "</dd>";
       }
       if (data.location) {
         patient_details += "<dt>Location:</dt><dd>" + data.location;
@@ -134,8 +134,8 @@ NHMobile = (function(_super) {
       if (data.other_identifier) {
         patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier + "</dd>";
       }
-      if (data.patient_id) {
-        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_id + "</dd>";
+      if (data.patient_identifier) {
+        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier + "</dd>";
       }
       patient_details = '<dl>' + patient_details + '</dl><p><a href="' + self.urls['single_patient'](patient_id).url + '" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>';
       new NHModal('patient_info', patient_name, patient_details, ['<a href="#" data-target="patient_info" data-action="close">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);

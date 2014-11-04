@@ -19,6 +19,11 @@ class NHLib
    # return date in string format
    return date.getFullYear() + "-" +  @leading_zero(date.getMonth() + 1) + "-" + @leading_zero(date.getDate()) + " " + @leading_zero(date.getHours()) + ":" + @leading_zero(date.getMinutes()) + ":" + @leading_zero(date.getSeconds())
 
+ date_to_dob_string: (date) =>
+
+   # return dob string
+   return date.getFullYear() + "-" +  @leading_zero(date.getMonth() + 1) + "-" + @leading_zero(date.getDate())
+
  get_timestamp: () =>
 
    # return proper seconds based unix timestamp instead of milliseconds based one which is JS default
