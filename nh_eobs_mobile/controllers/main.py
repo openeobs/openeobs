@@ -666,4 +666,4 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         response.set_cookie('session_id', httprequest.session.sid, max_age=cookie_lifespan)
         return response
 
-    Root.get_response = self.get_response
+    Root.get_response = get_response
