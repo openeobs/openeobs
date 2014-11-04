@@ -70,10 +70,10 @@ class TestEWS(common.SingleTransactionCase):
             'frequencies': [720, 240, 60, 30],
             'risk': ['None', 'Low', 'Medium', 'High'],
             'notifications': [
-                {'nurse': [], 'assessment': False, 'frequency': False},
-                {'nurse': [], 'assessment': True, 'frequency': False},
-                {'nurse': ['Urgently inform medical team'], 'assessment': False, 'frequency': False},
-                {'nurse': ['Immediately inform medical team'], 'assessment': False, 'frequency': False}
+                {'medical_team': [], 'assessment': False, 'frequency': False},
+                {'medical_team': [], 'assessment': True, 'frequency': False},
+                {'medical_team': ['Urgently inform medical team'], 'assessment': False, 'frequency': False},
+                {'medical_team': ['Immediately inform medical team'], 'assessment': False, 'frequency': False}
             ]
         }
 
@@ -110,7 +110,7 @@ class TestEWS(common.SingleTransactionCase):
 
             frequency = ews_policy['frequencies'][ews_test_data['CASE'][i]]
             clinical_risk = ews_policy['risk'][ews_test_data['CASE'][i]]
-            nurse_notifications = ews_policy['notifications'][ews_test_data['CASE'][i]]['nurse']
+            nurse_notifications = ews_policy['notifications'][ews_test_data['CASE'][i]]['medical_team']
             assessment = ews_policy['notifications'][ews_test_data['CASE'][i]]['assessment']
             review_frequency = ews_policy['notifications'][ews_test_data['CASE'][i]]['frequency']
 
@@ -118,6 +118,7 @@ class TestEWS(common.SingleTransactionCase):
             # # # # # # # # # # # # # # # # # # # # # # # # #
             # Check the score, frequency and clinical risk  #
             # # # # # # # # # # # # # # # # # # # # # # # # #
+            _logger.info("TEST - observation EWS: expecting score %s, frequency %s, clinical risk %s" % (ews_test_data['SCORE'][i], frequency, clinical_risk))
             self.assertEqual(ews_activity.data_ref.score, ews_test_data['SCORE'][i], msg='Score not matching')
             self.assertEqual(ews_activity.data_ref.clinical_risk, clinical_risk, msg='Risk not matching')
             domain = [
@@ -162,4 +163,22 @@ class TestEWS(common.SingleTransactionCase):
             else:
                 self.assertFalse(frequency_ids, msg='Review frequency notification triggered')
 
-            ews_activity_id = self.activity_pool.search(cr, uid, [['parent_id', '=', spell_activity.id], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']]])[0]
+            if nurse_notifications:
+                for n in nurse_notifications:
+                    domain = [
+                        ('creator_id', '=', ews_activity.id),
+                        ('state', 'not in', ['completed', 'cancelled']),
+                        ('data_model', '=', 'nh.clinical.notification.medical_team'),
+                        ('summary', '=', n)]
+                    nurse_not_ids = self.activity_pool.search(cr, uid, domain)
+                    self.assertTrue(nurse_not_ids, msg='Nurse notification %s not triggered' % n)
+                    self.activity_pool.cancel(cr, uid, nurse_not_ids[0])
+            else:
+                domain = [
+                    ('creator_id', '=', ews_activity.id),
+                    ('state', 'not in', ['completed', 'cancelled']),
+                    ('data_model', '=', 'nh.clinical.notification.medical_team')]
+                nurse_not_ids = self.activity_pool.search(cr, uid, domain)
+                self.assertFalse(nurse_not_ids, msg='Nurse notification triggered')
+
+            ews_activity_id = next_ews_activity.id
