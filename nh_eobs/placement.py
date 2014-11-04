@@ -46,7 +46,7 @@ class nh_clinical_placement(orm.Model):
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
 
         return {
-            'name': 'Complete Placement',
+            'name': 'Patient Placement',
             'type': 'ir.actions.act_window',
             'res_model': 'nh.clinical.patient.placement',
             'view_mode': 'form',
