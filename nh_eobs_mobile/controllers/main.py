@@ -663,7 +663,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         cookie_lifespan = 3600*12 # 12 hours, maybe set in config?
 
-        response.set_cookie('session_id', httprequest.session.sid, max_age=cookie_lifespan)
+        if response:
+            response.set_cookie('session_id', httprequest.session.sid, max_age=cookie_lifespan)
         return response
 
     Root.get_response = get_response
