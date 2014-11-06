@@ -54,6 +54,7 @@ class test_ui_data(SingleTransactionCase):
         wardboard_model = self.registry('nh.clinical.wardboard')
         api = self.registry('nh.clinical.api')
         location = self.registry('nh.clinical.location')
+        ews_pool = self.registry('nh.clinical.patient.observation.ews')
 
         # patient data test
         location_id = location.search(cr, uid, [['code', '=', 'U']])
@@ -151,29 +152,30 @@ class test_ui_data(SingleTransactionCase):
                 
                 wardboard_ids = wardboard_model.search(cr, SUPERUSER_ID, [['patient_id', '=', patient_id], ['pos_id', '=', wu.parent_id.pos_id.id]])
                 assert len(wardboard_ids) == 1
-                wardboard = wardboard_model.browse(cr, SUPERUSER_ID, wardboard_ids[0])
+                wardboard = wardboard_model.read(cr, SUPERUSER_ID, wardboard_ids[0], ['clinical_risk', 'ews_trend', 'ews_trend_string', 'ews_ids'])
 
-                assert wardboard.clinical_risk == activity.data_ref.clinical_risk,\
+                assert wardboard['clinical_risk'] == activity.data_ref.clinical_risk,\
                     "wardboard.clinical_risk: %s, activity.data_ref.clinical_risk: %s"\
-                    %(wardboard.clinical_risk, activity.data_ref.clinical_risk)
-                assert wardboard.clinical_risk == case['RISK'], "wardboard.clinical_risk: %s, case['RISK']: %s"\
-                    % (wardboard.clinical_risk, case['RISK'])    
-                if not previous_result:
-                    assert wardboard.ews_trend_string == 'first'
-                    
+                    %(wardboard['clinical_risk'], activity.data_ref.clinical_risk)
+                assert wardboard['clinical_risk'] == case['RISK'], "wardboard.clinical_risk: %s, case['RISK']: %s"\
+                    % (wardboard['clinical_risk'], case['RISK'])
+                if len(wardboard['ews_ids']) == 1:
+                    assert wardboard['ews_trend_string'] == 'first'
+                elif not previous_result:
+                    previous_result = {'score': ews_pool.read(cr, uid, wardboard['ews_ids'][-2], ['score'])['score']}
                 else:
                     this_ews_trend = activity.data_ref.score - previous_result['score']
                     this_ews_trend_string = ((this_ews_trend < 0 and 'up') 
                                              or (this_ews_trend > 0 and 'down')
                                              or (this_ews_trend == 0 and 'same'))
-                    assert wardboard.ews_trend == this_ews_trend,\
+                    assert wardboard['ews_trend'] == this_ews_trend,\
                         "wardboard.ews_trend: %s, activity.data_ref.score: %s, previous_result['score']: %s"\
-                        % (wardboard.ews_trend, activity.data_ref.score, previous_result['score'])
-                    assert wardboard.ews_trend_string == this_ews_trend_string,\
+                        % (wardboard['ews_trend'], activity.data_ref.score, previous_result['score'])
+                    assert wardboard['ews_trend_string'] == this_ews_trend_string,\
                         "wardboard.ews_trend_string: %s, this_ews_trend_string: %s"\
-                        %(wardboard.ews_trend_string, this_ews_trend_string)
-                previous_result = {'score':activity.data_ref.score}
-                ews_ids = [ews.id for ews in wardboard.ews_ids]
+                        %(wardboard['ews_trend_string'], this_ews_trend_string)
+                previous_result = {'score': activity.data_ref.score}
+                ews_ids = wardboard['ews_ids']
                 
                 print "id = %s, ews_ids = %s" % (activity.data_ref.id, ews_ids)
                 assert activity.data_ref.id in ews_ids, "ews.data_ref.id not in wardboard.ews_ids: id = %s, ews_ids = %s" % (activity.data_ref.id, ews_ids)
@@ -188,9 +190,11 @@ class test_ui_data(SingleTransactionCase):
                                                       )
             print "create_complete mrsa_activity: %s" % mrsa_activity
             print "mrsa_activity_map: %s" % mrsa_activity_map         
-             
-            assert wardboard.mrsa == mrsa_activity.data_ref.mrsa and 'yes' or 'no'
-            assert wardboard.diabetes == diabetes_activity.data_ref.diabetes and 'yes' or 'no'
-            assert wardboard.pbp_monitoring == pbpm_activity.data_ref.pbp_monitoring and 'yes' or 'no'  
-            assert wardboard.weight_monitoring == weightm_activity.data_ref.weight_monitoring and 'yes' or 'no' 
-            assert wardboard.height == height_activity.data_ref.height
+
+            wardboard = wardboard_model.read(cr, SUPERUSER_ID, wardboard_ids[0], ['height', 'mrsa', 'diabetes', 'pbp_monitoring', 'weight_monitoring'])
+            height = self.registry('nh.clinical.patient.observation.height').read(cr, uid, height_activity.data_ref.id, ['height'])['height']
+            assert wardboard['mrsa'] == mrsa_activity.data_ref.mrsa and 'yes' or 'no'
+            assert wardboard['diabetes'] == diabetes_activity.data_ref.diabetes and 'yes' or 'no'
+            assert wardboard['pbp_monitoring'] == pbpm_activity.data_ref.pbp_monitoring and 'yes' or 'no'
+            assert wardboard['weight_monitoring'] == weightm_activity.data_ref.weight_monitoring and 'yes' or 'no'
+            assert wardboard['height'] == height
