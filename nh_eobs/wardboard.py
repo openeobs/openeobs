@@ -225,6 +225,22 @@ class nh_clinical_wardboard(orm.Model):
             for row in rows:
                 res[row['spell_id']][field_name] = row['ids']
         return res
+
+    def _get_transferred_user_ids(self, cr, uid, ids, field_names, arg, context=None):
+        res = {}
+        for wb_id in ids:
+            user_ids = self.pool['nh.clinical.spell'].read(cr, uid, wb_id, ['transfered_user_ids'], context=context)['transfered_user_ids']
+            res[wb_id] = user_ids
+        return res
+
+    def _transferred_user_ids_search(self, cr, uid, obj, name, args, domain=None, context=None):
+        arg1, op, arg2 = args[0]
+        arg2 = isinstance(arg2, (list, tuple)) and arg2 or [arg2]
+        all_ids = self.search(cr, uid, [])
+        wb_user_map = self._get_transferred_user_ids(cr, uid, all_ids, 'transferred_user_ids', None)
+        wb_ids = [k for k, v in wb_user_map.items() if set(v or []) & set(arg2 or [])]
+
+        return [('id', 'in', wb_ids)]
     
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=1, ondelete='restrict'),
@@ -274,7 +290,9 @@ class nh_clinical_wardboard(orm.Model):
         'pbp_ids': fields.function(_get_data_ids_multi, multi='pbp_ids',type='many2many', relation='nh.clinical.patient.observation.pbp', string='PBP Obs'),
         'ews_ids': fields.function(_get_data_ids_multi, multi='ews_ids',type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs'),
         'ews_list_ids': fields.function(_get_data_ids_multi, multi='ews_list_ids',type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs List'),
-        }
+        'transferred_user_ids': fields.function(_get_transferred_user_ids, type='many2many', relation='res.users', fnct_search=_transferred_user_ids_search, string='Recently Transferred Access')
+    }
+
     def _get_cr_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         res = [['NoScore', 'No Score Yet'], ['High', 'High Risk'], ['Medium', 'Medium Risk'], ['Low', 'Low Risk'], ['None', 'No Risk']]
         fold = {r[0]: False for r in res}

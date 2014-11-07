@@ -813,7 +813,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_discharged" >
-            <field name="name">Recently Discharged Patients</field>
+            <field name="name">Recently Discharged</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -832,6 +832,27 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_wardboard_form_discharged"/>
             <field name="act_window_id" ref="action_wardboard_discharged"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_transferred">
+            <field name="name">Recently Transferred</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('next_diff','!=',False),('spell_date_terminated','=',False),('transferred_user_ids','in',uid)]</field>
+            <field name="search_view_id" ref="view_wardboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_tree_transferred">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_wardboard_tree"/>
+            <field name="act_window_id" ref="action_wardboard_transferred"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_form_transferred">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_form"/>
+            <field name="act_window_id" ref="action_wardboard_transferred"/>
         </record>
 
         <record model="ir.actions.act_window" id="action_kiosk_patients_board">

@@ -142,6 +142,13 @@
             sequence="3"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
+        <menuitem name="Recently Transferred"
+          	id="menu_left_transferred_patients"
+          	parent="menu_nhui_left_patient"
+          	action="action_wardboard_transferred"
+            sequence="4"
+          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+
         <menuitem name="Doctor Tasks"
           	id="menu_left_doctor_activities"
           	parent="menu_nhui_left_patient"
