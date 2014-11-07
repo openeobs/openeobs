@@ -11,6 +11,18 @@
         </t>
     </t>
 
+    <t t-extend="WebClient.announcement_bar">
+        <t t-jquery=".announcement_bar" t-operation="replace">
+            <td colspan="2" class="announcement_bar">
+                <span>Your Open e-Obs is not supported.</span>
+                <span>
+                    <a href="http://www.neovahealth.co.uk/" target="_blank"></a>
+                </span>
+                <span class="close"></span>
+            </td>
+        </t>
+    </t>
+
     <button t-name="nh.ListView.row.button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
             t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
         <img t-if="widget.nh_icon" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/#{widget.nh_icon}.png" t-att-alt="widget.string"/>
