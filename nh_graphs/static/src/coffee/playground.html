@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        svg .axis path, svg .axis line{
+            fill: none;
+            stroke: #262626;
+            shape-rendering: crispEdges;
+        }
+        svg .axis text{
+            font-family: sans-serif;
+        }
+        svg .background .green{
+            fill: #ccffcc;
+        }
+        svg .background .amber{
+            fill: #ffe9c8;
+        }
+        svg .background .red{
+            fill: #ffcccc;
+        }
+
+        svg .background line{
+            fill: none;
+            stroke: rgba(0,0,0,0.15);
+            shape-rendering: crispEdges;
+        }
+        svg .brush{
+            fill: rgba(0,0,0,0.3);
+        }
+
+        svg .data path{
+            fill: none;
+            stroke: rgba(40,40,40,0.6);
+            shape-rendering: optimizeSpeed;
+        }
+    </style>
+</head>
+<body>
+    <div id="test"></div>
+  <script src="../../lib/js/d3.js" type="text/javascript"></script>
+    <script src="/mobile/src/js/routes.js" type="text/javascript"></script>
+  <script src="nh_graphlib_focus.js" type="text/javascript"></script>
+  <script src="nh_graphlib_graph.js" type="text/javascript"></script>
+  <script src="nh_graphlib_context.js" type="text/javascript"></script>
+  <script src="nh_graphlib.js" type="text/javascript"></script>
+  <script src="/nh_eobs_mobile/static/dev/coffee/playground/nhlib.js" type="text/javascript"></script>
+  <script type="text/javascript">
+      var nh = new window.NH.NHMobile();
+      var p = nh.call_resource(nh.urls['ajax_get_patient_obs'](11));
+      p.then(function(server_data) {
+          var obs = server_data[0].obs.reverse();
+          var svg = new window.NH.NHGraphLib('#test');
+          var g1 = new window.NH.NHGraph();
+          g1.options.keys = ['pulse_rate'];
+          g1.options.label = 'Pulse Rate';
+          g1.options.measurement = 'bpm';
+          g1.axes.y.min = 0;
+          g1.axes.y.max = 120;
+          g1.options.normal.min = 20;
+          g1.options.normal.max = 90;
+          g1.options.normal.diff = 70;
+          g1.style.dimensions.height = 250;
+          g1.style.data_style = 'linear';
+          var g2 = new window.NH.NHGraph();
+          g2.options.keys = ['blood_pressure_systolic', 'blood_pressure_diastolic']
+          g2.options.label = 'Blood Pressure'
+          g2.options.measurement = 'dl/mg';
+          g2.axes.y.min = 0;
+          g2.axes.y.max = 300;
+          g2.options.normal.min = 100;
+          g2.options.normal.max = 100;
+          g2.options.normal.diff = 0;
+          g2.style.dimensions.height = 400;
+          g2.style.axis.x.hide = true;
+          g2.style.data_style = 'range';
+          var g3 = new window.NH.NHGraph();
+          g3.options.keys = ['score'];
+          g3.style.dimensions.height = 300;
+          g3.style.data_style = 'stepped';
+          g3.axes.y.min = 0;
+          g3.axes.y.max = 22;
+          g3.drawables.background.data =  [
+              {"class": "green",s: 1, e: 4},
+              {"class": "amber",s: 4,e: 6},
+              {"class": "red",s: 6,e: 22}
+          ]
+          var focus = new window.NH.NHFocus();
+          var context = new window.NH.NHContext();
+          focus.graphs.push(g1);
+          focus.graphs.push(g2);
+          focus.style.padding.right = 0;
+          context.graph = g3;
+          svg.focus = focus;
+          svg.context = context;
+          svg.data.raw = obs;
+          svg.init();
+          svg.draw();
+
+          console.log(g2.axes.y.scale.range())
+
+      });
+  </script>
+</body>
+</html>
