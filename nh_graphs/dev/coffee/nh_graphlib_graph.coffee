@@ -91,6 +91,17 @@ class NHGraph
   leading_zero: (date_element) =>
     return ("0" + date_element).slice(-2)
 
+  show_popup: (string, x, y) =>
+    cp = document.getElementById('chart_popup')
+    cp.innerHTML = string;
+    cp.style.top = y+'px'
+    cp.style.left = x+'px'
+    cp.classList.remove('hidden')
+
+  hide_popup: () =>
+    cp = document.getElementById('chart_popup')
+    cp.classList.add('hidden')
+
   init: (parent_obj) =>
     # add element to DOM
     @.parent_obj = parent_obj
@@ -216,9 +227,14 @@ class NHGraph
         ).attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         ).attr("r", 3).attr("class", "point")
-        #.on("mouseover", (d) ->
-        #  return self.contextMouseOver(d.score, $(this).position());
-        #).on("mouseout", self.contextMouseOut)
+        .on('mouseover', (d) ->
+          self.show_popup(d[self.options.keys[0]],event.pageX,event.pageY)
+        )
+        .on('mouseout', (d) ->
+          self.hide_popup()
+        )
+
+
 
         self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter((d) ->
           if d.none_values isnt "[]"
@@ -234,12 +250,12 @@ class NHGraph
         )
         .attr("r", 3)
         .attr("class", "empty_point")
-        #.on("mouseover", function(d) {
-        #  return self.contextMouseOver("Partial observation", $(this).position());
-        #)
-        #.on("mouseout", self.contextMouseOut)
-
-
+        .on('mouseover', (d) ->
+          self.show_popup('Partial observation',event.pageX,event.pageY)
+        )
+        .on('mouseout', (d) ->
+          self.hide_popup()
+        )
       )
       when 'range' then (
         if self.options.keys.length is 2
@@ -261,9 +277,15 @@ class NHGraph
             'class': 'range top',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
           })
-          #.on("mouseover", function(d) {
-          #return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
-          #}).on("mouseout", self.contextMouseOut);
+          .on('mouseover', (d) ->
+            string_to_use = ''
+            for key in self.options.keys
+              string_to_use += key + ': ' + d[key] + '<br>'
+            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
 
 
           self.drawables.data.selectAll(".range.bottom").data(self.parent_obj.parent_obj.data.raw.filter((d) ->
@@ -283,10 +305,15 @@ class NHGraph
               'width': self.style.range.cap.width,
               'class': 'range bottom',
               'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-            })
-          #.on("mouseover", function(d) {
-          #return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
-          #}).on("mouseout", self.contextMouseOut);
+            }).on('mouseover', (d) ->
+            string_to_use = ''
+            for key in self.options.keys
+              string_to_use += key + ': ' + d[key] + '<br>'
+            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
 
           self.drawables.data.selectAll(".range.extent").data(self.parent_obj.parent_obj.data.raw.filter((d) ->
               if d[self.options.keys[0]] and d[self.options.keys[1]]
@@ -307,10 +334,15 @@ class NHGraph
               'width': self.style.range.width,
               'class': 'range extent',
               'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-            })
-          #.on("mouseover", function(d) {
-          #return self.contextMouseOver("s:" + d["blood_pressure_systolic"] + " d:" + d["blood_pressure_diastolic"], $(this).position());
-          #}).on("mouseout", self.contextMouseOut);
+            }).on('mouseover', (d) ->
+            string_to_use = ''
+            for key in self.options.keys
+              string_to_use += key + ': ' + d[key] + '<br>'
+            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
         else
           throw new Error('Cannot plot ranged graph with ' + self.options.keys.length + 'data points')
      )
@@ -319,7 +351,7 @@ class NHGraph
       when 'sparkline' then console.log('sparkline')
       else throw new Error('no graph style defined')
 
-  redraw: () =>
+  redraw: (parent_obj) =>
     self = @
     self.axes.obj.select('.x.axis').call(self.axes.x.axis)
     # sort line breaks out
@@ -333,7 +365,42 @@ class NHGraph
           tspan.attr("x", 0).attr("dy", "15")
       el.attr("y", "-" + (words.length * self.style.axis_label_text_height + self.style.axis_label_text_height))
     )
-    self.draw(self.parent_obj)
+
+    # redraw grid
+    console.log 'ticks: ' + self.axes.x.scale.ticks()
+    self.drawables.background.obj.selectAll(".grid.vertical")
+    .data(self.axes.x.scale.ticks())
+    #.enter()
+    .attr('x1', (d) ->
+      return self.axes.x.scale(d)
+    ).attr('x2', (d) ->
+      return self.axes.x.scale(d)
+    )
+
+    #redraw data
+    switch self.style.data_style
+      when 'stepped', 'linear' then (
+        self.drawables.data.selectAll('.path').attr("d", self.drawables.area)
+        self.drawables.data.selectAll('.point').attr('cx', (d) ->
+          return self.axes.x.scale(self.date_from_string(d.date_terminated))
+        )
+      )
+      when 'range' then (
+        self.drawables.data.selectAll('.range.top').attr('x', (d) ->
+          return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
+        )
+        self.drawables.data.selectAll('.range.bottom').attr('x', (d) ->
+          return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
+        )
+        self.drawables.data.selectAll('.range.extent').attr('x', (d) ->
+          return self.axes.x.scale(self.date_from_string(d.date_terminated))
+        )
+      )
+      when 'star' then console.log('star')
+      when 'pie' then console.log('pie')
+      when 'sparkline' then console.log('sparkline')
+      else throw new Error('no graph style defined')
+    return
 
 if !window.NH
   window.NH = {}

@@ -78,6 +78,12 @@ class NHGraphLib
       @.obj.attr('width', @.style.dimensions.width)
       @.obj.attr('height', @.style.dimensions.height)
 
+      @.popup = document.createElement('div')
+      @.popup.setAttribute('class', 'hidden')
+      @.popup.setAttribute('id', 'chart_popup')
+      document.getElementsByTagName('body')[0].appendChild(@.popup)
+
+
 
       return
     else

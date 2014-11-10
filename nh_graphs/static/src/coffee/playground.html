@@ -36,6 +36,23 @@
             stroke: rgba(40,40,40,0.6);
             shape-rendering: optimizeSpeed;
         }
+
+        #chart_popup{
+            font-family: sans-serif;
+            background-color: rgba(0,0,0,0.6);
+            color: #ffffff;
+            display: inline-block;
+            padding: 0.5em 1%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 10px;
+            margin-top: -2.2em;
+            margin-left: -1.5%;
+        }
+        #chart_popup.hidden{
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -99,7 +116,55 @@
           svg.init();
           svg.draw();
 
-          console.log(g2.axes.y.scale.range())
+
+
+          /*var svg1 = new window.NH.NHGraphLib('#test');
+          var g11 = new window.NH.NHGraph();
+          g11.options.keys = ['pulse_rate'];
+          g11.options.label = 'Pulse Rate';
+          g11.options.measurement = 'bpm';
+          g11.axes.y.min = 0;
+          g11.axes.y.max = 120;
+          g11.options.normal.min = 20;
+          g11.options.normal.max = 90;
+          g11.options.normal.diff = 70;
+          g11.style.dimensions.height = 250;
+          g11.style.data_style = 'stepped';
+          var g21 = new window.NH.NHGraph();
+          g21.options.keys = ['blood_pressure_systolic', 'blood_pressure_diastolic']
+          g21.options.label = 'Blood Pressure'
+          g21.options.measurement = 'dl/mg';
+          g21.axes.y.min = 0;
+          g21.axes.y.max = 300;
+          g21.options.normal.min = 100;
+          g21.options.normal.max = 100;
+          g21.options.normal.diff = 0;
+          g21.style.dimensions.height = 400;
+          g21.style.axis.x.hide = true;
+          g21.style.data_style = 'range';
+          var g31 = new window.NH.NHGraph();
+          g31.options.keys = ['score'];
+          g31.style.dimensions.height = 300;
+          g31.style.data_style = 'stepped';
+          g31.axes.y.min = 0;
+          g31.axes.y.max = 22;
+          g31.drawables.background.data =  [
+              {"class": "green",s: 1, e: 4},
+              {"class": "amber",s: 4,e: 6},
+              {"class": "red",s: 6,e: 22}
+          ]
+          var focus1 = new window.NH.NHFocus();
+          var context1 = new window.NH.NHContext();
+          focus1.graphs.push(g11);
+          focus1.graphs.push(g21);
+          focus1.style.padding.right = 0;
+          context1.graph = g31;
+          svg1.focus = focus1;
+          svg1.context = context1;
+          svg1.data.raw = obs;
+          svg1.init();
+          svg1.draw(); */
+
 
       });
   </script>
