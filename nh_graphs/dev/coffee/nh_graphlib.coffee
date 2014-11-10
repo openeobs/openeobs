@@ -32,6 +32,17 @@ class NHGraphLib
           portrait: 1,
           landscape: 5
         }
+      },
+      controls: {
+        date: {
+          start: null,
+          end: null
+        },
+        time: {
+          start: null,
+          end: null
+        },
+        rangify: null
       }
     }
     @el = if element then element else null
@@ -60,6 +71,19 @@ class NHGraphLib
   leading_zero: (date_element) =>
     return ("0" + date_element).slice(-2)
 
+  mobile_date_start_change: (event) =>
+
+    console.log(event.srcElement.value)
+
+  mobile_date_end_change: (event) =>
+    console.log(event.srcElement.value)
+
+  mobile_time_start_change: (event) =>
+    console.log(event.srcElement.value)
+
+  mobile_time_end_change: (event) =>
+    console.log(event.srcElement.value)
+
   init: () ->
     # check to see if element to put svg in is defined
     if @.el?
@@ -78,12 +102,42 @@ class NHGraphLib
       @.obj.attr('width', @.style.dimensions.width)
       @.obj.attr('height', @.style.dimensions.height)
 
+      # add popup
       @.popup = document.createElement('div')
       @.popup.setAttribute('class', 'hidden')
       @.popup.setAttribute('id', 'chart_popup')
       document.getElementsByTagName('body')[0].appendChild(@.popup)
 
-
+      # add mobile date entry
+      self = @
+      @.options.controls.date.start?.addEventListener('change', (event) ->
+        current_date = self.focus.axes.x.min
+        dates = event.srcElement.value.split('-')
+        new_date = current_date.setFullYear(dates[0], dates[1], dates[2])
+        self.focus.redraw([new_date, self.focus.axes.x.max])
+      )
+      @.options.controls.date.end?.addEventListener('change', (event) ->
+        current_date = self.focus.axes.x.max
+        dates = event.srcElement.value.split('-')
+        new_date = current_date.setFullYear(dates[0], dates[1], dates[2])
+        self.focus.redraw([self.focus.axes.x.min, new_date])
+      )
+      @.options.controls.time.start?.addEventListener('change', (event) ->
+        current_date = self.focus.axes.x.min
+        time = event.srcElement.value.split(':')
+        new_time = current_date.setHours(time[0], time[1])
+        self.focus.redraw([new_time, self.focus.axes.x.max])
+      )
+      @.options.controls.time.end?.addEventListener('change', (event) ->
+        current_date = self.focus.axes.x.max
+        time = event.srcElement.value.split(':')
+        new_time = current_date.setHours(time[0], time[1])
+        self.focus.redraw([self.focus.axes.x.min, new_time])
+      )
+      #@.options.controls.date.start?.addEventListener('blur', self.mobile_date_change)
+      #@.options.controls.date.end?.addEventListener('blur', self.mobile_date_change)
+      #@.options.controls.time.start?.addEventListener('blur', self.mobile_date_change)
+      #@.options.controls.time.end?.addEventListener('blur', self.mobile_date_change)
 
       return
     else
