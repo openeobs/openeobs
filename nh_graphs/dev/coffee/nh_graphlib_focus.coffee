@@ -59,6 +59,17 @@ class NHFocus
         @.style.dimensions.height += graph.style.dimensions.height + @.style.spacing
 
       parent_svg.style.dimensions.height += @.style.dimensions.height + (@.style.margin.top + @.style.margin.bottom)
+
+      self = @
+      window.addEventListener('focus_resize', (event) ->
+        self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right))
+        self.obj.attr('width', self.style.dimensions.width)
+        self.axes.x.scale?.range()[1] = self.style.dimensions.width
+        #graph_event = document.createEvent('HTMLEvents')
+        #graph_event.initEvent('graph_resize', true, true)
+        #window.dispatchEvent(graph_event)
+        self.redraw([self.axes.x.min, self.axes.x.max])
+      )
     else
       throw new Error('Focus init being called before SVG initialised')
 
@@ -72,6 +83,7 @@ class NHFocus
     #@.axes.x.max = extent[1]
     for graph in @.graphs
       graph.axes.x.scale.domain([extent[0], extent[1]])
+      graph.axes.x.scale.range([0, @.style.dimensions.width])
       graph.redraw(@)
     return
 

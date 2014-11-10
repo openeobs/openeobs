@@ -155,6 +155,14 @@ class NHGraph
       @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis').call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
 
+    self = @
+    window.addEventListener('graph_resize', (event) ->
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right))
+      self.obj.attr('width', self.style.dimensions.width)
+      self.axes.x.scale?.range()[1] = self.style.dimensions.width
+      self.redraw(self.parent_obj)
+    )
+
   draw: (parent_obj) =>
     # draw background
     self = @
@@ -368,6 +376,8 @@ class NHGraph
 
     # redraw grid
     console.log 'ticks: ' + self.axes.x.scale.ticks()
+    console.log 'range: ' + self.axes.x.scale.range()
+    console.log 'domain: ' + self.axes.x.scale.domain()
     self.drawables.background.obj.selectAll(".grid.vertical")
     .data(self.axes.x.scale.ticks())
     #.enter()
@@ -376,6 +386,9 @@ class NHGraph
     ).attr('x2', (d) ->
       return self.axes.x.scale(d)
     )
+    self.drawables.background.obj.selectAll('.range').attr('width', self.axes.x.scale.range()[1])
+    self.drawables.background.obj.selectAll('.grid.horizontal').attr('x2', self.axes.x.scale.range()[1])
+    self.obj.selectAll('.clip').selectAll('rect').attr('width', self.axes.x.scale.range()[1])
 
     #redraw data
     switch self.style.data_style

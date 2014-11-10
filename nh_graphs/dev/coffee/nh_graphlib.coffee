@@ -134,11 +134,16 @@ class NHGraphLib
         new_time = current_date.setHours(time[0], time[1])
         self.focus.redraw([self.focus.axes.x.min, new_time])
       )
-      #@.options.controls.date.start?.addEventListener('blur', self.mobile_date_change)
-      #@.options.controls.date.end?.addEventListener('blur', self.mobile_date_change)
-      #@.options.controls.time.start?.addEventListener('blur', self.mobile_date_change)
-      #@.options.controls.time.end?.addEventListener('blur', self.mobile_date_change)
-
+      window.addEventListener('resize', (event) ->
+        self.style.dimensions.width = container_el?[0]?[0].clientWidth - (self.style.margin.left + self.style.margin.right)
+        self.obj.attr('width', self.style.dimensions.width)
+        context_event = document.createEvent('HTMLEvents')
+        context_event.initEvent('context_resize', true, true)
+        #focus_event = document.createEvent('HTMLEvents')
+        #focus_event.initEvent('focus_resize', true, true)
+        window.dispatchEvent(context_event)
+        #window.dispatchEvent(focus_event)
+      )
       return
     else
       throw new Error('No element specified')

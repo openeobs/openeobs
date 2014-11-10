@@ -69,6 +69,19 @@ class NHContext
           context.parent_obj.focus.redraw(nh_graphs.event.target.extent())
       );
       @.graph.drawables.brush.append("g").attr("class", "x brush").call(@.brush).selectAll("rect").attr("y", 0).attr("height", @.graph.style.dimensions.height)
+      self = @
+      window.addEventListener('context_resize', (event) ->
+        self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right))
+        self.obj.attr('width', self.style.dimensions.width)
+        self.axes.x.scale?.range()[1] = self.style.dimensions.width
+        graph_event = document.createEvent('HTMLEvents')
+        graph_event.initEvent('focus_resize', true, true)
+        window.dispatchEvent(graph_event)
+        #self.graph.axes.x.scale.domain([extent[0], extent[1]])
+        self.graph.axes.x.scale.range([0, self.style.dimensions.width])
+        self.graph.redraw(@)
+      )
+
       return
     else
       throw new Error('Context init being called before SVG initialised')
