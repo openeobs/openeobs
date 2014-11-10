@@ -30,7 +30,7 @@
                     <field name="parent_location"/>
                     <field name="location"/>
                     <field name="nhs_number"/>
-                    <field name="delay_string"/>
+                    <field name="delay_string" string="Overdue Time (hh:mm)"/>
                     <field name="name"/>
                     <field name="user_name"/>
                     <field name="groups"/>
