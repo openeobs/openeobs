@@ -1,3 +1,6 @@
+Array::min=->
+  Math.min.apply(null, this)
+
 class NHGraph
 
   constructor: () ->
@@ -14,7 +17,8 @@ class NHGraph
         axis: null,
         min: 0,
         max: 0,
-        obj: null
+        obj: null,
+        ranged_extent: null
       }
       obj: null
     }
@@ -154,14 +158,29 @@ class NHGraph
     if not @.style.axis.y.hide
       @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis').call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
-
     self = @
+    @.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
+      if self.options.keys.length>1
+        return (d[key] for key in self.options.keys).min()
+      else
+        return d[self.options.keys[0]]
+    )
+
+
     window.addEventListener('graph_resize', (event) ->
       self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right))
       self.obj.attr('width', self.style.dimensions.width)
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
       self.redraw(self.parent_obj)
     )
+    self.parent_obj.parent_obj.options.controls.rangify.addEventListener('click', (event) ->
+      if event.srcElement.checked
+        self.axes.y.scale.domain(self.axes.y.ranged_extent)
+      else
+        self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
+      self.redraw(self.parent_obj)
+    )
+    return
 
   draw: (parent_obj) =>
     # draw background
@@ -362,6 +381,7 @@ class NHGraph
   redraw: (parent_obj) =>
     self = @
     self.axes.obj.select('.x.axis').call(self.axes.x.axis)
+    self.axes.obj.select('.y.axis').call(self.axes.y.axis)
     # sort line breaks out
     @.axes.obj.selectAll(".x.axis g text").each( (d) ->
       el = nh_graphs.select(@)
@@ -374,10 +394,8 @@ class NHGraph
       el.attr("y", "-" + (words.length * self.style.axis_label_text_height + self.style.axis_label_text_height))
     )
 
+
     # redraw grid
-    console.log 'ticks: ' + self.axes.x.scale.ticks()
-    console.log 'range: ' + self.axes.x.scale.range()
-    console.log 'domain: ' + self.axes.x.scale.domain()
     self.drawables.background.obj.selectAll(".grid.vertical")
     .data(self.axes.x.scale.ticks())
     #.enter()
@@ -386,8 +404,22 @@ class NHGraph
     ).attr('x2', (d) ->
       return self.axes.x.scale(d)
     )
-    self.drawables.background.obj.selectAll('.range').attr('width', self.axes.x.scale.range()[1])
-    self.drawables.background.obj.selectAll('.grid.horizontal').attr('x2', self.axes.x.scale.range()[1])
+    self.drawables.background.obj.selectAll('.range')
+    .attr('width', self.axes.x.scale.range()[1])
+    .attr('y': (d) ->
+      return self.axes.y.scale(d.e) - 1
+    ).attr('height': (d) ->
+      return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1)
+    )
+    self.drawables.background.obj.selectAll('.grid.horizontal')
+    .data(self.axes.y.scale.ticks())
+    .attr('x2', self.axes.x.scale.range()[1])
+    .attr('y1', (d) ->
+      return self.axes.y.scale(d)
+    )
+    .attr('y2', (d) ->
+      return self.axes.y.scale(d)
+    )
     self.obj.selectAll('.clip').selectAll('rect').attr('width', self.axes.x.scale.range()[1])
 
     #redraw data
@@ -396,17 +428,29 @@ class NHGraph
         self.drawables.data.selectAll('.path').attr("d", self.drawables.area)
         self.drawables.data.selectAll('.point').attr('cx', (d) ->
           return self.axes.x.scale(self.date_from_string(d.date_terminated))
+        ).attr('cy', (d) ->
+          return self.axes.y.scale(d[self.options.keys[0]])
         )
       )
       when 'range' then (
         self.drawables.data.selectAll('.range.top').attr('x', (d) ->
           return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
+        ).attr('y': (d) ->
+          return self.axes.y.scale(d[self.options.keys[0]])
         )
+
         self.drawables.data.selectAll('.range.bottom').attr('x', (d) ->
           return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
+        ).attr('y': (d) ->
+            return self.axes.y.scale(d[self.options.keys[1]])
         )
+
         self.drawables.data.selectAll('.range.extent').attr('x', (d) ->
           return self.axes.x.scale(self.date_from_string(d.date_terminated))
+        ).attr('y': (d) ->
+          return self.axes.y.scale(d[self.options.keys[0]])
+        ).attr('height': (d) ->
+          return self.axes.y.scale(d[self.options.keys[1]]) - self.axes.y.scale(d[self.options.keys[0]])
         )
       )
       when 'star' then console.log('star')

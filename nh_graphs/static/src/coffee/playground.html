@@ -59,18 +59,23 @@
     <div class="graph_controls">
         <div class="date start">
             <label for="date_start">
-               <input type="date" name="date_start" id="date_start">
+               Start Date: <input type="date" name="date_start" id="date_start">
             </label>
             <label for="time_start">
-                <input type="time" name="time_start" id="time_start">
+                Start Time: <input type="time" name="time_start" id="time_start">
             </label>
         </div>
         <div class="date end">
             <label for="date_end">
-                <input type="date" name="date_end" id="date_end">
+                End Date: <input type="date" name="date_end" id="date_end">
             </label>
             <label for="time_end">
-                <input type="time" name="time_end" id="time_end">
+                End Time: <input type="time" name="time_end" id="time_end">
+            </label>
+        </div>
+        <div class="rangify">
+            <label for="range_derange">
+                Rangify: <input type="checkbox" name="range_derange" id="range_derange">
             </label>
         </div>
     </div>
@@ -135,9 +140,11 @@
           svg.options.controls.date.end = document.getElementById('date_end');
           svg.options.controls.time.start = document.getElementById('time_start');
           svg.options.controls.time.end = document.getElementById('time_end');
+          svg.options.controls.rangify = document.getElementById('range_derange');
           svg.data.raw = obs;
           svg.init();
           svg.draw();
+          console.log(g2)
 
 
 
