@@ -3,14 +3,14 @@ class NHGraphLib
     @style = {
       margin: {
         top: 40,
-        right: 60,
-        left: 40,
+        right: 0,
+        left: 0,
         bottom: 40
       },
       padding: {
         top: 10,
-        right: 20,
-        left: 50,
+        right: 30,
+        left: 40,
         bottom: 40
       },
       dimensions: {

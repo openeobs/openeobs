@@ -52,6 +52,7 @@ class NHGraph
       data_style: '',
       norm_style: '',
       axis_label_text_height: 10,
+      axis_label_text_padding: 50,
       label_text_height: 18,
       label_width: 100,
       range: {
@@ -128,7 +129,7 @@ class NHGraph
     @.axes.x.scale = nh_graphs.time.scale().domain([@.axes.x.min, @.axes.x.max]).range([left_offset, @.style.dimensions.width])
 
     # add xaxis
-    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top")
+    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top").ticks((@.style.dimensions.width/70)) # .tickPadding(@.style.axis_label_text_padding)
     if not @.style.axis.x.hide
       @.axes.x.obj = @.axes.obj.append("g").attr("class", "x axis").call(@.axes.x.axis)
 
@@ -189,7 +190,7 @@ class NHGraph
 
 
     window.addEventListener('graph_resize', (event) ->
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right))
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right)) - @.style.label_width
       self.obj.attr('width', self.style.dimensions.width)
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
       self.redraw(self.parent_obj)
@@ -415,6 +416,7 @@ class NHGraph
 
   redraw: (parent_obj) =>
     self = @
+
     self.axes.obj.select('.x.axis').call(self.axes.x.axis)
     self.axes.obj.select('.y.axis').call(self.axes.y.axis)
     # sort line breaks out
@@ -431,11 +433,15 @@ class NHGraph
 
     self.drawables.background.obj.selectAll('.normal')
     .attr({
+        'width': self.axes.x.scale.range()[1],
         'y': (d) ->
           return self.axes.y.scale(d.max)
         'height': (d) ->
           return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
     })
+
+    self.drawables.background.obj.selectAll('.label').attr('x': self.axes.x.scale.range()[1] + self.style.label_text_height)
+    self.drawables.background.obj.selectAll('.measurement').attr('x': self.axes.x.scale.range()[1] + self.style.label_text_height)
 
 
     # redraw grid

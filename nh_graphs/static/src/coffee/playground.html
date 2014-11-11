@@ -111,6 +111,7 @@
           g1.options.normal.diff = 70;
           g1.style.dimensions.height = 250;
           g1.style.data_style = 'linear';
+          g1.style.label_width = 70;
           var g2 = new window.NH.NHGraph();
           g2.options.keys = ['blood_pressure_systolic', 'blood_pressure_diastolic']
           g2.options.label = 'Blood Pressure'
@@ -123,6 +124,7 @@
           g2.style.dimensions.height = 400;
           g2.style.axis.x.hide = true;
           g2.style.data_style = 'range';
+          g2.style.label_width = 70;
           var g3 = new window.NH.NHGraph();
           g3.options.keys = ['score'];
           g3.style.dimensions.height = 300;
@@ -134,6 +136,7 @@
               {"class": "amber",s: 4,e: 6},
               {"class": "red",s: 6,e: 22}
           ]
+          g3.style.label_width = 70;
           var t1 = new window.NH.NHTable();
           t1.keys = ['avpu_text', 'oxygen_administration_flag']
           var focus = new window.NH.NHFocus();
@@ -150,6 +153,7 @@
           svg.options.controls.time.start = document.getElementById('time_start');
           svg.options.controls.time.end = document.getElementById('time_end');
           svg.options.controls.rangify = document.getElementById('range_derange');
+
           svg.data.raw = obs;
           svg.init();
           svg.draw();

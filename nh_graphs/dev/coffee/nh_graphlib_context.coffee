@@ -107,7 +107,8 @@ class NHContext
           self.parent_obj.options.controls.time.start?.value = self.leading_zero(new_date.getHours()) + ':' + self.leading_zero(new_date.getMinutes())
           self.parent_obj.options.controls.time.end?.value = self.leading_zero(self.axes.x.max.getHours()) + ':' + self.leading_zero(self.axes.x.max.getMinutes())
 
-        self.graph.axes.x.scale.range([0, self.style.dimensions.width])
+        self.graph.axes.x.scale.range([0, self.style.dimensions.width - self.graph.style.label_width])
+        self.graph.axes.x.axis.ticks((self.style.dimensions.width/70))
         self.graph.redraw(@)
       )
 
