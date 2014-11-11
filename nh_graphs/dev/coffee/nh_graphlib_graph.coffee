@@ -195,7 +195,7 @@ class NHGraph
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
       self.redraw(self.parent_obj)
     )
-    self.parent_obj.parent_obj.options.controls.rangify.addEventListener('click', (event) ->
+    self.parent_obj.parent_obj.options.controls.rangify?.addEventListener('click', (event) ->
       if event.srcElement.checked
         self.axes.y.scale.domain(self.axes.y.ranged_extent)
       else
