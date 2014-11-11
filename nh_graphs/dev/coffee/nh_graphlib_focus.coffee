@@ -21,6 +21,7 @@ class NHFocus
       }
     }
     @graphs = new Array()
+    @tables = new Array()
     @axes = {
       x: {
         scale: null,
@@ -57,6 +58,8 @@ class NHFocus
       for graph in @.graphs
         graph.init(@)
         @.style.dimensions.height += graph.style.dimensions.height + @.style.spacing
+      for table in @.tables
+        table.init(@)
 
       parent_svg.style.dimensions.height += @.style.dimensions.height + (@.style.margin.top + @.style.margin.bottom)
 
@@ -76,6 +79,10 @@ class NHFocus
   draw: (parent_svg) =>
     for graph in @.graphs
       graph.draw(@)
+
+    for table in @.tables
+      table.draw(@)
+
     return
 
   redraw: (extent) =>
@@ -85,6 +92,10 @@ class NHFocus
       graph.axes.x.scale.domain([extent[0], extent[1]])
       graph.axes.x.scale.range([0, @.style.dimensions.width])
       graph.redraw(@)
+
+    for table in @.tables
+      table.range = extent
+      table.redraw(@)
     return
 
 if !window.NH

@@ -82,9 +82,10 @@
 
     <div id="test"></div>
   <script src="../../lib/js/d3.js" type="text/javascript"></script>
-    <script src="/mobile/src/js/routes.js" type="text/javascript"></script>
+  <script src="/mobile/src/js/routes.js" type="text/javascript"></script>
   <script src="nh_graphlib_focus.js" type="text/javascript"></script>
   <script src="nh_graphlib_graph.js" type="text/javascript"></script>
+  <script src="nh_graphlib_table.js" type="text/javascript"></script>
   <script src="nh_graphlib_context.js" type="text/javascript"></script>
   <script src="nh_graphlib.js" type="text/javascript"></script>
   <script src="/nh_eobs_mobile/static/dev/coffee/playground/nhlib.js" type="text/javascript"></script>
@@ -128,10 +129,13 @@
               {"class": "amber",s: 4,e: 6},
               {"class": "red",s: 6,e: 22}
           ]
+          var t1 = new window.NH.NHTable();
+          t1.keys = ['avpu_text', 'oxygen_administration_flag']
           var focus = new window.NH.NHFocus();
           var context = new window.NH.NHContext();
           focus.graphs.push(g1);
           focus.graphs.push(g2);
+          focus.tables.push(t1);
           focus.style.padding.right = 0;
           context.graph = g3;
           svg.focus = focus;
@@ -144,7 +148,6 @@
           svg.data.raw = obs;
           svg.init();
           svg.draw();
-          console.log(g2)
 
 
 
