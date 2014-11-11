@@ -19,7 +19,8 @@ class NHGraphLib
       },
       label_gap: 10,
       transition_duration: 1e3,
-      axis_label_text_height: 10
+      axis_label_text_height: 10,
+      time_padding: null
     }
     @patient = {
       id: 0,
@@ -91,8 +92,14 @@ class NHGraphLib
       container_el = nh_graphs.select(@.el)
       @.style.dimensions.width = container_el?[0]?[0].clientWidth - (@.style.margin.left + @.style.margin.right)
       @.obj = container_el.append('svg')
-      @.data.extent.start = @.date_from_string(@.data.raw[0]['date_terminated']);
-      @.data.extent.end = @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated']);
+      start = @.date_from_string(@.data.raw[0]['date_terminated'])
+      end = @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
+      if not @.style.time_padding
+        @.style.time_padding = ((end-start)/@.style.dimensions.width)/1000
+      start.setMinutes(start.getMinutes()-@.style.time_padding)
+      @.data.extent.start = start
+      end.setMinutes(end.getMinutes()+@.style.time_padding)
+      @.data.extent.end = end
       #initialise context
       @.context?.init(@)
       #initalise focus
