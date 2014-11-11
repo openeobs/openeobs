@@ -68,10 +68,19 @@ class NHFocus
         self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right))
         self.obj.attr('width', self.style.dimensions.width)
         self.axes.x.scale?.range()[1] = self.style.dimensions.width
-        #graph_event = document.createEvent('HTMLEvents')
-        #graph_event.initEvent('graph_resize', true, true)
-        #window.dispatchEvent(graph_event)
-        self.redraw([self.axes.x.min, self.axes.x.max])
+        if self.parent_obj.options.mobile.is_mob
+          if window.innerWidth > window.innerHeight
+            new_date = new Date(self.axes.x.max)
+            d = new_date.getDate()-self.parent_obj.options.mobile.date_range.landscape
+            new_date.setDate(d)
+            self.redraw([new_date, self.axes.x.max])
+          else
+            new_date = new Date(self.axes.x.max)
+            d = new_date.getDate()-self.parent_obj.options.mobile.date_range.portrait
+            new_date.setDate(d)
+            self.redraw([new_date, self.axes.x.max])
+        else
+          self.redraw([self.axes.x.min, self.axes.x.max])
       )
     else
       throw new Error('Focus init being called before SVG initialised')

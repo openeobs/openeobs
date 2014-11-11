@@ -139,10 +139,7 @@ class NHGraphLib
         self.obj.attr('width', self.style.dimensions.width)
         context_event = document.createEvent('HTMLEvents')
         context_event.initEvent('context_resize', true, true)
-        #focus_event = document.createEvent('HTMLEvents')
-        #focus_event.initEvent('focus_resize', true, true)
         window.dispatchEvent(context_event)
-        #window.dispatchEvent(focus_event)
       )
       return
     else

@@ -38,6 +38,9 @@ class NHContext
     @brush = null
     self = @
 
+  leading_zero: (date_element) =>
+    return ("0" + date_element).slice(-2)
+
   init: (parent_svg) =>
     if parent_svg?
       # add element to DOM
@@ -63,10 +66,20 @@ class NHContext
       @.graph.drawables.brush = @.graph.obj.append('g').attr('class', 'brush-container')
       self = @
       @.brush = nh_graphs.svg.brush().x(@.graph.axes.x.scale).on("brush", (context=self) ->
-        if nh_graphs.event.target.extent()[0].getTime() is nh_graphs.event.target.extent()[1].getTime()
+        new_extent_start = nh_graphs.event.target.extent()[0]
+        new_extent_end = nh_graphs.event.target.extent()[1]
+        if new_extent_start.getTime() is new_extent_end.getTime()
+          new_extent_start = context.axes.x.min
+          new_extent_end = context.axes.x.max
           context.parent_obj.focus.redraw([context.axes.x.min, context.axes.x.max])
         else
           context.parent_obj.focus.redraw(nh_graphs.event.target.extent())
+
+        # update controls
+        self.parent_obj.options.controls.date.start?.value = new_extent_start.getFullYear() + '-' + self.leading_zero(new_extent_start.getMonth()+1) + '-' + self.leading_zero(new_extent_start.getDate())
+        self.parent_obj.options.controls.date.end?.value =  new_extent_end.getFullYear() + '-' + self.leading_zero(new_extent_end.getMonth()+1) + '-' + self.leading_zero(new_extent_end.getDate())
+        self.parent_obj.options.controls.time.start?.value = self.leading_zero(new_extent_start.getHours()) + ':' + self.leading_zero(new_extent_start.getMinutes())
+        self.parent_obj.options.controls.time.end?.value = self.leading_zero(new_extent_end.getHours()) + ':' + self.leading_zero(new_extent_end.getMinutes())
       );
       @.graph.drawables.brush.append("g").attr("class", "x brush").call(@.brush).selectAll("rect").attr("y", 0).attr("height", @.graph.style.dimensions.height)
       self = @
@@ -78,6 +91,22 @@ class NHContext
         graph_event.initEvent('focus_resize', true, true)
         window.dispatchEvent(graph_event)
         #self.graph.axes.x.scale.domain([extent[0], extent[1]])
+        if self.parent_obj.options.mobile.is_mob
+          new_date = new Date(self.axes.x.max)
+          if window.innerWidth > window.innerHeight
+            d = new_date.getDate()-self.parent_obj.options.mobile.date_range.landscape
+            new_date.setDate(d)
+            self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
+          else
+            d = new_date.getDate()-self.parent_obj.options.mobile.date_range.portrait
+            new_date.setDate(d)
+            self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
+          # update mobile controls
+          self.parent_obj.options.controls.date.start?.value = new_date.getFullYear() + '-' + self.leading_zero(new_date.getMonth()+1) + '-' + self.leading_zero(new_date.getDate())
+          self.parent_obj.options.controls.date.end?.value =   self.axes.x.max.getFullYear() + '-' + self.leading_zero(self.axes.x.max.getMonth()+1) + '-' + self.leading_zero(self.axes.x.max.getDate())
+          self.parent_obj.options.controls.time.start?.value = self.leading_zero(new_date.getHours()) + ':' + self.leading_zero(new_date.getMinutes())
+          self.parent_obj.options.controls.time.end?.value = self.leading_zero(self.axes.x.max.getHours()) + ':' + self.leading_zero(self.axes.x.max.getMinutes())
+
         self.graph.axes.x.scale.range([0, self.style.dimensions.width])
         self.graph.redraw(@)
       )
