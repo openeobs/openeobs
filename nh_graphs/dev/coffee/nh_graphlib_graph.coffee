@@ -201,6 +201,20 @@ class NHGraph
             return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1)
         });
 
+    # draw normals
+    self.drawables.background.obj.selectAll('.normal').data([self.options.normal]).enter().append("rect")
+    .attr({
+        'class': 'normal'
+        'y': (d) ->
+          return self.axes.y.scale(d.max)
+        ,
+        'x': self.axes.x.scale(self.axes.x.scale.domain()[0]),
+        'width': self.style.dimensions.width,
+        'clip-path': 'url(#'+self.options.keys.join('-')+'-clip'+')',
+        'height': (d) ->
+          return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
+      })
+
     # draw gridlines
     self.drawables.background.obj.selectAll(".grid.vertical").data(self.axes.x.scale.ticks()).enter().append("line").attr({
       "class": "vertical grid",
@@ -393,6 +407,14 @@ class NHGraph
           tspan.attr("x", 0).attr("dy", "15")
       el.attr("y", "-" + (words.length * self.style.axis_label_text_height + self.style.axis_label_text_height))
     )
+
+    self.drawables.background.obj.selectAll('.normal')
+    .attr({
+        'y': (d) ->
+          return self.axes.y.scale(d.max)
+        'height': (d) ->
+          return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
+    })
 
 
     # redraw grid
