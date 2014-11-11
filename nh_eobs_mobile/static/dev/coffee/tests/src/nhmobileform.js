@@ -194,7 +194,7 @@ NHMobileForm = (function(_super) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var element, form_elements, valid_form;
+    var element, empty_elements, form_elements, invalid_elements;
     event.preventDefault();
     this.reset_form_timeout(this);
     form_elements = (function() {
@@ -209,19 +209,33 @@ NHMobileForm = (function(_super) {
       }
       return _results;
     }).call(this);
-    valid_form = function() {
-      var _i, _len;
+    invalid_elements = (function() {
+      var _i, _len, _results;
+      _results = [];
       for (_i = 0, _len = form_elements.length; _i < _len; _i++) {
         element = form_elements[_i];
-        if (element.classList.contains('error') || !element.value) {
-          return false;
+        if (element.classList.contains('error')) {
+          _results.push(element);
         }
       }
-      return true;
-    };
-    if (valid_form()) {
+      return _results;
+    })();
+    empty_elements = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = form_elements.length; _i < _len; _i++) {
+        element = form_elements[_i];
+        if (!element.value) {
+          _results.push(element);
+        }
+      }
+      return _results;
+    })();
+    if (invalid_elements.length < 1 && empty_elements.length < 1) {
       this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
       return console.log('submit');
+    } else if (invalid_elements.length > 0) {
+      return new window.NH.NHModal('invalid_form', 'Form contains errors', '<p class="block">The form contains errors, please correct the errors and resubmit</p>', ['<a href="#" data-action="close" data-target="invalid_form">Cancel</a>'], 0, this.form);
     } else {
       return this.display_partial_reasons(this);
     }

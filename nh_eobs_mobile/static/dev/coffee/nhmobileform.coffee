@@ -109,15 +109,14 @@ class NHMobileForm extends NHMobile
    event.preventDefault()
    @.reset_form_timeout(@)
    form_elements = (element for element in @form.elements when not element.classList.contains('exclude'))
-   valid_form = () ->
-     for element in form_elements
-       if element.classList.contains('error') or not element.value
-         return false
-     return true
-   if valid_form()
+   invalid_elements = (element for element in form_elements when element.classList.contains('error'))
+   empty_elements = (element for element in form_elements when not element.value)
+   if invalid_elements.length<1 and empty_elements.length<1
      # do something with the form
      @submit_observation(@, form_elements, @form.getAttribute('ajax-action'), @form.getAttribute('ajax-args'))
      console.log('submit')
+   else if invalid_elements.length>0
+     new window.NH.NHModal('invalid_form', 'Form contains errors', '<p class="block">The form contains errors, please correct the errors and resubmit</p>', ['<a href="#" data-action="close" data-target="invalid_form">Cancel</a>'], 0, @.form)
    else
      # display the partial obs dialog
      @display_partial_reasons(@)
