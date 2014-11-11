@@ -111,3 +111,4 @@ class NHFocus
 if !window.NH
   window.NH = {}
 window.NH.NHFocus = NHFocus
+

@@ -513,3 +513,4 @@ class NHGraph
 if !window.NH
   window.NH = {}
 window.NH.NHGraph = NHGraph
+
