@@ -52,6 +52,8 @@ class NHGraph
       data_style: '',
       norm_style: '',
       axis_label_text_height: 10,
+      label_text_height: 18,
+      label_width: 100,
       range: {
         cap: {
           height: 2,
@@ -62,7 +64,7 @@ class NHGraph
     }
     @options = {
       keys: new Array(),
-      label: '',
+      label: null,
       measurement: '',
       normal: {
         min: 0,
@@ -111,7 +113,7 @@ class NHGraph
     @.parent_obj = parent_obj
     @.obj = parent_obj.obj.append('g')
     @.obj.attr('class', 'nhgraph')
-    @.style.dimensions.width = parent_obj.style.dimensions.width - ((parent_obj.style.padding.left + parent_obj.style.padding.right) + (@.style.margin.left + @.style.margin.right))
+    @.style.dimensions.width = parent_obj.style.dimensions.width - ((parent_obj.style.padding.left + parent_obj.style.padding.right) + (@.style.margin.left + @.style.margin.right)) - @.style.label_width
     @.obj.attr('width', @.style.dimensions.width)
     left_offset = (parent_obj.style.padding.left + @.style.margin.left)
     top_offset = (parent_obj.style.dimensions.height + @.style.margin.top)
@@ -165,6 +167,25 @@ class NHGraph
       else
         return d[self.options.keys[0]]
     )
+
+    if @.options.label?
+      @.drawables.background.obj.append('text').text(@.options.label).attr({
+        'x': @.style.dimensions.width + @.style.label_text_height,
+        'y': @.axes.y.scale(@.axes.y.min) - (@.style.label_text_height*(@.options.keys.length+1)),
+        'class': 'label'
+      })
+      self = @
+      @.drawables.background.obj.selectAll('text.measurement').data(@.options.keys).enter().append('text').text((d, i) ->
+        if i isnt self.options.keys.length-1
+          return self.parent_obj.parent_obj.data.raw[self.parent_obj.parent_obj.data.raw.length-1][d]
+        else
+          return self.parent_obj.parent_obj.data.raw[self.parent_obj.parent_obj.data.raw.length-1][d] + ' ' + self.options.measurement
+      ).attr({
+          'x': self.style.dimensions.width + self.style.label_text_height,
+          'y': (d, i) ->
+            self.axes.y.scale(self.axes.y.min) - (self.style.label_text_height*(self.options.keys.length-i))
+          ,'class': 'measurement'
+        })
 
 
     window.addEventListener('graph_resize', (event) ->
