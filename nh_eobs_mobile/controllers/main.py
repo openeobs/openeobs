@@ -131,7 +131,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['graph_lib'], type='http', auth='none')
     def graph_lib(self, *args, **kw):
-        with open(get_module_path('nh_graphs') + '/static/src/js/patient_graph.js', 'r') as pg:
+        with open(get_module_path('nh_graphs') + '/static/src/js/nh_graphlib.js', 'r') as pg:
             return request.make_response(pg.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['patient_graph'], type='http', auth='none')
