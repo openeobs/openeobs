@@ -1234,3 +1234,55 @@ rect.green {
   display: inline-block;
   width: 100%;
 }
+/* svg stuff */
+svg .axis path,
+svg .axis line {
+  fill: none;
+  stroke: #262626;
+  shape-rendering: crispEdges;
+}
+svg .axis text {
+  font-family: sans-serif;
+}
+svg .background .green {
+  fill: #ccffcc;
+}
+svg .background .amber {
+  fill: #ffe9c8;
+}
+svg .background .red {
+  fill: #ffcccc;
+}
+svg .background .normal {
+  fill: rgba(0, 0, 0, 0.2);
+  stroke: rgba(0, 0, 0, 0.2);
+}
+svg .background line {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.15);
+  shape-rendering: crispEdges;
+}
+svg .brush {
+  fill: rgba(0, 0, 0, 0.3);
+}
+svg .data path {
+  fill: none;
+  stroke: rgba(40, 40, 40, 0.6);
+  shape-rendering: optimizeSpeed;
+}
+#chart_popup {
+  font-family: sans-serif;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  display: inline-block;
+  padding: 0.5em 1%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  margin-top: -2.2em;
+  margin-left: -1.5%;
+}
+#chart_popup.hidden {
+  display: none;
+}
