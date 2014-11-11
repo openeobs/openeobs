@@ -32,7 +32,7 @@ class NHMobilePatient extends NHMobile
   show_obs_menu: (event) =>
     event.preventDefault()
     obs_menu = document.getElementById('obsMenu')
-    new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul>'+obs_menu.innerHTML+'</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0])
+    new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul class="menu">'+obs_menu.innerHTML+'</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0])
 
 
   draw_graph: (self, server_data) =>

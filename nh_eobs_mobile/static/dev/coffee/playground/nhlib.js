@@ -619,7 +619,7 @@
       var obs_menu;
       event.preventDefault();
       obs_menu = document.getElementById('obsMenu');
-      return new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul>' + obs_menu.innerHTML + '</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
+      return new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul class="menu">' + obs_menu.innerHTML + '</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
     };
 
     NHMobilePatient.prototype.draw_graph = function(self, server_data) {
