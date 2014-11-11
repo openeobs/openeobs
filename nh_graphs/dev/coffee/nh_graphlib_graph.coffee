@@ -277,7 +277,7 @@ class NHGraph
         .y((d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
-        self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("class", "path");
+        self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")").attr("class", "path");
 
         self.drawables.data.selectAll(".point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
@@ -290,6 +290,7 @@ class NHGraph
         ).attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         ).attr("r", 3).attr("class", "point")
+        .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
           self.show_popup(d[self.options.keys[0]],event.pageX,event.pageY)
         )
@@ -313,6 +314,7 @@ class NHGraph
         )
         .attr("r", 3)
         .attr("class", "empty_point")
+        .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
           self.show_popup('Partial observation',event.pageX,event.pageY)
         )
