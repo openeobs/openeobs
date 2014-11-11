@@ -122,7 +122,7 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             ['state', '=', 'completed'],
             ['patient_id', '=', activity.data_ref.patient_id.id]
         ]
-        pbp_monitoring_ids = activity_pool.search(cr, uid, domain, order="date_terminated desc", context=context)
+        pbp_monitoring_ids = activity_pool.search(cr, uid, domain, order="date_terminated desc, sequence desc", context=context)
         monitoring_active = pbp_monitoring_ids and activity_pool.browse(cr, uid, pbp_monitoring_ids[0], context=context).data_ref.pbp_monitoring
         if monitoring_active:
             next_activity_id = self.create_activity(cr, SUPERUSER_ID,
