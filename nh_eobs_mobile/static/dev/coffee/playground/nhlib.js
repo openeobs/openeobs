@@ -338,7 +338,7 @@
     };
 
     NHMobileForm.prototype.validate = function(event) {
-      var criteria, input, max, min, other_input, value, _ref;
+      var criteria, input, max, min, other_input, other_validation_event, value, _ref;
       event.preventDefault();
       this.reset_form_timeout(this);
       input = event.srcElement;
@@ -362,6 +362,8 @@
         if (input.getAttribute('data-validation')) {
           criteria = eval(input.getAttribute('data-validation'))[0];
           other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
+          other_validation_event = new Event('change');
+          document.getElementById(criteria[1]).dispatchEvent(other_validation_event);
           if (other_input && !eval(value + ' ' + criteria[0] + ' ' + other_input)) {
             this.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1]);
           }

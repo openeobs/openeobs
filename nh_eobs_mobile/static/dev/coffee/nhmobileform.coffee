@@ -79,6 +79,8 @@ class NHMobileForm extends NHMobile
      if input.getAttribute('data-validation')
        criteria = eval(input.getAttribute('data-validation'))[0]
        other_input = document.getElementById(criteria[1])?.value
+       other_validation_event = new Event('change')
+       document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
        if other_input and not eval(value + ' ' + criteria[0] + ' ' + other_input)
          @.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1])
          return
