@@ -2,8 +2,7 @@
 var NHMobileForm,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 NHMobileForm = (function(_super) {
   __extends(NHMobileForm, _super);
@@ -276,7 +275,7 @@ NHMobileForm = (function(_super) {
       data = server_data[0][0];
       if (data.status === 3) {
         new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], ['<a href="#" data-action="close" data-target="submit_observation">Cancel</a>', '<a href="#" data-target="submit_observation" data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>'], 0, self.form);
-        if (__indexOf.call(data.score, 'clinical_risk') >= 0) {
+        if ('clinical_risk' in data.score) {
           return document.getElementById('submit_observation').classList.add('clinicalrisk-' + data.score['clinical_risk'].toLowerCase());
         }
       } else if (data.status === 1) {
