@@ -231,7 +231,34 @@
                             <li><a href="#graph-content" class="selected">Graph</a></li>
                             <li><a href="#table-content">Table</a></li>
                         </ul>
-                        <div id="graph-content" t-att-data-id="patient['id']"></div>
+                        <div id="graph-content" t-att-data-id="patient['id']">
+                            <div id="controls">
+                                <div id="start">
+                                    <h4>Start date</h4>
+                                    <label for="start_date">
+                                        Date: <input type="date" name="start_date" id="start_date"/>
+                                    </label>
+                                    <label for="start_time">
+                                        Time: <input type="time" name="start_time" id="start_time"/>
+                                    </label>
+                                </div>
+                                <div id="end">
+                                    <h4>End date</h4>
+                                    <label for="end_date">
+                                        Date: <input type="date" name="end_date" id="end_date"/>
+                                    </label>
+                                    <label for="end_time">
+                                        Time: <input type="time" name="end_time" id="end_time"/>
+                                    </label>
+                                </div>
+                                <div id="range">
+                                    <label for="rangify">
+                                        Ranged values: <input type="checkbox" name="rangify" id="rangify"/>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="chart"></div>
+                        </div>
                         <div id="table-content"></div>
                     </div>
                     <script t-att-src="urls['jquery']" type="text/javascript"></script>

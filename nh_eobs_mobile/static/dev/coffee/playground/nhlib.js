@@ -641,7 +641,7 @@
     NHMobilePatient.prototype.draw_graph = function(self, server_data) {
       var bp_graph, context, focus, obs, oxy_graph, pulse_graph, resp_rate_graph, score_graph, svg, tabular_obs, temp_graph;
       obs = server_data[0][0].obs.reverse();
-      svg = new window.NH.NHGraphLib('#graph-content');
+      svg = new window.NH.NHGraphLib('#chart');
       resp_rate_graph = new window.NH.NHGraph();
       resp_rate_graph.options.keys = ['respiration_rate'];
       resp_rate_graph.options.label = 'RR';
@@ -652,7 +652,7 @@
       resp_rate_graph.options.normal.max = 20;
       resp_rate_graph.style.dimensions.height = 250;
       resp_rate_graph.style.data_style = 'linear';
-      resp_rate_graph.style.label_width = 50;
+      resp_rate_graph.style.label_width = 60;
       oxy_graph = new window.NH.NHGraph();
       oxy_graph.options.keys = ['indirect_oxymetry_spo2'];
       oxy_graph.options.label = 'Spo2';
@@ -664,7 +664,7 @@
       oxy_graph.style.dimensions.height = 200;
       oxy_graph.style.axis.x.hide = true;
       oxy_graph.style.data_style = 'linear';
-      oxy_graph.style.label_width = 50;
+      oxy_graph.style.label_width = 60;
       temp_graph = new window.NH.NHGraph();
       temp_graph.options.keys = ['body_temperature'];
       temp_graph.options.label = 'Temp';
@@ -676,7 +676,7 @@
       temp_graph.style.dimensions.height = 200;
       temp_graph.style.axis.x.hide = true;
       temp_graph.style.data_style = 'linear';
-      temp_graph.style.label_width = 50;
+      temp_graph.style.label_width = 60;
       pulse_graph = new window.NH.NHGraph();
       pulse_graph.options.keys = ['pulse_rate'];
       pulse_graph.options.label = 'HR';
@@ -688,7 +688,7 @@
       pulse_graph.style.dimensions.height = 200;
       pulse_graph.style.axis.x.hide = true;
       pulse_graph.style.data_style = 'linear';
-      pulse_graph.style.label_width = 50;
+      pulse_graph.style.label_width = 60;
       bp_graph = new window.NH.NHGraph();
       bp_graph.options.keys = ['blood_pressure_systolic', 'blood_pressure_diastolic'];
       bp_graph.options.label = 'BP';
@@ -700,7 +700,7 @@
       bp_graph.style.dimensions.height = 200;
       bp_graph.style.axis.x.hide = true;
       bp_graph.style.data_style = 'range';
-      bp_graph.style.label_width = 50;
+      bp_graph.style.label_width = 60;
       score_graph = new window.NH.NHGraph();
       score_graph.options.keys = ['score'];
       score_graph.style.dimensions.height = 200;
@@ -722,7 +722,7 @@
           e: 22
         }
       ];
-      score_graph.style.label_width = 50;
+      score_graph.style.label_width = 60;
       tabular_obs = new window.NH.NHTable();
       tabular_obs.keys = ['avpu_text', 'oxygen_administration_flag'];
       tabular_obs.title = 'Tabular values';
@@ -740,6 +740,11 @@
       context.title = 'NEWS Score';
       svg.focus = focus;
       svg.context = context;
+      svg.options.controls.date.start = document.getElementById('start_date');
+      svg.options.controls.date.end = document.getElementById('end_date');
+      svg.options.controls.time.start = document.getElementById('start_time');
+      svg.options.controls.time.end = document.getElementById('end_time');
+      svg.options.controls.rangify = document.getElementById('rangify');
       svg.data.raw = obs;
       svg.init();
       return svg.draw();

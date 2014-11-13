@@ -37,7 +37,7 @@ class NHMobilePatient extends NHMobile
 
   draw_graph: (self, server_data) =>
     obs = server_data[0][0].obs.reverse()
-    svg = new window.NH.NHGraphLib('#graph-content')
+    svg = new window.NH.NHGraphLib('#chart')
     resp_rate_graph = new window.NH.NHGraph()
     resp_rate_graph.options.keys = ['respiration_rate']
     resp_rate_graph.options.label = 'RR'
@@ -48,7 +48,7 @@ class NHMobilePatient extends NHMobile
     resp_rate_graph.options.normal.max = 20
     resp_rate_graph.style.dimensions.height = 250
     resp_rate_graph.style.data_style = 'linear'
-    resp_rate_graph.style.label_width = 50
+    resp_rate_graph.style.label_width = 60
 
     oxy_graph = new window.NH.NHGraph()
     oxy_graph.options.keys = ['indirect_oxymetry_spo2']
@@ -61,7 +61,7 @@ class NHMobilePatient extends NHMobile
     oxy_graph.style.dimensions.height = 200
     oxy_graph.style.axis.x.hide = true
     oxy_graph.style.data_style = 'linear'
-    oxy_graph.style.label_width = 50
+    oxy_graph.style.label_width = 60
 
     temp_graph = new window.NH.NHGraph()
     temp_graph.options.keys = ['body_temperature']
@@ -74,7 +74,7 @@ class NHMobilePatient extends NHMobile
     temp_graph.style.dimensions.height = 200
     temp_graph.style.axis.x.hide = true
     temp_graph.style.data_style = 'linear'
-    temp_graph.style.label_width = 50
+    temp_graph.style.label_width = 60
 
     pulse_graph = new window.NH.NHGraph()
     pulse_graph.options.keys = ['pulse_rate']
@@ -87,33 +87,33 @@ class NHMobilePatient extends NHMobile
     pulse_graph.style.dimensions.height = 200
     pulse_graph.style.axis.x.hide = true
     pulse_graph.style.data_style = 'linear'
-    pulse_graph.style.label_width = 50
+    pulse_graph.style.label_width = 60
 
-    bp_graph = new window.NH.NHGraph();
+    bp_graph = new window.NH.NHGraph()
     bp_graph.options.keys = ['blood_pressure_systolic', 'blood_pressure_diastolic']
     bp_graph.options.label = 'BP'
-    bp_graph.options.measurement = 'mmHg';
-    bp_graph.axes.y.min = 30;
-    bp_graph.axes.y.max = 260;
-    bp_graph.options.normal.min = 150;
-    bp_graph.options.normal.max = 151;
-    bp_graph.style.dimensions.height = 200;
-    bp_graph.style.axis.x.hide = true;
-    bp_graph.style.data_style = 'range';
-    bp_graph.style.label_width = 50;
+    bp_graph.options.measurement = 'mmHg'
+    bp_graph.axes.y.min = 30
+    bp_graph.axes.y.max = 260
+    bp_graph.options.normal.min = 150
+    bp_graph.options.normal.max = 151
+    bp_graph.style.dimensions.height = 200
+    bp_graph.style.axis.x.hide = true
+    bp_graph.style.data_style = 'range'
+    bp_graph.style.label_width = 60
 
-    score_graph = new window.NH.NHGraph();
-    score_graph.options.keys = ['score'];
-    score_graph.style.dimensions.height = 200;
-    score_graph.style.data_style = 'stepped';
-    score_graph.axes.y.min = 0;
-    score_graph.axes.y.max = 22;
+    score_graph = new window.NH.NHGraph()
+    score_graph.options.keys = ['score']
+    score_graph.style.dimensions.height = 200
+    score_graph.style.data_style = 'stepped'
+    score_graph.axes.y.min = 0
+    score_graph.axes.y.max = 22
     score_graph.drawables.background.data =  [
       {"class": "green",s: 1, e: 4},
       {"class": "amber",s: 4,e: 6},
       {"class": "red",s: 6,e: 22}
     ]
-    score_graph.style.label_width = 50;
+    score_graph.style.label_width = 60
 
 
     tabular_obs = new window.NH.NHTable()
@@ -133,11 +133,11 @@ class NHMobilePatient extends NHMobile
     context.title = 'NEWS Score'
     svg.focus = focus
     svg.context = context
-    #svg.options.controls.date.start = document.getElementById('date_start');
-    #svg.options.controls.date.end = document.getElementById('date_end');
-    #svg.options.controls.time.start = document.getElementById('time_start');
-    #svg.options.controls.time.end = document.getElementById('time_end');
-    #svg.options.controls.rangify = document.getElementById('range_derange');
+    svg.options.controls.date.start = document.getElementById('start_date');
+    svg.options.controls.date.end = document.getElementById('end_date');
+    svg.options.controls.time.start = document.getElementById('start_time');
+    svg.options.controls.time.end = document.getElementById('end_time');
+    svg.options.controls.rangify = document.getElementById('rangify');
 
     svg.data.raw = obs
     svg.init()
