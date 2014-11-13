@@ -6,6 +6,8 @@ class NHTable
     @obj = null
     @header_row = null
     @data_rows = null
+    @title = null
+    @title_obj = null
 
   date_from_string: (date_string) =>
     return new Date(date_string)
@@ -20,6 +22,8 @@ class NHTable
   init: (parent_obj) =>
     # add element to DOM
     @.parent_obj = parent_obj
+    if @.title?
+      @.title_obj = nh_graphs.select(@.parent_obj.parent_obj.el).append('h3').html(@.title)
     @.obj = nh_graphs.select(parent_obj.parent_obj.el).append('table')
     @.obj.attr('class', 'nhtable')
 

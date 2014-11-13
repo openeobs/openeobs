@@ -220,7 +220,8 @@
         dimensions: {
           height: 0,
           width: 0
-        }
+        },
+        title_height: 80
       };
       this.graph = null;
       this.axes = {
@@ -239,6 +240,8 @@
       };
       this.parent_obj = null;
       this.brush = null;
+      this.title = null;
+      this.title_obj = null;
       self = this;
     }
 
@@ -250,17 +253,28 @@
       var left_offset, self;
       if (parent_svg != null) {
         this.parent_obj = parent_svg;
+        left_offset = parent_svg.style.padding.left + this.style.margin.left;
+        if (this.title != null) {
+          this.title_obj = parent_svg.obj.append('text').text(this.title).attr('class', 'title').attr('transform', 'translate(0,' + (parent_svg.style.padding.top + this.style.margin.top) + ')');
+        }
         this.obj = parent_svg.obj.append('g');
         this.obj.attr('class', 'nhcontext');
-        left_offset = parent_svg.style.padding.left + this.style.margin.left;
-        this.obj.attr('transform', 'translate(' + left_offset + ',' + (parent_svg.style.padding.top + this.style.margin.top) + ')');
+        if (this.title != null) {
+          this.obj.attr('transform', 'translate(' + left_offset + ',' + (parent_svg.style.padding.top + this.style.margin.top + this.style.title_height) + ')');
+        } else {
+          this.obj.attr('transform', 'translate(' + left_offset + ',' + (parent_svg.style.padding.top + this.style.margin.top) + ')');
+        }
         this.style.dimensions.width = parent_svg.style.dimensions.width - ((parent_svg.style.padding.left + parent_svg.style.padding.right) + (this.style.margin.left + this.style.margin.right));
         this.obj.attr('width', this.style.dimensions.width);
         this.axes.x.min = parent_svg.data.extent.start;
         this.axes.x.max = parent_svg.data.extent.end;
         this.axes.x.scale = nh_graphs.time.scale().domain([this.axes.x.min, this.axes.x.max]).range([left_offset, this.style.dimensions.width]);
         this.graph.init(this);
-        this.style.dimensions.height += this.graph.style.dimensions.height + (this.graph.style.axis.x.size.height * 2);
+        if (this.title != null) {
+          this.style.dimensions.height += this.graph.style.dimensions.height + (this.graph.style.axis.x.size.height * 2) + this.style.title_height;
+        } else {
+          this.style.dimensions.height += this.graph.style.dimensions.height + (this.graph.style.axis.x.size.height * 2);
+        }
         parent_svg.style.dimensions.height += this.style.dimensions.height + (this.style.margin.top + this.style.margin.bottom);
         this.graph.drawables.brush = this.graph.obj.append('g').attr('class', 'brush-container');
         self = this;
@@ -371,7 +385,8 @@
         dimensions: {
           height: 0,
           width: 0
-        }
+        },
+        title_height: 70
       };
       this.graphs = new Array();
       this.tables = new Array();
@@ -390,19 +405,29 @@
         }
       };
       this.parent_obj = null;
+      this.title = null;
+      this.title_obj = null;
       self = this;
     }
 
     NHFocus.prototype.init = function(parent_svg) {
-      var graph, self, table, _i, _j, _len, _len1, _ref, _ref1;
+      var graph, self, table, top_offset, _i, _j, _len, _len1, _ref, _ref1;
       if (parent_svg != null) {
         this.parent_obj = parent_svg;
+        if (this.title != null) {
+          this.title_obj = this.parent_obj.obj.append('text').text(this.title).attr('class', 'title');
+          this.title_obj.attr('transform', 'translate(0,' + (((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + this.style.margin.top) + ')');
+        }
         this.obj = parent_svg.obj.append('g');
         this.obj.attr('class', 'nhfocus');
+        top_offset = parent_svg.style.padding.top + this.style.margin.top;
+        if (this.title != null) {
+          top_offset += this.style.title_height;
+        }
         if (parent_svg.context != null) {
-          this.obj.attr('transform', 'translate(' + (parent_svg.style.padding.left + this.style.margin.left) + ',' + (((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + this.style.margin.top) + ')');
+          this.obj.attr('transform', 'translate(' + (parent_svg.style.padding.left + this.style.margin.left) + ',' + ((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + top_offset) + ')');
         } else {
-          this.obj.attr('transform', 'translate(' + (parent_svg.style.padding.left + this.style.margin.left) + ',' + (parent_svg.style.padding.top + this.style.margin.top) + ')');
+          this.obj.attr('transform', 'translate(' + (parent_svg.style.padding.left + this.style.margin.left) + ',' + top_offset + ')');
         }
         this.style.dimensions.width = parent_svg.style.dimensions.width - ((parent_svg.style.padding.left + parent_svg.style.padding.right) + (this.style.margin.left + this.style.margin.right));
         this.obj.attr('width', this.style.dimensions.width);
@@ -418,6 +443,9 @@
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           table = _ref1[_j];
           table.init(this);
+        }
+        if (this.title != null) {
+          this.style.dimensions.height += this.style.title_height;
         }
         parent_svg.style.dimensions.height += this.style.dimensions.height + (this.style.margin.top + this.style.margin.bottom);
         self = this;
@@ -1046,6 +1074,8 @@
       this.obj = null;
       this.header_row = null;
       this.data_rows = null;
+      this.title = null;
+      this.title_obj = null;
     }
 
     NHTable.prototype.date_from_string = function(date_string) {
@@ -1065,6 +1095,9 @@
     NHTable.prototype.init = function(parent_obj) {
       var header, key, _i, _len, _ref;
       this.parent_obj = parent_obj;
+      if (this.title != null) {
+        this.title_obj = nh_graphs.select(this.parent_obj.parent_obj.el).append('h3').html(this.title);
+      }
       this.obj = nh_graphs.select(parent_obj.parent_obj.el).append('table');
       this.obj.attr('class', 'nhtable');
       this.range = [parent_obj.axes.x.min, parent_obj.axes.x.max];

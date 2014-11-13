@@ -17,7 +17,8 @@ class NHContext
       dimensions: {
         height: 0,
         width: 0
-      }
+      },
+      title_height: 80
     }
     @graph = null
     @axes = {
@@ -36,6 +37,8 @@ class NHContext
     }
     @parent_obj = null
     @brush = null
+    @title = null
+    @title_obj = null
     self = @
 
   leading_zero: (date_element) =>
@@ -45,10 +48,16 @@ class NHContext
     if parent_svg?
       # add element to DOM
       @.parent_obj = parent_svg
+      left_offset = parent_svg.style.padding.left + @.style.margin.left
+      if @.title?
+        @.title_obj = parent_svg.obj.append('text').text(@.title).attr('class', 'title').attr('transform', 'translate(0,'+(parent_svg.style.padding.top + @.style.margin.top)+')')
       @.obj = parent_svg.obj.append('g')
       @.obj.attr('class', 'nhcontext')
-      left_offset = parent_svg.style.padding.left + @.style.margin.left
-      @.obj.attr('transform', 'translate('+left_offset+','+(parent_svg.style.padding.top + @.style.margin.top)+')')
+
+      if @.title?
+        @.obj.attr('transform', 'translate('+left_offset+','+(parent_svg.style.padding.top + @.style.margin.top + @.style.title_height)+')')
+      else
+        @.obj.attr('transform', 'translate('+left_offset+','+(parent_svg.style.padding.top + @.style.margin.top)+')')
       @.style.dimensions.width = parent_svg.style.dimensions.width - ((parent_svg.style.padding.left + parent_svg.style.padding.right) + (@.style.margin.left + @.style.margin.right))
       @.obj.attr('width', @.style.dimensions.width)
       @.axes.x.min = parent_svg.data.extent.start
@@ -58,7 +67,10 @@ class NHContext
 
       @.graph.init(@)
       # figure out how big the focus is going to be
-      @.style.dimensions.height += @.graph.style.dimensions.height + (@.graph.style.axis.x.size.height*2)
+      if @.title?
+        @.style.dimensions.height += @.graph.style.dimensions.height + (@.graph.style.axis.x.size.height*2) + @.style.title_height
+      else
+        @.style.dimensions.height += @.graph.style.dimensions.height + (@.graph.style.axis.x.size.height*2)
       #@.obj.attr('height', @.style.dimensions.height)
       parent_svg.style.dimensions.height += @.style.dimensions.height + (@.style.margin.top + @.style.margin.bottom)
 

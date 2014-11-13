@@ -19,6 +19,7 @@ class NHFocus
         height: 0,
         width: 0
       }
+      title_height: 70
     }
     @graphs = new Array()
     @tables = new Array()
@@ -37,18 +38,26 @@ class NHFocus
       }
     }
     @parent_obj = null
+    @title = null
+    @title_obj = null
     self = @
 
   init: (parent_svg) =>
     if parent_svg?
       # add element to DOM
       @.parent_obj = parent_svg
+      if @.title?
+        @.title_obj = @.parent_obj.obj.append('text').text(@.title).attr('class', 'title')
+        @.title_obj.attr('transform', 'translate(0,'+(((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + @.style.margin.top)+')')
       @.obj = parent_svg.obj.append('g')
       @.obj.attr('class', 'nhfocus')
+      top_offset = (parent_svg.style.padding.top + @.style.margin.top)
+      if @.title?
+        top_offset += @.style.title_height
       if parent_svg.context?
-        @.obj.attr('transform', 'translate('+(parent_svg.style.padding.left + @.style.margin.left)+','+(((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + @.style.margin.top)+')')
+        @.obj.attr('transform', 'translate('+(parent_svg.style.padding.left + @.style.margin.left)+','+((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + top_offset)+')')
       else
-        @.obj.attr('transform', 'translate('+(parent_svg.style.padding.left + @.style.margin.left)+','+(parent_svg.style.padding.top + @.style.margin.top)+')')
+        @.obj.attr('transform', 'translate('+(parent_svg.style.padding.left + @.style.margin.left)+','+top_offset+')')
       @.style.dimensions.width = parent_svg.style.dimensions.width - ((parent_svg.style.padding.left + parent_svg.style.padding.right) + (@.style.margin.left + @.style.margin.right))
       @.obj.attr('width', @.style.dimensions.width)
       @.axes.x.min = parent_svg.data.extent.start
@@ -58,8 +67,13 @@ class NHFocus
       for graph in @.graphs
         graph.init(@)
         @.style.dimensions.height += graph.style.dimensions.height + @.style.spacing
+
       for table in @.tables
         table.init(@)
+
+      if @.title?
+        @.style.dimensions.height += @.style.title_height
+
 
       parent_svg.style.dimensions.height += @.style.dimensions.height + (@.style.margin.top + @.style.margin.bottom)
 
