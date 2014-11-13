@@ -992,3 +992,45 @@ svg .data path{
 #chart_popup.hidden{
   display: none;
 }
+
+.nhtable{
+  width: 100%;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  thead{
+    tr{
+      th{
+        text-align: center;
+        font-size: 0.8em;
+        border-bottom: 1px solid #262626;
+        border-left: 1px solid #262626;
+        &:first-child{
+          text-align: left;
+          padding-left: 0px;
+          border-left: 0px solid black;
+        }
+      }
+    }
+  }
+  tbody{
+    tr{
+      td{
+        padding-left: 1%;
+        padding-right: 1%;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+        text-align: center;
+        border-left: 1px solid #262626;
+        &:nth-child(even){
+          background-color: #dddddd;
+        }
+        &:first-child{
+          text-align: left;
+          padding-left: 0px;
+          border-left: 0px solid black;
+        }
+      }
+    }
+  }
+}
+
