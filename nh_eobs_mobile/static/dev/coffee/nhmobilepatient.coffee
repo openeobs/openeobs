@@ -118,6 +118,7 @@ class NHMobilePatient extends NHMobile
 
     tabular_obs = new window.NH.NHTable()
     tabular_obs.keys = ['avpu_text', 'oxygen_administration_flag']
+    tabular_obs.title = 'Tabular values'
     focus = new window.NH.NHFocus()
     context = new window.NH.NHContext()
     focus.graphs.push(resp_rate_graph)
@@ -126,8 +127,10 @@ class NHMobilePatient extends NHMobile
     focus.graphs.push(pulse_graph)
     focus.graphs.push(bp_graph)
     focus.tables.push(tabular_obs)
+    focus.title = 'Individual values'
     focus.style.padding.right = 0
     context.graph = score_graph
+    context.title = 'NEWS Score'
     svg.focus = focus
     svg.context = context
     #svg.options.controls.date.start = document.getElementById('date_start');

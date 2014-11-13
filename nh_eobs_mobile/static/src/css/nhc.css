@@ -1302,6 +1302,9 @@ svg .data path {
   padding-left: 0px;
   border-left: 0px solid black;
 }
+.nhtable tbody tr:nth-child(even) {
+  background-color: #dddddd;
+}
 .nhtable tbody tr td {
   padding-left: 1%;
   padding-right: 1%;
@@ -1310,11 +1313,12 @@ svg .data path {
   text-align: center;
   border-left: 1px solid #262626;
 }
-.nhtable tbody tr td:nth-child(even) {
-  background-color: #dddddd;
-}
 .nhtable tbody tr td:first-child {
   text-align: left;
   padding-left: 0px;
   border-left: 0px solid black;
+}
+text.title {
+  font-weight: bold;
+  font-size: 2em;
 }
