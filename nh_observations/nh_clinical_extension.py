@@ -4,6 +4,20 @@ from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
+class nh_clinical_patient(orm.Model):
+    _name = 'nh.clinical.patient'
+    _inherit = 'nh.clinical.patient'
+
+    def write(self, cr, uid, ids, vals, context=None):
+        res = super(nh_clinical_patient, self).write(cr, uid, ids, vals, context=context)
+        if 'current_location_id' in vals:
+            activity_pool = self.pool['nh.activity']
+            patient_ids = [ids] if not isinstance(ids, list) else ids
+            obs_and_not_ids = activity_pool.search(cr, uid, [['patient_id', 'in', patient_ids], ['state', 'not in', ['completed', 'cancelled']], '|', ['data_model', 'ilike', '%observation%'], ['data_model', 'ilike', '%notification%']])
+            activity_pool.write(cr, uid, obs_and_not_ids, {'location_id': vals['current_location_id']}, context=context)
+        return res
+
+
 class nh_clinical_api_extension(orm.AbstractModel):
     _name = 'nh.clinical.api'
     _inherit = 'nh.clinical.api'
