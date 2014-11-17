@@ -61,11 +61,14 @@
                 <form string="Wardboard Device Session">
                     <group string="Device Details">
                         <field name="patient_id" readonly="1"/>
+                        <field name="location"/>
                         <field name="device_category_id" on_change="onchange_device_category_id(device_category_id)" widget="nh_many2one"/>
                         <field name="device_type_id" on_change="onchange_device_type_id(device_type_id)" required="1" widget="nh_many2one"/>
                         <field name="device_id" invisible="1" domain="[('is_available','=',1)]" on_change="onchange_device_id(device_id)" widget="nh_many2one"/>
                     </group>
-                    <button name="do_start" type="object" string="Start"/>
+                    <footer>
+                        <button name="do_start" type="object" string="Start"/>
+                    </footer>
                 </form>
             </field>
         </record>
@@ -76,7 +79,13 @@
                 <form string="Wardboard Device Session Compplete" version="7.0">
                     <label for="session_id" string="You are about to complete session: "/>
                     <field name="session_id" readonly="1"/>
-                    <button name="do_complete" type="object" string="Complete"/>
+                    <group>
+                        <field name="removal_reason"/>
+                        <field name="planned"/>
+                    </group>
+                    <footer>
+                        <button name="do_complete" type="object" string="Complete"/>
+                    </footer>
                 </form>
             </field>
         </record>
@@ -277,8 +286,10 @@
                                         <newline/>
                                         <field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
                                             <tree>
-                                                <field name="device_type_id"/>
-                                                <field name="date_started" widget="nhc_datetime"/>
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
                                                 <button name="device_session_complete" type="object" icon="gtk-cancel" string="Complete Device Session"/>
                                             </tree>
                                         </field>
@@ -288,11 +299,13 @@
                                     <group string="Device Sessions History">
                                         <field name="terminated_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','completed')]">
                                             <tree>
-                                                <field name="device_type_id"/>
-                                                <field name="date_started" widget="nhc_datetime"/>
-                                                <field name="date_terminated" widget="nhc_datetime"/>
-                                                <field name="state"/>
-
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
+                                                <field name="date_terminated" widget="nhc_datetime" string="Removed"/>
+                                                <field name="planned"/>
+                                                <field name="removal_reason"/>
                                             </tree>
                                         </field>
                                     </group>
@@ -700,8 +713,10 @@
                                     <div>
                                         <field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
                                             <tree>
-                                                <field name="device_id"/>
-                                                <field name="date_started" widget="nhc_datetime"/>
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
                                             </tree>
                                         </field>
                                     </div>
@@ -710,10 +725,13 @@
                                     <group string="Device Sessions History">
                                         <field name="terminated_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','completed')]">
                                             <tree>
-                                                <field name="device_id"/>
-                                                <field name="date_started" widget="nhc_datetime"/>
-                                                <field name="date_terminated" widget="nhc_datetime"/>
-                                                <field name="state"/>
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
+                                                <field name="date_terminated" widget="nhc_datetime" string="Removed"/>
+                                                <field name="planned"/>
+                                                <field name="removal_reason"/>
                                             </tree>
                                         </field>
                                     </group>

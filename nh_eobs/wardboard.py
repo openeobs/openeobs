@@ -77,6 +77,7 @@ class wardboard_device_session_start(orm.TransientModel):
         'device_category_id': fields.many2one('nh.clinical.device.category', 'Device Category'),
         'device_type_id':  fields.many2one('nh.clinical.device.type', "Device Type"),
         'device_id':  fields.many2one('nh.clinical.device', "Device"),
+        'location': fields.char('Location', size=50)
     }
 
     def onchange_device_category_id(self, cr, uid, ids, device_category_id, context=None):
@@ -105,28 +106,32 @@ class wardboard_device_session_start(orm.TransientModel):
     def do_start(self, cr, uid, ids, context=None):
         wiz = self.browse(cr, uid, ids[0])
         spell_activity_id = self.pool['nh.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
-        device_activity_id = self.pool['nh.clinical.device.session'].create_activity(cr, SUPERUSER_ID, 
+        device_activity_id = self.pool['nh.clinical.device.session'].create_activity(cr, uid,
                                                 {'parent_id': spell_activity_id},
                                                 {'patient_id': wiz.patient_id.id,
                                                  'device_type_id': wiz.device_type_id.id,
                                                  'device_id': wiz.device_id.id if wiz.device_id else False})
         self.pool['nh.activity'].start(cr, uid, device_activity_id, context)
+        self.pool['nh.activity'].submit(cr, uid, device_activity_id, {'location': wiz.location}, context)
 
 class wardboard_device_session_complete(orm.TransientModel):
     _name = "wardboard.device.session.complete"
 
     _columns = {
         'session_id': fields.many2one('nh.clinical.device.session', 'Session'),
+        'removal_reason': fields.char('Removal reason', size=100),
+        'planned': fields.selection((('planned', 'Planned'), ('unplanned', 'Unplanned')), 'Planned?')
     }   
     
     def do_complete(self, cr, uid, ids, context=None):
         activity_pool = self.pool['nh.activity']
         wiz = self.browse(cr, uid, ids[0])
+        activity_pool.submit(cr, uid, wiz.session_id.activity_id.id, {'removal_reason': wiz.removal_reason, 'planned': wiz.planned}, context)
         activity_pool.complete(cr, uid, wiz.session_id.activity_id.id, context)
         # refreshing view
         spell_activity_id = wiz.session_id.activity_id.parent_id.id
         wardboard_pool = self.pool['nh.clinical.wardboard']
-        wardboard_id = wardboard_pool.search(cr, uid, [['spell_activity_id','=',spell_activity_id]])[0]
+        wardboard_id = wardboard_pool.search(cr, uid, [['spell_activity_id', '=', spell_activity_id]])[0]
         view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_form')[1]
         #FIXME should be done more elegantly on client side
         return {
@@ -139,8 +144,7 @@ class wardboard_device_session_complete(orm.TransientModel):
             'context': context,
             'view_id': view_id
         }
-        
-        context.update({'active_model': 'nh.clinical.wardboard', 'active_id': wardboard_id, 'active_ids': [wardboard_id]})        
+
 
 class nh_clinical_device_session(orm.TransientModel):
     _inherit = "nh.clinical.device.session"            
