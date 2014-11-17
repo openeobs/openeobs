@@ -146,11 +146,10 @@ class wardboard_device_session_complete(orm.TransientModel):
         }
 
 
-class nh_clinical_device_session(orm.TransientModel):
-    _inherit = "nh.clinical.device.session"            
+class nh_clinical_device_session(orm.Model):
+    _inherit = "nh.clinical.device.session"
 
     def device_session_complete(self, cr, uid, ids, context=None):
-
         device_session = self.browse(cr, uid, ids[0], context=context)
         res_id = self.pool['wardboard.device.session.complete'].create(cr, uid, {'session_id': device_session.id})
         view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_device_session_complete_form')[1]
@@ -166,7 +165,6 @@ class nh_clinical_device_session(orm.TransientModel):
             'context': context,
             'view_id': view_id
         }
-
 
 
 class nh_clinical_wardboard(orm.Model):
@@ -399,6 +397,26 @@ class nh_clinical_wardboard(orm.Model):
             'target': 'new',
             'context': context,
             'view_id': view_id
+        }
+
+    def wardboard_prescribe(self, cr, uid, ids, context=None):
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+
+        model_data_pool = self.pool['ir.model.data']
+        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_prescribe_form')], context=context)
+        if not model_data_ids:
+            pass
+        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': ids[0],
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': context,
+            'view_id': int(view_id)
         }
         
     def wardboard_chart(self, cr, uid, ids, context=None):
