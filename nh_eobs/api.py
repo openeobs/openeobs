@@ -139,8 +139,8 @@ class nh_eobs_api(orm.AbstractModel):
             activity.summary,
             ews1.clinical_risk,
             case
-                when date_scheduled is not null then date_scheduled::text
-                when date_deadline is not null then date_deadline::text
+                when activity.date_scheduled is not null then activity.date_scheduled::text
+                when activity.date_deadline is not null then activity.date_deadline::text
                 else ''
             end as deadline,
             case

@@ -48,21 +48,27 @@ class wardboard_patient_placement(orm.TransientModel):
     def do_move(self, cr, uid, ids, context=None):
         wiz = self.browse(cr, uid, ids[0])
         api = self.pool['nh.clinical.api']
-        pos_id = wiz.bed_src_location_id.pos_id.id
+        move_pool = self.pool['nh.clinical.patient.move']
+        activity_pool = self.pool['nh.activity']
         spell_activity_id = api.get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
-        ews_activity_ids = api.activity_map(cr, uid, pos_ids=[pos_id], 
-                                            patient_ids=[wiz.patient_id.id], states=['new','scheduled'],
-                                            data_models=['nh.clinical.patient.observation.ews']).keys()
-        if ews_activity_ids:
-            api.cancel(cr, uid, ews_activity_ids[0])
-        api.create_complete(cr, SUPERUSER_ID, 'nh.clinical.patient.placement',
-                            {'parent_id': spell_activity_id}, 
-                            {'suggested_location_id': wiz.bed_dst_location_id.id,
-                             'location_id': wiz.bed_dst_location_id.id,
-                             'patient_id': wiz.patient_id.id})
+        # move to location
+        move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,
+                                                    {'parent_id': spell_activity_id},
+                                                    {'patient_id': wiz.patient_id.id,
+                                                     'location_id': wiz.bed_dst_location_id.id})
+        activity_pool.complete(cr, uid, move_activity_id)
+        activity_pool.submit(cr, uid, spell_activity_id, {'location_id': wiz.bed_dst_location_id.id})
+        # ews_activity_ids = api.activity_map(cr, uid, pos_ids=[pos_id],
+        #                                     patient_ids=[wiz.patient_id.id], states=['new','scheduled'],
+        #                                     data_models=['nh.clinical.patient.observation.ews']).keys()
+        # if ews_activity_ids:
+        #     api.cancel(cr, uid, ews_activity_ids[0])
+        # api.create_complete(cr, SUPERUSER_ID, 'nh.clinical.patient.placement',
+        #                     {'parent_id': spell_activity_id},
+        #                     {'suggested_location_id': wiz.bed_dst_location_id.id,
+        #                      'location_id': wiz.bed_dst_location_id.id,
+        #                      'patient_id': wiz.patient_id.id})
 
-
-        
 
 class wardboard_device_session_start(orm.TransientModel):
     _name = "wardboard.device.session.start"
