@@ -39,7 +39,6 @@
             <field name="model">wardboard.patient.placement</field>
             <field name="arch" type="xml">
                 <form string="Wardboard Patient Placement">
-                    <!-- <field name="patient_id" readonly="1"/> -->
                     <group string="From" colspan="4" col="2">
                         <field name="ward_location_id" readonly="1"/>
                         <field name="bed_src_location_id" readonly="1" />
@@ -48,7 +47,7 @@
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
                                                                              ('usage','=','bed'),
                                                                              ('is_available','=',True),
-                                                                             ('id','!=',bed_src_location_id)]"/>
+                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
@@ -144,13 +143,13 @@
                         <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button name="print_report" string="Print Report" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <!--<button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>-->
                         <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user"/>
                         <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user"/>
                         <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user"/>
                         <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object" groups="base.group_user"/>
                     </header>
                     <sheet>
-
                         <group>
                             <group string="Early Warning Score">
                                 <field name="ews_score" readonly="1"/>
@@ -356,6 +355,18 @@
                 <form string="Wardboard EWS Chart Form View" version="7.0" create="0">
                     <sheet>
                         <field name="ews_ids" widget="nh_ewschart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_prescribe_form">
+            <field name="name">Wardboard Prescribe Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Prescribe Form View" version="7.0" create="0">
+                    <sheet>
+                        <field name="patient_id" widget="nh_prescribe"/>
                     </sheet>
                 </form>
             </field>
