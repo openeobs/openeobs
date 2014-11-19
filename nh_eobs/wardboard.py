@@ -2,7 +2,6 @@
 from openerp.osv import orm, fields, osv
 import logging        
 _logger = logging.getLogger(__name__)
-from openerp import tools
 from openerp.addons.nh_activity.activity import except_if
 from openerp import SUPERUSER_ID
 import controllers.visit_report as visit_report
@@ -58,16 +57,6 @@ class wardboard_patient_placement(orm.TransientModel):
                                                      'location_id': wiz.bed_dst_location_id.id})
         activity_pool.complete(cr, uid, move_activity_id)
         activity_pool.submit(cr, uid, spell_activity_id, {'location_id': wiz.bed_dst_location_id.id})
-        # ews_activity_ids = api.activity_map(cr, uid, pos_ids=[pos_id],
-        #                                     patient_ids=[wiz.patient_id.id], states=['new','scheduled'],
-        #                                     data_models=['nh.clinical.patient.observation.ews']).keys()
-        # if ews_activity_ids:
-        #     api.cancel(cr, uid, ews_activity_ids[0])
-        # api.create_complete(cr, SUPERUSER_ID, 'nh.clinical.patient.placement',
-        #                     {'parent_id': spell_activity_id},
-        #                     {'suggested_location_id': wiz.bed_dst_location_id.id,
-        #                      'location_id': wiz.bed_dst_location_id.id,
-        #                      'patient_id': wiz.patient_id.id})
 
 
 class wardboard_device_session_start(orm.TransientModel):

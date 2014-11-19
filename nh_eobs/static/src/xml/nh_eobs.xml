@@ -67,6 +67,10 @@
         </div>
     </div>
 
+    <div t-name="nh_prescribe" class="nh_prescribe">
+        <iframe src="http://openep.thinkmed.marand.si:8181/rest/htmldocument/view?config=%7b%22language%22:%22en%22,%22theme%22:%22fresh%22,%22debug%22:false,%22header%22:%7b%22url%22:%22%22,%22context%22:%22rest%22,%22controller%22:%22medications%22%7d,%22view%22:%22therapyView%22,%22data%22:%7b%22paneMode%22:%22FLOW%22,%22userId%22:6127355,%22currentUserAsCareProfessional%22:%7b%22name%22:%22Jeremy%20Hunt%22,%20%22id%22:10%7d,%22patientId%22:1,%22editAllowed%22:true,%22orgTemplatesEditAllowed%22:true%7d%7d&amp;debug=true" height="500px" width="100%"></iframe>
+    </div>
+
     <div t-name="nh_bschart" class="nh_ewschart">
         <h3 id="chartTitle">Blood Sugar</h3>
         <div id="focusChart" class="chart"></div>

@@ -507,6 +507,13 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.form.widgets.add('nh_ewschart', 'instance.nh_eobs.EwsChartWidget');
 
+    instance.nh_eobs.PrescribeWidget = instance.web.form.AbstractField.extend({
+        template: 'nh_prescribe',
+        className: 'nh_prescribe',
+    });
+
+    instance.web.form.widgets.add('nh_prescribe', 'instance.nh_eobs.PrescribeWidget');
+
     instance.nh_eobs.BloodSugarChartWidget = instance.web.form.AbstractField.extend({
         template: 'nh_bschart',
         className: 'nh_ewschart',
