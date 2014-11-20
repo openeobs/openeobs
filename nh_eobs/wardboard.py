@@ -403,7 +403,7 @@ class nh_clinical_wardboard(orm.Model):
             'res_id': ids[0],
             'view_mode': 'form',
             'view_type': 'form',
-            'target': 'new',
+            'target': 'current',
             'context': context,
             'view_id': int(view_id)
         }

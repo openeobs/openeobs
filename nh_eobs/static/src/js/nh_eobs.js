@@ -510,6 +510,24 @@ openerp.nh_eobs = function (instance) {
     instance.nh_eobs.PrescribeWidget = instance.web.form.AbstractField.extend({
         template: 'nh_prescribe',
         className: 'nh_prescribe',
+
+        init: function (field_manager, node) {
+        	this._super(field_manager, node);
+        	this.model = new instance.web.Model('ir.config_parameter');
+        	var self = this;
+        	var recData = this.model.call('search',[[['key', '=', 'nh.eobs.prescribe.url']]], {context: this.view.dataset.context}).done(function(records){
+        	    if(records.length > 0){
+        	        var recData2 = self.model.call('read',[records[0],['value']], {context: self.view.dataset.context}).done(function(record){
+        	            if(record){
+        	                self.url = record.value;
+        	                self.$el.html(QWeb.render('nh_prescribe', {
+                                url: encodeURI(decodeURI(self.url))
+                            }));
+        	            }
+        	        });
+        	    }
+        	});
+        },
     });
 
     instance.web.form.widgets.add('nh_prescribe', 'instance.nh_eobs.PrescribeWidget');

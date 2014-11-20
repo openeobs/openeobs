@@ -68,7 +68,7 @@
     </div>
 
     <div t-name="nh_prescribe" class="nh_prescribe">
-        <iframe src="http://test.thinkmed.marand.si:8181/rest/htmldocument/view?config=%7B%22language%22%3A%22sl%22%2C%22theme%22%3A%22fresh%22%2C%22debug%22%3Afalse%2C%22header%22%3A%7B%22url%22%3A%22%22%2C%22context%22%3A%22rest%22%2C%22controller%22%3A%22medications%22%7D%2C%22view%22%3A%22therapyView%22%2C%22data%22%3A%7B%22paneMode%22%3A%22FLOW%22%2C%22userId%22%3A6127355%2C%22editAllowed%22%3Atrue%2C%22orgTemplatesEditAllowed%22%3Atrue%7D%7D&amp;debug=true" height="500px" width="100%"></iframe>
+        <iframe t-att-src="url" height="800px" width="100%"></iframe>
     </div>
 
     <div t-name="nh_bschart" class="nh_ewschart">
