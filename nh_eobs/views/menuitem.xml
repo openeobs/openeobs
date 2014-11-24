@@ -112,7 +112,7 @@
           	parent="menu_nhui_left_patient"
           	action="action_wardboard"
             sequence="1"
-          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_dev,base.user_root"/>
+          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Kiosk Patients Board"
           	id="menu_left_sub_wardboard_kiosk"
@@ -133,7 +133,7 @@
           	parent="menu_nhui_left_patient"
           	action="action_patients_by_ward"
             sequence="2"
-          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Recently Discharged"
           	id="menu_left_discharged_patients"
