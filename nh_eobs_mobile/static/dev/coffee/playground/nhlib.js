@@ -338,34 +338,45 @@
     };
 
     NHMobileForm.prototype.validate = function(event) {
-      var criteria, input, max, min, other_input, other_validation_event, value, _ref;
+      var criteria, input, max, min, other_input, other_validation_event, value, _ref, _ref1;
       event.preventDefault();
       this.reset_form_timeout(this);
       input = event.srcElement;
       this.reset_input_errors(input);
-      if (input.type === 'number') {
-        value = parseFloat(input.value);
-        min = parseFloat(input.min);
-        max = parseFloat(input.max);
-        if (input.step === '1' && value % 1 !== 0) {
-          this.add_input_errors(input, 'Must be whole number');
-          return;
-        }
-        if (value < min) {
-          this.add_input_errors(input, 'Input too low');
-          return;
-        }
-        if (value > max) {
-          this.add_input_errors(input, 'Input too high');
-          return;
-        }
-        if (input.getAttribute('data-validation')) {
-          criteria = eval(input.getAttribute('data-validation'))[0];
-          other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
-          other_validation_event = new Event('change');
-          document.getElementById(criteria[1]).dispatchEvent(other_validation_event);
-          if (other_input && !eval(value + ' ' + criteria[0] + ' ' + other_input)) {
-            this.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1]);
+      value = parseFloat(input.value);
+      min = parseFloat(input.min);
+      max = parseFloat(input.max);
+      if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
+        if (input.type === 'number') {
+          if (input.step === '1' && value % 1 !== 0) {
+            this.add_input_errors(input, 'Must be whole number');
+            return;
+          }
+          if (value < min) {
+            this.add_input_errors(input, 'Input too low');
+            return;
+          }
+          if (value > max) {
+            this.add_input_errors(input, 'Input too high');
+            return;
+          }
+          if (input.getAttribute('data-validation')) {
+            criteria = eval(input.getAttribute('data-validation'))[0];
+            other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
+            if (((_ref1 = document.getElementById(criteria[1])) != null ? _ref1.type : void 0) === 'number') {
+              other_input = parseFloat(other_input);
+            }
+            if (eval(value + ' ' + criteria[0] + ' ' + other_input)) {
+              this.reset_input_errors(document.getElementById(criteria[1]));
+              return;
+            }
+            if (typeof other_input !== 'undefined' && !isNaN(other_input) && other_input !== '') {
+              other_validation_event = new Event('change');
+              document.getElementById(criteria[1]).dispatchEvent(other_validation_event);
+              this.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1]);
+            } else {
+
+            }
           }
         }
       } else {

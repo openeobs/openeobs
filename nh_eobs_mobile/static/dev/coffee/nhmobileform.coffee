@@ -63,27 +63,35 @@ class NHMobileForm extends NHMobile
    @.reset_form_timeout(@)
    input = event.srcElement
    @reset_input_errors(input)
-   if input.type is 'number'
-     value = parseFloat(input.value)
-     min = parseFloat(input.min)
-     max = parseFloat(input.max)
-     if input.step is '1' and value % 1 isnt 0
-       @.add_input_errors(input, 'Must be whole number')
-       return
-     if value < min
-       @.add_input_errors(input, 'Input too low')
-       return
-     if value > max
-       @.add_input_errors(input, 'Input too high')
-       return
-     if input.getAttribute('data-validation')
-       criteria = eval(input.getAttribute('data-validation'))[0]
-       other_input = document.getElementById(criteria[1])?.value
-       other_validation_event = new Event('change')
-       document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
-       if other_input and not eval(value + ' ' + criteria[0] + ' ' + other_input)
-         @.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1])
+   value = parseFloat(input.value)
+   min = parseFloat(input.min)
+   max = parseFloat(input.max)
+   if typeof(value) isnt 'undefined' and not isNaN(value) and value isnt ''
+     if input.type is 'number'
+       if input.step is '1' and value % 1 isnt 0
+         @.add_input_errors(input, 'Must be whole number')
          return
+       if value < min
+         @.add_input_errors(input, 'Input too low')
+         return
+       if value > max
+         @.add_input_errors(input, 'Input too high')
+         return
+       if input.getAttribute('data-validation')
+         criteria = eval(input.getAttribute('data-validation'))[0]
+         other_input = document.getElementById(criteria[1])?.value
+         if document.getElementById(criteria[1])?.type is 'number'
+           other_input = parseFloat(other_input)
+         if eval(value + ' ' + criteria[0] + ' ' + other_input)
+           @.reset_input_errors(document.getElementById(criteria[1]))
+           return
+         if typeof(other_input) isnt 'undefined' and not isNaN(other_input) and other_input isnt ''
+           other_validation_event = new Event('change')
+           document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
+           @.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1])
+           return
+         else
+           return
    else
      # to be continued
 
