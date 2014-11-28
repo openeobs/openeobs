@@ -756,6 +756,7 @@
       svg.options.controls.time.start = document.getElementById('start_time');
       svg.options.controls.time.end = document.getElementById('end_time');
       svg.options.controls.rangify = document.getElementById('rangify');
+      svg.table.element = '#table';
       svg.data.raw = obs;
       svg.init();
       return svg.draw();

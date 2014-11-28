@@ -133,11 +133,13 @@ class NHMobilePatient extends NHMobile
     context.title = 'NEWS Score'
     svg.focus = focus
     svg.context = context
-    svg.options.controls.date.start = document.getElementById('start_date');
-    svg.options.controls.date.end = document.getElementById('end_date');
-    svg.options.controls.time.start = document.getElementById('start_time');
-    svg.options.controls.time.end = document.getElementById('end_time');
-    svg.options.controls.rangify = document.getElementById('rangify');
+    svg.options.controls.date.start = document.getElementById('start_date')
+    svg.options.controls.date.end = document.getElementById('end_date')
+    svg.options.controls.time.start = document.getElementById('start_time')
+    svg.options.controls.time.end = document.getElementById('end_time')
+    svg.options.controls.rangify = document.getElementById('rangify')
+    svg.table.element = '#table'
+
 
     svg.data.raw = obs
     svg.init()
