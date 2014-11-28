@@ -61,7 +61,8 @@ class NHGraph
           width: 9
         }
         width: 2
-      }
+      },
+      range_padding: 1
     }
     @options = {
       keys: new Array(),
@@ -197,7 +198,7 @@ class NHGraph
     )
     self.parent_obj.parent_obj.options.controls.rangify?.addEventListener('click', (event) ->
       if event.srcElement.checked
-        self.axes.y.scale.domain(self.axes.y.ranged_extent)
+        self.axes.y.scale.domain([self.axes.y.ranged_extent[0]-self.style.range_padding, self.axes.y.ranged_extent[1]+self.style.range_padding])
       else
         self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
       self.redraw(self.parent_obj)
