@@ -58,7 +58,11 @@ class NHGraphLib
     @obj = null
     @context = null
     @focus = null
+    @table = {
+      element: null,
+    }
     self = @
+
     #@init(self)
     #return self
 
@@ -155,7 +159,35 @@ class NHGraphLib
   draw: () ->
     @.context?.draw(@)
     @.focus?.draw(@)
+    if @.table.element?
+      @.draw_table(@)
 
+  draw_table: (self) ->
+     table_el = nh_graphs.select(self.table.element)
+     container = nh_graphs.select('#table-content').append('div')
+     cards = container.selectAll('.card').data(self.data.raw.reverse()).enter().append('div').attr('class','card')
+     header = cards.append('h3').text((d) ->
+       date_to_use = self.date_from_string(d.date_started)
+       return ("0" + date_to_use.getHours()).slice(-2) + ":" + ("0" + date_to_use.getMinutes()).slice(-2) + " " + ("0" + date_to_use.getDate()).slice(-2) + "/" + ("0" + (date_to_use.getMonth() + 1)).slice(-2) + "/" + date_to_use.getFullYear())
+     list = cards.append('table')
+     list.selectAll('tr').data((d) ->
+       key_val =  [{key: key, value: val} for key, val of d when key in ['blood_pressure_systolic', 'blood_pressure_diastolic', 'body_temperature']]
+       console.log(d)
+       console.log(key_val)
+       key_val[0]
+     ).enter().append('tr').html((d) ->
+       text = ''
+       #for item in d
+       if typeof d.value is "object"
+         if d.key is "Oxygen Administration Flag"
+           if d.value.onO2
+             text += '<td>' + d.key + '</td><td> true </td>'
+           else
+             text += '<td>'+ d.key+'</td><td> false </td>'
+       else
+         text += '<td>'+ d.key+'</td><td>' + d.value + '</td>'
+       return text
+     )
 
 if !window.NH
   window.NH = {}

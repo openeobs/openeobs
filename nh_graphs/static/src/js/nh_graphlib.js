@@ -71,6 +71,9 @@
       this.obj = null;
       this.context = null;
       this.focus = null;
+      this.table = {
+        element: null
+      };
       self = this;
     }
 
@@ -186,7 +189,62 @@
       if ((_ref = this.context) != null) {
         _ref.draw(this);
       }
-      return (_ref1 = this.focus) != null ? _ref1.draw(this) : void 0;
+      if ((_ref1 = this.focus) != null) {
+        _ref1.draw(this);
+      }
+      if (this.table.element != null) {
+        return this.draw_table(this);
+      }
+    };
+
+    NHGraphLib.prototype.draw_table = function(self) {
+      var cards, container, header, list, table_el;
+      table_el = nh_graphs.select(self.table.element);
+      container = nh_graphs.select('#table-content').append('div');
+      cards = container.selectAll('.card').data(self.data.raw.reverse()).enter().append('div').attr('class', 'card');
+      header = cards.append('h3').text(function(d) {
+        var date_to_use;
+        date_to_use = self.date_from_string(d.date_started);
+        return ("0" + date_to_use.getHours()).slice(-2) + ":" + ("0" + date_to_use.getMinutes()).slice(-2) + " " + ("0" + date_to_use.getDate()).slice(-2) + "/" + ("0" + (date_to_use.getMonth() + 1)).slice(-2) + "/" + date_to_use.getFullYear();
+      });
+      list = cards.append('table');
+      return list.selectAll('tr').data(function(d) {
+        var key, key_val, val;
+        key_val = [
+          (function() {
+            var _results;
+            _results = [];
+            for (key in d) {
+              val = d[key];
+              if (key === 'blood_pressure_systolic' || key === 'blood_pressure_diastolic' || key === 'body_temperature') {
+                _results.push({
+                  key: key,
+                  value: val
+                });
+              }
+            }
+            return _results;
+          })()
+        ];
+        console.log(d);
+        console.log(key_val);
+        return key_val[0];
+      }).enter().append('tr').html(function(d) {
+        var text;
+        text = '';
+        if (typeof d.value === "object") {
+          if (d.key === "Oxygen Administration Flag") {
+            if (d.value.onO2) {
+              text += '<td>' + d.key + '</td><td> true </td>';
+            } else {
+              text += '<td>' + d.key + '</td><td> false </td>';
+            }
+          }
+        } else {
+          text += '<td>' + d.key + '</td><td>' + d.value + '</td>';
+        }
+        return text;
+      });
     };
 
     return NHGraphLib;
