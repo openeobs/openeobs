@@ -1322,3 +1322,23 @@ text.title {
   font-weight: bold;
   font-size: 2em;
 }
+#controls {
+  position: relative;
+  width: 80%;
+}
+#controls div {
+  display: inline-block;
+  float: left;
+  padding: 0px 5% 0px 0px;
+}
+#controls #range {
+  position: absolute;
+  top: 0px;
+  right: -18%;
+  width: 20%;
+  padding: 0px;
+  text-align: right;
+}
+#controls label {
+  display: inline-block;
+}

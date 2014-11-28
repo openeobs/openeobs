@@ -252,8 +252,9 @@
                                     </label>
                                 </div>
                                 <div id="range">
+
                                     <label for="rangify">
-                                        Ranged values: <input type="checkbox" name="rangify" id="rangify"/>
+                                        <h4>Ranged values</h4> <input type="checkbox" name="rangify" id="rangify"/>
                                     </label>
                                 </div>
                             </div>
