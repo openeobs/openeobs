@@ -176,6 +176,7 @@ class nh_eobs_api(orm.AbstractModel):
         left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
         left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
         where activity.id in (%s)
+        order by deadline asc, activity.id desc
         """ % activity_ids_sql
         activity_values = []
         if activity_ids:
