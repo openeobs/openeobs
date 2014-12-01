@@ -365,7 +365,7 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="arch" type="xml">
                 <form string="Wardboard Prescribe Form View" version="7.0" create="0">
-                    <field name="patient_id" widget="nh_prescribe"/>
+                    <field name="nhs_number" widget="nh_prescribe"/>
                 </form>
             </field>
         </record>

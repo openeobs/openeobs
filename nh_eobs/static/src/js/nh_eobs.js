@@ -527,7 +527,7 @@ openerp.nh_eobs = function (instance) {
         	        });
         	    }
         	});
-        },
+        }
     });
 
     instance.web.form.widgets.add('nh_prescribe', 'instance.nh_eobs.PrescribeWidget');
