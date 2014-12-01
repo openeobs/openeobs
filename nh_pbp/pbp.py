@@ -46,6 +46,18 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'label': 'Sitting Blood Pressure Systolic',
             'min': 1,
             'max': 300,
+            'on_change': [
+                {
+                    'fields': ['systolic_standing', 'diastolic_standing'],
+                    'condition': [['systolic_sitting', '!=', 'False'], ['diastolic_sitting', '!=', 'False']],
+                    'action': 'show'
+                },
+                {
+                    'fields': ['systolic_standing', 'diastolic_standing'],
+                    'condition': ['|', ['systolic_sitting', '=', 'False'], ['diastolic_sitting', '=', 'False']],
+                    'action': 'hide'
+                }
+            ],
             'validation': [['>', 'diastolic_sitting']],
             'initially_hidden': False
         },
@@ -55,6 +67,18 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'label': 'Sitting Blood Pressure Diastolic',
             'min': 1,
             'max': 280,
+            'on_change': [
+                {
+                    'fields': ['systolic_standing', 'diastolic_standing'],
+                    'condition': [['systolic_sitting', '!=', 'False'], ['diastolic_sitting', '!=', 'False']],
+                    'action': 'show'
+                },
+                {
+                    'fields': ['systolic_standing', 'diastolic_standing'],
+                    'condition': ['|', ['systolic_sitting', '=', 'False'], ['diastolic_sitting', '=', 'False']],
+                    'action': 'hide'
+                }
+            ],
             'validation': [['<', 'systolic_sitting']],
             'initially_hidden': False
         },

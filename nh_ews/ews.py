@@ -201,26 +201,56 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'selection': [[False, 'No'], [True, 'Yes']],
             'selection_type': 'boolean',
             'initially_hidden': False,
-            'on_change': {
-                'True': {
-                    'show': ['device_id'],
-                    'hide': []
+            'on_change': [
+                {
+                    'fields': ['device_id'],
+                    'condition': [['oxygen_administration_flag', '=', 'True']],
+                    'action': 'show'
                 },
-                'False': {
-                    'show': [],
-                    'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
-                },
-                'Default': {
-                    'show': [],
-                    'hide': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
+                {
+                    'fields': ['device_id', 'flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap'],
+                    'condition': [['oxygen_administration_flag', '!=', 'True']],
+                    'action': 'hide'
                 }
-            }
+            ],
         },
         {
             'name': 'device_id',
             'type': 'selection',
             'selection_type': 'number',
             'label': 'O2 Device',
+            'on_change': [
+                {
+                    'fields': ['flow_rate', 'concentration'],
+                    'condition': [['device_id', '!=', 'False']],
+                    'action': 'show'
+                },
+                {
+                    'fields': ['flow_rate', 'concentration'],
+                    'condition': [['device_id', '=', 'False']],
+                    'action': 'hide'
+                },
+                {
+                    'fields': ['cpap_peep'],
+                    'condition': [['device_id', '=', 'CPAP']],
+                    'action': 'show'
+                },
+                {
+                    'fields': ['cpap_peep'],
+                    'condition': [['device_id', '!=', 'CPAP']],
+                    'action': 'hide'
+                },
+                {
+                    'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
+                    'condition': [['device_id', '=', 'NIV BiPAP']],
+                    'action': 'show'
+                },
+                {
+                    'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
+                    'condition': [['device_id', '!=', 'NIV BiPAP']],
+                    'action': 'hide'
+                }
+            ],
             'initially_hidden': True
         },
         {
@@ -383,32 +413,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
         # Find O2 devices
         device_ids = device_pool.search(cr, uid, [('category_id.name', '=', 'Supplemental O2')], context=context)
         device_selection = [[d, device_pool.read(cr, uid, d, ['name'], context=context)['name']] for d in device_ids]
-        device_on_change = {}
-        for ds in device_selection:
-            if ds[1] == 'CPAP':
-                device_on_change[str(ds[0])] = {
-                    'show': ['flow_rate', 'concentration', 'cpap_peep'],
-                    'hide': ['niv_backup', 'niv_ipap', 'niv_epap']
-                }
-            elif ds[1] == 'NIV BiPAP':
-                device_on_change[str(ds[0])] = {
-                    'show': ['flow_rate', 'concentration', 'niv_backup', 'niv_ipap', 'niv_epap'],
-                    'hide': ['cpap_peep']
-                }
-            else:
-                device_on_change[str(ds[0])] = {
-                    'show': ['flow_rate', 'concentration'],
-                    'hide': ['cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
-                }
-        device_on_change['Default'] = {
-            'show': [],
-            'hide': ['flow_rate', 'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap', 'niv_epap']
-        }
 
         for field in fd:
             if field['name'] == 'indirect_oxymetry_spo2' and o2target:
                 field['secondary_label'] = o2target
             if field['name'] == 'device_id':
                 field['selection'] = device_selection
-                field['on_change'] = device_on_change
         return fd
