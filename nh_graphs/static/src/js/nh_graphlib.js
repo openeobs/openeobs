@@ -72,7 +72,8 @@
       this.context = null;
       this.focus = null;
       this.table = {
-        element: null
+        element: null,
+        keys: null
       };
       self = this;
     }
@@ -209,39 +210,56 @@
       });
       list = cards.append('table');
       return list.selectAll('tr').data(function(d) {
-        var key, key_val, val;
-        key_val = [
-          (function() {
-            var _results;
-            _results = [];
-            for (key in d) {
-              val = d[key];
-              if (key === 'blood_pressure_systolic' || key === 'blood_pressure_diastolic' || key === 'body_temperature') {
-                _results.push({
-                  key: key,
-                  value: val
-                });
-              }
+        var data, k, key, o, t, v, _i, _j, _len, _len1, _ref, _ref1;
+        data = [];
+        _ref = self.table.keys;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          key = _ref[_i];
+          if (key['keys'].length === 1) {
+            k = key['keys'][0];
+            if (d[k] != null) {
+              data.push({
+                title: key['title'],
+                value: d[k]
+              });
             }
-            return _results;
-          })()
-        ];
-        console.log(d);
-        console.log(key_val);
-        return key_val[0];
+          } else {
+            t = key['title'];
+            v = [];
+            _ref1 = key['keys'];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              o = _ref1[_j];
+              v.push({
+                title: o['title'],
+                value: d[o['keys'][0]]
+              });
+            }
+            data.push({
+              title: t,
+              value: v
+            });
+          }
+        }
+        return data;
       }).enter().append('tr').html(function(d) {
-        var text;
+        var item, sub_text, text, _i, _len, _ref;
         text = '';
-        if (typeof d.value === "object") {
-          if (d.key === "Oxygen Administration Flag") {
-            if (d.value.onO2) {
-              text += '<td>' + d.key + '</td><td> true </td>';
-            } else {
-              text += '<td>' + d.key + '</td><td> false </td>';
+        if (typeof d.value === 'object') {
+          sub_text = '<table>';
+          _ref = d.value;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            item = _ref[_i];
+            if (item.value !== false) {
+              sub_text += '<tr><td>' + item.title + '</td><td>' + item.value + '</td></tr>';
             }
           }
+          sub_text += '</table>';
+          text += '<td>' + d.title + '</td><td>' + sub_text + '</td>';
         } else {
-          text += '<td>' + d.key + '</td><td>' + d.value + '</td>';
+          if (d.value === false) {
+            d.value = '';
+          }
+          text += '<td>' + d.title + '</td><td>' + d.value + '</td>';
         }
         return text;
       });

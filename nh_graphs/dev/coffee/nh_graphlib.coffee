@@ -60,6 +60,7 @@ class NHGraphLib
     @focus = null
     @table = {
       element: null,
+      keys: null
     }
     self = @
 
@@ -171,21 +172,31 @@ class NHGraphLib
        return ("0" + date_to_use.getHours()).slice(-2) + ":" + ("0" + date_to_use.getMinutes()).slice(-2) + " " + ("0" + date_to_use.getDate()).slice(-2) + "/" + ("0" + (date_to_use.getMonth() + 1)).slice(-2) + "/" + date_to_use.getFullYear())
      list = cards.append('table')
      list.selectAll('tr').data((d) ->
-       key_val =  [{key: key, value: val} for key, val of d when key in ['blood_pressure_systolic', 'blood_pressure_diastolic', 'body_temperature']]
-       console.log(d)
-       console.log(key_val)
-       key_val[0]
+       data = []
+       for key in self.table.keys
+         if key['keys'].length is 1
+           k = key['keys'][0]
+           if d[k]?
+             data.push({title: key['title'], value: d[k]})
+         else
+           t = key['title']
+           v = []
+           for o in key['keys']
+             v.push({title: o['title'], value: d[o['keys'][0]]})
+           data.push({title: t, value: v})
+       return data
      ).enter().append('tr').html((d) ->
        text = ''
        #for item in d
-       if typeof d.value is "object"
-         if d.key is "Oxygen Administration Flag"
-           if d.value.onO2
-             text += '<td>' + d.key + '</td><td> true </td>'
-           else
-             text += '<td>'+ d.key+'</td><td> false </td>'
+       if typeof d.value is 'object'
+         sub_text = '<table>'
+         for item in d.value
+           sub_text += '<tr><td>'+item.title+'</td><td>'+item.value+'</td></tr>' if item.value isnt false
+         sub_text += '</table>'
+         text += '<td>'+d.title+'</td><td>'+sub_text+'</td>'
        else
-         text += '<td>'+ d.key+'</td><td>' + d.value + '</td>'
+         d.value = '' if d.value is false
+         text += '<td>'+ d.title+'</td><td>' + d.value + '</td>'
        return text
      )
 
