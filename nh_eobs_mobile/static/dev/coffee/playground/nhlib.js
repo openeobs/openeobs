@@ -757,6 +757,59 @@
       svg.options.controls.time.end = document.getElementById('end_time');
       svg.options.controls.rangify = document.getElementById('rangify');
       svg.table.element = '#table';
+      svg.table.keys = [
+        {
+          title: 'Respiration Rate',
+          keys: ['respiration_rate']
+        }, {
+          title: 'O2 Saturation',
+          keys: ['indirect_oxymetry_spo2']
+        }, {
+          title: 'Body Temperature',
+          keys: ['body_temperature']
+        }, {
+          title: 'Blood Pressure Systolic',
+          keys: ['blood_pressure_systolic']
+        }, {
+          title: 'Blood Pressure Diastolic',
+          keys: ['blood_pressure_diastolic']
+        }, {
+          title: 'Pulse Rate',
+          keys: ['pulse_rate']
+        }, {
+          title: 'AVPU',
+          keys: ['avpu_text']
+        }, {
+          title: 'Patient on Supplmental O2',
+          keys: ['oxygen_administration_flag']
+        }, {
+          title: 'Inspired Oxygen',
+          keys: [
+            {
+              title: 'Flow Rate',
+              keys: ['flow_rate']
+            }, {
+              title: 'Concentration',
+              keys: ['concentration']
+            }, {
+              title: 'Device',
+              keys: ['device_id']
+            }, {
+              title: 'CPAP PEEP',
+              keys: ['cpap_peep']
+            }, {
+              title: 'NIV iPAP',
+              keys: ['niv_ipap']
+            }, {
+              title: 'NIV ePAP',
+              keys: ['niv_epap']
+            }, {
+              title: 'NIV Backup Rate',
+              keys: ['niv_backup']
+            }
+          ]
+        }
+      ];
       svg.data.raw = obs;
       svg.init();
       return svg.draw();
