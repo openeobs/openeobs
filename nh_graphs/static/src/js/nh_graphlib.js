@@ -114,6 +114,9 @@
         container_el = nh_graphs.select(this.el);
         this.style.dimensions.width = (container_el != null ? (_ref = container_el[0]) != null ? _ref[0].clientWidth : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
         this.obj = container_el.append('svg');
+        if (this.data.raw.length < 2 && !this.style.time_padding) {
+          this.style.time_padding = 100;
+        }
         start = this.date_from_string(this.data.raw[0]['date_terminated']);
         end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
         if (!this.style.time_padding) {

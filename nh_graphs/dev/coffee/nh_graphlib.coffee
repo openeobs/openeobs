@@ -97,6 +97,8 @@ class NHGraphLib
       container_el = nh_graphs.select(@.el)
       @.style.dimensions.width = container_el?[0]?[0].clientWidth - (@.style.margin.left + @.style.margin.right)
       @.obj = container_el.append('svg')
+      if @.data.raw.length < 2 and not @.style.time_padding
+        @.style.time_padding = 100
       start = @.date_from_string(@.data.raw[0]['date_terminated'])
       end = @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
       if not @.style.time_padding
