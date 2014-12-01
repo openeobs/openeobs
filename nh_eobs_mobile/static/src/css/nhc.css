@@ -1349,3 +1349,17 @@ text.title {
 #controls label {
   display: inline-block;
 }
+@media screen and (max-width: 480px) {
+  g.brush-container {
+    display: none;
+  }
+}
+@media screen and (min-width: 481px) {
+  g.brush-container {
+    display: inherit;
+  }
+  #controls #start,
+  #controls #end {
+    display: none;
+  }
+}
