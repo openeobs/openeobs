@@ -24,14 +24,17 @@
                                         <img t-att-src="urls['logo']"/>
                                     </li>
                                     <li class="key">
-                                        <a href="pin.html">
+                                        <!-- <a href="pin.html">
                                             <i class="pin-key"></i>
-                                        </a>
+                                        </a> -->
                                     </li>
                                     <li class="user">
                                         <t t-esc="username"/>
                                     </li>
-                                    <li class="bell">22<i class="bell-orange"></i>
+                                    <li class="bell">
+                                        <t t-if="task_count">
+                                            <t t-esc="task_count"/><i class="bell-orange"></i>
+                                        </t>
                                     </li>
                                     <li class="logout">
                                         <a t-att-href="urls['logout']">Logout</a>
