@@ -204,7 +204,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'on_change': [
                 {
                     'fields': ['device_id'],
-                    'condition': [['oxygen_administration_flag', '=', 'True']],
+                    'condition': [['oxygen_administration_flag', '==', 'True']],
                     'action': 'show'
                 },
                 {
@@ -222,32 +222,32 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'on_change': [
                 {
                     'fields': ['flow_rate', 'concentration'],
-                    'condition': [['device_id', '!=', 'False']],
+                    'condition': [['device_id', '!=', '']],
                     'action': 'show'
                 },
                 {
                     'fields': ['flow_rate', 'concentration'],
-                    'condition': [['device_id', '=', 'False']],
+                    'condition': [['device_id', '==', '']],
                     'action': 'hide'
                 },
                 {
                     'fields': ['cpap_peep'],
-                    'condition': [['device_id', '=', 'CPAP']],
+                    'condition': [['device_id', '==', 44]],
                     'action': 'show'
                 },
                 {
                     'fields': ['cpap_peep'],
-                    'condition': [['device_id', '!=', 'CPAP']],
+                    'condition': [['device_id', '!=', 44]],
                     'action': 'hide'
                 },
                 {
                     'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
-                    'condition': [['device_id', '=', 'NIV BiPAP']],
+                    'condition': [['device_id', '==', 45]],
                     'action': 'show'
                 },
                 {
                     'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
-                    'condition': [['device_id', '!=', 'NIV BiPAP']],
+                    'condition': [['device_id', '!=', 45]],
                     'action': 'hide'
                 }
             ],
