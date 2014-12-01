@@ -40,7 +40,8 @@ NHMobileForm = (function(_super) {
         case 'input':
           switch (input.type) {
             case 'number':
-              return input.addEventListener('change', self.validate);
+              input.addEventListener('change', self.validate);
+              return input.addEventListener('change', self.trigger_actions);
             case 'submit':
               return input.addEventListener('click', self.submit);
             case 'reset':
@@ -170,7 +171,7 @@ NHMobileForm = (function(_super) {
   };
 
   NHMobileForm.prototype.trigger_actions = function(event) {
-    var action, condition, conditions, el, field, input, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+    var action, actions, condition, conditions, el, field, input, mode, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
     this.reset_form_timeout(this);
     input = event.srcElement;
     value = input.value;
@@ -189,46 +190,46 @@ NHMobileForm = (function(_super) {
       value = 'Default';
     }
     if (input.getAttribute('data-onchange')) {
-      _ref1 = eval(input.getAttribute('data-onchange'))[0];
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        action = _ref1[_j];
-        _ref2 = action['condition'];
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          condition = _ref2[_k];
-          if (((_ref3 = condition[0]) !== 'True' && _ref3 !== 'False') && typeof condition[0] === 'string') {
+      actions = eval(input.getAttribute('data-onchange'));
+      for (_j = 0, _len1 = actions.length; _j < _len1; _j++) {
+        action = actions[_j];
+        _ref1 = action['condition'];
+        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+          condition = _ref1[_k];
+          if (((_ref2 = condition[0]) !== 'True' && _ref2 !== 'False') && typeof condition[0] === 'string') {
             condition[0] = 'document.getElementById("' + condition[0] + '").value';
           }
-          if (((_ref4 = condition[2]) !== 'True' && _ref4 !== 'False') && typeof condition[2] === 'string' && condition[2] !== '') {
+          if (((_ref3 = condition[2]) !== 'True' && _ref3 !== 'False') && typeof condition[2] === 'string' && condition[2] !== '') {
             condition[2] = 'document.getElementById("' + condition[2] + '").value';
           }
-          if ((_ref5 = condition[2]) === 'True' || _ref5 === 'False' || _ref5 === '') {
+          if ((_ref4 = condition[2]) === 'True' || _ref4 === 'False' || _ref4 === '') {
             condition[2] = "'" + condition[2] + "'";
           }
         }
-        conditions = [
-          (function() {
-            var _l, _len3, _ref6, _results;
-            _ref6 = action['condition'];
-            _results = [];
-            for (_l = 0, _len3 = _ref6.length; _l < _len3; _l++) {
-              condition = _ref6[_l];
-              _results.push(condition.join(' '));
-            }
-            return _results;
-          })()
-        ][0].join(' && ');
+        mode = ' && ';
+        conditions = [];
+        _ref5 = action['condition'];
+        for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
+          condition = _ref5[_l];
+          if (typeof condition === 'object') {
+            conditions.push(condition.join(' '));
+          } else {
+            mode = condition;
+          }
+        }
+        conditions = conditions.join(mode);
         if (eval(conditions)) {
           if (action['action'] === 'hide') {
             _ref6 = action['fields'];
-            for (_l = 0, _len3 = _ref6.length; _l < _len3; _l++) {
-              field = _ref6[_l];
+            for (_m = 0, _len4 = _ref6.length; _m < _len4; _m++) {
+              field = _ref6[_m];
               this.hide_triggered_elements(field);
             }
           }
           if (action['action'] === 'show') {
             _ref7 = action['fields'];
-            for (_m = 0, _len4 = _ref7.length; _m < _len4; _m++) {
-              field = _ref7[_m];
+            for (_n = 0, _len5 = _ref7.length; _n < _len5; _n++) {
+              field = _ref7[_n];
               this.show_triggered_elements(field);
             }
           }
