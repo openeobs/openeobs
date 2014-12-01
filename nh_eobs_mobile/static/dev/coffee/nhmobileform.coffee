@@ -109,11 +109,24 @@ class NHMobileForm extends NHMobile
    if value is ''
      value = 'Default'
    if input.getAttribute('data-onchange')
-     actions = eval(input.getAttribute('data-onchange'))[0]
-     for field in actions[value]?['hide']
-       @.hide_triggered_elements(field)
-     for field in actions[value]?['show']
-       @.show_triggered_elements(field)
+     for action in eval(input.getAttribute('data-onchange'))[0]
+       for condition in action['condition']
+         if condition[0] not in ['True', 'False'] and typeof condition[0] is 'string'
+           condition[0] = 'document.getElementById("'+condition[0]+'").value'
+         if condition[2] not in ['True', 'False'] and typeof condition[2] is 'string' and condition[2] isnt ''
+           condition[2] = 'document.getElementById("'+condition[2]+'").value'
+         if condition[2] in ['True', 'False', '']
+           condition[2] = "'"+condition[2]+"'"
+
+       conditions = [condition.join(' ') for condition in action['condition']][0].join(' && ')
+       if eval(conditions)
+         if action['action'] is 'hide'
+           for field in action['fields']
+            @.hide_triggered_elements(field)
+         if action['action'] is 'show'
+           for field in action['fields']
+            @.show_triggered_elements(field)
+   return
    
  submit: (event) =>
    event.preventDefault()
