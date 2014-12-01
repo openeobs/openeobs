@@ -130,7 +130,7 @@ class NHGraph
     @.axes.x.scale = nh_graphs.time.scale().domain([@.axes.x.min, @.axes.x.max]).range([left_offset, @.style.dimensions.width])
 
     # add xaxis
-    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top").ticks((@.style.dimensions.width/70)) # .tickPadding(@.style.axis_label_text_padding)
+    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top").ticks((@.style.dimensions.width/100)) # .tickPadding(@.style.axis_label_text_padding)
     if not @.style.axis.x.hide
       @.axes.x.obj = @.axes.obj.append("g").attr("class", "x axis").call(@.axes.x.axis)
 

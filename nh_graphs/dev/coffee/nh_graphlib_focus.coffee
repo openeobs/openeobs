@@ -113,7 +113,7 @@ class NHFocus
     #@.axes.x.max = extent[1]
     for graph in @.graphs
       graph.axes.x.scale.domain([extent[0], extent[1]])
-      graph.axes.x.axis.ticks((@.style.dimensions.width/70))
+      graph.axes.x.axis.ticks((@.style.dimensions.width/100))
       graph.axes.x.scale.range([0, @.style.dimensions.width - graph.style.label_width])
       graph.redraw(@)
 

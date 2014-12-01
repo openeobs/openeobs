@@ -141,7 +141,8 @@
             var current_date, dates, new_date;
             current_date = self.focus.axes.x.min;
             dates = event.srcElement.value.split('-');
-            new_date = current_date.setFullYear(dates[0], dates[1], dates[2]);
+            new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
+            self.focus.axes.x.min = new_date;
             return self.focus.redraw([new_date, self.focus.axes.x.max]);
           });
         }
@@ -150,7 +151,8 @@
             var current_date, dates, new_date;
             current_date = self.focus.axes.x.max;
             dates = event.srcElement.value.split('-');
-            new_date = current_date.setFullYear(dates[0], dates[1], dates[2]);
+            new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
+            self.focus.axes.x.max = new_date;
             return self.focus.redraw([self.focus.axes.x.min, new_date]);
           });
         }
@@ -159,7 +161,8 @@
             var current_date, new_time, time;
             current_date = self.focus.axes.x.min;
             time = event.srcElement.value.split(':');
-            new_time = current_date.setHours(time[0], time[1]);
+            new_time = new Date(current_date.setHours(time[0], time[1]));
+            self.focus.axes.x.min = new_time;
             return self.focus.redraw([new_time, self.focus.axes.x.max]);
           });
         }
@@ -168,7 +171,8 @@
             var current_date, new_time, time;
             current_date = self.focus.axes.x.max;
             time = event.srcElement.value.split(':');
-            new_time = current_date.setHours(time[0], time[1]);
+            new_time = new Date(current_date.setHours(time[0], time[1]));
+            self.focus.axes.x.max = new_time;
             return self.focus.redraw([self.focus.axes.x.min, new_time]);
           });
         }
@@ -416,7 +420,7 @@
             }
           }
           self.graph.axes.x.scale.range([0, self.style.dimensions.width - self.graph.style.label_width]);
-          self.graph.axes.x.axis.ticks(self.style.dimensions.width / 70);
+          self.graph.axes.x.axis.ticks(self.style.dimensions.width / 100);
           return self.graph.redraw(this);
         });
       } else {
@@ -573,7 +577,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         graph = _ref[_i];
         graph.axes.x.scale.domain([extent[0], extent[1]]);
-        graph.axes.x.axis.ticks(this.style.dimensions.width / 70);
+        graph.axes.x.axis.ticks(this.style.dimensions.width / 100);
         graph.axes.x.scale.range([0, this.style.dimensions.width - graph.style.label_width]);
         graph.redraw(this);
       }
@@ -739,7 +743,7 @@
       this.axes.x.min = parent_obj.axes.x.min;
       this.axes.x.max = parent_obj.axes.x.max;
       this.axes.x.scale = nh_graphs.time.scale().domain([this.axes.x.min, this.axes.x.max]).range([left_offset, this.style.dimensions.width]);
-      this.axes.x.axis = nh_graphs.svg.axis().scale(this.axes.x.scale).orient("top").ticks(this.style.dimensions.width / 70);
+      this.axes.x.axis = nh_graphs.svg.axis().scale(this.axes.x.scale).orient("top").ticks(this.style.dimensions.width / 100);
       if (!this.style.axis.x.hide) {
         this.axes.x.obj = this.axes.obj.append("g").attr("class", "x axis").call(this.axes.x.axis);
         line_self = this;

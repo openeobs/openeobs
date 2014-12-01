@@ -125,25 +125,29 @@ class NHGraphLib
       @.options.controls.date.start?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.min
         dates = event.srcElement.value.split('-')
-        new_date = current_date.setFullYear(dates[0], dates[1], dates[2])
+        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
+        self.focus.axes.x.min = new_date
         self.focus.redraw([new_date, self.focus.axes.x.max])
       )
       @.options.controls.date.end?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.max
         dates = event.srcElement.value.split('-')
-        new_date = current_date.setFullYear(dates[0], dates[1], dates[2])
+        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
+        self.focus.axes.x.max = new_date
         self.focus.redraw([self.focus.axes.x.min, new_date])
       )
       @.options.controls.time.start?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.min
         time = event.srcElement.value.split(':')
-        new_time = current_date.setHours(time[0], time[1])
+        new_time = new Date(current_date.setHours(time[0], time[1]))
+        self.focus.axes.x.min = new_time
         self.focus.redraw([new_time, self.focus.axes.x.max])
       )
       @.options.controls.time.end?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.max
         time = event.srcElement.value.split(':')
-        new_time = current_date.setHours(time[0], time[1])
+        new_time = new Date(current_date.setHours(time[0], time[1]))
+        self.focus.axes.x.max = new_time
         self.focus.redraw([self.focus.axes.x.min, new_time])
       )
       window.addEventListener('resize', (event) ->
