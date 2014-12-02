@@ -11,7 +11,7 @@
                     <title>Patient Observation Chart for <t t-esc="patient['full_name']"/></title>
                 </head>
                 <body t-att-class="'' if len(ews) > 0 else 'no_obs'">
-                <div class='page'>
+                <div class='page' id="first-page">
                     <div class='v-small-ratio'>
                         <div class='row'>
                             <div class='h-big-ratio left'>
