@@ -1233,7 +1233,7 @@
         return data_to_use;
       }).enter().append('tr').selectAll('td').data(function(d) {
         return d;
-      }).enter().append('td').text(function(d) {
+      }).enter().append('td').html(function(d) {
         return d.value;
       });
     };

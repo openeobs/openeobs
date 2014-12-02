@@ -3,8 +3,9 @@
     <data>
         <template id="assets_backend" name="nh_graphs assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
+                <link href="/nh_graphs/static/src/css/graphs.css" rel="stylesheet"></link>
                 <script type="text/javascript" src="/nh_graphs/static/lib/js/d3.js"></script>
-                <script type="text/javascript" src="/nh_graphs/static/src/js/patient_graph.js"></script>
+                <script type="text/javascript" src="/nh_graphs/static/src/js/nh_graphlib.js"></script>
             </xpath>
         </template>
    </data>
