@@ -44,6 +44,10 @@ text{
     font-size: 6pt !important;
     font-family: DejaVu Sans !important;
 }
+text.title{
+  font-size: 18pt !important;
+    font-weight: bold;
+}
 h1, h2, h3, h4{
     margin-top: 0px;
 }
@@ -214,4 +218,112 @@ td{
 }
 .pbp-data td:first-child{
     padding-left: 5%;
+}
+
+
+/* svg stuff */
+svg .axis path,
+svg .axis line {
+    fill: none;
+    stroke: #262626;
+    shape-rendering: crispEdges;
+}
+svg .axis text {
+    font-family: sans-serif;
+}
+svg .background .green {
+    fill: #ccffcc;
+}
+svg .background .amber {
+    fill: #ffe9c8;
+}
+svg .background .red {
+    fill: #ffcccc;
+}
+svg .background .normal {
+    fill: rgba(0, 0, 0, 0.2);
+    stroke: rgba(0, 0, 0, 0.2);
+}
+svg .background line {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.15);
+    shape-rendering: crispEdges;
+}
+svg .brush {
+    fill: rgba(0, 0, 0, 0.3);
+}
+svg .data path {
+    fill: none;
+    stroke: rgba(40, 40, 40, 0.6);
+    shape-rendering: optimizeSpeed;
+}
+#chart_popup {
+    font-family: sans-serif;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    display: inline-block;
+    padding: 0.5em 1%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 10px;
+    margin-top: -2.2em;
+    margin-left: -1.5%;
+}
+#chart_popup.hidden {
+    display: none;
+}
+
+.nhtable {
+    width: 100%;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+.nhtable thead tr th {
+    text-align: center;
+    font-size: 0.8em;
+    border-bottom: 1px solid #262626;
+    border-left: 1px solid #262626;
+}
+.nhtable thead tr th:first-child {
+    text-align: left;
+    padding-left: 0px;
+    border-left: 0px solid black;
+}
+.nhtable tbody tr:nth-child(even) {
+    background-color: #dddddd;
+}
+.nhtable tbody tr td {
+    padding-left: 1%;
+    padding-right: 1%;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    text-align: center;
+    border-left: 1px solid #262626;
+}
+.nhtable tbody tr td:first-child {
+    text-align: left;
+    padding-left: 0px;
+    border-left: 0px solid black;
+}
+
+#controls{
+    display: inline-block;
+    float: right;
+    width: 120px;
+    position: absolute;
+    right: 10%;
+    top: 4em;
+}
+#controls #range{
+    width: 100%;
+}
+#controls #range label{
+    width: 100%;
+}
+#controls #range label h4{
+    float: left;
+}
+#controls #range label input{
+    float: right;
 }
