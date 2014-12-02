@@ -1,29 +1,15 @@
 body{
-    /*width: 2018px !important;*/
     width: 21cm;
     margin: 0px;
     font-family: DejaVu Sans, sans-serif;
-    /*font-size: 24pt;*/
     font-size: 10pt;
 }
 table,td{
     border: 0px solid white;
 }
-/*@page{
-    size: 21cm 27.7cm;
-    margin-top: 1cm;
-    margin-bottom: 1cm;
-} */
-
 .page{
-    /*padding-left: 70px;
-    padding-right: 130px;
-    padding-bottom: 432px;
-    padding-top: 300px; */
-    /*padding: 1cm;*/
     margin: 0px;
     position: relative;
-    /*height: 27.7cm;*/
     display: inline-block;
     page-break-before: always !important;
     width: 100%;
@@ -40,7 +26,6 @@ table,td{
     display: inline-block;
 }
 text{
-    /*font-size: 18pt !important;*/
     font-size: 6pt !important;
     font-family: DejaVu Sans !important;
 }
@@ -326,4 +311,12 @@ svg .data path {
 }
 #controls #range label input{
     float: right;
+}
+
+
+.nhcontext{
+    background-color: red;
+}
+.nhfocus{
+    background-color: blue;
 }

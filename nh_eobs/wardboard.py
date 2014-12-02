@@ -4,7 +4,7 @@ import logging
 _logger = logging.getLogger(__name__)
 from openerp.addons.nh_activity.activity import except_if
 from openerp import SUPERUSER_ID
-import controllers.visit_report as visit_report
+import openerp.addons.nh_eobs_reports.controllers.visit_report as visit_report
 
 
 class wardboard_swap_beds(orm.TransientModel):
