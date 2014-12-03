@@ -393,63 +393,30 @@ openerp.nh_eobs = function (instance) {
         },
         start: function() {
         	this._super();
+            this.model = new instance.web.Model('nh.eobs.api');
+            var vid = this.view.dataset.context.active_id;
         	var self = this;
 
-            var svg = graph_lib.svg,
-                focus = graph_lib.focus,
-                context = graph_lib.context;
-            svg.focusOnly = false;
 
             if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
                 printing = true;
-                graph_lib.svg.printing = true;
             }
-
-            if(printing){
-                $(".oe_form_sheetbg").attr({"style": "display: inline; background : none;"});
-
-                $(".oe_form_sheet.oe_form_sheet_width").attr({"style" : "display : inline-block;"});
-
-                $(".oe_form_group>.oe_form_group_row:first-child").append($(".oe_form_group>.oe_form_group_row:last-child td:first-child"));
-                $(".oe_form_group>.oe_form_group_row:last-child").remove();
-                $(".oe_form_group>.oe_form_group_row td").attr({"style" : "width: 33%;"});
-
-                $(".oe_title label").remove();
-                $(".oe_title h1:first-child").attr({"style" : "display: inline;"});
-                $(".oe_title h1:first-child .oe_form_field").attr({"style" : "float: left; width: auto;"});
-                $(".oe_title h1:last-child span").attr({"style": "width: auto;"});
-            }
-            focus.graphs = null;
-            focus.graphs = new Array();
-            focus.tables = null;
-            focus.tables = new Array();
-
-            this.model = new instance.web.Model('nh.eobs.api');
-
-            var vid = this.view.dataset.context.active_id;
-            var plotO2 = false;
-            //var start_date = new Date();
-            //var end_date = new Date();
-            //var start_string = start_date.getFullYear()+"-"+("0"+(start_date.getMonth()+1)).slice(-2)+"-"+("0"+start_date.getDate()).slice(-2)+" "+("0"+start_date.getHours()).slice(-2)+":"+("0"+start_date.getMinutes()).slice(-2)+":"+("0"+start_date.getSeconds()).slice(-2)
-            //var end_string = end_date.getFullYear()+"-"+("0"+(end_date.getMonth()+1)).slice(-2)+"-"+("0"+end_date.getDate()).slice(-2)+" "+("0"+end_date.getHours()).slice(-2)+":"+("0"+end_date.getMinutes()).slice(-2)+":"+("0"+end_date.getSeconds()).slice(-2)
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'ews'], {context: this.view.dataset.context}).done(function(records){
                 if(records.length > 0){
-                    records = records.reverse();
-                    context.earliestDate = svg.startParse(records[0].date_terminated);
-                    context.now = svg.startParse(records[records.length-1].date_terminated);
+                    var obs = records.reverse();
 
-                    context.scoreRange = [  {"class": "green",s: 0,e: 5},
-                                {"class": "amber",s: 5,e: 7},
-                                {"class": "red",s: 7,e: 18} ];
                     records.forEach(function(d){
-                        d.date_started = svg.startParse(d.date_terminated);
                         d.body_temperature = d.body_temperature.toFixed(1);
                         if (d.flow_rate > -1){
                             plotO2 = true;
                             d.inspired_oxygen = "";
-                            d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
-                            d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
+                            if(d.flow_rate > -1){
+                                d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
+                            }
+                            if(d.inspired_oxygen > -1){
+                                d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
+                            }
                             if(d.cpap_peep > -1){
                                 d.inspired_oxygen += "CPAP PEEP: " + d.cpap_peep + "<br>";
                             }else if(d.niv_backup > -1){
@@ -459,29 +426,111 @@ openerp.nh_eobs = function (instance) {
                             }
                         }
                         if (d.indirect_oxymetry_spo2) {
-                                d.indirect_oxymetry_spo2_label = d.indirect_oxymetry_spo2 + "%";
+                            d.indirect_oxymetry_spo2_label = d.indirect_oxymetry_spo2 + "%";
                         }
                     });
 
-                    svg.data = records;
-                    focus.graphs.push({key: "respiration_rate",label: "RR",measurement: "/min",max: 60,min: 0,normMax: 20,normMin: 12});
-                    focus.graphs.push({key: "indirect_oxymetry_spo2",label: "Spo2",measurement: "%",max: 100,min: 70,normMax: 100,normMin: 96});
-                    focus.graphs.push({key: "body_temperature",label: "Temp",measurement: "°C",max: 50,min: 15,normMax: 37.1,normMin: 35});
-                    focus.graphs.push({key: "pulse_rate",label: "HR",measurement: "/min",max: 200,min: 30,normMax: 100,normMin: 50});
-                    focus.graphs.push({key: "blood_pressure",label: "BP",measurement: "mmHg",max: 260,min: 30,normMax: 150,normMin: 50});
-                    focus.tables.push({
-                        key: "avpu_text",
-                        label: "AVPU"
-                    });
-                    focus.tables.push({
-                        key: "indirect_oxymetry_spo2_label",
-                        label: "Oxygen saturation"
-                    });
-                    graph_lib.initGraph(18);
-                    if (plotO2==true){
-                        focus.tables.push({key:"inspired_oxygen", label:"Inspired oxygen"});
-                    }
-                    graph_lib.initTable();
+                    var svg = new window.NH.NHGraphLib('#chart');
+                    var resp_rate_graph = new window.NH.NHGraph();
+                    resp_rate_graph.options.keys = ['respiration_rate'];
+                    resp_rate_graph.options.label = 'RR';
+                    resp_rate_graph.options.measurement = '/min';
+                    resp_rate_graph.axes.y.min = 0;
+                    resp_rate_graph.axes.y.max = 60;
+                    resp_rate_graph.options.normal.min = 12;
+                    resp_rate_graph.options.normal.max = 20;
+                    resp_rate_graph.style.dimensions.height = 250;
+                    resp_rate_graph.style.data_style = 'linear';
+                    resp_rate_graph.style.label_width = 60;
+
+                    var oxy_graph = new window.NH.NHGraph()
+                    oxy_graph.options.keys = ['indirect_oxymetry_spo2'];
+                    oxy_graph.options.label = 'Spo2';
+                    oxy_graph.options.measurement = '%';
+                    oxy_graph.axes.y.min = 70;
+                    oxy_graph.axes.y.max = 100;
+                    oxy_graph.options.normal.min = 96;
+                    oxy_graph.options.normal.max = 100;
+                    oxy_graph.style.dimensions.height = 200;
+                    oxy_graph.style.axis.x.hide = true;
+                    oxy_graph.style.data_style = 'linear';
+                    oxy_graph.style.label_width = 60;
+
+                    var temp_graph = new window.NH.NHGraph();
+                    temp_graph.options.keys = ['body_temperature'];
+                    temp_graph.options.label = 'Temp';
+                    temp_graph.options.measurement = '°C';
+                    temp_graph.axes.y.min = 15;
+                    temp_graph.axes.y.max = 50;
+                    temp_graph.options.normal.min = 35;
+                    temp_graph.options.normal.max = 37.1;
+                    temp_graph.style.dimensions.height = 200;
+                    temp_graph.style.axis.x.hide = true;
+                    temp_graph.style.data_style = 'linear';
+                    temp_graph.style.label_width = 60;
+
+                    var pulse_graph = new window.NH.NHGraph();
+                    pulse_graph.options.keys = ['pulse_rate'];
+                    pulse_graph.options.label = 'HR';
+                    pulse_graph.options.measurement = '/min';
+                    pulse_graph.axes.y.min = 30;
+                    pulse_graph.axes.y.max = 200;
+                    pulse_graph.options.normal.min = 50;
+                    pulse_graph.options.normal.max = 100;
+                    pulse_graph.style.dimensions.height = 200;
+                    pulse_graph.style.axis.x.hide = true;
+                    pulse_graph.style.data_style = 'linear';
+                    pulse_graph.style.label_width = 60;
+
+                    var bp_graph = new window.NH.NHGraph();
+                    bp_graph.options.keys = ['blood_pressure_systolic', 'blood_pressure_diastolic'];
+                    bp_graph.options.label = 'BP';
+                    bp_graph.options.measurement = 'mmHg';
+                    bp_graph.axes.y.min = 30;
+                    bp_graph.axes.y.max = 260;
+                    bp_graph.options.normal.min = 150;
+                    bp_graph.options.normal.max = 151;
+                    bp_graph.style.dimensions.height = 200;
+                    bp_graph.style.axis.x.hide = true;
+                    bp_graph.style.data_style = 'range';
+                    bp_graph.style.label_width = 60;
+
+                    var score_graph = new window.NH.NHGraph();
+                    score_graph.options.keys = ['score'];
+                    score_graph.style.dimensions.height = 200;
+                    score_graph.style.data_style = 'stepped';
+                    score_graph.axes.y.min = 0;
+                    score_graph.axes.y.max = 22;
+                    score_graph.drawables.background.data =  [
+                        {"class": "green",s: 1, e: 4},
+                        {"class": "amber",s: 4,e: 6},
+                        {"class": "red",s: 6,e: 22}
+                    ];
+                    score_graph.style.label_width = 60;
+
+
+                    var tabular_obs = new window.NH.NHTable();
+                    tabular_obs.keys = ['avpu_text', 'oxygen_administration_flag', 'inspired_oxygen'];
+                    tabular_obs.title = 'Tabular values';
+                    var focus = new window.NH.NHFocus();
+                    var context = new window.NH.NHContext();
+                    focus.graphs.push(resp_rate_graph);
+                    focus.graphs.push(oxy_graph);
+                    focus.graphs.push(temp_graph);
+                    focus.graphs.push(pulse_graph);
+                    focus.graphs.push(bp_graph);
+                    focus.tables.push(tabular_obs);
+                    focus.title = 'Individual values';
+                    focus.style.padding.right = 0;
+                    context.graph = score_graph;
+                    context.title = 'NEWS Score';
+                    svg.focus = focus;
+                    svg.context = context;
+                    svg.options.controls.rangify = document.getElementById('rangify');
+                    svg.data.raw = obs;
+                    svg.init();
+                    svg.draw();
+
                     if(printing){
                         if (typeof(timing4) != 'undefined'){
                             clearInterval(timing4);
@@ -495,14 +544,12 @@ openerp.nh_eobs = function (instance) {
                             }
                         }, 1000);
                     }
-                    /*printing = false;
-                    graph_lib.svg.printing = false;*/
 
                 }else{
                     d3.select(svg.el).append("text").text("No data available for this patient");
                 }
             });
-        },
+        }
     });
 
     instance.web.form.widgets.add('nh_ewschart', 'instance.nh_eobs.EwsChartWidget');

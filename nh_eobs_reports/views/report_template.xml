@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <template t-name="nh_eobs.visit_report_base" name="Base layout for visit report">&lt;!DOCTYPE html&gt;
+        <template t-name="nh_eobs_reports.visit_report_base" name="Base layout for visit report">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
                     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-                    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-                    <script src="/visit_report/src/js/d3.js"></script>
-                    <link href="/visit_report/src/css/report.css" rel="stylesheet"/>
+                    <script type="text/javascript"><t t-raw="d3"/></script>
+                    <script type="text/javascript"><t t-raw="graph_lib"/></script>
+                    <style type="text/css"><t t-raw="style"/></style>
                     <title>Patient Observation Chart for <t t-esc="patient['full_name']"/></title>
                 </head>
                 <body t-att-class="'' if len(ews) > 0 else 'no_obs'">
-                <div class='page'>
+                <div class='page' id="first-page">
                     <div class='v-small-ratio'>
                         <div class='row'>
                             <div class='h-big-ratio left'>
@@ -93,26 +93,16 @@
                         </div>
                     </div>
                     <div class='v-big-ratio'>
-                        <script src="/visit_report/src/js/graph_lib.js"></script>
                         <t t-if="ews_code">
-                            <h3>Score</h3>
-                            <div id="contextChart" class="chart"></div>
-                            <h3 id="focusTitle">Individual values</h3>
-                            <div id="focusChart" class="chart"></div>
-                            <script type="text/javascript"><t t-raw="ews_code"/></script>
-                            <script type="text/javascript"><t t-raw="phantom_code"/></script>
+                            <div id="chart"></div>
+
                         </t>
                     </div>
                 </div>
                 <div class="full-page page">
                     <t t-if="ews_code">
                         <div class="row">
-                            <div class="table-wrapper" id="the_unplottables">
-                                <h3>Tabular EWS Values</h3>
-                                <div class="table-wrapper"><table id="chartTable"></table>
-                                </div>
-                            </div>
-                            <script type="text/javascript">graph_lib.initTable();</script>
+                            <div id="table">  </div>
                             <p></p>
                         </div>
                     </t>
@@ -292,6 +282,10 @@
                         </div>
                     </t>
                 </div>
+                <t t-if="ews_code">
+                    <script type="text/javascript"><t t-raw="ews_code"/></script>
+                    <script type="text/javascript"><t t-raw="phantom_code"/></script>
+                </t>
             </body>
             </html>
         </template>

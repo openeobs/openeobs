@@ -5,7 +5,6 @@ import base_extension
 import wizard
 import userboard
 import overdue
-import controllers
 import api
 import policy
 import api_demo

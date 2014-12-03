@@ -19,7 +19,6 @@
              'views/overdue_view.xml',
              'views/views.xml',
              'views/menuitem.xml',
-             'views/report_template.xml',
              'security/ir.model.access.csv'],
     'qweb': ['static/src/xml/nh_eobs.xml'],
     'application': True,
