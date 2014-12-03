@@ -264,7 +264,7 @@
           text += '<td>' + d.title + '</td><td>' + sub_text + '</td>';
         } else {
           if (d.value === false) {
-            d.value = '';
+            d.value = 'False';
           }
           text += '<td>' + d.title + '</td><td>' + d.value + '</td>';
         }
@@ -732,7 +732,7 @@
     };
 
     NHGraph.prototype.init = function(parent_obj) {
-      var left_offset, line_self, self, top_offset, _ref;
+      var key, left_offset, line_self, ob, self, top_offset, values, _i, _len, _ref, _ref1;
       this.parent_obj = parent_obj;
       this.obj = parent_obj.obj.append('g');
       this.obj.attr('class', 'nhgraph');
@@ -776,23 +776,28 @@
         this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
       }
       self = this;
-      this.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, function(d) {
-        var key;
-        if (self.options.keys.length > 1) {
-          return ((function() {
-            var _i, _len, _ref, _results;
-            _ref = self.options.keys;
+      if (self.options.keys.length > 1) {
+        values = [];
+        _ref = self.parent_obj.parent_obj.data.raw;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          ob = _ref[_i];
+          values.push((function() {
+            var _j, _len1, _ref1, _results;
+            _ref1 = self.options.keys;
             _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              key = _ref[_i];
-              _results.push(d[key]);
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              key = _ref1[_j];
+              _results.push(ob[key]);
             }
             return _results;
-          })()).min();
-        } else {
-          return d[self.options.keys[0]];
+          })());
         }
-      });
+        this.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values));
+      } else {
+        this.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, function(d) {
+          return d[self.options.keys[0]];
+        });
+      }
       if (this.options.label != null) {
         this.drawables.background.obj.append('text').text(this.options.label).attr({
           'x': this.style.dimensions.width + this.style.label_text_height,
@@ -815,16 +820,16 @@
         });
       }
       window.addEventListener('graph_resize', function(event) {
-        var _ref;
+        var _ref1;
         self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right)) - this.style.label_width;
         self.obj.attr('width', self.style.dimensions.width);
-        if ((_ref = self.axes.x.scale) != null) {
-          _ref.range()[1] = self.style.dimensions.width;
+        if ((_ref1 = self.axes.x.scale) != null) {
+          _ref1.range()[1] = self.style.dimensions.width;
         }
         return self.redraw(self.parent_obj);
       });
-      if ((_ref = self.parent_obj.parent_obj.options.controls.rangify) != null) {
-        _ref.addEventListener('click', function(event) {
+      if ((_ref1 = self.parent_obj.parent_obj.options.controls.rangify) != null) {
+        _ref1.addEventListener('click', function(event) {
           if (event.srcElement.checked) {
             self.axes.y.scale.domain([self.axes.y.ranged_extent[0] - self.style.range_padding, self.axes.y.ranged_extent[1] + self.style.range_padding]);
           } else {

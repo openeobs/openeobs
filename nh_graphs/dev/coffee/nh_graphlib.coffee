@@ -201,7 +201,7 @@ class NHGraphLib
          sub_text += '</table>'
          text += '<td>'+d.title+'</td><td>'+sub_text+'</td>'
        else
-         d.value = '' if d.value is false
+         d.value = 'False' if d.value is false
          text += '<td>'+ d.title+'</td><td>' + d.value + '</td>'
        return text
      )

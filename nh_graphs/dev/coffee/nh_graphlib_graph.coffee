@@ -163,12 +163,16 @@ class NHGraph
       @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis').call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
     self = @
-    @.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
-      if self.options.keys.length>1
-        return (d[key] for key in self.options.keys).min()
-      else
+    if self.options.keys.length>1
+      values = []
+      for ob in self.parent_obj.parent_obj.data.raw
+        values.push(ob[key] for key in self.options.keys)
+      @.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values))
+    else
+      @.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
         return d[self.options.keys[0]]
-    )
+      )
+
 
     if @.options.label?
       @.drawables.background.obj.append('text').text(@.options.label).attr({
