@@ -1020,6 +1020,7 @@
 
     function NHMobileFormLoz() {
       this.show_triggered_elements = __bind(this.show_triggered_elements, this);
+      this.hide_triggered_elements = __bind(this.hide_triggered_elements, this);
       this.add_input_errors = __bind(this.add_input_errors, this);
       this.reset_input_errors = __bind(this.reset_input_errors, this);
       this.submit_observation = __bind(this.submit_observation, this);
@@ -1098,6 +1099,14 @@
       input.classList.add('error');
       error_el.innerHTML = '<label for="' + input.name + '" class="error">' + error_string + '</label>';
       return container_el.appendChild(error_el);
+    };
+
+    NHMobileFormLoz.prototype.hide_triggered_elements = function(field) {
+      var el, inp;
+      el = document.getElementById('parent_' + field);
+      el.style.display = 'none';
+      inp = document.getElementById(field);
+      return inp.classList.add('exclude');
     };
 
     NHMobileFormLoz.prototype.show_triggered_elements = function(field) {
