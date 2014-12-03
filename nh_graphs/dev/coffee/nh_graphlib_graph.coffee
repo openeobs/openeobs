@@ -283,8 +283,9 @@ class NHGraph
           return self.axes.y.scale(d[self.options.keys[0]])
         )
 
-        if self.parent_obj.parent_obj.data.raw.length > 2
+        if self.parent_obj.parent_obj.data.raw.length > 1
           self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")").attr("class", "path");
+
         self.drawables.data.selectAll(".point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
             if d.none_values is "[]"

@@ -120,7 +120,7 @@
         start = this.date_from_string(this.data.raw[0]['date_terminated']);
         end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
         if (!this.style.time_padding) {
-          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 1000;
+          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 500;
         }
         start.setMinutes(start.getMinutes() - this.style.time_padding);
         this.data.extent.start = start;
@@ -909,7 +909,7 @@
           }).y(function(d) {
             return self.axes.y.scale(d[self.options.keys[0]]);
           });
-          if (self.parent_obj.parent_obj.data.raw.length > 2) {
+          if (self.parent_obj.parent_obj.data.raw.length > 1) {
             self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
           }
           self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {

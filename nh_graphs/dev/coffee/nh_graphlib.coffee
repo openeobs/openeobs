@@ -102,7 +102,7 @@ class NHGraphLib
       start = @.date_from_string(@.data.raw[0]['date_terminated'])
       end = @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
       if not @.style.time_padding
-        @.style.time_padding = ((end-start)/@.style.dimensions.width)/1000
+        @.style.time_padding = ((end-start)/@.style.dimensions.width)/500
       start.setMinutes(start.getMinutes()-@.style.time_padding)
       @.data.extent.start = start
       end.setMinutes(end.getMinutes()+@.style.time_padding)
