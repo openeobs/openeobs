@@ -47,10 +47,10 @@ i {
 
     content: "\f0f3";
     color: #4491ce;
-    font-size:1.5em;
+    font-size:1.9em;
     z-index: -1;
-    margin-top:-0.75em;
-    margin-left:-20px;
+    margin-top:-0.72em;
+    margin-left:-30px;
     position:absolute;
 
 }
@@ -129,7 +129,7 @@ i {
 .score-up:before{
 
     content: "\f0d8";
-    color: #cb6544;
+    color: #848282    ;
     font-size:3em;
     margin-right:-0.4em;
     padding-left:1%;
@@ -139,7 +139,7 @@ i {
 .score-mid:before{
 
     content: "\f0da";
-    color: #cea145;
+    color: #848282    ;
     font-size:3em;
     padding-left:8%;
 
@@ -148,7 +148,7 @@ i {
 .score-down:before{
 
     content: "\f0d7";
-    color: #28754d;
+    color: #848282    ;
     font-size:3em;
     margin-right:-0.4em;
     padding-left:1%;
@@ -160,7 +160,7 @@ i {
     content: "\f068";
 
 
-    color: #9b9b9b;
+    color: #848282    ;
     font-size:2em;
     margin-right:-0.4em;
     padding-left:1%;
@@ -257,7 +257,7 @@ li.user {
     font-size:1.2em;
     /* word-wrap: break-word; */
     line-height: 2.9em;
-    width: 40%;
+    width: 25%;
     /* padding-left:5%; */
     /* padding-right:2%; */
     text-align: center;
@@ -269,6 +269,7 @@ li.user {
 li.bell {
     position:relative;
     z-index: 2;
+    margin-left: 5%;
     margin-top: 0.2em;
     color: #FFFFFF;
     font-weight:bold;
@@ -494,7 +495,7 @@ li.logout a {
 
 .task-name {
 
-    width: 75%;
+    width: 65%;
     overflow:auto;
     float:left;
 
@@ -526,6 +527,8 @@ li.logout a {
     border-right-color: #cb6544;
     border-right-style: solid;
     border-right-width: 1px;
+
+    min-height:1.65em;
 
 }
 
@@ -727,6 +730,8 @@ li.logout a {
     border-right-style: solid;
     border-right-width: 1px;
 
+    min-height:1.65em;
+
 
 }
 .due-yellow {
@@ -799,6 +804,8 @@ li.logout a {
     border-right-color: #297950;
     border-right-style: solid;
     border-right-width: 1px;
+
+    min-height:1.65em;
 
 
 }
@@ -878,6 +885,8 @@ li.logout a {
     border-right-color: #c3c3c3;
     border-right-style: solid;
     border-right-width: 1px;
+
+    min-height:1.65em;
 
 }
 
@@ -3421,3 +3430,20 @@ svg .data path {
     border-left: 0px solid black;
 }
 
+/*larger screen */
+
+@media (min-width : 1000px) {
+
+.clockspace-white, .clockspace-green, .clockspace-orange, .clockspace-yellow {
+
+width:26.2%
+
+}
+
+.task-time-white, .task-time-green, .task-time-orange, .task-time-yellow {
+
+width:26.76%;
+
+}
+
+}
