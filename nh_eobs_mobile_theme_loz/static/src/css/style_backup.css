@@ -96,7 +96,7 @@ i {
 
     content: "\f017";
     color: #89402e;
-    font-size:3.2em;
+    font-size:3.5em;
 
 }
 
@@ -104,7 +104,7 @@ i {
 
     content: "\f017";
     color: #b28832;
-    font-size:3.2em;
+    font-size:3.5em;
 
 }
 
@@ -112,7 +112,7 @@ i {
 
     content: "\f017";
     color: #277e51;
-    font-size:3.2em;
+    font-size:3.5em;
 
 }
 
@@ -424,7 +424,6 @@ li.logout a {
     /* padding-left: 2%; */
     /* margin-left: 2%; */
     color: black;
-    text-decoration:none;
 }
 
 .row-one.orange {
@@ -461,7 +460,7 @@ li.logout a {
     background-color: #f0f0f0;
 
 
-    margin-top: -0.3em;
+    margin-top: -0.2em;
 
 }
 
@@ -494,7 +493,7 @@ li.logout a {
 
 .task-name {
 
-    width: 75%;
+    width: 66%;
     overflow:auto;
     float:left;
 
@@ -509,13 +508,9 @@ li.logout a {
     color: #ffffff;
     font-weight: 400;
     font-size: 1.2em;
-
-
-    width: 73.75%;
+    width: 73.2%;
     line-height: 2.2em;
     float: left;
-
-
     border-bottom-color: #cb6544;
     border-bottom-style: solid;
     border-bottom-width: 2px;
@@ -556,8 +551,8 @@ li.logout a {
 
     width: 26%;
 
-    margin-top:0.8em;
-    font-size:1.3em;
+    margin-top:0.7em;
+    font-size:1.2em;
 
     -webkit-border-top-right-radius: 10px;
     background-color: #f97e57;
@@ -679,11 +674,9 @@ li.logout a {
     /* margin-top: 1em; */
     text-align: center;
     background-color: #f97e57;
-
-
     border-left-color: #cb6544;
     border-left-style: solid;
-    border-left-width: 1px;
+    border-left-width: 1px
 
 }
 
@@ -711,7 +704,7 @@ li.logout a {
     color: #0c0c0c;
     font-weight: 400;
     font-size: 1.2em;
-    width: 73.75%;
+    width: 73.2%;
     line-height: 2.2em;
     /* padding-left: 1%; */
     float: left;
@@ -738,7 +731,7 @@ li.logout a {
     width: 26%;
 
     margin-top:0.7em;
-    font-size:1.3em;
+    font-size:1.2em;
 
     -webkit-border-top-right-radius: 10px;
     background-color: #f5bf52;
@@ -756,7 +749,7 @@ li.logout a {
     background-color: #f5bf52;
     border-left-color: #cea145;
     border-left-style: solid;
-    border-left-width: 1px;
+    border-left-width: 1px
 
 }
 
@@ -786,7 +779,7 @@ li.logout a {
     color: #0c0c0c;
     font-weight: 400;
     font-size: 1.2em;
-    width: 73.75%;
+    width: 73.2%;
     line-height: 2.2em;
     float: left;
     border-bottom-color: #297950;
@@ -828,9 +821,9 @@ li.logout a {
     /* margin-top: 1em; */
     text-align: center;
     background-color: #3cb878;
-    border-left-color: #297950;
+    border-left-color: #9bb795;
     border-left-style: solid;
-    border-left-width: 1px;
+    border-left-width: 1px
 }
 
 
@@ -842,7 +835,7 @@ li.logout a {
     float: right;
     text-align: center;
     background-color: #3cb878;
-    border-left-color: #297950;
+    border-left-color: #9bb795;
     border-left-style: solid;
     border-left-width: 1px;
     border-bottom-right-radius: 10px;
@@ -891,7 +884,7 @@ li.logout a {
 
     width: 26%;
 
-    margin-top: 0.7em;
+    margin-top: 0.4em;
     font-size:1.2em;
 
     -webkit-border-top-right-radius: 10px;
@@ -915,7 +908,7 @@ li.logout a {
 
     border-left-color: #c3c3c3;
     border-left-style: solid;
-    border-left-width: 1px;
+    border-left-width: 1px
 }
 
 
@@ -977,7 +970,6 @@ li.logout a {
     border-bottom-style: solid;
     border-bottom-width: 2px;
     margin-top: -0.3em;
-    height: 2.5em;
 }
 
 .patient-item:nth-child(odd) .row-two.mypatients{
@@ -1053,9 +1045,7 @@ li.logout a {
     width: 26%;
 
     margin-top:0.7em;
-
-
-    font-size: 1em;
+    font-size:1.2em;
 
     -webkit-border-top-right-radius: 10px;
 
@@ -1064,12 +1054,8 @@ li.logout a {
 .time-patient {
 
     width: 26.6%;
-
-
-    font-size: 1em;
-
-
-    line-height: 2em;
+    font-size: 1.2em;
+    line-height: 1.5em;
     float: right;
     text-align: center;
 
