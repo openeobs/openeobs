@@ -124,7 +124,7 @@ NHMobileForm = (function(_super) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var criteria, input, max, min, other_input, other_validation_event, value, _ref, _ref1;
+    var criteria, input, max, min, other, other_criteria, other_input, value, _ref, _ref1;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement;
@@ -157,9 +157,10 @@ NHMobileForm = (function(_super) {
             return;
           }
           if (typeof other_input !== 'undefined' && !isNaN(other_input) && other_input !== '') {
-            other_validation_event = new Event('change');
-            document.getElementById(criteria[1]).dispatchEvent(other_validation_event);
             this.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1]);
+            other = document.getElementById(criteria[1]);
+            other_criteria = eval(other.getAttribute('data-validation'))[0];
+            this.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1]);
           } else {
 
           }

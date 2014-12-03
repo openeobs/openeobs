@@ -88,9 +88,12 @@ class NHMobileForm extends NHMobile
            @.reset_input_errors(document.getElementById(criteria[1]))
            return
          if typeof(other_input) isnt 'undefined' and not isNaN(other_input) and other_input isnt ''
-           other_validation_event = new Event('change')
-           document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
+           # other_validation_event = new Event('change')
+           # document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
            @.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1])
+           other = document.getElementById(criteria[1])
+           other_criteria = eval(other.getAttribute('data-validation'))[0]
+           @.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1])
            return
          else
            return
