@@ -1175,7 +1175,7 @@ rect.green {
   background-color: #4491ce;
   color: white;
   display: block;
-  width: 90.5%;
+  width: 90%;
   padding: 0.2em 5%;
   margin-top: 0px;
   border-top-left-radius: 5px;
@@ -1191,6 +1191,10 @@ rect.green {
 }
 .card table tr td {
   vertical-align: top;
+}
+.card table tr td table {
+  width: 100%;
+  margin: 0%;
 }
 .patient_obs {
   padding: 0.3em 2%;
@@ -1233,6 +1237,9 @@ rect.green {
 #graph-content {
   display: inline-block;
   width: 100%;
+}
+#table-content {
+  padding-top: 2em;
 }
 /* svg stuff */
 svg .axis path,
@@ -1341,4 +1348,18 @@ text.title {
 }
 #controls label {
   display: inline-block;
+}
+@media screen and (max-width: 480px) {
+  g.brush-container {
+    display: none;
+  }
+}
+@media screen and (min-width: 481px) {
+  g.brush-container {
+    display: inherit;
+  }
+  #controls #start,
+  #controls #end {
+    display: none;
+  }
 }

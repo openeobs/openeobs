@@ -189,13 +189,16 @@ class LozStyleFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFron
         return request.render('nh_eobs_mobile_theme_loz.task_list', qcontext={'items': tasks,
                                                                               'section': 'task',
                                                                               'username': request.session['login'],
-                                                                              'urls': URLS})
+                                                                              'urls': URLS,
+                                                                              'task_count': len(tasks)})
 
     @http.route(URLS['patient_list'], type='http', auth="user")
+
     def get_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.session.uid, request.context
         patient_api = request.registry['nh.eobs.api']
         patients = patient_api.get_patients(cr, uid, [], context=context)
+        tasks = patient_api.get_activities(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
@@ -207,4 +210,5 @@ class LozStyleFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFron
         return request.render('nh_eobs_mobile_theme_loz.patient_list', qcontext={'items': patients,
                                                                                  'section': 'patient',
                                                                                  'username': request.session['login'],
-                                                                                 'urls': URLS})
+                                                                                 'urls': URLS,
+                                                                                 'task_count': len(tasks)})
