@@ -110,10 +110,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             fields.append('null_values')
         res = super(nh_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
         if res:
-            for obs in isinstance(res, (tuple, list)) and res or [res]:
-                for nv in eval(obs['null_values'] or '{}'):
-                    if nv in obs.keys():
-                        obs[nv] = False
             for d in res:
                 for key in d.keys():
                     if key in self._columns and self._columns[key]._type == 'float':
@@ -121,6 +117,10 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                             _logger.warn("You might be reading a wrong float from the DB. Define digits attribute for float columns to avoid this problem.")
                         else:
                             d[key] = round(d[key], self._columns[key].digits[1])
+            for obs in isinstance(res, (tuple, list)) and res or [res]:
+                for nv in eval(obs['null_values'] or '{}'):
+                    if nv in obs.keys():
+                        obs[nv] = False
             res = res[0] if nolist and len(res) > 0 else res
         return res
 
