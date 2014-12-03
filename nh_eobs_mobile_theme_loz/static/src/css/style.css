@@ -240,6 +240,10 @@ margin-left:3%;
 float: left;
 }
 
+li.logo img{
+    width: 112px;
+}
+
 li.key {
 width:5%;
 margin-left:1%;
