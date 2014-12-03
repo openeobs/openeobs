@@ -3295,6 +3295,14 @@ text.title {
     position: relative;
     width: 80%;
 }
+#controls input{
+   font-family: sans-serif;
+    color: #2d2d2d;
+    font-size: 1em;
+    box-shadow: 1px 1px 7px 0px #a6a2a2 inset;
+    border-radius: 5px;
+
+}
 #controls div {
     display: inline-block;
     float: left;
@@ -3412,3 +3420,4 @@ svg .data path {
     padding-left: 0px;
     border-left: 0px solid black;
 }
+
