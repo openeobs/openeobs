@@ -176,7 +176,7 @@
                     <div class="news-desc">
                         <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                     </div>
-                    <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'box exclude' if item['initially_hidden']==True else 'box'"/>
+                    <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'box exclude' if item['initially_hidden']==True else 'box'"  t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
                     <t t-if="'error' in item"><div class="errors"><t t-esc="item['error']"/></div></t>
                 </div>
             </xpath>
@@ -188,22 +188,22 @@
                     <div class="news-desc">
                         <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                     </div>
-                    <t t-if="len(item['selection_options']) &lt; 5">
+                    <t t-if="len(item['selection_options']) &lt; 5 and item['name'] != 'oxygen_administration_flag'">
                         <div class="option-space">
                             <ul class="avpu">
                                 <t t-foreach="item['selection_options']" t-as="option">
                                     <li>
                                         <span class="avpu"><t t-esc="option['label']"/></span>
-                                        <input type="radio" t-att-value="option['value']" t-att-name="item['name']" class="avpu exclude" t-att-data-onchange="'[{0}]'.format(item['on_change']) if 'on_change' in item else ''"/>
+                                        <input type="radio" t-att-value="option['value']" t-att-name="item['name']" t-att-id="item['name']" class="avpu exclude" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''"/>
                                         <span class="avpu selected"><t t-esc="option['label']"/></span>
                                     </li>
                                 </t>
                             </ul>
                         </div>
                     </t>
-                    <t t-if="len(item['selection_options']) >= 5">
+                    <t t-if="len(item['selection_options']) >= 5 or item['name'] == 'oxygen_administration_flag'">
                         <div class="dropdown-space">
-                            <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-onchange="'[{0}]'.format(item['on_change']) if 'on_change' in item else ''">
+                            <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''">
                                 <option value="">Please Select</option>
                                 <t t-foreach="item['selection_options']" t-as="option">
                                     <option t-att-value="option['value']"><t t-esc="option['label']"/></option>

@@ -13,16 +13,17 @@ class NHModal
 
    # create the dialog
    dialog = @create_dialog(self, @id, @title, @content, @options)
+   body = document.getElementsByTagName('body')[0]
    cover = document.createElement('div')
    cover.setAttribute('class', 'cover')
    cover.setAttribute('id', 'cover')
    cover.setAttribute('data-action', 'close')
    cover.setAttribute('data-target', @id)
-   cover.style.height = (el.clientHeight*1.5)+'px'
+   cover.style.height = (body.clientHeight)+'px'
    cover.addEventListener('click', self.handle_button_events)
 
    # append it to the DOM
-   @el.appendChild(cover)
+   body.appendChild(cover)
    @el.appendChild(dialog)
    
    # calculate the size of the modal and adjust
@@ -107,7 +108,7 @@ class NHModal
          event.preventDefault()
          dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'))
          cover = document.getElementById('cover')
-         dialog_id.parentNode.removeChild(cover)
+         document.getElementsByTagName('body')[0].removeChild(cover)
          dialog_id.parentNode.removeChild(dialog_id)
      when 'submit'
          event.preventDefault()
@@ -115,7 +116,7 @@ class NHModal
          document.dispatchEvent submit_event
          dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'))
          cover = document.getElementById('cover')
-         dialog_id.parentNode.removeChild(cover)
+         document.getElementsByTagName('body')[0].removeChild(cover)
          dialog_id.parentNode.removeChild(dialog_id)
      when 'partial_submit'
        event.preventDefault()

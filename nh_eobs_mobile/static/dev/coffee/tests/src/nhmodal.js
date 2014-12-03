@@ -4,7 +4,7 @@ var NHModal,
 
 NHModal = (function() {
   function NHModal(id, title, content, options, popupTime, el) {
-    var cover, dialog, self;
+    var body, cover, dialog, self;
     this.id = id;
     this.title = title;
     this.content = content;
@@ -16,14 +16,15 @@ NHModal = (function() {
     this.create_dialog = __bind(this.create_dialog, this);
     self = this;
     dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
+    body = document.getElementsByTagName('body')[0];
     cover = document.createElement('div');
     cover.setAttribute('class', 'cover');
     cover.setAttribute('id', 'cover');
     cover.setAttribute('data-action', 'close');
     cover.setAttribute('data-target', this.id);
-    cover.style.height = (el.clientHeight * 1.5) + 'px';
+    cover.style.height = body.clientHeight + 'px';
     cover.addEventListener('click', self.handle_button_events);
-    this.el.appendChild(cover);
+    body.appendChild(cover);
     this.el.appendChild(dialog);
     this.calculate_dimensions(dialog, dialog.getElementsByClassName('dialogContent')[0], this.el);
   }
@@ -120,7 +121,7 @@ NHModal = (function() {
         event.preventDefault();
         dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
         cover = document.getElementById('cover');
-        dialog_id.parentNode.removeChild(cover);
+        document.getElementsByTagName('body')[0].removeChild(cover);
         return dialog_id.parentNode.removeChild(dialog_id);
       case 'submit':
         event.preventDefault();
@@ -130,7 +131,7 @@ NHModal = (function() {
         document.dispatchEvent(submit_event);
         dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
         cover = document.getElementById('cover');
-        dialog_id.parentNode.removeChild(cover);
+        document.getElementsByTagName('body')[0].removeChild(cover);
         return dialog_id.parentNode.removeChild(dialog_id);
       case 'partial_submit':
         event.preventDefault();

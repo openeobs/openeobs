@@ -323,7 +323,7 @@
         self.submit_observation(self, form_elements, details.action, self.form.getAttribute('ajax-args'));
         dialog_id = document.getElementById(details.target);
         cover = document.getElementById('cover');
-        dialog_id.parentNode.removeChild(cover);
+        document.getElementsByTagName('body')[0].removeChild(cover);
         return dialog_id.parentNode.removeChild(dialog_id);
       });
       return this.patient_name_el.addEventListener('click', function(event) {
@@ -339,7 +339,7 @@
     };
 
     NHMobileForm.prototype.validate = function(event) {
-      var criteria, input, max, min, other_input, other_validation_event, value, _ref, _ref1;
+      var criteria, input, max, min, other, other_criteria, other_input, value, _ref, _ref1;
       event.preventDefault();
       this.reset_form_timeout(this);
       input = event.srcElement;
@@ -372,9 +372,10 @@
               return;
             }
             if (typeof other_input !== 'undefined' && !isNaN(other_input) && other_input !== '') {
-              other_validation_event = new Event('change');
-              document.getElementById(criteria[1]).dispatchEvent(other_validation_event);
               this.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1]);
+              other = document.getElementById(criteria[1]);
+              other_criteria = eval(other.getAttribute('data-validation'))[0];
+              this.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1]);
             } else {
 
             }
@@ -532,12 +533,12 @@
       return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
         var buttons, data, task, task_list, tasks, title, triggered_tasks, _i, _len, _ref;
         data = server_data[0][0];
-        if (data.status === 3) {
+        if (data && data.status === 3) {
           new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], ['<a href="#" data-action="close" data-target="submit_observation">Cancel</a>', '<a href="#" data-target="submit_observation" data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>'], 0, self.form);
           if ('clinical_risk' in data.score) {
             return document.getElementById('submit_observation').classList.add('clinicalrisk-' + data.score['clinical_risk'].toLowerCase());
           }
-        } else if (data.status === 1) {
+        } else if (data && data.status === 1) {
           triggered_tasks = '';
           buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'];
           if (data.related_tasks.length === 1) {
@@ -555,10 +556,10 @@
           task_list = triggered_tasks ? triggered_tasks : '<p>Observation was submitted</p>';
           title = triggered_tasks ? 'Action required' : 'Observation successfully submitted';
           return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, self.form);
-        } else if (data.status === 4) {
+        } else if (data && data.status === 4) {
           return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', ['<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">Go to My Tasks</a>'], 0, self.form);
         } else {
-          return new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form);
+          return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form);
         }
       });
     };
@@ -862,7 +863,7 @@
 
   NHModal = (function() {
     function NHModal(id, title, content, options, popupTime, el) {
-      var cover, dialog, self;
+      var body, cover, dialog, self;
       this.id = id;
       this.title = title;
       this.content = content;
@@ -874,14 +875,15 @@
       this.create_dialog = __bind(this.create_dialog, this);
       self = this;
       dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
+      body = document.getElementsByTagName('body')[0];
       cover = document.createElement('div');
       cover.setAttribute('class', 'cover');
       cover.setAttribute('id', 'cover');
       cover.setAttribute('data-action', 'close');
       cover.setAttribute('data-target', this.id);
-      cover.style.height = (el.clientHeight * 1.5) + 'px';
+      cover.style.height = body.clientHeight + 'px';
       cover.addEventListener('click', self.handle_button_events);
-      this.el.appendChild(cover);
+      body.appendChild(cover);
       this.el.appendChild(dialog);
       this.calculate_dimensions(dialog, dialog.getElementsByClassName('dialogContent')[0], this.el);
     }
@@ -978,7 +980,7 @@
           event.preventDefault();
           dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
           cover = document.getElementById('cover');
-          dialog_id.parentNode.removeChild(cover);
+          document.getElementsByTagName('body')[0].removeChild(cover);
           return dialog_id.parentNode.removeChild(dialog_id);
         case 'submit':
           event.preventDefault();
@@ -988,7 +990,7 @@
           document.dispatchEvent(submit_event);
           dialog_id = document.getElementById(event.srcElement.getAttribute('data-target'));
           cover = document.getElementById('cover');
-          dialog_id.parentNode.removeChild(cover);
+          document.getElementsByTagName('body')[0].removeChild(cover);
           return dialog_id.parentNode.removeChild(dialog_id);
         case 'partial_submit':
           event.preventDefault();
@@ -1019,6 +1021,7 @@
 
     function NHMobileFormLoz() {
       this.show_triggered_elements = __bind(this.show_triggered_elements, this);
+      this.hide_triggered_elements = __bind(this.hide_triggered_elements, this);
       this.add_input_errors = __bind(this.add_input_errors, this);
       this.reset_input_errors = __bind(this.reset_input_errors, this);
       this.submit_observation = __bind(this.submit_observation, this);
@@ -1046,12 +1049,12 @@
       return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
         var buttons, data, task, task_list, tasks, title, triggered_tasks, _i, _len, _ref;
         data = server_data[0][0];
-        if (data.status === 3) {
+        if (data && data.status === 3) {
           new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], ['<a href="#" data-action="close" data-target="submit_observation">Cancel</a>', '<a href="#" data-target="submit_observation" data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>'], 0, self.form);
           if (__indexOf.call(data.score, 'clinical_risk') >= 0) {
             return document.getElementById('submit_observation').classList.add('clinicalrisk-' + data.score['clinical_risk'].toLowerCase());
           }
-        } else if (data.status === 1) {
+        } else if (data && data.status === 1) {
           triggered_tasks = '';
           buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'];
           if (data.related_tasks.length === 1) {
@@ -1068,11 +1071,11 @@
           }
           task_list = triggered_tasks ? triggered_tasks : '<p>Observation was submitted</p>';
           title = triggered_tasks ? 'Action required' : 'Observation successfully submitted';
-          return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, self.form);
-        } else if (data.status === 4) {
+          return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, document.getElementsByTagName('body')[0]);
+        } else if (data && data.status === 4) {
           return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', ['<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">Go to My Tasks</a>'], 0, self.form);
         } else {
-          return new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form);
+          return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form);
         }
       });
     };
@@ -1097,6 +1100,14 @@
       input.classList.add('error');
       error_el.innerHTML = '<label for="' + input.name + '" class="error">' + error_string + '</label>';
       return container_el.appendChild(error_el);
+    };
+
+    NHMobileFormLoz.prototype.hide_triggered_elements = function(field) {
+      var el, inp;
+      el = document.getElementById('parent_' + field);
+      el.style.display = 'none';
+      inp = document.getElementById(field);
+      return inp.classList.add('exclude');
     };
 
     NHMobileFormLoz.prototype.show_triggered_elements = function(field) {

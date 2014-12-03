@@ -50,7 +50,7 @@ class NHMobileForm extends NHMobile
      self.submit_observation(self, form_elements, details.action, self.form.getAttribute('ajax-args'))
      dialog_id = document.getElementById(details.target)
      cover = document.getElementById('cover')
-     dialog_id.parentNode.removeChild(cover)
+     document.getElementsByTagName('body')[0].removeChild(cover)
      dialog_id.parentNode.removeChild(dialog_id)
 
    @patient_name_el.addEventListener 'click', (event) ->
@@ -88,9 +88,12 @@ class NHMobileForm extends NHMobile
            @.reset_input_errors(document.getElementById(criteria[1]))
            return
          if typeof(other_input) isnt 'undefined' and not isNaN(other_input) and other_input isnt ''
-           other_validation_event = new Event('change')
-           document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
+           # other_validation_event = new Event('change')
+           # document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
            @.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1])
+           other = document.getElementById(criteria[1])
+           other_criteria = eval(other.getAttribute('data-validation'))[0]
+           @.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1])
            return
          else
            return
@@ -169,11 +172,11 @@ class NHMobileForm extends NHMobile
    url = @.urls[endpoint].apply(this, args.split(','))
    Promise.when(@call_resource(url, serialised_string)).then (server_data) ->
      data = server_data[0][0]
-     if data.status is 3
+     if data and data.status is 3
        new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], ['<a href="#" data-action="close" data-target="submit_observation">Cancel</a>', '<a href="#" data-target="submit_observation" data-action="submit" data-ajax-action="'+data.modal_vals['next_action']+'">Submit</a>'], 0, self.form)
        if 'clinical_risk' of data.score
          document.getElementById('submit_observation').classList.add('clinicalrisk-'+data.score['clinical_risk'].toLowerCase())
-     else if data.status is 1
+     else if data and data.status is 1
        triggered_tasks = ''
        buttons = ['<a href="'+self.urls['task_list']().url+'" data-action="confirm">Go to My Tasks</a>']
        if data.related_tasks.length is 1
@@ -187,10 +190,10 @@ class NHMobileForm extends NHMobile
        task_list = if triggered_tasks then triggered_tasks else '<p>Observation was submitted</p>'
        title = if triggered_tasks then 'Action required' else 'Observation successfully submitted'
        new window.NH.NHModal('submit_success', title , task_list, buttons, 0, self.form)
-     else if data.status is 4
+     else if data and data.status is 4
        new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', ['<a href="'+self.urls['task_list']().url+'" data-action="confirm" data-target="cancel_success">Go to My Tasks</a>'], 0, self.form)
      else
-       new window.NH.NHModal('submit_error', 'Error submitting observation', data.error, ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form)
+       new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', ['<a href="#" data-action="close" data-target="submit_error">Cancel</a>'], 0, self.form)
 
  handle_timeout: (self, id) =>
    Promise.when(self.call_resource(self.urls['json_cancel_take_task'](id))).then (server_data) ->

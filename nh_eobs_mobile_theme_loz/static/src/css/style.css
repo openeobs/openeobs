@@ -1894,10 +1894,10 @@ margin-top:1em;
 
 position:absolute;
 z-index:101;
-left:40%;
+left:20%;
 
 background-color: #fdf39c;
-width: 300px;
+width: 60%;
 padding: 0 2% 1em 2%;
 
 box-shadow:0px 2px 0px #1f1f1f;
@@ -1954,7 +1954,7 @@ text-decoration: none;
 
 z-index:1;
 
-width:96%;
+width:73%;
 height:1.5em;
 
 text-shadow: 0px 1px 1px #5d5f63;
@@ -1964,7 +1964,7 @@ border-color: #e6e6e6;
 border-radius: 5px;
 
 box-shadow:0px 2px 0px #7f7f7f;
-
+display: inline-block;
 }
 
 #patient_info .options{
@@ -2064,6 +2064,8 @@ box-shadow:0px 2px 0px #7f7f7f;
     box-shadow:0px 2px 0px #7f7f7f;
     text-align: left;
     padding: 0.5em 5%;
+    display: inline;
+    width: 90% !important;
 }
 
 .dialogContent .rightContent a{
