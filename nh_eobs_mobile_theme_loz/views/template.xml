@@ -121,7 +121,7 @@
                 <div class="news-patient-bar">
                     <div class="news-title"><t t-esc="name"/></div>
                     <div class="news-name" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/></div>
-                    <div class="info-news" t-att-patient-id="form['patient-id']" id="patientName"><a href="#"><i class="info"></i></a></div>
+                    <div class="info-news" t-att-patient-id="form['patient-id']" id="patientName"><a href="#"><i class="info" t-att-patient-id="form['patient-id']"></i></a></div>
                 </div>
             </xpath>
         </template>
