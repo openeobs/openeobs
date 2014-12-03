@@ -49,12 +49,12 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'on_change': [
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': [['systolic_sitting', '!=', 'False'], ['diastolic_sitting', '!=', 'False']],
+                    'condition': [['systolic_sitting', '!=', ''], ['diastolic_sitting', '!=', '']],
                     'action': 'show'
                 },
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': ['|', ['systolic_sitting', '=', 'False'], ['diastolic_sitting', '=', 'False']],
+                    'condition': ['||', ['systolic_sitting', '==', ''], ['diastolic_sitting', '==', '']],
                     'action': 'hide'
                 }
             ],
@@ -70,12 +70,12 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'on_change': [
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': [['systolic_sitting', '!=', 'False'], ['diastolic_sitting', '!=', 'False']],
+                    'condition': [['systolic_sitting', '!=', ''], ['diastolic_sitting', '!=', '']],
                     'action': 'show'
                 },
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': ['|', ['systolic_sitting', '=', 'False'], ['diastolic_sitting', '=', 'False']],
+                    'condition': ['||', ['systolic_sitting', '==', ''], ['diastolic_sitting', '==', '']],
                     'action': 'hide'
                 }
             ],
