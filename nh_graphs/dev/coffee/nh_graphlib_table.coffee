@@ -63,7 +63,7 @@ class NHTable
     )
     .enter()
     .append('td')
-    .text((d) -> d.value)
+    .html((d) -> d.value)
     return
 
   redraw: (parent_obj) =>

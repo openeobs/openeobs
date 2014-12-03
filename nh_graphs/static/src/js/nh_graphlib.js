@@ -72,7 +72,8 @@
       this.context = null;
       this.focus = null;
       this.table = {
-        element: null
+        element: null,
+        keys: null
       };
       self = this;
     }
@@ -113,10 +114,13 @@
         container_el = nh_graphs.select(this.el);
         this.style.dimensions.width = (container_el != null ? (_ref = container_el[0]) != null ? _ref[0].clientWidth : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
         this.obj = container_el.append('svg');
+        if (this.data.raw.length < 2 && !this.style.time_padding) {
+          this.style.time_padding = 100;
+        }
         start = this.date_from_string(this.data.raw[0]['date_terminated']);
         end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
         if (!this.style.time_padding) {
-          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 1000;
+          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 500;
         }
         start.setMinutes(start.getMinutes() - this.style.time_padding);
         this.data.extent.start = start;
@@ -140,7 +144,8 @@
             var current_date, dates, new_date;
             current_date = self.focus.axes.x.min;
             dates = event.srcElement.value.split('-');
-            new_date = current_date.setFullYear(dates[0], dates[1], dates[2]);
+            new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
+            self.focus.axes.x.min = new_date;
             return self.focus.redraw([new_date, self.focus.axes.x.max]);
           });
         }
@@ -149,7 +154,8 @@
             var current_date, dates, new_date;
             current_date = self.focus.axes.x.max;
             dates = event.srcElement.value.split('-');
-            new_date = current_date.setFullYear(dates[0], dates[1], dates[2]);
+            new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
+            self.focus.axes.x.max = new_date;
             return self.focus.redraw([self.focus.axes.x.min, new_date]);
           });
         }
@@ -158,7 +164,8 @@
             var current_date, new_time, time;
             current_date = self.focus.axes.x.min;
             time = event.srcElement.value.split(':');
-            new_time = current_date.setHours(time[0], time[1]);
+            new_time = new Date(current_date.setHours(time[0], time[1]));
+            self.focus.axes.x.min = new_time;
             return self.focus.redraw([new_time, self.focus.axes.x.max]);
           });
         }
@@ -167,7 +174,8 @@
             var current_date, new_time, time;
             current_date = self.focus.axes.x.max;
             time = event.srcElement.value.split(':');
-            new_time = current_date.setHours(time[0], time[1]);
+            new_time = new Date(current_date.setHours(time[0], time[1]));
+            self.focus.axes.x.max = new_time;
             return self.focus.redraw([self.focus.axes.x.min, new_time]);
           });
         }
@@ -209,39 +217,56 @@
       });
       list = cards.append('table');
       return list.selectAll('tr').data(function(d) {
-        var key, key_val, val;
-        key_val = [
-          (function() {
-            var _results;
-            _results = [];
-            for (key in d) {
-              val = d[key];
-              if (key === 'blood_pressure_systolic' || key === 'blood_pressure_diastolic' || key === 'body_temperature') {
-                _results.push({
-                  key: key,
-                  value: val
-                });
-              }
+        var data, k, key, o, t, v, _i, _j, _len, _len1, _ref, _ref1;
+        data = [];
+        _ref = self.table.keys;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          key = _ref[_i];
+          if (key['keys'].length === 1) {
+            k = key['keys'][0];
+            if (d[k] != null) {
+              data.push({
+                title: key['title'],
+                value: d[k]
+              });
             }
-            return _results;
-          })()
-        ];
-        console.log(d);
-        console.log(key_val);
-        return key_val[0];
+          } else {
+            t = key['title'];
+            v = [];
+            _ref1 = key['keys'];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              o = _ref1[_j];
+              v.push({
+                title: o['title'],
+                value: d[o['keys'][0]]
+              });
+            }
+            data.push({
+              title: t,
+              value: v
+            });
+          }
+        }
+        return data;
       }).enter().append('tr').html(function(d) {
-        var text;
+        var item, sub_text, text, _i, _len, _ref;
         text = '';
-        if (typeof d.value === "object") {
-          if (d.key === "Oxygen Administration Flag") {
-            if (d.value.onO2) {
-              text += '<td>' + d.key + '</td><td> true </td>';
-            } else {
-              text += '<td>' + d.key + '</td><td> false </td>';
+        if (typeof d.value === 'object') {
+          sub_text = '<table>';
+          _ref = d.value;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            item = _ref[_i];
+            if (item.value !== false) {
+              sub_text += '<tr><td>' + item.title + '</td><td>' + item.value + '</td></tr>';
             }
           }
+          sub_text += '</table>';
+          text += '<td>' + d.title + '</td><td>' + sub_text + '</td>';
         } else {
-          text += '<td>' + d.key + '</td><td>' + d.value + '</td>';
+          if (d.value === false) {
+            d.value = 'False';
+          }
+          text += '<td>' + d.title + '</td><td>' + d.value + '</td>';
         }
         return text;
       });
@@ -398,7 +423,7 @@
             }
           }
           self.graph.axes.x.scale.range([0, self.style.dimensions.width - self.graph.style.label_width]);
-          self.graph.axes.x.axis.ticks(self.style.dimensions.width / 70);
+          self.graph.axes.x.axis.ticks(self.style.dimensions.width / 100);
           return self.graph.redraw(this);
         });
       } else {
@@ -555,7 +580,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         graph = _ref[_i];
         graph.axes.x.scale.domain([extent[0], extent[1]]);
-        graph.axes.x.axis.ticks(this.style.dimensions.width / 70);
+        graph.axes.x.axis.ticks(this.style.dimensions.width / 100);
         graph.axes.x.scale.range([0, this.style.dimensions.width - graph.style.label_width]);
         graph.redraw(this);
       }
@@ -707,7 +732,7 @@
     };
 
     NHGraph.prototype.init = function(parent_obj) {
-      var left_offset, line_self, self, top_offset, _ref;
+      var key, left_offset, line_self, ob, self, top_offset, values, _i, _len, _ref, _ref1;
       this.parent_obj = parent_obj;
       this.obj = parent_obj.obj.append('g');
       this.obj.attr('class', 'nhgraph');
@@ -721,7 +746,7 @@
       this.axes.x.min = parent_obj.axes.x.min;
       this.axes.x.max = parent_obj.axes.x.max;
       this.axes.x.scale = nh_graphs.time.scale().domain([this.axes.x.min, this.axes.x.max]).range([left_offset, this.style.dimensions.width]);
-      this.axes.x.axis = nh_graphs.svg.axis().scale(this.axes.x.scale).orient("top").ticks(this.style.dimensions.width / 70);
+      this.axes.x.axis = nh_graphs.svg.axis().scale(this.axes.x.scale).orient("top").ticks(this.style.dimensions.width / 100);
       if (!this.style.axis.x.hide) {
         this.axes.x.obj = this.axes.obj.append("g").attr("class", "x axis").call(this.axes.x.axis);
         line_self = this;
@@ -751,23 +776,28 @@
         this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
       }
       self = this;
-      this.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, function(d) {
-        var key;
-        if (self.options.keys.length > 1) {
-          return ((function() {
-            var _i, _len, _ref, _results;
-            _ref = self.options.keys;
+      if (self.options.keys.length > 1) {
+        values = [];
+        _ref = self.parent_obj.parent_obj.data.raw;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          ob = _ref[_i];
+          values.push((function() {
+            var _j, _len1, _ref1, _results;
+            _ref1 = self.options.keys;
             _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              key = _ref[_i];
-              _results.push(d[key]);
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              key = _ref1[_j];
+              _results.push(ob[key]);
             }
             return _results;
-          })()).min();
-        } else {
-          return d[self.options.keys[0]];
+          })());
         }
-      });
+        this.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values));
+      } else {
+        this.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, function(d) {
+          return d[self.options.keys[0]];
+        });
+      }
       if (this.options.label != null) {
         this.drawables.background.obj.append('text').text(this.options.label).attr({
           'x': this.style.dimensions.width + this.style.label_text_height,
@@ -790,16 +820,16 @@
         });
       }
       window.addEventListener('graph_resize', function(event) {
-        var _ref;
+        var _ref1;
         self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right)) - this.style.label_width;
         self.obj.attr('width', self.style.dimensions.width);
-        if ((_ref = self.axes.x.scale) != null) {
-          _ref.range()[1] = self.style.dimensions.width;
+        if ((_ref1 = self.axes.x.scale) != null) {
+          _ref1.range()[1] = self.style.dimensions.width;
         }
         return self.redraw(self.parent_obj);
       });
-      if ((_ref = self.parent_obj.parent_obj.options.controls.rangify) != null) {
-        _ref.addEventListener('click', function(event) {
+      if ((_ref1 = self.parent_obj.parent_obj.options.controls.rangify) != null) {
+        _ref1.addEventListener('click', function(event) {
           if (event.srcElement.checked) {
             self.axes.y.scale.domain([self.axes.y.ranged_extent[0] - self.style.range_padding, self.axes.y.ranged_extent[1] + self.style.range_padding]);
           } else {
@@ -879,7 +909,9 @@
           }).y(function(d) {
             return self.axes.y.scale(d[self.options.keys[0]]);
           });
-          self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
+          if (self.parent_obj.parent_obj.data.raw.length > 1) {
+            self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
+          }
           self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             if (d.none_values === "[]") {
               return d;
@@ -1208,7 +1240,7 @@
         return data_to_use;
       }).enter().append('tr').selectAll('td').data(function(d) {
         return d;
-      }).enter().append('td').text(function(d) {
+      }).enter().append('td').html(function(d) {
         return d.value;
       });
     };

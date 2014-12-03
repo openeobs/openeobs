@@ -130,7 +130,7 @@ class NHGraph
     @.axes.x.scale = nh_graphs.time.scale().domain([@.axes.x.min, @.axes.x.max]).range([left_offset, @.style.dimensions.width])
 
     # add xaxis
-    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top").ticks((@.style.dimensions.width/70)) # .tickPadding(@.style.axis_label_text_padding)
+    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top").ticks((@.style.dimensions.width/100)) # .tickPadding(@.style.axis_label_text_padding)
     if not @.style.axis.x.hide
       @.axes.x.obj = @.axes.obj.append("g").attr("class", "x axis").call(@.axes.x.axis)
 
@@ -163,12 +163,16 @@ class NHGraph
       @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis').call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
     self = @
-    @.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
-      if self.options.keys.length>1
-        return (d[key] for key in self.options.keys).min()
-      else
+    if self.options.keys.length>1
+      values = []
+      for ob in self.parent_obj.parent_obj.data.raw
+        values.push(ob[key] for key in self.options.keys)
+      @.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values))
+    else
+      @.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
         return d[self.options.keys[0]]
-    )
+      )
+
 
     if @.options.label?
       @.drawables.background.obj.append('text').text(@.options.label).attr({
@@ -278,7 +282,9 @@ class NHGraph
         .y((d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
-        self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")").attr("class", "path");
+
+        if self.parent_obj.parent_obj.data.raw.length > 1
+          self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")").attr("class", "path");
 
         self.drawables.data.selectAll(".point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->

@@ -60,6 +60,7 @@ class NHGraphLib
     @focus = null
     @table = {
       element: null,
+      keys: null
     }
     self = @
 
@@ -96,10 +97,12 @@ class NHGraphLib
       container_el = nh_graphs.select(@.el)
       @.style.dimensions.width = container_el?[0]?[0].clientWidth - (@.style.margin.left + @.style.margin.right)
       @.obj = container_el.append('svg')
+      if @.data.raw.length < 2 and not @.style.time_padding
+        @.style.time_padding = 100
       start = @.date_from_string(@.data.raw[0]['date_terminated'])
       end = @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
       if not @.style.time_padding
-        @.style.time_padding = ((end-start)/@.style.dimensions.width)/1000
+        @.style.time_padding = ((end-start)/@.style.dimensions.width)/500
       start.setMinutes(start.getMinutes()-@.style.time_padding)
       @.data.extent.start = start
       end.setMinutes(end.getMinutes()+@.style.time_padding)
@@ -124,25 +127,29 @@ class NHGraphLib
       @.options.controls.date.start?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.min
         dates = event.srcElement.value.split('-')
-        new_date = current_date.setFullYear(dates[0], dates[1], dates[2])
+        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
+        self.focus.axes.x.min = new_date
         self.focus.redraw([new_date, self.focus.axes.x.max])
       )
       @.options.controls.date.end?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.max
         dates = event.srcElement.value.split('-')
-        new_date = current_date.setFullYear(dates[0], dates[1], dates[2])
+        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
+        self.focus.axes.x.max = new_date
         self.focus.redraw([self.focus.axes.x.min, new_date])
       )
       @.options.controls.time.start?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.min
         time = event.srcElement.value.split(':')
-        new_time = current_date.setHours(time[0], time[1])
+        new_time = new Date(current_date.setHours(time[0], time[1]))
+        self.focus.axes.x.min = new_time
         self.focus.redraw([new_time, self.focus.axes.x.max])
       )
       @.options.controls.time.end?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.max
         time = event.srcElement.value.split(':')
-        new_time = current_date.setHours(time[0], time[1])
+        new_time = new Date(current_date.setHours(time[0], time[1]))
+        self.focus.axes.x.max = new_time
         self.focus.redraw([self.focus.axes.x.min, new_time])
       )
       window.addEventListener('resize', (event) ->
@@ -171,21 +178,31 @@ class NHGraphLib
        return ("0" + date_to_use.getHours()).slice(-2) + ":" + ("0" + date_to_use.getMinutes()).slice(-2) + " " + ("0" + date_to_use.getDate()).slice(-2) + "/" + ("0" + (date_to_use.getMonth() + 1)).slice(-2) + "/" + date_to_use.getFullYear())
      list = cards.append('table')
      list.selectAll('tr').data((d) ->
-       key_val =  [{key: key, value: val} for key, val of d when key in ['blood_pressure_systolic', 'blood_pressure_diastolic', 'body_temperature']]
-       console.log(d)
-       console.log(key_val)
-       key_val[0]
+       data = []
+       for key in self.table.keys
+         if key['keys'].length is 1
+           k = key['keys'][0]
+           if d[k]?
+             data.push({title: key['title'], value: d[k]})
+         else
+           t = key['title']
+           v = []
+           for o in key['keys']
+             v.push({title: o['title'], value: d[o['keys'][0]]})
+           data.push({title: t, value: v})
+       return data
      ).enter().append('tr').html((d) ->
        text = ''
        #for item in d
-       if typeof d.value is "object"
-         if d.key is "Oxygen Administration Flag"
-           if d.value.onO2
-             text += '<td>' + d.key + '</td><td> true </td>'
-           else
-             text += '<td>'+ d.key+'</td><td> false </td>'
+       if typeof d.value is 'object'
+         sub_text = '<table>'
+         for item in d.value
+           sub_text += '<tr><td>'+item.title+'</td><td>'+item.value+'</td></tr>' if item.value isnt false
+         sub_text += '</table>'
+         text += '<td>'+d.title+'</td><td>'+sub_text+'</td>'
        else
-         text += '<td>'+ d.key+'</td><td>' + d.value + '</td>'
+         d.value = 'False' if d.value is false
+         text += '<td>'+ d.title+'</td><td>' + d.value + '</td>'
        return text
      )
 
