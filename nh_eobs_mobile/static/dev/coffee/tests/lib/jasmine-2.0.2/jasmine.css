@@ -13,7 +13,7 @@ body { overflow-y: scroll; }
 .jasmine_html-reporter .version { color: #aaaaaa; }
 .jasmine_html-reporter .banner { margin-top: 14px; }
 .jasmine_html-reporter .duration { color: #aaaaaa; float: right; }
-.jasmine_html-reporter .symbol-summary { overflow: hidden; *zoom: 1; margin: 14px 0; }
+.jasmine_html-reporter .symbol-summary { overflow: hidden; zoom:1; margin: 14px 0; }
 .jasmine_html-reporter .symbol-summary li { display: inline-block; height: 8px; width: 14px; font-size: 16px; }
 .jasmine_html-reporter .symbol-summary li.passed { font-size: 14px; }
 .jasmine_html-reporter .symbol-summary li.passed:before { color: #007069; content: "\02022"; }

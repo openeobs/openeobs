@@ -61,6 +61,94 @@ describe('NHMobileForm - EventListeners', function(){
         var mobile_form = new window.NHMobileForm();
         expect(typeof(window.form_timeout)).toBe('number');
     });
+    
+    it('triggers a validation error when respiration rate is too low', function(){
+    	spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
+    	var mobile_form = new window.NHMobileForm();
+    	var test_input = document.getElementById('respiration_rate');
+    	test_input.value = -1;
+    	var change_event = new Event('change');
+		test_input.dispatchEvent(change_event);
+	    expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
+	    expect(test_input.classList.contains('error')).toBe(true);
+	    var parent_el = test_input.parentNode.parentNode;
+	    expect(parent_el.classList.contains('error')).toBe(true);
+	    var error_el = parent_el.getElementsByClassName('errors')[0];
+	    expect(error_el.textContent).toBe('Input too low');
+    });
+    
+    it('triggers a validation error when respiration rate is too high', function(){
+	   spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
+    	var mobile_form = new window.NHMobileForm();
+    	var test_input = document.getElementById('respiration_rate');
+    	test_input.value = 9000;
+    	var change_event = new Event('change');
+		test_input.dispatchEvent(change_event);
+	    expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
+	    expect(test_input.classList.contains('error')).toBe(true);
+	    var parent_el = test_input.parentNode.parentNode;
+	    expect(parent_el.classList.contains('error')).toBe(true);
+	    var error_el = parent_el.getElementsByClassName('errors')[0];
+	    expect(error_el.textContent).toBe('Input too high');
+    });
+    
+    /*it('triggers a validation error when a alphabetical value is entered in a number input', function(){
+	   spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
+    	var mobile_form = new window.NHMobileForm();
+    	var test_input = document.getElementById('respiration_rate');
+    	test_input.value = "abcd";
+    	var change_event = new Event('change');
+		test_input.dispatchEvent(change_event);
+	    expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
+	    expect(test_input.classList.contains('error')).toBe(true);
+	    var parent_el = test_input.parentNode.parentNode;
+	    expect(parent_el.classList.contains('error')).toBe(true);
+	    var error_el = parent_el.getElementsByClassName('errors')[0];
+	    expect(error_el.textContent).toBe('Input must be a number');
+    });*/
+    
+    it('triggers a validation error when a float is entered into an integer field', function(){
+	   spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
+    	var mobile_form = new window.NHMobileForm();
+    	var test_input = document.getElementById('respiration_rate');
+    	test_input.value = 45.57;
+    	var change_event = new Event('change');
+		test_input.dispatchEvent(change_event);
+	    expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
+	    expect(test_input.classList.contains('error')).toBe(true);
+	    var parent_el = test_input.parentNode.parentNode;
+	    expect(parent_el.classList.contains('error')).toBe(true);
+	    var error_el = parent_el.getElementsByClassName('errors')[0];
+	    expect(error_el.textContent).toBe('Must be whole number');
+    });
+    
+    it('triggers a validation error when a diastolic BP is entered and no systolic BP input is entered', function(){
+	   expect(1).toBe(0); 
+    });
+    
+    it('triggers a validation error when a diastolic BP is entered that is higher than the systolic BP value', function(){
+	   expect(1).toBe(0); 
+    });
+    
+    it('clears the validation error when the diastolic BP input is updated to a valid value', function(){
+	   expect(1).toBe(0); 
+    });
+    
+    it('shows supplementary o2 device list when oxygen administration flag is set to true', function(){
+	   expect(1).toBe(0); 
+    });
+    
+    it('hides supplementary o2 device list when oxygen administration flag is set to false', function(){
+	   expect(1).toBe(0); 
+    });
+    
+    it('shows standing BP fields when sitting BP fields are both entered', function(){
+	   expect(1).toBe(0); 
+    });
+    
+    it('hides standing BP fields when sitting BP field is cleared', function(){
+	   expect(1).toBe(0); 
+    });
 
 
     afterEach(function(){
