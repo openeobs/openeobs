@@ -10,6 +10,12 @@ describe('NHMobile - Object', function() {
         if (mobile != null) {
            mobile = null;
         }
+         var covers = document.getElementsByClassName('cover');
+        var body = document.getElementsByTagName('body')[0];
+         for(var i = 0; i < covers.length; i++){
+	        var cover = covers[i];
+	        body.removeChild(cover);
+        }
     });
 
     it('creates a NHMobile object with version number', function () {
@@ -170,6 +176,17 @@ describe("NHMobile AJAX - Promise", function(){
         expect(resp_val[0].ews_score).toEqual(1);
         expect(resp_val[0].other_identifier).toEqual('012345678');
         expect(resp_val[0].patient_identifier).toEqual('NHS012345678');
+    });
+    
+    afterEach(function(){
+	    var covers = document.getElementsByClassName('cover');
+	    var popup = document.getElementById('patient_info');
+        var body = document.getElementsByTagName('body')[0];
+        body.removeChild(popup);
+         for(var i = 0; i < covers.length; i++){
+	        var cover = covers[i];
+	        body.removeChild(cover);
+        } 
     });
 
 });

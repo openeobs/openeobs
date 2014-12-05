@@ -13,8 +13,15 @@ describe('NHModal', function(){
 
     afterEach(function(){
         var test = document.getElementById('test');
+        var covers = document.getElementsByClassName('cover');
+        var body = document.getElementsByTagName('body')[0];
         if(test != null){
             test.parentNode.removeChild(test);
+        }
+        
+        for(var i = 0; i < covers.length; i++){
+	        var cover = covers[i];
+	        body.removeChild(cover);
         }
     });
 	
