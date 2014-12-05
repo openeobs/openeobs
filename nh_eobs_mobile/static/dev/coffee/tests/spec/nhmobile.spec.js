@@ -29,39 +29,56 @@ describe('NHMobile - Object', function() {
 
 describe('NHMobile - Calls process_request function', function(){
     var mobile;
+    var patient_info_data = [{
+    	'full_name': 'Test Patient',
+    	'gender': 'M',
+    	'dob': '1988-01-12 00:00',
+    	'location': 'Bed 1',
+    	'parent_location': 'Ward 1',
+    	'ews_score': 1,
+    	'other_identifier': '012345678',
+    	'patient_identifier': 'NHS012345678'
+    }]
+
     beforeEach(function(){
         if (mobile == null) {
             mobile = new NHMobile();
         }
-        jasmine.Ajax.install();
-        spyOn(NHMobile.prototype, 'process_request');
+        //jasmine.Ajax.install();
+        spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
+    		var promise = new Promise();
+    		promise.complete(patient_info_data);
+    		//promise.complete(false);
+    		return promise;
+    		//return patient_info_data;
+    	});
     });
 
     it("should call process_request when getting patient info ", function() {
-        mobile.get_patient_info(1);
-        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('GET', 'http://localhost:8169/mobile/patient/info/1');
+        mobile.get_patient_info(1, mobile);
+        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('GET', 'http://localhost:8069/mobile/patient/info/1');
     });
 
     it("should call process_request when calling ajax_get_patient_obs", function(){
        mobile.call_resource(mobile.urls.ajax_get_patient_obs(1));
-       expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('GET', 'http://localhost:8169/mobile/patient/ajax_obs/1', undefined);
+       expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('GET', 'http://localhost:8069/mobile/patient/ajax_obs/1', undefined);
     });
 
     it("should call process_request when calling ajax_task_cancellation_options", function(){
         mobile.call_resource(mobile.urls.ajax_task_cancellation_options());
-        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('GET', 'http://localhost:8169/mobile/tasks/cancel_reasons/', undefined);
+        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('GET', 'http://localhost:8069/mobile/tasks/cancel_reasons/', undefined);
     });
 
     it("should call process_request when calling calculate_obs_score", function(){
         mobile.call_resource(mobile.urls.calculate_obs_score('gcs'), 'eyes=1&verbal=1&motor=1');
-        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('POST', 'http://localhost:8169/mobile/observation/score/gcs', 'eyes=1&verbal=1&motor=1');
+        expect(NHMobile.prototype.process_request).toHaveBeenCalledWith('POST', 'http://localhost:8069/mobile/observation/score/gcs', 'eyes=1&verbal=1&motor=1');
     });
 
     afterEach(function () {
         if (mobile != null) {
             mobile = null;
         }
-        jasmine.Ajax.uninstall();
+        //jasmine.Ajax.uninstall();
     });
 });
 
@@ -114,10 +131,29 @@ describe("NHMobile AJAX - Invalid URL / server error", function(){
 
 describe("NHMobile AJAX - Promise", function(){
     var resp, resp_val;
+    
+    var patient_info_data = [{
+    	'full_name': 'Test Patient',
+    	'gender': 'M',
+    	'dob': '1988-01-12 00:00',
+    	'location': 'Bed 1',
+    	'parent_location': 'Ward 1',
+    	'ews_score': 1,
+    	'other_identifier': '012345678',
+    	'patient_identifier': 'NHS012345678'
+    }]
+    
     beforeEach(function(done){
+    	spyOn(NHMobile.prototype, 'get_patient_info').and.callFake(function(){
+    		var promise = new Promise();
+    		promise.complete(patient_info_data);
+    		//promise.complete(false);
+    		return promise;
+    		//return patient_info_data;
+    	});
         var mobile = new NHMobile();
-        resp = Promise.when(mobile.get_patient_info(1)).then(function(data){
-            resp_val = data;
+        resp = Promise.when(mobile.get_patient_info(1, mobile)).then(function(data){
+            resp_val = data[0];
             done();
         }, function(fail){
             console.log('promise failed');
@@ -126,6 +162,14 @@ describe("NHMobile AJAX - Promise", function(){
     });
     it("promise resolves ", function() {
         expect(typeof(resp_val)).toEqual('object');
+        expect(resp_val[0].full_name).toEqual('Test Patient');
+        expect(resp_val[0].gender).toEqual('M');
+        expect(resp_val[0].dob).toEqual('1988-01-12 00:00');
+        expect(resp_val[0].location).toEqual('Bed 1');
+        expect(resp_val[0].parent_location).toEqual('Ward 1');
+        expect(resp_val[0].ews_score).toEqual(1);
+        expect(resp_val[0].other_identifier).toEqual('012345678');
+        expect(resp_val[0].patient_identifier).toEqual('NHS012345678');
     });
 
 });

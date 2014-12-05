@@ -221,6 +221,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_tasks(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         task_api = request.registry['nh.eobs.api']
+        # grab the patient object and get id?
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
