@@ -16,13 +16,15 @@ describe('NHMobileForm - EventListeners', function(){
        var mobile_form = new window.NHMobileForm();
        var test_input = document.getElementById('respiration_rate');
        //var change_event = new Event('change');
-       if(document.createEvent){
-	       var change_event = new Event('change');
-	       test_input.dispatchEvent(change_event);
-       }else{
-	       var change_event = document.createEventObject();
-	       test_input.fireEvent('change', change_event)
-       }       expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
+       //if(document.createEvent){
+	   //    var change_event = new Event('change');
+	   //    test_input.dispatchEvent(change_event);
+       //}else{
+	   var change_event = document.createEvent('CustomEvent');
+	   change_event.initCustomEvent('change', false, false, false);	
+	   test_input.dispatchEvent(change_event)
+       //}       
+       expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
    });
 
    it('trigger_actions event is triggered on select change', function(){
@@ -30,13 +32,9 @@ describe('NHMobileForm - EventListeners', function(){
        var mobile_form = new window.NHMobileForm();
        var test_input = document.getElementById('oxygen_administration_flag');
        //var change_event = new Event('change');
-       if(document.createEvent){
-	       var change_event = new Event('change');
-	       test_input.dispatchEvent(change_event);
-       }else{
-	       var change_event = document.createEventObject();
-	       test_input.fireEvent('change', change_event)
-       }
+       var change_event = document.createEvent('CustomEvent');
+	   change_event.initCustomEvent('change', false, false, false);	
+	   test_input.dispatchEvent(change_event)
        //test_input.dispatchEvent(change_event);
        expect(window.NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
    });
@@ -80,13 +78,9 @@ describe('NHMobileForm - EventListeners', function(){
     	var test_input = document.getElementById('respiration_rate');
     	test_input.value = -1;
     	//var change_event = new Event('change');
-       if(document.createEvent){
-	       var change_event = new Event('change');
-	       test_input.dispatchEvent(change_event);
-       }else{
-	       var change_event = document.createEventObject();
-	       test_input.fireEvent('change', change_event)
-       }
+       var change_event = document.createEvent('CustomEvent');
+	   change_event.initCustomEvent('change', false, false, false);	
+	   test_input.dispatchEvent(change_event)
 		//test_input.dispatchEvent(change_event);
 	    expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
 	    expect(test_input.classList.contains('error')).toBe(true);
@@ -102,13 +96,9 @@ describe('NHMobileForm - EventListeners', function(){
     	var test_input = document.getElementById('respiration_rate');
     	test_input.value = 9000;
     	//var change_event = new Event('change');
-       if(document.createEvent){
-	       var change_event = new Event('change');
-	       test_input.dispatchEvent(change_event);
-       }else{
-	       var change_event = document.createEventObject();
-	       test_input.fireEvent('change', change_event)
-       }
+       var change_event = document.createEvent('CustomEvent');
+	   change_event.initCustomEvent('change', false, false, false);	
+	   test_input.dispatchEvent(change_event)
 		//test_input.dispatchEvent(change_event);
 	    expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
 	    expect(test_input.classList.contains('error')).toBe(true);
@@ -139,13 +129,9 @@ describe('NHMobileForm - EventListeners', function(){
     	var test_input = document.getElementById('respiration_rate');
     	test_input.value = 45.57;
     	//var change_event = new Event('change');
-       if(document.createEvent){
-	       var change_event = new Event('change');
-	       test_input.dispatchEvent(change_event);
-       }else{
-	       var change_event = document.createEventObject();
-	       test_input.fireEvent('change', change_event)
-       }
+       var change_event = document.createEvent('CustomEvent');
+	   change_event.initCustomEvent('change', false, false, false);	
+	   test_input.dispatchEvent(change_event)
 		//test_input.dispatchEvent(change_event);
 	    expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
 	    expect(test_input.classList.contains('error')).toBe(true);
