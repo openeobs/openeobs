@@ -727,7 +727,7 @@ a.patientInfo .obs {
 }
 #obsForm .obsSubmit {
   padding-top: 2em;
-  padding-bottom: 1em;
+  /* padding-bottom: 1em; */
 }
 #obsForm .obsSubmit input {
   background-color: #ea3172;
@@ -738,6 +738,12 @@ a.patientInfo .obs {
   font-size: 1.2em;
   height: 2.4em;
   width: 100%;
+}
+.obsConfirm {
+  margin: 0px;
+}
+.obsConfirm #cancelSubmit {
+  padding: 0px;
 }
 .obsSubmit .button {
   background-color: #ea3172;
