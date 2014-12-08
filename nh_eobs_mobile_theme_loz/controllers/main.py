@@ -181,6 +181,7 @@ class LozStyleFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFron
             task['color'] = self.calculate_ews_class(task['clinical_risk'])
             task['trend_icon'] = 'score-new' if task['ews_trend'] == 'first' else 'score-{0}'.format(task['ews_trend'])
             task_deadline = self.convert_task_deadline(task['deadline'])
+            task['patient_url'] = '{0}{1}'.format(URLS['single_patient'], task['patient_id'])
             task['deadline_time'] = task_deadline[0]
             task['overdue'] = task_deadline[1]
 

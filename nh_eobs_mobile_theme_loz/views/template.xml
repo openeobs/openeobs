@@ -70,7 +70,7 @@
                                 <div t-att-class="'due-{0}'.format(item['color'])"><t t-if="item['overdue']">Overdue:</t><t t-if="item['overdue']==False">Due in:</t></div>
                         </a>
                         <div class="row-two">
-                            <div class="name"><a t-att-href="item['url']"><i class="info"></i></a><t t-esc="item['full_name']"/></div>
+                            <div class="name"><a t-att-href="item['patient_url']"><i class="info"></i></a><t t-esc="item['full_name']"/></div>
                             <div class="news">
                                 <div class="news-arrow"><i t-att-class="item['trend_icon']"></i></div><div class="news-score"><t t-esc="item['ews_score']"/></div>
 
