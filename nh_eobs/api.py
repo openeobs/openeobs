@@ -137,6 +137,7 @@ class nh_eobs_api(orm.AbstractModel):
             )
         select activity.id,
             activity.summary,
+            patient.id as patient_id,
             ews1.clinical_risk,
             case
                 when activity.date_scheduled is not null then activity.date_scheduled::text
