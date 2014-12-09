@@ -179,7 +179,7 @@ class LozStyleFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFron
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
             task['color'] = self.calculate_ews_class(task['clinical_risk'])
-            task['trend_icon'] = 'score-new' if task['ews_trend'] == 'first' else 'score-{0}'.format(task['ews_trend'])
+            task['trend_icon'] = '' if task['ews_trend'] == 'first' else 'score-{0}'.format(task['ews_trend'])
             task_deadline = self.convert_task_deadline(task['deadline'])
             task['patient_url'] = '{0}{1}'.format(URLS['single_patient'], task['patient_id'])
             task['deadline_time'] = task_deadline[0]
@@ -203,7 +203,7 @@ class LozStyleFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFron
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
-            patient['trend_icon'] = 'score-new' if patient['ews_trend'] == 'first' else 'score-{0}'.format(patient['ews_trend'])
+            patient['trend_icon'] = '' if patient['ews_trend'] == 'first' else 'score-{0}'.format(patient['ews_trend'])
             deadline = self.convert_patient_ews_deadline(patient['next_ews_time'])
             patient['deadline_time'] = deadline[0]
             patient['overdue'] = deadline[1]
