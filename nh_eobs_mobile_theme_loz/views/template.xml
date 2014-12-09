@@ -23,11 +23,6 @@
                                     <li class="logo">
                                         <img t-att-src="urls['logo']"/>
                                     </li>
-                                    <li class="key">
-                                        <!-- <a href="pin.html">
-                                            <i class="pin-key"></i>
-                                        </a> -->
-                                    </li>
                                     <li class="user">
                                         <t t-esc="username"/>
                                     </li>
