@@ -128,28 +128,28 @@ i {
 
 .score-up:before{
 
-    content: "\f0d8";
+    content: "\f0aa";
     color: #848282    ;
-    font-size:3em;
+    font-size:2.5em;
     margin-right:-0.4em;
     padding-left:1%;
 
 }
 
-.score-mid:before{
+.score-same:before{
 
-    content: "\f0da";
+    content: "\f0a9";
     color: #848282    ;
-    font-size:3em;
+    font-size:2.5em;
     padding-left:8%;
 
 }
 
 .score-down:before{
 
-    content: "\f0d7";
+    content: "\f0ab";
     color: #848282    ;
-    font-size:3em;
+    font-size:2.5em;
     margin-right:-0.4em;
     padding-left:1%;
 
@@ -161,7 +161,7 @@ i {
 
 
     color: #848282    ;
-    font-size:2em;
+    font-size:2.5em;
     margin-right:-0.4em;
     padding-left:1%;
 
