@@ -254,6 +254,8 @@ class nh_clinical_wardboard(orm.Model):
         'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
         'spell_activity_id': fields.many2one('nh.activity', 'Spell Activity'),
         'spell_date_started': fields.datetime('Spell Start Date'),
+        'time_since_admission': fields.text('Time since Admission'),
+        'move_date': fields.datetime('Time since Last Movement'),
         'spell_date_terminated': fields.datetime('Spell Discharge Date'),
         'pos_id': fields.many2one('nh.clinical.pos', 'POS'),
         'spell_code': fields.text('Spell Code'),
@@ -766,6 +768,11 @@ nh_clinical_wardboard as(
         spell_activity.date_terminated as spell_date_terminated,
         spell.pos_id,
         spell.code as spell_code,
+        case
+            when extract(days from justify_hours(now() at time zone 'UTC' - spell_activity.date_started)) > 0 then extract(days from justify_hours(now() at time zone 'UTC' - spell_activity.date_started)) || ' day(s) '
+            else ''
+        end || to_char(justify_hours(now() at time zone 'UTC' - spell_activity.date_started), 'HH24:MI') time_since_admission,
+        spell.move_date,
         patient.family_name,
         patient.given_name,
         patient.middle_names,

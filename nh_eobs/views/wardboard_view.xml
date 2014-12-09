@@ -161,9 +161,10 @@
                         <notebook>
                             <page string="Admission Details">
                                 <group>
-                                    <field name="spell_code" readonly="1" string="Code"/>
-                                    <field name="spell_date_started" readonly="True" string="Admission Date" widget="nhc_datetime"/>
+                                    <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
                                     <field name="location" readonly="1" string="Current Point of Care"/>
+                                    <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
+                                    <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
                                 </group>
                                 <group string="Movements">
                                     <field name="move_ids" readonly="1" nolabel="1">
@@ -178,20 +179,6 @@
                                         </form>
                                    </field>
                                 </group>
-                                <!--<group string="Previous Admissions">-->
-                                    <!--<field name="spell_ids" readonly="1" nolabel="1">-->
-                                        <!--<tree>-->
-                                            <!--<field name="code"/>-->
-                                            <!--<field name="date_started" widget="nhc_datetime"/>-->
-                                            <!--<field name="location_id"/>-->
-                                        <!--</tree>-->
-                                        <!--<form>-->
-                                            <!--<field name="code" />-->
-                                            <!--<field name="date_started" widget="nhc_datetime"/>-->
-                                            <!--<field name="location_id"/>-->
-                                        <!--</form>-->
-                                   <!--</field>-->
-                               <!--</group>-->
                             </page>
                             <page string="Demographics">
                                 <group>
@@ -605,9 +592,10 @@
                         <notebook>
                             <page string="Admission Details">
                                 <group>
-                                    <field name="spell_code" readonly="1" string="Code"/>
-                                    <field name="spell_date_started" readonly="True" string="Admission Date" widget="nhc_datetime"/>
+                                    <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
                                     <field name="location" readonly="1" string="Current Point of Care"/>
+                                    <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
+                                    <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
                                 </group>
                                 <group string="Movements">
                                     <field name="move_ids" readonly="1" nolabel="1">
