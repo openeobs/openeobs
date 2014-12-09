@@ -498,13 +498,14 @@
             <field name="arch" type="xml">
                 <kanban edit="false" quick_create="false" create="false">
                     <field name="full_name" />
+                    <field name="placed" />
                     <field name="location" />
                     <field name="sex"/>
                     <field name="dob"/>
                     <field name="age" />
                     <field name="next_diff" />
                     <field name="frequency" />
-                    <field name="ews_score_string" />
+                    <field name="ews_score_string"/>
                     <field name="ews_trend_string"/>
                     <templates>
                         <t t-name="kanban-box">
@@ -514,6 +515,7 @@
                                     <ul class="oe_dropdown_menu">
                                         <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
                                         <li><a name="wardboard_ews" type="object">NEWS List</a></li>
+                                        <li><a name="wardboard_place" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('placed','=',True)]}">Patient Placement</a></li>
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_content">
@@ -788,7 +790,7 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban,tree,form</field>
-            <field name="domain">[('next_diff','!=',False),('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
+            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
             <field name="context">{'search_default_clinical_risk':1}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
@@ -816,7 +818,7 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,kanban</field>
-            <field name="domain">[('next_diff','!=',False),('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
+            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
             <field name="context">{'search_default_group_by_ward':1}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
@@ -866,7 +868,7 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('next_diff','!=',False),('spell_date_terminated','=',False),('transferred_user_ids','in',uid)]</field>
+            <field name="domain">[('spell_date_terminated','=',False),('transferred_user_ids','in',uid)]</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
         <record model="ir.actions.act_window.view" id="act_view_wardboard_tree_transferred">
@@ -887,7 +889,7 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban</field>
-            <field name="domain">[('next_diff','!=',False),('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
+            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
             <field name="context">{'search_default_clinical_risk':1}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>

@@ -123,7 +123,7 @@ class test_ui_data(SingleTransactionCase):
             mrsa_activity = api.create_complete(cr, uid, 'nh.clinical.patient.mrsa', 
                                                 {}, {'patient_id': patient_id, 'mrsa': fake.random_element([True, False])})
             diabetes_activity = api.create_complete(cr, uid, 'nh.clinical.patient.diabetes', 
-                                                {}, {'patient_id': patient_id, 'deabetes': fake.random_element([True, False])})
+                                                {}, {'patient_id': patient_id, 'diabetes': fake.random_element([True, False])})
             pbpm_activity = api.create_complete(cr, uid, 'nh.clinical.patient.pbp_monitoring', 
                                                 {}, {'patient_id': patient_id, 'pbp_monitoring': fake.random_element([True, False])})
             weightm_activity = api.create_complete(cr, uid, 'nh.clinical.patient.weight_monitoring', 
