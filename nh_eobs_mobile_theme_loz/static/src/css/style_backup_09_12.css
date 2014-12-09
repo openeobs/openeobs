@@ -47,9 +47,9 @@ i {
 
     content: "\f0f3";
     color: #4491ce;
-    font-size:2.3em;
+    font-size:1.9em;
     z-index: -1;
-    margin-top:-0.6em;
+    margin-top:-0.72em;
     margin-left:-30px;
     position:absolute;
 
@@ -128,7 +128,7 @@ i {
 
 .score-up:before{
 
-    content: "\f0d8";
+    content: "\f0aa";
     color: #848282    ;
     font-size:3em;
     margin-right:-0.4em;
@@ -136,9 +136,9 @@ i {
 
 }
 
-.score-mid:before{
+.score-same:before{
 
-    content: "\f0da";
+    content: "\f0a9";
     color: #848282    ;
     font-size:3em;
     padding-left:8%;
@@ -147,7 +147,7 @@ i {
 
 .score-down:before{
 
-    content: "\f0d7";
+    content: "\f0ab";
     color: #848282    ;
     font-size:3em;
     margin-right:-0.4em;
@@ -215,7 +215,7 @@ html, body {
     border-bottom-width: 1px;
     background-color: #ffffff;
     width:100%;
-    height: 3.8em;
+    height: 3.2em;
 }
 
 #topbar ul {
@@ -270,12 +270,10 @@ li.bell {
     position:relative;
     z-index: 2;
     margin-left: 5%;
-    margin-right: 15%;
     margin-top: 0.2em;
     color: #FFFFFF;
     font-weight:bold;
     font-size: 1.3em;
-    text-align: center;
     text-shadow: -1px -1px 0 #4491ce, 1px -1px 0 #4491ce,-1px 1px 0 #4491ce,1px 1px 0 #4491ce;
     /* height:3em; */
 
@@ -287,10 +285,7 @@ li.logout {
     background-color: #4491ce;
     text-align: center;
     border-color: #e6e6e6;
-
-
-
-    /* float:right; */
+    float:right;
 
     margin-top: 0.55em;
     margin-right:2%;
@@ -2890,9 +2885,7 @@ li.login-button button {
     /*width:5%;*/
     height:1.5em;
     margin-top:-0.6em;
-
-
-    margin-left: -3.7%;
+    margin-left:-3.5%;
     line-height:1.5em;
 
 }
@@ -3312,7 +3305,7 @@ text.title {
     width: 80%;
 }
 #controls input{
-    font-family: sans-serif;
+   font-family: sans-serif;
     color: #2d2d2d;
     font-size: 1em;
     box-shadow: 1px 1px 7px 0px #a6a2a2 inset;
@@ -3441,16 +3434,16 @@ svg .data path {
 
 @media (min-width : 1000px) {
 
-    .clockspace-white, .clockspace-green, .clockspace-orange, .clockspace-yellow {
+.clockspace-white, .clockspace-green, .clockspace-orange, .clockspace-yellow {
 
-        width:26.2%
+width:26.2%
 
-    }
+}
 
-    .task-time-white, .task-time-green, .task-time-orange, .task-time-yellow {
+.task-time-white, .task-time-green, .task-time-orange, .task-time-yellow {
 
-        width:26.76%;
+width:26.76%;
 
-    }
+}
 
 }
