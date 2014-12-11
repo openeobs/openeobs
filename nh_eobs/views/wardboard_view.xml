@@ -491,6 +491,8 @@
                                         <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
                                         <li><a name="wardboard_ews" type="object">NEWS List</a></li>
                                         <li><a name="wardboard_place" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('placed','=',True)]}">Patient Placement</a></li>
+                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': [('placed','=',False)]}">Move Patient</a></li>
+                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': [('placed','=',False)]}">Swap Beds</a></li>
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_content">
