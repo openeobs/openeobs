@@ -29,35 +29,47 @@ describe('NHModal', function(){
 		var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option</a>'], 0, document.getElementById('test'))
 		var test_modal = document.getElementById('id');
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
-		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+'; ">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
+		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+';">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
 	});
 	
-	it('dialog is placed under the defined element', function(){
+	it('places the dialog under the defined element', function(){
 		var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option</a>'], 0, document.getElementById('test'))
 		var test_modal = document.getElementById('id');
 		expect(test_modal.parentNode.id).toEqual('test');
 		expect(test_modal.parentNode.localName).toEqual('div');
 	});
 	
+	it('creates a cover object and the dialog object is above it', function(){
+		var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option</a>'], 0, document.getElementById('test'))
+		var test_modal = document.getElementById('id');
+		var test_cover = document.getElementsByClassName('cover')[0];
+		//var test_modal_zindex = test_modal.style.zIndex;
+		var test_modal_zindex = document.defaultView.getComputedStyle(test_modal.parentNode).getPropertyValue('z-index'); 
+		//var test_cover_zindex = test_cover.style.zIndex;
+		var test_cover_zindex = document.defaultView.getComputedStyle(test_cover).getPropertyValue('z-index');
+		expect(parseInt(test_cover_zindex) > parseInt(test_modal_zindex)).toBe(false);
+		expect(test_cover.parentNode.localName).toEqual('body');
+	});
+	
 	it('creates a dialog object with two options', function(){
 		var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option 1</a>','<a href="#" data-action="confirm" data-target="id">Option 2</a>'], 0, document.getElementById('test'))
 		var test_modal = document.getElementById('id');
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
-		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+'; ">content</div><ul class="options two-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li></ul>');
+		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+';">content</div><ul class="options two-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li></ul>');
 	});
 	
 	it('creates a dialog object with three options', function(){
 		var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option 1</a>','<a href="#" data-action="confirm" data-target="id">Option 2</a>','<a href="#" data-action="confirm" data-target="id">Option 3</a>'], 0, document.getElementById('test'))
 		var test_modal = document.getElementById('id');
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
-		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+'; ">content</div><ul class="options three-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li></ul>');
+		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+';">content</div><ul class="options three-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li></ul>');
 	});
 	
 	it('creates a dialog object with four options', function(){
 		var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option 1</a>','<a href="#" data-action="confirm" data-target="id">Option 2</a>','<a href="#" data-action="confirm" data-target="id">Option 3</a>', '<a href="#" data-action="confirm" data-target="id">Option 4</a>'], 0, document.getElementById('test'))
 		var test_modal = document.getElementById('id');
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
-		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+'; ">content</div><ul class="options four-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li><li><a href="#" data-action="confirm" data-target="id">Option 4</a></li></ul>');
+		expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+';">content</div><ul class="options four-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li><li><a href="#" data-action="confirm" data-target="id">Option 4</a></li></ul>');
 	});
 
     it('dialogContent is resized correctly when it exceeds the window height', function(){
@@ -66,7 +78,7 @@ describe('NHModal', function(){
         var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option</a>'], 0, document.getElementById('test'))
         var test_modal = document.getElementById('id');
         var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
-        expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+'; ">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
+        expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+';">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
     });
 
     it('event listener setup correctly', function(){

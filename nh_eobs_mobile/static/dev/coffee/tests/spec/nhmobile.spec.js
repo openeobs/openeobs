@@ -30,6 +30,26 @@ describe('NHMobile - Object', function() {
        expect(typeof(mobile.urls)).toBe('object');
        expect(mobile.urls).toEqual(frontend_routes);
     });
+    
+    it('converts date string to date object', function(){
+	    var date_string = '1988-01-12 06:00:00';
+	    var date_for_string = mobile.date_from_string(date_string);
+	    expect(typeof(date_for_string)).toBe('object');
+	    expect(date_for_string.constructor.name).toBe('Date');
+	    expect(date_for_string.toString()).toBe('Tue Jan 12 1988 06:00:00 GMT+0000 (GMT)');
+    });
+    
+    it('converts date object to string', function(){
+	   var date = new Date('1988-01-12 06:00:00');
+	   var string_for_date = mobile.date_to_string(date);
+	   expect(string_for_date).toBe('1988-01-12 06:00:00'); 
+    });
+    
+    it('converts date to dob string', function(){
+	   var date = new Date('1988-01-12 06:00:00');
+	   var string_for_date = mobile.date_to_dob_string(date);
+	   expect(string_for_date).toBe('1988-01-12'); 
+    });
 
 });
 
