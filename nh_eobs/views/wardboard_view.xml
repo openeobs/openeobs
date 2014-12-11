@@ -162,16 +162,16 @@
                             <page string="Admission Details">
                                 <group>
                                     <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
-                                    <field name="location" readonly="1" string="Current Point of Care"/>
+                                    <field name="location_full_name" readonly="1" string="Current Point of Care"/>
                                     <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
                                     <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
                                 </group>
-                                <group string="Movements">
+                                <group string="Movements History">
                                     <field name="move_ids" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="location_name" />
-                                            <field name="date_terminated" widget="nhc_datetime"/>
-                                            <field name="state" />
+                                            <field name="date_terminated" widget="nhc_datetime" string="In"/>
+                                            <field name="out_date" widget="nhc_datetime" string="Out"/>
                                         </tree>
                                         <form>
                                             <field name="location_id" />
@@ -250,19 +250,6 @@
                                     </field>
                                 </group>
                             </page>
-                            <!--<page string="Movements">-->
-                                <!--<field name="move_ids" readonly="1">-->
-                                    <!--<tree>-->
-                                        <!--<field name="location_id" />-->
-                                        <!--<field name="date_terminated" widget="nhc_datetime"/>-->
-                                        <!--<field name="state" />-->
-                                    <!--</tree>-->
-                                    <!--<form>-->
-                                        <!--<field name="location_id" />-->
-                                        <!--<field name="patient_id" />-->
-                                    <!--</form>-->
-                               <!--</field>-->
-                            <!--</page>-->
                             <page string="Devices">
                                     <group string="Active Device Sessions">
                                     <div>
@@ -487,6 +474,7 @@
                     <field name="full_name" />
                     <field name="placed" />
                     <field name="location" />
+                    <field name="location_full_name"/>
                     <field name="sex"/>
                     <field name="dob"/>
                     <field name="age" />
@@ -506,7 +494,7 @@
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_content">
-                                    <div><field name="location"/></div>
+                                    <div><field name="location_full_name"/></div>
                                     <div><b><field name="full_name"/></b> (<field name="age"/>)
                                         <t t-if="record.sex.raw_value === 'M'">
                                             <img t-attf-src="/nh_eobs/static/src/img/icons/male.png" t-att-alt="Male"/>
@@ -593,16 +581,16 @@
                             <page string="Admission Details">
                                 <group>
                                     <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
-                                    <field name="location" readonly="1" string="Current Point of Care"/>
+                                    <field name="location_full_name" readonly="1" string="Current Point of Care"/>
                                     <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
                                     <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
                                 </group>
-                                <group string="Movements">
+                                <group string="Movements History">
                                     <field name="move_ids" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="location_id" />
-                                            <field name="date_terminated" widget="nhc_datetime"/>
-                                            <field name="state" />
+                                            <field name="date_terminated" widget="nhc_datetime" string="In"/>
+                                            <field name="out_date" widget="nhc_datetime" string="Out"/>
                                         </tree>
                                         <form>
                                             <field name="location_id" />
@@ -610,20 +598,6 @@
                                         </form>
                                    </field>
                                 </group>
-                                <!--<group string="Previous admissions">-->
-                                    <!--<field name="spell_ids" readonly="1" nolabel="1">-->
-                                        <!--<tree>-->
-                                            <!--<field name="code"/>-->
-                                            <!--<field name="date_started" widget="nhc_datetime"/>-->
-                                            <!--<field name="location_id"/>-->
-                                        <!--</tree>-->
-                                        <!--<form>-->
-                                            <!--<field name="code" />-->
-                                            <!--<field name="date_started" widget="nhc_datetime"/>-->
-                                            <!--<field name="location_id"/>-->
-                                        <!--</form>-->
-                                   <!--</field>-->
-                               <!--</group>-->
                             </page>
                             <page string="Demographics">
                                 <group>
@@ -694,19 +668,6 @@
                                     </field>
                                 </group>
                             </page>
-                            <!--<page string="Movements">-->
-                                <!--<field name="move_ids" readonly="1">-->
-                                    <!--<tree>-->
-                                        <!--<field name="location_id" />-->
-                                        <!--<field name="date_terminated" widget="nhc_datetime"/>-->
-                                        <!--<field name="state" />-->
-                                    <!--</tree>-->
-                                    <!--<form>-->
-                                        <!--<field name="location_id" />-->
-                                        <!--<field name="patient_id" />-->
-                                    <!--</form>-->
-                               <!--</field>-->
-                            <!--</page>-->
                             <page string="Devices">
                                     <group string="Active Device Sessions">
                                     <div>

@@ -267,6 +267,7 @@ class nh_clinical_wardboard(orm.Model):
         'clinical_risk': fields.selection(_clinical_risk_selection, "Clinical Risk"),
         'ward_id': fields.many2one('nh.clinical.location', 'Ward'),
         'location_id': fields.many2one('nh.clinical.location', "Location"),
+        'location_full_name': fields.related('location_id', 'full_name', type='char', size=150, string='Location Name'),
         'sex': fields.text("Sex"),
         'dob': fields.datetime("DOB"),
         'hospital_number': fields.text('Hospital Number'),
@@ -680,14 +681,14 @@ wb_activity_latest as(
 );
 
 create or replace view 
--- activity data ids per spell/pateint_id, data_model, state
+-- activity data ids per spell/patient_id, data_model, state
 wb_activity_data as(
         select 
             spell.id as spell_id,
             spell.patient_id,
             activity.data_model, 
             activity.state,
-            array_agg(split_part(activity.data_ref, ',', 2)::int) as ids
+            array_agg(split_part(activity.data_ref, ',', 2)::int order by split_part(activity.data_ref, ',', 2)::int desc) as ids
         from nh_clinical_spell spell
         inner join nh_activity activity on activity.patient_id = spell.patient_id
         group by spell_id, spell.patient_id, activity.data_model, activity.state
