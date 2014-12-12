@@ -175,6 +175,7 @@ class LozStyleFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFron
         cr, uid, context = request.cr, request.uid, request.context
 
         task_api = request.registry['nh.eobs.api']
+        task_api.unassign_my_activities(cr, uid)
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
@@ -198,6 +199,7 @@ class LozStyleFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFron
     def get_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.session.uid, request.context
         patient_api = request.registry['nh.eobs.api']
+        patient_api.unassign_my_activities(cr, uid)
         patients = patient_api.get_patients(cr, uid, [], context=context)
         tasks = patient_api.get_activities(cr, uid, [], context=context)
         for patient in patients:
