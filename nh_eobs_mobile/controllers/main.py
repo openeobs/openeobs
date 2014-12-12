@@ -185,6 +185,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             return response
     @http.route(URLS['logout'], type='http', auth="user")
     def mobile_logout(self, *args, **kw):
+        api = request.registry['nh.eobs.api']
+        api.unassign_my_activities(request.cr, request.session.uid)
         request.session.logout()
         return utils.redirect(URLS['login'], 303)
 
@@ -205,6 +207,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.session.uid, request.context
         patient_api = request.registry['nh.eobs.api']
+        patient_api.unassign_my_activities(cr, uid)
         patients = patient_api.get_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
@@ -221,6 +224,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_tasks(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         task_api = request.registry['nh.eobs.api']
+        task_api.unassign_my_activities(cr, uid)
         # grab the patient object and get id?
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
