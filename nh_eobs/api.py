@@ -59,6 +59,9 @@ class nh_eobs_api(orm.AbstractModel):
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         if not activity_ids:
             return False
+        user_id = activity_pool.read(cr, uid, activity_id, ['user_id'], context=context)['user_id']
+        if user_id and user_id[0] != uid:
+            return False
         return True
 
     def _create_activity(self, cr, uid, data_model, vals_activity=None, vals_data=None, context=None):
@@ -196,11 +199,15 @@ class nh_eobs_api(orm.AbstractModel):
     def submit(self, cr, uid, activity_id, data, context=None):
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
+        if not self.check_activity_access(cr, uid, activity_id, context=context):
+            raise osv.except_osv(_('Error!'), 'User ID %s not allowed to update this activity: %s' % (uid, activity_id))
         return activity_pool.submit(cr, uid, activity_id, data, context=context)
 
     def unassign(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
+        if not self.check_activity_access(cr, uid, activity_id, context=context):
+            raise osv.except_osv(_('Error!'), 'User ID %s not allowed to unassign this activity: %s' % (uid, activity_id))
         return activity_pool.unassign(cr, uid, activity_id, context=context)
 
     def assign(self, cr, uid, activity_id, data, context=None):
@@ -216,16 +223,15 @@ class nh_eobs_api(orm.AbstractModel):
             user_ids = user_pool.search(cr, uid, domain, context=context)
             if not user_ids:
                 raise osv.except_osv(_('Error!'), 'User ID not found: %s' % user_id)
+            if not self.check_activity_access(cr, user_id, activity_id, context=context):
+                raise osv.except_osv(_('Error!'), 'User ID %s not allowed to assign this activity: %s' % (user_id, activity_id))
         return activity_pool.assign(cr, uid, activity_id, user_id, context=context)
-
-    # def complete(self, cr, uid, activity_id, data, context=None):
-    #     activity_pool = self.pool['nh.activity']
-    #     self._check_activity_id(cr, uid, activity_id, context=context)
-    #     return activity_pool.complete(cr, uid, activity_id, data)
 
     def complete(self, cr, uid, activity_id, data, context=None):
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
+        if not self.check_activity_access(cr, uid, activity_id, context=context):
+            raise osv.except_osv(_('Error!'), 'User ID %s not allowed to complete this activity: %s' % (uid, activity_id))
         activity_pool.submit(cr, uid, activity_id, data, context=context)
         return activity_pool.complete(cr, uid, activity_id, context=context)
 
