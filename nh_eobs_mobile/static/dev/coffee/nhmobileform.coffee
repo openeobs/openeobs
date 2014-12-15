@@ -152,7 +152,6 @@ class NHMobileForm extends NHMobile
    if invalid_elements.length<1 and empty_elements.length<1
      # do something with the form
      @submit_observation(@, form_elements, @form.getAttribute('ajax-action'), @form.getAttribute('ajax-args'))
-     console.log('submit')
    else if invalid_elements.length>0
      new window.NH.NHModal('invalid_form', 'Form contains errors', '<p class="block">The form contains errors, please correct the errors and resubmit</p>', ['<a href="#" data-action="close" data-target="invalid_form">Cancel</a>'], 0, @.form)
    else

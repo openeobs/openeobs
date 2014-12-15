@@ -495,8 +495,7 @@
         return _results;
       })();
       if (invalid_elements.length < 1 && empty_elements.length < 1) {
-        this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
-        return console.log('submit');
+        return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
       } else if (invalid_elements.length > 0) {
         return new window.NH.NHModal('invalid_form', 'Form contains errors', '<p class="block">The form contains errors, please correct the errors and resubmit</p>', ['<a href="#" data-action="close" data-target="invalid_form">Cancel</a>'], 0, this.form);
       } else {
