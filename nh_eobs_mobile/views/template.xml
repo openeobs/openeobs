@@ -96,7 +96,7 @@
                          </t>
                      </form>
                      <script t-att-src="urls['js_routes']" type="text/javascript"></script>
-                     <script src="/nh_eobs_mobile/static/dev/coffee/playground/nhlib.js" type="text/javascript"></script>
+                     <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
                      <script type="text/javascript">
                          document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
                      </script>
@@ -137,7 +137,7 @@
                     <script t-att-src="urls['js_routes']" type="text/javascript"></script>
                     <!-- <script t-att-src="urls['observation_form_validation']" type="text/javascript"></script>
                     <script t-att-src="urls['observation_form_js']" type="text/javascript"></script> -->
-                    <script src="/nh_eobs_mobile/static/dev/coffee/playground/nhlib.js" type="text/javascript"></script>
+                    <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
                     <script type="text/javascript">
                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
                     </script>
@@ -264,7 +264,7 @@
                     <script t-att-src="urls['data_driven_documents']" type="text/javascript"></script>
                     <script t-att-src="urls['graph_lib']" type="text/javascript"></script>
                     <!-- <script t-att-src="urls['patient_graph']" type="text/javascript"></script> -->
-                    <script src="/nh_eobs_mobile/static/dev/coffee/playground/nhlib.js" type="text/javascript"></script>
+                    <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
                     <script type="text/javascript">
                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobilePatient(), false);
                     </script>
