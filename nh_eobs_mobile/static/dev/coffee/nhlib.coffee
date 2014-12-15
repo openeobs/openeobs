@@ -12,7 +12,10 @@ class NHLib
  date_from_string: (date_string) =>
 
    # return date for string
-   return new Date(date_string)
+   date = new Date(date_string)
+   if isNaN(date.getTime())
+     date = new Date(date_string.replace(' ', 'T'))
+   return date
 
  date_to_string: (date) =>
 
