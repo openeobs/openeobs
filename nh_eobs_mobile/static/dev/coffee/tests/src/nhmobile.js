@@ -72,7 +72,7 @@ NHMobile = (function(_super) {
         successResultCodes = [200, 304];
         if (_ref = req.status, __indexOf.call(successResultCodes, _ref) >= 0) {
           data = eval('[' + req.responseText + ']');
-          //console.log('data: ', data);
+          console.log('data: ', data);
           return promise.complete(data);
         } else {
           new NHModal('data_error', 'Error while processing request', '<div class="block">The server returned an error while processing the request. Please check your input and resubmit</div>', ['<a href="#" data-action="close" data-target="data_error">Ok</a>'], 0, document.getElementsByTagName('body')[0]);

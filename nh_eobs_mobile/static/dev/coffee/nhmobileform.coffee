@@ -96,6 +96,9 @@ class NHMobileForm extends NHMobile
            @.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1])
            return
          else
+           @.add_input_errors(input, 'Input requires ' + criteria[1] + ' to have value')
+           other = document.getElementById(criteria[1])
+           @.add_input_errors(other, 'Please enter a value')
            return
    else
      # to be continued

@@ -377,7 +377,9 @@
               other_criteria = eval(other.getAttribute('data-validation'))[0];
               this.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1]);
             } else {
-
+              this.add_input_errors(input, 'Input requires ' + criteria[1] + ' to have value');
+              other = document.getElementById(criteria[1]);
+              this.add_input_errors(other, 'Please enter a value');
             }
           }
         }
