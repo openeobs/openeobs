@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Jasmine Spec Runner v2.0.2</title>
+
+  <link rel="shortcut icon" type="image/png" href="lib/jasmine-2.0.2/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="lib/jasmine-2.0.2/jasmine.css">
+  <style>
+  	.cover{
+	  	z-index: 1;
+	  	position: relative;
+  	}
+  	#test{
+	  	z-index: 2;
+	  	position: relative;
+  	}
+  </style>
+
+  <script type="text/javascript" src="lib/jasmine-2.0.2/jasmine.js"></script>
+  <script type="text/javascript" src="lib/jasmine-2.0.2/jasmine-html.js"></script>
+  <script type="text/javascript" src="lib/jasmine-2.0.2/boot.js"></script>
+  <script type="text/javascript" src="lib/jasmine-2.0.2/console.js"></script>
+  <!-- <script type="text/javascript" src="lib/jasmine-2.0.2/mock-ajax.js"></script> -->
+  <script type="text/javascript" src="lib/jasmine-2.0.2/mock-promises.js"></script>
+  
+  <!-- phantomjs report console foo -->
+  <script type="text/javascript">
+  	if (navigator.userAgent.indexOf("PhantomJS") > 0) {
+	  	var consoleReporter = new jasmineRequire.ConsoleReporter()({
+		  	showColors: true,
+		  	timer: new jasmine.Timer,
+		  	print: function() {
+                console.log.apply(console, arguments)
+			}
+		 });
+
+		 jasmine.getEnv().addReporter(consoleReporter);
+	 }
+  </script>
+  
+
+  <!-- include source files here... -->
+  <!-- <script src="http://localhost:8169/mobile/src/js/routes.js" type="text/javascript"></script> -->
+  <!-- Fake routes file -->
+  <script type="text/javascript" src="src/test_routes.js"></script>
+  <script type="text/javascript" src="../src/coffee/nh_graphlib.js"></script>
+  <script type="text/javascript" src="../src/coffee/nh_graphlib_context.js"></script>
+  <script type="text/javascript" src="../src/coffee/nh_graphlib_focus.js"></script>
+  <script type="text/javascript" src="../src/coffee/nh_graphlib_graph.js"></script>
+  <script type="text/javascript" src="../src/coffee/nh_graphlib_table.js"></script>
+
+  <!-- include spec files here... -->
+  <script type="text/javascript" src="spec/nh_graphlib.spec.js"></script>
+</head>
+
+<body>
+</body>
+</html>

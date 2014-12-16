@@ -75,6 +75,7 @@
         element: null,
         keys: null
       };
+      this.version = '0.0.1';
       self = this;
     }
 

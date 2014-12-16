@@ -62,6 +62,7 @@ class NHGraphLib
       element: null,
       keys: null
     }
+    @version = '0.0.1'
     self = @
 
     #@init(self)
