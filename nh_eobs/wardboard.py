@@ -644,6 +644,7 @@ drop view if exists nh_clinical_wardboard;
 drop view if exists wb_activity_ranked;
 drop view if exists wb_activity_latest;
 drop view if exists wb_activity_data;
+
 create or replace view 
 -- activity per spell, data_model, state
 wb_activity_ranked as(
@@ -654,6 +655,19 @@ wb_activity_ranked as(
             rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
         from nh_clinical_spell spell
         inner join nh_activity activity on activity.spell_activity_id = spell.activity_id
+);
+
+create or replace view
+ward_locations as(
+    with recursive ward_loc(id, parent_id, path, ward_id) as (
+        select lc.id, lc.parent_id, ARRAY[lc.id] as path, lc.id as ward_id
+        from nh_clinical_location as lc
+        where lc.usage = 'ward'
+        union all
+        select l.id, l.parent_id, w.path || ARRAY[l.id] as path, w.path[1] as ward_id
+        from ward_loc as w, nh_clinical_location as l
+        where l.parent_id = w.id)
+    select * from ward_loc
 );
 
 create or replace view 
@@ -780,7 +794,7 @@ nh_clinical_wardboard as(
         coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
         location.code as location,
         location.id as location_id,
-        location.parent_id as ward_id,
+        wlocation.ward_id as ward_id,
         patient.sex,
         patient.dob,
         patient.other_identifier as hospital_number,
@@ -822,6 +836,7 @@ nh_clinical_wardboard as(
     inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
     inner join nh_clinical_patient patient on spell.patient_id = patient.id
     left join nh_clinical_location location on location.id = spell.location_id
+    left join ward_locations wlocation on wlocation.id = location.id
     left join ews ews1 on spell.id = ews1.spell_id and ews1.rank = 1 and ews1.state = 'completed'
     left join ews ews2 on spell.id = ews2.spell_id and ews2.rank = 2 and ews2.state = 'completed'
     left join ews ews0 on spell.id = ews0.spell_id and ews0.rank = 1 and ews0.state = 'scheduled'
