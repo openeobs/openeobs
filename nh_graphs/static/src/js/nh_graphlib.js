@@ -522,7 +522,11 @@
         this.parent_obj = parent_svg;
         if (this.title != null) {
           this.title_obj = this.parent_obj.obj.append('text').text(this.title).attr('class', 'title');
-          this.title_obj.attr('transform', 'translate(0,' + (((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + this.style.margin.top) + ')');
+          if (parent_svg.context != null) {
+            this.title_obj.attr('transform', 'translate(0,' + (((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + this.style.margin.top) + ')');
+          } else {
+            this.title_obj.attr('transform', 'translate(0,' + (parent_svg.style.padding.top + this.style.margin.top) + ')');
+          }
         }
         this.obj = parent_svg.obj.append('g');
         this.obj.attr('class', 'nhfocus');

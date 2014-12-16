@@ -48,7 +48,10 @@ class NHFocus
       @.parent_obj = parent_svg
       if @.title?
         @.title_obj = @.parent_obj.obj.append('text').text(@.title).attr('class', 'title')
-        @.title_obj.attr('transform', 'translate(0,'+(((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + @.style.margin.top)+')')
+        if parent_svg.context?
+          @.title_obj.attr('transform', 'translate(0,'+(((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + @.style.margin.top)+')')
+        else
+          @.title_obj.attr('transform', 'translate(0,'+(parent_svg.style.padding.top + @.style.margin.top)+')')
       @.obj = parent_svg.obj.append('g')
       @.obj.attr('class', 'nhfocus')
       top_offset = (parent_svg.style.padding.top + @.style.margin.top)
