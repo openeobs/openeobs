@@ -730,7 +730,12 @@
     }
 
     NHGraph.prototype.date_from_string = function(date_string) {
-      return new Date(date_string);
+      var date;
+      date = new Date(date_string);
+      if (isNaN(date.getTime())) {
+        date = new Date(date_string.replace(' ', 'T'));
+      }
+      return date;
     };
 
     NHGraph.prototype.date_to_string = function(date) {
@@ -1197,7 +1202,12 @@
     }
 
     NHTable.prototype.date_from_string = function(date_string) {
-      return new Date(date_string);
+      var date;
+      date = new Date(date_string);
+      if (isNaN(date.getTime())) {
+        date = new Date(date_string.replace(' ', 'T'));
+      }
+      return date;
     };
 
     NHTable.prototype.date_to_string = function(date) {

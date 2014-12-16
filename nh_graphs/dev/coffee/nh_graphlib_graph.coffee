@@ -90,7 +90,10 @@ class NHGraph
     @parent_obj = null
 
   date_from_string: (date_string) =>
-    return new Date(date_string)
+    date = new Date(date_string)
+    if isNaN(date.getTime())
+      date = new Date(date_string.replace(' ', 'T'))
+    return date
 
   date_to_string: (date) =>
     days = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ]
