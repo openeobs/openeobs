@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_ews', 'nh_gcs', 'nh_pbp', 'nh_stools', 'nh_graphs', 'phantomjs_pdf'],
+    'depends': ['nh_ews', 'nh_gcs', 'nh_pbp', 'nh_stools', 'nh_graphs', 'phantomjs_pdf', 'nh_shift_management'],
     'data': ['eobs_data.xml',
              'wizard/responsibility_allocation_wizard.xml',
              'wizard/cancel_notifications_view.xml',
