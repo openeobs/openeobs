@@ -368,12 +368,26 @@ describe('NHGraphLib - Initialisation', function(){
         expect(focusg.getAttribute('transform')).toBe('translate(40,434)');
         expect(focusg.getAttribute('width')).toBe((test.clientWidth-70).toString());
 
-        // check if graph is there
+        // check if context is there
+        var contextg = svg.getElementsByClassName('nhcontext');
+        expect(contextg.length).toBe(1);
+        contextg = contextg[0];
+        expect(contextg.getAttribute('transform')).toBe('translate(40,140)');
+        expect(contextg.getAttribute('width')).toBe((test.clientWidth-70).toString());
+
+        // check if focus graph is there
         var gg = focusg.getElementsByClassName('nhgraph');
         expect(gg.length).toBe(1);
         gg = gg[0];
         expect(gg.getAttribute('width')).toBe((test.clientWidth-130).toString());
         expect(gg.getAttribute('height')).toBe('200');
+
+        // check if context graph is there
+        var ggg = contextg.getElementsByClassName('nhgraph');
+        expect(ggg.length).toBe(1);
+        ggg = ggg[0];
+        expect(ggg.getAttribute('width')).toBe((test.clientWidth-130).toString());
+        expect(ggg.getAttribute('height')).toBe('146');
 
         // see if popup element is there
         var popup = document.getElementById('chart_popup');
