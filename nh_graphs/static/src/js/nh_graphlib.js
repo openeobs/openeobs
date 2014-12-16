@@ -98,19 +98,33 @@
       return ("0" + date_element).slice(-2);
     };
 
-    NHGraphLib.prototype.mobile_date_start_change = function(event) {
+    NHGraphLib.prototype.mobile_date_start_change = function(self, event) {
+      var current_date, dates, new_date;
+      if (self.focus != null) {
+        current_date = self.focus.axes.x.min;
+        dates = event.srcElement.value.split('-');
+        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
+        self.focus.axes.x.min = new_date;
+        self.focus.redraw([new_date, self.focus.axes.x.max]);
+      }
+    };
+
+    NHGraphLib.prototype.mobile_date_end_change = function(self, event) {
+      var current_date, dates, new_date;
+      if (self.focus != null) {
+        current_date = self.focus.axes.x.max;
+        dates = event.srcElement.value.split('-');
+        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
+        self.focus.axes.x.max = new_date;
+        self.focus.redraw([self.focus.axes.x.min, new_date]);
+      }
+    };
+
+    NHGraphLib.prototype.mobile_time_start_change = function(self, event) {
       return console.log(event.srcElement.value);
     };
 
-    NHGraphLib.prototype.mobile_date_end_change = function(event) {
-      return console.log(event.srcElement.value);
-    };
-
-    NHGraphLib.prototype.mobile_time_start_change = function(event) {
-      return console.log(event.srcElement.value);
-    };
-
-    NHGraphLib.prototype.mobile_time_end_change = function(event) {
+    NHGraphLib.prototype.mobile_time_end_change = function(self, event) {
       return console.log(event.srcElement.value);
     };
 
@@ -123,20 +137,22 @@
         if (this.data.raw.length < 2 && !this.style.time_padding) {
           this.style.time_padding = 100;
         }
-        start = this.date_from_string(this.data.raw[0]['date_terminated']);
-        end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
-        if (!this.style.time_padding) {
-          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 500;
-        }
-        start.setMinutes(start.getMinutes() - this.style.time_padding);
-        this.data.extent.start = start;
-        end.setMinutes(end.getMinutes() + this.style.time_padding);
-        this.data.extent.end = end;
-        if ((_ref1 = this.context) != null) {
-          _ref1.init(this);
-        }
-        if ((_ref2 = this.focus) != null) {
-          _ref2.init(this);
+        if (this.data.raw.length > 0) {
+          start = this.date_from_string(this.data.raw[0]['date_terminated']);
+          end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
+          if (!this.style.time_padding) {
+            this.style.time_padding = ((end - start) / this.style.dimensions.width) / 500;
+          }
+          start.setMinutes(start.getMinutes() - this.style.time_padding);
+          this.data.extent.start = start;
+          end.setMinutes(end.getMinutes() + this.style.time_padding);
+          this.data.extent.end = end;
+          if ((_ref1 = this.context) != null) {
+            _ref1.init(this);
+          }
+          if ((_ref2 = this.focus) != null) {
+            _ref2.init(this);
+          }
         }
         this.obj.attr('width', this.style.dimensions.width);
         this.obj.attr('height', this.style.dimensions.height);
@@ -147,22 +163,12 @@
         self = this;
         if ((_ref3 = this.options.controls.date.start) != null) {
           _ref3.addEventListener('change', function(event) {
-            var current_date, dates, new_date;
-            current_date = self.focus.axes.x.min;
-            dates = event.srcElement.value.split('-');
-            new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
-            self.focus.axes.x.min = new_date;
-            return self.focus.redraw([new_date, self.focus.axes.x.max]);
+            self.mobile_date_start_change(self, event);
           });
         }
         if ((_ref4 = this.options.controls.date.end) != null) {
           _ref4.addEventListener('change', function(event) {
-            var current_date, dates, new_date;
-            current_date = self.focus.axes.x.max;
-            dates = event.srcElement.value.split('-');
-            new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
-            self.focus.axes.x.max = new_date;
-            return self.focus.redraw([self.focus.axes.x.min, new_date]);
+            self.mobile_date_end_change(self, event);
           });
         }
         if ((_ref5 = this.options.controls.time.start) != null) {

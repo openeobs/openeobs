@@ -81,17 +81,28 @@ class NHGraphLib
   leading_zero: (date_element) =>
     return ("0" + date_element).slice(-2)
 
-  mobile_date_start_change: (event) =>
+  mobile_date_start_change: (self, event) =>
+    if self.focus?
+      current_date = self.focus.axes.x.min
+      dates = event.srcElement.value.split('-')
+      new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
+      self.focus.axes.x.min = new_date
+      self.focus.redraw([new_date, self.focus.axes.x.max])
+    return
 
+  mobile_date_end_change: (self, event) =>
+    if self.focus?
+      current_date = self.focus.axes.x.max
+      dates = event.srcElement.value.split('-')
+      new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
+      self.focus.axes.x.max = new_date
+      self.focus.redraw([self.focus.axes.x.min, new_date])
+    return
+
+  mobile_time_start_change: (self, event) =>
     console.log(event.srcElement.value)
 
-  mobile_date_end_change: (event) =>
-    console.log(event.srcElement.value)
-
-  mobile_time_start_change: (event) =>
-    console.log(event.srcElement.value)
-
-  mobile_time_end_change: (event) =>
+  mobile_time_end_change: (self, event) =>
     console.log(event.srcElement.value)
 
   init: () ->
@@ -103,18 +114,19 @@ class NHGraphLib
       @.obj = container_el.append('svg')
       if @.data.raw.length < 2 and not @.style.time_padding
         @.style.time_padding = 100
-      start = @.date_from_string(@.data.raw[0]['date_terminated'])
-      end = @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
-      if not @.style.time_padding
-        @.style.time_padding = ((end-start)/@.style.dimensions.width)/500
-      start.setMinutes(start.getMinutes()-@.style.time_padding)
-      @.data.extent.start = start
-      end.setMinutes(end.getMinutes()+@.style.time_padding)
-      @.data.extent.end = end
-      #initialise context
-      @.context?.init(@)
-      #initalise focus
-      @.focus?.init(@)
+      if @.data.raw.length > 0
+        start = @.date_from_string(@.data.raw[0]['date_terminated'])
+        end = @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
+        if not @.style.time_padding
+          @.style.time_padding = ((end-start)/@.style.dimensions.width)/500
+        start.setMinutes(start.getMinutes()-@.style.time_padding)
+        @.data.extent.start = start
+        end.setMinutes(end.getMinutes()+@.style.time_padding)
+        @.data.extent.end = end
+        #initialise context
+        @.context?.init(@)
+        #initalise focus
+        @.focus?.init(@)
 
       # append svg element to container
       @.obj.attr('width', @.style.dimensions.width)
@@ -129,18 +141,12 @@ class NHGraphLib
       # add mobile date entry
       self = @
       @.options.controls.date.start?.addEventListener('change', (event) ->
-        current_date = self.focus.axes.x.min
-        dates = event.srcElement.value.split('-')
-        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
-        self.focus.axes.x.min = new_date
-        self.focus.redraw([new_date, self.focus.axes.x.max])
+        self.mobile_date_start_change(self, event)
+        return
       )
       @.options.controls.date.end?.addEventListener('change', (event) ->
-        current_date = self.focus.axes.x.max
-        dates = event.srcElement.value.split('-')
-        new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1])-1, dates[2]))
-        self.focus.axes.x.max = new_date
-        self.focus.redraw([self.focus.axes.x.min, new_date])
+        self.mobile_date_end_change(self, event)
+        return
       )
       @.options.controls.time.start?.addEventListener('change', (event) ->
         current_date = self.focus.axes.x.min
