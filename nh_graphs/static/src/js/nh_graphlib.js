@@ -144,10 +144,10 @@
     };
 
     NHGraphLib.prototype.redraw_resize = function(self, event) {
-      var context_event, _ref, _ref1;
-      self.style.dimensions.width = (typeof container_el !== "undefined" && container_el !== null ? (_ref = container_el[0]) != null ? _ref[0].clientWidth : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
-      if ((_ref1 = self.obj) != null) {
-        _ref1.attr('width', self.style.dimensions.width);
+      var context_event, _ref, _ref1, _ref2, _ref3;
+      self.style.dimensions.width = ((_ref = nh_graphs.select(self.el)) != null ? (_ref1 = _ref[0]) != null ? (_ref2 = _ref1[0]) != null ? _ref2.clientWidth : void 0 : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
+      if ((_ref3 = self.obj) != null) {
+        _ref3.attr('width', self.style.dimensions.width);
       }
       context_event = document.createEvent('HTMLEvents');
       context_event.initEvent('context_resize', true, true);

@@ -118,7 +118,7 @@ class NHGraphLib
     return
 
   redraw_resize: (self, event) =>
-    self.style.dimensions.width = container_el?[0]?[0].clientWidth - (self.style.margin.left + self.style.margin.right)
+    self.style.dimensions.width = nh_graphs.select(self.el)?[0]?[0]?.clientWidth - (self.style.margin.left + self.style.margin.right)
     self.obj?.attr('width', self.style.dimensions.width)
     context_event = document.createEvent('HTMLEvents')
     context_event.initEvent('context_resize', true, true)

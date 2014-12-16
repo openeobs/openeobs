@@ -226,7 +226,7 @@ describe('NHGraphLib - Initialisation', function(){
         expect(popup.classList.contains('hidden')).toBe(true);
     });
 
-    it('Initialises correct with data, focus no context', function(){
+    it('Initialises correctly with data, focus no context', function(){
         graphlib.data.raw = data;
         // test to see if styles are working
         var graph = new NHGraph();
@@ -291,8 +291,93 @@ describe('NHGraphLib - Initialisation', function(){
 
     });
 
-    it('Intialises correctly with data, focus and context', function(){
+    it('Initialises correctly with data, focus and context', function(){
+        graphlib.data.raw = data;
+        // test to see if styles are working
+        var graph = new NHGraph();
+        graph.options.keys = ['pulse_rate'];
+        graph.options.label = 'HR';
+        graph.options.measurement = '/min';
+        graph.axes.y.min = 30;
+        graph.axes.y.max = 200;
+        graph.options.normal.min = 50;
+        graph.options.normal.max = 100;
+        graph.style.dimensions.height = 200;
+        graph.style.axis.x.hide = true;
+        graph.style.data_style = 'linear';
+        graph.style.label_width = 60;
 
+        var score_graph = new NHGraph();
+        score_graph.options.keys = ['score'];
+        score_graph.style.dimensions.height = 200;
+        score_graph.style.data_style = 'stepped';
+        score_graph.axes.y.min = 0;
+        score_graph.axes.y.max = 22;
+        score_graph.drawables.background.data =  [
+            {"class": "green",s: 1, e: 4},
+            {"class": "amber",s: 4,e: 6},
+            {"class": "red",s: 6,e: 22}
+        ];
+        score_graph.style.label_width = 60;
+
+        // create a focus
+        var focus = new NHFocus();
+        var context = new NHContext();
+        focus.graphs.push(graph);
+        focus.title = 'Test Graph';
+        graphlib.focus = focus;
+        context.graph = score_graph;
+        context.title = 'NEWS Score';
+        graphlib.context = context;
+
+        spyOn(graphlib, 'init').and.callThrough();
+        spyOn(focus, 'init').and.callThrough();
+        spyOn(graph, 'init').and.callThrough();
+        spyOn(context, 'init').and.callThrough();
+        spyOn(score_graph, 'init').and.callThrough();
+        graphlib.init();
+        expect(graphlib.init).toHaveBeenCalled();
+        expect(focus.init).toHaveBeenCalled();
+        expect(graph.init).toHaveBeenCalled();
+        expect(context.init).toHaveBeenCalled();
+        expect(score_graph.init).toHaveBeenCalled();
+
+        // see if svg element is there
+        var svg = test.getElementsByTagName('svg');
+        expect(svg.length).toBe(1);
+        svg = svg[0];
+        svg_height = svg.getAttribute('height');
+        svg_width = svg.getAttribute('width');
+        expect(svg_height).toBe('694');
+        expect(svg_width).toBe(test.clientWidth.toString());
+        expect(svg.hasChildNodes()).toBe(true);
+
+        // check if title is there
+        var title = svg.getElementsByClassName('title');
+        expect(title.length).toBe(2);
+        //title = title[0];
+        expect(title[0].textContent).toBe('NEWS Score');
+        expect(title[1].textContent).toBe('Test Graph');
+        expect(title[0].getAttribute('transform')).toBe('translate(0,60)');
+        expect(title[1].getAttribute('transform')).toBe('translate(0,364)');
+
+        //check if focus is there
+        var focusg = svg.getElementsByClassName('nhfocus');
+        expect(focusg.length).toBe(1);
+        focusg = focusg[0];
+        expect(focusg.getAttribute('transform')).toBe('translate(40,434)');
+        expect(focusg.getAttribute('width')).toBe((test.clientWidth-70).toString());
+
+        // check if graph is there
+        var gg = focusg.getElementsByClassName('nhgraph');
+        expect(gg.length).toBe(1);
+        gg = gg[0];
+        expect(gg.getAttribute('width')).toBe((test.clientWidth-130).toString());
+        expect(gg.getAttribute('height')).toBe('200');
+
+        // see if popup element is there
+        var popup = document.getElementById('chart_popup');
+        expect(popup.classList.contains('hidden')).toBe(true);
     });
 
 
@@ -454,6 +539,7 @@ describe('NHGraphlib - Event listeners', function() {
     });
 
     it('detects when the window is resized and redraws', function(){
+        spyOn(window, 'dispatchEvent');
         spyOn(graphlib, 'redraw_resize');
         graphlib.init();
         if (document.createEvent) {
