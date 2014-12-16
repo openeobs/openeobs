@@ -32,7 +32,7 @@ describe('NHGraphlib - Date functions', function() {
 });
 
 
-describe('NHGraphlib - Event listeners', function() {
+describe('NHGraphlib - Event listeners for Mobile Controls', function() {
     var graphlib, phantomJSPadding;
     beforeEach(function () {
         var test = document.getElementById('test');
@@ -166,5 +166,18 @@ describe('NHGraphlib - Event listeners', function() {
         change_event.initCustomEvent('change', false, false, false);
         end_time.dispatchEvent(change_event);
         expect(graphlib.mobile_time_end_change).toHaveBeenCalled();
+    });
+
+    it('detects when the window is resized and redraws', function(){
+        spyOn(graphlib, 'redraw_resize');
+        graphlib.init();
+        if (document.createEvent) {
+            var e = document.createEvent('HTMLEvents');
+            e.initEvent('resize', true, false);
+            document.body.dispatchEvent(e);
+        } else if (document.createEventObject) {
+            document.body.fireEvent('onresize');
+        }
+        expect(graphlib.redraw_resize).toHaveBeenCalled();
     });
 });

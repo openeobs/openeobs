@@ -5,6 +5,7 @@
 
   NHGraphLib = (function() {
     function NHGraphLib(element) {
+      this.redraw_resize = __bind(this.redraw_resize, this);
       this.mobile_time_end_change = __bind(this.mobile_time_end_change, this);
       this.mobile_time_start_change = __bind(this.mobile_time_start_change, this);
       this.mobile_date_end_change = __bind(this.mobile_date_end_change, this);
@@ -142,6 +143,17 @@
       }
     };
 
+    NHGraphLib.prototype.redraw_resize = function(self, event) {
+      var context_event, _ref, _ref1;
+      self.style.dimensions.width = (typeof container_el !== "undefined" && container_el !== null ? (_ref = container_el[0]) != null ? _ref[0].clientWidth : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
+      if ((_ref1 = self.obj) != null) {
+        _ref1.attr('width', self.style.dimensions.width);
+      }
+      context_event = document.createEvent('HTMLEvents');
+      context_event.initEvent('context_resize', true, true);
+      window.dispatchEvent(context_event);
+    };
+
     NHGraphLib.prototype.init = function() {
       var container_el, end, self, start, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
       if (this.el != null) {
@@ -196,12 +208,7 @@
           });
         }
         window.addEventListener('resize', function(event) {
-          var context_event, _ref7;
-          self.style.dimensions.width = (container_el != null ? (_ref7 = container_el[0]) != null ? _ref7[0].clientWidth : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
-          self.obj.attr('width', self.style.dimensions.width);
-          context_event = document.createEvent('HTMLEvents');
-          context_event.initEvent('context_resize', true, true);
-          return window.dispatchEvent(context_event);
+          self.redraw_resize(self, event);
         });
       } else {
         throw new Error('No element specified');

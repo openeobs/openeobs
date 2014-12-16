@@ -117,6 +117,14 @@ class NHGraphLib
       self.focus.redraw([self.focus.axes.x.min, new_time])
     return
 
+  redraw_resize: (self, event) =>
+    self.style.dimensions.width = container_el?[0]?[0].clientWidth - (self.style.margin.left + self.style.margin.right)
+    self.obj?.attr('width', self.style.dimensions.width)
+    context_event = document.createEvent('HTMLEvents')
+    context_event.initEvent('context_resize', true, true)
+    window.dispatchEvent(context_event)
+    return
+
   init: () ->
     # check to see if element to put svg in is defined
     if @.el?
@@ -169,11 +177,8 @@ class NHGraphLib
         return
       )
       window.addEventListener('resize', (event) ->
-        self.style.dimensions.width = container_el?[0]?[0].clientWidth - (self.style.margin.left + self.style.margin.right)
-        self.obj.attr('width', self.style.dimensions.width)
-        context_event = document.createEvent('HTMLEvents')
-        context_event.initEvent('context_resize', true, true)
-        window.dispatchEvent(context_event)
+        self.redraw_resize(self, event)
+        return
       )
       return
     else
