@@ -43,7 +43,6 @@ describe('NHMobile - Object', function() {
 	   var date = new Date('1988-01-12T06:00:00');
 	   var string_for_date = mobile.date_to_string(date);
 	   expect(string_for_date).toBe('1988-01-12 06:00:00');
-        expect(1).toBe(0)
     });
     
     it('converts date to dob string', function(){
