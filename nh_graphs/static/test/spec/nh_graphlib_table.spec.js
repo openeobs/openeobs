@@ -1,5 +1,5 @@
 describe('NHGraphLib - Table', function(){
-    var graphlib, test, table_el;
+    var graphlib, test, table_el, table_container;
     var data = [{
         __last_update: "2014-12-01 16:16:53",
         activity_id: [700, "NEWS Observation"],
@@ -50,9 +50,16 @@ describe('NHGraphLib - Table', function(){
             graphlib = new NHGraphLib('#test');
         }
 
+        table_container = document.createElement('div');
+        table_container.setAttribute('id', 'table-content');
+        body_el.appendChild(table_container);
+
         table_el = document.createElement('div');
         table_el.setAttribute('id', 'table');
         body_el.appendChild(table_el);
+
+
+
         graphlib.table.element = '#table';
         graphlib.table.keys = [
             {
@@ -153,6 +160,21 @@ describe('NHGraphLib - Table', function(){
         // see if table is there
         var table = document.getElementById('table');
         expect(typeof(table)).toBe('object');
+
+        // see if cards are there
+        expect(table_container.hasChildNodes()).toBe(true);
+        var cards = document.getElementsByClassName('card');
+        expect(cards.length).toBe(1);
+        cards = cards[0];
+        var card_title = cards.getElementsByTagName('h3');
+        expect(card_title.length).toBe(1);
+        card_title = card_title[0];
+        expect(card_title.textContent).toBe('16:16 01/12/2014');
+        var card_table = cards.getElementsByTagName('table');
+        expect(card_table.length).toBe(2); // there's a table inside the main table
+        card_table = card_table[0];
+        expect(card_table.hasChildNodes()).toBe(true);
+        expect(card_table.getElementsByTagName('tr').length).toBe(9);
     });
 
 
@@ -169,6 +191,9 @@ describe('NHGraphLib - Table', function(){
         var popup = document.getElementById('chart_popup');
         if(popup != null){
             popup.parentNode.removeChild(popup);
+        }
+        if(table_container != null){
+            table_container.parentNode.removeChild(table_container);
         }
     });
 
