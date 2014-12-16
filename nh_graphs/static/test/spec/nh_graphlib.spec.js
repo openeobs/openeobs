@@ -145,4 +145,26 @@ describe('NHGraphlib - Event listeners', function() {
         end_date.dispatchEvent(change_event);
         expect(graphlib.mobile_date_end_change).toHaveBeenCalled();
     });
+
+    it('calls the start_time change function when start_time is changed', function(){
+        spyOn(graphlib, 'mobile_time_start_change');
+        graphlib.init();
+        var start_time = document.getElementById('start_time');
+        start_time.value = '06:00:00';
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('change', false, false, false);
+        start_time.dispatchEvent(change_event);
+        expect(graphlib.mobile_time_start_change).toHaveBeenCalled();
+    });
+
+    it('calls the end_time change function when end_time is changed', function(){
+        spyOn(graphlib, 'mobile_time_end_change');
+        graphlib.init();
+        var end_time = document.getElementById('end_time');
+        end_time.value = '06:00:00';
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('change', false, false, false);
+        end_time.dispatchEvent(change_event);
+        expect(graphlib.mobile_time_end_change).toHaveBeenCalled();
+    });
 });

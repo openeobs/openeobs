@@ -100,10 +100,22 @@ class NHGraphLib
     return
 
   mobile_time_start_change: (self, event) =>
-    console.log(event.srcElement.value)
+    if self.focus?
+      current_date = self.focus.axes.x.min
+      time = event.srcElement.value.split(':')
+      new_time = new Date(current_date.setHours(time[0], time[1]))
+      self.focus.axes.x.min = new_time
+      self.focus.redraw([new_time, self.focus.axes.x.max])
+    return
 
   mobile_time_end_change: (self, event) =>
-    console.log(event.srcElement.value)
+    if self.focus?
+      current_date = self.focus.axes.x.max
+      time = event.srcElement.value.split(':')
+      new_time = new Date(current_date.setHours(time[0], time[1]))
+      self.focus.axes.x.max = new_time
+      self.focus.redraw([self.focus.axes.x.min, new_time])
+    return
 
   init: () ->
     # check to see if element to put svg in is defined
@@ -149,18 +161,12 @@ class NHGraphLib
         return
       )
       @.options.controls.time.start?.addEventListener('change', (event) ->
-        current_date = self.focus.axes.x.min
-        time = event.srcElement.value.split(':')
-        new_time = new Date(current_date.setHours(time[0], time[1]))
-        self.focus.axes.x.min = new_time
-        self.focus.redraw([new_time, self.focus.axes.x.max])
+        self.mobile_time_start_change(self, event)
+        return
       )
       @.options.controls.time.end?.addEventListener('change', (event) ->
-        current_date = self.focus.axes.x.max
-        time = event.srcElement.value.split(':')
-        new_time = new Date(current_date.setHours(time[0], time[1]))
-        self.focus.axes.x.max = new_time
-        self.focus.redraw([self.focus.axes.x.min, new_time])
+        self.mobile_time_end_change(self, event)
+        return
       )
       window.addEventListener('resize', (event) ->
         self.style.dimensions.width = container_el?[0]?[0].clientWidth - (self.style.margin.left + self.style.margin.right)

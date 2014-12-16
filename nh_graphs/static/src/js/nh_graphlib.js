@@ -121,11 +121,25 @@
     };
 
     NHGraphLib.prototype.mobile_time_start_change = function(self, event) {
-      return console.log(event.srcElement.value);
+      var current_date, new_time, time;
+      if (self.focus != null) {
+        current_date = self.focus.axes.x.min;
+        time = event.srcElement.value.split(':');
+        new_time = new Date(current_date.setHours(time[0], time[1]));
+        self.focus.axes.x.min = new_time;
+        self.focus.redraw([new_time, self.focus.axes.x.max]);
+      }
     };
 
     NHGraphLib.prototype.mobile_time_end_change = function(self, event) {
-      return console.log(event.srcElement.value);
+      var current_date, new_time, time;
+      if (self.focus != null) {
+        current_date = self.focus.axes.x.max;
+        time = event.srcElement.value.split(':');
+        new_time = new Date(current_date.setHours(time[0], time[1]));
+        self.focus.axes.x.max = new_time;
+        self.focus.redraw([self.focus.axes.x.min, new_time]);
+      }
     };
 
     NHGraphLib.prototype.init = function() {
@@ -173,22 +187,12 @@
         }
         if ((_ref5 = this.options.controls.time.start) != null) {
           _ref5.addEventListener('change', function(event) {
-            var current_date, new_time, time;
-            current_date = self.focus.axes.x.min;
-            time = event.srcElement.value.split(':');
-            new_time = new Date(current_date.setHours(time[0], time[1]));
-            self.focus.axes.x.min = new_time;
-            return self.focus.redraw([new_time, self.focus.axes.x.max]);
+            self.mobile_time_start_change(self, event);
           });
         }
         if ((_ref6 = this.options.controls.time.end) != null) {
           _ref6.addEventListener('change', function(event) {
-            var current_date, new_time, time;
-            current_date = self.focus.axes.x.max;
-            time = event.srcElement.value.split(':');
-            new_time = new Date(current_date.setHours(time[0], time[1]));
-            self.focus.axes.x.max = new_time;
-            return self.focus.redraw([self.focus.axes.x.min, new_time]);
+            self.mobile_time_end_change(self, event);
           });
         }
         window.addEventListener('resize', function(event) {
