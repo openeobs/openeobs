@@ -214,7 +214,7 @@ class nh_eobs_api(orm.AbstractModel):
         """calls unassign for every activity the user is assigned to.
         It doesn't include hca notification activities because those activities are always tied to a specific user."""
         activity_pool = self.pool['nh.activity']
-        domain = [['user_id', '=', uid], ['data_model', '!=', 'nh.clinical.notification.hca']]
+        domain = [['user_id', '=', uid], ['data_model', '!=', 'nh.clinical.notification.hca'], ['state', 'not in', ['completed', 'cancelled']]]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         [self.unassign(cr, uid, aid, context=context) for aid in activity_ids]
         return True
