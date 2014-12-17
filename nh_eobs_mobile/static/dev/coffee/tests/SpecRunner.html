@@ -21,6 +21,7 @@
   <script type="text/javascript" src="lib/jasmine-2.0.2/jasmine-html.js"></script>
   <script type="text/javascript" src="lib/jasmine-2.0.2/boot.js"></script>
   <script type="text/javascript" src="lib/jasmine-2.0.2/console.js"></script>
+  <script type="text/javascript" src="lib/jasmine-2.0.2/jasmine-jsreporter.js"></script>
   <!-- <script type="text/javascript" src="lib/jasmine-2.0.2/mock-ajax.js"></script> -->
   <script type="text/javascript" src="lib/jasmine-2.0.2/mock-promises.js"></script>
   
@@ -37,6 +38,7 @@
 
 		 jasmine.getEnv().addReporter(consoleReporter);
 	 }
+      jasmine.getEnv().addReporter(new jasmine.JSReporter2());
   </script>
   
 
