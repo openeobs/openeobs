@@ -24,22 +24,7 @@
   <script type="text/javascript" src="lib/jasmine-2.0.2/jasmine-jsreporter.js"></script>
   <!-- <script type="text/javascript" src="lib/jasmine-2.0.2/mock-ajax.js"></script> -->
   <script type="text/javascript" src="lib/jasmine-2.0.2/mock-promises.js"></script>
-  
-  <!-- phantomjs report console foo -->
-  <script type="text/javascript">
-  	if (navigator.userAgent.indexOf("PhantomJS") > 0) {
-	  	var consoleReporter = new jasmineRequire.ConsoleReporter()({
-		  	showColors: true,
-		  	timer: new jasmine.Timer,
-		  	print: function() {
-                console.log.apply(console, arguments)
-			}
-		 });
 
-		 jasmine.getEnv().addReporter(consoleReporter);
-	 }
-      jasmine.getEnv().addReporter(new jasmine.JSReporter2());
-  </script>
   
 
   <!-- include source files here... -->
@@ -55,6 +40,45 @@
   <script type="text/javascript" src="spec/nhmodal.spec.js"></script>
   <script type="text/javascript" src="spec/nhmobile.spec.js"></script>
   <script type="text/javascript" src="spec/nhmobileform.spec.js"></script>
+
+    <!-- phantomjs report console foo -->
+    <script type="text/javascript">
+        (function(){
+            jasmine.getEnv().updateInterval = 1000;
+
+            //var htmlReporter = new jasmine.HtmlReporter(jasmineEnv);
+
+            if (navigator.userAgent.indexOf("PhantomJS") > 0) {
+                var consoleReporter = new jasmineRequire.ConsoleReporter()({
+                    showColors: true,
+                    timer: new jasmine.Timer,
+                    print: function() {
+                        console.log.apply(console, arguments)
+                    }
+                });
+
+                jasmine.getEnv().addReporter(consoleReporter);
+            }
+
+            jasmine.getEnv().addReporter(new jasmine.JSReporter2());
+            //jasmineEnv.addReporter(htmlReporter);
+
+           // jasmine.getEnv().specFilter = function(spec){
+           //     return htmlReport.specFilter(spec);
+           // }
+//            var currentWindowOnload = window.onload;
+//            window.onload = function(){
+//                if(currentWindowOnload){
+//                    currentWindowOnload();
+//                }
+//                execJasmine();
+//            };
+//
+//            function execJasmine(){
+//                setTimeout(function() { jasmineEnv.execute(); }, 3000);
+//            }
+        })();
+    </script>
 </head>
 
 <body>
