@@ -589,7 +589,7 @@
                             <page string="Daily Shifts">
                                 <group>
                                     <div>
-                                        <field name="daily_shift_ids" nolabel="1" editable="inline"/>
+                                        <field name="shift_pattern_ids" nolabel="1" editable="inline"/>
                                     </div>
                                 </group>
                             </page>
