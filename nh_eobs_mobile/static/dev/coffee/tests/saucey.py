@@ -8,7 +8,6 @@ get_job_url = 'https://saucelabs.com/rest/v1/neovahealth/jobs/{job_id}/assets/lo
 time_to_wait = 70
 browsers = [
     ['Mac 10.9', 'iPhone', '6.0'],
-    ['Mac 10.9', 'iPhone', '7.0'],
     ['Mac 10.9', 'iPhone', '8.0']
 ]
 test_suite_url = 'http://nh-ci-nhc01.nhtek.net:8069/nh_eobs_mobile/static/dev/coffee/tests/SpecRunner.html'
