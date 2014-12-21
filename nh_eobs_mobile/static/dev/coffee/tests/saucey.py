@@ -7,8 +7,8 @@ get_jobs_url = 'https://saucelabs.com/rest/v1/neovahealth/js-tests/status'
 get_job_url = 'https://saucelabs.com/rest/v1/neovahealth/jobs/{job_id}/assets/log.json'
 time_to_wait = 70
 browsers = [
-    ['Mac 10.9', 'iPhone', '6.0'],
-    ['Mac 10.9', 'iPhone', '8.0']
+    ['OS X 10.9', 'iPhone', '6.0'],
+    ['OS X 10.9', 'iPhone', '8.0']
 ]
 test_suite_url = 'http://nh-ci-nhc01.nhtek.net:8069/nh_eobs_mobile/static/dev/coffee/tests/SpecRunner.html'
 config = {
@@ -39,8 +39,8 @@ for job in jobs:
     results = job_result.json()
     for result in results:
         if isinstance(result['result'], dict):
-            r = result['result']
-            for res in r['suites']:
+            r = result['result']['suites'] if 'suites' in result['result'] else []
+            for res in r:
                 print '    {desc}'.format(desc=res['description'])
                 for spec in res['specs']:
                     print '        {d}'.format(d=spec['description'])
