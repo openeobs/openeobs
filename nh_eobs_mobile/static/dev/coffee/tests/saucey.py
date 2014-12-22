@@ -5,20 +5,20 @@ access_key = 'b7964b4f-b0e7-44ee-81e3-883c3ee47652'
 run_job_url = 'https://saucelabs.com/rest/v1/neovahealth/js-tests'
 get_jobs_url = 'https://saucelabs.com/rest/v1/neovahealth/js-tests/status'
 get_job_url = 'https://saucelabs.com/rest/v1/neovahealth/jobs/{job_id}/assets/log.json'
-time_to_wait = 70
+time_to_wait = 100
 browsers = [
     ['Mac 10.9', 'iPhone', '6.0'],
     ['Mac 10.10', 'iPad', '8.0'],
     #['Mac 10.10', 'iPhone', '7.1'],
-    ['Linux', 'Android', '4.0'],
+    # ['Linux', 'Android', '4.0'],
    # ['Linux', 'Android', '4.1'],
    # ['Linux', 'Android', '4.2'],
     ['Linux', 'Android', '4.4'],
     ['Windows 2008', 'Internet Explorer', '9'],
     ['Windows 2008', 'Internet Explorer', '10'],
     ['Windows 2012 R2', 'Internet Explorer', '11'],
-    ['Windows 2008', 'Firefox', '5'],
-    ['Windows 2008', 'Google Chrome', '26'],
+    ['Windows 2008', 'Firefox', '10'],
+    ['Windows 2008', 'Chrome', '26'],
 
 
 ]
@@ -28,8 +28,9 @@ config = {
     'record-video': False,
     'record-screenshots': False,
     'framework': 'jasmine',
-    'max-duration': 60,
-    'url': test_suite_url
+    'max-duration': (time_to_wait - 40),
+    'url': test_suite_url,
+    'time-zone': 'London'
 }
 jobs = []
 
