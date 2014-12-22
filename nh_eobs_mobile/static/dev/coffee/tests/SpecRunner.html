@@ -46,7 +46,6 @@
         (function(){
             jasmine.getEnv().updateInterval = 1000;
 
-            //var htmlReporter = new jasmine.HtmlReporter(jasmineEnv);
 
             if (navigator.userAgent.indexOf("PhantomJS") > 0) {
                 var consoleReporter = new jasmineRequire.ConsoleReporter()({
@@ -61,22 +60,7 @@
             }
 
             jasmine.getEnv().addReporter(new jasmine.JSReporter2());
-            //jasmineEnv.addReporter(htmlReporter);
 
-           // jasmine.getEnv().specFilter = function(spec){
-           //     return htmlReport.specFilter(spec);
-           // }
-//            var currentWindowOnload = window.onload;
-//            window.onload = function(){
-//                if(currentWindowOnload){
-//                    currentWindowOnload();
-//                }
-//                execJasmine();
-//            };
-//
-//            function execJasmine(){
-//                setTimeout(function() { jasmineEnv.execute(); }, 3000);
-//            }
         })();
     </script>
 </head>
