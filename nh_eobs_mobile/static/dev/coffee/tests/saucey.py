@@ -9,16 +9,16 @@ time_to_wait = 70
 browsers = [
     ['Mac 10.9', 'iPhone', '6.0'],
     ['Mac 10.10', 'iPad', '8.0'],
-    ['Mac 10.10', 'iPad', '7.1'],
+    #['Mac 10.10', 'iPhone', '7.1'],
     ['Linux', 'Android', '4.0'],
-    ['Linux', 'Android', '4.1'],
-    ['Linux', 'Android', '4.2'],
+   # ['Linux', 'Android', '4.1'],
+   # ['Linux', 'Android', '4.2'],
     ['Linux', 'Android', '4.4'],
     ['Windows 2008', 'Internet Explorer', '9'],
-    ['Windows 208', 'Internet Explorer', '10'],
+    ['Windows 2008', 'Internet Explorer', '10'],
     ['Windows 2012 R2', 'Internet Explorer', '11'],
     ['Windows 2008', 'Firefox', '5'],
-    ['Windows 208', 'Google Chrome', '26'],
+    ['Windows 2008', 'Google Chrome', '26'],
 
 
 ]
@@ -46,7 +46,14 @@ print jobs
 # time.sleep(len(jobs)*time_to_wait)
 #
 for job in jobs:
+    print ' '
+    print ' '
+    print ' '
+    print '###########################################################################################################'
+    print ' '
     print 'Processing {job_id} - {platform}'.format(job_id=job['job_id'], platform=job['platform'])
+    print ' '
+    print '###########################################################################################################'
     job_result = requests.get(get_job_url.format(job_id=job['job_id']), auth=(username, access_key))
     results = job_result.json()
     for result in results:
@@ -62,10 +69,7 @@ for job in jobs:
                         else:
                             print '              FAIL'
                             print spec['failures']
-            else:
-                print 'No results in result dict'
         else:
             print 'Result was not a dictionary'
-            print result
 
 #
