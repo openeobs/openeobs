@@ -69,7 +69,10 @@ for job in jobs:
                             print '              PASS'
                         else:
                             print '              FAIL'
-                            print spec['failures']
+                            print spec['failures']['message']
+                            print ' '
+                            print ' '
+                            print ' '
         else:
             print 'Result was not a dictionary'
 
