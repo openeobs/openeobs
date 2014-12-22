@@ -7,8 +7,8 @@ get_jobs_url = 'https://saucelabs.com/rest/v1/neovahealth/js-tests/status'
 get_job_url = 'https://saucelabs.com/rest/v1/neovahealth/jobs/{job_id}/assets/log.json'
 time_to_wait = 70
 browsers = [
-    ['OS X 10.9', 'iPhone', '6.0'],
-    ['OS X 10.9', 'iPhone', '8.0']
+    ['Mac 10.9', 'iPhone', '6.0'],
+    ['Mac 10.9', 'iPhone', '8.0']
 ]
 test_suite_url = 'http://nh-ci-nhc01.nhtek.net:8069/nh_eobs_mobile/static/dev/coffee/tests/SpecRunner.html'
 config = {
