@@ -45,16 +45,17 @@ for job in jobs:
     print ' '
     print ' '
     for result in results:
-        if isinstance(result['result'], dict):
-            r = result['result']['suites'] if 'suites' in result['result'] else []
-            for res in r:
-                print '    {desc}'.format(desc=res['description'])
-                for spec in res['specs']:
-                    print '        {d}'.format(d=spec['description'])
-                    if spec['passed']:
-                        print '              PASS'
-                    else:
-                        print '              FAIL'
-                        print spec['failures']
+        if isinstance(result, dict):
+            if isinstance(result['result'], dict):
+                r = result['result']['suites'] if 'suites' in result['result'] else []
+                for res in r:
+                    print '    {desc}'.format(desc=res['description'])
+                    for spec in res['specs']:
+                        print '        {d}'.format(d=spec['description'])
+                        if spec['passed']:
+                            print '              PASS'
+                        else:
+                            print '              FAIL'
+                            print spec['failures']
 
 #
