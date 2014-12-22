@@ -65,7 +65,7 @@ for job in jobs:
             else:
                 print 'No results in result dict'
         else:
-            print 'Results was not a dictionary'
-            print results
+            print 'Result was not a dictionary'
+            print result
 
 #
