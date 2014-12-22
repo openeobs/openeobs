@@ -37,6 +37,13 @@ for job in jobs:
     print 'Processing {job_id} - {platform}'.format(job_id=job['job_id'], platform=job['platform'])
     job_result = requests.get(get_job_url.format(job_id=job['job_id']), auth=(username, access_key))
     results = job_result.json()
+    print ' '
+    print ' '
+    print ' '
+    print results
+    print ' '
+    print ' '
+    print ' '
     for result in results:
         if isinstance(result['result'], dict):
             r = result['result']['suites'] if 'suites' in result['result'] else []
