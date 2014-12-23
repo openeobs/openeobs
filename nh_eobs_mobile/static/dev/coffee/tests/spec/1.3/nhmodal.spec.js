@@ -10,7 +10,7 @@ describe('NHModal', function(){
         test_area.setAttribute('id', 'test');
         test_area.style.height = '500px';
         document.getElementsByTagName('body')[0].appendChild(test_area);
-        if (navigator.userAgent.indexOf("PhantomJS") > 0 || (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('6_0') > 0)){
+        if (navigator.userAgent.indexOf("PhantomJS") > 0 || (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('6_0') > 0) || navigator.userAgent.indexOf('Android')){
            phantomJSPadding = ' ';
         }
 	});
