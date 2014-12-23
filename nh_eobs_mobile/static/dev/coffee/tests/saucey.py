@@ -10,7 +10,7 @@ browsers = [
     #['Mac 10.9', 'iPhone', '6.0'], # PASSES
     #['Mac 10.9', 'iPhone', '8.0'], # PASSES
     #['Mac 10.9', 'iPhone', '7.0'], # TIMESOUT
-    ['Linux', 'Android', '4.0'],
+    #['Linux', 'Android', '4.0'], # Fails to load page
     ['Linux', 'Android', '4.1'],
     ['Linux', 'Android', '4.2'],
     # ['Linux', 'Android', '4.4'], # not working as can't getJSReporter for some reason
