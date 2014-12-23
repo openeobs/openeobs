@@ -22,10 +22,6 @@ describe('NHMobile - Object', function() {
         expect(mobile.version).toEqual('0.0.1')
     });
 
-    it('prints out the userAgent', function(){
-       expect(navigator.userAgent).toBe('meh')
-    });
-
     it('gives us the correct timestamp in seconds', function () {
         expect(mobile.get_timestamp()).toEqual(Math.round(new Date().getTime() / 1000))
     });

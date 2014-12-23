@@ -11,14 +11,14 @@ browsers = [
     #['Mac 10.9', 'iPhone', '8.0'], # PASSES
     #['Mac 10.9', 'iPhone', '7.0'], # TIMESOUT
     #['Linux', 'Android', '4.0'], # Fails to load page
-    ['Linux', 'Android', '4.1'],
-    ['Linux', 'Android', '4.2'],
+    #['Linux', 'Android', '4.1'], # Fails to get JSReporter
+    #['Linux', 'Android', '4.2'], # Fails to get JSReporter
     # ['Linux', 'Android', '4.4'], # not working as can't getJSReporter for some reason
     #['Windows 2008', 'Internet Explorer', '9'],
-    #['Windows 2008', 'Internet Explorer', '10'],
-    #['Windows 2012 R2', 'Internet Explorer', '11'],
+    ['Windows 2008', 'Internet Explorer', '10'],
+    ['Windows 2012 R2', 'Internet Explorer', '11'],
     #['Windows 2008', 'Firefox', '10'],
-    #['Windows 2008', 'Chrome', '26']
+    ['Windows 2008', 'Chrome', '26']
 ]
 test_suite_url = 'http://nh-ci-nhc01.nhtek.net:8069/nh_eobs_mobile/static/dev/coffee/tests/SpecRunner1.3.html'
 #test_suite_url = 'http://localhost:8169/nh_eobs_mobile/static/dev/coffee/tests/SpecRunner1.3.html'
