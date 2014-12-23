@@ -40,7 +40,7 @@ describe('NHMobile - Object', function() {
 	    var date_for_string = mobile.date_from_string(date_string);
 	    expect(typeof(date_for_string)).toBe('object');
 	    expect(date_for_string.constructor.name).toBe('Date');
-        if(navigator.userAgent.indexOf('Chrome')){
+        if(navigator.userAgent.indexOf('Chrome') && navigator.userAgent.indexOf('Linux') < 0){
             expect(date_for_string.toString()).toBe('Tue Jan 12 1988 06:00:00 GMT+0000 (Coordinated Universal Time)');
         }else{
             expect(date_for_string.toString()).toBe('Tue Jan 12 1988 06:00:00 GMT+0000 (GMT)');
