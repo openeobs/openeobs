@@ -413,10 +413,12 @@ class nh_eobs_api(orm.AbstractModel):
                 if doctor doesn't exist, we create partner, but don't create user for that doctor.
         """
         activity_pool = self.pool['nh.activity']
+        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         data.update({'other_identifier': patient_id})
         admit_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, admit_activity, data, context=context)
         activity_pool.complete(cr, uid, admit_activity, context=context)
+        spell_timespan_pool.start_patient_timespan(cr, uid, patient_id, context=context)
         _logger.debug("Patient admitted\n data: %s" % data)
         return True
     
@@ -437,10 +439,12 @@ class nh_eobs_api(orm.AbstractModel):
         Cancels the open admission of the patient.
         """
         activity_pool = self.pool['nh.activity']
+        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         data = {'other_identifier': patient_id}
         cancel_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_activity, data, context=context)
         activity_pool.complete(cr, uid, cancel_activity, context=context)
+        spell_timespan_pool.delete_patient_timespans(cr, uid, patient_id, context=context)
         _logger.debug("Admission cancelled\n data: %s" % data)
         return True
 
@@ -453,11 +457,13 @@ class nh_eobs_api(orm.AbstractModel):
         """
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.discharge', {'patient_id': patientdb_id[0]}, {'other_identifier': patient_id, 'discharge_date': data.get('discharge_date')}, context=context)
         activity_pool.complete(cr, uid, discharge_activity, context=context)
+        spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
         _logger.debug("Patient discharged: %s" % patient_id)
         return True
 
@@ -469,10 +475,12 @@ class nh_eobs_api(orm.AbstractModel):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
+        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         cancel_discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_discharge', {'patient_id': patientdb_id[0]}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_discharge_activity, {'other_identifier': patient_id}, context=context)
         activity_pool.complete(cr, uid, cancel_discharge_activity, context=context)
+        spell_timespan_pool.cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
         _logger.debug("Discharge cancelled for patient: %s" % patient_id)
         return True
 
@@ -503,6 +511,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
         if not self._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
@@ -510,6 +519,8 @@ class nh_eobs_api(orm.AbstractModel):
         transfer_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
         activity_pool.submit(cr, uid, transfer_activity, data, context=context)
         activity_pool.complete(cr, uid, transfer_activity, context=context)
+        spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
+        spell_timespan_pool.start_patient_timespan(cr, uid, patient_id, start=dt.now().strftime(DTF), context=context)
         _logger.debug("Patient transferred\n data: %s" % data)
         return True
 
@@ -521,10 +532,12 @@ class nh_eobs_api(orm.AbstractModel):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
+        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         cancel_transfer_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_transfer_activity, {'other_identifier': patient_id}, context=context)
         activity_pool.complete(cr, uid, cancel_transfer_activity, context=context)
+        spell_timespan_pool.cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
         _logger.debug("Transfer cancelled for patient: %s" % patient_id)
         return True
 

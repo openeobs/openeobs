@@ -18,6 +18,7 @@
              'views/userboard_view.xml',
              'views/overdue_view.xml',
              'views/views.xml',
+             'views/kamishibai_view.xml',
              'views/menuitem.xml',
              'security/ir.model.access.csv'],
     'qweb': ['static/src/xml/nh_eobs.xml'],

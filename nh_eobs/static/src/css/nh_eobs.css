@@ -84,3 +84,11 @@
     text-align: center !important;
 }
 
+.nhc_kanban_color_red {
+    color: white;
+    background-color: #E66565 !important;
+}
+
+.nhc_kanban_color_green {
+    background-color: #4DB84D !important;
+}

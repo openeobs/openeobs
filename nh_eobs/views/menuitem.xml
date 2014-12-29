@@ -160,6 +160,13 @@
             sequence="4"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
+        <menuitem name="Kamishibai Board"
+          	id="menu_left_kamishibai_board"
+          	parent="menu_nhui_left_patient"
+          	action="action_kamishibai"
+            sequence="5"
+          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+
         <menuitem name="Doctor Tasks"
           	id="menu_left_doctor_activities"
           	parent="menu_nhui_left_patient"
