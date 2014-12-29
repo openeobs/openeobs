@@ -67,10 +67,10 @@ class NHContext
 
       @.graph.init(@)
       # figure out how big the focus is going to be
-      if @.title?
+      if @.title? and not @.graph.style.axis.x.hide
         @.style.dimensions.height += @.graph.style.dimensions.height + (@.graph.style.axis.x.size.height*2) + @.style.title_height
       else
-        @.style.dimensions.height += @.graph.style.dimensions.height + (@.graph.style.axis.x.size.height*2)
+        @.style.dimensions.height += @.graph.style.dimensions.height # + (@.graph.style.axis.x.size.height*2)
       #@.obj.attr('height', @.style.dimensions.height)
       parent_svg.style.dimensions.height += @.style.dimensions.height + (@.style.margin.top + @.style.margin.bottom)
 

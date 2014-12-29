@@ -376,10 +376,10 @@
         this.axes.x.max = parent_svg.data.extent.end;
         this.axes.x.scale = nh_graphs.time.scale().domain([this.axes.x.min, this.axes.x.max]).range([left_offset, this.style.dimensions.width]);
         this.graph.init(this);
-        if (this.title != null) {
+        if ((this.title != null) && !this.graph.style.axis.x.hide) {
           this.style.dimensions.height += this.graph.style.dimensions.height + (this.graph.style.axis.x.size.height * 2) + this.style.title_height;
         } else {
-          this.style.dimensions.height += this.graph.style.dimensions.height + (this.graph.style.axis.x.size.height * 2);
+          this.style.dimensions.height += this.graph.style.dimensions.height;
         }
         parent_svg.style.dimensions.height += this.style.dimensions.height + (this.style.margin.top + this.style.margin.bottom);
         this.graph.drawables.brush = this.graph.obj.append('g').attr('class', 'brush-container');

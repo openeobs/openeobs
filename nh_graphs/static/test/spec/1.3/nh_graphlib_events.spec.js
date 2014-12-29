@@ -229,6 +229,55 @@ describe('NHGraphlib - Event listeners', function() {
         expect(graph.rangify_graph).toHaveBeenCalled();
         expect(graph.redraw).toHaveBeenCalled();
     });
+
+    it('detects when the brush function has been triggered on the context', function(){
+        graphlib.data.raw = data;
+        // create a graph
+        var graph = new NHGraph();
+        graph.options.keys = ['pulse_rate'];
+        graph.options.label = 'HR';
+        graph.options.measurement = '/min';
+        graph.axes.y.min = 30;
+        graph.axes.y.max = 200;
+        graph.options.normal.min = 50;
+        graph.options.normal.max = 100;
+        graph.style.dimensions.height = 200;
+        graph.style.axis.x.hide = true;
+        graph.style.data_style = 'linear';
+        graph.style.label_width = 60;
+
+        var cgraph = new NHGraph();
+        cgraph.options.keys = ['pulse_rate'];
+        cgraph.options.label = 'HR';
+        cgraph.options.measurement = '/min';
+        cgraph.axes.y.min = 30;
+        cgraph.axes.y.max = 200;
+        cgraph.options.normal.min = 50;
+        cgraph.options.normal.max = 100;
+        cgraph.style.dimensions.height = 200;
+        cgraph.style.axis.x.hide = true;
+        cgraph.style.data_style = 'linear';
+        cgraph.style.label_width = 60;
+
+        // create a focus
+        var focus = new NHFocus();
+        var context = new NHContext();
+        focus.graphs.push(graph);
+        context.graph = cgraph;
+        focus.title = 'Test Graph';
+        context.title = 'Test Graph';
+        graphlib.focus = focus;
+        graphlib.context = context;
+        spyOn(context, 'init').andCallThrough();
+        spyOn(cgraph, 'init').andCallThrough();
+        graphlib.init();
+
+        spyOn(graph, 'redraw');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('brush', false, false, false);
+        cgraph.dispatchEvent(change_event);
+        expect(graph.redraw).toHaveBeenCalled();
+    });
 });
 
 
