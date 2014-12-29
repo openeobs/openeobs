@@ -113,6 +113,14 @@ class NHGraph
     cp = document.getElementById('chart_popup')
     cp.classList.add('hidden')
 
+  rangify_graph: (self, event) =>
+    if event.srcElement.checked
+      self.axes.y.scale.domain([self.axes.y.ranged_extent[0]-self.style.range_padding, self.axes.y.ranged_extent[1]+self.style.range_padding])
+    else
+      self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
+    self.redraw(self.parent_obj)
+    return
+
   init: (parent_obj) =>
     # add element to DOM
     @.parent_obj = parent_obj
@@ -204,13 +212,11 @@ class NHGraph
       self.redraw(self.parent_obj)
     )
     self.parent_obj.parent_obj.options.controls.rangify?.addEventListener('click', (event) ->
-      if event.srcElement.checked
-        self.axes.y.scale.domain([self.axes.y.ranged_extent[0]-self.style.range_padding, self.axes.y.ranged_extent[1]+self.style.range_padding])
-      else
-        self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
-      self.redraw(self.parent_obj)
+        self.rangify_graph(self, event)
     )
     return
+
+
 
   draw: (parent_obj) =>
     # draw background

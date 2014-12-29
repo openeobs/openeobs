@@ -638,6 +638,7 @@
       this.redraw = __bind(this.redraw, this);
       this.draw = __bind(this.draw, this);
       this.init = __bind(this.init, this);
+      this.rangify_graph = __bind(this.rangify_graph, this);
       this.hide_popup = __bind(this.hide_popup, this);
       this.show_popup = __bind(this.show_popup, this);
       this.leading_zero = __bind(this.leading_zero, this);
@@ -763,6 +764,15 @@
       return cp.classList.add('hidden');
     };
 
+    NHGraph.prototype.rangify_graph = function(self, event) {
+      if (event.srcElement.checked) {
+        self.axes.y.scale.domain([self.axes.y.ranged_extent[0] - self.style.range_padding, self.axes.y.ranged_extent[1] + self.style.range_padding]);
+      } else {
+        self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max]);
+      }
+      self.redraw(self.parent_obj);
+    };
+
     NHGraph.prototype.init = function(parent_obj) {
       var key, left_offset, line_self, ob, self, top_offset, values, _i, _len, _ref, _ref1;
       this.parent_obj = parent_obj;
@@ -862,12 +872,7 @@
       });
       if ((_ref1 = self.parent_obj.parent_obj.options.controls.rangify) != null) {
         _ref1.addEventListener('click', function(event) {
-          if (event.srcElement.checked) {
-            self.axes.y.scale.domain([self.axes.y.ranged_extent[0] - self.style.range_padding, self.axes.y.ranged_extent[1] + self.style.range_padding]);
-          } else {
-            self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max]);
-          }
-          return self.redraw(self.parent_obj);
+          return self.rangify_graph(self, event);
         });
       }
     };

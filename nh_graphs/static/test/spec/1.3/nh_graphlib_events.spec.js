@@ -1,5 +1,46 @@
 describe('NHGraphlib - Event listeners', function() {
     var graphlib, phantomJSPadding;
+    var data = [{
+        __last_update: "2014-12-01 16:16:53",
+        activity_id: [700, "NEWS Observation"],
+        avpu_text: "A",
+        blood_pressure_diastolic: 80,
+        blood_pressure_systolic: 120,
+        body_temperature: 40,
+        clinical_risk: "Medium",
+        concentration: false,
+        cpap_peep: false,
+        create_date: "2014-12-01 13:15:13",
+        create_uid: [1, "Administrator"],
+        date_started: "2014-12-01 16:16:42",
+        date_terminated: "2014-12-01 16:16:53",
+        device_id: false,
+        display_name: "False",
+        flow_rate: false,
+        frequency: 240,
+        id: 83,
+        indirect_oxymetry_spo2: 90,
+        is_partial: false,
+        mews_score: 0,
+        name: false,
+        niv_backup: false,
+        niv_epap: false,
+        niv_ipap: false,
+        none_values: "[]",
+        null_values: "['niv_epap', 'concentration', 'flow_rate', 'cpap_peep', 'niv_ipap', 'niv_backup']",
+        order_by: false,
+        oxygen_administration_flag: false,
+        partial_reason: false,
+        patient_id: [11, "Littel, Alfreda"],
+        pulse_rate: 80,
+        respiration_rate: 18,
+        score: 5,
+        state: "completed",
+        terminate_uid: [19, "Nadine Bullock"],
+        three_in_one: true,
+        write_date: "2014-12-01 16:16:53",
+        write_uid: [1, "Administrator"]
+    }];
     beforeEach(function () {
         var test = document.getElementById('test');
         if(test != null){
@@ -150,6 +191,43 @@ describe('NHGraphlib - Event listeners', function() {
             document.body.fireEvent('onresize');
         }
         expect(graphlib.redraw_resize).toHaveBeenCalled();
+    });
+
+    it('detects when the rangify checkbox has been ticked', function(){
+        graphlib.data.raw = data;
+        var graph = new NHGraph();
+        graph.options.keys = ['pulse_rate'];
+        graph.options.label = 'HR';
+        graph.options.measurement = '/min';
+        graph.axes.y.min = 30;
+        graph.axes.y.max = 200;
+        graph.options.normal.min = 50;
+        graph.options.normal.max = 100;
+        graph.style.dimensions.height = 200;
+        graph.style.axis.x.hide = true;
+        graph.style.data_style = 'linear';
+        graph.style.label_width = 60;
+        var focus = new NHFocus();
+        focus.graphs.push(graph);
+        focus.title = 'Test Graph';
+        graphlib.focus = focus;
+
+        spyOn(graph, 'rangify_graph').andCallThrough();
+        spyOn(graph, 'redraw');
+        spyOn(graphlib, 'init').andCallThrough();
+        spyOn(focus, 'init').andCallThrough();
+        spyOn(graph, 'init').andCallThrough();
+        graphlib.init();
+        expect(graphlib.init).toHaveBeenCalled();
+        expect(focus.init).toHaveBeenCalled();
+        expect(graph.init).toHaveBeenCalled();
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, false, false);
+        graphlib.options.controls.rangify.dispatchEvent(change_event);
+        //graphlib.options.controls.rangify.click();
+
+        expect(graph.rangify_graph).toHaveBeenCalled();
+        expect(graph.redraw).toHaveBeenCalled();
     });
 });
 
