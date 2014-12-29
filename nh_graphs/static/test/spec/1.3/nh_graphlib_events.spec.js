@@ -270,13 +270,16 @@ describe('NHGraphlib - Event listeners', function() {
         graphlib.context = context;
         spyOn(context, 'init').andCallThrough();
         spyOn(cgraph, 'init').andCallThrough();
+        spyOn(focus, 'redraw').andCallThrough();
         graphlib.init();
-
-        spyOn(graph, 'redraw');
-        var change_event = document.createEvent('CustomEvent');
-        change_event.initCustomEvent('brush', false, false, false);
-        cgraph.dispatchEvent(change_event);
-        expect(graph.redraw).toHaveBeenCalled();
+        context.brush.extent([new Date('2014-12-01T16:16:53'), new Date('2014-12-01T17:16:53')]);
+        var extent = document.getElementsByClassName('extent')[0];
+        var extent_x = extent.getAttribute('x');
+        context.brush(cgraph.drawables.brush);
+        context.brush.event(cgraph.drawables.brush);
+        var extent_new_x = extent.getAttribute('x');
+        expect(extent_new_x).toNotBe(extent_x);
+        expect(focus.redraw).toHaveBeenCalled();
     });
 });
 
