@@ -1238,7 +1238,7 @@
       _ref = this.keys;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         key = _ref[_i];
-        header.push(key);
+        header.push(key['title']);
       }
       this.header_row = this.obj.append('thead').append('tr');
       this.header_row.selectAll('th').data(header).enter().append('th').text(function(d) {
@@ -1254,7 +1254,7 @@
       _ref = self.keys;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         key = _ref[_i];
-        keys.push(key);
+        keys.push(key['key']);
       }
       self.data_rows.selectAll('tr').data(function() {
         var data, data_map, data_to_use;

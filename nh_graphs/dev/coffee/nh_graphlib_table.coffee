@@ -35,7 +35,7 @@ class NHTable
     #set up header
     header = ['Date']
     for key in @.keys
-      header.push(key)
+      header.push(key['title'])
     @.header_row = @.obj.append('thead').append('tr')
     @.header_row.selectAll('th').data(header).enter().append('th').text((d) -> return d)
     @.data_rows = @.obj.append('tbody')
@@ -46,7 +46,7 @@ class NHTable
     self = @
     keys = ['date_terminated']
     for key in self.keys
-      keys.push(key)
+      keys.push(key['key'])
     self.data_rows.selectAll('tr')
     .data(() ->
       data_map = self.parent_obj.parent_obj.data.raw.map((row) ->

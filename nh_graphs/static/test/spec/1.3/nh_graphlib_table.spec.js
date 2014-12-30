@@ -101,7 +101,7 @@ describe('NHGraphLib - Table', function(){
     it('draws the table', function(){
 
         var tabular_obs = new NHTable();
-        tabular_obs.keys = ['avpu_text', 'oxygen_administration_flag'];
+        tabular_obs.keys = [{key:'avpu_text', title: 'AVPU'}, {key:'oxygen_administration_flag', title: 'On Supplemental O2'}];
         tabular_obs.title = 'Tabular values';
         var focus = new NHFocus();
         focus.tables.push(tabular_obs);
@@ -137,8 +137,8 @@ describe('NHGraphLib - Table', function(){
         thead_tr = thead_tr[0];
         expect(thead_tr.childNodes.length).toBe(3);
         expect(thead_tr.childNodes[0].textContent).toBe('Date');
-        expect(thead_tr.childNodes[1].textContent).toBe('avpu_text');
-        expect(thead_tr.childNodes[2].textContent).toBe('oxygen_administration_flag');
+        expect(thead_tr.childNodes[1].textContent).toBe('AVPU');
+        expect(thead_tr.childNodes[2].textContent).toBe('On Supplemental O2');
 
         //  check that is has correct amount of rows and proper values
         var tbody_tr = tbody_el.getElementsByTagName('tr');
@@ -156,7 +156,7 @@ describe('NHGraphLib - Table', function(){
 
 
         var tabular_obs = new NHTable();
-        tabular_obs.keys = ['avpu_text', 'oxygen_administration_flag', 'pulse_rate'];
+        tabular_obs.keys = [{key:'avpu_text', title: 'AVPU'}, {key:'oxygen_administration_flag', title: 'On Supplemental O2'}, {key:'pulse_rate', title: 'Pulse Rate'}];
         tabular_obs.title = 'Tabular values';
         var focus = new NHFocus();
         focus.tables.push(tabular_obs);
@@ -192,9 +192,9 @@ describe('NHGraphLib - Table', function(){
         thead_tr = thead_tr[0];
         expect(thead_tr.childNodes.length).toBe(4);
         expect(thead_tr.childNodes[0].textContent).toBe('Date');
-        expect(thead_tr.childNodes[1].textContent).toBe('avpu_text');
-        expect(thead_tr.childNodes[2].textContent).toBe('oxygen_administration_flag')
-        expect(thead_tr.childNodes[3].textContent).toBe('pulse_rate');
+        expect(thead_tr.childNodes[1].textContent).toBe('AVPU');
+        expect(thead_tr.childNodes[2].textContent).toBe('On Supplemental O2')
+        expect(thead_tr.childNodes[3].textContent).toBe('Pulse Rate');
 
         //  check that is has correct amount of rows and proper values
         var tbody_tr = tbody_el.getElementsByTagName('tr');
