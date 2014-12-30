@@ -510,7 +510,7 @@ openerp.nh_eobs = function (instance) {
 
 
                     var tabular_obs = new window.NH.NHTable();
-                    tabular_obs.keys = ['avpu_text', 'oxygen_administration_flag', 'inspired_oxygen'];
+                    tabular_obs.keys = [{key:'avpu_text', title: 'AVPU'}, {key:'oxygen_administration_flag', title: 'On Supplemental O2'}, {key:'inspired_oxygen', title: 'Inspired Oxygen'}];
                     tabular_obs.title = 'Tabular values';
                     var focus = new window.NH.NHFocus();
                     var context = new window.NH.NHContext();
