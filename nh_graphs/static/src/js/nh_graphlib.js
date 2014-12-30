@@ -851,7 +851,7 @@
           if (i !== self.options.keys.length - 1) {
             return self.parent_obj.parent_obj.data.raw[self.parent_obj.parent_obj.data.raw.length - 1][d];
           } else {
-            return self.parent_obj.parent_obj.data.raw[self.parent_obj.parent_obj.data.raw.length - 1][d] + ' ' + self.options.measurement;
+            return self.parent_obj.parent_obj.data.raw[self.parent_obj.parent_obj.data.raw.length - 1][d] + '' + self.options.measurement;
           }
         }).attr({
           'x': self.style.dimensions.width + self.style.label_text_height,

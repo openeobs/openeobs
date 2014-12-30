@@ -188,7 +188,7 @@ describe('NHGraphLib - Graph', function(){
         var resp_m = resp_b.getElementsByClassName('measurement');
         expect(resp_m.length).toBe(1);
         resp_m = resp_m[0];
-        expect(resp_m.textContent).toBe('18 /min');
+        expect(resp_m.textContent).toBe('18/min');
 
         var resp_n = resp_b.getElementsByClassName('normal');
         expect(resp_n.length).toBe(1);
@@ -268,7 +268,7 @@ describe('NHGraphLib - Graph', function(){
         var oxy_m = oxy_b.getElementsByClassName('measurement');
         expect(oxy_m.length).toBe(1);
         oxy_m = oxy_m[0];
-        expect(oxy_m.textContent).toBe('90 %');
+        expect(oxy_m.textContent).toBe('90%');
 
         var oxy_n = oxy_b.getElementsByClassName('normal');
         expect(oxy_n.length).toBe(1);
@@ -340,7 +340,7 @@ describe('NHGraphLib - Graph', function(){
         var bp_mt = bp_m[0];
         var bp_mb = bp_m[1];
         expect(bp_mt.textContent).toBe('120');
-        expect(bp_mb.textContent).toBe('80 mmHg');
+        expect(bp_mb.textContent).toBe('80mmHg');
 
         var bp_n = bp_b.getElementsByClassName('normal');
         expect(bp_n.length).toBe(1);
@@ -491,7 +491,7 @@ describe('NHGraphLib - Graph', function(){
         var resp_m = resp_b.getElementsByClassName('measurement');
         expect(resp_m.length).toBe(1);
         resp_m = resp_m[0];
-        expect(resp_m.textContent).toBe('25 /min');
+        expect(resp_m.textContent).toBe('25/min');
 
         var resp_n = resp_b.getElementsByClassName('normal');
         expect(resp_n.length).toBe(1);
@@ -577,7 +577,7 @@ describe('NHGraphLib - Graph', function(){
         var oxy_m = oxy_b.getElementsByClassName('measurement');
         expect(oxy_m.length).toBe(1);
         oxy_m = oxy_m[0];
-        expect(oxy_m.textContent).toBe('91 %');
+        expect(oxy_m.textContent).toBe('91%');
 
         var oxy_n = oxy_b.getElementsByClassName('normal');
         expect(oxy_n.length).toBe(1);
@@ -655,7 +655,7 @@ describe('NHGraphLib - Graph', function(){
         var bp_mt = bp_m[0];
         var bp_mb = bp_m[1];
         expect(bp_mt.textContent).toBe('130');
-        expect(bp_mb.textContent).toBe('90 mmHg');
+        expect(bp_mb.textContent).toBe('90mmHg');
 
         var bp_n = bp_b.getElementsByClassName('normal');
         expect(bp_n.length).toBe(1);
