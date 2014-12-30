@@ -775,7 +775,15 @@
       ];
       score_graph.style.label_width = 60;
       tabular_obs = new window.NH.NHTable();
-      tabular_obs.keys = ['avpu_text', 'oxygen_administration_flag'];
+      tabular_obs.keys = [
+        {
+          key: 'avpu_text',
+          title: 'AVPU'
+        }, {
+          key: 'oxygen_administration_flag',
+          title: 'On Supplemental O2'
+        }
+      ];
       tabular_obs.title = 'Tabular values';
       focus = new window.NH.NHFocus();
       context = new window.NH.NHContext();
