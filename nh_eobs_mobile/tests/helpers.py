@@ -1,4 +1,3 @@
-__author__ = 'colin'
 from openerp.addons.nh_eobs_mobile.controllers import urls
 
 # URL structure
