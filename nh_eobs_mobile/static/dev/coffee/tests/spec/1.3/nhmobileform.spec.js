@@ -15,15 +15,10 @@ describe('NHMobileForm - EventListeners', function(){
        spyOn(window.NHMobileForm.prototype, "validate");
        var mobile_form = new window.NHMobileForm();
        var test_input = document.getElementById('respiration_rate');
-       //var change_event = new Event('change');
-       //if(document.createEvent){
-	   //    var change_event = new Event('change');
-	   //    test_input.dispatchEvent(change_event);
-       //}else{
+       test_input.value = 18;
 	   var change_event = document.createEvent('CustomEvent');
-	   change_event.initCustomEvent('change', false, false, false);	
-	   test_input.dispatchEvent(change_event)
-       //}       
+	   change_event.initCustomEvent('change', false, false, false);
+	   test_input.dispatchEvent(change_event);
        expect(window.NHMobileForm.prototype.validate).toHaveBeenCalled();
    });
 

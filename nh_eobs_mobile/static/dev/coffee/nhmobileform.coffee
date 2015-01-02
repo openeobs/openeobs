@@ -19,7 +19,7 @@ class NHMobileForm extends NHMobile
      do () ->
        switch input.localName
          when 'input'
-           switch input.type
+           switch input.getAttribute('type')
              when 'number'
                input.addEventListener('change', self.validate)
                input.addEventListener('change', self.trigger_actions)

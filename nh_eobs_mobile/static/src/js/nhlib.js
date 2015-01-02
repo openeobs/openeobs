@@ -258,7 +258,7 @@
       _fn = function() {
         switch (input.localName) {
           case 'input':
-            switch (input.type) {
+            switch (input.getAttribute('type')) {
               case 'number':
                 input.addEventListener('change', self.validate);
                 return input.addEventListener('change', self.trigger_actions);
