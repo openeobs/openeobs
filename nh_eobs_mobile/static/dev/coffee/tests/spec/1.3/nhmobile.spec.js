@@ -30,6 +30,14 @@ describe('NHMobile - Object', function() {
        expect(typeof(mobile.urls)).toBe('object');
        expect(mobile.urls).toEqual(frontend_routes);
     });
+
+
+    it('tells me what the useragent string is', function(){
+        expect(navigator.userAgent.indexOf('Chrome')).toBe(-1);
+        expect(navigator.userAgent.indexOf('Linux')).toBe(-1);
+        expect(navigator.userAgent).toBe('meh');
+    }) ;
+
     
     it('converts date string to date object', function(){
 	    var date_string = '1988-01-12 06:00:00';
