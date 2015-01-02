@@ -32,11 +32,12 @@ describe('NHMobile - Object', function() {
     });
 
 
-    it('tells me what the useragent string is', function(){
-        expect(navigator.userAgent.indexOf('iPhone') > 0).toBe(true);
-        expect(navigator.userAgent.indexOf('7_0_') < 0).toBe(true);
-        //expect(navigator.userAgent).toBe('meh');
-    }) ;
+//    it('tells me what the useragent string is', function(){
+//        expect(navigator.userAgent.indexOf('iPhone') > 0).toBe(true);
+//        expect(navigator.userAgent.indexOf('7_0_') < 0).toBe(true);
+//        //expect(navigator.userAgent).toBe('meh');
+//        Mozilla/5.0 (iPhone; CPU iPhone OS 7_0_3 like Mac OS X) Apple/WebKit/547.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B508 Safari/9537.53
+//    }) ;
 
     
     it('converts date string to date object', function(){
@@ -44,7 +45,7 @@ describe('NHMobile - Object', function() {
 	    var date_for_string = mobile.date_from_string(date_string);
 	    expect(typeof(date_for_string)).toBe('object');
 	    expect(date_for_string.constructor.name).toBe('Date');
-        if((navigator.userAgent.indexOf('Chrome') < 0  && navigator.userAgent.indexOf('Linux') < 0) || (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('7_0_') < 0)){
+        if((navigator.userAgent.indexOf('Chrome') < 0  && navigator.userAgent.indexOf('Linux') < 0) && (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('7_0_') < 0)){
             expect(date_for_string.toString()).toBe('Tue Jan 12 1988 06:00:00 GMT+0000 (Coordinated Universal Time)');
         }else{
             expect(date_for_string.toString()).toBe('Tue Jan 12 1988 06:00:00 GMT+0000 (GMT)');
