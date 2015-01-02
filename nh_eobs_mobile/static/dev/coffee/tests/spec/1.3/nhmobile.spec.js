@@ -44,7 +44,7 @@ describe('NHMobile - Object', function() {
 	    var date_string = '1988-01-12 06:00:00';
 	    var date_for_string = mobile.date_from_string(date_string);
 	    expect(typeof(date_for_string)).toBe('object');
-        if(navigator.userAgent.indexOf('MSIE') < 0 || navigator.userAgent.indexOf('Trident') > 0) {
+        if(navigator.userAgent.indexOf('MSIE') < 0 || navigator.userAgent.indexOf('Trident') < 0) {
             expect(date_for_string.constructor.name).toBe('Date');
         }
         if((navigator.userAgent.indexOf('Chrome') < 0  && navigator.userAgent.indexOf('Linux') < 0) && (navigator.userAgent.indexOf('iPhone OS') < 0)){
