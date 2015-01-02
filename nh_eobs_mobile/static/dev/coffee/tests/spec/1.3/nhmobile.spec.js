@@ -127,7 +127,7 @@ describe('NHMobile - Calls process_request function', function(){
     });
 });
 
-if(navigator.userAgent.indexOf('Trident') < 0 && navigator.userAgent.indexOf('11') < 0){
+if(navigator.userAgent.indexOf('Trident') < 0){
     describe("NHMobile AJAX - process request is calling xhr send", function(){
 
         beforeEach(function(){
