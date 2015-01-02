@@ -55,7 +55,8 @@ class NHMobileForm extends NHMobile
 
    @patient_name_el.addEventListener 'click', (event) ->
      event.preventDefault()
-     patient_id = event.srcElement.getAttribute('patient-id')
+     input = if event.srcElement then event.srcElement else event.target
+     patient_id = input.getAttribute('patient-id')
      if patient_id then self.get_patient_info(patient_id, self) else new window.NH.NHModal('patient_info_error', 'Error getting patient information', '', ['<a href="#" data-action="close" data-target="patient_info_error">Cancel</a>'], 0, document.getElementsByTagName('body')[0])
 
 
@@ -63,13 +64,13 @@ class NHMobileForm extends NHMobile
  validate: (event) =>
    event.preventDefault()
    @.reset_form_timeout(@)
-   input = event.srcElement
+   input = if event.srcElement then event.srcElement else event.target
    @reset_input_errors(input)
    value = parseFloat(input.value)
    min = parseFloat(input.min)
    max = parseFloat(input.max)
    if typeof(value) isnt 'undefined' and not isNaN(value) and value isnt ''
-     if input.type is 'number'
+     if input.getAttribute('type') is 'number'
        if input.step is '1' and value % 1 isnt 0
          @.add_input_errors(input, 'Must be whole number')
          return
@@ -82,7 +83,7 @@ class NHMobileForm extends NHMobile
        if input.getAttribute('data-validation')
          criteria = eval(input.getAttribute('data-validation'))[0]
          other_input = document.getElementById(criteria[1])?.value
-         if document.getElementById(criteria[1])?.type is 'number'
+         if document.getElementById(criteria[1])?.getAttribute('type') is 'number'
            other_input = parseFloat(other_input)
          if eval(value + ' ' + criteria[0] + ' ' + other_input)
            @.reset_input_errors(document.getElementById(criteria[1]))
@@ -106,9 +107,9 @@ class NHMobileForm extends NHMobile
  trigger_actions: (event) =>
    # event.preventDefault()
    @.reset_form_timeout(@)
-   input = event.srcElement
+   input = if event.srcElement then event.srcElement else event.target
    value = input.value
-   if input.type is 'radio'
+   if input.getAttribute('type') is 'radio'
      for el in document.getElementsByName(input.name)
        if el.value isnt value
          el.classList.add('exclude')

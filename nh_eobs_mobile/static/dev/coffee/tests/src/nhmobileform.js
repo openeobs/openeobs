@@ -114,7 +114,8 @@ NHMobileForm = (function(_super) {
     return this.patient_name_el.addEventListener('click', function(event) {
       var patient_id;
       event.preventDefault();
-      patient_id = event.srcElement.getAttribute('patient-id');
+      input = event.srcElement ? event.srcElement : event.target;
+      patient_id = input.getAttribute('patient-id');
       if (patient_id) {
         return self.get_patient_info(patient_id, self);
       } else {
@@ -127,13 +128,13 @@ NHMobileForm = (function(_super) {
     var criteria, input, max, min, other, other_criteria, other_input, value, _ref, _ref1;
     event.preventDefault();
     this.reset_form_timeout(this);
-    input = event.srcElement;
+    input = event.srcElement ? event.srcElement : event.target;
     this.reset_input_errors(input);
     value = parseFloat(input.value);
     min = parseFloat(input.min);
     max = parseFloat(input.max);
     if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
-      if (input.type === 'number') {
+      if (input.getAttribute('type') === 'number') {
         if (input.step === '1' && value % 1 !== 0) {
           this.add_input_errors(input, 'Must be whole number');
           return;
@@ -149,7 +150,7 @@ NHMobileForm = (function(_super) {
         if (input.getAttribute('data-validation')) {
           criteria = eval(input.getAttribute('data-validation'))[0];
           other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
-          if (((_ref1 = document.getElementById(criteria[1])) != null ? _ref1.type : void 0) === 'number') {
+          if (((_ref1 = document.getElementById(criteria[1])) != null ? _ref1.getAttribute('type') : void 0) === 'number') {
             other_input = parseFloat(other_input);
           }
           if (eval(value + ' ' + criteria[0] + ' ' + other_input)) {
@@ -176,9 +177,9 @@ NHMobileForm = (function(_super) {
   NHMobileForm.prototype.trigger_actions = function(event) {
     var action, actions, condition, conditions, el, field, input, mode, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
     this.reset_form_timeout(this);
-    input = event.srcElement;
+    input = event.srcElement ? event.srcElement : event.target;
     value = input.value;
-    if (input.type === 'radio') {
+    if (input.getAttribute('type') === 'radio') {
       _ref = document.getElementsByName(input.name);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         el = _ref[_i];
