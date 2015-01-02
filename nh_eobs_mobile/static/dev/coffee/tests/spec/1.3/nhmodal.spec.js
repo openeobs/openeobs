@@ -37,7 +37,7 @@ describe('NHModal', function(){
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
         if(navigator.userAgent.indexOf('Firefox') > 0){
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div style="max-height: '+test_modal_content.style.maxHeight+';'+phantomJSPadding+'" class="dialogContent">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
-        }else if(navigator.userAgent.indexOf('MSIE') > 0){
+        }else if(navigator.userAgent.indexOf('MSIE') > 0 || navigator.userAgent.indexOf('Trident') > 0){
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+';'+phantomJSPadding+'">content</div><ul class="options one-col"><li><a href="#" data-target="id" data-action="close">Option</a></li></ul>');
         }else{
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: '+test_modal_content.style.maxHeight+';'+phantomJSPadding+'">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
@@ -69,7 +69,7 @@ describe('NHModal', function(){
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
         if(navigator.userAgent.indexOf('Firefox') > 0) {
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '" class="dialogContent">content</div><ul class="options two-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li></ul>');
-        }else if(navigator.userAgent.indexOf('MSIE') > 0){
+        }else if(navigator.userAgent.indexOf('MSIE') > 0 || navigator.userAgent.indexOf('Trident') > 0){
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options two-col"><li><a href="#" data-target="id" data-action="close">Option 1</a></li><li><a href="#" data-target="id" data-action="confirm">Option 2</a></li></ul>');
         }else{
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options two-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li></ul>');
@@ -82,7 +82,7 @@ describe('NHModal', function(){
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
         if(navigator.userAgent.indexOf('Firefox') > 0) {
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '" class="dialogContent">content</div><ul class="options three-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li></ul>');
-        }else if(navigator.userAgent.indexOf('MSIE') > 0){
+        }else if(navigator.userAgent.indexOf('MSIE') > 0 || navigator.userAgent.indexOf('Trident') > 0){
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options three-col"><li><a href="#" data-target="id" data-action="close">Option 1</a></li><li><a href="#" data-target="id" data-action="confirm">Option 2</a></li><li><a href="#" data-target="id" data-action="confirm">Option 3</a></li></ul>');
         }else{
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options three-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li></ul>');
@@ -95,7 +95,7 @@ describe('NHModal', function(){
 		var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
         if(navigator.userAgent.indexOf('Firefox') > 0) {
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '" class="dialogContent">content</div><ul class="options four-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li><li><a href="#" data-action="confirm" data-target="id">Option 4</a></li></ul>');
-        }else if(navigator.userAgent.indexOf('MSIE') > 0){
+        }else if(navigator.userAgent.indexOf('MSIE') > 0 || navigator.userAgent.indexOf('Trident') > 0){
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options four-col"><li><a href="#" data-target="id" data-action="close">Option 1</a></li><li><a href="#" data-target="id" data-action="confirm">Option 2</a></li><li><a href="#" data-target="id" data-action="confirm">Option 3</a></li><li><a href="#" data-target="id" data-action="confirm">Option 4</a></li></ul>');
         }else{
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options four-col"><li><a href="#" data-action="close" data-target="id">Option 1</a></li><li><a href="#" data-action="confirm" data-target="id">Option 2</a></li><li><a href="#" data-action="confirm" data-target="id">Option 3</a></li><li><a href="#" data-action="confirm" data-target="id">Option 4</a></li></ul>');
@@ -110,7 +110,7 @@ describe('NHModal', function(){
         var test_modal_content = test_modal.getElementsByClassName('dialogContent')[0]
         if(navigator.userAgent.indexOf('Firefox') > 0) {
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '" class="dialogContent">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
-        }else if(navigator.userAgent.indexOf('MSIE') > 0){
+        }else if(navigator.userAgent.indexOf('MSIE') > 0 || navigator.userAgent.indexOf('Trident') > 0){
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options one-col"><li><a href="#" data-target="id" data-action="close">Option</a></li></ul>');
         }else{
             expect(test_modal.innerHTML).toEqual('<h2>title</h2><div class="dialogContent" style="max-height: ' + test_modal_content.style.maxHeight + ';' + phantomJSPadding + '">content</div><ul class="options one-col"><li><a href="#" data-action="close" data-target="id">Option</a></li></ul>');
