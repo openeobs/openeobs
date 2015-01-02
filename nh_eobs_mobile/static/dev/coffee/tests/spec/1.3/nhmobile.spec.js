@@ -33,8 +33,6 @@ describe('NHMobile - Object', function() {
 
 
     it('tells me what the useragent string is', function(){
-        expect(navigator.userAgent.indexOf('Chrome')).toBe(-1);
-        expect(navigator.userAgent.indexOf('Linux')).toBe(-1);
         expect(navigator.userAgent).toBe('meh');
     }) ;
 
@@ -44,7 +42,7 @@ describe('NHMobile - Object', function() {
 	    var date_for_string = mobile.date_from_string(date_string);
 	    expect(typeof(date_for_string)).toBe('object');
 	    expect(date_for_string.constructor.name).toBe('Date');
-        if((navigator.userAgent.indexOf('Chrome') < 0  && navigator.userAgent.indexOf('Linux') < 0)){
+        if((navigator.userAgent.indexOf('Chrome') < 0  && navigator.userAgent.indexOf('Linux') < 0) || (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('7_0_') < 0)){
             expect(date_for_string.toString()).toBe('Tue Jan 12 1988 06:00:00 GMT+0000 (Coordinated Universal Time)');
         }else{
             expect(date_for_string.toString()).toBe('Tue Jan 12 1988 06:00:00 GMT+0000 (GMT)');

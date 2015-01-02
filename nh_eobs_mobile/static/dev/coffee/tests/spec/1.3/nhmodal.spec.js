@@ -29,9 +29,7 @@ describe('NHModal', function(){
         }
     });
 
-//    it('tells me the user agent string so I can do my rassing job', function(){
-//        expect(navigator.userAgent).toEqual('meh');
-//    }) ;
+
 	
 	it('creates a dialog object', function(){
 		var modal = new window.NHModal('id', 'title', 'content', ['<a href="#" data-action="close" data-target="id">Option</a>'], 0, document.getElementById('test'))
