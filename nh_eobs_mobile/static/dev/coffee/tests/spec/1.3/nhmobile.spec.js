@@ -33,7 +33,9 @@ describe('NHMobile - Object', function() {
 
 
     it('tells me what the useragent string is', function(){
-        expect(navigator.userAgent).toBe('meh');
+        expect(navigator.userAgent.indexOf('iPhone') > 0).toBe(true);
+        expect(navigator.userAgent.indexOf('7_0_') < 0).toBe(true);
+        //expect(navigator.userAgent).toBe('meh');
     }) ;
 
     
