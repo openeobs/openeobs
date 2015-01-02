@@ -127,26 +127,30 @@ describe('NHMobile - Calls process_request function', function(){
     });
 });
 
-describe("NHMobile AJAX - process request is calling xhr send", function(){
+if(navigator.userAgent.indexOf('Trident') < 0 && navigator.userAgent.indexOf('11') < 0){
+    describe("NHMobile AJAX - process request is calling xhr send", function(){
 
-    beforeEach(function(){
-        spyOn(XMLHttpRequest.prototype, 'send');
+        beforeEach(function(){
+            spyOn(XMLHttpRequest.prototype, 'send');
+
+        });
+
+
+
+        it("is calling process_request which is triggering the XMLHTTPRequest", function() {
+            var mobile = new NHMobile();
+            mobile.get_patient_info(1);
+            expect(XMLHttpRequest.prototype.send).toHaveBeenCalled();
+        });
+
+        it('is calling process_request which is sending args', function(){
+            var mobile = new NHMobile();
+            mobile.call_resource(mobile.urls.calculate_obs_score('gcs'), 'eyes=1&verbal=1&motor=1');
+            expect(XMLHttpRequest.prototype.send).toHaveBeenCalledWith('eyes=1&verbal=1&motor=1');
+        });
 
     });
-
-    it("is calling process_request which is triggering the XMLHTTPRequest", function() {
-        var mobile = new NHMobile();
-        mobile.get_patient_info(1);
-        expect(XMLHttpRequest.prototype.send).toHaveBeenCalled();
-    });
-
-    it('is calling process_request which is sending args', function(){
-       var mobile = new NHMobile();
-        mobile.call_resource(mobile.urls.calculate_obs_score('gcs'), 'eyes=1&verbal=1&motor=1');
-        expect(XMLHttpRequest.prototype.send).toHaveBeenCalledWith('eyes=1&verbal=1&motor=1');
-    });
-
-});
+}
 
 describe("NHMobile AJAX - Invalid URL / server error", function(){
     var resp, resp_val;
