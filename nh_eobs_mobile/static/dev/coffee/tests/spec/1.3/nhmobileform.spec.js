@@ -49,13 +49,13 @@ describe('NHMobileForm - EventListeners', function(){
         var test_input = document.getElementById('submitButton');
         var change_event = document.createEvent('CustomEvent');
         change_event.initCustomEvent('click', false, false, false);
-        test_input.dispatchEvent(change_event);
+        //test_input.dispatchEvent(change_event);
         //test_input.click();
         expect(window.NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
         expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
     });
 
-    /*it('submit full is triggered', function(){
+    it('submit full is triggered', function(){
         spyOn(window.NHMobileForm.prototype, "submit_observation");
         var mobile_form = new window.NHMobileForm();
         var rr_el = document.getElementById('respiration_rate');
@@ -67,7 +67,7 @@ describe('NHMobileForm - EventListeners', function(){
         change_event.initCustomEvent('click', false, false, false);
         test_input.dispatchEvent(change_event);
         expect(window.NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
-    });*/
+    });
 
     it('sets up the form  timeout', function() {
         var mobile_form = new window.NHMobileForm();
