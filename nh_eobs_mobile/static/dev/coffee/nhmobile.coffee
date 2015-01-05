@@ -1,3 +1,45 @@
+# ClassList Polyfill for IE9 by Devon Govett - https://gist.github.com/devongovett/1381839
+if not ('classList' in document.documentElement) and Object.defineProperty and typeof HTMLElement isnt 'undefined'
+  Object.defineProperty(HTMLElement.prototype, 'classList', {
+    get: () ->
+      self = @
+      `function update(fn) {
+        return function(value) {
+          var classes = self.className.split(/\s+/), index = classes.indexOf(value);
+
+          fn(classes, index, value);
+          self.className = classes.join(" ");
+        }
+      }`
+
+      ret = {
+        add: update((classes, index, value) ->
+          ~index || classes.push(value)
+          return
+        ),
+        remove: update((classes, index) ->
+          ~index && classes.splice(index, 1)
+          return
+        ),
+        toggle: update((classes, index, value) ->
+          if ~index then classes.splice(index, 1) else classes.push(value)
+          return
+        ),
+        contains: (value) ->
+          return !!~self.className.split(/\s+/).indexOf(value)
+        ,
+        item: (i) ->
+          return self.className.split(/\s+/)[i] || null
+      }
+
+      Object.defineProperty(ret, 'length', {
+        get: () ->
+          return self.className.split(/\s+/).length
+      })
+
+      return ret
+  })
+
 # NHMobile contains utilities for working with the nh_eobs_mobile controllers as well as AJAX
 class Promise
   @when: (tasks...) ->

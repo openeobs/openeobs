@@ -71,7 +71,7 @@ class NHMobileForm extends NHMobile
    max = parseFloat(input.max)
    if typeof(value) isnt 'undefined' and not isNaN(value) and value isnt ''
      if input.getAttribute('type') is 'number'
-       if input.step is '1' and value % 1 isnt 0
+       if input.getAttribute('step') is '1' and value % 1 isnt 0
          @.add_input_errors(input, 'Must be whole number')
          return
        if value < min
