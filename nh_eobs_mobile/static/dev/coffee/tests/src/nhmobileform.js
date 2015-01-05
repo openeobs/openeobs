@@ -114,6 +114,7 @@ NHMobileForm = (function(_super) {
     return this.patient_name_el.addEventListener('click', function(event) {
       var patient_id;
       event.preventDefault();
+      event.stopPropagation();
       input = event.srcElement ? event.srcElement : event.target;
       patient_id = input.getAttribute('patient-id');
       if (patient_id) {
@@ -127,6 +128,7 @@ NHMobileForm = (function(_super) {
   NHMobileForm.prototype.validate = function(event) {
     var criteria, input, max, min, other, other_criteria, other_input, value, _ref, _ref1;
     event.preventDefault();
+      event.stopPropagation();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
     this.reset_input_errors(input);
@@ -245,6 +247,7 @@ NHMobileForm = (function(_super) {
   NHMobileForm.prototype.submit = function(event) {
     var element, empty_elements, form_elements, invalid_elements;
     event.preventDefault();
+      event.stopPropagation();
     this.reset_form_timeout(this);
     form_elements = (function() {
       var _i, _len, _ref, _results;
