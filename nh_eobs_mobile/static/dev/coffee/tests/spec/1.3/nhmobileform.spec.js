@@ -42,7 +42,7 @@ describe('NHMobileForm - EventListeners', function(){
         expect(window.NHMobileForm.prototype.submit).toHaveBeenCalled();
     }); */
 
-    /*it('submit partial is triggered', function(){
+    it('submit partial is triggered', function(){
         spyOn(window.NHMobileForm.prototype, "display_partial_reasons");
         spyOn(window.NHMobileForm.prototype, "submit_observation");
         var mobile_form = new window.NHMobileForm();
@@ -55,7 +55,7 @@ describe('NHMobileForm - EventListeners', function(){
         expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
     });
 
-    it('submit full is triggered', function(){
+    /*it('submit full is triggered', function(){
         spyOn(window.NHMobileForm.prototype, "submit_observation");
         var mobile_form = new window.NHMobileForm();
         var rr_el = document.getElementById('respiration_rate');
