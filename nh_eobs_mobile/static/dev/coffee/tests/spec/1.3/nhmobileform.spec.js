@@ -47,7 +47,7 @@ describe('NHMobileForm - EventListeners', function(){
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('submitButton');
         var change_event = document.createEvent('CustomEvent');
-        change_event.initCustomEvent('onclick', false, false, false);
+        change_event.initCustomEvent('click', false, false, false);
         test_input.dispatchEvent(change_event);
         //test_input.click();
         expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
@@ -62,7 +62,7 @@ describe('NHMobileForm - EventListeners', function(){
         supp_el.value  = 'False';
         var test_input = document.getElementById('submitButton');
         var change_event = document.createEvent('CustomEvent');
-        change_event.initCustomEvent('onclick', false, false, false);
+        change_event.initCustomEvent('click', false, false, false);
         test_input.dispatchEvent(change_event);
         expect(window.NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
     });
