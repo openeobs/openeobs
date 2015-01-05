@@ -43,13 +43,15 @@ describe('NHMobileForm - EventListeners', function(){
     }); */
 
     it('submit partial is triggered', function(){
-       spyOn(window.NHMobileForm.prototype, "display_partial_reasons");
+        spyOn(window.NHMobileForm.prototype, "display_partial_reasons");
+        spyOn(window.NHMobileForm.prototype, "submit_observation");
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('submitButton');
         var change_event = document.createEvent('CustomEvent');
         change_event.initCustomEvent('click', false, false, false);
         test_input.dispatchEvent(change_event);
         //test_input.click();
+        expect(window.NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
         expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
     });
 
