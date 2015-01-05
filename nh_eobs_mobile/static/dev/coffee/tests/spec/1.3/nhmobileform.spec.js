@@ -42,7 +42,7 @@ describe('NHMobileForm - EventListeners', function(){
         expect(window.NHMobileForm.prototype.submit).toHaveBeenCalled();
     }); */
 
-    it('submit partial is triggered', function(){
+    /*it('submit partial is triggered', function(){
         spyOn(window.NHMobileForm.prototype, "display_partial_reasons");
         spyOn(window.NHMobileForm.prototype, "submit_observation");
         var mobile_form = new window.NHMobileForm();
@@ -67,7 +67,7 @@ describe('NHMobileForm - EventListeners', function(){
         change_event.initCustomEvent('click', false, false, false);
         test_input.dispatchEvent(change_event);
         expect(window.NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
-    });
+    });*/
 
     it('sets up the form  timeout', function() {
         var mobile_form = new window.NHMobileForm();
