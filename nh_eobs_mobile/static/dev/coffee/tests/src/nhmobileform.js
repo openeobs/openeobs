@@ -131,8 +131,8 @@ NHMobileForm = (function(_super) {
     input = event.srcElement ? event.srcElement : event.target;
     this.reset_input_errors(input);
     value = parseFloat(input.value);
-    min = parseFloat(input.min);
-    max = parseFloat(input.max);
+    min = parseFloat(input.getAttribute('min'));
+    max = parseFloat(input.getAttribute('max'));
     if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
       if (input.getAttribute('type') === 'number') {
         if (input.getAttribute('step') === '1' && value % 1 !== 0) {

@@ -67,8 +67,8 @@ class NHMobileForm extends NHMobile
    input = if event.srcElement then event.srcElement else event.target
    @reset_input_errors(input)
    value = parseFloat(input.value)
-   min = parseFloat(input.min)
-   max = parseFloat(input.max)
+   min = parseFloat(input.getAttribute('min'))
+   max = parseFloat(input.getAttribute('max'))
    if typeof(value) isnt 'undefined' and not isNaN(value) and value isnt ''
      if input.getAttribute('type') is 'number'
        if input.getAttribute('step') is '1' and value % 1 isnt 0
