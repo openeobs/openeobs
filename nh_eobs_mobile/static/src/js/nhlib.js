@@ -2,10 +2,10 @@
 (function() {
   var NHLib, NHMobile, NHMobileForm, NHMobileFormLoz, NHMobilePatient, NHModal, Promise,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   NHLib = (function() {
     NHLib.date_format = '%Y-%m-%d H:M:S';
@@ -53,6 +53,50 @@
   }
 
   window.NH.NHLib = NHLib;
+
+  if (!(__indexOf.call(document.documentElement, 'classList') >= 0) && Object.defineProperty && typeof HTMLElement !== 'undefined') {
+    Object.defineProperty(HTMLElement.prototype, 'classList', {
+      get: function() {
+        var ret, self;
+        self = this;
+        function update(fn) {
+        return function(value) {
+          var classes = self.className.split(/\s+/), index = classes.indexOf(value);
+
+          fn(classes, index, value);
+          self.className = classes.join(" ");
+        }
+      };
+        ret = {
+          add: update(function(classes, index, value) {
+            ~index || classes.push(value);
+          }),
+          remove: update(function(classes, index) {
+            ~index && classes.splice(index, 1);
+          }),
+          toggle: update(function(classes, index, value) {
+            if (~index) {
+              classes.splice(index, 1);
+            } else {
+              classes.push(value);
+            }
+          }),
+          contains: function(value) {
+            return !!~self.className.split(/\s+/).indexOf(value);
+          },
+          item: function(i) {
+            return self.className.split(/\s+/)[i] || null;
+          }
+        };
+        Object.defineProperty(ret, 'length', {
+          get: function() {
+            return self.className.split(/\s+/).length;
+          }
+        });
+        return ret;
+      }
+    });
+  }
 
   Promise = (function() {
     Promise.when = function() {
@@ -355,7 +399,7 @@
       max = parseFloat(input.max);
       if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
         if (input.getAttribute('type') === 'number') {
-          if (input.step === '1' && value % 1 !== 0) {
+          if (input.getAttribute('step') === '1' && value % 1 !== 0) {
             this.add_input_errors(input, 'Must be whole number');
             return;
           }
