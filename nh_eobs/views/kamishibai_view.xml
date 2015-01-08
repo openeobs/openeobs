@@ -22,22 +22,21 @@
                     <field name="patient_id"/>
                     <field name="location_full_name"/>
                     <field name="status"/>
-                    <field name="shift1_label"/>
-                    <field name="shift2_label"/>
-                    <field name="shift3_label"/>
+                    <field name="start"/>
+                    <field name="end"/>
                     <field name="kamishibai_column"/>
                     <templates>
                         <t t-name="kanban-box">
                             <div t-att-class="'oe_kanban_card oe_kanban_global_click' + (record.status.raw_value == 'overdue' ? ' nhc_kanban_color_red' : '') + (record.status.raw_value == 'ok' ? ' nhc_kanban_color_green' : '')">
                                 <div class="oe_kanban_content">
                                     <t t-if="record.kamishibai_column.raw_value == 's1'">
-                                        <div><field name="shift1_label"/></div>
+                                        <div><field name="start"/>-<field name="end"/></div>
                                     </t>
                                     <t t-if="record.kamishibai_column.raw_value == 's2'">
-                                        <div><field name="shift2_label"/></div>
+                                        <div><field name="start"/>-<field name="end"/></div>
                                     </t>
                                     <t t-if="record.kamishibai_column.raw_value == 's3'">
-                                        <div><field name="shift3_label"/></div>
+                                        <div><field name="start"/>-<field name="end"/></div>
                                     </t>
                                     <div><b><field name="patient_id"/></b></div>
                                     <div><field name="location_full_name"/></div>

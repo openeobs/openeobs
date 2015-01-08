@@ -216,10 +216,9 @@ class nh_clinical_kamishibai(orm.Model):
         'location_id': fields.many2one('nh.clinical.location', 'Location'),
         'ward_id': fields.many2one('nh.clinical.location', 'Ward'),
         'location_full_name': fields.related('location_id', 'full_name', type='char', size=150, string='Location Name'),
-        'status': fields.function(_get_kamishibai_multi, multi='status', type='char', size=50, string='Kamishibai Status'),
-        'shift1_label': fields.function(_get_kamishibai_multi, multi='shift1_label', type='char', size=50, string='Current Shift'),
-        'shift2_label': fields.function(_get_kamishibai_multi, multi='shift2_label', type='char', size=50, string='Last Shift'),
-        'shift3_label': fields.function(_get_kamishibai_multi, multi='shift3_label', type='char', size=50, string='Previous Shift'),
+        'status': fields.char('Status', size=5),
+        'start': fields.datetime('Shift Start'),
+        'end': fields.datetime('Shift End')
     }
 
     def _get_kc_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
@@ -253,22 +252,26 @@ ward_locations as(
 create or replace view
 nh_clinical_kamishibai as(
 select
-    row_number() over() as test_id,
     k.kamishibai_column,
     k.id,
     k.patient_id,
     k.spell_activity_id,
     k.location_id,
-    k.ward_id
+    k.ward_id,
+    'n/a' as status,
+    k.start,
+    k.end
 from (
 
     select
         'snapshot' as kamishibai_column,
-        'A' || patient.id::TEXT as id,
+        'S' || patient.id::TEXT as id,
         spell.patient_id as patient_id,
         spell_activity.id as spell_activity_id,
         location.id as location_id,
-        wlocation.ward_id as ward_id
+        wlocation.ward_id as ward_id,
+        null as start,
+        null as end
 
     from nh_clinical_spell spell
     inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
@@ -280,53 +283,29 @@ from (
     union
 
     select
-        's1' as kamishibai_column,
-        'B' || patient.id::TEXT as id,
+        case
+            when shift.position = '1' then 's1'
+            when shift.position = '2' then 's2'
+            when shift.position = '3' then 's3'
+            else null
+        end as kamishibai_column,
+        timespan.id::TEXT as id,
         spell.patient_id as patient_id,
         spell_activity.id as spell_activity_id,
         location.id as location_id,
-        wlocation.ward_id as ward_id
+        wlocation.id as ward_id,
+        timespan.start as start,
+        timespan.end as end
 
-    from nh_clinical_spell spell
-    inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
-    inner join nh_clinical_patient patient on spell.patient_id = patient.id
+    from nh_clinical_spell_timespan timespan
+    inner join nh_activity spell_activity on spell_activity.id = timespan.spell_activity_id
+    inner join nh_clinical_spell spell on spell.activity_id = timespan.spell_activity_id
+    inner join nh_clinical_patient patient on patient.id = spell.patient_id
+    inner join nh_clinical_shift shift on shift.id = timespan.shift_id
+    inner join nh_clinical_shift_pattern pattern on pattern.id = shift.pattern_id
+    inner join nh_clinical_location wlocation on wlocation.id = pattern.location_id
     left join nh_clinical_location location on location.id = spell.location_id
-    left join ward_locations wlocation on wlocation.id = location.id
-    where spell_activity.state = 'started'
-
-    union
-
-    select
-        's2' as kamishibai_column,
-        'C' || patient.id::TEXT as id,
-        spell.patient_id as patient_id,
-        spell_activity.id as spell_activity_id,
-        location.id as location_id,
-        wlocation.ward_id as ward_id
-
-    from nh_clinical_spell spell
-    inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
-    inner join nh_clinical_patient patient on spell.patient_id = patient.id
-    left join nh_clinical_location location on location.id = spell.location_id
-    left join ward_locations wlocation on wlocation.id = location.id
-    where spell_activity.state = 'started'
-
-    union
-
-    select
-        's3' as kamishibai_column,
-        'D' || patient.id::TEXT as id,
-        spell.patient_id as patient_id,
-        spell_activity.id as spell_activity_id,
-        location.id as location_id,
-        wlocation.ward_id as ward_id
-
-    from nh_clinical_spell spell
-    inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
-    inner join nh_clinical_patient patient on spell.patient_id = patient.id
-    left join nh_clinical_location location on location.id = spell.location_id
-    left join ward_locations wlocation on wlocation.id = location.id
-    where spell_activity.state = 'started'
+    where shift.position != '4' and shift.position != '0'
     ) as k
 
 );
