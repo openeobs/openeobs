@@ -10,7 +10,7 @@
         </record>
 
         <record model="ir.cron" id="eobs_shift_management_cron">
-            <field name="name">Shift Automatic Generation</field>
+            <field name="name">Automatic Shift Generation</field>
             <field name="interval_number">5</field>
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
