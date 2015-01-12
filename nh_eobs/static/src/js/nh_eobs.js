@@ -403,6 +403,7 @@ openerp.nh_eobs = function (instance) {
             }
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'ews'], {context: this.view.dataset.context}).done(function(records){
+                var svg = new window.NH.NHGraphLib('#chart');
                 if(records.length > 0){
                     var obs = records.reverse();
 
@@ -430,7 +431,6 @@ openerp.nh_eobs = function (instance) {
                         }
                     });
 
-                    var svg = new window.NH.NHGraphLib('#chart');
                     var resp_rate_graph = new window.NH.NHGraph();
                     resp_rate_graph.options.keys = ['respiration_rate'];
                     resp_rate_graph.options.label = 'RR';
@@ -601,6 +601,7 @@ openerp.nh_eobs = function (instance) {
             this.model = new instance.web.Model('nh.eobs.api');
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'blood_sugar'], {context: this.view.dataset.context}).done(function(records){
+                var svg = new window.NH.NHGraphLib('#chart');
                 if(records.length > 0){
                     /*records.forEach(function(d){
                         d.date_started = svg.startParse(d.date_terminated);
@@ -608,7 +609,6 @@ openerp.nh_eobs = function (instance) {
                         d.blood_sugar_null = false;
                     });*/
 
-                    var svg = new window.NH.NHGraphLib('#chart');
                     var bs_graph = new window.NH.NHGraph();
                     bs_graph.options.keys = ['blood_sugar'];
                     bs_graph.options.label = 'BS';
@@ -664,6 +664,7 @@ openerp.nh_eobs = function (instance) {
             this.model = new instance.web.Model('nh.eobs.api');
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'weight'], {context: this.view.dataset.context}).done(function(records){
+                var svg = new window.NH.NHGraphLib('#chart');
                 if(records.length > 0){
 
 
@@ -672,7 +673,6 @@ openerp.nh_eobs = function (instance) {
                     var wmax2 = (50*(height*height)).toFixed(0);
 
 
-                    var svg = new window.NH.NHGraphLib('#chart');
                     var bs_graph = new window.NH.NHGraph();
                     bs_graph.options.keys = ['weight'];
                     bs_graph.options.label = 'W';
