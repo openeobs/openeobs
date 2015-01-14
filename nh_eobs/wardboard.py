@@ -549,6 +549,7 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def print_report(self, cr, uid, ids, context=None):
+        _logger.info('Calling Wardboard PrintReport')
         wardboard = self.browse(cr, uid, ids[0], context=context)
         users = self.pool['res.users']
         config = self.pool['ir.config_parameter']
@@ -579,12 +580,14 @@ class nh_clinical_wardboard(orm.Model):
 
         # Call the print function
         phantomjs = self.pool['phantomjs.pdf']
-        print_result = phantomjs.phantomjs_print(cr, uid, options, context=context)
-        if not isinstance(print_result, str):
-            return print_result
+        _logger.info('Calling Wardboard phantomjs_print')
+        attach_id_and_returned_context = phantomjs.phantomjs_print(cr, uid, options, context=context)
+
+        if not isinstance(attach_id_and_returned_context, str):
+            return attach_id_and_returned_context
         else:
-            _logger.warn(print_result)
-            return False
+            _logger.warn(attach_id_and_returned_context)
+        return False
 
     def write(self, cr, uid, ids, vals, context=None):
         activity_pool = self.pool['nh.activity']

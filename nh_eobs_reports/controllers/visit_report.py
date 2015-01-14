@@ -7,6 +7,9 @@ from datetime import datetime
 from openerp.http import request, Response
 from openerp.osv import fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+import logging
+
+_logger = logging.getLogger(__name__)
 
 endpoint = '/visit_report/'
 
@@ -70,6 +73,8 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
 
     @http.route(endpoint+'<spell_id>', type='http', auth='none')
     def get_report_for_spell(self, spell_id, *args, **kw):
+        _logger.info('Getting Report For Spell: %s' % spell_id)
+
         options = kw.copy()
         uid = self.authenticate(request)
         if uid:
@@ -240,8 +245,6 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
             return Response('Could not verify your access level for that URL.\n'
                             'You have to login with proper credentials', 401,
                             {'WWW-Authenticate': 'Basic realm="login required"'})
-
-
 
     def authenticate(self, request):
         db = False

@@ -370,7 +370,6 @@ openerp.nh_eobs = function (instance) {
                         var dataToSend = {"data":'{"data": null, "model":"ir.attachment","field":"datas","filename_field":"datas_fname","id":'+response[0]+', "context": '+JSON.stringify(response[1])+'}'}
                         var options = {url: '/web/binary/saveas_ajax', data: dataToSend};
                         openerp.instances.instance0.session.get_file(options);
-                        //return this.session.url('/web/binary/saveas', {model: 'ir.attachment', field: 'datas', filename_field: 'datas_fname', id: attachment['id']});
                     }
                 });
             }
