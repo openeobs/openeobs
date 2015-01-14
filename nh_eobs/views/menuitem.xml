@@ -105,16 +105,16 @@
                   action="action_nhc_admin_userboard"
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
-        <menuitem name="Shift Management"
-                  id="menu_nhui_admin_left_shifts"
-                  parent="menu_nhui_admin_top_root"
-                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+        <!--<menuitem name="Shift Management"-->
+                  <!--id="menu_nhui_admin_left_shifts"-->
+                  <!--parent="menu_nhui_admin_top_root"-->
+                  <!--groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>-->
 
-        <menuitem name="Set Shift Patterns"
-                  id="menu_nhui_left_shift_patterns"
-                  parent="menu_nhui_admin_left_shifts"
-                  action="action_show_wards_list"
-                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+        <!--<menuitem name="Set Shift Patterns"-->
+                  <!--id="menu_nhui_left_shift_patterns"-->
+                  <!--parent="menu_nhui_admin_left_shifts"-->
+                  <!--action="action_show_wards_list"-->
+                  <!--groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>-->
 
     	<!-- WARDBOARD -->
 
@@ -160,12 +160,12 @@
             sequence="4"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Kamishibai Board"
-          	id="menu_left_kamishibai_board"
-          	parent="menu_nhui_left_patient"
-          	action="action_kamishibai"
-            sequence="5"
-          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+        <!--<menuitem name="Kamishibai Board"-->
+          	<!--id="menu_left_kamishibai_board"-->
+          	<!--parent="menu_nhui_left_patient"-->
+          	<!--action="action_kamishibai"-->
+            <!--sequence="5"-->
+          	<!--groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>-->
 
         <menuitem name="Doctor Tasks"
           	id="menu_left_doctor_activities"
