@@ -441,6 +441,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         if 'taskId' in data:
             del data['taskId']
         if observation == 'ews':
+            observation = 'news'
             for key, value in data.items():
                 if not value or key not in ['avpu_text', 'blood_pressure_systolic', 'body_temperature', 'indirect_oxymetry_spo2', 'oxygen_administration_flag', 'pulse_rate', 'respiration_rate']:
                     del data[key]
