@@ -1,9 +1,6 @@
 /*
 
 Joe's Awesome Block Theme
-yeah. it's awesome.
-well awesome.
-
 
 */
 
@@ -12,7 +9,7 @@ html, body {
 
     margin:0;
     padding:0;
-    height:100%;
+    height:100%;    
     font-size: 1.125em;
     line-height: 1.5;
 }
