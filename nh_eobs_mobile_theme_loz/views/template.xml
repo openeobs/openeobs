@@ -73,7 +73,7 @@
                             <div t-att-class="'clockspace-{0}'.format(item['color'])"><i t-att-class="'clock-{0}'.format(item['color'])"></i></div>
                         </div>
                         <div class="row-three">
-                            <div class="bed"><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></div>
+                            <div class="bed"><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></div>
                             <div t-att-class="'task-time-{0}'.format(item['color'])"><t t-esc="item['deadline_time']"/></div>
                         </div>
                     </div>
@@ -93,7 +93,7 @@
                             <div class="due-patient"><t t-if="item['overdue']">Next Obs Overdue:</t><t t-if="item['overdue']==False">Next Obs Due:</t></div>
                         </div>
                         <div class="row-two mypatients">
-                            <div class="bed-patient"><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></div>
+                            <div class="bed-patient"><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></div>
                             <div class="time-patient"><t t-esc="item['deadline_time']"/></div>
                         </div>
                     </a>
