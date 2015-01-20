@@ -19,5 +19,6 @@
             <!--<field name="function" eval="'generate_all_shifts'"/>-->
             <!--<field name="args" eval="'()'" />-->
         <!--</record>-->
+
     </data>
 </openerp>
