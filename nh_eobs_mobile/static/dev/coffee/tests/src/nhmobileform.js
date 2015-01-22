@@ -125,7 +125,7 @@ NHMobileForm = (function(_super) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var criteria, input, max, min, other, other_criteria, other_input, value, _ref, _ref1;
+    var criteria, criterias, input, max, min, operator, other_input, other_input_value, target_input, target_input_value, value, _i, _len, _results;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
@@ -148,25 +148,33 @@ NHMobileForm = (function(_super) {
           return;
         }
         if (input.getAttribute('data-validation')) {
-          criteria = eval(input.getAttribute('data-validation'))[0];
-          other_input = (_ref = document.getElementById(criteria[1])) != null ? _ref.value : void 0;
-          if (((_ref1 = document.getElementById(criteria[1])) != null ? _ref1.getAttribute('type') : void 0) === 'number') {
-            other_input = parseFloat(other_input);
+          criterias = eval(input.getAttribute('data-validation'));
+          _results = [];
+          for (_i = 0, _len = criterias.length; _i < _len; _i++) {
+            criteria = criterias[_i];
+            target_input = document.getElementById(criteria['condition']['target']);
+            target_input_value = target_input != null ? target_input.value : void 0;
+            other_input = document.getElementById(criteria['condition']['value']);
+            other_input_value = other_input != null ? other_input.value : void 0;
+            operator = criteria['condition']['operator'];
+            if ((target_input != null ? target_input.getAttribute('type') : void 0) === 'number') {
+              other_input_value = parseFloat(other_input_value);
+            }
+            if (eval(target_input_value + ' ' + operator + ' ' + other_input_value)) {
+              this.reset_input_errors(other_input);
+              continue;
+            }
+            if (typeof other_input_value !== 'undefined' && !isNaN(other_input_value) && other_input_value !== '') {
+              this.add_input_errors(target_input, criteria['message']['target']);
+              this.add_input_errors(other_input, criteria['message']['value']);
+              continue;
+            } else {
+              this.add_input_errors(target_input, criteria['message']['target']);
+              this.add_input_errors(other_input, 'Please enter a value');
+              continue;
+            }
           }
-          if (eval(value + ' ' + criteria[0] + ' ' + other_input)) {
-            this.reset_input_errors(document.getElementById(criteria[1]));
-            return;
-          }
-          if (typeof other_input !== 'undefined' && !isNaN(other_input) && other_input !== '') {
-            this.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1]);
-            other = document.getElementById(criteria[1]);
-            other_criteria = eval(other.getAttribute('data-validation'))[0];
-            this.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1]);
-          } else {
-            this.add_input_errors(input, 'Input requires ' + criteria[1] + ' to have value');
-            other = document.getElementById(criteria[1]);
-            this.add_input_errors(other, 'Please enter a value');
-          }
+          return _results;
         }
       }
     } else {

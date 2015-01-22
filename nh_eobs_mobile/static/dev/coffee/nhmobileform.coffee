@@ -81,26 +81,26 @@ class NHMobileForm extends NHMobile
          @.add_input_errors(input, 'Input too high')
          return
        if input.getAttribute('data-validation')
-         criteria = eval(input.getAttribute('data-validation'))[0]
-         other_input = document.getElementById(criteria[1])?.value
-         if document.getElementById(criteria[1])?.getAttribute('type') is 'number'
-           other_input = parseFloat(other_input)
-         if eval(value + ' ' + criteria[0] + ' ' + other_input)
-           @.reset_input_errors(document.getElementById(criteria[1]))
-           return
-         if typeof(other_input) isnt 'undefined' and not isNaN(other_input) and other_input isnt ''
-           # other_validation_event = new Event('change')
-           # document.getElementById(criteria[1]).dispatchEvent(other_validation_event)
-           @.add_input_errors(input, 'Input must be ' + criteria[0] + ' ' + criteria[1])
-           other = document.getElementById(criteria[1])
-           other_criteria = eval(other.getAttribute('data-validation'))[0]
-           @.add_input_errors(other, 'Input must be ' + other_criteria[0] + ' ' + other_criteria[1])
-           return
-         else
-           @.add_input_errors(input, 'Input requires ' + criteria[1] + ' to have value')
-           other = document.getElementById(criteria[1])
-           @.add_input_errors(other, 'Please enter a value')
-           return
+         criterias = eval(input.getAttribute('data-validation'))
+         for criteria in criterias
+           target_input = document.getElementById(criteria['condition']['target'])
+           target_input_value = target_input?.value
+           other_input = document.getElementById(criteria['condition']['value'])
+           other_input_value = other_input?.value
+           operator = criteria['condition']['operator']
+           if target_input?.getAttribute('type') is 'number'
+             other_input_value = parseFloat(other_input_value)
+           if eval(target_input_value + ' ' + operator + ' ' + other_input_value)
+             @.reset_input_errors(other_input)
+             continue
+           if typeof(other_input_value) isnt 'undefined' and not isNaN(other_input_value) and other_input_value isnt ''
+             @.add_input_errors(target_input, criteria['message']['target'])
+             @.add_input_errors(other_input, criteria['message']['value'])
+             continue
+           else
+             @.add_input_errors(target_input, criteria['message']['target'])
+             @.add_input_errors(other_input, 'Please enter a value')
+             continue
    else
      # to be continued
 
