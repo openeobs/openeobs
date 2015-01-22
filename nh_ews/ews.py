@@ -166,7 +166,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'label': 'Blood Pressure Systolic',
             'min': 1,
             'max': 300,
-            'validation': [['>', 'blood_pressure_diastolic']],
+            'validation': [
+                {
+                    'condition': {
+                        'target': 'blood_pressure_systolic',
+                        'operator': '>',
+                        'value': 'blood_pressure_diastolic'
+                    },
+                    'message': {
+                        'target': 'Systolic BP must be more than Diastolic BP',
+                        'value': 'Diastolic BP must be less than Systolic BP'
+                    }
+                }
+            ],
             'initially_hidden': False,
         },
         {
@@ -175,7 +187,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'label': 'Blood Pressure Diastolic',
             'min': 1,
             'max': 280,
-            'validation': [['<', 'blood_pressure_systolic']],
+            'validation': [
+                {
+                    'condition':{
+                        'target': 'blood_pressure_diastolic',
+                        'operator': '<',
+                        'value': 'blood_pressure_systolic'
+                    },
+                    'message': {
+                        'target': 'Diastolic BP must be less than Systolic BP',
+                        'value': 'Systolic BP must be more than Diastolic BP'
+                    }
+                }
+            ],
             'initially_hidden': False,
         },
         {
