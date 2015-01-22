@@ -4,7 +4,7 @@ echo "## Compiling LESS into CSS"
 lessc src/kiosk_style.less > test/kiosk_style.css
 
 echo "## Running CSS Lint on compiled CSS file"
-csslint test/kiosk_style.css
+csslint test/kiosk_style.css --quiet --ignore=fallback-colors
 
 echo "## Testing CSS against Style Guide  with UnCSS"
 uncss test/styleguide.html > ../../src/css/kiosk_style.css

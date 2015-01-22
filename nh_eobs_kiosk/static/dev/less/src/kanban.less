@@ -3,16 +3,14 @@
 
   .oe_kanban_groups{
       width: 100%;
-
-      tr{
-
-        &.oe_kanban_groups_headers{
-
+      color: red;
+      .oe_kanban_groups_headers{
+           color: red;
         }
 
-        &.oe_kanban_groups_records{
+      .oe_kanban_groups_records{
 
-        }
+       }
 
         // do some awesome row count stuff to set the widths of stuff
 
@@ -20,14 +18,12 @@
           display: none;
         }
       }
-  }
 }
 
 // Kanban work-item
 .tasks {
   -ms-border-radius: 10px;
   border-radius: 10px;
-  border: 1px solid rgb(0, 0, 0);
   border: 1px solid rgba(0, 0, 0, 0.3);
   //width: 100%;
   box-shadow: 0 0 2px 1px #a6a6a6;
@@ -46,12 +42,9 @@
   .section-one {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    border: 2px solid rgb(255, 255, 255);
     border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: rgb(255, 255, 255);
     border-top-color: rgba(255, 255, 255, 0.6);
     border-bottom-width: 1px;
-    border-bottom-color: rgb(0, 0, 0);
     border-bottom-color: rgba(0, 0, 0, 0.3);
     font-size: 1.2em;
     font-weight: 900;
@@ -60,7 +53,6 @@
   .section-two {
 
     ul {
-      border-bottom: 1px solid rgb(0, 0, 0);
       border-bottom: 1px solid rgba(0, 0, 0, 0.3);
       line-height: 2em;
 
@@ -68,7 +60,6 @@
         border: none;
       }
       .p-info {
-        border-right: 1px solid rgb(0, 0, 0);
         border-right: 1px solid rgba(0, 0, 0, 0.3);
         padding-left: 3%;
         padding-right: 3%;
