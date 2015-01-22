@@ -1,13 +1,12 @@
-.oe_leftbar{
-  &.nh_kiosk_nav{
+.nh_kiosk_nav{
       width: 100%;
     > div{
       height: inherit;
-      display: inline-block;;
+      display: inline-block;
       width: 100%;
 
-      a.oe_logo{
-        display: inline-block;
+      .oe_logo{
+        //display: inline-block;
         width: 10%;
         float: left;
       }
@@ -25,20 +24,20 @@
          height: inherit;
           width: 100%;
 
-          .oe_secondary_menus_container{
-            position: relative !important;
-            overflow-x: visible !important;
-            overflow-y: visible !important;
+          > .oe_secondary_menus_container{
+            position: relative;
+            overflow-x: visible;
+            overflow-y: visible;
 
             .oe_secondary_menu{
 
               .oe_secondary_menu_section{
                   width: inherit;
-                  display: inline-block;
+                  //display: inline-block;
                   float: left;
               }
               .oe_secondary_submenu{
-                  display: inline;
+                  //display: inline;
                   float: left;
 
                   &:before{
@@ -66,4 +65,3 @@
       }
     }
   }
-}
