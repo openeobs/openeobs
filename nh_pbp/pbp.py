@@ -58,7 +58,19 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                     'action': 'hide'
                 }
             ],
-            'validation': [['>', 'diastolic_sitting']],
+            'validation': [
+                {
+                    'condition': {
+                        'target': 'systolic_sitting',
+                        'operator': '>',
+                        'value': 'diastolic_sitting'
+                    },
+                    'message': {
+                        'target': 'Sitting Systolic BP must be more than Sitting Diastolic BP',
+                        'value': 'Sitting Diastolic BP must be less than Sitting Systolic BP'
+                    }
+                }
+            ],
             'initially_hidden': False
         },
         {
@@ -79,7 +91,19 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                     'action': 'hide'
                 }
             ],
-            'validation': [['<', 'systolic_sitting']],
+            'validation': [
+                {
+                    'condition': {
+                        'target': 'diastolic_sitting',
+                        'operator': '<',
+                        'value': 'systolic_sitting'
+                    },
+                    'message': {
+                        'target': 'Sitting Diastolic BP must be less than Sitting Systolic BP',
+                        'value': 'Sitting Systolic BP must be more than Sitting Diastolic BP'
+                    }
+                }
+            ],
             'initially_hidden': False
         },
         {
@@ -88,7 +112,19 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'label': 'Standing Blood Pressure Systolic',
             'min': 1,
             'max': 300,
-            'validation': [['>', 'diastolic_standing']],
+            'validation': [
+                {
+                    'condition': {
+                        'target': 'systolic_standing',
+                        'operator': '>',
+                        'value': 'diastolic_standing'
+                    },
+                    'message': {
+                        'target': 'Standing Systolic BP must be more than Standing Diastolic BP',
+                        'value': 'Standing Diastolic BP must be less than Standing Systolic BP'
+                    }
+                }
+            ],
             'initially_hidden': True
         },
         {
@@ -97,7 +133,19 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'label': 'Standing Blood Pressure Diastolic',
             'min': 1,
             'max': 280,
-            'validation': [['<', 'systolic_standing']],
+            'validation': [
+                {
+                    'condition': {
+                        'target': 'diastolic_standing',
+                        'operator': '<',
+                        'value': 'systolic_standing'
+                    },
+                    'message': {
+                        'target': 'Standing Diastolic BP must be less than Standing Systolic BP',
+                        'value': 'Standing Systolic BP must be more than Standing Diastolic BP'
+                    }
+                }
+            ],
             'initially_hidden': True
         }
     ]
