@@ -1,0 +1,174 @@
+// Kanban columns
+.oe_view_manager_kanban{
+
+  .oe_kanban_groups{
+      width: 100%;
+
+      tr{
+
+        &.oe_kanban_groups_headers{
+
+        }
+
+        &.oe_kanban_groups_records{
+
+        }
+
+        // do some awesome row count stuff to set the widths of stuff
+
+        .dummy_cell{
+          display: none;
+        }
+      }
+  }
+}
+
+// Kanban work-item
+.tasks {
+  -ms-border-radius: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  width: 100%;
+  box-shadow: 0 0 2px 1px #a6a6a6;
+
+  ul {
+    padding: 2% 2% 3% 3%;
+    margin: 0;
+    list-style-type: none;
+
+    li {
+      text-decoration: none;
+      display: inline-block;
+    }
+  }
+
+  .section-one {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.6);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.3);
+    font-size: 1.2em;
+    font-weight: 900;
+  }
+
+  .section-two {
+
+    ul {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      line-height: 2em;
+
+      li {
+        border: none;
+
+        &.p-info {
+          border-right: 1px solid rgba(0, 0, 0, 0.3);
+          padding-left: 3%;
+          padding-right: 3%;
+          text-align: center;
+          font-weight: 800;
+        }
+
+        &.last {
+          border: none;
+          padding-left: 4%;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .section-three {
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+
+    ul {
+      display: block;
+      line-height: 1em;
+      vertical-align: middle;
+      li {
+
+        &.num-id {
+          padding-right: 47%;
+          color: #3d3d3d
+        }
+      }
+    }
+  }
+  &.low {
+    .section-one {
+      background: -webkit-linear-gradient(#4cd29d, #2aa776);
+      color: #262626
+    }
+    .section-two {
+      background: -webkit-linear-gradient(#4cd29d, #89e1be)
+    }
+
+    .section-three {
+      background: -webkit-linear-gradient(#4cd29d, #2aa776)
+    }
+  }
+
+  &.mid {
+    .section-one {
+      background: -webkit-linear-gradient(#f9d96a, #f6c620)
+    }
+
+    .section-two {
+      background: -webkit-linear-gradient(#f9d96a, #fcecb4)
+    }
+
+    .section-three {
+      background: -webkit-linear-gradient(#f9d96a, #f6c620)
+    }
+  }
+
+  &.high {
+
+    .section-one {
+      background: -webkit-linear-gradient(#fcaa73, #fa7d28);
+      color: #262626
+    }
+
+    .section-two {
+      background: -webkit-linear-gradient(#fcaa73, #fed7be)
+    }
+
+    .section-three {
+      background: -webkit-linear-gradient(#fcaa73, #fa7d28)
+    }
+  }
+
+  &.no {
+
+    .section-one {
+      background: -webkit-linear-gradient(white, #d9d9d9)
+    }
+
+    .section-two {
+      background: -webkit-linear-gradient(white, #fff)
+    }
+
+    .section-three {
+      background: -webkit-linear-gradient(white, #d9d9d9)
+    }
+
+  }
+
+  &.unknown {
+
+    .section-one {
+      background: -webkit-linear-gradient(#c0c0c0, #9a9a9a);
+      color: #262626
+    }
+
+    .section-two {
+      background: -webkit-linear-gradient(#c0c0c0, #e6e6e6)
+    }
+
+    .section-three {
+      background: -webkit-linear-gradient(#c0c0c0, #9a9a9a)
+    }
+  }
+}
