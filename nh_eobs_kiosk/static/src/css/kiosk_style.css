@@ -1,5 +1,13 @@
 /*** uncss> filename: test/kiosk_style.css ***/
 
+.oe_view_manager_view_kanban .oe_kanban_groups {
+  width: 100%;
+}
+
+.oe_view_manager_view_kanban .oe_kanban_groups tr .oe_kanban_dummy_cell {
+  display: none;
+}
+
 .tasks {
   -ms-border-radius: 10px;
   border-radius: 10px;
