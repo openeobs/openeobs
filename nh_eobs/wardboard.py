@@ -226,7 +226,7 @@ class nh_clinical_wardboard(orm.Model):
     def _get_transferred_user_ids(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for wb_id in ids:
-            user_ids = self.pool['nh.clinical.spell'].read(cr, uid, wb_id, ['transfered_user_ids'], context=context)['transfered_user_ids']
+            user_ids = self.pool['nh.clinical.spell'].read(cr, uid, wb_id, ['transferred_user_ids'], context=context)['transferred_user_ids']
             res[wb_id] = user_ids
         return res
 
