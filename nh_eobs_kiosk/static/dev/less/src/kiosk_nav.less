@@ -1,12 +1,13 @@
-.nh_kiosk_nav{
-      width: 100%;
+/*csslint adjoining-classes: false */
+.oe_leftbar{
+  &.nh_kiosk_nav{
+    width: 100%;
     > div{
       height: inherit;
-      display: inline-block;
+      display: inline-block;;
       width: 100%;
 
       .oe_logo{
-        //display: inline-block;
         width: 10%;
         float: left;
       }
@@ -21,10 +22,10 @@
         height: inherit;
 
         > div {
-         height: inherit;
+          height: inherit;
           width: 100%;
 
-          > .oe_secondary_menus_container{
+          div.oe_secondary_menus_container{
             position: relative;
             overflow-x: visible;
             overflow-y: visible;
@@ -32,32 +33,30 @@
             .oe_secondary_menu{
 
               .oe_secondary_menu_section{
-                  width: inherit;
-                  //display: inline-block;
-                  float: left;
+                width: inherit;
+                float: left;
               }
               .oe_secondary_submenu{
-                  //display: inline;
+                float: left;
+
+                &:before{
+                  display: inline;
+                }
+
+                &:after{
+                  clear: none;
+                }
+
+                li{
                   float: left;
 
-                  &:before{
-                    display: inline;
-                  }
+                  a{
 
-                  &:after{
-                    clear: none;
-                  }
-
-                  li{
-                    float: left;
-
-                    a{
-
-                      .oe_menu_text{
-                        max-width: inherit;
-                      }
+                    .oe_menu_text{
+                      max-width: inherit;
                     }
                   }
+                }
               }
             }
           }
@@ -65,3 +64,4 @@
       }
     }
   }
+}
