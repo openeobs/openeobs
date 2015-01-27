@@ -443,8 +443,8 @@ class nh_eobs_api(orm.AbstractModel):
         data = {'other_identifier': patient_id}
         cancel_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_activity, data, context=context)
-        activity_pool.complete(cr, uid, cancel_activity, context=context)
         spell_timespan_pool.delete_patient_timespans(cr, uid, patient_id, context=context)
+        activity_pool.complete(cr, uid, cancel_activity, context=context)
         _logger.debug("Admission cancelled\n data: %s" % data)
         return True
 
@@ -462,8 +462,8 @@ class nh_eobs_api(orm.AbstractModel):
         patient_pool = self.pool['nh.clinical.patient']
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.discharge', {'patient_id': patientdb_id[0]}, {'other_identifier': patient_id, 'discharge_date': data.get('discharge_date')}, context=context)
-        activity_pool.complete(cr, uid, discharge_activity, context=context)
         spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
+        activity_pool.complete(cr, uid, discharge_activity, context=context)
         _logger.debug("Patient discharged: %s" % patient_id)
         return True
 
