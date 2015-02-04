@@ -99,33 +99,6 @@ openerp.nh_eobs = function (instance) {
         },
     });
 
-    /*instance.web.form.widgets.add('button', 'instance.nh_eobs.WidgetButton');
-
-    instance.nh_eobs.WidgetButton = instance.web.form.WidgetButton.extend({
-        execute_action: function() {
-            var self = this;
-
-            if ((this.field_manager.ViewManager.process_model == "nh.clinical.wardboard") && this.string == "Print Report"){
-                // Do some shit
-                // Old stuff below...
-                this.model = new instance.web.Model("nh.clinical.wardboard");
-                var attachment_id = this.model.call('print_report',[[this.view.datarecord.id]], {context: this.view.dataset.context}).done(function(response){
-                    if (response[0]){
-                        var dataToSend = {"data":'{"data": null, "model":"ir.attachment","field":"datas","filename_field":"datas_fname","id":'+response[0]+', "context": '+JSON.stringify(response[1])+'}'}
-                        var options = {url: '/web/binary/saveas_ajax', data: dataToSend};
-                        openerp.instances.instance0.session.get_file(options);
-                        //return this.session.url('/web/binary/saveas', {model: 'ir.attachment', field: 'datas', filename_field: 'datas_fname', id: attachment['id']});
-                    }
-                });
-            }
-            this._super();
-        },
-    });   */
-
-//    instance.web.form.tags = new instance.web.Registry({
-//        'button' : 'instance.web.form.WidgetButton',
-//    });
-
     instance.web.ListView.include({
         init: function(parent, dataset, view_id, options) {
 
