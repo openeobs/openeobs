@@ -4,12 +4,9 @@ from openerp.addons.nh_activity.activity import except_if
 from openerp.addons.nh_observations.parameters import frequencies
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from dateutil.relativedelta import relativedelta as rd
-import logging
-import bisect
 from openerp import SUPERUSER_ID
-from math import fabs
 
+import logging
 _logger = logging.getLogger(__name__)
 
 
@@ -130,7 +127,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         patient_id = activity.data_ref.patient_id.id
         placement_pool = self.pool['nh.clinical.patient.placement']
         # FIXME + placement.id child_of current_spell_activity
-        placement = placement_pool.browse_domain(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
+        data_ids = placement_pool.search(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
+        placement = placement_pool.browse(cr, uid, data_ids, context)[0]
         location_id = placement and placement[0].location_id.id or False
         return location_id
 
