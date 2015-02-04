@@ -170,8 +170,7 @@
                                     <field name="move_ids" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="location_name" />
-                                            <field name="date_terminated" widget="nhc_datetime" string="In"/>
-                                            <field name="out_date" widget="nhc_datetime" string="Out"/>
+                                            <field name="date_terminated" widget="nhc_datetime" string="Date In"/>
                                         </tree>
                                         <form>
                                             <field name="location_id" />
@@ -591,8 +590,7 @@
                                     <field name="move_ids" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="location_id" />
-                                            <field name="date_terminated" widget="nhc_datetime" string="In"/>
-                                            <field name="out_date" widget="nhc_datetime" string="Out"/>
+                                            <field name="date_terminated" widget="nhc_datetime" string="Date In"/>
                                         </tree>
                                         <form>
                                             <field name="location_id" />
