@@ -10,9 +10,8 @@ class nh_clinical_overdue(orm.Model):
     _description = "Overdue Activities View"
     _auto = False
     _table = "nh_clinical_overdue"
-    _states = [('new', 'new'), ('planned', 'Planned'), ('scheduled', 'Scheduled'),
-               ('started', 'Started'), ('completed', 'Completed'), ('cancelled', 'Cancelled'),
-               ('suspended', 'Suspended'), ('aborted', 'Aborted'), ('expired', 'Expired')]
+    _states = [('new', 'New'), ('scheduled', 'Scheduled'),
+               ('started', 'Started'), ('completed', 'Completed'), ('cancelled', 'Cancelled')]
     _columns = {
         'activity_id': fields.many2one('nh.activity', 'Activity', required=1, ondelete='restrict'),
         'name': fields.char('Activity Name', size=100),
