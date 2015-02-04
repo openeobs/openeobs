@@ -234,7 +234,7 @@ class nh_clinical_wardboard(orm.Model):
         arg1, op, arg2 = args[0]
         arg2 = arg2 if isinstance(arg2, (list, tuple)) else [arg2]
         all_ids = self.search(cr, uid, [])
-        wb_user_map = self._get_transferred_user_ids(cr, uid, all_ids, 'transferred_user_ids', context=context)
+        wb_user_map = self._get_transferred_user_ids(cr, uid, all_ids, 'transferred_user_ids', None, context=context)
         wb_ids = [k for k, v in wb_user_map.items() if set(v or []) & set(arg2 or [])]
 
         return [('id', 'in', wb_ids)]
