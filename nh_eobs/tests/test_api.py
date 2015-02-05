@@ -302,7 +302,7 @@ class TestAPI(SingleTransactionCase):
 
         self.extapi.register(cr, self.adt_id, 'TESTP0004', patient_data)
 
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0004')])
+        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0004')])[0]
         self.assertTrue(patient_id)
         doa = dt.now().strftime(dtf)
         admit_data = {
@@ -315,7 +315,8 @@ class TestAPI(SingleTransactionCase):
 
         self.extapi.transfer(cr, self.adt_id, 'TESTP0004', {'location': 'U'})
         # check there is an open spell for that patient
-        spell_activity_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.spell'), ('patient_id', '=', patient_id)])
+        spell_activity_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.spell'),
+                                                                ('patient_id', '=', patient_id)])
         self.assertTrue(spell_activity_id, msg='No spell found after transfer')
         # check there is an open placement activity with suggested location ward U for this patient
         placement_activity_id = self.activity_pool.search(cr, uid, [
@@ -510,8 +511,10 @@ class TestAPI(SingleTransactionCase):
             'pulse_rate': 55,
             'avpu_text': 'A'
         }
+
+        # FIXME: Should the completing user be nu_id (which was originally there but fails) or nt_id?
         ews_id = self.extapi.create_activity_for_patient(cr, self.nt_id, patient_id[0], 'ews')
-        self.extapi.complete(cr, self.nu_id, ews_id, ews_data)
+        self.extapi.complete(cr, self.nt_id, ews_id, ews_data)
 
         ews_activities = self.extapi.get_activities_for_patient(cr, uid, patient_id[0], 'ews')
         self.assertTrue(ews_activities, msg='No EWS found after ews activity submit/complete')
