@@ -29,7 +29,6 @@ pretty_date_format = '%d/%m/%Y %H:%M'
 phantomjs_date_format = "%Y-%m-%dT%H:%M:%S"
 
 
-
 class VisitReportController(openerp.addons.web.controllers.main.Home):
 
     def mimeifier(self, type):
@@ -76,7 +75,10 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
         _logger.info('Getting Report For Spell: %s' % spell_id)
 
         options = kw.copy()
+
         uid = self.authenticate(request)
+        _logger.debug('Getting report for spell:%s' % uid)
+
         if uid:
             # Sort out optional arguments
             options = kw.copy()
@@ -222,6 +224,8 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
                 d3 = open(get_module_path('nh_graphs') + '/static/lib/js/d3.js', 'r').read()
                 graph_lib = open(get_module_path('nh_graphs') + '/static/src/js/nh_graphlib.js', 'r').read()
                 style = open(get_module_path('nh_eobs') + '/static/src/css/report.css', 'r').read()
+
+                _logger.debug('Prepared all data - go to render visit_report_base')
 
                 return request.render('nh_eobs_reports.visit_report_base', qcontext={'spell': spell,
                                                                                    'user': user,
