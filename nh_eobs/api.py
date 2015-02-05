@@ -486,6 +486,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
         Cancels the last discharge of the patient.
         """
+        patient_pool = self.pool['nh.clinical.patient']
         if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
             raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
         activity_pool = self.pool['nh.activity']
