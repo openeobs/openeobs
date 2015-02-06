@@ -127,10 +127,11 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         patient_id = activity.data_ref.patient_id.id
         placement_pool = self.pool['nh.clinical.patient.placement']
         # FIXME + placement.id child_of current_spell_activity
-        data_ids = placement_pool.search(cr, uid, [('patient_id','=',patient_id),('state','=','completed')], limit=1, order="date_terminated desc")
-        placement = placement_pool.browse(cr, uid, data_ids, context)[0]
-        location_id = placement and placement[0].location_id.id or False
-        return location_id
+        data_ids = placement_pool.search(cr, uid, [('patient_id', '=', patient_id), ('state', '=', 'completed')], limit=1, order="date_terminated desc")
+        if not data_ids:
+            return False
+        placement = placement_pool.browse(cr, uid, data_ids[0], context)
+        return placement.location_id.id
 
     def get_form_description(self, cr, uid, patient_id, context=None):
         return self._form_description
