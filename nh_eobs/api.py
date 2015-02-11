@@ -170,8 +170,9 @@ class nh_eobs_api(orm.AbstractModel):
                 else false
             end as notification
         from nh_activity activity
+        inner join nh_activity spell on spell.id = activity.parent_id
         inner join nh_clinical_patient patient on patient.id = activity.patient_id
-        inner join nh_clinical_location location on location.id = activity.location_id
+        inner join nh_clinical_location location on location.id = spell.location_id
         inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
         left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
         left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
