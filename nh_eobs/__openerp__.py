@@ -11,7 +11,6 @@
     'depends': ['nh_ews', 'nh_gcs', 'nh_pbp', 'nh_stools', 'nh_graphs', 'phantomjs_pdf', 'nh_shift_management',
                 'nh_eobs_reports'],
     'data': ['eobs_data.xml',
-             'wizard/responsibility_allocation_wizard.xml',
              'wizard/cancel_notifications_view.xml',
              'views/wardboard_view.xml',
              'views/workload_view.xml',
