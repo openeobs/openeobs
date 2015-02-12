@@ -93,7 +93,7 @@
             <field name="model">nh.clinical.admin.userboard</field>
             <field name="inherit_id" ref="nh_clinical.view_nhc_admin_userboard_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//page[@string='Roles']" position="replace">
+                <xpath expr="/form/sheet/notebook/page[@string='Location Responsibility']" position="before">
                     <page string="Open eObs Roles">
                         <group colspan="4" col="2">
                             <field name="hca"/>
