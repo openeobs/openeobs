@@ -297,6 +297,7 @@ class nh_eobs_api(orm.AbstractModel):
                     ews.id,
                     spell.patient_id,
                     ews.score,
+                    ews.three_in_one,
                     ews.clinical_risk,
                     rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
                 from nh_clinical_spell spell
@@ -336,6 +337,10 @@ class nh_eobs_api(orm.AbstractModel):
                 when ews1.score is not null then ews1.score::text
                 else ''
             end as ews_score,
+            case
+                when ews1.score is not null then ews1.three_in_one
+                else False
+            end as ews_3in1,
             ews1.clinical_risk,
             case
                 when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
@@ -344,7 +349,11 @@ class nh_eobs_api(orm.AbstractModel):
                 when ews1.id is null and ews2.id is null then 'none'
                 when ews1.id is not null and ews2.id is null then 'first'
                 when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen.
-            end as ews_trend
+            end as ews_trend,
+            case
+                when ews0.frequency is not null then ews0.frequency
+                else 0
+            end as frequency
         from nh_activity activity
         inner join nh_clinical_patient patient on patient.id = activity.patient_id
         inner join nh_clinical_location location on location.id = activity.location_id
