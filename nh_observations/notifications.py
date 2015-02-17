@@ -53,9 +53,9 @@ class nh_clinical_notification_frequency(orm.Model):
         obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
         obs_pool = self.pool[review_frequency.data_ref.observation]
         obs_pool.write(cr, uid, obs.data_ref.id, {'frequency': review_frequency.data_ref.frequency}, context=context)
-        trigger_notification = review_frequency.creator_id._name == 'nh.clinical.notification.assessment' and \
-                               review_frequency.creator_id.creator_id._name == 'nh.clinical.patient.observation.ews' \
-                               and review_frequency.creator_id.creator_id.clinical_risk == 'Low'
+        trigger_notification = review_frequency.creator_id.data_ref._name == 'nh.clinical.notification.assessment' and \
+                               review_frequency.creator_id.creator_id.data_ref._name == 'nh.clinical.patient.observation.ews' \
+                               and review_frequency.creator_id.creator_id.data_ref.clinical_risk == 'Low'
         if trigger_notification:
             api_pool = self.pool['nh.clinical.api']
             api_pool.trigger_notifications(cr, uid, {
