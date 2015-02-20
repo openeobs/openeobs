@@ -1,11 +1,15 @@
-from openerp.osv import orm
+from openerp.osv import orm, osv
 from openerp import SUPERUSER_ID
 import logging
+from datetime import datetime as dt, timedelta as td
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.addons.nh_activity.activity import except_if
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
+from faker.providers import BaseProvider
 fake = Faker()
+
 
 class nh_clinical_api_demo(orm.AbstractModel):
     _name = 'nh.clinical.api.demo'
@@ -134,4 +138,139 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 api.assign(cr, uid, ews.id, nuid)
                 api.submit_complete(cr, nuid, ews.id, self.demo_data(cr, uid, 'nh.clinical.patient.observation.ews'))
 
+        return True
+
+    def build_eobs_uat_env(self, cr, uid, wards=10, beds=10, patients=10, begin_date=None, context=None):
+        if not begin_date:
+            begin_date = dt.now().strftime(dtf)
+        fake = self.next_seed_fake()
+        api = self.pool['nh.eobs.api']
+        activity_pool = self.pool['nh.activity']
+        patient_pool = self.pool['nh.clinical.patient']
+        location_pool = self.pool['nh.clinical.location']
+        context_pool = self.pool['nh.clinical.context']
+        user_pool = self.pool['res.users']
+        pos_pool = self.pool['nh.clinical.pos']
+        pos_ids = pos_pool.search(cr, uid, [], context=context)
+        if not pos_ids:
+            pos_ids = [self.create(cr, uid, 'nh.clinical.pos')]
+        pos_location_id = location_pool.search(cr, uid, [('pos_id', '=', pos_ids[0])])[0]
+
+        adt_uid = user_pool.search(cr, uid, [['groups_id.name', 'in', ['NH Clinical ADT Group']]], context=context)
+        if not adt_uid:
+            adt_uid = self.create(cr, uid, 'res.users', 'user_adt', {'pos_id': pos_ids[0]})
+        else:
+            adt_uid = adt_uid[0]
+
+        context_ids = context_pool.search(cr, uid, [['name', '=', 'eobs']], context=context)
+
+
+        # LOCATIONS
+
+        ward_ids = [self.create(cr, uid, 'nh.clinical.location', 'location_ward', {'context_ids': [[6, False, context_ids]], 'parent_id': pos_location_id, 'name': 'Ward '+str(w), 'code': str(w)}) if not location_pool.search(cr, uid, [['code', '=', str(w)], ['parent_id', '=', pos_location_id], ['usage', '=', 'ward']], context=context) else location_pool.search(cr, uid, [['code', '=', str(w)], ['parent_id', '=', pos_location_id], ['usage', '=', 'ward']], context=context)[0] for w in range(wards)]
+        bed_ids = {}
+        bed_codes = {}
+        for w in range(wards):
+            bed_ids[str(w)] = [self.create(cr, uid, 'nh.clinical.location', 'location_bed', {'context_ids': [[6, False, context_ids]], 'parent_id': ward_ids[w], 'name': 'Bed '+str(b), 'code': str(w)+str(b)}) if not location_pool.search(cr, uid, [['code', '=', str(w)+str(b)], ['parent_id.code', '=', str(w)], ['usage', '=', 'bed']], context=context) else location_pool.search(cr, uid, [['code', '=', str(w)+str(b)], ['parent_id.code', '=', str(w)], ['usage', '=', 'bed']], context=context)[0] for b in range(beds)]
+            for b in range(beds):
+                bed_codes[str(w)+str(b)] = {'available': True, 'ward': str(w)}
+
+        # USERS
+
+        wm_ids = {}
+        n_ids = {}
+        h_ids = {}
+        d_ids = {}
+        for w in range(wards):
+            wm_ids[str(w)] = self.create(cr, uid, 'res.users', 'user_ward_manager', {'name': 'WM'+str(w), 'login': 'WM'+str(w), 'password': 'WM'+str(w), 'location_ids': [[6, False, [ward_ids[w]]]]}) if not user_pool.search(cr, uid, [['login', '=', 'WM'+str(w)]], context=context) else user_pool.search(cr, uid, [['login', '=', 'WM'+str(w)]], context=context)[0]
+            n_ids[str(w)] = self.create(cr, uid, 'res.users', 'user_nurse', {'name': 'N'+str(w), 'login': 'N'+str(w), 'password': 'N'+str(w), 'location_ids': [[6, False, bed_ids[str(w)]]]}) if not user_pool.search(cr, uid, [['login', '=', 'N'+str(w)]], context=context) else user_pool.search(cr, uid, [['login', '=', 'N'+str(w)]], context=context)[0]
+            h_ids[str(w)] = self.create(cr, uid, 'res.users', 'user_hca', {'name': 'H'+str(w), 'login': 'H'+str(w), 'password': 'H'+str(w), 'location_ids': [[6, False, bed_ids[str(w)]]]}) if not user_pool.search(cr, uid, [['login', '=', 'H'+str(w)]], context=context) else user_pool.search(cr, uid, [['login', '=', 'H'+str(w)]], context=context)[0]
+            d_ids[str(w)] = self.create(cr, uid, 'res.users', 'user_doctor', {'name': 'D'+str(w), 'login': 'D'+str(w), 'password': 'D'+str(w), 'location_ids': [[6, False, bed_ids[str(w)]]]}) if not user_pool.search(cr, uid, [['login', '=', 'D'+str(w)]], context=context) else user_pool.search(cr, uid, [['login', '=', 'D'+str(w)]], context=context)[0]
+
+        # PATIENT REGISTER
+
+        patient_identifiers = []
+        for p in range(patients):
+            hospital_number = BaseProvider.numerify('#######')
+            while patient_pool.search(cr, uid, [['other_identifier', '=', hospital_number]], context=context):
+                hospital_number = BaseProvider.numerify('#######')
+            nhs_number = BaseProvider.numerify('##########')
+            while patient_pool.search(cr, uid, [['patient_identifier', '=', nhs_number]], context=context):
+                nhs_number = BaseProvider.numerify('##########')
+            gender = fake.random_element(['M', 'F'])
+            data = {
+                'patient_identifier': nhs_number,
+                'family_name': fake.last_name(),
+                'given_name': fake.first_name(),
+                'dob': fake.date_time_between(start_date="-85y", end_date="now").strftime(dtf),
+                'gender': gender,
+                'sex': gender,
+                'ethnicity': fake.random_element(patient_pool._ethnicity)[0]
+            }
+            api.register(cr, adt_uid, hospital_number, data, context=context)
+            patient_identifiers.append(hospital_number)
+
+        # PATIENT ADMIT
+
+
+        count = 0
+        for b in bed_codes.keys():
+            if not bed_codes[b]['available']:
+                continue
+            if len(patient_identifiers) <= count:
+                break
+            data = {
+                'location': bed_codes[b]['ward'],
+                'start_date': begin_date
+            }
+            wm_uid = wm_ids[bed_codes[b]['ward']]
+            api.admit(cr, adt_uid, patient_identifiers[count], data, context=context)
+            placement_id = activity_pool.search(cr, uid, [['patient_id.other_identifier', '=', patient_identifiers[count]], ['data_model', '=', 'nh.clinical.patient.placement']], context=context)
+            if not placement_id:
+                osv.except_osv('Error!', 'The patient placement was not triggered after admission!')
+            location_id = location_pool.search(cr, uid, [['usage', '=', 'bed'], ['code', '=', b], ['parent_id.usage', '=', 'ward'], ['parent_id.code', '=', bed_codes[b]['ward']]], context=context)
+            if not location_id:
+                osv.except_osv('Error!', 'Cannot complete placement. Location not found!')
+            activity_pool.submit(cr, wm_uid, placement_id[0], {'date_started': begin_date, 'location_id': location_id[0]}, context=context)
+            activity_pool.complete(cr, wm_uid, placement_id[0], context=context)
+            activity_pool.write(cr, uid, placement_id[0], {'date_terminated': begin_date}, context=context)
+            count += 1
+
+        ews_activity_ids = activity_pool.search(cr, uid, [['patient_id.other_identifier', 'in', patient_identifiers], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']]], context=context)
+        activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
+
+        current_date = dt.strptime(begin_date, dtf)
+        while current_date < dt.now():
+            ews_activity_ids = activity_pool.search(cr, uid, [['patient_id.other_identifier', 'in', patient_identifiers], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']], ['date_scheduled', '<=', current_date.strftime(dtf)]], context=context)
+            nearest_date = False
+            for ews_id in ews_activity_ids:
+                ews_data = {
+                    'respiration_rate': fake.random_element([18, 18, 18, 18, 18, 18, 18, 11, 11, 24]),
+                    'indirect_oxymetry_spo2': fake.random_element([False, False, False, False, False, False, False, False, 95, 93]),
+                    'oxygen_administration_flag': fake.random_element([False, False, False, False, False, False, False, False, False, True]),
+                    'blood_pressure_systolic': fake.random_element([120, 120, 120, 120, 120, 120, 120, 110, 110, 100]),
+                    'blood_pressure_diastolic': 80,
+                    'avpu_text': fake.random_element(['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'V']),
+                    'pulse_rate': fake.random_element([37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 50, 50, 130]),
+                    'body_temperature': fake.random_element([37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 36.0, 36.0]),
+                }
+                ews_activity = activity_pool.browse(cr, uid, ews_id, context=context)
+                n_uid = n_ids[ews_activity.location_id.parent_id.code]
+                activity_pool.submit(cr, n_uid, ews_id, ews_data, context=context)
+                activity_pool.complete(cr, n_uid, ews_id, context=context)
+                ews_activity = activity_pool.browse(cr, uid, ews_id, context=context)
+                overdue = fake.random_element([False, False, False, False, False, False, False, True, True, True])
+                if overdue:
+                    complete_date = current_date + td(days=1)
+                else:
+                    complete_date = current_date + td(minutes=ews_activity.data_ref.frequency-10)
+                activity_pool.write(cr, uid, ews_id, {'date_terminated': complete_date.strftime(dtf)}, context=context)
+                triggered_ews_id = activity_pool.search(cr, uid, [['creator_id', '=', ews_id], ['data_model', '=', 'nh.clinical.patient.observation.ews']], context=context)
+                if not triggered_ews_id:
+                    osv.except_osv('Error!', 'The NEWS observation was not triggered after previous submission!')
+                triggered_ews = activity_pool.browse(cr, uid, triggered_ews_id[0], context=context)
+                activity_pool.write(cr, uid, triggered_ews_id[0], {'date_scheduled': (complete_date + td(minutes=triggered_ews.data_ref.frequency)).strftime(dtf)}, context=context)
+                if not nearest_date or complete_date < nearest_date:
+                    nearest_date = complete_date
+            current_date = nearest_date
         return True
