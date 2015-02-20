@@ -140,9 +140,11 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return True
 
-    def build_eobs_uat_env(self, cr, uid, wards=10, beds=10, patients=10, begin_date=None, context=None):
-        if not begin_date:
-            begin_date = dt.now().strftime(dtf)
+    def build_eobs_uat_env(self, cr, uid, data, context=None):
+        wards = data.get('wards') if data.get('wards') else 10
+        beds = data.get('beds') if data.get('beds') else 10
+        patients = data.get('patients') if data.get('patients') else 10
+        begin_date = data.get('begin_date') if data.get('begin_date') else dt.now().strftime(dtf)
         fake = self.next_seed_fake()
         api = self.pool['nh.eobs.api']
         activity_pool = self.pool['nh.activity']
@@ -173,7 +175,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
         for w in range(wards):
             bed_ids[str(w)] = [self.create(cr, uid, 'nh.clinical.location', 'location_bed', {'context_ids': [[6, False, context_ids]], 'parent_id': ward_ids[w], 'name': 'Bed '+str(b), 'code': str(w)+str(b)}) if not location_pool.search(cr, uid, [['code', '=', str(w)+str(b)], ['parent_id.code', '=', str(w)], ['usage', '=', 'bed']], context=context) else location_pool.search(cr, uid, [['code', '=', str(w)+str(b)], ['parent_id.code', '=', str(w)], ['usage', '=', 'bed']], context=context)[0] for b in range(beds)]
             for b in range(beds):
-                bed_codes[str(w)+str(b)] = {'available': True, 'ward': str(w)}
+                bed = location_pool.read(cr, uid, bed_ids[str(w)][b], ['is_available'], context=context)
+                bed_codes[str(w)+str(b)] = {'available': bed['is_available'], 'ward': str(w)}
 
         # USERS
 
@@ -246,7 +249,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
             for ews_id in ews_activity_ids:
                 ews_data = {
                     'respiration_rate': fake.random_element([18, 18, 18, 18, 18, 18, 18, 11, 11, 24]),
-                    'indirect_oxymetry_spo2': fake.random_element([False, False, False, False, False, False, False, False, 95, 93]),
+                    'indirect_oxymetry_spo2': fake.random_element([99, 99, 99, 99, 99, 99, 99, 99, 95, 93]),
                     'oxygen_administration_flag': fake.random_element([False, False, False, False, False, False, False, False, False, True]),
                     'blood_pressure_systolic': fake.random_element([120, 120, 120, 120, 120, 120, 120, 110, 110, 100]),
                     'blood_pressure_diastolic': 80,
@@ -270,7 +273,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                     osv.except_osv('Error!', 'The NEWS observation was not triggered after previous submission!')
                 triggered_ews = activity_pool.browse(cr, uid, triggered_ews_id[0], context=context)
                 activity_pool.write(cr, uid, triggered_ews_id[0], {'date_scheduled': (complete_date + td(minutes=triggered_ews.data_ref.frequency)).strftime(dtf)}, context=context)
-                if not nearest_date or complete_date < nearest_date:
-                    nearest_date = complete_date
+                if not nearest_date or complete_date + td(minutes=triggered_ews.data_ref.frequency) < nearest_date:
+                    nearest_date = complete_date + td(minutes=triggered_ews.data_ref.frequency)
             current_date = nearest_date
         return True
