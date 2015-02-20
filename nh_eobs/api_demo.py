@@ -248,14 +248,14 @@ class nh_clinical_api_demo(orm.AbstractModel):
             nearest_date = False
             for ews_id in ews_activity_ids:
                 ews_data = {
-                    'respiration_rate': fake.random_element([18, 18, 18, 18, 18, 18, 18, 11, 11, 24]),
-                    'indirect_oxymetry_spo2': fake.random_element([99, 99, 99, 99, 99, 99, 99, 99, 95, 93]),
-                    'oxygen_administration_flag': fake.random_element([False, False, False, False, False, False, False, False, False, True]),
-                    'blood_pressure_systolic': fake.random_element([120, 120, 120, 120, 120, 120, 120, 110, 110, 100]),
+                    'respiration_rate': fake.random_element([18]*90 + [11]*8 + [24]*2),
+                    'indirect_oxymetry_spo2': fake.random_element([99]*90 + [95]*8 + [93]*2),
+                    'oxygen_administration_flag': fake.random_element([False]*96 + [True]*4),
+                    'blood_pressure_systolic': fake.random_element([120]*90 + [110]*8 + [100]*2),
                     'blood_pressure_diastolic': 80,
-                    'avpu_text': fake.random_element(['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'V']),
-                    'pulse_rate': fake.random_element([37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 50, 50, 130]),
-                    'body_temperature': fake.random_element([37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 37.5, 36.0, 36.0]),
+                    'avpu_text': fake.random_element(['A']*97 + ['V', 'P', 'U']),
+                    'pulse_rate': fake.random_element([65]*90 + [50]*8 + [130]*2),
+                    'body_temperature': fake.random_element([37.5]*93 + [36.0]*7),
                 }
                 ews_activity = activity_pool.browse(cr, uid, ews_id, context=context)
                 n_uid = n_ids[ews_activity.location_id.parent_id.code]
