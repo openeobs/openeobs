@@ -644,5 +644,28 @@
             <field name="domain">[('user_ids','in',uid)]</field>
             <field name="view_id" ref="view_nhc_doctor_activities_tree"/>
         </record>
+
+        <record model="ir.actions.act_window" id="action_show_patients">
+            <field name="name">Patients</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">nh.clinical.patient</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <!--<field name="domain">[['usage','=','ward']]</field>-->
+            <field name="search_view_id" ref="nh_clinical.view_patient_search"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_view_patient_tree">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="nh_clinical.view_patient_tree"/>
+            <field name="act_window_id" ref="action_show_patients"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_patient_form">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="nh_clinical.view_patient_form"/>
+            <field name="act_window_id" ref="action_show_patients"/>
+        </record>
     </data>
 </openerp>

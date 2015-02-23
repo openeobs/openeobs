@@ -64,7 +64,15 @@
                   parent="menu_nhui_admin_top_root"
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
+        <menuitem name="Patients"
+                  sequence="0"
+                  id="menu_nhui_left_patients"
+                  parent="menu_nhui_admin_left_data"
+                  action="action_show_patients"
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+
         <menuitem name="Manage O2 Targets"
+                  sequence="1"
                   id="menu_nhui_left_o2_targets"
                   parent="menu_nhui_admin_left_data"
                   action="action_show_o2_targets"
