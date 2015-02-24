@@ -103,8 +103,11 @@ openerp.nh_eobs = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (options.action.name == "Hospital Wards" || options.action.name == "Device Categories" || options.action.name == "Patients Board" || options.action.name == "Overdue Tasks" || options.action.name == "Doctor Tasks" || options.action.name == "Device Types" || options.action.name == "Devices" || options.action.name == "O2 Targets" || options.action.name == "User Management" || options.action.name == "Recently Discharged" || options.action.name == "Recently Transferred" || options.action.name == "Patients without bed" || options.action.name == "Wardboard" || options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care"){
+                if (['Spells','Hospital Wards','Device Categories','Patients Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
                     options.selectable = false;
+                };
+                if ('Patients' != options.action.name){
+                    options.import_enabled = false;
                 };
                 if (typeof(timing5) != 'undefined'){
                     clearInterval(timing5);

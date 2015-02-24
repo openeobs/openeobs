@@ -17,6 +17,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_hca_heather_user" model="res.users">
@@ -26,6 +27,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_hca'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_hca_harold_user" model="res.users">
@@ -55,6 +57,7 @@
             ref('nhc_def_conf_location_wa_b18'),
             ref('nhc_def_conf_location_wa_b19'),
             ref('nhc_def_conf_location_wa_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_hca_henry_user" model="res.users">
@@ -84,6 +87,7 @@
             ref('nhc_def_conf_location_wb_b18'),
             ref('nhc_def_conf_location_wb_b19'),
             ref('nhc_def_conf_location_wb_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_hca_hannah_user" model="res.users">
@@ -113,6 +117,7 @@
             ref('nhc_def_conf_location_wc_b18'),
             ref('nhc_def_conf_location_wc_b19'),
             ref('nhc_def_conf_location_wc_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_hca_harper_user" model="res.users">
@@ -142,6 +147,7 @@
             ref('nhc_def_conf_location_wc_b18'),
             ref('nhc_def_conf_location_wc_b19'),
             ref('nhc_def_conf_location_wc_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_hca_harriet_user" model="res.users">
@@ -171,6 +177,7 @@
             ref('nhc_def_conf_location_wd_b18'),
             ref('nhc_def_conf_location_wd_b19'),
             ref('nhc_def_conf_location_wd_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_hca_hugo_user" model="res.users">
@@ -200,6 +207,7 @@
             ref('nhc_def_conf_location_wd_b18'),
             ref('nhc_def_conf_location_wd_b19'),
             ref('nhc_def_conf_location_wd_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_natalia_user" model="res.users">
@@ -209,6 +217,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_noemi_user" model="res.users">
@@ -218,6 +227,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_noah_user" model="res.users">
@@ -227,6 +237,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_neil_user" model="res.users">
@@ -236,6 +247,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_nurse'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_norah_user" model="res.users">
@@ -255,6 +267,7 @@
             ref('nhc_def_conf_location_wa_b8'),
             ref('nhc_def_conf_location_wa_b9'),
             ref('nhc_def_conf_location_wa_b10')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_nadine_user" model="res.users">
@@ -274,6 +287,7 @@
             ref('nhc_def_conf_location_wa_b18'),
             ref('nhc_def_conf_location_wa_b19'),
             ref('nhc_def_conf_location_wa_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_nathan_user" model="res.users">
@@ -293,6 +307,7 @@
             ref('nhc_def_conf_location_wb_b8'),
             ref('nhc_def_conf_location_wb_b9'),
             ref('nhc_def_conf_location_wb_b10')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_nurse_nicolas_user" model="res.users">
@@ -312,6 +327,7 @@
             ref('nhc_def_conf_location_wb_b18'),
             ref('nhc_def_conf_location_wb_b19'),
             ref('nhc_def_conf_location_wb_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_nurse_ned_user" model="res.users">
@@ -341,6 +357,7 @@
             ref('nhc_def_conf_location_wc_b18'),
             ref('nhc_def_conf_location_wc_b19'),
             ref('nhc_def_conf_location_wc_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_natasha_user" model="res.users">
@@ -370,6 +387,7 @@
             ref('nhc_def_conf_location_wc_b18'),
             ref('nhc_def_conf_location_wc_b19'),
             ref('nhc_def_conf_location_wc_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_nurse_nichole_user" model="res.users">
@@ -399,6 +417,7 @@
             ref('nhc_def_conf_location_wd_b18'),
             ref('nhc_def_conf_location_wd_b19'),
             ref('nhc_def_conf_location_wd_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_nurse_nasir_user" model="res.users">
@@ -428,6 +447,7 @@
             ref('nhc_def_conf_location_wd_b18'),
             ref('nhc_def_conf_location_wd_b19'),
             ref('nhc_def_conf_location_wd_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_ward_manager_winifred_user" model="res.users">
@@ -437,6 +457,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wa')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_ward_manager_walter_user" model="res.users">
@@ -446,6 +467,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wb')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_ward_manager_whitney_user" model="res.users">
@@ -455,6 +477,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wc')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_ward_manager_william_user" model="res.users">
@@ -464,6 +487,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wd')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_dave_user" model="res.users">
@@ -480,6 +504,7 @@
             ref('nhc_def_conf_location_wa_b5'),
             ref('nhc_def_conf_location_wa_b6'),
             ref('nhc_def_conf_location_wa_b7')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_davina_user" model="res.users">
@@ -495,6 +520,7 @@
             ref('nhc_def_conf_location_wa_b11'),
             ref('nhc_def_conf_location_wa_b12'),
             ref('nhc_def_conf_location_wa_b13')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_don_user" model="res.users">
@@ -511,6 +537,7 @@
             ref('nhc_def_conf_location_wa_b18'),
             ref('nhc_def_conf_location_wa_b19'),
             ref('nhc_def_conf_location_wa_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_doctor_dakota_user" model="res.users">
@@ -527,6 +554,7 @@
             ref('nhc_def_conf_location_wb_b5'),
             ref('nhc_def_conf_location_wb_b6'),
             ref('nhc_def_conf_location_wb_b7')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_damien_user" model="res.users">
@@ -542,6 +570,7 @@
             ref('nhc_def_conf_location_wb_b11'),
             ref('nhc_def_conf_location_wb_b12'),
             ref('nhc_def_conf_location_wb_b13')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_delilah_user" model="res.users">
@@ -558,6 +587,7 @@
             ref('nhc_def_conf_location_wb_b18'),
             ref('nhc_def_conf_location_wb_b19'),
             ref('nhc_def_conf_location_wb_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_doctor_dawson_user" model="res.users">
@@ -574,6 +604,7 @@
             ref('nhc_def_conf_location_wc_b5'),
             ref('nhc_def_conf_location_wc_b6'),
             ref('nhc_def_conf_location_wc_b7')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_dana_user" model="res.users">
@@ -589,6 +620,7 @@
             ref('nhc_def_conf_location_wc_b11'),
             ref('nhc_def_conf_location_wc_b12'),
             ref('nhc_def_conf_location_wc_b13')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_diego_user" model="res.users">
@@ -605,6 +637,7 @@
             ref('nhc_def_conf_location_wc_b18'),
             ref('nhc_def_conf_location_wc_b19'),
             ref('nhc_def_conf_location_wc_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
         
         <record id="nhc_def_conf_doctor_daniella_user" model="res.users">
@@ -621,6 +654,7 @@
             ref('nhc_def_conf_location_wd_b5'),
             ref('nhc_def_conf_location_wd_b6'),
             ref('nhc_def_conf_location_wd_b7')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_denzel_user" model="res.users">
@@ -636,6 +670,7 @@
             ref('nhc_def_conf_location_wd_b11'),
             ref('nhc_def_conf_location_wd_b12'),
             ref('nhc_def_conf_location_wd_b13')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_doctor_diana_user" model="res.users">
@@ -652,6 +687,7 @@
             ref('nhc_def_conf_location_wd_b18'),
             ref('nhc_def_conf_location_wd_b19'),
             ref('nhc_def_conf_location_wd_b20')]]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="nhc_def_conf_admin_olga_user" model="res.users">
@@ -661,6 +697,7 @@
             <field name="tz">Europe/London</field>
             <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_admin'))]"/>
             <field name="location_ids" eval="[[6, False, []]]"/>
+            <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
         <record id="base.user_root" model="res.users">
