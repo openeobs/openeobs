@@ -49,6 +49,18 @@
                             <field name="date_started"/>
                             <field name="date_terminated"/>
                         </group>
+                        <notebook>
+                            <page string="Referring Doctors">
+                                <group>
+                                    <field name="ref_doctor_ids" nolabel="1"/>
+                                </group>
+                            </page>
+                            <page string="Consulting Doctors">
+                                <group>
+                                    <field name="con_doctor_ids" nolabel="1"/>
+                                </group>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>

@@ -103,7 +103,7 @@ openerp.nh_eobs = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (['Spells','Hospital Wards','Device Categories','Patients Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
+                if (['Doctors','Spells','Hospital Wards','Device Categories','Patients Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
                     options.selectable = false;
                 };
                 if ('Patients' != options.action.name){

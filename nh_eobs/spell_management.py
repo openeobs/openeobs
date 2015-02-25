@@ -32,8 +32,8 @@ class nh_clinical_spellboard(orm.Model):
         'code': fields.char("Code", size=20),
         'start_date': fields.datetime("Admission Date"),
         'move_date': fields.datetime("Last Movement Date"),
-        # 'ref_doctor_ids': fields.many2many('res.partner', 'ref_doctor_spell_rel', 'spell_id', 'doctor_id', "Referring Doctors"),
-        # 'con_doctor_ids': fields.many2many('res.partner', 'con_doctor_spell_rel', 'spell_id', 'doctor_id', "Consulting Doctors"),
+        'ref_doctor_ids': fields.many2many('nh.clinical.doctor', 'ref_doctor_spell_rel', 'spell_id', 'doctor_id', "Referring Doctors"),
+        'con_doctor_ids': fields.many2many('nh.clinical.doctor', 'con_doctor_spell_rel', 'spell_id', 'doctor_id', "Consulting Doctors"),
     }
 
     def init(self, cr):
@@ -63,11 +63,28 @@ class nh_clinical_spellboard(orm.Model):
         activity_pool = self.pool['nh.activity']
         patient = patient_pool.read(cr, uid, vals.get('patient_id'), ['other_identifier', 'patient_identifier'], context=context)
         location = location_pool.read(cr, uid, vals.get('location_id'), ['code'], context=context)
-        api.admit(cr, uid, patient['other_identifier'], {'code': vals.get('code'), 'patient_identifier': patient['patient_identifier'], 'location': location['code'], 'start_date': vals.get('start_date')}, context=context)
+        api.admit(cr, uid, patient['other_identifier'], {
+            'code': vals.get('code'),
+            'patient_identifier': patient['patient_identifier'],
+            'location': location['code'],
+            'start_date': vals.get('start_date'),
+            'ref_doctor_ids': vals.get('ref_doctor_ids'),
+            'con_doctor_ids': vals.get('con_doctor_ids')
+        }, context=context)
         spell_activity_id = activity_pool.search(cr, uid, [['patient_id', '=', vals.get('patient_id')], ['state', 'not in', ['completed', 'cancelled']], ['data_model', '=', 'nh.clinical.spell']], context=context)
         if not spell_activity_id:
             osv.except_osv('Error!', 'Spell does not exist after admission!')
         return spell_activity_id
+
+    def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read'):
+        res = super(nh_clinical_spellboard, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        if not fields or 'ref_doctor_ids' in fields or 'con_doctor_ids' in fields:
+            activity_pool = self.pool['nh.activity']
+            for r in res:
+                spell_activity = activity_pool.browse(cr, uid, r['id'], context=context)
+                r['con_doctor_ids'] = [cd.id for cd in spell_activity.data_ref.con_doctor_ids]
+                r['ref_doctor_ids'] = [rd.id for rd in spell_activity.data_ref.ref_doctor_ids]
+        return res
 
     def write(self, cr, uid, ids, vals, context=None):
         api = self.pool['nh.eobs.api']
@@ -76,11 +93,16 @@ class nh_clinical_spellboard(orm.Model):
             osv.except_osv('Error!', 'Cannot change patient from an existing spell, edit patient information instead!')
         res = {}
         for spell in self.browse(cr, uid, ids, context=context):
-            location = location_pool.read(cr, uid, vals.get('location_id'), ['code'], context=context) if vals.get('location_id') else False
-            if location:
+            if vals.get('location_id'):
+                location = location_pool.read(cr, uid, vals.get('location_id'), ['code'], context=context)
                 res[spell.id] = api.transfer(cr, uid, spell.patient_id.other_identifier, {'location': location['code']}, context=context)
-            if vals.get('code'):
-                res[spell.id] = api.admit_update(cr, uid, spell.patient_id.other_identifier, {'code': vals.get('code')}, context=context)
+            else:
+                res[spell.id] = api.admit_update(cr, uid, spell.patient_id.other_identifier, {
+                    'location': spell.location_id.code,
+                    'code': vals.get('code'),
+                    'ref_doctor_ids': vals.get('ref_doctor_ids'),
+                    'con_doctor_ids': vals.get('con_doctor_ids')
+                }, context=context)
         return all([res[r] for r in res.keys()])
 
     def cancel(self, cr, uid, ids, context=None):

@@ -78,6 +78,13 @@
                   action="action_show_spells"
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
+        <menuitem name="Doctors"
+                  sequence="2"
+                  id="menu_nhui_left_doctors"
+                  parent="menu_nhui_admin_left_data"
+                  action="nh_clinical.action_show_doctors"
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+
         <menuitem name="Manage O2 Targets"
                   sequence="2"
                   id="menu_nhui_left_o2_targets"
