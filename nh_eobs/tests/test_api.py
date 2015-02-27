@@ -194,12 +194,10 @@ class TestAPI(SingleTransactionCase):
             self.assertTrue(rdoctor.title.name == 'dr', msg='Doctor title does not match')
             self.assertTrue(rdoctor.code == 'r01', msg='Doctor code does not match')
             self.assertTrue(rdoctor.name == "Al'Vere, Egwene", msg='Doctor name does not match')
-            self.assertTrue(rdoctor.doctor, msg='Doctor flag is False')
         for cdoctor in spell.data_ref.con_doctor_ids:
             self.assertTrue(cdoctor.title.name == 'dr', msg='Doctor title does not match')
             self.assertTrue(cdoctor.code == 'c01', msg='Doctor code does not match')
             self.assertTrue(cdoctor.name == "Damodred, Moiraine", msg='Doctor name does not match')
-            self.assertTrue(cdoctor.doctor, msg='Doctor flag is False')
 
         update_data = {
             'location': 'T',
