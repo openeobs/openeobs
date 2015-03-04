@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_eobs],
+    'depends': ['nh_eobs'],
     'data': [],
     'qweb': [],
     'application': True,
