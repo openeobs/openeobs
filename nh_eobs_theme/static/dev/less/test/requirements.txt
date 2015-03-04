@@ -1,0 +1,9 @@
+To run the build script you'll need to do the following
+
+pip install pykss
+pip install jinja2
+
+npm install less -g
+npm install csslint -g
+npm install uncss -g
+npm install clean-css -g

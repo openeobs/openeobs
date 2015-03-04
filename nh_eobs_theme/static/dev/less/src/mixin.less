@@ -1,0 +1,111 @@
+
+
+//@font-face{
+//
+//font-family: 'FontAwesome';
+//src: url('font-awesome-4.2.0/fonts/fontawesome-webfont.eot?v=4.0.3');
+//src: url('font-awesome-4.2.0/fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'),
+//url('font-awesome-4.2.0/fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'),
+//url('font-awesome-4.2.0/fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'),
+//url('font-awesome-4.2.0/fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
+//font-weight: normal;
+//font-style: normal;
+//}
+
+i {
+font-family: 'fontAwesome';
+font-style: normal;
+display: inline-block;
+-webkit-font-smoothing: antialiased;
+
+}
+
+.logo-icon:before {
+
+content: "\f1cc";
+font-size: 2em;
+color: red;
+
+}
+
+/* 			    */
+/* Border Stuff */
+/*			    */
+
+
+.border-radius(@radius:10px) {
+
+	-ms-border-radius:@radius;
+	border-radius:@radius;
+
+}
+
+.border-top(@radius:10px) {
+
+  border-top-left-radius: @radius;
+  border-top-right-radius: @radius;
+
+}
+
+.border-bottom(@radius:10px) {
+
+  border-bottom-right-radius: @radius;
+  border-bottom-left-radius: @radius
+
+}
+
+.border-left(@radius:10px) {
+
+    border-top-left-radius:@radius;
+    border-bottom-left-radius:@radius;
+
+}
+
+.border-right(@radius:10px) {
+
+    border-top-right-radius:@radius;
+    border-bottom-right-radius:@radius;
+
+}
+
+
+/*                 */
+/*      Colours    */
+/*                 */
+
+@baseColor: lightblue ;
+
+@eobsBlue: #438FC7; //eObs brand Blue
+
+@eobsPink: #ED558B; //eObs brand Pink
+
+
+@mainBG: #F0EEEE; // Off White main BG
+
+@innerBG: #DEDEDE; // Darker Inner
+
+
+/*   Colours End  */
+
+html {
+
+	//I'm a silent comment that will be stripped out even without doing -x on compile
+
+	color:#333;
+
+	background-color:@mainBG;
+
+	font-family: 'Open Sans', sans-serif;
+
+}
+
+.background-gradient(@colour_one, @colour_two, @position_one:10%, @position_two:100%){
+  background: @colour_one; /* Old browsers */
+  background: -moz-linear-gradient(top,  @colour_one, @position_one, @colour_two, @position_two); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(@position_one,@colour_one), color-stop(@position_two,@colour_two)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(@colour_one,@colour_two); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  @colour_one, @position_one, @colour_two, @position_two); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  @colour_one,  @position_one, @colour_two, @position_one); /* IE10+ */
+  background: linear-gradient(to bottom,  @colour_one, @position_one, @colour_two, @position_one); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@colour_one', endColorstr='@colour_two',GradientType=0 ); /* IE6-9 */
+}
