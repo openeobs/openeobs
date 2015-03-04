@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Mac
+.DS_Store
+
+# Bower
+bower_components/
+
+# Mockup Skeleton
+mockup/
+
+# Node 
+npm-debug.log
