@@ -15,6 +15,94 @@ class nh_clinical_api_demo(orm.AbstractModel):
     _name = 'nh.clinical.api.demo'
     _inherit = 'nh.clinical.api.demo'
 
+    def register_patients(self, cr, uid, patients_data=None, context=None):
+        """
+        Register a list of patients.
+        :param patients_data: List of dictionaries containing the patients information.
+            {
+                'other_identifier': String - represents the Hospital Number. REQUIRED. UNIQUE.
+                'patient_identifier': String - represents the NHS Number. UNIQUE.
+                'given_name': String - patient first name
+                'family_name': String - patient last name
+                'middle_names': String - patient middle names
+                'gender': String - patient gender. Must be a value from: 'BOTH', 'F', 'I', 'M', 'NSP', 'U'
+                'sex': String - patient sex. Same values as gender.
+                'ethnicity': String - patient ethnicity code. The values can be found in the patient class.
+                'dob': String - patient date of birth. The value must be formatted in the default datetime format:
+                                                                                                    '%Y-%m-%d %H:%M:%S'
+            }
+        :return: List of ids of the patients registered
+        """
+        identifiers = []
+        api = self.pool['nh.eobs.api']
+        patient_pool = self.pool['nh.clinical.patient']
+        if not patients_data:
+            patients_data = []
+        for data in patients_data:
+            patient = {
+                'patient_identifier': data.get('patient_identifier'),
+                'family_name': data.get('family_name'),
+                'middle_names': data.get('middle_names'),
+                'given_name': data.get('given_name'),
+                'dob': data.get('dob'),
+                'gender': data.get('gender'),
+                'sex': data.get('sex'),
+                'ethnicity': data.get('ethnicity')
+            }
+            api.register(cr, uid, data.get('other_identifier'), patient, context=context)
+            identifiers += patient_pool.search(cr, uid, [['other_identifier', '=', data.get('other_identifier')]], context=context)
+        return identifiers
+
+    def generate_news_simulation(self, cr, uid, begin_date=False, patient_ids=None, context=None):
+        """
+        Generates demo news data over a period of time for the patients in patient_ids.
+        :param begin_date: Starting point of the demo. If not specified it defaults to now - 1 day.
+        :param patient_ids: List of patients that are going to be used.
+        :return: True if successful
+        """
+        activity_pool = self.pool['nh.activity']
+        if not begin_date:
+            begin_date = (dt.now()-td(days=1)).strftime(dtf)
+        if not patient_ids:
+            return True
+
+        ews_activity_ids = activity_pool.search(cr, uid, [['patient_id', 'in', patient_ids], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']]], context=context)
+        activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
+
+        current_date = dt.strptime(begin_date, dtf)
+        while current_date < dt.now():
+            ews_activity_ids = activity_pool.search(cr, uid, [['patient_id', 'in', patient_ids], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']], ['date_scheduled', '<=', current_date.strftime(dtf)]], context=context)
+            nearest_date = False
+            for ews_id in ews_activity_ids:
+                ews_data = {
+                    'respiration_rate': fake.random_element([18]*90 + [11]*8 + [24]*2),
+                    'indirect_oxymetry_spo2': fake.random_element([99]*90 + [95]*8 + [93]*2),
+                    'oxygen_administration_flag': fake.random_element([False]*96 + [True]*4),
+                    'blood_pressure_systolic': fake.random_element([120]*90 + [110]*8 + [100]*2),
+                    'blood_pressure_diastolic': 80,
+                    'avpu_text': fake.random_element(['A']*97 + ['V', 'P', 'U']),
+                    'pulse_rate': fake.random_element([65]*90 + [50]*8 + [130]*2),
+                    'body_temperature': fake.random_element([37.5]*93 + [36.0]*7),
+                }
+                activity_pool.submit(cr, uid, ews_id, ews_data, context=context)
+                activity_pool.complete(cr, uid, ews_id, context=context)
+                ews_activity = activity_pool.browse(cr, uid, ews_id, context=context)
+                overdue = fake.random_element([False, False, False, False, False, False, False, True, True, True])
+                if overdue:
+                    complete_date = current_date + td(days=1)
+                else:
+                    complete_date = current_date + td(minutes=ews_activity.data_ref.frequency-10)
+                activity_pool.write(cr, uid, ews_id, {'date_terminated': complete_date.strftime(dtf)}, context=context)
+                triggered_ews_id = activity_pool.search(cr, uid, [['creator_id', '=', ews_id], ['data_model', '=', 'nh.clinical.patient.observation.ews']], context=context)
+                if not triggered_ews_id:
+                    osv.except_osv('Error!', 'The NEWS observation was not triggered after previous submission!')
+                triggered_ews = activity_pool.browse(cr, uid, triggered_ews_id[0], context=context)
+                activity_pool.write(cr, uid, triggered_ews_id[0], {'date_scheduled': (complete_date + td(minutes=triggered_ews.data_ref.frequency)).strftime(dtf)}, context=context)
+                if not nearest_date or complete_date + td(minutes=triggered_ews.data_ref.frequency) < nearest_date:
+                    nearest_date = complete_date + td(minutes=triggered_ews.data_ref.frequency)
+            current_date = nearest_date
+        return True
+
     def build_unit_test_env(self, cr, uid, wards=None, bed_count=2, patient_admit_count=2, patient_placement_count=1,
                             ews_count=1, context=False, weight_count=0, blood_sugar_count=0, height_count=0, o2target_count=0,
                             users=None):
@@ -166,8 +254,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         context_ids = context_pool.search(cr, uid, [['name', '=', 'eobs']], context=context)
 
-
         # LOCATIONS
+
         ward_ids = [self.create(cr, uid, 'nh.clinical.location', 'location_ward', {'context_ids': [[6, False, context_ids]], 'parent_id': pos_location_id, 'name': 'Ward '+str(w), 'code': str(w)})
                     if not location_pool.search(cr, uid, [['code', '=', str(w)], ['parent_id', '=', pos_location_id], ['usage', '=', 'ward']], context=context)
                     else location_pool.search(cr, uid, [['code', '=', str(w)], ['parent_id', '=', pos_location_id], ['usage', '=', 'ward']], context=context)[0] for w in range(wards)]
@@ -216,7 +304,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
             api.register(cr, adt_uid, hospital_number, data, context=context)
             patient_identifiers.append(hospital_number)
 
-        # PATIENT ADMIT
+        # PATIENT ADMISSION
 
         count = 0
         for b in bed_codes.keys():
@@ -240,6 +328,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
             activity_pool.complete(cr, wm_uid, placement_id[0], context=context)
             activity_pool.write(cr, uid, placement_id[0], {'date_terminated': begin_date}, context=context)
             count += 1
+
+        # SUBMIT NEWS OBSERVATIONS OVER A PERIOD OF TIME
 
         ews_activity_ids = activity_pool.search(cr, uid, [['patient_id.other_identifier', 'in', patient_identifiers], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']]], context=context)
         activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
