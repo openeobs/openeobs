@@ -82,9 +82,6 @@ class NHMobileFormLoz extends NHMobileForm
 
   add_input_errors: (input, error_string) ->
     container_el = input.parentNode
-    #old_errors = container_el.getElementsByClassName('errors')
-    #for error in old errors
-    #  container_el.removeChild(error)
     error_el = document.createElement('div')
     error_el.setAttribute('class', 'errors')
     container_el.classList.add('error')

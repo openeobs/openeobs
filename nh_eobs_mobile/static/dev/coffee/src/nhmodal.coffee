@@ -1,14 +1,15 @@
-# NHModal handles modal messages on screen
+# NHModal creates a modal popup and handles events triggered via modal buttons
 class NHModal
 
+  # creates a dialog, adds it to the DOM and resizes to fit in window
+  # Params:
+  # `id` - CSS ID to use for the popup
+  # `title` - HTML String to use for the popup title
+  # `content` - HTML String to use for the popup message, can be any content
+  # `options` - An array of HTML Strings that will act as buttons
+  # `popupTime` - time it takes for popup to appear
+  # 'el' - The element in the DOM to put popup under
   constructor: (@id, @title, @content, @options, @popupTime, @el) ->
-    # sanity check to ensure that el is actually present in the DOM
-    #dialog_parent = document.getElementById(@el)
-    #
-    #if dialog_parent?
-    #
-    #else
-    #  throw 'NHModal - Parent element not found'
     self = @
 
     # create the dialog
@@ -84,15 +85,9 @@ class NHModal
     return container
    
   # calculate the correct size of the dialog
+  # uses clientHeight to calculate the height of objects
   calculate_dimensions: (dialog, dialog_content, el) ->
     margins = 80
-    #sibling_space = () ->
-    #  sibling_height = 0
-    #  sibling_height += child.clientHeight for
-    #  child in el.children when child.innerHTML
-    #  isnt el.innerHTML
-    #  return sibling_height
-    #sibling_height = sibling_space()
     available_space = (dialog, el) ->
       dialog_header = dialog.getElementsByTagName('h2')
       dialog_header_height = dialog_header?[0]?.clientHeight
@@ -110,6 +105,11 @@ class NHModal
       dialog_content.style.maxHeight = max_height+'px'
     return
 
+  # Handle events from buttons created in options array 
+  # Currently offers 
+  # - close (closes modal)
+  # - submit (submits observation)
+  # - partial submit (submits partial observation)
   handle_button_events: (event) ->
     data_target = event.srcElement.getAttribute('data-target')
     data_action = event.srcElement.getAttribute('data-ajax-action')

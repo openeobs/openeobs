@@ -1,3 +1,5 @@
+# ClassList Polyfill
+#---------------------
 # ClassList Polyfill for IE9 by Devon Govett -
 # https://gist.github.com/devongovett/1381839
 if not ('classList' in document.documentElement) and
@@ -6,6 +8,7 @@ if not ('classList' in document.documentElement) and
   Object.defineProperty(HTMLElement.prototype, 'classList', {
     get: () ->
       self = @
+      # Currently using JS but need to make proper CoffeeScript
       `function update(fn) {
         return function(value) {
           var classes = self.className.split(/\s+/);
@@ -44,8 +47,10 @@ if not ('classList' in document.documentElement) and
       return ret
   })
 
-# NHMobile contains utilities for working with the
-# nh_eobs_mobile controllers as well as AJAX
+# Promise
+#---------
+# Promise class for Async comms with server, wrap requests in `when` function
+# you can then use `then` to handle the response
 class Promise
   @when: (tasks...) ->
     num_uncompleted = tasks.length
@@ -80,14 +85,22 @@ class Promise
 
     @callbacks.push callback
 
-
+# NHMobile 
+#----------
+# contains utilities for working with the
+# nh_eobs_mobile controllers as well as AJAX
 class NHMobile extends NHLib
 
+  # Handles the XMLHTTPRequest and wraps it up in a Promise
+  # Params:
+  # `verb` - POST, GET
+  # `resource` - The endpoint to call
+  # `data` - The data to send over
   process_request: (verb, resource, data) ->
     promise = new Promise()
     req = new XMLHttpRequest()
     req.addEventListener 'readystatechange', ->
-      if req.readyState is 4                        # ReadyState Complete
+      if req.readyState is 4
         successResultCodes = [200, 304]
         if req.status in successResultCodes
           data = eval('['+req.responseText+']')
@@ -111,14 +124,18 @@ class NHMobile extends NHLib
       req.send()
     return promise
 
+  # frontend_routes is the routes file from nh_eobs_mobile
   constructor: () ->
     @urls = frontend_routes
     self = @
     super()
 
+  # Decodes frontend_routes URL object into a `process_request` call
   call_resource: (url_object, data) =>
     @process_request(url_object.method, url_object.url, data)
 
+  # Takes a patient ID, calls the server and then creates a NHModal from the
+  # data
   get_patient_info: (patient_id, self) =>
     patient_url = this.urls.json_patient_info(patient_id).url
     Promise.when(@process_request('GET', patient_url)).then (server_data) ->
@@ -160,6 +177,8 @@ class NHMobile extends NHLib
       fullscreen.addEventListener('click', self.fullscreen_patient_info)
 
 
+  # Adds a full screen modal of the patient info screen over the current page
+  # triggered by the fullscreen button made by the patient information modal
   fullscreen_patient_info: (event) ->
     event.preventDefault()
     container = document.createElement('div')

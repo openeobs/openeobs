@@ -33,7 +33,8 @@ class NHMobileForm extends NHMobile
           when 'select' then input.addEventListener('change',
             self.trigger_actions)
 
-
+    # Set up form timeout so that the task is put back in the task list after
+    # a certain time
     document.addEventListener 'form_timeout', (event) ->
       self.handle_timeout(self, self.form.getAttribute('task-id'))
     window.timeout_func = () ->
@@ -78,7 +79,9 @@ class NHMobileForm extends NHMobile
         0, document.getElementsByTagName('body')[0])
 
 
-
+  # Validate the form - need to add basic validation messages to DOM so set 
+  # by server
+  # inputs with a data-validation attribute already do this
   validate: (event) =>
     event.preventDefault()
     @.reset_form_timeout(@)
@@ -123,11 +126,10 @@ class NHMobileForm extends NHMobile
               @.add_input_errors(target_input, criteria['message']['target'])
               @.add_input_errors(other_input, 'Please enter a value')
               continue
-    else
-     # to be continued
-
+  
+  # Certain inputs will affect other inputs, this function takes the JSON string
+  # in the input's data-onchange attribute and does the appropriate action
   trigger_actions: (event) =>
-    # event.preventDefault()
     @.reset_form_timeout(@)
     input = if event.srcElement then event.srcElement else event.target
     value = input.value

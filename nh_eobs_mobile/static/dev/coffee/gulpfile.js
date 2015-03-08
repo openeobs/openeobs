@@ -3,6 +3,7 @@ var gulp = require('gulp'),
 	jasmine = require('gulp-jasmine2-phantomjs'),
 	notify = require('gulp-notify'),
 	concat = require('gulp-concat'),
+	docco = require('gulp-docco'),
 	coffee = require('gulp-coffee');
 
 gulp.task('compile', function(){
@@ -21,6 +22,12 @@ gulp.task('test', function(){
 
 	gulp.src('tests/specRunner1.3.html')
 	.pipe(jasmine())
+});
+
+gulp.task('docs', function(){
+	gulp.src(['src/*.coffee'])
+	.pipe(docco())
+	.pipe(gulp.dest('docs'))
 })
 
 gulp.task('default', ['compile']);
