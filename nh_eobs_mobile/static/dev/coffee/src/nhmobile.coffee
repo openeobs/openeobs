@@ -85,7 +85,7 @@ class Promise
 
     @callbacks.push callback
 
-# NHMobile 
+# NHMobile
 #----------
 # contains utilities for working with the
 # nh_eobs_mobile controllers as well as AJAX

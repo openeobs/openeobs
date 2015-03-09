@@ -197,6 +197,12 @@ routes = [
         'endpoint': 'src/img/bristol_stools_chart.png',
         'method': 'GET',
         'args': False
+    },
+    {
+        'name': 'json_patient_barcode',
+        'endpoint': 'patient/barcode/',
+        'method': 'GET',
+        'args': ['hospital_number']
     }
 ]
 

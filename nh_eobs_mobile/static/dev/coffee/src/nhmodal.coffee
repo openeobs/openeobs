@@ -105,8 +105,8 @@ class NHModal
       dialog_content.style.maxHeight = max_height+'px'
     return
 
-  # Handle events from buttons created in options array 
-  # Currently offers 
+  # Handle events from buttons created in options array
+  # Currently offers
   # - close (closes modal)
   # - submit (submits observation)
   # - partial submit (submits partial observation)

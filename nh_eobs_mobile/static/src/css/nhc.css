@@ -426,6 +426,9 @@ a.patientInfo .obs {
 .header .header-main {
   height: 42px;
 }
+.header .barcode_block {
+  height: 60px;
+}
 .header .logo {
   float: left;
   width: 118px;
@@ -436,11 +439,15 @@ a.patientInfo .obs {
   list-style: none;
   margin: 0;
   margin-top: 0.45em;
-  width: 50px;
+  width: 150px;
   padding-left: 0;
 }
 .header .header-meta li {
   display: inline;
+}
+.header .header-meta .scan {
+  padding-left: 5px;
+  padding-right: 5px;
 }
 .header .header-meta .logout {
   float: right;
@@ -864,7 +871,7 @@ a.patientInfo .obs {
   font-weight: bold;
 }
 .dialog .obsError {
-  background-color: #ff0000;
+  background-color: red;
   padding: 5%;
   text-align: center;
   font-size: 1.2em;
@@ -924,7 +931,7 @@ a.patientInfo .obs {
 }
 .newsScoreGreen,
 #obsScore.green {
-  color: #008000;
+  color: green;
 }
 .newsScoreAmber,
 #obsScore.amber {
@@ -932,7 +939,7 @@ a.patientInfo .obs {
 }
 .newsScoreRed,
 #obsScore.red {
-  color: #ff0000;
+  color: red;
 }
 .cover {
   display: inline-block;

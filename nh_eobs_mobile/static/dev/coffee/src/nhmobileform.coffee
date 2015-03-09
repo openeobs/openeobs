@@ -79,7 +79,7 @@ class NHMobileForm extends NHMobile
         0, document.getElementsByTagName('body')[0])
 
 
-  # Validate the form - need to add basic validation messages to DOM so set 
+  # Validate the form - need to add basic validation messages to DOM so set
   # by server
   # inputs with a data-validation attribute already do this
   validate: (event) =>

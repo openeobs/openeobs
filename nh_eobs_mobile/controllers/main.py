@@ -474,6 +474,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         else:
             return request.make_response(json.dumps({'status': 2, 'error': 'Patient not found'}), headers={'Content-Type': 'application/json'})
 
+    @http.route(URLS['json_patient_barcode']+'<hospital_number>', type="http", auth="user")
+    def get_patient_barcode(self, hospital_number, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api_pool = request.registry('nh.eobs.api')
+        patient_info = api_pool.get_patients(cr, uid, [int(hospital_number)], context=context)
+        if len(patient_info) > 0:
+            return request.make_response(json.dumps(patient_info[0]), headers={'Content-Type': 'application/json'})
+        else:
+            return request.make_response(json.dumps({'status': 2, 'error': 'Patient not found'}), headers={'Content-Type': 'application/json'})
+
     @http.route('/ajax_test', type="http", auth="user")
     def ajax_test(self, *args, **kw):
         test_html = '<html><head><script src="{jquery}"></script><script src="{routes}"></script></head><body>Test</body></html>'.format(jquery=URLS['jquery'], routes=URLS['js_routes'])

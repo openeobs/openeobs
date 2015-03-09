@@ -284,6 +284,14 @@ var frontend_routes = {}; (function(_root){
 		   url: base_url+'src/img/bristol_stools_chart.png'
 	   })
    }
+
+   	 _nS('json_patient_barcode');
+   	_root.json_patient_barcode = function(hospital_number){
+   		return _wA({
+   			method: 'GET',
+   			url: base_url+'patient/barcode/' + (function(k,v){ return v})('hospital_number', hospital_number)
+   		})
+   	}
     
     
 
