@@ -320,7 +320,7 @@ class nh_eobs_api(orm.AbstractModel):
                     minutes=str(minutes if minutes > 9 else '0' + str(minutes)) + ' hours')
                 a['time'] = time_string
             else:
-                a['time'] = False
+                a['time'] = ''
         patient = self.get_patients(cr, uid, patient_ids, context=context)
         patient[0]['activities'] = activities
         return patient
