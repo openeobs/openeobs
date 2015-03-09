@@ -315,9 +315,9 @@ class nh_eobs_api(orm.AbstractModel):
                 minutes = time.seconds/60 - time.seconds/3600*60
                 time_string = '{overdue}{days}{hours}:{minutes}'.format(
                     overdue='overdue: ' if dt.now() > scheduled else '',
-                    days=str(time.days) + ' ' if time.days else '',
+                    days=str(time.days) + 'Days ' if time.days else '',
                     hours=hours if hours > 9 else '0' + str(hours),
-                    minutes=minutes if minutes > 9 else '0' + str(minutes))
+                    minutes=str(minutes if minutes > 9 else '0' + str(minutes)) + ' hours')
                 a['time'] = time_string
             else:
                 a['time'] = False
