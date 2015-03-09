@@ -291,6 +291,26 @@ class nh_eobs_api(orm.AbstractModel):
     #  PATIENTS #
     # # # # # # #
 
+    def get_patient_info(self, cr, uid, hospital_number, context=None):
+        """
+        Get patient information for a single patient and the list of activities.
+        :param hospital_number: expects a Hospital Number. (String)
+        :return: dictionary containing the patient fields.
+        """
+        patient_pool = self.pool['nh.clinical.patient']
+        activity_pool = self.pool['nh.activity']
+        patient_ids = patient_pool.search(cr, uid, [['other_identifier', '=', hospital_number]], context=context)
+        domain = [
+            ('patient_id', '=', patient_ids[0]),
+            ('state', 'not in', ['cancelled', 'completed']),
+            ('data_model', 'not in', ['nh.clinical.spell'])
+        ]
+        activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        activities = activity_pool.read(cr, uid, activity_ids, [], context=context)
+        patient = self.get_patients(cr, uid, patient_ids[0], context=context)
+        patient['activities'] = activities
+        return patient
+
     def get_patients(self, cr, uid, ids, context=None):
         """
         Return a list of patients in dictionary format (containing every field from the table)
