@@ -478,7 +478,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patient_barcode(self, hospital_number, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
-        patient_info = api_pool.get_patients(cr, uid, [int(hospital_number)], context=context)
+        patient_info = api_pool.get_patient_info(cr, uid, hospital_number, context=context)
         if len(patient_info) > 0:
             return request.make_response(json.dumps(patient_info[0]), headers={'Content-Type': 'application/json'})
         else:

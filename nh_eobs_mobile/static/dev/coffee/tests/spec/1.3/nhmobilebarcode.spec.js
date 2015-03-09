@@ -9,14 +9,16 @@ describe('NHMobileBarcode', function(){
     	'ews_score': 1,
     	'other_identifier': '012345678',
     	'patient_identifier': 'NHS012345678',
-    	'tasks': [
+    	'activities': [
     		{
-    			'label': 'NEWS Observation',
-    			'url': '/task/1'
+    			'display_name': 'NEWS Observation',
+    			'id': 1,
+                'time': 'Overdue: 00:10 hours'
     		},
     		{
-    			'label': 'Inform Medical Team',
-    			'url': '/task/2'
+    			'display_name': 'Inform Medical Team',
+    			'id': 2,
+                'time': ''
     		}
     	]
     }];
@@ -66,10 +68,14 @@ describe('NHMobileBarcode', function(){
             test.parentNode.removeChild(test);
         }
         var covers = document.getElementsByClassName('cover');
+        var dialog = document.getElementById('patient_barcode');
         var body = document.getElementsByTagName('body')[0];
         for(var i = 0; i < covers.length; i++){
             var cover = covers[i];
             body.removeChild(cover);
+        }
+        if(dialog){
+            body.removeChild(dialog);
         }
     });
 
@@ -174,7 +180,7 @@ describe('NHMobileBarcode', function(){
     	// go get data from server 
     	expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
     	expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
-        var content = '<div class="block"><dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt>' + '<dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><p><a href="http://localhost:8069/mobile/patient/012345678" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p></div>';
+        var content = '<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><h3>Tasks</h3><ul class="menu"><li class="rightContent"><a href="http://localhost:8069/mobile/task/1">NEWS Observation<span class="aside">Overdue: 00:10 hours</span></a></li><li class="rightContent"><a href="http://localhost:8069/mobile/task/2">Inform Medical Team<span class="aside"></span></a></li></ul>';
 
     	//Modal content is updated to content
         var modal = document.getElementById('patient_barcode');

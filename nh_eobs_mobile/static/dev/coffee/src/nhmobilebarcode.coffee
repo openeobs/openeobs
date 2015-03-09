@@ -40,12 +40,11 @@ class NHMobileBarcode extends NHMobile
     url_meth = url.method
     Promise.when(self.process_request(url_meth, url.url)).then (server_data) ->
       data = server_data[0][0]
-      patient_name = ''
       patient_details = ''
       if data.full_name
-        patient_name += " " + data.full_name
+        patient_details += "<dt>Name:</dt><dd>" + data.full_name + "</dd>"
       if data.gender
-        patient_name += '<span class="alignright">' + data.gender + '</span>'
+        patient_details += '<dt>Gender:</dt><dd>' + data.gender + '</dd>'
       if data.dob
         patientDOB = self.date_from_string(data.dob)
         patient_details += "<dt>DOB:</dt><dd>" +
@@ -59,17 +58,25 @@ class NHMobileBarcode extends NHMobile
       if data.ews_score
         patient_details += '<dt class="twoline">Latest Score:</dt>' +
           '<dd class="twoline">' + data.ews_score + '</dd>'
+      if data.ews_trend
+        patient_details += '<dt>NEWS Trend:</dt><dd>'+data.ews_trend+'</dd>'
       if data.other_identifier
         patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier +
           "</dd>"
       if data.patient_identifier
         patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier+
           "</dd>"
-      content = '<dl>'+patient_details+'</dl><p><a href="'+
-        self.urls['single_patient'](data.other_identifier).url+
-        '" id="patient_obs_fullscreen" class="button patient_obs">'+
-        'View Patient Observation Data</a></p>'
-      self.input.parentNode.innerHTML = content
+      activties_string = ""
+      if data.activities.length > 0
+        activities_string = '<ul class="menu">'
+        for activity in data.activities
+          activities_string += '<li class="rightContent"><a href="'+
+            self.urls.single_task(activity.id).url+'">'+
+            activity.display_name+'<span class="aside">'+
+            activity.time+'</span></a></li>'
+        activities_string += '</ul>'
+      content = '<dl>'+patient_details+'</dl><h3>Tasks</h3>'+activities_string
+      document.getElementsByClassName('dialogContent')[0].innerHTML = content
 
 if !window.NH
   window.NH = {}

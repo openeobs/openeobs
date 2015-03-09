@@ -114,12 +114,11 @@ Handles barcode scanning on MioCare devices</p>
     url_meth = url.method
     Promise.<span class="hljs-keyword">when</span>(self.process_request(url_meth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
       data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
-      patient_name = <span class="hljs-string">''</span>
       patient_details = <span class="hljs-string">''</span>
       <span class="hljs-keyword">if</span> data.full_name
-        patient_name += <span class="hljs-string">" "</span> + data.full_name
+        patient_details += <span class="hljs-string">"&lt;dt&gt;Name:&lt;/dt&gt;&lt;dd&gt;"</span> + data.full_name + <span class="hljs-string">"&lt;/dd&gt;"</span>
       <span class="hljs-keyword">if</span> data.gender
-        patient_name += <span class="hljs-string">'&lt;span class="alignright"&gt;'</span> + data.gender + <span class="hljs-string">'&lt;/span&gt;'</span>
+        patient_details += <span class="hljs-string">'&lt;dt&gt;Gender:&lt;/dt&gt;&lt;dd&gt;'</span> + data.gender + <span class="hljs-string">'&lt;/dd&gt;'</span>
       <span class="hljs-keyword">if</span> data.dob
         patientDOB = self.date_from_string(data.dob)
         patient_details += <span class="hljs-string">"&lt;dt&gt;DOB:&lt;/dt&gt;&lt;dd&gt;"</span> +
@@ -133,17 +132,25 @@ Handles barcode scanning on MioCare devices</p>
       <span class="hljs-keyword">if</span> data.ews_score
         patient_details += <span class="hljs-string">'&lt;dt class="twoline"&gt;Latest Score:&lt;/dt&gt;'</span> +
           <span class="hljs-string">'&lt;dd class="twoline"&gt;'</span> + data.ews_score + <span class="hljs-string">'&lt;/dd&gt;'</span>
+      <span class="hljs-keyword">if</span> data.ews_trend
+        patient_details += <span class="hljs-string">'&lt;dt&gt;NEWS Trend:&lt;/dt&gt;&lt;dd&gt;'</span>+data.ews_trend+<span class="hljs-string">'&lt;/dd&gt;'</span>
       <span class="hljs-keyword">if</span> data.other_identifier
         patient_details += <span class="hljs-string">"&lt;dt&gt;Hospital ID:&lt;/dt&gt;&lt;dd&gt;"</span> + data.other_identifier +
           <span class="hljs-string">"&lt;/dd&gt;"</span>
       <span class="hljs-keyword">if</span> data.patient_identifier
         patient_details += <span class="hljs-string">"&lt;dt&gt;NHS Number:&lt;/dt&gt;&lt;dd&gt;"</span> + data.patient_identifier+
           <span class="hljs-string">"&lt;/dd&gt;"</span>
-      content = <span class="hljs-string">'&lt;dl&gt;'</span>+patient_details+<span class="hljs-string">'&lt;/dl&gt;&lt;p&gt;&lt;a href="'</span>+
-        self.urls[<span class="hljs-string">'single_patient'</span>](data.other_identifier).url+
-        <span class="hljs-string">'" id="patient_obs_fullscreen" class="button patient_obs"&gt;'</span>+
-        <span class="hljs-string">'View Patient Observation Data&lt;/a&gt;&lt;/p&gt;'</span>
-      self.input.parentNode.innerHTML = content
+      activties_string = <span class="hljs-string">""</span>
+      <span class="hljs-keyword">if</span> data.activities.length &gt; <span class="hljs-number">0</span>
+        activities_string = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>
+        <span class="hljs-keyword">for</span> activity <span class="hljs-keyword">in</span> data.activities
+          activities_string += <span class="hljs-string">'&lt;li class="rightContent"&gt;&lt;a href="'</span>+
+            self.urls.single_task(activity.id).url+<span class="hljs-string">'"&gt;'</span>+
+            activity.display_name+<span class="hljs-string">'&lt;span class="aside"&gt;'</span>+
+            activity.time+<span class="hljs-string">'&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;'</span>
+        activities_string += <span class="hljs-string">'&lt;/ul&gt;'</span>
+      content = <span class="hljs-string">'&lt;dl&gt;'</span>+patient_details+<span class="hljs-string">'&lt;/dl&gt;&lt;h3&gt;Tasks&lt;/h3&gt;'</span>+activities_string
+      <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'dialogContent'</span>)[<span class="hljs-number">0</span>].innerHTML = content
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
