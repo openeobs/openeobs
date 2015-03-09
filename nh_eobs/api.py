@@ -186,6 +186,9 @@ class nh_eobs_api(orm.AbstractModel):
         return activity_values
 
     def cancel(self, cr, uid, activity_id, data, context=None):
+        """
+        Cancel an activity
+        """
         if not data:
             data = {}
         activity_pool = self.pool['nh.activity']
@@ -194,6 +197,9 @@ class nh_eobs_api(orm.AbstractModel):
         return activity_pool.cancel(cr, uid, activity_id, context=context)
 
     def submit(self, cr, uid, activity_id, data, context=None):
+        """
+        Submit an activity update
+        """
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
         if not self.check_activity_access(cr, uid, activity_id, context=context):
@@ -201,6 +207,9 @@ class nh_eobs_api(orm.AbstractModel):
         return activity_pool.submit(cr, uid, activity_id, data, context=context)
 
     def unassign(self, cr, uid, activity_id, context=None):
+        """
+        Unassign the activity from the user.
+        """
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
         if not self.check_activity_access(cr, uid, activity_id, context=context):
@@ -217,6 +226,9 @@ class nh_eobs_api(orm.AbstractModel):
         return True
 
     def assign(self, cr, uid, activity_id, data, context=None):
+        """
+        Assign an activity to a user.
+        """
         if not data:
             data = {}
         activity_pool = self.pool['nh.activity']
@@ -234,6 +246,9 @@ class nh_eobs_api(orm.AbstractModel):
         return activity_pool.assign(cr, uid, activity_id, user_id, context=context)
 
     def complete(self, cr, uid, activity_id, data, context=None):
+        """
+        Complete an activity.
+        """
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
         if not self.check_activity_access(cr, uid, activity_id, context=context):
@@ -251,6 +266,9 @@ class nh_eobs_api(orm.AbstractModel):
         return reasons
 
     def get_form_description(self, cr, uid, patient_id, data_model, context=None):
+        """
+        :return: The form description dictionary
+        """
         model_pool = self.pool[data_model]
         return model_pool.get_form_description(cr, uid, patient_id, context=context)
 
@@ -370,6 +388,9 @@ class nh_eobs_api(orm.AbstractModel):
         return patient_values
 
     def update(self, cr, uid, patient_id, data, context=None):
+        """
+        Update patient information
+        """
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
         if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
