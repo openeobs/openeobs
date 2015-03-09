@@ -4,32 +4,34 @@
 class NHMobileBarcode extends NHMobile
 
   # on initalisation we need to:
-  # - hide the input block
   # - set up click event listener for trigger button
   # - set up change event listener for input
-  constructor: (@trigger_button, @input, @input_block) ->
+  constructor: (@trigger_button) ->
     self = @
-    @input_block.style.display = 'none'
     @trigger_button.addEventListener 'click', (event) ->
       self.trigger_button_click(self)
-    @input.addEventListener 'change', (event) ->
-      self.barcode_scanned(self, event)
     super()
 
   # On trigger button being pressed:
-  # - Either show or hide tehe input block depending on current visibility
-  # - If showing input then focus on it
+  # - Show a modal with an input box to scan
+  # - Set the focus to the input in the box
+  # - Add a change event listener to the input box
   trigger_button_click: (self) ->
-    if self.input_block.style.display is 'none'
-      self.input_block.style.display = 'block'
-      self.input.focus()
-    else
-      self.input_block.style.display = 'none'
+    input = '<div class="block"><input type="text" '+
+      'name="barcode_scan" class="barcode_scan"/></div>'
+    cancel = '<a href="#" data-target="patient_barcode" ' +
+      'data-action="close">Cancel</a>'
+    new NHModal('patient_barcode', 'Scan patient wristband',
+      input, [cancel], 0 ,document.getElementsByTagName('body')[0])
+    self.input = document.getElementsByClassName('barcode_scan')[0]
+    self.input.addEventListener 'change', (event) ->
+      self.barcode_scanned(self, event)
+    self.input.focus()
 
   # On barcode being scanned:
   # - get the hospital number from the input
   # - use that hospital number to call the server
-  # - on receiving data from server process it and display in a modal
+  # - on receiving data change the modal content
   barcode_scanned: (self, event) ->
     event.preventDefault()
     input = if event.srcElement then event.srcElement else event.target
@@ -67,10 +69,7 @@ class NHMobileBarcode extends NHMobile
         self.urls['single_patient'](data.other_identifier).url+
         '" id="patient_obs_fullscreen" class="button patient_obs">'+
         'View Patient Observation Data</a></p>'
-      cancel = '<a href="#" data-target="patient_barcode" ' +
-        'data-action="close">Cancel</a>'
-      new NHModal('patient_barcode', 'Perform Action', content,
-        [cancel], 0,  document.getElementsByTagName('body')[0])
+      self.input.parentNode.innerHTML = content
 
 if !window.NH
   window.NH = {}

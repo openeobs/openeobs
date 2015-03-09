@@ -5,29 +5,26 @@ var NHMobileBarcode,
 NHMobileBarcode = (function(superClass) {
   extend(NHMobileBarcode, superClass);
 
-  function NHMobileBarcode(trigger_button, input1, input_block) {
+  function NHMobileBarcode(trigger_button) {
     var self;
     this.trigger_button = trigger_button;
-    this.input = input1;
-    this.input_block = input_block;
     self = this;
-    this.input_block.style.display = 'none';
     this.trigger_button.addEventListener('click', function(event) {
       return self.trigger_button_click(self);
-    });
-    this.input.addEventListener('change', function(event) {
-      return self.barcode_scanned(self, event);
     });
     NHMobileBarcode.__super__.constructor.call(this);
   }
 
   NHMobileBarcode.prototype.trigger_button_click = function(self) {
-    if (self.input_block.style.display === 'none') {
-      self.input_block.style.display = 'block';
-      return self.input.focus();
-    } else {
-      return self.input_block.style.display = 'none';
-    }
+    var cancel, input;
+    input = '<div class="block"><input type="text" ' + 'name="barcode_scan" class="barcode_scan"/></div>';
+    cancel = '<a href="#" data-target="patient_barcode" ' + 'data-action="close">Cancel</a>';
+    new NHModal('patient_barcode', 'Scan patient wristband', input, [cancel], 0, document.getElementsByTagName('body')[0]);
+    self.input = document.getElementsByClassName('barcode_scan')[0];
+    self.input.addEventListener('change', function(event) {
+      return self.barcode_scanned(self, event);
+    });
+    return self.input.focus();
   };
 
   NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
@@ -38,7 +35,7 @@ NHMobileBarcode = (function(superClass) {
     url = self.urls.json_patient_barcode(hosp_num);
     url_meth = url.method;
     return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
-      var cancel, content, data, patientDOB, patient_details, patient_name;
+      var content, data, patientDOB, patient_details, patient_name;
       data = server_data[0][0];
       patient_name = '';
       patient_details = '';
@@ -70,8 +67,7 @@ NHMobileBarcode = (function(superClass) {
         patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier + "</dd>";
       }
       content = '<dl>' + patient_details + '</dl><p><a href="' + self.urls['single_patient'](data.other_identifier).url + '" id="patient_obs_fullscreen" class="button patient_obs">' + 'View Patient Observation Data</a></p>';
-      cancel = '<a href="#" data-target="patient_barcode" ' + 'data-action="close">Cancel</a>';
-      return new NHModal('patient_barcode', 'Perform Action', content, [cancel], 0, document.getElementsByTagName('body')[0]);
+      return self.input.parentNode.innerHTML = content;
     });
   };
 

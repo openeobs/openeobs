@@ -46,20 +46,16 @@ Handles barcode scanning on MioCare devices</p>
               </div>
               <p>on initalisation we need to:</p>
 <ul>
-<li>hide the input block</li>
 <li>set up click event listener for trigger button</li>
 <li>set up change event listener for input</li>
 </ul>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@trigger_button</span>, <span class="hljs-property">@input</span>, <span class="hljs-property">@input_block</span>)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@trigger_button</span>)</span> -&gt;</span>
     self = @
-    <span class="hljs-property">@input_block</span>.style.display = <span class="hljs-string">'none'</span>
     <span class="hljs-property">@trigger_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
       self.trigger_button_click(self)
-    <span class="hljs-property">@input</span>.addEventListener <span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      self.barcode_scanned(self, event)
     <span class="hljs-keyword">super</span>()</pre></div></div>
             
         </li>
@@ -73,18 +69,24 @@ Handles barcode scanning on MioCare devices</p>
               </div>
               <p>On trigger button being pressed:</p>
 <ul>
-<li>Either show or hide tehe input block depending on current visibility</li>
-<li>If showing input then focus on it</li>
+<li>Show a modal with an input box to scan</li>
+<li>Set the focus to the input in the box</li>
+<li>Add a change event listener to the input box</li>
 </ul>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">trigger_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
-    <span class="hljs-keyword">if</span> self.input_block.style.display <span class="hljs-keyword">is</span> <span class="hljs-string">'none'</span>
-      self.input_block.style.display = <span class="hljs-string">'block'</span>
-      self.input.focus()
-    <span class="hljs-keyword">else</span>
-      self.input_block.style.display = <span class="hljs-string">'none'</span></pre></div></div>
+    input = <span class="hljs-string">'&lt;div class="block"&gt;&lt;input type="text" '</span>+
+      <span class="hljs-string">'name="barcode_scan" class="barcode_scan"/&gt;&lt;/div&gt;'</span>
+    cancel = <span class="hljs-string">'&lt;a href="#" data-target="patient_barcode" '</span> +
+      <span class="hljs-string">'data-action="close"&gt;Cancel&lt;/a&gt;'</span>
+    <span class="hljs-keyword">new</span> NHModal(<span class="hljs-string">'patient_barcode'</span>, <span class="hljs-string">'Scan patient wristband'</span>,
+      input, [cancel], <span class="hljs-number">0</span> ,<span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
+    self.input = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'barcode_scan'</span>)[<span class="hljs-number">0</span>]
+    self.input.addEventListener <span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      self.barcode_scanned(self, event)
+    self.input.focus()</pre></div></div>
             
         </li>
         
@@ -99,7 +101,7 @@ Handles barcode scanning on MioCare devices</p>
 <ul>
 <li>get the hospital number from the input</li>
 <li>use that hospital number to call the server</li>
-<li>on receiving data from server process it and display in a modal</li>
+<li>on receiving data change the modal content</li>
 </ul>
 
             </div>
@@ -141,10 +143,7 @@ Handles barcode scanning on MioCare devices</p>
         self.urls[<span class="hljs-string">'single_patient'</span>](data.other_identifier).url+
         <span class="hljs-string">'" id="patient_obs_fullscreen" class="button patient_obs"&gt;'</span>+
         <span class="hljs-string">'View Patient Observation Data&lt;/a&gt;&lt;/p&gt;'</span>
-      cancel = <span class="hljs-string">'&lt;a href="#" data-target="patient_barcode" '</span> +
-        <span class="hljs-string">'data-action="close"&gt;Cancel&lt;/a&gt;'</span>
-      <span class="hljs-keyword">new</span> NHModal(<span class="hljs-string">'patient_barcode'</span>, <span class="hljs-string">'Perform Action'</span>, content,
-        [cancel], <span class="hljs-number">0</span>,  <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
+      self.input.parentNode.innerHTML = content
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
