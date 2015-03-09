@@ -307,6 +307,20 @@ class nh_eobs_api(orm.AbstractModel):
         ]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activities = activity_pool.read(cr, uid, activity_ids, [], context=context)
+        for a in activities:
+            if a.get('date_scheduled'):
+                scheduled = dt.strptime(a['date_scheduled'], DTF)
+                time = scheduled - dt.now()
+                hours = time.seconds/3600
+                minutes = time.seconds/60 - time.seconds/3600*60
+                time_string = '{overdue}{days}{hours}:{minutes}'.format(
+                    overdue='overdue: ' if dt.now() > scheduled else '',
+                    days=str(time.days) + ' ' if time.days else '',
+                    hours=hours if hours > 9 else '0' + str(hours),
+                    minutes=minutes if minutes > 9 else '0' + str(minutes))
+                a['time'] = time_string
+            else:
+                a['time'] = False
         patient = self.get_patients(cr, uid, patient_ids[0], context=context)
         patient['activities'] = activities
         return patient
