@@ -310,7 +310,7 @@ class nh_eobs_api(orm.AbstractModel):
         for a in activities:
             if a.get('date_scheduled'):
                 scheduled = dt.strptime(a['date_scheduled'], DTF)
-                time = scheduled - dt.now()
+                time = scheduled - dt.now() if dt.now() <= scheduled else dt.now() - scheduled
                 hours = time.seconds/3600
                 minutes = time.seconds/60 - time.seconds/3600*60
                 time_string = '{overdue}{days}{hours}:{minutes}'.format(
