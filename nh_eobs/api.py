@@ -321,8 +321,8 @@ class nh_eobs_api(orm.AbstractModel):
                 a['time'] = time_string
             else:
                 a['time'] = False
-        patient = self.get_patients(cr, uid, patient_ids[0], context=context)
-        patient['activities'] = activities
+        patient = self.get_patients(cr, uid, patient_ids, context=context)
+        patient[0]['activities'] = activities
         return patient
 
     def get_patients(self, cr, uid, ids, context=None):
