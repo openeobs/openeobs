@@ -76,3 +76,9 @@ li.title{
 .tasklist .info .patient{
     text-align: right;
 }
+
+.barcode_scan{
+    margin-bottom: 1em;
+    border-radius: 5px;
+    width: 100%;
+}
