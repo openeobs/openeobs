@@ -103,7 +103,7 @@ describe('NHMobileBarcode', function(){
     	expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
         expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
         expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><input type="text" name="barcode_scan" class="barcode_scan"/></div>');
+        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
     	// check to see if the input is currently focused
     	var input = document.getElementsByClassName('barcode_scan')[0];
     	expect(input).toBe(document.activeElement);
@@ -123,9 +123,10 @@ describe('NHMobileBarcode', function(){
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
         expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
         expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><input type="text" name="barcode_scan" class="barcode_scan"/></div>');
+        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
         var change_event = document.createEvent('CustomEvent');
-    	change_event.initCustomEvent('change', false, true, false);
+    	change_event.initCustomEvent('keypress', false, true, false);
+        change_event.keyCode = 13;
         var input = document.getElementsByClassName('barcode_scan')[0];
         input.dispatchEvent(change_event);
     	// test it fires appropriate function
@@ -146,11 +147,12 @@ describe('NHMobileBarcode', function(){
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
         expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
         expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><input type="text" name="barcode_scan" class="barcode_scan"/></div>');
+        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
         var input = document.getElementsByClassName('barcode_scan')[0];
-        input.value = '123412341234';
+        input.value = '123412341234,123445';
     	var change_event = document.createEvent('CustomEvent');
-    	change_event.initCustomEvent('change', false, true, false);
+        change_event.initCustomEvent('keypress', false, true, false);
+        change_event.keyCode = 13;
     	input.dispatchEvent(change_event);
     	// test function it calls asks server using hospital number
     	expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
@@ -171,11 +173,12 @@ describe('NHMobileBarcode', function(){
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
         expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
         expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><input type="text" name="barcode_scan" class="barcode_scan"/></div>');
+        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
         var input = document.getElementsByClassName('barcode_scan')[0];
-        input.value = '123412341234';
+        input.value = '123412341234,123445';
     	var change_event = document.createEvent('CustomEvent');
-    	change_event.initCustomEvent('change', false, true, false);
+        change_event.initCustomEvent('keypress', false, true, false);
+        change_event.keyCode = 13;
     	input.dispatchEvent(change_event);
     	// go get data from server 
     	expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();

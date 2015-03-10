@@ -17,12 +17,14 @@ NHMobileBarcode = (function(superClass) {
 
   NHMobileBarcode.prototype.trigger_button_click = function(self) {
     var cancel, input;
-    input = '<div class="block"><input type="text" ' + 'name="barcode_scan" class="barcode_scan"/></div>';
+    input = '<div class="block"><textarea ' + 'name="barcode_scan" class="barcode_scan"></textarea></div>';
     cancel = '<a href="#" data-target="patient_barcode" ' + 'data-action="close">Cancel</a>';
     new NHModal('patient_barcode', 'Scan patient wristband', input, [cancel], 0, document.getElementsByTagName('body')[0]);
     self.input = document.getElementsByClassName('barcode_scan')[0];
-    self.input.addEventListener('change', function(event) {
-      return self.barcode_scanned(self, event);
+    self.input.addEventListener('keypress', function(event) {
+      if (event.keyCode === 13) {
+        return self.barcode_scanned(self, event);
+      }
     });
     return self.input.focus();
   };
@@ -32,6 +34,7 @@ NHMobileBarcode = (function(superClass) {
     event.preventDefault();
     input = event.srcElement ? event.srcElement : event.target;
     hosp_num = input.value;
+    hosp_num = hosp_num.split(',')[1];
     url = self.urls.json_patient_barcode(hosp_num);
     url_meth = url.method;
     return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {

@@ -17,15 +17,16 @@ class NHMobileBarcode extends NHMobile
   # - Set the focus to the input in the box
   # - Add a change event listener to the input box
   trigger_button_click: (self) ->
-    input = '<div class="block"><input type="text" '+
-      'name="barcode_scan" class="barcode_scan"/></div>'
+    input = '<div class="block"><textarea '+
+      'name="barcode_scan" class="barcode_scan"></textarea></div>'
     cancel = '<a href="#" data-target="patient_barcode" ' +
       'data-action="close">Cancel</a>'
     new NHModal('patient_barcode', 'Scan patient wristband',
       input, [cancel], 0 ,document.getElementsByTagName('body')[0])
     self.input = document.getElementsByClassName('barcode_scan')[0]
-    self.input.addEventListener 'change', (event) ->
-      self.barcode_scanned(self, event)
+    self.input.addEventListener 'keypress', (event) ->
+      if event.keyCode is 13
+        self.barcode_scanned(self, event)
     self.input.focus()
 
   # On barcode being scanned:
@@ -36,6 +37,8 @@ class NHMobileBarcode extends NHMobile
     event.preventDefault()
     input = if event.srcElement then event.srcElement else event.target
     hosp_num = input.value
+    # process hosp_num from wristband
+    hosp_num = hosp_num.split(',')[1]
     url = self.urls.json_patient_barcode(hosp_num)
     url_meth = url.method
     Promise.when(self.process_request(url_meth, url.url)).then (server_data) ->
