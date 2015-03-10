@@ -119,6 +119,13 @@ class nh_eobs_api(orm.AbstractModel):
         ]
         activity_pool = self.pool['nh.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        user_pool = self.pool['res.users']
+        user = user_pool.browse(cr, uid, uid, context=context)
+        patient_ids = [patient.id for patient in user.following_ids]
+        domain = [['patient_id', 'in', patient_ids],
+                  ['data_model', 'not in', ['nh.clinical.spell']],
+                  ['state', 'not in', ['completed', 'cancelled']]]
+        activity_ids += activity_pool.search(cr, uid, domain, context=context)
         activity_ids_sql = ','.join(map(str, activity_ids))
         sql = """
         with

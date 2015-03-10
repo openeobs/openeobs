@@ -19,6 +19,8 @@ class TestAPI(SingleTransactionCase):
         cls.pos_pool = cls.registry('nh.clinical.pos')
         cls.extapi = cls.registry('nh.eobs.api')
         cls.apidemo = cls.registry('nh.clinical.api.demo')
+        cls.follow_pool = cls.registry('nh.clinical.patient.follow')
+        cls.unfollow_pool = cls.registry('nh.clinical.patient.unfollow')
 
         cls.apidemo.build_unit_test_env(cr, uid, context='eobs')
 
@@ -60,6 +62,17 @@ class TestAPI(SingleTransactionCase):
             self.assertTrue(a['id'] in u_activity_ids, msg='Get activities returned an activity the Nurse is not responsible for')
         for a in t_api_activities:
             self.assertTrue(a['id'] in t_activity_ids, msg='Get activities returned an activity the Nurse is not responsible for')
+
+        patient_id = u_api_activities[0]['patient_id']
+        follow_activity_id = self.follow_pool.create_activity(cr, uid, {}, {'to_user_id': self.nt_id, 'patient_ids': [[4, patient_id]]})
+        self.activity_pool.complete(cr, uid, follow_activity_id)
+        t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
+        self.assertTrue(patient_id in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
+
+        unfollow_activity_id = self.unfollow_pool.create_activity(cr, uid, {}, {'from_user_id': self.nt_id, 'patient_ids': [[4, patient_id]]})
+        self.activity_pool.complete(cr, uid, unfollow_activity_id)
+        t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
+        self.assertTrue(patient_id not in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
 
     def test_cancel_activity(self):
         cr, uid = self.cr, self.uid
