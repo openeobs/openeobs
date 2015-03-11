@@ -421,6 +421,92 @@ class nh_eobs_api(orm.AbstractModel):
             patient_values = cr.dictfetchall()
         return patient_values
 
+    def get_followed_patients(self, cr, uid, context=None):
+        """
+        Return a list of the patients followed by the user in dictionary format (containing every field from the table)
+        """
+        patient_pool = self.pool['nh.clinical.patient']
+        patient_ids = patient_pool.search(cr, uid, [['follower_ids', 'in', [uid]]], context=context)
+        patient_ids_sql = ','.join(map(str, patient_ids))
+        sql = """
+        with
+            completed_ews as(
+                select
+                    ews.id,
+                    spell.patient_id,
+                    ews.score,
+                    ews.three_in_one,
+                    ews.clinical_risk,
+                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+                from nh_clinical_spell spell
+                left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
+                inner join nh_activity activity on ews.activity_id = activity.id
+                where activity.state = 'completed' and ews.none_values = '[]'
+            ),
+            scheduled_ews as(
+                select
+                    spell.patient_id,
+                    activity.date_scheduled,
+                    ews.frequency,
+                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
+                from nh_clinical_spell spell
+                left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
+                inner join nh_activity activity on ews.activity_id = activity.id
+                where activity.state = 'scheduled'
+            )
+        select patient.id,
+            patient.dob,
+            patient.gender,
+            patient.sex,
+            patient.other_identifier,
+            case char_length(patient.patient_identifier) = 10
+                when true then substring(patient.patient_identifier from 1 for 3) || ' ' || substring(patient.patient_identifier from 4 for 3) || ' ' || substring(patient.patient_identifier from 7 for 4)
+                else patient.patient_identifier
+            end as patient_identifier,
+            coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
+            case
+                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
+                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) = ews0.date_scheduled then to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
+                else to_char((interval '0s'), 'HH24:MI') || ' hours'
+            end as next_ews_time,
+            location.name as location,
+            location_parent.name as parent_location,
+            case
+                when ews1.score is not null then ews1.score::text
+                else ''
+            end as ews_score,
+            case
+                when ews1.score is not null then ews1.three_in_one
+                else False
+            end as ews_3in1,
+            ews1.clinical_risk,
+            case
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) > 0 then 'up'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'down'
+                when ews1.id is null and ews2.id is null then 'none'
+                when ews1.id is not null and ews2.id is null then 'first'
+                when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen.
+            end as ews_trend,
+            case
+                when ews0.frequency is not null then ews0.frequency
+                else 0
+            end as frequency
+        from nh_activity activity
+        inner join nh_clinical_patient patient on patient.id = activity.patient_id
+        inner join nh_clinical_location location on location.id = activity.location_id
+        inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
+        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
+        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
+        left join scheduled_ews ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1
+        where activity.state = 'started' and activity.data_model = 'nh.clinical.spell' and patient.id in (%s)
+        """ % patient_ids_sql
+        patient_values = []
+        if patient_ids:
+            cr.execute(sql)
+            patient_values = cr.dictfetchall()
+        return patient_values
+
     def update(self, cr, uid, patient_id, data, context=None):
         """
         Update patient information

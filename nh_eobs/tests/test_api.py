@@ -558,6 +558,10 @@ class TestAPI(SingleTransactionCase):
         check_patient = self.patient_pool.browse(cr, uid, patient_id)
         self.assertTrue(self.nt_id in [user.id for user in check_patient.follower_ids], msg="The user should be a follower after completing patient follow")
 
+        followed_patients = self.extapi.get_followed_patients(cr, self.nt_id)
+        self.assertTrue(followed_patients, msg="Get followed patients: No results while following a patient")
+        self.assertTrue(any([patient['id'] == patient_id for patient in followed_patients]), msg="Get followed patients: Followed patient not found within the result")
+
         self.assertTrue(self.extapi.remove_followers(cr, uid, [patient_id]), msg="Error calling remove_followers")
         check_patient = self.patient_pool.browse(cr, uid, patient_id)
         self.assertTrue(self.nt_id not in [user.id for user in check_patient.follower_ids], msg="The user should not be a follower after calling remove followers")
