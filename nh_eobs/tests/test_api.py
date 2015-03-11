@@ -26,7 +26,7 @@ class TestAPI(SingleTransactionCase):
         cls.follow_pool = cls.registry('nh.clinical.patient.follow')
         cls.unfollow_pool = cls.registry('nh.clinical.patient.unfollow')
 
-        cls.apidemo.build_unit_test_env(cr, uid, context='eobs')
+        cls.apidemo.build_unit_test_env(cr, uid, bed_count=4, context='eobs')
 
         cls.wu_id = cls.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
         cls.wt_id = cls.location_pool.search(cr, uid, [('code', '=', 'T')])[0]
@@ -545,23 +545,54 @@ class TestAPI(SingleTransactionCase):
     def test_start_and_stop_following(self):
         cr, uid = self.cr, self.uid
 
-        patient_id = fake.random_element(self.patient_pool.search(cr, uid, []))
+        dob = (dt.now()+td(days=-7300)).strftime(dtf)
+        patient_data = {
+            'patient_identifier': 'TESTNHS0009',
+            'family_name': 'Cauthon',
+            'given_name': 'Matrim',
+            'dob': dob,
+            'gender': 'M',
+            'sex': 'M'
+        }
 
-        self.assertTrue(self.extapi.follow_invite(cr, uid, [patient_id], self.nt_id), msg="Error calling follow_invite")
+        self.extapi.register(cr, self.adt_id, 'TESTP0009', patient_data)
+
+        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0009')])
+        self.assertTrue(patient_id)
+        patient_id = patient_id[0]
+        doa = dt.now().strftime(dtf)
+        admit_data = {
+            'location': 'T',
+            'start_date': doa,
+            'doctors': False
+        }
+
+        self.extapi.admit(cr, self.adt_id, 'TESTP0009', admit_data)
+
+        placement_activity_id = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 'nh.clinical.patient.placement'),
+            ('patient_id', '=', patient_id),
+            ('state', 'not in', ['completed', 'cancelled'])])
+        self.assertTrue(placement_activity_id, msg='No placement found after admission')
+        bed_ids = self.location_pool.search(cr, uid, [('usage', '=', 'bed'), ('id', 'child_of', self.wt_id), ('is_available', '=', True)])
+        self.assertTrue(bed_ids, msg='No available beds in ward T after admission')
+        self.extapi.complete(cr, self.wmt_id, placement_activity_id[0], {'location_id': bed_ids[0]})
+
+        self.assertTrue(self.extapi.follow_invite(cr, self.nt_id, [patient_id], self.nu_id), msg="Error calling follow_invite")
         follow_id = self.follow_pool.search(cr, uid, [
             ['activity_id.state', 'not in', ['completed', 'cancelled']],
             ['patient_ids', 'in', [patient_id]],
-            ['to_user_id', '=', self.nt_id]])
+            ['to_user_id', '=', self.nu_id]])
         self.assertTrue(follow_id, msg="Cannot find the Follow patient activity")
         follow = self.follow_pool.browse(cr, uid, follow_id[0])
         self.activity_pool.complete(cr, uid, follow.activity_id.id)
         check_patient = self.patient_pool.browse(cr, uid, patient_id)
-        self.assertTrue(self.nt_id in [user.id for user in check_patient.follower_ids], msg="The user should be a follower after completing patient follow")
+        self.assertTrue(self.nu_id in [user.id for user in check_patient.follower_ids], msg="The user should be a follower after completing patient follow")
 
-        followed_patients = self.extapi.get_followed_patients(cr, self.nt_id)
+        followed_patients = self.extapi.get_followed_patients(cr, self.nu_id)
         self.assertTrue(followed_patients, msg="Get followed patients: No results while following a patient")
         self.assertTrue(any([patient['id'] == patient_id for patient in followed_patients]), msg="Get followed patients: Followed patient not found within the result")
 
-        self.assertTrue(self.extapi.remove_followers(cr, uid, [patient_id]), msg="Error calling remove_followers")
+        self.assertTrue(self.extapi.remove_followers(cr, self.nt_id, [patient_id]), msg="Error calling remove_followers")
         check_patient = self.patient_pool.browse(cr, uid, patient_id)
-        self.assertTrue(self.nt_id not in [user.id for user in check_patient.follower_ids], msg="The user should not be a follower after calling remove followers")
+        self.assertTrue(self.nu_id not in [user.id for user in check_patient.follower_ids], msg="The user should not be a follower after calling remove followers")

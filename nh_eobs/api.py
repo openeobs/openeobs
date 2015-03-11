@@ -710,6 +710,11 @@ class nh_eobs_api(orm.AbstractModel):
         _logger.debug("Transfer cancelled for patient: %s" % patient_id)
         return True
 
+    def check_patient_responsibility(self, cr, uid, patient_id, context=None):
+        api = self.pool['nh.clinical.api']
+        spell_activity_id = api.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
+        return self.check_activity_access(cr, uid, spell_activity_id, context=context)
+
     def follow_invite(self, cr, uid, patient_ids, to_user_id, context=None):
         """
         Creates a follow activity for the user to follow the patients in 'patient_ids'
@@ -717,6 +722,8 @@ class nh_eobs_api(orm.AbstractModel):
         :param to_user_id: Integer. Id of the user to send the invite.
         :return: True if successful
         """
+        if not all([self.check_patient_responsibility(cr, uid, patient_id, context=context) for patient_id in patient_ids]):
+            raise osv.except_osv('Error!', 'You are not responsible for this patient.')
         follow_pool = self.pool['nh.clinical.patient.follow']
         follow_pool.create_activity(cr, uid, {}, {
             'patient_ids': [[6, 0, patient_ids]],
@@ -729,6 +736,8 @@ class nh_eobs_api(orm.AbstractModel):
         :param patient_ids: List of integers. Ids of the patients to unfollow.
         :return: True if successful
         """
+        if not all([self.check_patient_responsibility(cr, uid, patient_id, context=context)for patient_id in patient_ids]):
+            raise osv.except_osv('Error!', 'You are not responsible for this patient.')
         activity_pool = self.pool['nh.activity']
         unfollow_pool = self.pool['nh.clinical.patient.unfollow']
         unfollow_activity_id = unfollow_pool.create_activity(cr, uid, {}, {
