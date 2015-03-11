@@ -2,6 +2,10 @@ from openerp.tests.common import SingleTransactionCase
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
+from faker import Faker
+
+fake = Faker()
+
 
 class TestAPI(SingleTransactionCase):
     
@@ -69,7 +73,7 @@ class TestAPI(SingleTransactionCase):
         t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
         self.assertTrue(patient_id in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
 
-        unfollow_activity_id = self.unfollow_pool.create_activity(cr, uid, {}, {'from_user_id': self.nt_id, 'patient_ids': [[4, patient_id]]})
+        unfollow_activity_id = self.unfollow_pool.create_activity(cr, uid, {}, {'patient_ids': [[4, patient_id]]})
         self.activity_pool.complete(cr, uid, unfollow_activity_id)
         t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
         self.assertTrue(patient_id not in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
@@ -537,3 +541,23 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(ews_activities[0]['blood_pressure_diastolic'] == ews_data['blood_pressure_diastolic'], msg='diastolic rate does not match')
         self.assertTrue(ews_activities[0]['pulse_rate'] == ews_data['pulse_rate'], msg='pulse rate does not match')
         self.assertTrue(ews_activities[0]['avpu_text'] == ews_data['avpu_text'], msg='avpu does not match')
+
+    def test_start_and_stop_following(self):
+        cr, uid = self.cr, self.uid
+
+        patient_id = fake.random_element(self.patient_pool.search(cr, uid, []))
+
+        self.assertTrue(self.extapi.follow_invite(cr, uid, [patient_id], self.nt_id), msg="Error calling follow_invite")
+        follow_id = self.follow_pool.search(cr, uid, [
+            ['activity_id.state', 'not in', ['completed', 'cancelled']],
+            ['patient_ids', 'in', [patient_id]],
+            ['to_user_id', '=', self.nt_id]])
+        self.assertTrue(follow_id, msg="Cannot find the Follow patient activity")
+        follow = self.follow_pool.browse(cr, uid, follow_id[0])
+        self.activity_pool.complete(cr, uid, follow.activity_id.id)
+        check_patient = self.patient_pool.browse(cr, uid, patient_id)
+        self.assertTrue(self.nt_id in [user.id for user in check_patient.follower_ids], msg="The user should be a follower after completing patient follow")
+
+        self.assertTrue(self.extapi.remove_followers(cr, uid, [patient_id]), msg="Error calling remove_followers")
+        check_patient = self.patient_pool.browse(cr, uid, patient_id)
+        self.assertTrue(self.nt_id not in [user.id for user in check_patient.follower_ids], msg="The user should not be a follower after calling remove followers")

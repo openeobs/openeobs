@@ -624,6 +624,32 @@ class nh_eobs_api(orm.AbstractModel):
         _logger.debug("Transfer cancelled for patient: %s" % patient_id)
         return True
 
+    def follow_invite(self, cr, uid, patient_ids, to_user_id, context=None):
+        """
+        Creates a follow activity for the user to follow the patients in 'patient_ids'
+        :param patient_ids: List of integers. Ids of the patients to follow.
+        :param to_user_id: Integer. Id of the user to send the invite.
+        :return: True if successful
+        """
+        follow_pool = self.pool['nh.clinical.patient.follow']
+        follow_pool.create_activity(cr, uid, {}, {
+            'patient_ids': [[6, 0, patient_ids]],
+            'to_user_id': to_user_id}, context=context)
+        return True
+
+    def remove_followers(self, cr, uid, patient_ids, context=None):
+        """
+        Remove the followers from the patients provided
+        :param patient_ids: List of integers. Ids of the patients to unfollow.
+        :return: True if successful
+        """
+        activity_pool = self.pool['nh.activity']
+        unfollow_pool = self.pool['nh.clinical.patient.unfollow']
+        unfollow_activity_id = unfollow_pool.create_activity(cr, uid, {}, {
+            'patient_ids': [[6, 0, patient_ids]]}, context=context)
+        activity_pool.complete(cr, uid, unfollow_activity_id, context=context)
+        return True
+
     def get_activities_for_patient(self, cr, uid, patient_id, activity_type, start_date=None,
                                 end_date=None, context=None):
         """
