@@ -1,5 +1,6 @@
-# Route tests
+# Route & cookie override tests
 # import test_routes
+# import test_cookie_override
 
 # Controller tests
 import test_task_patient_list
@@ -7,7 +8,7 @@ import test_observation_form
 # import test_adhoc_observation_form
 # import test_ward_manager_placement_form
 
-# import test_news_observation_form
+
 # import test_observation_frequency_form
 # import test_assess_patient_form
 # import test_medical_team_form

@@ -1,5 +1,6 @@
 from openerp.tests import common
 import xml.etree.ElementTree as et
+import helpers
 
 class NHMobileCommonTest(common.TransactionCase):
 
@@ -74,3 +75,55 @@ class NHMobileCommonTest(common.TransactionCase):
         dom_two_tree = et.tostring(et.fromstring(dom_two)).replace('\n', '').replace(' ', '')
         return dom_one_tree == dom_two_tree
 
+    def process_form_description(self, form_desc):
+        for form_input in form_desc:
+            if form_input['type'] in ['float', 'integer']:
+                form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
+                form_input['type'] = 'number'
+                form_input['number'] = True
+                form_input['info'] = ''
+                form_input['errors'] = ''
+                form_input['min'] = str(form_input['min'])
+            elif form_input['type'] == 'selection':
+                form_input['selection_options'] = []
+                form_input['info'] = ''
+                form_input['errors'] = ''
+                for option in form_input['selection']:
+                    opt = dict()
+                    opt['value'] = '{0}'.format(option[0])
+                    opt['label'] = option[1]
+                    form_input['selection_options'].append(opt)
+        return form_desc
+
+    def process_test_form(self, form_desc):
+        obs_form_string = ""
+        for form_field in form_desc:
+            if form_field['type'] is 'number':
+                if 'validation' in form_field:
+                    for validation in form_field['validation']:
+                        validation['condition']['operator'] = validation['condition']['operator'].replace('<', '&lt;').replace('>', '&gt;')
+                obs_form_string += helpers.OBS_INPUT.format(
+                    name=form_field['name'],
+                    label=form_field['label'],
+                    type=form_field['type'],
+                    min=form_field['min'],
+                    max=form_field['max'],
+                    step=form_field['step'],
+                    hidden_block=' valHide' if form_field['initially_hidden'] else '',
+                    hidden_input=' class="exclude"' if form_field['initially_hidden'] else '',
+                    data_validation=' data-validation="{0}"'.format(form_field['validation']) if 'validation' in form_field else ''
+                )
+            elif form_field['type'] is 'selection':
+                options_string = ''
+                for option in form_field['selection_options']:
+                    options_string += helpers.OPTION.format(value=option['value'], name=option['label'])
+                obs_form_string += helpers.OBS_SELECT.format(
+                    name=form_field['name'],
+                    label=form_field['label'],
+                    onchange=' data-onchange="{0}"'.format(form_field['on_change']) if 'on_change' in form_field else '',
+                    options=options_string,
+                    hidden_block=' valHide' if form_field['initially_hidden'] else '',
+                    hidden_input=' class="exclude"' if form_field['initially_hidden'] else '',
+                    )
+
+        return obs_form_string
