@@ -326,6 +326,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     form_input['number'] = True
                     form_input['info'] = ''
                     form_input['errors'] = ''
+                    form_input['min'] = str(form_input['min'])
                     #if form_input['target']:
                     #    form_input['target'] = False
                 elif form_input['type'] == 'selection':
@@ -364,6 +365,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     form_input['number'] = True
                     form_input['info'] = ''
                     form_input['errors'] = ''
+                    form_input['min'] = str(form_input['min'])
                     #if form_input['target']:
                     #    form_input['target'] = False
                 elif form_input['type'] == 'selection':
@@ -612,6 +614,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form_input['number'] = True
                 form_input['info'] = ''
                 form_input['errors'] = ''
+                form_input['min'] = str(form_input['min'])
                 #if form_input['target']:
                 #    form_input['target'] = False
             elif form_input['type'] == 'selection':

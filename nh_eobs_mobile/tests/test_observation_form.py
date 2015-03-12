@@ -59,6 +59,7 @@ class ObsTest(NHMobileCommonTest):
                 form_input['number'] = True
                 form_input['info'] = ''
                 form_input['errors'] = ''
+                form_input['min'] = str(form_input['min'])
             elif form_input['type'] == 'selection':
                 form_input['selection_options'] = []
                 form_input['info'] = ''
@@ -70,7 +71,7 @@ class ObsTest(NHMobileCommonTest):
                     form_input['selection_options'].append(opt)
 
         generated_html = self.render_template(cr, uid, 'nh_eobs_mobile.observation_entry',
-                                              {'inputs': form_desc,
+                                              {'inputs': [i for i in form_desc if i['type'] is not 'meta'],
                                                'name': task['summary'],
                                                'patient': patient,
                                                'form': form,
@@ -92,6 +93,8 @@ class ObsTest(NHMobileCommonTest):
                     min=form_field['min'],
                     max=form_field['max'],
                     step=form_field['step'],
+                    hidden_block=' valHide' if form_field['initially_hidden'] else '',
+                    hidden_input=' class="exclude"' if form_field['initially_hidden'] else '',
                     data_validation=' data-validation="{0}"'.format(form_field['validation']) if 'validation' in form_field else ''
                 )
             elif form_field['type'] is 'selection':
@@ -101,8 +104,10 @@ class ObsTest(NHMobileCommonTest):
                 obs_form_string += helpers.OBS_SELECT.format(
                     name=form_field['name'],
                     label=form_field['label'],
-                    onchange=' onchange="{0}"'.format(form_field['on_change']) if 'on_change' in form_field else '',
-                    options=options_string
+                    onchange=' data-onchange="{0}"'.format(form_field['on_change']) if 'on_change' in form_field else '',
+                    options=options_string,
+                    hidden_block=' valHide' if form_field['initially_hidden'] else '',
+                    hidden_input=' class="exclude"' if form_field['initially_hidden'] else '',
                 )
 
 
@@ -116,5 +121,5 @@ class ObsTest(NHMobileCommonTest):
         example_html = helpers.BASE_HTML.format(user=self.nurse['display_name'], task_selected=' class="selected"', patient_selected='', content=obs_string)
 
         # Assert that shit
-        self.assertEqual(self.compare_doms(generated_html, example_html),
+        self.assertTrue(self.compare_doms(generated_html, example_html),
                          'DOM from Controller ain\'t the same as DOM from example')

@@ -66,10 +66,10 @@ LIST_ITEM = """
 
 OBS_INPUT = """
 <div>
-    <div class="block obsField" id="parent_{name}">
+    <div class="block obsField{hidden_block}" id="parent_{name}">
         <div class="input-header">
             <label for="{name}">{label}</label>
-            <input{data_validation} step="{step}" name="{name}" max="{max}" min="{min}" type="{type}" id="{name}"/>
+            <input{data_validation} step="{step}" name="{name}" max="{max}" min="{min}" type="{type}" id="{name}"{hidden_input}/>
         </div>
         <div class="input-body">
             <span class="errors"></span>
@@ -81,12 +81,13 @@ OBS_INPUT = """
 
 OBS_SELECT = """
 <div>
-    <div class="block obsSelectField" id="parent_{name}">
+    <div class="block obsSelectField{hidden_block}" id="parent_{name}">
         <div class="input-header">
             <label for="{name}">{label}</label>
         </div>
        <div class="input-body">
-           <select{onchange} id="{name}" name="{name}">
+           <select{onchange} id="{name}" name="{name}"{hidden_input}>
+                <option value="">Please Select</option>
                 {options}
            </select>
            <span class="errors"></span>
@@ -117,8 +118,6 @@ BASE_OBS = """
         <input class="exclude" id="submitButton" type="submit"  value="Submit"/>
     </div>
 </form>
-<script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-<script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"/>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded',new window.NH.NHMobileForm(),false);
 </script>
