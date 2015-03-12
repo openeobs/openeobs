@@ -11,12 +11,15 @@ BASE_HTML = """
         <title>Open-eObs</title>
         <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
         <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
+        <script src="/mobile/src/js/routes.js" type="text/javascript"/>
+        <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"/>
     </head>
     <body>
         <div class="header">
               <div class="header-main block">
                     <img class="logo" src="/mobile/src/img/logo.png"/>
                     <ul class="header-meta">
+                        <li class="scan_parent"><a class="button scan go" href="#">Scan</a></li>
                         <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
                     </ul>
               </div>
@@ -31,6 +34,10 @@ BASE_HTML = """
         <div class="footer block">
             <p class="user">{user}</p>
         </div>
+        <script type="text/javascript">
+            var trigger_button = document.getElementsByClassName('scan')[0];
+            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileBarcode(trigger_button), false);
+        </script>
     </body>
 </html>
 """
