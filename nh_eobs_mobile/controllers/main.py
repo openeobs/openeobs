@@ -209,13 +209,21 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patient_api = request.registry['nh.eobs.api']
         patient_api.unassign_my_activities(cr, uid)
         patients = patient_api.get_patients(cr, uid, [], context=context)
+        following_patients = patient_api.get_followed_patients(cr, uid, [], context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
+        for fpatient in following_patients:
+            fpatient['url'] = '{0}{1}'.format(URLS['single_patient'], fpatient['id'])
+            fpatient['color'] = self.calculate_ews_class(fpatient['clinical_risk'])
+            fpatient['trend_icon'] = 'icon-{0}-arrow'.format(fpatient['ews_trend'])
+            fpatient['deadline_time'] = fpatient['next_ews_time']
+            fpatient['summary'] = fpatient['summary'] if fpatient.get('summary') else False
         return request.render('nh_eobs_mobile.patient_task_list', qcontext={'items': patients,
+                                                                            'following_items': following_patients,
                                                                              'section': 'patient',
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})

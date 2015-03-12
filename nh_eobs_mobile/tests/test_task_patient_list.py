@@ -81,3 +81,22 @@ class TaskPatientListTest(NHMobileCommonTest):
         # Assert that shit
         self.assertTrue(self.compare_doms(generated_html, example_html),
                         'DOM from Controller ain\'t the same as DOM from example')
+
+    # def test_followed_patients(self):
+    #     cr, uid = self.cr, self.uid
+    #
+    #     # find patients to follow
+    #
+    #     # assign patients to this user
+    #
+    #     # get patient list
+    #
+    #     # get followed patient list
+    #
+    #     # call controller
+    #
+    #     # create test DOm
+    #
+    #     # assert
+    #
+    #     # profit
