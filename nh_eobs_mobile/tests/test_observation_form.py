@@ -51,6 +51,7 @@ class ObsTest(NHMobileCommonTest):
         # Grab the form Def and compile the data to send to template
         obs_reg = self.registry[task['data_model']]
         form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=self.context)
+        test_form_desc = form_desc
         form['type'] = re.match(r'nh\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
 
 
@@ -64,12 +65,18 @@ class ObsTest(NHMobileCommonTest):
                                                'urls': helpers.URLS})
 
         # Create BS instances
-        obs_form_string = self.process_test_form(form_desc)
+        obs_form_string = self.process_test_form(test_form_desc)
 
         obs_string = helpers.BASE_OBS.format(patient_url=patient['url'],
                                              patient_name=patient['name'],
                                              patient_id=patient['id'],
                                              task_id=task_id,
+                                             form_task_id=' task-id="{tid}"'.format(tid=task_id),
+                                             hidden_task_id='<input type="hidden" name="taskId" value="{tid}"/>'.format(tid=task_id),
+                                             obs_type='ews',
+                                             form_source='task',
+                                             form_ajax_action='json_task_form_action',
+                                             form_action='/mobile/task/submit/{tid}'.format(tid=task_id),
                                              content=obs_form_string,
                                              timestamp=0)
 

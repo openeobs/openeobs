@@ -95,13 +95,14 @@ class NHMobileCommonTest(common.TransactionCase):
                     form_input['selection_options'].append(opt)
         return form_desc
 
+    def process_validation(self, val_dict):
+        vals = '{0}'.format(val_dict)
+        return vals.replace('<', '&lt;').replace('>', '&gt;')
+
     def process_test_form(self, form_desc):
         obs_form_string = ""
         for form_field in form_desc:
             if form_field['type'] is 'number':
-                if 'validation' in form_field:
-                    for validation in form_field['validation']:
-                        validation['condition']['operator'] = validation['condition']['operator'].replace('<', '&lt;').replace('>', '&gt;')
                 obs_form_string += helpers.OBS_INPUT.format(
                     name=form_field['name'],
                     label=form_field['label'],
@@ -111,7 +112,7 @@ class NHMobileCommonTest(common.TransactionCase):
                     step=form_field['step'],
                     hidden_block=' valHide' if form_field['initially_hidden'] else '',
                     hidden_input=' class="exclude"' if form_field['initially_hidden'] else '',
-                    data_validation=' data-validation="{0}"'.format(form_field['validation']) if 'validation' in form_field else ''
+                    data_validation=' data-validation="{0}"'.format(self.process_validation(form_field['validation'])) if 'validation' in form_field else ''
                 )
             elif form_field['type'] is 'selection':
                 options_string = ''

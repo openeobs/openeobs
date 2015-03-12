@@ -209,7 +209,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patient_api = request.registry['nh.eobs.api']
         patient_api.unassign_my_activities(cr, uid)
         patients = patient_api.get_patients(cr, uid, [], context=context)
-        following_patients = patient_api.get_followed_patients(cr, uid, [], context=context)
+        following_patients = patient_api.get_followed_patients(cr, uid, [])
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
