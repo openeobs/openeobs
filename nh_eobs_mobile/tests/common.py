@@ -75,6 +75,13 @@ class NHMobileCommonTest(common.TransactionCase):
         dom_two_tree = et.tostring(et.fromstring(dom_two)).replace('\n', '').replace(' ', '')
         return dom_one_tree == dom_two_tree
 
+    def compare_doms_stools(self, dom_one, dom_two):
+        dom_one_tree = et.tostring(et.fromstring(dom_one)).replace('\n', '').replace(' ', '')
+        dom_two_tree = et.tostring(et.fromstring(dom_two)).replace('\n', '').replace(' ', '')
+        dom_two_tree = dom_two_tree.replace('<optionvalue="7">Type7</option></select>', '<optionvalue="7">Type7</option></select><p><aclass="button"href="#"id="bristolPopup">BristolTypeReference</a></p>')
+        return dom_one_tree == dom_two_tree
+
+
     def process_form_description(self, form_desc):
         for form_input in form_desc:
             if form_input['type'] in ['float', 'integer']:
@@ -112,6 +119,7 @@ class NHMobileCommonTest(common.TransactionCase):
                     step=form_field['step'],
                     hidden_block=' valHide' if form_field['initially_hidden'] else '',
                     hidden_input=' class="exclude"' if form_field['initially_hidden'] else '',
+                    onchange=' data-onchange="{0}"'.format(form_field['on_change']) if 'on_change' in form_field else '',
                     data_validation=' data-validation="{0}"'.format(self.process_validation(form_field['validation'])) if 'validation' in form_field else ''
                 )
             elif form_field['type'] is 'selection':
@@ -128,3 +136,23 @@ class NHMobileCommonTest(common.TransactionCase):
                     )
 
         return obs_form_string
+
+    def create_test_patient_form(self, test_patient, type, url_type):
+        form = dict()
+        form['action'] = helpers.URLS['patient_form_action']+'{0}/{1}'.format(url_type, test_patient['id'])
+        form['type'] = type
+        form['task-id'] = False
+        form['patient-id'] = test_patient['id']
+        form['source'] = "patient"
+        form['start'] = '0'
+        return form
+
+    def create_test_patient_patient(self, test_patient):
+        patient = dict()
+        if test_patient:
+            patient['url'] = helpers.URLS['single_patient'] + '{0}'.format(test_patient['id'])
+            patient['name'] = test_patient['full_name']
+            patient['id'] = test_patient['id']
+        else:
+            patient = False
+        return patient
