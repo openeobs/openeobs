@@ -11,12 +11,15 @@ BASE_HTML = """
         <title>Open-eObs</title>
         <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
         <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
+        <script src="/mobile/src/js/routes.js" type="text/javascript"/>
+        <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"/>
     </head>
     <body>
         <div class="header">
               <div class="header-main block">
                     <img class="logo" src="/mobile/src/img/logo.png"/>
                     <ul class="header-meta">
+                        <li class="scan_parent"><a class="button scan go" href="#">Scan</a></li>
                         <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
                     </ul>
               </div>
@@ -31,6 +34,10 @@ BASE_HTML = """
         <div class="footer block">
             <p class="user">{user}</p>
         </div>
+        <script type="text/javascript">
+            var trigger_button = document.getElementsByClassName('scan')[0];
+            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileBarcode(trigger_button), false);
+        </script>
     </body>
 </html>
 """
@@ -59,10 +66,10 @@ LIST_ITEM = """
 
 OBS_INPUT = """
 <div>
-    <div class="block obsField" id="parent_{name}">
+    <div class="block obsField{hidden_block}" id="parent_{name}">
         <div class="input-header">
             <label for="{name}">{label}</label>
-            <input{data_validation} step="{step}" name="{name}" max="{max}" min="{min}" type="{type}" id="{name}"/>
+            <input{data_validation}{onchange} step="{step}" name="{name}" max="{max}" min="{min}" type="{type}" id="{name}"{hidden_input}/>
         </div>
         <div class="input-body">
             <span class="errors"></span>
@@ -74,12 +81,13 @@ OBS_INPUT = """
 
 OBS_SELECT = """
 <div>
-    <div class="block obsSelectField" id="parent_{name}">
+    <div class="block obsSelectField{hidden_block}" id="parent_{name}">
         <div class="input-header">
             <label for="{name}">{label}</label>
         </div>
        <div class="input-body">
-           <select{onchange} id="{name}" name="{name}">
+           <select{onchange} id="{name}" name="{name}"{hidden_input}>
+                <option value="">Please Select</option>
                 {options}
            </select>
            <span class="errors"></span>
@@ -102,16 +110,14 @@ BASE_OBS = """
 <h2 id="patientName" class="block">
     <a href="{patient_url}">{patient_name}<i class="icon-info" patient-id="{patient_id}"></i></a>
 </h2>
-<form action="/mobile/task/submit/{task_id}" ajax-action="json_task_form_action" ajax-args="ews,{task_id}" data-source="task" data-type="ews" id="obsForm" method="POST" patient-id="{patient_id}" task-id="{task_id}">
+<form action="{form_action}" ajax-action="{form_ajax_action}" ajax-args="{obs_type},{task_id}" data-source="{form_source}" data-type="{obs_type}" id="obsForm" method="POST" patient-id="{patient_id}"{form_task_id}>
     {content}
-    <input value="{task_id}" type="hidden" name="taskId"/>
+    {hidden_task_id}
     <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
     <div class="block obsSubmit">
         <input class="exclude" id="submitButton" type="submit"  value="Submit"/>
     </div>
 </form>
-<script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-<script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"/>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded',new window.NH.NHMobileForm(),false);
 </script>
@@ -337,450 +343,6 @@ MEDICAL_TEAM_HTML = """
     </body>
 </html>
 """
-
-
-GCS_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/" class="selected">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form patient-id="{patient_id}" data-type="gcs" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <div>
-                    <div class="block obsSelectField" id="parent_eyes">
-                        <div class="input-header">
-                            <label for="eyes">Eyes</label>
-                        </div>
-                       <div class="input-body">
-                            <select name="eyes" id="eyes">
-                                <option value="">Please Select</option>
-                                <option value="1">1: Does not open eyes</option>
-                                <option value="2">2: Opens eyes in response to painful stimuli</option>
-                                <option value="3">3: Opens eyes in response to voice</option>
-                                <option value="4">4: Opens eyes spontaneously</option>
-                                <option value="C">C: Closed by swelling</option>
-                            </select>
-                           <span class="errors"></span>
-                           <span class="help"></span>
-                       </div>
-                   </div>
-                </div>
-                <div>
-                    <div class="block obsSelectField" id="parent_verbal">
-                        <div class="input-header">
-                            <label for="verbal">Verbal</label>
-                        </div>
-                       <div class="input-body">
-                            <select name="verbal" id="verbal">
-                                <option value="">Please Select</option>
-                                <option value="1">1: Makes no sounds</option>
-                                <option value="2">2: Incomprehensible sounds</option>
-                                <option value="3">3: Utters inappropiate words</option>
-                                <option value="4">4: Confused, disoriented</option>
-                                <option value="5">5: Oriented, converses normally</option>
-                                <option value="T">T: Intubated</option>
-                            </select>
-                           <span class="errors"></span>
-                           <span class="help"></span>
-                       </div>
-                   </div>
-                </div>
-                <div>
-                    <div class="block obsSelectField" id="parent_motor">
-                        <div class="input-header">
-                            <label for="motor">Motor</label>
-                        </div>
-                       <div class="input-body">
-                            <select name="motor" id="motor">
-                                <option value="">Please Select</option>
-                                <option value="1">1: Makes no movements</option>
-                                <option value="2">2: Extension to painful stimuli (decerebrate response)</option>
-                                <option value="3">3: Abnormal flexion to painful stimuli (decorticate response)</option>
-                                <option value="4">4: Flexion / Withdrawal to painful stimuli</option>
-                                <option value="5">5: Localizes painful stimuli</option>
-                                <option value="6">6: Obeys commands</option>
-                            </select>
-                           <span class="errors"></span>
-                           <span class="help"></span>
-                       </div>
-                   </div>
-                </div>
-                <input type="hidden" name="taskId"/>
-                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <div class="block obsSubmit">
-                    <input type="submit" id="submitButton" value="Submit"/>
-                </div>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
-
-BLOOD_PRODUCT_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/" class="selected">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form patient-id="{patient_id}" data-type="blood_product" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <div>
-                    <div class="block obsField" id="parent_vol">
-                        <div class="input-header">
-                            <label for="vol">Vol (ml)</label>
-                            <input step="0.1" name="vol" max="10000.0" min="0.1" type="number" id="vol"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsSelectField" id="parent_product">
-                        <div class="input-header">
-                            <label for="product">Blood Product</label>
-                        </div>
-                       <div class="input-body">
-                            <select name="product" id="product">
-                                <option value="">Please Select</option>
-                                <option value="rbc">RBC</option>
-                                <option value="ffp">FFP</option>
-                                <option value="platelets">Platelets</option>
-                                <option value="has">Human Albumin Sol</option>
-                                <option value="dli">DLI</option>
-                                <option value="stem">Stem Cells</option>
-                            </select>
-                           <span class="errors"></span>
-                           <span class="help"></span>
-                       </div>
-                   </div>
-                </div>
-                <input type="hidden" name="taskId"/>
-                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <div class="block obsSubmit">
-                    <input type="submit" id="submitButton" value="Submit"/>
-                </div>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
-
-
-BLOOD_SUGAR_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/" class="selected">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form patient-id="{patient_id}" data-type="blood_sugar" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <div>
-                    <div class="block obsField" id="parent_blood_sugar">
-                        <div class="input-header">
-                            <label for="blood_sugar">Blood Sugar (mmol/L)</label>
-                            <input step="0.1" name="blood_sugar" max="99.9" min="1.0" type="number" id="blood_sugar"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="taskId"/>
-                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <div class="block obsSubmit">
-                    <input type="submit" id="submitButton" value="Submit"/>
-                </div>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
-
-HEIGHT_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/" class="selected">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form patient-id="{patient_id}" data-type="height" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <div>
-                    <div class="block obsField" id="parent_height">
-                        <div class="input-header">
-                            <label for="height">Height (m)</label>
-                            <input step="0.1" name="height" max="3.0" min="0.1" type="number" id="height"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="taskId"/>
-                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <div class="block obsSubmit">
-                    <input type="submit" id="submitButton" value="Submit"/>
-                </div>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
-
-WEIGHT_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/" class="selected">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form patient-id="{patient_id}" data-type="weight" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <div>
-                    <div class="block obsField" id="parent_weight">
-                        <div class="input-header">
-                            <label for="weight">Weight (Kg)</label>
-                            <input step="0.1" name="weight" max="999.9" min="1.0" type="number" id="weight"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="taskId"/>
-                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <div class="block obsSubmit">
-                    <input type="submit" id="submitButton" value="Submit"/>
-                </div>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
-
-PBP_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/" class="selected">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form patient-id="{patient_id}" data-type="pbp" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <div>
-                    <h3 class="block">Lying/Sitting Blood Pressure</h3>
-                    <div class="block obsField" id="parent_systolic_sitting">
-                        <div class="input-header">
-                            <label for="systolic_sitting">Sitting Blood Pressure Systolic</label>
-                            <input step="1" name="systolic_sitting" max="300" min="1" type="number" id="systolic_sitting"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField" id="parent_diastolic_sitting">
-                        <div class="input-header">
-                            <label for="diastolic_sitting">Sitting Blood Pressure Diastolic</label>
-                            <input step="1" name="diastolic_sitting" max="280" min="1" type="number" id="diastolic_sitting"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
-                    <div class="block obsField valHide" id="parent_systolic_standing">
-                        <div class="input-header">
-                            <label for="systolic_standing">Standing Blood Pressure Systolic</label>
-                            <input class="exclude" step="1" name="systolic_standing" max="300" min="1" type="number" id="systolic_standing"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField valHide" id="parent_diastolic_standing">
-                        <div class="input-header">
-                            <label for="diastolic_standing">Standing Blood Pressure Diastolic</label>
-                            <input class="exclude" step="1" name="diastolic_standing" max="280" min="1" type="number" id="diastolic_standing"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="taskId"/>
-                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <div class="block obsSubmit">
-                    <input type="submit" id="submitButton" value="Submit"/>
-                </div>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
-
 
 STOOLS_PATIENT_HTML = """
 <!DOCTYPE html>
@@ -1015,242 +577,7 @@ STOOLS_PATIENT_HTML = """
 </html>
 """
 
-NEWS_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-   <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/" class="selected">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form patient-id="{patient_id}" data-type="ews" action="{task_url}" method="POST" data-source="patient" id="obsForm">
-                <div>
-                    <div class="block obsField" id="parent_respiration_rate">
-                        <div class="input-header">
-                            <label for="respiration_rate">Respiration Rate</label>
-                            <input step="1" name="respiration_rate" max="59" min="1" type="number" id="respiration_rate"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField" id="parent_indirect_oxymetry_spo2">
-                        <div class="input-header">
-                            <label for="indirect_oxymetry_spo2">O2 Saturation</label>
-                            <input step="1" name="indirect_oxymetry_spo2" max="100" min="51" type="number" id="indirect_oxymetry_spo2"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField" id="parent_body_temperature">
-                        <div class="input-header">
-                            <label for="body_temperature">Body Temperature</label>
-                            <input step="0.1" name="body_temperature" max="44.9" min="27.1" type="number" id="body_temperature"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField" id="parent_blood_pressure_systolic">
-                        <div class="input-header">
-                            <label for="blood_pressure_systolic">Blood Pressure Systolic</label>
-                            <input step="1" name="blood_pressure_systolic" max="300" min="1" type="number" id="blood_pressure_systolic"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField" id="parent_blood_pressure_diastolic">
-                        <div class="input-header">
-                            <label for="blood_pressure_diastolic">Blood Pressure Diastolic</label>
-                            <input step="1" name="blood_pressure_diastolic" max="280" min="1" type="number" id="blood_pressure_diastolic"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField" id="parent_pulse_rate">
-                        <div class="input-header">
-                            <label for="pulse_rate">Pulse Rate</label>
-                            <input step="1" name="pulse_rate" max="250" min="1" type="number" id="pulse_rate"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsSelectField" id="parent_avpu_text">
-                        <div class="input-header">
-                            <label for="avpu_text">AVPU</label>
-                        </div>
-                       <div class="input-body">
-                           <select name="avpu_text" id="avpu_text">
-                                <option value="">Please Select</option>
-                                <option value="A">Alert</option>
-                                <option value="V">Voice</option>
-                                <option value="P">Pain</option>
-                                <option value="U">Unresponsive</option>
-                            </select>
-                           <span class="errors"></span>
-                           <span class="help"></span>
-                       </div>
-                   </div>
-                </div>
-                <div>
-                    <div class="block obsSelectField" id="parent_oxygen_administration_flag">
-                        <div class="input-header">
-                            <label for="oxygen_administration_flag">Patient on supplemental O2</label>
-                        </div>
-                       <div class="input-body">
-                           <select name="oxygen_administration_flag" id="oxygen_administration_flag">
-                                <option value="">Please Select</option>
-                                <option value="False">No</option>
-                                <option value="True">Yes</option>
-                           </select>
-                           <span class="errors"></span>
-                           <span class="help"></span>
-                       </div>
-                   </div>
-                </div>
-                <div>
-                    <div class="block obsSelectField valHide" id="parent_device_id">
-                        <div class="input-header">
-                            <label for="device_id">O2 Device</label>
-                        </div>
-                        <div class="input-body">
-                            <select name="device_id" class="exclude" id="device_id">
-                                {device_options}
-                            </select>
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField valHide" id="parent_flow_rate">
-                        <div class="input-header">
-                            <label for="flow_rate">Flow Rate</label>
-                            <input class="exclude" step="0.1" name="flow_rate" max="100.0"  type="number" id="flow_rate"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField valHide" id="parent_concentration">
-                        <div class="input-header">
-                            <label for="concentration">Concentration</label>
-                            <input class="exclude" step="1" name="concentration" max="100"  type="number" id="concentration"/>
 
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField valHide" id="parent_cpap_peep">
-                        <div class="input-header">
-                            <label for="cpap_peep">CPAP: PEEP (cmH2O)</label>
-                            <input class="exclude" step="1" name="cpap_peep" max="1000"  type="number" id="cpap_peep"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField valHide" id="parent_niv_backup">
-                        <div class="input-header">
-                            <label for="niv_backup">NIV: Back-up rate (br/min)</label>
-                            <input class="exclude" step="1" name="niv_backup" max="100"  type="number" id="niv_backup"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField valHide" id="parent_niv_ipap">
-                        <div class="input-header">
-                            <label for="niv_ipap">NIV: IPAP (cmH2O)</label>
-                            <input class="exclude" step="1" name="niv_ipap" max="100"  type="number" id="niv_ipap"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField valHide" id="parent_niv_epap">
-                        <div class="input-header">
-                            <label for="niv_epap">NIV: EPAP (cmH2O)</label>
-                            <input class="exclude" step="1" name="niv_epap" max="100"  type="number" id="niv_epap"/>
-                        </div>
-                        <div class="input-body">
-                            <span class="errors"></span>
-                            <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="taskId"/>
-                <input value="{timestamp}" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <div class="block obsSubmit">
-                    <input type="submit" id="submitButton" value="Submit"/>
-                </div>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
 
 
 # add jquery to header

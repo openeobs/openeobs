@@ -51,26 +51,12 @@ class ObsTest(NHMobileCommonTest):
         # Grab the form Def and compile the data to send to template
         obs_reg = self.registry[task['data_model']]
         form_desc = obs_reg.get_form_description(cr, uid, task['patient_id'][0], context=self.context)
+        test_form_desc = form_desc
         form['type'] = re.match(r'nh\.clinical\.patient\.observation\.(.*)', task['data_model']).group(1)
-        for form_input in form_desc:
-            if form_input['type'] in ['float', 'integer']:
-                form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
-                form_input['type'] = 'number'
-                form_input['number'] = True
-                form_input['info'] = ''
-                form_input['errors'] = ''
-            elif form_input['type'] == 'selection':
-                form_input['selection_options'] = []
-                form_input['info'] = ''
-                form_input['errors'] = ''
-                for option in form_input['selection']:
-                    opt = dict()
-                    opt['value'] = '{0}'.format(option[0])
-                    opt['label'] = option[1]
-                    form_input['selection_options'].append(opt)
+
 
         generated_html = self.render_template(cr, uid, 'nh_eobs_mobile.observation_entry',
-                                              {'inputs': form_desc,
+                                              {'inputs': [i for i in self.process_form_description(form_desc) if i['type'] is not 'meta'],
                                                'name': task['summary'],
                                                'patient': patient,
                                                'form': form,
@@ -79,42 +65,23 @@ class ObsTest(NHMobileCommonTest):
                                                'urls': helpers.URLS})
 
         # Create BS instances
-        obs_form_string = ""
-        for form_field in form_desc:
-            if form_field['type'] is 'number':
-                if 'validation' in form_field:
-                    for validation in form_field['validation']:
-                        validation['condition']['operator'] = validation['condition']['operator'].replace('<', '&lt;').replace('>', '&gt;')
-                obs_form_string += helpers.OBS_INPUT.format(
-                    name=form_field['name'],
-                    label=form_field['label'],
-                    type=form_field['type'],
-                    min=form_field['min'],
-                    max=form_field['max'],
-                    step=form_field['step'],
-                    data_validation=' data-validation="{0}"'.format(form_field['validation']) if 'validation' in form_field else ''
-                )
-            elif form_field['type'] is 'selection':
-                options_string = ''
-                for option in form_field['selection_options']:
-                    options_string += helpers.OPTION.format(value=option['value'], name=option['label'])
-                obs_form_string += helpers.OBS_SELECT.format(
-                    name=form_field['name'],
-                    label=form_field['label'],
-                    onchange=' onchange="{0}"'.format(form_field['on_change']) if 'on_change' in form_field else '',
-                    options=options_string
-                )
-
+        obs_form_string = self.process_test_form(test_form_desc)
 
         obs_string = helpers.BASE_OBS.format(patient_url=patient['url'],
                                              patient_name=patient['name'],
                                              patient_id=patient['id'],
                                              task_id=task_id,
+                                             form_task_id=' task-id="{tid}"'.format(tid=task_id),
+                                             hidden_task_id='<input type="hidden" name="taskId" value="{tid}"/>'.format(tid=task_id),
+                                             obs_type='ews',
+                                             form_source='task',
+                                             form_ajax_action='json_task_form_action',
+                                             form_action='/mobile/task/submit/{tid}'.format(tid=task_id),
                                              content=obs_form_string,
                                              timestamp=0)
 
         example_html = helpers.BASE_HTML.format(user=self.nurse['display_name'], task_selected=' class="selected"', patient_selected='', content=obs_string)
 
         # Assert that shit
-        self.assertEqual(self.compare_doms(generated_html, example_html),
+        self.assertTrue(self.compare_doms(generated_html, example_html),
                          'DOM from Controller ain\'t the same as DOM from example')
