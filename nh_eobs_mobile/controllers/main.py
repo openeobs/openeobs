@@ -209,16 +209,24 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patient_api = request.registry['nh.eobs.api']
         patient_api.unassign_my_activities(cr, uid)
         patients = patient_api.get_patients(cr, uid, [], context=context)
+        followed_patients = patient_api.get_followed_patients(cr, uid, context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
+        for patient in followed_patients:
+            patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
+            patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
+            patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
+            patient['deadline_time'] = patient['next_ews_time']
+            patient['summary'] = patient['summary'] if patient.get('summary') else False
         return request.render('nh_eobs_mobile.patient_task_list', qcontext={'items': patients,
-                                                                             'section': 'patient',
-                                                                             'username': request.session['login'],
-                                                                             'urls': URLS})
+                                                                            'followed_items': followed_patients,
+                                                                            'section': 'patient',
+                                                                            'username': request.session['login'],
+                                                                            'urls': URLS})
 
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
