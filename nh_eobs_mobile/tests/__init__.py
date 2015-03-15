@@ -6,6 +6,7 @@
 import test_task_patient_list
 import test_observation_form
 import test_adhoc_observation_form
+import test_notification_form
 # import test_ward_manager_placement_form
 
 

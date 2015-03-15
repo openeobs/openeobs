@@ -123,6 +123,24 @@ BASE_OBS = """
 </script>
 """
 
+ASSESS_PATIENT_HTML = """
+<h2 id="patientName" class="block">
+    <a href="{patient_url}" patient-id="{patient_id}">{patient_name}<i class="icon-info" patient-id="{patient_id}"></i></a>
+</h2>
+<form action="{form_action}" ajax-action="{form_ajax_action}" ajax-args="{task_id}" data-source="{form_source}" data-type="{obs_type}" id="obsForm" class="block" method="POST" patient-id="{patient_id}"{form_task_id}>
+<h3>Confirm action taken?</h3>
+<p>Press the button below to confirm that you can completed the task Assess Patient</p>
+<input value="{task_id}" type="hidden" name="taskId"/>
+<input value="0" type="hidden" name="startTimestamp" id="startTimestamp"/>
+<div class="block obsSubmit">
+<input class="exclude" id="submitButton" type="submit" value="Confirmaction"/>
+</div>
+</form>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded',new window.NH.NHMobileForm(),false);
+</script>
+"""
+
 DEVICE_OPTION = """<option value="{device_id}">{device_name}</option>"""
 
 OBS_FREQ_OPTION = """<option value="{freq_time}">{freq_name}</option>"""
@@ -249,51 +267,6 @@ BED_PLACEMENT_HTML = """
 </html>
 """
 
-ASSESS_PATIENT_HTML = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Open-eObs</title>
-        <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
-        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
-    </head>
-    <body>
-        <div class="header">
-            <div class="header-main block">
-                <img class="logo" src="/mobile/src/img/logo.png"/>
-                <ul class="header-meta">
-                    <li class="logout"><a class="button back" href="/mobile/logout/">Logout</a></li>
-                </ul>
-            </div>
-            <ul class="header-menu two-col">
-                <li><a id="taskNavItem" href="/mobile/tasks/" class="selected">Tasks</a></li>
-                <li><a id="patientNavItem" href="/mobile/patients/">My Patients</a></li>
-            </ul>
-        </div>
-        <div class="content">
-            <h2 id="patientName" class="block">
-                <a href="/mobile/patient/{patient_id}">{patient_name}<i class="icon-info"></i></a>
-            </h2>
-            <form class="block" task-id="{task_id}" patient-id="{patient_id}" data-type="assessment" action="{task_url}" method="POST" data-source="task" id="obsForm">
-                <h3>Confirm action taken?</h3>
-                <p>Press the button below to confirm that you can completed the task Assess Patient</p>
-                <input value="{task_id}" type="hidden" name="taskId"/>
-                <input value="0" type="hidden" name="startTimestamp" id="startTimestamp"/>
-                <p class="obsSubmit">
-                    <a id="confirmSubmit" class="button submitButton" href="{task_url}">Confirm action</a>
-                </p>
-            </form>
-            <script type="text/javascript" src="/mobile/src/js/jquery.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/routes.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/validation.js"></script>
-            <script type="text/javascript" src="/mobile/src/js/observation.js"></script>
-        </div>
-        <div class="footer block">
-            <p class="user">norah</p>
-        </div>
-    </body>
-</html>
-"""
 
 MEDICAL_TEAM_HTML = """
 <!DOCTYPE html>
