@@ -8,12 +8,10 @@ import test_observation_form
 import test_adhoc_observation_form
 import test_notification_form
 # import test_ward_manager_placement_form
-
-
 # import test_observation_frequency_form
-# import test_assess_patient_form
 # import test_medical_team_form
 # import test_bed_placement_form
+# import json_endpoint_test
 
 # PhantomJS tests
 # import test_login

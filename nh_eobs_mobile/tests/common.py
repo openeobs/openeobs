@@ -29,7 +29,7 @@ class NHMobileCommonTest(common.TransactionCase):
     def tearDown(self):
         super(NHMobileCommonTest, self).tearDown()
 
-    def create_test_data(self, cr, uid, wards=['U'], bed_count=2, patient_admit_count=2, patient_placement_count=2,
+    def create_test_data(self, cr, uid, wards=['U','T'], bed_count=2, patient_admit_count=2, patient_placement_count=2,
                          ews_count=2, context='eobs', weight_count=0, blood_sugar_count=0, height_count=0,
                          o2target_count=0):
         """

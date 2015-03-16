@@ -8,8 +8,9 @@ class TaskPatientListTest(NHMobileCommonTest):
         super(TaskPatientListTest, self).setUp()
 
         # demo data
-        demo_data = self.create_test_data(self.cr, self.uid)[0]
-        self.nurse = demo_data['users']['nurse']
+        self.demo_data = self.create_test_data(self.cr, self.uid)
+        self.nurse = self.demo_data[0]['users']['nurse']
+        self.nurse2 = self.demo_data[1]['users']['nurse']
 
     def test_patient_list(self):
         cr, uid = self.cr, self.uid
@@ -78,25 +79,66 @@ class TaskPatientListTest(NHMobileCommonTest):
                                                          summary=task['summary'])
         example_html = helpers.BASE_HTML.format(content='<ul class="tasklist">{0}</ul>'.format(task_list_string), task_selected=' class="selected"', patient_selected='', user=self.nurse['display_name'])
 
-        # Assert that shit
+        # Assert
         self.assertTrue(self.compare_doms(generated_html, example_html),
                         'DOM from Controller ain\'t the same as DOM from example')
 
-    # def test_followed_patients(self):
-    #     cr, uid = self.cr, self.uid
-    #
-    #     # find patients to follow
-    #
-    #     # assign patients to this user
-    #
-    #     # get patient list
-    #
-    #     # get followed patient list
-    #
-    #     # call controller
-    #
-    #     # create test DOm
-    #
-    #     # assert
-    #
-    #     # profit
+    def test_followed_patients(self):
+        cr, uid = self.cr, self.uid
+
+        # find patients to follow
+        ptf = self.api.get_patients(cr, self.nurse2['id'], [], context=self.context)
+        patient_ids = [p['id'] for p in ptf]
+        # assign patients to this user
+        follow_activity_id = self.api.follow_invite(cr, self.nurse2['id'], patient_ids, self.nurse['id'], context=self.context)
+        self.api.complete(cr, self.nurse['id'], follow_activity_id, {}, context=self.context)
+        # get patient list
+        patients = self.api.get_patients(cr, self.nurse['id'], [], context=self.context)
+        for patient in patients:
+            patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'], patient['id'])
+            patient['color'] = 'level-one'
+            patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
+            patient['deadline_time'] = patient['next_ews_time']
+            patient['summary'] = patient['summary'] if patient.get('summary') else False
+        # get followed patient list
+        followed_patients = self.api.get_followed_patients(cr, self.nurse['id'], context=self.context)
+        for patient in followed_patients:
+            patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'], patient['id'])
+            patient['color'] = 'level-one'
+            patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
+            patient['deadline_time'] = patient['next_ews_time']
+            patient['summary'] = patient['summary'] if patient.get('summary') else False
+        # call controller
+        get_patients_html = self.render_template(cr, uid, 'nh_eobs_mobile.patient_task_list', {'items': patients,
+                                                                                               'followed_items': followed_patients,
+                                                                                               'section': 'patient',
+                                                                                               'username': self.nurse['display_name'],
+                                                                                               'urls': helpers.URLS})
+        # create test DOm
+        patient_list_string = ""
+        for patient in patients:
+           patient_list_string += helpers.LIST_ITEM.format(url=patient['url'],
+                                                           deadline=patient['deadline_time'],
+                                                           full_name=patient['full_name'],
+                                                           ews_score=patient['ews_score'],
+                                                           trend_icon=patient['trend_icon'],
+                                                           location=patient['location'],
+                                                           parent_location=patient['parent_location'],
+                                                           notification='',
+                                                           summary='')
+        patient_list_string += "<li><hr/></li>"
+        for patient in followed_patients:
+           patient_list_string += helpers.LIST_ITEM.format(url=patient['url'],
+                                                           deadline=patient['deadline_time'],
+                                                           full_name=patient['full_name'],
+                                                           ews_score=patient['ews_score'],
+                                                           trend_icon=patient['trend_icon'],
+                                                           location=patient['location'],
+                                                           parent_location=patient['parent_location'],
+                                                           notification='',
+                                                           summary='')
+        example_html = helpers.BASE_HTML.format(content='<ul class="tasklist">{0}</ul>'.format(patient_list_string), patient_selected=' class="selected"', task_selected='', user=self.nurse['display_name'])
+        # assert
+        self.assertTrue(self.compare_doms(get_patients_html, example_html),
+                        'DOM from Controller ain\'t the same as DOM from example')
+        # profit
