@@ -68,7 +68,7 @@ class TestAPI(SingleTransactionCase):
             self.assertTrue(a['id'] in t_activity_ids, msg='Get activities returned an activity the Nurse is not responsible for')
 
         patient_id = u_api_activities[0]['patient_id']
-        follow_activity_id = self.follow_pool.create_activity(cr, uid, {}, {'to_user_id': self.nt_id, 'patient_ids': [[4, patient_id]]})
+        follow_activity_id = self.follow_pool.create_activity(cr, uid, {'user_id': self.nt_id}, {'patient_ids': [[4, patient_id]]})
         self.activity_pool.complete(cr, uid, follow_activity_id)
         t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
         self.assertTrue(patient_id in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
@@ -582,10 +582,10 @@ class TestAPI(SingleTransactionCase):
         follow_id = self.follow_pool.search(cr, uid, [
             ['activity_id.state', 'not in', ['completed', 'cancelled']],
             ['patient_ids', 'in', [patient_id]],
-            ['to_user_id', '=', self.nu_id]])
+            ['activity_id.user_id', '=', self.nu_id]])
         self.assertTrue(follow_id, msg="Cannot find the Follow patient activity")
         follow = self.follow_pool.browse(cr, uid, follow_id[0])
-        self.activity_pool.complete(cr, uid, follow.activity_id.id)
+        self.activity_pool.complete(cr, self.nu_id, follow.activity_id.id)
         check_patient = self.patient_pool.browse(cr, uid, patient_id)
         self.assertTrue(self.nu_id in [user.id for user in check_patient.follower_ids], msg="The user should be a follower after completing patient follow")
 

@@ -55,7 +55,7 @@ class nh_eobs_api(orm.AbstractModel):
 
     def check_activity_access(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
-        domain = [('id', '=', activity_id), ('user_ids', 'in', [uid])]
+        domain = [('id', '=', activity_id), '|', ('user_ids', 'in', [uid]), ('user_id', '=', uid)]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         if not activity_ids:
             return False
@@ -720,15 +720,14 @@ class nh_eobs_api(orm.AbstractModel):
         Creates a follow activity for the user to follow the patients in 'patient_ids'
         :param patient_ids: List of integers. Ids of the patients to follow.
         :param to_user_id: Integer. Id of the user to send the invite.
-        :return: True if successful
+        :return: ID of the follow activity
         """
         if not all([self.check_patient_responsibility(cr, uid, patient_id, context=context) for patient_id in patient_ids]):
             raise osv.except_osv('Error!', 'You are not responsible for this patient.')
         follow_pool = self.pool['nh.clinical.patient.follow']
-        follow_pool.create_activity(cr, uid, {}, {
-            'patient_ids': [[6, 0, patient_ids]],
-            'to_user_id': to_user_id}, context=context)
-        return True
+        follow_activity_id = follow_pool.create_activity(cr, uid, {'user_id': to_user_id}, {
+            'patient_ids': [[6, 0, patient_ids]]}, context=context)
+        return follow_activity_id
 
     def remove_followers(self, cr, uid, patient_ids, context=None):
         """
