@@ -12,6 +12,7 @@
                         <filter name="filter_hca" string="HCA Users" domain="[['hca','=',True]]"/>
                         <filter name="filter_nurse" string="Nurse Users" domain="[['nurse','=',True]]"/>
                         <filter name="filter_ward_manager" string="Ward Manager Users" domain="[['ward_manager','=',True]]"/>
+                        <filter name="filter_senior_manager" string="Senior Manager Users" domain="[['senior_manager','=',True]]"/>
                         <filter name="filter_doctor" string="Doctor Users" domain="[['doctor','=',True]]"/>
                     </group>
                 </search>
@@ -27,6 +28,7 @@
                     <field name="hca"/>
                     <field name="nurse"/>
                     <field name="ward_manager"/>
+                    <field name="senior_manager"/>
                     <field name="doctor"/>
                     <field name="location_ids"/>
                 </tree>
@@ -39,7 +41,7 @@
             res_model="change.password.wizard"
             view_type="form" view_mode="form"
             key2="client_action_multi" target="new"
-            groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+            groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
 
         <record id="view_nhc_userboard_form" model="ir.ui.view">
             <field name="name">nhc.userboard.form.view</field>
@@ -55,6 +57,7 @@
 	                        <field name="hca"/>
 	                        <field name="nurse"/>
                             <field name="ward_manager"/>
+                            <field name="senior_manager"/>
                             <field name="doctor"/>
 	                    </group>
                         <div colspan="4">
@@ -99,6 +102,7 @@
                             <field name="hca"/>
                             <field name="nurse"/>
                             <field name="ward_manager"/>
+                            <field name="senior_manager"/>
                             <field name="doctor"/>
                             <field name="kiosk"/>
                             <field name="admin"/>
