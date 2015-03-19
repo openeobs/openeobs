@@ -5,7 +5,6 @@ class NHMobileBarcode extends NHMobile
 
   # on initalisation we need to:
   # - set up click event listener for trigger button
-  # - set up change event listener for input
   constructor: (@trigger_button) ->
     self = @
     @trigger_button.addEventListener 'click', (event) ->
