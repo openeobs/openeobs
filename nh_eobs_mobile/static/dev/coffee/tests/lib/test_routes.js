@@ -292,6 +292,14 @@ var frontend_routes = {}; (function(_root){
    			url: base_url+'patient/barcode/' + (function(k,v){ return v})('hospital_number', hospital_number)
    		})
    	}
+
+    _nS('json_nurse_list');
+    _root.json_nurse_list = function(current_nurse_id){
+      return _wA({
+        method: 'GET',
+        url: base_url+'staff/'+(function(k,v){ return v})('current_nurse_id', current_nurse_id)+'/nurse'
+      })
+    }
     
     
 

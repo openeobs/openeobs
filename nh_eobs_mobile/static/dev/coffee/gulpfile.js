@@ -1,6 +1,6 @@
 var gulp = require('gulp'),
 	coffeelint = require('gulp-coffeelint'),
-	jasmine = require('gulp-jasmine2-phantomjs'),
+	karma = require('gulp-karma'),
 	notify = require('gulp-notify'),
 	concat = require('gulp-concat'),
 	docco = require('gulp-docco'),
@@ -17,11 +17,16 @@ gulp.task('compile', function(){
 
 gulp.task('test', function(){
 	gulp.src(['src/*.coffee'])
+	.pipe(coffeelint())
+	.pipe(coffeelint.reporter())
 	.pipe(coffee({bare: true}))
 	.pipe(gulp.dest('tests/src'))
 
-	gulp.src('tests/specRunner1.3.html')
-	.pipe(jasmine())
+	gulp.src(['tests/src/*.js', 'tests/spec/1.3/nhmodal.spec.js', 'tests/spec/1.3/nhmobilebarcode.spec.js'])
+	.pipe(karma({
+		configFile: 'karma.conf.js',
+		action: 'run'
+	}))
 });
 
 gulp.task('docs', function(){

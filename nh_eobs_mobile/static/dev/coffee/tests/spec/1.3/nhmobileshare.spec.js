@@ -24,6 +24,18 @@ describe('NHMobileShare', function() {
             ]
         }
     ];
+    var nurse_list_data = [
+        {
+            'display_name': 'Norah',
+            'id': 1,
+            'current_allocation': 3
+        },
+        {
+            'display_name': 'Nadine',
+            'id': 2,
+            'current_allocation': 4
+        }
+    ]
 
     beforeEach(function () {
         // set up the DOM for test
@@ -39,7 +51,7 @@ describe('NHMobileShare', function() {
             '<div class="header-main block">' +
             '<img src="/mobile/src/img/logo.png" class="logo">' +
             '<ul class="header-meta">' +
-            '<li><a href="#" class="button share">Share</a></li>' +
+            '<li><a href="/mobile/patient/handover" class="button handover">Handover</a></li>' +
             '<li class="logout"><a href="/mobile/logout/" class="button back">Logout</a></li>' +
             '</ul></div>' +
             '<ul class="header-menu two-col">' +
@@ -47,9 +59,10 @@ describe('NHMobileShare', function() {
             '<li><a href="/mobile/patients/" id="patientNavItem">My Patients</a></li>' +
             '</ul></div>'+
             '<div class="content">'+
+            '<form id="handover_form">'+
             '<ul class="tasklist">'+
             '<li>' +
-            '<input type="checkbox" name="patient_share_74" class="patient_share_checkbox"/>'+
+            '<input type="checkbox" name="patient_share_74" class="patient_share_checkbox"  value="74"/>'+
             '<a href="/mobile/patient/74" class="level-none block">' +
             '<div class="task-meta">' +
             '<div class="task-right">' +
@@ -65,7 +78,7 @@ describe('NHMobileShare', function() {
             '</div>' +
             '</a>' +
             '</li><li>' +
-            '<input type="checkbox" name="patient_share_73" class="patient_share_checkbox"/>'+
+            '<input type="checkbox" name="patient_share_73" class="patient_share_checkbox"  value="73"/>'+
             '<a href="/mobile/patient/73" class="level-none block">' +
             '<div class="task-meta">' +
             '<div class="task-right">' +
@@ -81,7 +94,7 @@ describe('NHMobileShare', function() {
             '</div>' +
             '</a>' +
             '</li><li>' +
-            '<input type="checkbox" name="patient_share_73" class="patient_share_checkbox"/>'+
+            '<input type="checkbox" name="patient_share_75" class="patient_share_checkbox" value="75"/>'+
             '<a href="/mobile/patient/75" class="level-none block">' +
             '<div class="task-meta">' +
             '<div class="task-right">' +
@@ -97,7 +110,7 @@ describe('NHMobileShare', function() {
             '</div>' +
             '</a>' +
             '</li><li>' +
-            '<input type="checkbox" name="patient_share_76" class="patient_share_checkbox"/>'+
+            '<input type="checkbox" name="patient_share_76" class="patient_share_checkbox" value="76"/>'+
             '<a href="/mobile/patient/76" class="level-two block">' +
             '<div class="task-meta">' +
             '<div class="task-right">' +
@@ -114,11 +127,20 @@ describe('NHMobileShare', function() {
             '</a>' +
             '</li>'+
             '</ul>' +
-            '</div>';
+            '</form>'+
+            '</div>'+
+            '<div class="footer">'+
+            '<p class="user">Norah</p>'+
+            '<ul class="footer-menu three-col">' +
+            '<li><a href="#" class="share" data-nurse="3">Share</a></li>' +
+            '<li><a href="#" class="claim" data-nurse="3">Claim</a></li>' +
+            '<li><a href="/mobile/patients/">Cancel</a></li>' +
+            '</ul></div>';
         body_el.appendChild(test_area);
         if (mobile == null) {
-            trigger_button = test_area.getElementsByClassName('share')[0];
-            mobile = new NHMobileShare(trigger_button);
+            share_button = test_area.getElementsByClassName('share')[0];
+            claim_button = test_area.getElementsByClassName('claim')[0];
+            mobile = new NHMobileShare(share_button, claim_button);
         }
     });
 
@@ -153,36 +175,141 @@ describe('NHMobileShare', function() {
     	expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
     });
 
-    it('All checkboxes are hidden on initial load', function(){
-        var checkboxes = document.getElementsByClassName('patient_share_checkbox');
-        for(var i = 0; i < checkboxes.length; i++){
-            var checkbox = checkboxes[i];
-            expect(window.getComputedStyle(checkbox).display).toBe('none');
-        }
+    it('Creates a click event listener on claim button', function(){
+        spyOn(NHMobileShare.prototype, 'claim_button_click');
+        var claim_button = test_area.getElementsByClassName('claim')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        claim_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
     });
 
-    it('On pressing share button the checkboxes are shown', function(){
+    it('On selecting patients and pressing share button the list of available nurses is fetched', function(){
         spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
-    	var share_button = test_area.getElementsByClassName('share')[0];
-    	// fire a click event at the scan button
-    	var click_event = document.createEvent('CustomEvent');
+        spyOn(NHMobileShare.prototype, 'process_request').andCallFake(function(){
+            var promise = new Promise();
+            promise.complete(nurse_list_data);
+            return promise;
+        });
+        // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
         share_button.dispatchEvent(click_event);
-    	// test is fires the appropriate function
-    	expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
-        var list = document.getElementsByClassName('tasklist')[0];
-        var list_items = list.getElementsByTagName('li');
-        for(var j = 0; j < list_items.length; j++){
-            var list_item = list_items[j];
-            expect(list_item.classList.contains('patient_share_active')).toBe(true);
-            var list_item_link = list_item.getElementsByClassName('block')[0];
-            var checkbox = list_item.getElementsByClassName('patient_share_checkbox')[0];
-            expect(window.getComputedStyle(checkbox).display).toBe('block');
-        }
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request.argsForCall[0][1]).toBe('http://localhost:8069/mobile/staff/3/nurse')
     });
 
-    it('On pressing share button the list of available nurses is fetched', function(){
-       expect(false).toBe(true);
+    it('On selecting patients and pressing share button the list of available nurses is displayed in a modal', function(){
+        spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
+        spyOn(NHMobileShare.prototype, 'process_request').andCallFake(function(){
+            var promise = new Promise();
+            promise.complete(nurse_list_data);
+            return promise;
+        });
+        // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+
+        // test for full screen modal being called with nurse data
     });
+
+    it('On selecting no patients and pressing the share button I am shown a modal with an error message', function(){
+        spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
+        spyOn(NHModal.prototype, 'create_dialog')
+        // send click event to the share button
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // assert that modal is called with error message
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('invalid_form');
+        expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('No Patients selected');
+    });
+
+    it('The modal\'s Assign button event listener is set up', function(){
+        spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
+        spyOn(NHMobileShare.prototype, 'process_request').andCallFake(function(){
+            var promise = new Promise();
+            promise.complete(nurse_list_data);
+            return promise;
+        });
+        // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        // send a click event to the assign button
+        // assert it worked
+        expect(true).toBe(false);
+    });
+
+    it('The modal\'s Cancel button event listener is set up', function(){
+        // get the modal popping up
+        // send a click event to the cancel button
+        // assert it worked
+        expect(true).toBe(false);
+    });
+
+    it('in the modal, pressing the cancel button dismisses the modal', function(){
+        //get teh modal popupping up
+        // click the cancel button
+        // assert that the popup is no more
+        expect(true).toBe(false);
+    });
+
+    it('in the modal, on selecting a nurse to Assign a patient to and pressing the assign button the server is sent the nurse ID and the patients IDs', function(){
+        // get the modal popping up
+        // select a nurse
+        // send a click event to teh assign button
+        // assert the server is sent the IDs
+        expect(true).toBe(false);
+    });
+
+    it('in the modal, on selecting no nurses and pressing the assign button I am shown an error stating that no nurse was selected', function(){
+        // get the model popping up
+        // select no nurses
+        // send a click event ot the assign button
+        // assert that an error message is present
+        expect(true).toBe(false);
+    });
+
+    it('On the server returning that the assign operation was successful grey out the patients that were shared', function(){
+        // get the modal popping up
+        // select a nurse
+        // send a client event to teh assign butotn
+        // assert that those patients now have a class that greys them out
+        expect(true).toBe(false);
+    });
+
 
 });
