@@ -101,6 +101,30 @@ class nh_eobs_api(orm.AbstractModel):
         spell = spell_pool.browse(cr, uid, spell_id, context=None)
         return self.get_activities_for_patient(cr, uid, spell.patient_id.id, activity_type, start_date, end_date, context=context)
 
+    def get_share_users(self, cr, uid, context=None):
+        result = []
+        user_pool = self.pool['res.users']
+        activity_pool = self.pool['nh.activity']
+        user = user_pool.browse(cr, SUPERUSER_ID, uid, context=context)
+        groups = [g.name for g in user.groups_id]
+        share_groups = ['NH Clinical Ward Manager Group', 'NH Clinical Nurse Group', 'NH Clinical HCA Group']
+        while share_groups[0] not in groups and len(share_groups) > 0:
+            share_groups.remove(share_groups[0])
+        domain = [['id', '!=', uid], ['groups_id.name', 'in', share_groups]]
+        user_ids = user_pool.search(cr, uid, domain, context=context)
+        for user_id in user_ids:
+            user_data = user_pool.read(cr, SUPERUSER_ID, user_id, ['name'])
+            patients_number = len(activity_pool.search(cr, uid, [
+                ['user_ids', 'in', user_id],
+                ['data_model', '=', 'nh.clinical.spell'],
+                ['state', 'not in', ['cancelled', 'completed']]], context=context))
+            result.append({
+                'name': user_data['name'],
+                'id': user_id,
+                'patients': patients_number
+            })
+        return result
+
     # # # # # # # #
     #  ACTIVITIES #
     # # # # # # # #

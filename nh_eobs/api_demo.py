@@ -165,10 +165,11 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         # USERS
         if not users:
-            users = {'ward_managers': {}, 'nurses': {}}
+            users = {'ward_managers': {}, 'nurses': {}, 'hcas': {}}
             for w in wards:
                 users['ward_managers']['WM'+w] = ['WM'+w, w]
                 users['nurses']['N'+w] = ['N'+w, bed_codes[w]]
+                users['hcas']['H'+w] = ['H'+w, bed_codes[w]]
 
         if users.get('ward_managers'):
             wm_ids = {}

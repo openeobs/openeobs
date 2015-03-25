@@ -37,6 +37,8 @@ class TestAPI(SingleTransactionCase):
         cls.wmt_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMT')])[0]
         cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
+        cls.hu_id = cls.users_pool.search(cr, uid, [('login', '=', 'HU')])[0]
+        cls.ht_id = cls.users_pool.search(cr, uid, [('login', '=', 'HT')])[0]
         cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
 
     def test_check_activity_access(self):
@@ -596,3 +598,19 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(self.extapi.remove_followers(cr, self.nt_id, [patient_id]), msg="Error calling remove_followers")
         check_patient = self.patient_pool.browse(cr, uid, patient_id)
         self.assertTrue(self.nu_id not in [user.id for user in check_patient.follower_ids], msg="The user should not be a follower after calling remove followers")
+        
+    def test_get_share_users(self):
+        cr, uid = self.cr, self.uid
+        
+        hca_result = self.extapi.get_share_users(cr, self.hu_id)
+        self.assertTrue(self.ht_id in [u['id'] for u in hca_result], msg="HCA share users: User missing from result")
+        nurse_result = self.extapi.get_share_users(cr, self.nu_id)
+        self.assertTrue(self.nt_id in [u['id'] for u in nurse_result], msg="Nurse share users: User missing from result")
+        self.assertTrue(self.ht_id in [u['id'] for u in nurse_result], msg="Nurse share users: User missing from result")
+        self.assertTrue(self.hu_id in [u['id'] for u in nurse_result], msg="Nurse share users: User missing from result")
+        wm_result = self.extapi.get_share_users(cr, self.wmu_id)
+        self.assertTrue(self.wmt_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
+        self.assertTrue(self.nu_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
+        self.assertTrue(self.nt_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
+        self.assertTrue(self.ht_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
+        self.assertTrue(self.hu_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
