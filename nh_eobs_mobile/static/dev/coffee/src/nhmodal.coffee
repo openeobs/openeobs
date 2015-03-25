@@ -3,15 +3,14 @@ class NHModal
 
   # creates a dialog, adds it to the DOM and resizes to fit in window
   # Params:
-  # `id` - CSS ID to use for the popup
-  # `title` - HTML String to use for the popup title
-  # `content` - HTML String to use for the popup message, can be any content
-  # `options` - An array of HTML Strings that will act as buttons
-  # `popupTime` - time it takes for popup to appear
-  # 'el' - The element in the DOM to put popup under
+  #  - `id` - CSS ID to use for the popup
+  #  - `title` - HTML String to use for the popup title
+  #  - `content` - HTML String to use for the popup message, can be any content
+  #  - `options` - An array of HTML Strings that will act as buttons
+  #  - `popupTime` - time it takes for popup to appear
+  #  - 'el' - The element in the DOM to put popup under
   constructor: (@id, @title, @content, @options, @popupTime, @el) ->
     self = @
-
     # create the dialog
     dialog = @create_dialog(self, @id, @title, @content, @options)
     body = document.getElementsByTagName('body')[0]
@@ -81,7 +80,6 @@ class NHModal
     container.appendChild(header)
     container.appendChild(content)
     container.appendChild(options)
-   
     return container
    
   # calculate the correct size of the dialog
@@ -110,6 +108,7 @@ class NHModal
   # - close (closes modal)
   # - submit (submits observation)
   # - partial submit (submits partial observation)
+  # - assign (assigns nurses to patients)
   handle_button_events: (event) ->
     data_target = event.srcElement.getAttribute('data-target')
     data_action = event.srcElement.getAttribute('data-ajax-action')
@@ -135,6 +134,16 @@ class NHModal
           {'detail': {'action':data_action,
           'target': data_target}}
         document.dispatchEvent submit_event
+      when 'assign'
+        event.preventDefault()
+        dialog = document.getElementById(data_target)
+        dialog_form = dialog.getElementsByTagName('form')[0]
+        #nurses = (el.value for el in dialog_form.elements when el.checked)
+        assign_event = document.createEvent 'CustomEvent'
+        assign_event.initCustomEvent('assign_nurse', false, true, false)
+        assign_event.detail = {'detail': {
+          'action':data_action, 'target': data_target}}
+        document.dispatchEvent assign_event
 
 if !window.NH
   window.NH = {}

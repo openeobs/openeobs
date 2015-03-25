@@ -23,6 +23,9 @@ NHMobileShare = (function(superClass) {
       nurse_id = claim_button.getAttribute('data-nurse');
       return self.claim_button_click(self, nurse_id);
     });
+    document.addEventListener('assign_nurses', function(event) {
+      return self.assign_button_click(self, event);
+    });
     NHMobileShare.__super__.constructor.call(this);
   }
 
@@ -30,7 +33,7 @@ NHMobileShare = (function(superClass) {
     var btn, el, msg, patients, url, urlmeth;
     patients = (function() {
       var i, len, ref, results;
-      ref = this.form.elements;
+      ref = self.form.elements;
       results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         el = ref[i];
@@ -39,7 +42,7 @@ NHMobileShare = (function(superClass) {
         }
       }
       return results;
-    }).call(this);
+    })();
     if (patients.length > 0) {
       url = self.urls.json_nurse_list(current_nurse_id);
       urlmeth = url.method;
@@ -59,12 +62,16 @@ NHMobileShare = (function(superClass) {
       });
     } else {
       msg = '<p class="block">Please select patients to hand' + ' to another staff member</p>';
-      btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
-      return new window.NH.NHModal('invalid_form', 'No Patients selected', msg, [btn], 0, self.form);
+      btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
+      return new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
   };
 
   NHMobileShare.prototype.claim_button_click = function(self, current_nurse_id) {
+    return true;
+  };
+
+  NHMobileShare.prototype.assign_button_click = function(self) {
     return true;
   };
 

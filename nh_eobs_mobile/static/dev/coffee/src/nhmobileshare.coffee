@@ -17,6 +17,8 @@ class NHMobileShare extends NHMobile
       claim_button = if event.srcElement then event.srcElement else event.target
       nurse_id = claim_button.getAttribute('data-nurse')
       self.claim_button_click(self, nurse_id)
+    document.addEventListener 'assign_nurses', (event) ->
+      self.assign_button_click(self, event)
     super()
 
   # On share button being pressed:
@@ -24,7 +26,7 @@ class NHMobileShare extends NHMobile
   # - Get the list of nurses available to assign patients to
   # - Popup the nurse selection screen in a fullscreen modal
   share_button_click: (self, current_nurse_id) ->
-    patients = (el.value for el in @form.elements \
+    patients = (el.value for el in self.form.elements \
         when el.checked and not el.classList.contains('exclude'))
     if patients.length > 0
       url = self.urls.json_nurse_list(current_nurse_id)
@@ -48,10 +50,10 @@ class NHMobileShare extends NHMobile
     else
       msg = '<p class="block">Please select patients to hand'+
         ' to another staff member</p>'
-      btn = '<a href="#" data-action="close" data-target="invalid_form">'+
-        'Cancel</a>'
+      btn = ['<a href="#" data-action="close" data-target="invalid_form">'+
+        'Cancel</a>']
       new window.NH.NHModal('invalid_form', 'No Patients selected',
-        msg, [btn], 0, self.form)
+        msg, btn, 0, self.form)
 
   # On claim button being pressed:
   # - Create an array of IDs for patients to be claimed
@@ -59,6 +61,14 @@ class NHMobileShare extends NHMobile
   # - Update UI to reflect the change
   claim_button_click: (self, current_nurse_id) ->
     return true
+
+  # On Assign button being click in the modal:
+  # - Check to see if nurses are selected
+  # - If so then send data over to the server
+  # - If not then show an error message
+  assign_button_click: (self) ->
+    return true
+
 
 if !window.NH
   window.NH = {}

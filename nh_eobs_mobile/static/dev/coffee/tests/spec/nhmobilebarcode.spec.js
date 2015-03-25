@@ -191,7 +191,6 @@ describe('NHMobileBarcode', function(){
     	var change_event = document.createEvent('CustomEvent');
         change_event.initCustomEvent('keypress', false, true, false);
         change_event.keyCode = 13;
-        console.log('sending off request to server')
     	input.dispatchEvent(change_event);
     	// go get data from server 
     	expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
@@ -201,7 +200,6 @@ describe('NHMobileBarcode', function(){
     	//Modal content is updated to content
         var modal = document.getElementById('patient_barcode');
         var modal_content = modal.getElementsByClassName('dialogContent')[0];
-        console.log('about to assert')
         expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
     });
 });

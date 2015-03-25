@@ -187,8 +187,8 @@ describe('NHMobileShare', function() {
     });
 
     it('On selecting patients and pressing share button the list of available nurses is fetched', function(){
-        spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
-        spyOn(NHMobileShare.prototype, 'process_request').andCallFake(function(){
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(){
             var promise = new Promise();
             promise.complete(nurse_list_data);
             return promise;
@@ -205,12 +205,12 @@ describe('NHMobileShare', function() {
         // test is fires the appropriate function
         expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
         expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
-        expect(NHMobileShare.prototype.process_request.argsForCall[0][1]).toBe('http://localhost:8069/mobile/staff/3/nurse')
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(0)[1]).toBe('http://localhost:8069/mobile/staff/3/nurse')
     });
 
     it('On selecting patients and pressing share button the list of available nurses is displayed in a modal', function(){
-        spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
-        spyOn(NHMobileShare.prototype, 'process_request').andCallFake(function(){
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(){
             var promise = new Promise();
             promise.complete(nurse_list_data);
             return promise;
@@ -233,29 +233,32 @@ describe('NHMobileShare', function() {
     });
 
     it('On selecting no patients and pressing the share button I am shown a modal with an error message', function(){
-        spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
-        spyOn(NHModal.prototype, 'create_dialog')
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
         // send click event to the share button
         var share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
         share_button.dispatchEvent(click_event);
+        
         // assert that modal is called with error message
         expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('invalid_form');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('No Patients selected');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('invalid_form');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('No Patients selected');
     });
 
     it('The modal\'s Assign button event listener is set up', function(){
-        spyOn(NHMobileShare.prototype, 'share_button_click').andCallThrough();
-        spyOn(NHMobileShare.prototype, 'process_request').andCallFake(function(){
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(){
             var promise = new Promise();
             promise.complete(nurse_list_data);
             return promise;
         });
-        // go select some patients
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click').and.callThrough();
+        // // go select some patients
         var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
         test_patient.checked = true;
 
@@ -268,10 +271,18 @@ describe('NHMobileShare', function() {
         // test is fires the appropriate function
         expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
         expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
         // send a click event to the assign button
-        
-        // assert it worked
-        expect(true).toBe(false);
+
+        var dialog = document.getElementById('assign_nurse');
+        var dialog_options = dialog.getElementsByClassName('options')[0];
+        var assign_button = dialog_options.getElementsByTagName('a')[0];
+
+        var assign_click = document.createEvent('CustomEvent');
+        assign_click.initCustomEvent('click', false, true, false);
+        assign_button.dispatchEvent(assign_click);
+
+        expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
     });
 
     it('The modal\'s Cancel button event listener is set up', function(){
