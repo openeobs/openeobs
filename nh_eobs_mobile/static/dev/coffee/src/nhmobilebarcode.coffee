@@ -36,6 +36,7 @@ class NHMobileBarcode extends NHMobile
     event.preventDefault()
     input = if event.srcElement then event.srcElement else event.target
     hosp_num = input.value
+    dialog = input.parentNode.parentNode
     # process hosp_num from wristband
     hosp_num = hosp_num.split(',')[1]
     url = self.urls.json_patient_barcode(hosp_num)
@@ -78,7 +79,7 @@ class NHMobileBarcode extends NHMobile
             activity.time+'</span></a></li>'
         activities_string += '</ul>'
       content = '<dl>'+patient_details+'</dl><h3>Tasks</h3>'+activities_string
-      document.getElementsByClassName('dialogContent')[0].innerHTML = content
+      dialog.innerHTML = content
 
 if !window.NH
   window.NH = {}

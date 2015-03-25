@@ -216,7 +216,7 @@ describe('NHMobileForm - Validation', function(){
     });
 
     it('triggers a validation error when respiration rate is too low', function(){
-        spyOn(window.NHMobileForm.prototype, "validate").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('respiration_rate');
         test_input.value = -1;
@@ -234,7 +234,7 @@ describe('NHMobileForm - Validation', function(){
     });
 
     it('triggers a validation error when respiration rate is too high', function(){
-        spyOn(window.NHMobileForm.prototype, "validate").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('respiration_rate');
         test_input.value = 9000;
@@ -267,7 +267,7 @@ describe('NHMobileForm - Validation', function(){
      });*/
 
     it('triggers a validation error when a float is entered into an integer field', function(){
-        spyOn(window.NHMobileForm.prototype, "validate").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('respiration_rate');
         test_input.value = 45.57;
@@ -285,7 +285,7 @@ describe('NHMobileForm - Validation', function(){
     });
 
     it('triggers a validation error when a diastolic BP is entered and no systolic BP input is entered', function(){
-        spyOn(window.NHMobileForm.prototype, "validate").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('blood_pressure_diastolic');
         test_input.value = 80;
@@ -309,7 +309,7 @@ describe('NHMobileForm - Validation', function(){
     });
 
     it('triggers a validation error when a diastolic BP is entered that is higher than the systolic BP value', function(){
-        spyOn(window.NHMobileForm.prototype, "validate").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('blood_pressure_diastolic');
         var other_input = document.getElementById('blood_pressure_systolic');
@@ -334,7 +334,7 @@ describe('NHMobileForm - Validation', function(){
     });
 
     it('clears the validation error when the diastolic BP input is updated to a valid value', function(){
-        spyOn(window.NHMobileForm.prototype, "validate").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "validate").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('blood_pressure_diastolic');
         var other_input = document.getElementById('blood_pressure_systolic');
@@ -407,7 +407,7 @@ describe('NHMobileForm - Triggered Actions', function(){
     });
 
     it('shows supplementary o2 device list when oxygen administration flag is set to true', function(){
-        spyOn(window.NHMobileForm.prototype, "trigger_actions").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "trigger_actions").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('oxygen_administration_flag');
         var other_input = document.getElementById('device_id');
@@ -424,7 +424,7 @@ describe('NHMobileForm - Triggered Actions', function(){
     });
 
     it('hides supplementary o2 device list when oxygen administration flag is set to false', function(){
-        spyOn(window.NHMobileForm.prototype, "trigger_actions").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "trigger_actions").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var test_input = document.getElementById('oxygen_administration_flag');
         var other_input = document.getElementById('device_id');
@@ -470,12 +470,33 @@ describe('NHMobileForm - Triggered Actions PBP', function(){
         var test_area = document.createElement('div');
         test_area.setAttribute('id', 'test');
         test_area.style.height = '500px';
-        test_area.innerHTML = '<h2 id="patientName"><a href="#">Test Patient</a></h2><form action="/mobile/patient/submit/pbp/11" method="POST" data-type="pbp" patient-id="11" id="obsForm" data-source="patient" ajax-action="json_patient_form_action" ajax-args="pbp,11"><div><h3 class="block">Lying/Sitting Blood Pressure</h3><div class="block obsField" id="parent_systolic_sitting"><div class="input-header"><label for="systolic_sitting">Sitting Blood Pressure Systolic</label><input type="number" name="systolic_sitting" id="systolic_sitting" min="1" max="300" step="1" data-validation="[[\'>\', \'diastolic_sitting\']]" data-onchange="[{\'action\': \'show\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [[\'systolic_sitting\', \'!=\', \'\'], [\'diastolic_sitting\', \'!=\', \'\']]}, {\'action\': \'hide\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [\'||\', [\'systolic_sitting\', \'==\', \'\'], [\'diastolic_sitting\', \'==\', \'\']]}]"></div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div><div><div class="block obsField" id="parent_diastolic_sitting"><div class="input-header"><label for="diastolic_sitting">Sitting Blood Pressure Diastolic</label><input type="number" name="diastolic_sitting" id="diastolic_sitting" min="1" max="280" step="1" data-validation="[[\'<\', \'systolic_sitting\']]" data-onchange="[{\'action\': \'show\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [[\'systolic_sitting\', \'!=\', \'\'], [\'diastolic_sitting\', \'!=\', \'\']]}, {\'action\': \'hide\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [\'||\', [\'systolic_sitting\', \'==\', \'\'], [\'diastolic_sitting\', \'==\', \'\']]}]"></div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div><div><h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3><div class="block obsField valHide" id="parent_systolic_standing"><div class="input-header"><label for="systolic_standing">Standing Blood Pressure Systolic</label><input type="number" name="systolic_standing" id="systolic_standing" min="1" max="300" step="1" class="exclude" data-validation="[[\'>\', \'diastolic_standing\']]"></div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div><div><div class="block obsField valHide" id="parent_diastolic_standing"><div class="input-header"><label for="diastolic_standing">Standing Blood Pressure Diastolic</label><input type="number" name="diastolic_standing" id="diastolic_standing" min="1" max="280" step="1" class="exclude" data-validation="[[\'<\', \'systolic_standing\']]"></div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div><input type="hidden" name="startTimestamp" id="startTimestamp" value="1418646365"><div class="block obsSubmit"><input type="submit" value="Submit" class="exclude" id="submitButton"></div></form>';
+        test_area.innerHTML = '<h2 id="patientName"><a href="#">Test Patient</a></h2>'+
+        '<form action="/mobile/patient/submit/pbp/11" method="POST" data-type="pbp" patient-id="11" id="obsForm" data-source="patient" ajax-action="json_patient_form_action" ajax-args="pbp,11">'+
+        '<div><h3 class="block">Lying/Sitting Blood Pressure</h3>'+
+        '<div class="block obsField" id="parent_systolic_sitting">'+
+        '<div class="input-header"><label for="systolic_sitting">Sitting Blood Pressure Systolic</label>'+
+        '<input type="number" name="systolic_sitting" id="systolic_sitting" min="1" max="300" step="1" data-validation="[{\'message\': {\'target\': \'Sitting Systolic BP must be more than Sitting Diastolic BP\', \'value\': \'Sitting Diastolic BP must be less than Sitting Systolic BP\'}, \'condition\': {\'operator\': \'>\', \'target\': \'systolic_sitting\', \'value\': \'diastolic_sitting\'}}]" data-onchange="[{\'action\': \'show\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [[\'systolic_sitting\', \'!=\', \'\'], [\'diastolic_sitting\', \'!=\', \'\']]}, {\'action\': \'hide\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [\'||\', [\'systolic_sitting\', \'==\', \'\'], [\'diastolic_sitting\', \'==\', \'\']]}]">'+
+        '</div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div>'+
+        '<div><div class="block obsField" id="parent_diastolic_sitting"><div class="input-header">'+
+        '<label for="diastolic_sitting">Sitting Blood Pressure Diastolic</label>'+
+        '<input type="number" name="diastolic_sitting" id="diastolic_sitting" min="1" max="280" step="1" data-validation="[{\'message\': {\'target\': \'Sitting Diastolic BP must be less than Sitting Systolic BP\', \'value\': \'Sitting Systolic BP must be more than Sitting Diastolic BP\'}, \'condition\': {\'operator\': \'<\', \'target\': \'diastolic_sitting\', \'value\': \'systolic_sitting\'}}]" data-onchange="[{\'action\': \'show\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [[\'systolic_sitting\', \'!=\', \'\'], [\'diastolic_sitting\', \'!=\', \'\']]}, {\'action\': \'hide\', \'fields\': [\'systolic_standing\', \'diastolic_standing\'], \'condition\': [\'||\', [\'systolic_sitting\', \'==\', \'\'], [\'diastolic_sitting\', \'==\', \'\']]}]">'+
+        '</div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div>'+
+        '<div><h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>'+
+        '<div class="block obsField valHide" id="parent_systolic_standing"><div class="input-header">'+
+        '<label for="systolic_standing">Standing Blood Pressure Systolic</label>'+
+        '<input type="number" name="systolic_standing" id="systolic_standing" min="1" max="300" step="1" class="exclude" data-validation="[{\'message\': {\'target\': \'Standing Systolic BP must be more than Standing Diastolic BP\', \'value\': \'Standing Diastolic BP must be less than Standing Systolic BP\'}, \'condition\': {\'operator\': \'>\', \'target\': \'systolic_standing\', \'value\': \'diastolic_standing\'}}]">'+
+        '</div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div>'+
+        '<div><div class="block obsField valHide" id="parent_diastolic_standing">'+
+        '<div class="input-header"><label for="diastolic_standing">Standing Blood Pressure Diastolic</label>'+
+        '<input type="number" name="diastolic_standing" id="diastolic_standing" min="1" max="280" step="1" class="exclude" data-validation="[{\'message\': {\'target\': \'Standing Diastolic BP must be less than Standing Systolic BP\', \'value\': \'Standing Systolic BP must be more than Standing Diastolic BP\'}, \'condition\': {\'operator\': \'<\', \'target\': \'diastolic_standing\', \'value\': \'systolic_standing\'}}]">'+
+        '</div><div class="input-body"><span class="errors"></span><span class="help"></span></div></div></div>'+
+        '<input type="hidden" name="startTimestamp" id="startTimestamp" value="1418646365"><div class="block obsSubmit">'+
+        '<input type="submit" value="Submit" class="exclude" id="submitButton"></div></form>';
         document.getElementsByTagName('body')[0].appendChild(test_area);
     });
 
     it('shows standing BP fields when sitting BP fields are both entered', function(){
-        spyOn(window.NHMobileForm.prototype, "trigger_actions").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "trigger_actions").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var ss_input = document.getElementById('systolic_sitting');
         var sd_input = document.getElementById('diastolic_sitting');
@@ -498,7 +519,7 @@ describe('NHMobileForm - Triggered Actions PBP', function(){
     });
 
     it('hides standing BP fields when sitting BP field is cleared', function(){
-        spyOn(window.NHMobileForm.prototype, "trigger_actions").andCallThrough();
+        spyOn(window.NHMobileForm.prototype, "trigger_actions").and.callThrough();
         var mobile_form = new window.NHMobileForm();
         var ss_input = document.getElementById('systolic_sitting');
         var sd_input = document.getElementById('diastolic_sitting');

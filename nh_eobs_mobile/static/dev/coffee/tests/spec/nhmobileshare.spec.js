@@ -269,6 +269,7 @@ describe('NHMobileShare', function() {
         expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
         expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
         // send a click event to the assign button
+        
         // assert it worked
         expect(true).toBe(false);
     });

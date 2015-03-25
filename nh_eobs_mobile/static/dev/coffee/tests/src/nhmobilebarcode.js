@@ -30,10 +30,11 @@ NHMobileBarcode = (function(superClass) {
   };
 
   NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
-    var hosp_num, input, url, url_meth;
+    var dialog, hosp_num, input, url, url_meth;
     event.preventDefault();
     input = event.srcElement ? event.srcElement : event.target;
     hosp_num = input.value;
+    dialog = input.parentNode.parentNode;
     hosp_num = hosp_num.split(',')[1];
     url = self.urls.json_patient_barcode(hosp_num);
     url_meth = url.method;
@@ -82,7 +83,7 @@ NHMobileBarcode = (function(superClass) {
         activities_string += '</ul>';
       }
       content = '<dl>' + patient_details + '</dl><h3>Tasks</h3>' + activities_string;
-      return document.getElementsByClassName('dialogContent')[0].innerHTML = content;
+      return dialog.innerHTML = content;
     });
   };
 

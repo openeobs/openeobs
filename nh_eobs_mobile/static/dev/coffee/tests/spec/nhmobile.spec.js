@@ -96,7 +96,7 @@ describe('NHMobile - Calls process_request function', function(){
             mobile = new NHMobile();
         }
         //jasmine.Ajax.install();
-        spyOn(NHMobile.prototype, 'process_request').andCallFake(function(){
+        spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
     		var promise = new Promise();
     		promise.complete(patient_info_data);
     		//promise.complete(false);
@@ -160,9 +160,9 @@ if(navigator.userAgent.indexOf('Trident') < 0){
 
 describe("NHMobile AJAX - Invalid URL / server error", function(){
     var resp, resp_val;
-    var async = new AsyncSpec(this);
-    async.beforeEach(function(done){
-        spyOn(NHModal.prototype, 'create_dialog').andCallThrough();
+
+    beforeEach(function(done){
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
         var mobile = new NHMobile();
         resp = Promise.when(mobile.call_resource({url: 'meh', method: 'GET'})).then(function(data){
             resp_val = data;
@@ -173,12 +173,12 @@ describe("NHMobile AJAX - Invalid URL / server error", function(){
         });
 
     });
-    async.it('is showing modal when invalid ajax', function(done){
+    it('is showing modal when invalid ajax', function(done){
         expect(window.NHModal.prototype.create_dialog).toHaveBeenCalled();
         done();
     });
 
-    async.afterEach(function(done){
+    afterEach(function(done){
         var test = document.getElementById('data_error');
         if(test != null){
             test.parentNode.removeChild(test);
@@ -190,7 +190,6 @@ describe("NHMobile AJAX - Invalid URL / server error", function(){
 describe("NHMobile AJAX - Promise", function(){
     var resp, resp_val;
 
-    var async = new AsyncSpec(this);
     
     var patient_info_data = [{
     	'full_name': 'Test Patient',
@@ -203,8 +202,8 @@ describe("NHMobile AJAX - Promise", function(){
     	'patient_identifier': 'NHS012345678'
     }]
     
-    async.beforeEach(function(done){
-    	spyOn(NHMobile.prototype, 'get_patient_info').andCallFake(function(){
+    beforeEach(function(done){
+    	spyOn(NHMobile.prototype, 'get_patient_info').and.callFake(function(){
     		var promise = new Promise();
     		promise.complete(patient_info_data);
     		//promise.complete(false);
@@ -220,7 +219,7 @@ describe("NHMobile AJAX - Promise", function(){
             done();
         });
     });
-    async.it("promise resolves ", function(done) {
+    it("promise resolves ", function(done) {
         expect(typeof(resp_val)).toEqual('object');
         expect(resp_val[0].full_name).toEqual('Test Patient');
         expect(resp_val[0].gender).toEqual('M');
@@ -233,7 +232,7 @@ describe("NHMobile AJAX - Promise", function(){
         done();
     });
     
-   async.afterEach(function(done){
+   afterEach(function(done){
 	    var covers = document.getElementsByClassName('cover');
 	    var popup = document.getElementById('patient_info');
         var body = document.getElementsByTagName('body')[0];

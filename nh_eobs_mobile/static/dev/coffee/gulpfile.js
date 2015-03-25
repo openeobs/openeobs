@@ -22,7 +22,7 @@ gulp.task('test', function(){
 	.pipe(coffee({bare: true}))
 	.pipe(gulp.dest('tests/src'))
 
-	gulp.src(['tests/src/*.js', 'tests/spec/1.3/nhmodal.spec.js', 'tests/spec/1.3/nhmobilebarcode.spec.js'])
+	gulp.src(['tests/src/*.js', 'tests/lib/test_routes.js', 'tests/spec/*.js'])
 	.pipe(karma({
 		configFile: 'karma.conf.js',
 		action: 'run'

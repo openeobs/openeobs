@@ -30,6 +30,17 @@ describe('NHMobileBarcode', function(){
        	if(test != null){
            test.parentNode.removeChild(test);
        	}
+        var covers = document.getElementsByClassName('cover');
+        var dialog = document.getElementById('patient_barcode');
+        var body = document.getElementsByTagName('body')[0];
+        for(var i = 0; i < covers.length; i++){
+            var cover = covers[i];
+            body.removeChild(cover);
+        }
+        if(dialog){
+            body.removeChild(dialog);
+        }
+        
        	test_area = document.createElement('div');
        	test_area.setAttribute('id', 'test');
        	test_area.style.height = '500px';
@@ -52,7 +63,7 @@ describe('NHMobileBarcode', function(){
             mobile = new NHMobileBarcode(trigger_button);
         }
 
-        spyOn(NHMobileBarcode.prototype, 'process_request').andCallFake(function(){
+        spyOn(NHMobileBarcode.prototype, 'process_request').and.callFake(function(){
     		var promise = new Promise();
     		promise.complete(patient_info_data);
     		return promise;
@@ -91,8 +102,8 @@ describe('NHMobileBarcode', function(){
     });
 
     it('On pressing the scan button a modal is shown with input box and input box is focused', function(){
-    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').andCallThrough();
-        spyOn(NHModal.prototype, 'create_dialog').andCallThrough();
+    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
     	var trigger_button = test_area.getElementsByClassName('scan')[0];
     	// fire a click event on the scan button 
     	var click_event = document.createEvent('CustomEvent');
@@ -101,17 +112,17 @@ describe('NHMobileBarcode', function(){
         expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
     	// check the modal is called
     	expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
     	// check to see if the input is currently focused
     	var input = document.getElementsByClassName('barcode_scan')[0];
     	expect(input).toBe(document.activeElement);
     });
 
     it('Creates a change event listener on input', function(){
-    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').andCallThrough();
-        spyOn(NHModal.prototype, 'create_dialog').andCallThrough();
+    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
     	spyOn(NHMobileBarcode.prototype, 'barcode_scanned');
     	var trigger_button = test_area.getElementsByClassName('scan')[0];
     	// get input showing
@@ -121,9 +132,9 @@ describe('NHMobileBarcode', function(){
         expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
     	// fire change event on input
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
         var change_event = document.createEvent('CustomEvent');
     	change_event.initCustomEvent('keypress', false, true, false);
         change_event.keyCode = 13;
@@ -134,9 +145,9 @@ describe('NHMobileBarcode', function(){
     });
 
     it('Takes the Hospital Number and requests patient\'s data', function(){
-    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').andCallThrough();
-    	spyOn(NHMobileBarcode.prototype, 'barcode_scanned').andCallThrough();
-        spyOn(NHModal.prototype, 'create_dialog').andCallThrough();
+    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+    	spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
     	var trigger_button = test_area.getElementsByClassName('scan')[0];
     	// get input showing
     	var click_event = document.createEvent('CustomEvent');
@@ -145,9 +156,9 @@ describe('NHMobileBarcode', function(){
         expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
     	// fire change event on input
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
         var input = document.getElementsByClassName('barcode_scan')[0];
         input.value = '123412341234,123445';
     	var change_event = document.createEvent('CustomEvent');
@@ -159,10 +170,11 @@ describe('NHMobileBarcode', function(){
     	expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
     });
 
+
     it('It receives patient\s data, processes it and shows popup', function(){
-    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').andCallThrough();
-        spyOn(NHModal.prototype, 'create_dialog').andCallThrough();
-    	spyOn(NHMobileBarcode.prototype, 'barcode_scanned').andCallThrough();
+    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+    	spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
     	var trigger_button = test_area.getElementsByClassName('scan')[0];
     	// get input showing
     	var click_event = document.createEvent('CustomEvent');
@@ -171,14 +183,15 @@ describe('NHMobileBarcode', function(){
         expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
     	// fire change event on input
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.argsForCall[0][1]).toBe('patient_barcode');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.argsForCall[0][3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
         var input = document.getElementsByClassName('barcode_scan')[0];
         input.value = '123412341234,123445';
     	var change_event = document.createEvent('CustomEvent');
         change_event.initCustomEvent('keypress', false, true, false);
         change_event.keyCode = 13;
+        console.log('sending off request to server')
     	input.dispatchEvent(change_event);
     	// go get data from server 
     	expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
@@ -188,6 +201,7 @@ describe('NHMobileBarcode', function(){
     	//Modal content is updated to content
         var modal = document.getElementById('patient_barcode');
         var modal_content = modal.getElementsByClassName('dialogContent')[0];
-        expect(modal_content.innerHTML).toBe(content);
+        console.log('about to assert')
+        expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
     });
 });
