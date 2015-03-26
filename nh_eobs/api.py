@@ -531,6 +531,16 @@ class nh_eobs_api(orm.AbstractModel):
             patient_values = cr.dictfetchall()
         return patient_values
 
+    def get_patient_followers(self, cr, uid, patients, context=None):
+        """
+        Expects the return value from get_patients or get_followed_patients and adds the followers for each patient.
+        """
+        patient_pool = self.pool['nh.clinical.patient']
+        for p in patients:
+            patient = patient_pool.browse(cr, uid, p['id'], context=context)
+            p['followers'] = [{'id': f.id, 'name': f.name} for f in patient.follower_ids]
+        return True
+
     def update(self, cr, uid, patient_id, data, context=None):
         """
         Update patient information
