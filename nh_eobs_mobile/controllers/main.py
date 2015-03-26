@@ -86,6 +86,21 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         with open(get_module_path('nh_eobs_mobile') + '/static/src/css/nhc.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
+    @http.route(URLS['manifest'], type='http', auth='none')
+    def get_manifest(self, *args, **kw):
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/manifest.json', 'r') as manifest:
+            return request.make_response(manifest.read(), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['small_icon'], type='http', auth='none')
+    def get_small_icon(self, *args, **kw):
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/icon/hd_small.png', 'r') as icon:
+            return request.make_response(icon.read(), headers={'Content-Type': 'image/png'})
+
+    @http.route(URLS['big_icon'], type='http', auth='none')
+    def get_big_icon(self, *args, **kw):
+        with open(get_module_path('nh_eobs_mobile') + '/static/src/icon/hd_hi.png', 'r') as icon:
+            return request.make_response(icon.read(), headers={'Content-Type': 'image/png'})
+
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
         with open(get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid, 'r') as font:
@@ -217,7 +232,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
         for fpatient in following_patients:
-            fpatient['url'] = '{0}{1}'.format(URLS['single_patient'], fpatient['id'])
+            fpatient['url'] = '{0}{1}'. format(URLS['single_patient'], fpatient['id'])
             fpatient['color'] = self.calculate_ews_class(fpatient['clinical_risk'])
             fpatient['trend_icon'] = 'icon-{0}-arrow'.format(fpatient['ews_trend'])
             fpatient['deadline_time'] = fpatient['next_ews_time']
@@ -227,6 +242,48 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                              'section': 'patient',
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
+
+    @http.route(URLS['share_patient_list'], type='http', auth='user')
+    def get_share_patients(self, *args, **kw):
+        cr, uid, context = request.cr, request.session.uid, request.context
+        api = request.registry['nh.eobs.api']
+        api.unassign_my_activities(cr, uid)
+        patients = api.get_patients(cr, uid, [], context=context)
+        api.get_patient_followers(cr, uid, patients, context=context)
+        for patient in patients:
+            patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
+            patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
+            patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
+            patient['deadline_time'] = patient['next_ews_time']
+            patient['summary'] = patient['summary'] if patient.get('summary') else False
+            if patient.get('followers'):
+                followers = patient['followers']
+                patient['followers'] = ''
+                for f in followers:
+                    patient['followers'] += f['name']
+        return request.render('nh_eobs_mobile.share_patients_list', qcontext={'items': patients,
+                                                                              'section': 'patient',
+                                                                              'username': request.session['login'],
+                                                                              'share_list': True,
+                                                                              'urls': URLS})
+
+    @http.route(URLS['share_patients'], type='http', auth='user')
+    def share_patients(self, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry['nh.eobs.api']
+        kw_copy = kw.copy()
+        for user_id in kw_copy['user_ids']:
+            api.follow_invite(cr, uid, kw_copy['patient_ids'], user_id, context=context)
+        return request.make_response(json.dumps({'status': 'true',
+                                                 'reason': 'An invite has been sent to follow the selected patients.'}),
+                                     headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['json_colleagues_list'], type='http', auth='user')
+    def get_colleagues(self, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry['nh.eobs.api']
+        return request.make_response(json.dumps(api.get_share_users(cr, uid, context=context)),
+                                     headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):

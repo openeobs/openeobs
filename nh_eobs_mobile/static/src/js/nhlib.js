@@ -299,7 +299,6 @@ NHMobileBarcode = (function(superClass) {
     self.input = document.getElementsByClassName('barcode_scan')[0];
     self.input.addEventListener('keydown', function(event) {
       if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
-        event.preventDefault();
         return self.barcode_scanned(self, event);
       }
     });

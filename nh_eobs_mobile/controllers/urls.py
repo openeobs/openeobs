@@ -43,6 +43,24 @@ routes = [
         'args': False
     },
     {
+        'name': 'manifest',
+        'endpoint': 'src/manifest.json',
+        'method': 'GET',
+        'args': False
+    },
+    {
+        'name': 'small_icon',
+        'endpoint': 'src/icon/hd_small.png',
+        'method': 'GET',
+        'args': False
+    },
+    {
+        'name': 'big_icon',
+        'endpoint': 'src/icon/hd_hi.png',
+        'method': 'GET',
+        'args': False
+    },
+    {
         'name': 'jquery',
         'endpoint': 'src/js/jquery.js',
         'method': 'GET',
@@ -161,6 +179,24 @@ routes = [
         'endpoint': 'tasks/cancel_clinical/',
         'method': 'POST',
         'args': ['task_id']
+    },
+    {
+        'name': 'json_colleagues_list',
+        'endpoint': 'staff/colleagues/',
+        'method': 'GET',
+        'args': False
+    },
+    {
+        'name': 'share_patients',
+        'endpoint': 'staff/assign/',
+        'method': 'POST',
+        'args': False
+    },
+    {
+        'name': 'share_patient_list',
+        'endpoint': 'patients/share/',
+        'method': 'GET',
+        'args': False
     },
     {
         'name': 'ajax_task_cancellation_options',
