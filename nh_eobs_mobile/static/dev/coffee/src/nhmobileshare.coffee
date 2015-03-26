@@ -9,16 +9,22 @@ class NHMobileShare extends NHMobile
   constructor: (@share_button, @claim_button) ->
     self = @
     @form = document.getElementById('handover_form')
+    @current_nurse_id
     @share_button.addEventListener 'click', (event) ->
+      event.preventDefault()
       share_button = if event.srcElement then event.srcElement else event.target
-      nurse_id = share_button.getAttribute('data-nurse')
-      self.share_button_click(self, nurse_id)
+      self.current_nurse_id = share_button.getAttribute('data-nurse')
+      self.share_button_click(self, self.current_nurse_id)
     @claim_button.addEventListener 'click', (event) ->
+      event.preventDefault()
       claim_button = if event.srcElement then event.srcElement else event.target
-      nurse_id = claim_button.getAttribute('data-nurse')
-      self.claim_button_click(self, nurse_id)
-    document.addEventListener 'assign_nurses', (event) ->
-      self.assign_button_click(self, event)
+      self.current_nurse_id = claim_button.getAttribute('data-nurse')
+      self.claim_button_click(self, self.current_nurse_id)
+    document.addEventListener 'assign_nurse', (event) ->
+      event.preventDefault()
+      if not event.handled
+        self.assign_button_click(self, event)
+        event.handled = true
     super()
 
   # On share button being pressed:
@@ -36,9 +42,10 @@ class NHMobileShare extends NHMobile
         nurse_list = '<form id="nurse_list"><ul>'
         for nurse in data
           nurse_list += '<li><input type="checkbox" name="nurse_select_'+
-            nurse['id'] + '" value="'+nurse['id']+'"/>' + nurse['display_name']+
-             ' (' +nurse['current_allocation'] + ')</li>'
-        nurse_list += '</ul></form>'
+            nurse['id'] + '" class="patient_share_nurse" value="'+nurse['id']+
+              '"/>' + nurse['display_name']+
+              ' (' +nurse['current_allocation'] + ')</li>'
+        nurse_list += '</ul><p class="error"></p></form>'
         assign_btn = '<a href="#" data-action="assign" '+
           'data-target="assign_nurse" data-ajax-action="json_assign_nurse">'+
           'Assign</a>'
@@ -66,7 +73,37 @@ class NHMobileShare extends NHMobile
   # - Check to see if nurses are selected
   # - If so then send data over to the server
   # - If not then show an error message
-  assign_button_click: (self) ->
+  assign_button_click: (self, event) ->
+    nurses = event.detail.nurses
+    form = document.getElementById('handover_form')
+    popup = document.getElementById('assign_nurse')
+    error_message = popup.getElementsByClassName('error')[0]
+    patients = (el.value for el in form.elements \
+        when el.checked and not el.classList.contains('exclude'))
+    if nurses.length < 1 or patients.length < 1
+      error_message.innerHTML = 'Please select colleague(s) to share with'
+    else
+      error_message.innerHTML = ''
+      url = self.urls.json_nurse_assign(self.current_nurse_id)
+      nurse_ids = 'nurses='+nurses
+      patient_ids = 'patients='+patients
+      data_string = patient_ids + '&'+ nurse_ids
+      Promise.when(self.call_resource(url, data_string)).then (server_data) ->
+        data = server_data[0][0]
+        if data['status']
+          pts = (el for el in form.elements when el.value in patients)
+          for pt in pts
+            pt_el = pt.parentNode.getElementsByClassName('block')[0]
+            pt_el.classList.add('shared')
+            ti = pt_el.getElementsByClassName('taskInfo')[0]
+            ti.innerHTML = 'Shared with: ' + data['shared_with'].join(', ')
+
+            cover = document.getElementById('cover')
+            document.getElementsByTagName('body')[0].removeChild(cover)
+            popup.parentNode.removeChild(popup)
+        else
+          error_message.innerHTML = 'Error assigning colleague(s),'+
+            ' please try again'
     return true
 
 

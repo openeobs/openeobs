@@ -113,7 +113,7 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var assign_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, submit_event;
+    var assign_detail, assign_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, nurses, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
@@ -146,14 +146,25 @@ NHModal = (function() {
         event.preventDefault();
         dialog = document.getElementById(data_target);
         dialog_form = dialog.getElementsByTagName('form')[0];
-        assign_event = document.createEvent('CustomEvent');
-        assign_event.initCustomEvent('assign_nurse', false, true, false);
-        assign_event.detail = {
-          'detail': {
-            'action': data_action,
-            'target': data_target
+        nurses = (function() {
+          var i, len, ref, results;
+          ref = dialog_form.elements;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            el = ref[i];
+            if (el.checked) {
+              results.push(el.value);
+            }
           }
+          return results;
+        })();
+        assign_event = document.createEvent('CustomEvent');
+        assign_detail = {
+          'action': data_action,
+          'target': data_target,
+          'nurses': nurses
         };
+        assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
         return document.dispatchEvent(assign_event);
     }
   };

@@ -8,7 +8,7 @@ module.exports = function(config) {
         exclude: [
         ],
 
-        reporters: ['progress', 'coverage'],
+        reporters: ['nyan', 'coverage'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
@@ -25,7 +25,8 @@ module.exports = function(config) {
             'karma-jasmine',
             'karma-junit-reporter',
             'karma-phantomjs-launcher',
-            'karma-coverage'
+            'karma-coverage',
+            'karma-nyan-reporter'
         ],
 
         junitReporter: {

@@ -37,6 +37,14 @@ describe('NHMobileShare', function() {
         }
     ]
 
+    var assign_server_resp = [
+        {
+            'status': true,
+            'ids': [1],
+            'shared_with': ['Norah']
+        }
+    ]
+
     beforeEach(function () {
         // set up the DOM for test
         var body_el = document.getElementsByTagName('body')[0];
@@ -142,6 +150,18 @@ describe('NHMobileShare', function() {
             claim_button = test_area.getElementsByClassName('claim')[0];
             mobile = new NHMobileShare(share_button, claim_button);
         }
+
+        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(method, url){
+            if(url=='http://localhost:8069/mobile/staff/3/nurse'){
+                var promise = new Promise();
+                promise.complete(nurse_list_data);
+                return promise;
+            }else if(url=='http://localhost:8069/mobile/staff/3/assign/'){
+                var promise = new Promise();
+                promise.complete(assign_server_resp);
+                return promise;
+            }
+        })
     });
 
     afterEach(function () {
@@ -188,11 +208,6 @@ describe('NHMobileShare', function() {
 
     it('On selecting patients and pressing share button the list of available nurses is fetched', function(){
         spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
-        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(){
-            var promise = new Promise();
-            promise.complete(nurse_list_data);
-            return promise;
-        });
         // go select some patients
         var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
         test_patient.checked = true;
@@ -210,11 +225,6 @@ describe('NHMobileShare', function() {
 
     it('On selecting patients and pressing share button the list of available nurses is displayed in a modal', function(){
         spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
-        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(){
-            var promise = new Promise();
-            promise.complete(nurse_list_data);
-            return promise;
-        });
         // go select some patients
         var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
         test_patient.checked = true;
@@ -251,13 +261,9 @@ describe('NHMobileShare', function() {
 
     it('The modal\'s Assign button event listener is set up', function(){
         spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
-        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(){
-            var promise = new Promise();
-            promise.complete(nurse_list_data);
-            return promise;
-        });
         spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
-        spyOn(NHMobileShare.prototype, 'assign_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click')
         // // go select some patients
         var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
         test_patient.checked = true;
@@ -281,22 +287,74 @@ describe('NHMobileShare', function() {
         var assign_click = document.createEvent('CustomEvent');
         assign_click.initCustomEvent('click', false, true, false);
         assign_button.dispatchEvent(assign_click);
-
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
         expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
     });
 
     it('The modal\'s Cancel button event listener is set up', function(){
-        // get the modal popping up
-        // send a click event to the cancel button
-        // assert it worked
-        expect(true).toBe(false);
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click')
+        // // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        // send a click event to the assign button
+
+        var dialog = document.getElementById('assign_nurse');
+        var dialog_options = dialog.getElementsByClassName('options')[0];
+        var cancel_button = dialog_options.getElementsByTagName('a')[1];
+
+        var cancel_click = document.createEvent('CustomEvent');
+        cancel_click.initCustomEvent('click', false, true, false);
+        cancel_button.dispatchEvent(cancel_click);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
     });
 
     it('in the modal, pressing the cancel button dismisses the modal', function(){
-        //get teh modal popupping up
-        // click the cancel button
-        // assert that the popup is no more
-        expect(true).toBe(false);
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click')
+        // // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        // send a click event to the assign button
+
+        var dialog = document.getElementById('assign_nurse');
+        var dialog_options = dialog.getElementsByClassName('options')[0];
+        var cancel_button = dialog_options.getElementsByTagName('a')[1];
+
+        var cancel_click = document.createEvent('CustomEvent');
+        cancel_click.initCustomEvent('click', false, true, false);
+        cancel_button.dispatchEvent(cancel_click);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+
+        var dialog1 = document.getElementById('assign_nurse');
+        expect(dialog1).toBe(null)
+
     });
 
     it('in the modal, on selecting a nurse to Assign a patient to and pressing the assign button the server is sent the nurse ID and the patients IDs', function(){
@@ -304,15 +362,85 @@ describe('NHMobileShare', function() {
         // select a nurse
         // send a click event to teh assign button
         // assert the server is sent the IDs
-        expect(true).toBe(false);
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click').and.callThrough();
+        // // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+        // Select a nurse to share
+        var test_nurse = document.getElementsByClassName('patient_share_nurse')[0];
+        test_nurse.checked = true;
+
+        // send a click event to the assign button
+
+        var dialog = document.getElementById('assign_nurse');
+        var dialog_options = dialog.getElementsByClassName('options')[0];
+        var assign_button = dialog_options.getElementsByTagName('a')[0];
+
+        var assign_click = document.createEvent('CustomEvent');
+        assign_click.initCustomEvent('click', false, true, false);
+        assign_button.dispatchEvent(assign_click);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request.calls.count()).toBe(2)
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patients=74&nurses=1')
     });
 
     it('in the modal, on selecting no nurses and pressing the assign button I am shown an error stating that no nurse was selected', function(){
         // get the model popping up
         // select no nurses
         // send a click event ot the assign button
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click').and.callThrough();
+        // // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+        // send a click event to the assign button
+
+        var dialog = document.getElementById('assign_nurse');
+        var dialog_options = dialog.getElementsByClassName('options')[0];
+        var assign_button = dialog_options.getElementsByTagName('a')[0];
+
+        var assign_click = document.createEvent('CustomEvent');
+        assign_click.initCustomEvent('click', false, true, false);
+        assign_button.dispatchEvent(assign_click);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request.calls.count()).toBe(1)
         // assert that an error message is present
-        expect(true).toBe(false);
+        dialog = document.getElementById('assign_nurse');
+        error_message = dialog.getElementsByClassName('error')[0];
+        expect(error_message.innerHTML).toBe('Please select colleague(s) to share with')
     });
 
     it('On the server returning that the assign operation was successful grey out the patients that were shared', function(){
@@ -320,7 +448,103 @@ describe('NHMobileShare', function() {
         // select a nurse
         // send a client event to teh assign butotn
         // assert that those patients now have a class that greys them out
-        expect(true).toBe(false);
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click').and.callThrough();
+        // // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+        // Select a nurse to share
+        var test_nurse = document.getElementsByClassName('patient_share_nurse')[0];
+        test_nurse.checked = true;
+
+        // send a click event to the assign button
+
+        var dialog = document.getElementById('assign_nurse');
+        var dialog_options = dialog.getElementsByClassName('options')[0];
+        var assign_button = dialog_options.getElementsByTagName('a')[0];
+
+        var assign_click = document.createEvent('CustomEvent');
+        assign_click.initCustomEvent('click', false, true, false);
+        assign_button.dispatchEvent(assign_click);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request.calls.count()).toBe(2)
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patients=74&nurses=1')
+        test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient_item = test_patient.parentNode.getElementsByClassName('block')[0];
+        expect(test_patient_item.classList.contains('shared')).toBe(true)
+        test_patient_item_info = test_patient_item.getElementsByClassName('taskInfo')[0];
+        expect(test_patient_item_info.innerHTML).toBe('Shared with: Norah');
+
+        var dialog1 = document.getElementById('assign_nurse');
+        expect(dialog1).toBe(null)
+    });
+
+it('On the server returning that the assign operation was unsuccessfull show an error message', function(){
+        // get the modal popping up
+        // select a nurse
+        // send a client event to teh assign butotn
+        // assert that those patients now have a class that greys them out
+        spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'assign_button_click').and.callThrough();
+        // // go select some patients
+        var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient.checked = true;
+
+
+
+        var share_button = test_area.getElementsByClassName('share')[0];
+        // fire a click event at the scan button
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        share_button.dispatchEvent(click_event);
+        // test is fires the appropriate function
+        expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+        // Select a nurse to share
+        var test_nurse = document.getElementsByClassName('patient_share_nurse')[0];
+        test_nurse.checked = true;
+
+        // send a click event to the assign button
+
+        var dialog = document.getElementById('assign_nurse');
+        var dialog_options = dialog.getElementsByClassName('options')[0];
+        var assign_button = dialog_options.getElementsByTagName('a')[0];
+
+        var assign_click = document.createEvent('CustomEvent');
+        assign_click.initCustomEvent('click', false, true, false);
+        assign_button.dispatchEvent(assign_click);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request.calls.count()).toBe(2)
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patients=74&nurses=1')
+        test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
+        test_patient_item = test_patient.parentNode.getElementsByClassName('block')[0];
+        expect(test_patient_item.classList.contains('shared')).toBe(true)
+        test_patient_item_info = test_patient_item.getElementsByClassName('taskInfo')[0];
+        expect(test_patient_item_info.innerHTML).toBe('Shared with: Norah');
+
+        var dialog1 = document.getElementById('assign_nurse');
+        expect(dialog1).toBe(null)
     });
 
 

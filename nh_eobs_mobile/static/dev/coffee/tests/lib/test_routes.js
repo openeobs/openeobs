@@ -300,6 +300,14 @@ var frontend_routes = {}; (function(_root){
         url: base_url+'staff/'+(function(k,v){ return v})('current_nurse_id', current_nurse_id)+'/nurse'
       })
     }
+
+    _nS('json_nurse_assign');
+    _root.json_nurse_assign = function(current_nurse_id){
+      return _wA({
+        method: 'POST',
+        url: base_url+'staff/'+(function(k,v){ return v})('current_nurse_id', current_nurse_id)+'/assign/'
+      })
+    }
     
     
 

@@ -138,11 +138,14 @@ class NHModal
         event.preventDefault()
         dialog = document.getElementById(data_target)
         dialog_form = dialog.getElementsByTagName('form')[0]
-        #nurses = (el.value for el in dialog_form.elements when el.checked)
+        nurses = (el.value for el in dialog_form.elements when el.checked)
         assign_event = document.createEvent 'CustomEvent'
-        assign_event.initCustomEvent('assign_nurse', false, true, false)
-        assign_event.detail = {'detail': {
-          'action':data_action, 'target': data_target}}
+        assign_detail = {
+          'action':data_action,
+          'target': data_target,
+          'nurses': nurses
+        }
+        assign_event.initCustomEvent('assign_nurse', false, true, assign_detail)
         document.dispatchEvent assign_event
 
 if !window.NH
