@@ -22,7 +22,7 @@ NHMobileBarcode = (function(superClass) {
     new NHModal('patient_barcode', 'Scan patient wristband', input, [cancel], 0, document.getElementsByTagName('body')[0]);
     self.input = document.getElementsByClassName('barcode_scan')[0];
     self.input.addEventListener('keypress', function(event) {
-      if (event.keyCode === 13) {
+      if (event.keyCode === 13 || event.keyCode === 0) {
         return self.barcode_scanned(self, event);
       }
     });
