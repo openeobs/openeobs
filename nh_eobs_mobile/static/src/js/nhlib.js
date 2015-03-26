@@ -298,12 +298,14 @@ NHMobileBarcode = (function(superClass) {
     new NHModal('patient_barcode', 'Scan patient wristband', input, [cancel], 0, document.getElementsByTagName('body')[0]);
     self.input = document.getElementsByClassName('barcode_scan')[0];
     self.input.addEventListener('keydown', function(event) {
-      if (event.keyCode === 13 || event.keyCode === 0) {
+      if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
+        event.preventDefault();
         return self.barcode_scanned(self, event);
       }
     });
     self.input.addEventListener('keypress', function(event) {
-      if (event.keyCode === 13 || event.keyCode === 0) {
+      if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
+        event.preventDefault();
         return self.barcode_scanned(self, event);
       }
     });

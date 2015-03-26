@@ -24,11 +24,13 @@ class NHMobileBarcode extends NHMobile
       input, [cancel], 0 ,document.getElementsByTagName('body')[0])
     self.input = document.getElementsByClassName('barcode_scan')[0]
     self.input.addEventListener 'keydown', (event) ->
-      if event.keyCode is 13 or event.keyCode is 0
+      if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
+        event.preventDefault()
         self.barcode_scanned(self, event)
 
     self.input.addEventListener 'keypress', (event) ->
-      if event.keyCode is 13 or event.keyCode is 0
+      if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
+        event.preventDefault()
         self.barcode_scanned(self, event)
     self.input.focus()
 
