@@ -23,6 +23,10 @@ class NHMobileBarcode extends NHMobile
     new NHModal('patient_barcode', 'Scan patient wristband',
       input, [cancel], 0 ,document.getElementsByTagName('body')[0])
     self.input = document.getElementsByClassName('barcode_scan')[0]
+    self.input.addEventListener 'keydown', (event) ->
+      if event.keyCode is 13 or event.keyCode is 0
+        self.barcode_scanned(self, event)
+
     self.input.addEventListener 'keypress', (event) ->
       if event.keyCode is 13 or event.keyCode is 0
         self.barcode_scanned(self, event)
