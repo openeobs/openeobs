@@ -9,7 +9,7 @@
             <html>
                 <head>
                     <title>Open-eObs</title>
-                    <link rel="manifest" href="/mobile/src/manifest.json"/>
+                    <link rel="manifest" t-att-href="urls['manifest']"/>
                     <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
                     <script t-att-src="urls['js_routes']" type="text/javascript"></script>

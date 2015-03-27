@@ -9,6 +9,7 @@ BASE_HTML = """
 <html>
     <head>
         <title>Open-eObs</title>
+        <link rel="manifest" href="/mobile/src/manifest.json"/>
         <link type="text/css" rel="stylesheet" href="/mobile/src/css/main.css"/>
         <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" name="viewport"/>
         <script src="/mobile/src/js/routes.js" type="text/javascript"/>
