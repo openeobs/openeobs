@@ -9,17 +9,14 @@ class NHMobileShare extends NHMobile
   constructor: (@share_button, @claim_button) ->
     self = @
     @form = document.getElementById('handover_form')
-    @current_nurse_id
     @share_button.addEventListener 'click', (event) ->
       event.preventDefault()
       share_button = if event.srcElement then event.srcElement else event.target
-      self.current_nurse_id = share_button.getAttribute('data-nurse')
-      self.share_button_click(self, self.current_nurse_id)
+      self.share_button_click(self)
     @claim_button.addEventListener 'click', (event) ->
       event.preventDefault()
       claim_button = if event.srcElement then event.srcElement else event.target
-      self.current_nurse_id = claim_button.getAttribute('data-nurse')
-      self.claim_button_click(self, self.current_nurse_id)
+      self.claim_button_click(self)
     document.addEventListener 'assign_nurse', (event) ->
       event.preventDefault()
       if not event.handled
@@ -31,20 +28,20 @@ class NHMobileShare extends NHMobile
   # - Create an array of IDs for patients to be shared
   # - Get the list of nurses available to assign patients to
   # - Popup the nurse selection screen in a fullscreen modal
-  share_button_click: (self, current_nurse_id) ->
+  share_button_click: (self) ->
     patients = (el.value for el in self.form.elements \
         when el.checked and not el.classList.contains('exclude'))
     if patients.length > 0
-      url = self.urls.json_nurse_list(current_nurse_id)
+      url = self.urls.json_colleagues_list()
       urlmeth = url.method
       Promise.when(self.process_request(urlmeth, url.url)).then (server_data) ->
-        data = server_data[0]
+        data = server_data[0][0]
         nurse_list = '<form id="nurse_list"><ul>'
         for nurse in data
           nurse_list += '<li><input type="checkbox" name="nurse_select_'+
-            nurse['id'] + '" class="patient_share_nurse" value="'+nurse['id']+
-              '"/>' + nurse['display_name']+
-              ' (' +nurse['current_allocation'] + ')</li>'
+            nurse['id']+'" class="patient_share_nurse" value="'+
+            nurse['id']+'"/><label for="nurse_select_'+nurse['id']+'">'+
+            nurse['name']+' ('+nurse['patients']+')</label></li>'
         nurse_list += '</ul><p class="error"></p></form>'
         assign_btn = '<a href="#" data-action="assign" '+
           'data-target="assign_nurse" data-ajax-action="json_assign_nurse">'+
@@ -66,7 +63,7 @@ class NHMobileShare extends NHMobile
   # - Create an array of IDs for patients to be claimed
   # - Send list of selected ids to server
   # - Update UI to reflect the change
-  claim_button_click: (self, current_nurse_id) ->
+  claim_button_click: (self) ->
     return true
 
   # On Assign button being click in the modal:
@@ -84,7 +81,7 @@ class NHMobileShare extends NHMobile
       error_message.innerHTML = 'Please select colleague(s) to share with'
     else
       error_message.innerHTML = ''
-      url = self.urls.json_nurse_assign(self.current_nurse_id)
+      url = self.urls.share_patients()
       nurse_ids = 'nurses='+nurses
       patient_ids = 'patients='+patients
       data_string = patient_ids + '&'+ nurse_ids

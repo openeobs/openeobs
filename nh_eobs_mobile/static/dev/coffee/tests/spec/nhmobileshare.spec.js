@@ -24,18 +24,19 @@ describe('NHMobileShare', function() {
             ]
         }
     ];
-    var nurse_list_data = [
+
+    var nurse_list_data = [[
         {
-            'display_name': 'Norah',
+            'name': 'Norah',
             'id': 1,
-            'current_allocation': 3
+            'patients': 3
         },
         {
-            'display_name': 'Nadine',
+            'name': 'Nadine',
             'id': 2,
-            'current_allocation': 4
+            'patients': 4
         }
-    ]
+    ]]
 
     var assign_server_resp = [
         {
@@ -152,11 +153,11 @@ describe('NHMobileShare', function() {
         }
 
         spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(method, url){
-            if(url=='http://localhost:8069/mobile/staff/3/nurse'){
+            if(url=='http://localhost:8069/mobile/staff/colleagues/'){
                 var promise = new Promise();
                 promise.complete(nurse_list_data);
                 return promise;
-            }else if(url=='http://localhost:8069/mobile/staff/3/assign/'){
+            }else if(url=='http://localhost:8069/mobile/staff/assign/'){
                 var promise = new Promise();
                 promise.complete(assign_server_resp);
                 return promise;
@@ -220,7 +221,7 @@ describe('NHMobileShare', function() {
         // test is fires the appropriate function
         expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
         expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
-        expect(NHMobileShare.prototype.process_request.calls.argsFor(0)[1]).toBe('http://localhost:8069/mobile/staff/3/nurse')
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(0)[1]).toBe('http://localhost:8069/mobile/staff/colleagues/')
     });
 
     it('On selecting patients and pressing share button the list of available nurses is displayed in a modal', function(){

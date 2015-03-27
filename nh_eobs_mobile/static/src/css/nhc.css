@@ -514,6 +514,14 @@ a.patientInfo .obs {
 .tabs.twocol li {
   width: 50%;
 }
+.header-menu.three-col li,
+.dialog .options.three-col li,
+.tabs.three-col li,
+.header-menu.threecol li,
+.dialog .options.threecol li,
+.tabs.threecol li {
+  width: 33%;
+}
 .header-menu.two-col li:first-child,
 .dialog .options.two-col li:first-child,
 .tabs.two-col li:first-child,
@@ -521,6 +529,26 @@ a.patientInfo .obs {
 .dialog .options.twocol li:first-child,
 .tabs.twocol li:first-child {
   border-right: 1px solid #eeeeee;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.header-menu.three-col li:first-child,
+.dialog .options.three-col li:first-child,
+.tabs.three-col li:first-child,
+.header-menu.threecol li:first-child,
+.dialog .options.threecol li:first-child,
+.tabs.threecol li:first-child {
+  border-right: 1px solid #eeeeee;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.header-menu.three-col li:last-child,
+.dialog .options.three-col li:last-child,
+.tabs.three-col li:last-child,
+.header-menu.threecol li:last-child,
+.dialog .options.threecol li:last-child,
+.tabs.threecol li:last-child {
+  border-left: 1px solid #eeeeee;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
@@ -551,6 +579,9 @@ a.patientInfo .obs {
 }
 .content {
   margin-top: 6.5em;
+}
+.share-content{
+    margin-bottom: 3.3em;
 }
 .content.no-menu {
   margin-top: 4em;
@@ -1382,4 +1413,37 @@ text.title {
     margin-bottom: 1em;
     border-radius: 5px;
     width: 100%;
+}
+
+.sharelist{
+    list-style: none;
+    width: 100%;
+}
+
+.sharelist li{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.sharelist li .patient-share{
+    flex: 1 0 0;
+    align-self: center;
+}
+.sharelist li > a{
+    flex: 4 0 0;
+    /*border-left: 1px solid #eeeeee;*/
+    border-bottom: 0px solid black;
+}
+.share-footer{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 101%;
+}
+.share-footer .user{
+    text-align: right;
+    margin-right: 6%;
+    color: rgba(0, 0, 0, 0.3);
 }

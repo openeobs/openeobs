@@ -8,7 +8,7 @@ module.exports = function(config) {
         exclude: [
         ],
 
-        reporters: ['nyan', 'coverage'],
+        reporters: ['progress', 'coverage'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']

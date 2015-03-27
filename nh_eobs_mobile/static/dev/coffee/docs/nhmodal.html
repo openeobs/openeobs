@@ -43,13 +43,15 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>creates a dialog, adds it to the DOM and resizes to fit in window
-Params:
-<code>id</code> - CSS ID to use for the popup
-<code>title</code> - HTML String to use for the popup title
-<code>content</code> - HTML String to use for the popup message, can be any content
-<code>options</code> - An array of HTML Strings that will act as buttons
-<code>popupTime</code> - time it takes for popup to appear
-‘el’ - The element in the DOM to put popup under</p>
+Params:</p>
+<ul>
+<li><code>id</code> - CSS ID to use for the popup</li>
+<li><code>title</code> - HTML String to use for the popup title</li>
+<li><code>content</code> - HTML String to use for the popup message, can be any content</li>
+<li><code>options</code> - An array of HTML Strings that will act as buttons</li>
+<li><code>popupTime</code> - time it takes for popup to appear</li>
+<li>‘el’ - The element in the DOM to put popup under</li>
+</ul>
 
             </div>
             
@@ -232,7 +234,6 @@ Params:
     container.appendChild(header)
     container.appendChild(content)
     container.appendChild(options)
-   
     <span class="hljs-keyword">return</span> container</pre></div></div>
             
         </li>
@@ -283,6 +284,7 @@ Currently offers</p>
 <li>close (closes modal)</li>
 <li>submit (submits observation)</li>
 <li>partial submit (submits partial observation)</li>
+<li>assign (assigns nurses to patients)</li>
 </ul>
 
             </div>
@@ -312,6 +314,19 @@ Currently offers</p>
           {<span class="hljs-string">'detail'</span>: {<span class="hljs-string">'action'</span>:data_action,
           <span class="hljs-string">'target'</span>: data_target}}
         <span class="hljs-built_in">document</span>.dispatchEvent submit_event
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'assign'</span>
+        event.preventDefault()
+        dialog = <span class="hljs-built_in">document</span>.getElementById(data_target)
+        dialog_form = dialog.getElementsByTagName(<span class="hljs-string">'form'</span>)[<span class="hljs-number">0</span>]
+        nurses = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> dialog_form.elements <span class="hljs-keyword">when</span> el.checked)
+        assign_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+        assign_detail = {
+          <span class="hljs-string">'action'</span>:data_action,
+          <span class="hljs-string">'target'</span>: data_target,
+          <span class="hljs-string">'nurses'</span>: nurses
+        }
+        assign_event.initCustomEvent(<span class="hljs-string">'assign_nurse'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>, assign_detail)
+        <span class="hljs-built_in">document</span>.dispatchEvent assign_event
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}

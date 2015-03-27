@@ -293,19 +293,19 @@ var frontend_routes = {}; (function(_root){
    		})
    	}
 
-    _nS('json_nurse_list');
-    _root.json_nurse_list = function(current_nurse_id){
+    _nS('json_colleagues_list');
+    _root.json_colleagues_list = function(){
       return _wA({
         method: 'GET',
-        url: base_url+'staff/'+(function(k,v){ return v})('current_nurse_id', current_nurse_id)+'/nurse'
+        url: base_url+'staff/colleagues/'
       })
     }
 
-    _nS('json_nurse_assign');
-    _root.json_nurse_assign = function(current_nurse_id){
+    _nS('share_patients');
+    _root.share_patients = function(){
       return _wA({
         method: 'POST',
-        url: base_url+'staff/'+(function(k,v){ return v})('current_nurse_id', current_nurse_id)+'/assign/'
+        url: base_url+'staff/assign/'
       })
     }
     

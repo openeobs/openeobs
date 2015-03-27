@@ -47,7 +47,6 @@ Handles barcode scanning on MioCare devices</p>
               <p>on initalisation we need to:</p>
 <ul>
 <li>set up click event listener for trigger button</li>
-<li>set up change event listener for input</li>
 </ul>
 
             </div>
@@ -77,15 +76,22 @@ Handles barcode scanning on MioCare devices</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">trigger_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
-    input = <span class="hljs-string">'&lt;div class="block"&gt;&lt;input type="text" '</span>+
-      <span class="hljs-string">'name="barcode_scan" class="barcode_scan"/&gt;&lt;/div&gt;'</span>
+    input = <span class="hljs-string">'&lt;div class="block"&gt;&lt;textarea '</span>+
+      <span class="hljs-string">'name="barcode_scan" class="barcode_scan"&gt;&lt;/textarea&gt;&lt;/div&gt;'</span>
     cancel = <span class="hljs-string">'&lt;a href="#" data-target="patient_barcode" '</span> +
       <span class="hljs-string">'data-action="close"&gt;Cancel&lt;/a&gt;'</span>
     <span class="hljs-keyword">new</span> NHModal(<span class="hljs-string">'patient_barcode'</span>, <span class="hljs-string">'Scan patient wristband'</span>,
       input, [cancel], <span class="hljs-number">0</span> ,<span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
     self.input = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'barcode_scan'</span>)[<span class="hljs-number">0</span>]
-    self.input.addEventListener <span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      self.barcode_scanned(self, event)
+    self.input.addEventListener <span class="hljs-string">'keydown'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      <span class="hljs-keyword">if</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">13</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">116</span>
+        event.preventDefault()
+        self.barcode_scanned(self, event)
+
+    self.input.addEventListener <span class="hljs-string">'keypress'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      <span class="hljs-keyword">if</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">13</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">116</span>
+        event.preventDefault()
+        self.barcode_scanned(self, event)
     self.input.focus()</pre></div></div>
             
         </li>
@@ -110,6 +116,22 @@ Handles barcode scanning on MioCare devices</p>
     event.preventDefault()
     input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
     hosp_num = input.value
+    dialog = input.parentNode.parentNode</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>process hosp_num from wristband</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    hosp_num = hosp_num.split(<span class="hljs-string">','</span>)[<span class="hljs-number">1</span>]
     url = self.urls.json_patient_barcode(hosp_num)
     url_meth = url.method
     Promise.<span class="hljs-keyword">when</span>(self.process_request(url_meth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
@@ -150,7 +172,7 @@ Handles barcode scanning on MioCare devices</p>
             activity.time+<span class="hljs-string">'&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;'</span>
         activities_string += <span class="hljs-string">'&lt;/ul&gt;'</span>
       content = <span class="hljs-string">'&lt;dl&gt;'</span>+patient_details+<span class="hljs-string">'&lt;/dl&gt;&lt;h3&gt;Tasks&lt;/h3&gt;'</span>+activities_string
-      <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'dialogContent'</span>)[<span class="hljs-number">0</span>].innerHTML = content
+      dialog.innerHTML = content
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}

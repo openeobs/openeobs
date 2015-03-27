@@ -12,20 +12,17 @@ NHMobileShare = (function(superClass) {
     this.claim_button = claim_button1;
     self = this;
     this.form = document.getElementById('handover_form');
-    this.current_nurse_id;
     this.share_button.addEventListener('click', function(event) {
       var share_button;
       event.preventDefault();
       share_button = event.srcElement ? event.srcElement : event.target;
-      self.current_nurse_id = share_button.getAttribute('data-nurse');
-      return self.share_button_click(self, self.current_nurse_id);
+      return self.share_button_click(self);
     });
     this.claim_button.addEventListener('click', function(event) {
       var claim_button;
       event.preventDefault();
       claim_button = event.srcElement ? event.srcElement : event.target;
-      self.current_nurse_id = claim_button.getAttribute('data-nurse');
-      return self.claim_button_click(self, self.current_nurse_id);
+      return self.claim_button_click(self);
     });
     document.addEventListener('assign_nurse', function(event) {
       event.preventDefault();
@@ -37,7 +34,7 @@ NHMobileShare = (function(superClass) {
     NHMobileShare.__super__.constructor.call(this);
   }
 
-  NHMobileShare.prototype.share_button_click = function(self, current_nurse_id) {
+  NHMobileShare.prototype.share_button_click = function(self) {
     var btn, el, msg, patients, url, urlmeth;
     patients = (function() {
       var i, len, ref, results;
@@ -52,15 +49,15 @@ NHMobileShare = (function(superClass) {
       return results;
     })();
     if (patients.length > 0) {
-      url = self.urls.json_nurse_list(current_nurse_id);
+      url = self.urls.json_colleagues_list();
       urlmeth = url.method;
       return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
         var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list;
-        data = server_data[0];
+        data = server_data[0][0];
         nurse_list = '<form id="nurse_list"><ul>';
         for (i = 0, len = data.length; i < len; i++) {
           nurse = data[i];
-          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse['id'] + '" class="patient_share_nurse" value="' + nurse['id'] + '"/>' + nurse['display_name'] + ' (' + nurse['current_allocation'] + ')</li>';
+          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse['id'] + '" class="patient_share_nurse" value="' + nurse['id'] + '"/><label for="nurse_select_' + nurse['id'] + '">' + nurse['name'] + ' (' + nurse['patients'] + ')</label></li>';
         }
         nurse_list += '</ul><p class="error"></p></form>';
         assign_btn = '<a href="#" data-action="assign" ' + 'data-target="assign_nurse" data-ajax-action="json_assign_nurse">' + 'Assign</a>';
@@ -75,7 +72,7 @@ NHMobileShare = (function(superClass) {
     }
   };
 
-  NHMobileShare.prototype.claim_button_click = function(self, current_nurse_id) {
+  NHMobileShare.prototype.claim_button_click = function(self) {
     return true;
   };
 
@@ -101,7 +98,7 @@ NHMobileShare = (function(superClass) {
       error_message.innerHTML = 'Please select colleague(s) to share with';
     } else {
       error_message.innerHTML = '';
-      url = self.urls.json_nurse_assign(self.current_nurse_id);
+      url = self.urls.share_patients();
       nurse_ids = 'nurses=' + nurses;
       patient_ids = 'patients=' + patients;
       data_string = patient_ids + '&' + nurse_ids;
