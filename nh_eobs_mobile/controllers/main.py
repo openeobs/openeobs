@@ -271,11 +271,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def share_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
+        user_api = request.registry['res.users']
         kw_copy = kw.copy()
-        for user_id in kw_copy['user_ids']:
-            api.follow_invite(cr, uid, kw_copy['patient_ids'], user_id, context=context)
-        return request.make_response(json.dumps({'status': 'true',
-                                                 'reason': 'An invite has been sent to follow the selected patients.'}),
+        user_ids = [int(id) for id in kw_copy['user_ids'].split(',')]
+        patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
+        users = user_api.read(cr, uid, user_ids, context=context)
+        for user_id in user_ids:
+            api.follow_invite(cr, uid, patient_ids, user_id, context=context)
+        return request.make_response(json.dumps({'status': True,
+                                                 'reason': 'An invite has been sent to follow the selected patients.',
+                                                 'shared_with': [user['display_name'] for user in users]}),
                                      headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['json_colleagues_list'], type='http', auth='user')

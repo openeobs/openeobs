@@ -399,7 +399,7 @@ describe('NHMobileShare', function() {
         expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
         expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
         expect(NHMobileShare.prototype.process_request.calls.count()).toBe(2)
-        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patients=74&nurses=1')
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patient_ids=74&user_ids=1')
     });
 
     it('in the modal, on selecting no nurses and pressing the assign button I am shown an error stating that no nurse was selected', function(){
@@ -485,7 +485,7 @@ describe('NHMobileShare', function() {
         expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
         expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
         expect(NHMobileShare.prototype.process_request.calls.count()).toBe(2)
-        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patients=74&nurses=1')
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patient_ids=74&user_ids=1')
         test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
         test_patient_item = test_patient.parentNode.getElementsByClassName('block')[0];
         expect(test_patient_item.classList.contains('shared')).toBe(true)
@@ -537,7 +537,7 @@ it('On the server returning that the assign operation was unsuccessfull show an 
         expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
         expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
         expect(NHMobileShare.prototype.process_request.calls.count()).toBe(2)
-        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patients=74&nurses=1')
+        expect(NHMobileShare.prototype.process_request.calls.argsFor(1)[2]).toBe('patient_ids=74&user_ids=1')
         test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
         test_patient_item = test_patient.parentNode.getElementsByClassName('block')[0];
         expect(test_patient_item.classList.contains('shared')).toBe(true)

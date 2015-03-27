@@ -1268,7 +1268,7 @@ NHMobileShare = (function(superClass) {
       return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
         var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list;
         data = server_data[0][0];
-        nurse_list = '<form id="nurse_list"><ul>';
+        nurse_list = '<form id="nurse_list"><ul class="sharelist">';
         for (i = 0, len = data.length; i < len; i++) {
           nurse = data[i];
           nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse['id'] + '" class="patient_share_nurse" value="' + nurse['id'] + '"/><label for="nurse_select_' + nurse['id'] + '">' + nurse['name'] + ' (' + nurse['patients'] + ')</label></li>';
@@ -1313,8 +1313,9 @@ NHMobileShare = (function(superClass) {
     } else {
       error_message.innerHTML = '';
       url = self.urls.share_patients();
-      nurse_ids = 'nurses=' + nurses;
-      patient_ids = 'patients=' + patients;
+      data_string = '';
+      nurse_ids = 'user_ids=' + nurses;
+      patient_ids = 'patient_ids=' + patients;
       data_string = patient_ids + '&' + nurse_ids;
       Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
         var cover, data, i, len, pt, pt_el, pts, results, ti;
