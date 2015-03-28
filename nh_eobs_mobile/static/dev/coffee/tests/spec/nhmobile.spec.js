@@ -245,3 +245,120 @@ describe("NHMobile AJAX - Promise", function(){
     });
 
 });
+
+describe('NHMobile - Patient Info', function(){
+    var mobile;
+    var patient_info_data = [{
+        'full_name': 'Test Patient',
+        'gender': 'M',
+        'dob': '1988-01-12 00:00',
+        'location': 'Bed 1',
+        'ews_score': 1,
+        'other_identifier': '012345678',
+        'patient_identifier': 'NHS012345678'
+    }];
+    beforeEach(function(){
+        var body_el = document.getElementsByTagName('body')[0];
+        var test = document.getElementById('test');
+        if (test != null) {
+            test.parentNode.removeChild(test);
+        }
+        test_area = document.createElement('div');
+        test_area.setAttribute('id', 'test');
+        test_area.style.height = '500px';
+        test_area.innerHTML = test_dom;
+        body_el.appendChild(test_area);
+        if (mobile == null) {
+            mobile = new NHMobile();
+        }
+        var full_screen_modals = document.getElementsByClassName('full-modal');
+        for(var i = 0; i < full_screen_modals.length; i++){
+            var modal = full_screen_modals[i];
+            modal.parentNode.removeChild(modal);
+        }
+    });
+
+    it('Calls the server for patient information and displays in modal', function(){
+        spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(patient_info_data);
+            return promise;
+        });
+        spyOn(NHMobile.prototype, 'get_patient_info').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        mobile.get_patient_info(3, mobile);
+        expect(NHMobile.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_info');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe(' Test Patient<span class="alignright">M</span>');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><p><a href="http://localhost:8069/mobile/patient/3" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>');
+    });
+
+    it('Opens a fullscreen modal on pressing the View full patient obs button', function(){
+        spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(patient_info_data);
+            return promise;
+        });
+        spyOn(NHMobile.prototype, 'get_patient_info').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHMobile.prototype, 'fullscreen_patient_info').and.callThrough();
+        mobile.get_patient_info(3, mobile);
+        expect(NHMobile.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_info');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe(' Test Patient<span class="alignright">M</span>');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><p><a href="http://localhost:8069/mobile/patient/3" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>');
+        var full_obs_button = document.getElementById('patient_obs_fullscreen');
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        full_obs_button.dispatchEvent(click_event);
+        expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
+    });
+
+    it('Closes a fullscreen modal on close button being pressed', function(){
+        spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(patient_info_data);
+            return promise;
+        });
+        spyOn(NHMobile.prototype, 'get_patient_info').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHMobile.prototype, 'fullscreen_patient_info').and.callThrough();
+        mobile.get_patient_info(3, mobile);
+        expect(NHMobile.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_info');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe(' Test Patient<span class="alignright">M</span>');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><p><a href="http://localhost:8069/mobile/patient/3" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>');
+        var full_obs_button = document.getElementById('patient_obs_fullscreen');
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        full_obs_button.dispatchEvent(click_event);
+        expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
+
+        var close_full_obs = document.getElementById('closeFullModal');
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        close_full_obs.dispatchEvent(click_event);
+        var fullmodals = document.getElementsByClassName('full-modal');
+        expect(fullmodals.length).toBe(0);
+
+    });
+
+    afterEach(function () {
+        if (mobile != null) {
+            mobile = null;
+        }
+        var test = document.getElementById('test');
+        if (test != null) {
+            test.parentNode.removeChild(test);
+        }
+        var full_screen_modals = document.getElementsByClassName('full-modal');
+        for(var i = 0; i < full_screen_modals.length; i++){
+            var modal = full_screen_modals[i];
+            modal.parentNode.removeChild(modal);
+        }
+    });
+
+});

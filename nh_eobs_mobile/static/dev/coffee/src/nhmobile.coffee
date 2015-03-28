@@ -143,28 +143,28 @@ class NHMobile extends NHLib
       patient_name = ''
       patient_details = ''
       if data.full_name
-        patient_name += " " + data.full_name
+        patient_name += ' ' + data.full_name
       if data.gender
         patient_name += '<span class="alignright">' + data.gender + '</span>'
       if data.dob
         patientDOB = self.date_from_string(data.dob)
-        patient_details += "<dt>DOB:</dt><dd>" +
-          self.date_to_dob_string(patientDOB) + "</dd>"
+        patient_details += '<dt>DOB:</dt><dd>' +
+          self.date_to_dob_string(patientDOB) + '</dd>'
       if data.location
-        patient_details += "<dt>Location:</dt><dd>" + data.location
+        patient_details += '<dt>Location:</dt><dd>' + data.location
       if data.parent_location
         patient_details += ',' + data.parent_location + '</dd>'
       else
         patient_details += '</dd>'
       if data.ews_score
-        patient_details += "<dt class='twoline'>Latest Score:</dt>' +
-          '<dd class='twoline'>" + data.ews_score + "</dd>"
+        patient_details += '<dt class="twoline">Latest Score:</dt>' +
+          '<dd class="twoline">' + data.ews_score + '</dd>'
       if data.other_identifier
-        patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier +
-          "</dd>"
+        patient_details += '<dt>Hospital ID:</dt><dd>' + data.other_identifier +
+          '</dd>'
       if data.patient_identifier
-        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier+
-          "</dd>"
+        patient_details += '<dt>NHS Number:</dt><dd>' + data.patient_identifier+
+          '</dd>'
       patient_details = '<dl>'+patient_details+'</dl><p><a href="'+
         self.urls['single_patient'](patient_id).url+
         '" id="patient_obs_fullscreen" class="button patient_obs">'+
@@ -175,29 +175,34 @@ class NHMobile extends NHLib
         [cancel], 0, document.getElementsByTagName('body')[0])
       fullscreen = document.getElementById('patient_obs_fullscreen')
       fullscreen.addEventListener('click', self.fullscreen_patient_info)
+    return true
 
 
   # Adds a full screen modal of the patient info screen over the current page
   # triggered by the fullscreen button made by the patient information modal
   fullscreen_patient_info: (event) ->
     event.preventDefault()
-    container = document.createElement('div')
-    container.setAttribute('class', 'full-modal')
-    options = document.createElement('p')
-    options_close = document.createElement('a')
-    options_close.setAttribute('href', '#')
-    options_close.setAttribute('id', 'closeFullModal')
-    options_close.innerText = 'Close popup'
-    options_close.addEventListener('click', () ->
-      body = document.getElementsByTagName('body')[0]
-      body.removeChild(document.getElementsByClassName('full-modal')[0])
-    )
-    options.appendChild(options_close)
-    container.appendChild(options)
-    page = document.createElement('iframe')
-    page.setAttribute('src', event.srcElement.getAttribute('href'))
-    container.appendChild(page)
-    document.getElementsByTagName('body')[0].appendChild(container)
+    if not event.handled
+      container = document.createElement('div')
+      container.setAttribute('class', 'full-modal')
+      options = document.createElement('p')
+      options_close = document.createElement('a')
+      options_close.setAttribute('href', '#')
+      options_close.setAttribute('id', 'closeFullModal')
+      options_close.innerText = 'Close popup'
+      options_close.addEventListener('click', (event) ->
+        if not event.handled
+          body = document.getElementsByTagName('body')[0]
+          body.removeChild(document.getElementsByClassName('full-modal')[0])
+          event.handled = true
+      )
+      options.appendChild(options_close)
+      container.appendChild(options)
+      page = document.createElement('iframe')
+      page.setAttribute('src', event.srcElement.getAttribute('href'))
+      container.appendChild(page)
+      document.getElementsByTagName('body')[0].appendChild(container)
+      event.handled = true
 
 
 
