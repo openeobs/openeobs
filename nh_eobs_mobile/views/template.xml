@@ -51,10 +51,10 @@
                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobileShare(share_button, claim_button), false);
                     </script>
                     </t>
-                    <t t-if="share_list==False">
+                    <t t-if="share_list==None">
                         <div class="footer block">
-                        <p class="user"><t t-esc="username"/></p>
-                    </div>
+                            <p class="user"><t t-esc="username"/></p>
+                        </div>
                     </t>
                     <script type="text/javascript">
                         var trigger_button = document.getElementsByClassName('scan')[0];
@@ -120,24 +120,26 @@
                     <form id="handover_form">
                         <ul class="tasklist sharelist">
                             <li t-foreach="items" t-as="item">
-                                <input type="checkbox" t-att-name="'patient_share_'+str(item['id'])" t-att-value="item['id']" class="patient-share"/>
-                                <a t-att-href="item['url']" t-att-class="item['color']+' block'">
-                                    <div class="task-meta">
-                                        <div class="task-right">
-                                            <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                <label>
+                                    <input type="checkbox" t-att-name="'patient_share_'+str(item['id'])" t-att-value="item['id']" class="patient-share"/>
+                                    <div t-att-class="item['color']+' block'">
+                                        <div class="task-meta">
+                                            <div class="task-right">
+                                                <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                            </div>
+                                            <div class="task-left">
+                                                <t t-if="'notification' in item and item['notification']==True">
+                                                    <i class="icon-alert"></i>
+                                                </t>
+                                                <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
+                                                <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                            </div>
                                         </div>
-                                        <div class="task-left">
-                                            <t t-if="'notification' in item and item['notification']==True">
-                                                <i class="icon-alert"></i>
-                                            </t>
-                                            <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
-                                            <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                        <div class="task-meta">
+                                            <p class="taskInfo"><t t-if="item['followers']"><t t-esc="item['followers']"/></t><br/></p>
                                         </div>
                                     </div>
-                                    <div class="task-meta">
-                                        <p class="taskInfo"><t t-if="item['followers']"><t t-esc="item['followers']"/></t><br/></p>
-                                    </div>
-                                </a>
+                                </label>
                             </li>
                         </ul>
                     </form>
