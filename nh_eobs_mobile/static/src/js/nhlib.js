@@ -1336,10 +1336,15 @@ NHMobileShare = (function(superClass) {
           results = [];
           for (i = 0, len = pts.length; i < len; i++) {
             pt = pts[i];
+            pt.checked = false;
             pt_el = pt.parentNode.getElementsByClassName('block')[0];
-            pt_el.classList.add('shared');
+            pt_el.parentNode.classList.add('shared');
             ti = pt_el.getElementsByClassName('taskInfo')[0];
-            ti.innerHTML = 'Shared with: ' + data['shared_with'].join(', ');
+            if (ti.innerHTML.indexOf('Shared') < 0) {
+              ti.innerHTML = 'Shared with: ' + data['shared_with'].join(', ');
+            } else {
+              ti.innerHTML += ', ' + data['shared_with'].join(', ');
+            }
             cover = document.getElementById('cover');
             document.getElementsByTagName('body')[0].removeChild(cover);
             results.push(popup.parentNode.removeChild(popup));

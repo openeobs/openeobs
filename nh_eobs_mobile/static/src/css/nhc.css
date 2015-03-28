@@ -1518,3 +1518,7 @@ text.title {
 .sharelist li label .level-not-set {
   background-color: #e5dfff;
 }
+
+.sharelist li label.shared{
+    background-color: #eeeeee;
+}
