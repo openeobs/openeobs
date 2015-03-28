@@ -62,7 +62,6 @@ class NHModal
         when 2 then option_list.setAttribute('class', 'options two-col')
         when 3 then option_list.setAttribute('class', 'options three-col')
         when 4 then option_list.setAttribute('class', 'options four-col')
-        else option_list.setAttribute('class', 'options one-col')
       for button in buttons
         do (self) ->
           option_button = document.createElement('li')

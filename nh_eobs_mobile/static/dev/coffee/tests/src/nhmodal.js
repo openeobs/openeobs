@@ -61,9 +61,6 @@ NHModal = (function() {
           break;
         case 4:
           option_list.setAttribute('class', 'options four-col');
-          break;
-        default:
-          option_list.setAttribute('class', 'options one-col');
       }
       fn = function(self) {
         var option_button, ref;
