@@ -147,6 +147,11 @@ class NHModal
         }
         assign_event.initCustomEvent('assign_nurse', false, true, assign_detail)
         document.dispatchEvent assign_event
+      when 'claim'
+        event.preventDefault()
+        claim_event = document.createEvent 'CustomEvent'
+        claim_event.initCustomEvent('claim_patients', false, true)
+        document.dispatchEvent claim_event
 
 if !window.NH
   window.NH = {}

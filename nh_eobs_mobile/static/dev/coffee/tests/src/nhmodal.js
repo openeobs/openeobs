@@ -113,7 +113,7 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var assign_detail, assign_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, nurses, submit_event;
+    var assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, nurses, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
@@ -166,6 +166,11 @@ NHModal = (function() {
         };
         assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
         return document.dispatchEvent(assign_event);
+      case 'claim':
+        event.preventDefault();
+        claim_event = document.createEvent('CustomEvent');
+        claim_event.initCustomEvent('claim_patients', false, true);
+        return document.dispatchEvent(claim_event);
     }
   };
 

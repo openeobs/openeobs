@@ -31,6 +31,13 @@ NHMobileShare = (function(superClass) {
         return event.handled = true;
       }
     });
+    document.addEventListener('claim_patients', function(event) {
+      event.preventDefault();
+      if (!event.handled) {
+        self.claim_patients_click(self, event);
+        return event.handled = true;
+      }
+    });
     NHMobileShare.__super__.constructor.call(this);
   }
 
@@ -73,6 +80,12 @@ NHMobileShare = (function(superClass) {
   };
 
   NHMobileShare.prototype.claim_button_click = function(self) {
+    var assign_btn, btns, can_btn, claim_msg;
+    assign_btn = '<a href="#" data-action="claim" ' + 'data-target="claim_patients" data-ajax-action="json_claim_patients">' + 'Claim</a>';
+    can_btn = '<a href="#" data-action="close" data-target="claim_patients"' + '>Cancel</a>';
+    claim_msg = '<p class="block">Claim patients shared with colleagues</p>';
+    btns = [assign_btn, can_btn];
+    new window.NH.NHModal('claim_patients', 'Claim Patients?', claim_msg, btns, 0, self.form);
     return true;
   };
 
@@ -104,7 +117,7 @@ NHMobileShare = (function(superClass) {
       patient_ids = 'patient_ids=' + patients;
       data_string = patient_ids + '&' + nurse_ids;
       Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-        var cover, data, i, len, pt, pt_el, pts, results, ti;
+        var cover, data, i, len, pt, pt_el, pts, ti;
         data = server_data[0][0];
         if (data['status']) {
           pts = (function() {
@@ -119,7 +132,6 @@ NHMobileShare = (function(superClass) {
             }
             return results;
           })();
-          results = [];
           for (i = 0, len = pts.length; i < len; i++) {
             pt = pts[i];
             pt.checked = false;
@@ -131,16 +143,42 @@ NHMobileShare = (function(superClass) {
             } else {
               ti.innerHTML += ', ' + data['shared_with'].join(', ');
             }
-            cover = document.getElementById('cover');
-            document.getElementsByTagName('body')[0].removeChild(cover);
-            results.push(popup.parentNode.removeChild(popup));
           }
-          return results;
+          cover = document.getElementById('cover');
+          document.getElementsByTagName('body')[0].removeChild(cover);
+          return popup.parentNode.removeChild(popup);
         } else {
           return error_message.innerHTML = 'Error assigning colleague(s),' + ' please try again';
         }
       });
     }
+    return true;
+  };
+
+  NHMobileShare.prototype.claim_patients_click = function(self, event) {
+    var url, urlmeth;
+    url = self.urls.json_claim_patients();
+    urlmeth = url.method;
+    Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
+      var body, btns, can_btn, claim_msg, cover, data, popup;
+      data = server_data[0][0];
+      popup = document.getElementById('claim_patients');
+      cover = document.getElementById('cover');
+      body = document.getElementsByTagName('body')[0];
+      body.removeChild(cover);
+      popup.parentNode.removeChild(popup);
+      if (data['status']) {
+        can_btn = '<a href="#" data-action="close" data-target="claim_success"' + '>Cancel</a>';
+        claim_msg = '<p class="block">Successfully claimed patients</p>';
+        btns = [can_btn];
+        return new window.NH.NHModal('claim_success', 'Patients Claimed', claim_msg, btns, 0, body);
+      } else {
+        can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Cancel</a>';
+        claim_msg = '<p class="block">There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
+        btns = [can_btn];
+        return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);
+      }
+    });
     return true;
   };
 

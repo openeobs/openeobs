@@ -308,6 +308,14 @@ var frontend_routes = {}; (function(_root){
         url: base_url+'staff/assign/'
       })
     }
+
+    _nS('json_claim_patients');
+    _root.json_claim_patients = function(){
+      return _wA({
+        method: 'POST',
+        url: base_url+'staff/claim/'
+      })
+    }
     
     
 

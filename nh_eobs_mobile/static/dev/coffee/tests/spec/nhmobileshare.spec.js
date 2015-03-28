@@ -1,62 +1,4 @@
-describe('NHMobileShare', function() {
-    var mobile, test_area;
-    var patient_info_data = [
-        {
-            'full_name': 'Test Patient',
-            'gender': 'M',
-            'dob': '1988-01-12 00:00',
-            'location': 'Bed 1',
-            'parent_location': 'Ward 1',
-            'ews_score': 1,
-            'other_identifier': '012345678',
-            'patient_identifier': 'NHS012345678',
-            'activities': [
-                {
-                    'display_name': 'NEWS Observation',
-                    'id': 1,
-                    'time': 'Overdue: 00:10 hours'
-                },
-                {
-                    'display_name': 'Inform Medical Team',
-                    'id': 2,
-                    'time': ''
-                }
-            ]
-        }
-    ];
-
-    var nurse_list_data = [[
-        {
-            'name': 'Norah',
-            'id': 1,
-            'patients': 3
-        },
-        {
-            'name': 'Nadine',
-            'id': 2,
-            'patients': 4
-        }
-    ]]
-
-    var assign_server_resp = [
-        {
-            'status': true,
-            'ids': [1],
-            'shared_with': ['Norah']
-        }
-    ]
-
-    beforeEach(function () {
-        // set up the DOM for test
-        var body_el = document.getElementsByTagName('body')[0];
-        var test = document.getElementById('test');
-        if (test != null) {
-            test.parentNode.removeChild(test);
-        }
-        test_area = document.createElement('div');
-        test_area.setAttribute('id', 'test');
-        test_area.style.height = '500px';
-        test_area.innerHTML = '<div class="header">' +
+var test_dom = '<div class="header">' +
             '<div class="header-main block">' +
             '<img src="/mobile/src/img/logo.png" class="logo">' +
             '<ul class="header-meta">' +
@@ -145,6 +87,67 @@ describe('NHMobileShare', function() {
             '<li><a href="#" class="claim" data-nurse="3">Claim</a></li>' +
             '<li><a href="/mobile/patients/">Cancel</a></li>' +
             '</ul></div>';
+
+var patient_info_data = [
+        {
+            'full_name': 'Test Patient',
+            'gender': 'M',
+            'dob': '1988-01-12 00:00',
+            'location': 'Bed 1',
+            'parent_location': 'Ward 1',
+            'ews_score': 1,
+            'other_identifier': '012345678',
+            'patient_identifier': 'NHS012345678',
+            'activities': [
+                {
+                    'display_name': 'NEWS Observation',
+                    'id': 1,
+                    'time': 'Overdue: 00:10 hours'
+                },
+                {
+                    'display_name': 'Inform Medical Team',
+                    'id': 2,
+                    'time': ''
+                }
+            ]
+        }
+    ];
+
+    var nurse_list_data = [[
+        {
+            'name': 'Norah',
+            'id': 1,
+            'patients': 3
+        },
+        {
+            'name': 'Nadine',
+            'id': 2,
+            'patients': 4
+        }
+    ]]
+
+    var assign_server_resp = [
+        {
+            'status': true,
+            'ids': [1],
+            'shared_with': ['Norah']
+        }
+    ];
+
+describe('NHMobileShare', function() {
+    var mobile, test_area, share_button, claim_button;
+
+    beforeEach(function () {
+        // set up the DOM for test
+        var body_el = document.getElementsByTagName('body')[0];
+        var test = document.getElementById('test');
+        if (test != null) {
+            test.parentNode.removeChild(test);
+        }
+        test_area = document.createElement('div');
+        test_area.setAttribute('id', 'test');
+        test_area.style.height = '500px';
+        test_area.innerHTML = test_dom;
         body_el.appendChild(test_area);
         if (mobile == null) {
             share_button = test_area.getElementsByClassName('share')[0];
@@ -173,21 +176,12 @@ describe('NHMobileShare', function() {
         if (test != null) {
             test.parentNode.removeChild(test);
         }
-//        var covers = document.getElementsByClassName('cover');
-//        var dialog = document.getElementById('patient_share');
         var body = document.getElementsByTagName('body')[0];
-//        for (var i = 0; i < covers.length; i++) {
-//            var cover = covers[i];
-//            body.removeChild(cover);
-//        }
-//        if (dialog) {
-//            body.removeChild(dialog);
-//        }
     });
 
     it('Creates a click event listener on share button', function(){
     	spyOn(NHMobileShare.prototype, 'share_button_click');
-    	var share_button = test_area.getElementsByClassName('share')[0];
+    	share_button = test_area.getElementsByClassName('share')[0];
     	// fire a click event at the scan button
     	var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -213,7 +207,7 @@ describe('NHMobileShare', function() {
         var test_patient = document.getElementsByClassName('patient_share_checkbox')[0];
         test_patient.checked = true;
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -231,7 +225,7 @@ describe('NHMobileShare', function() {
         test_patient.checked = true;
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -247,7 +241,7 @@ describe('NHMobileShare', function() {
         spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
         spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
         // send click event to the share button
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -270,7 +264,7 @@ describe('NHMobileShare', function() {
         test_patient.checked = true;
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -302,7 +296,7 @@ describe('NHMobileShare', function() {
         test_patient.checked = true;
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -333,7 +327,7 @@ describe('NHMobileShare', function() {
         test_patient.checked = true;
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -373,7 +367,7 @@ describe('NHMobileShare', function() {
 
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -416,7 +410,7 @@ describe('NHMobileShare', function() {
 
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -459,7 +453,7 @@ describe('NHMobileShare', function() {
 
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -512,7 +506,7 @@ describe('NHMobileShare', function() {
 
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -589,52 +583,8 @@ describe('NHMobileShare', function() {
 });
 
 describe('NHMobileShare - server unable to assign patient to colleague', function(){
-    var mobile, test_area;
-    var patient_info_data = [
-        {
-            'full_name': 'Test Patient',
-            'gender': 'M',
-            'dob': '1988-01-12 00:00',
-            'location': 'Bed 1',
-            'parent_location': 'Ward 1',
-            'ews_score': 1,
-            'other_identifier': '012345678',
-            'patient_identifier': 'NHS012345678',
-            'activities': [
-                {
-                    'display_name': 'NEWS Observation',
-                    'id': 1,
-                    'time': 'Overdue: 00:10 hours'
-                },
-                {
-                    'display_name': 'Inform Medical Team',
-                    'id': 2,
-                    'time': ''
-                }
-            ]
-        }
-    ];
+    var mobile, test_area, share_button, claim_button;
 
-    var nurse_list_data = [[
-        {
-            'name': 'Norah',
-            'id': 1,
-            'patients': 3
-        },
-        {
-            'name': 'Nadine',
-            'id': 2,
-            'patients': 4
-        }
-    ]]
-
-    var assign_server_resp = [
-        {
-            'status': true,
-            'ids': [1],
-            'shared_with': ['Norah']
-        }
-    ]
 
     beforeEach(function () {
         // set up the DOM for test
@@ -646,95 +596,7 @@ describe('NHMobileShare - server unable to assign patient to colleague', functio
         test_area = document.createElement('div');
         test_area.setAttribute('id', 'test');
         test_area.style.height = '500px';
-        test_area.innerHTML = '<div class="header">' +
-            '<div class="header-main block">' +
-            '<img src="/mobile/src/img/logo.png" class="logo">' +
-            '<ul class="header-meta">' +
-            '<li><a href="/mobile/patient/handover" class="button handover">Handover</a></li>' +
-            '<li class="logout"><a href="/mobile/logout/" class="button back">Logout</a></li>' +
-            '</ul></div>' +
-            '<ul class="header-menu two-col">' +
-            '<li><a href="/mobile/tasks/" id="taskNavItem" class="selected">Tasks</a></li>' +
-            '<li><a href="/mobile/patients/" id="patientNavItem">My Patients</a></li>' +
-            '</ul></div>'+
-            '<div class="content">'+
-            '<form id="handover_form">'+
-            '<ul class="tasklist">'+
-            '<li>' +
-            '<input type="checkbox" name="patient_share_74" class="patient_share_checkbox"  value="74"/>'+
-            '<a href="/mobile/patient/74" class="level-none block">' +
-            '<div class="task-meta">' +
-            '<div class="task-right">' +
-            '<p class="aside">overdue: 17:01 hours</p>' +
-            ' </div>' +
-            '<div class="task-left">' +
-            '<strong>Rodriguez, Audrina </strong> ( <i class="icon-none-arrow"></i>)<br>' +
-            ' <em>Bed 05,Ward A</em>' +
-            '</div>' +
-            '</div>' +
-            '<div class="task-meta">' +
-            '<p class="taskInfo"><br></p>' +
-            '</div>' +
-            '</a>' +
-            '</li><li>' +
-            '<input type="checkbox" name="patient_share_73" class="patient_share_checkbox"  value="73"/>'+
-            '<a href="/mobile/patient/73" class="level-none block">' +
-            '<div class="task-meta">' +
-            '<div class="task-right">' +
-            '<p class="aside">overdue: 17:01 hours</p>' +
-            '</div>' +
-            ' <div class="task-left">' +
-            '<strong>Kreiger, Concha </strong> ( <i class="icon-none-arrow"></i>)<br>' +
-            '<em>Bed 06,Ward A</em>' +
-            '</div>' +
-            '</div>' +
-            '<div class="task-meta">' +
-            '<p class="taskInfo"><br></p>' +
-            '</div>' +
-            '</a>' +
-            '</li><li>' +
-            '<input type="checkbox" name="patient_share_75" class="patient_share_checkbox" value="75"/>'+
-            '<a href="/mobile/patient/75" class="level-none block">' +
-            '<div class="task-meta">' +
-            '<div class="task-right">' +
-            '<p class="aside">overdue: 17:01 hours</p>' +
-            '</div>' +
-            '<div class="task-left">' +
-            '<strong>Stokes, Josue </strong> ( <i class="icon-none-arrow"></i>)<br>' +
-            '<em>Bed 07,Ward A</em>' +
-            '</div>' +
-            '</div>' +
-            '<div class="task-meta">' +
-            '<p class="taskInfo"><br></p>' +
-            '</div>' +
-            '</a>' +
-            '</li><li>' +
-            '<input type="checkbox" name="patient_share_76" class="patient_share_checkbox" value="76"/>'+
-            '<a href="/mobile/patient/76" class="level-two block">' +
-            '<div class="task-meta">' +
-            '<div class="task-right">' +
-            '<p class="aside">overdue: 16:15 hours</p>' +
-            '</div>' +
-            '<div class="task-left">' +
-            '<strong>Crooks, Montgomery </strong> (5 <i class="icon-first-arrow"></i>)<br>' +
-            '<em>Bed 09,Ward A</em>' +
-            '</div>' +
-            '</div>' +
-            '<div class="task-meta">' +
-            '<p class="taskInfo"><br></p>' +
-            '</div>' +
-            '</a>' +
-            '</li>'+
-            '</ul>' +
-            '</form>'+
-            '</div>'+
-            '<div class="footer">'+
-            '<p class="user">Norah</p>'+
-            '<ul class="footer-menu three-col">' +
-            '<li><a href="#" class="share" data-nurse="3">Share</a></li>' +
-            '<li><a href="#" class="claim" data-nurse="3">Claim</a></li>' +
-            '<li><a href="/mobile/patients/">Cancel</a></li>' +
-            '</ul></div>';
+        test_area.innerHTML = test_dom;
         body_el.appendChild(test_area);
         if (mobile == null) {
             share_button = test_area.getElementsByClassName('share')[0];
@@ -763,16 +625,7 @@ describe('NHMobileShare - server unable to assign patient to colleague', functio
         if (test != null) {
             test.parentNode.removeChild(test);
         }
-//        var covers = document.getElementsByClassName('cover');
-//        var dialog = document.getElementById('patient_share');
         var body = document.getElementsByTagName('body')[0];
-//        for (var i = 0; i < covers.length; i++) {
-//            var cover = covers[i];
-//            body.removeChild(cover);
-//        }
-//        if (dialog) {
-//            body.removeChild(dialog);
-//        }
     });
 
     it('On the server returning that the assign operation was unsuccessfull show an error message', function(){
@@ -792,7 +645,7 @@ describe('NHMobileShare - server unable to assign patient to colleague', functio
 
 
 
-        var share_button = test_area.getElementsByClassName('share')[0];
+        share_button = test_area.getElementsByClassName('share')[0];
         // fire a click event at the scan button
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
@@ -829,4 +682,128 @@ describe('NHMobileShare - server unable to assign patient to colleague', functio
         var error_message = dialog1.getElementsByClassName('error')[0]
         expect(error_message.innerHTML).toBe('Error assigning colleague(s), please try again')
     });
+});
+
+describe('NHMobileShare - Claim back patients from colleagues', function() {
+    var mobile, test_area, share_button, claim_button;
+
+
+    beforeEach(function () {
+        // set up the DOM for test
+        var body_el = document.getElementsByTagName('body')[0];
+        var test = document.getElementById('test');
+        if (test != null) {
+            test.parentNode.removeChild(test);
+        }
+        test_area = document.createElement('div');
+        test_area.setAttribute('id', 'test');
+        test_area.style.height = '500px';
+        test_area.innerHTML = test_dom;
+        body_el.appendChild(test_area);
+        if (mobile == null) {
+            share_button = test_area.getElementsByClassName('share')[0];
+            claim_button = test_area.getElementsByClassName('claim')[0];
+            mobile = new NHMobileShare(share_button, claim_button);
+        }
+    });
+
+    afterEach(function () {
+        if (mobile != null) {
+            mobile = null;
+        }
+        var test = document.getElementById('test');
+        if (test != null) {
+            test.parentNode.removeChild(test);
+        }
+        var body = document.getElementsByTagName('body')[0];
+    });
+
+
+    it('Shows popup with Claim options when pressing claim button', function(){
+        spyOn(NHMobileShare.prototype, 'claim_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        claim_button.dispatchEvent(click_event);
+        expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('claim_patients');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Claim Patients?');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<p class="block">Claim patients shared with colleagues</p>');
+    });
+    it('On pressing the popup\'s claim button the server is sent a claim request', function(){
+        spyOn(NHMobileShare.prototype, 'claim_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'claim_patients_click').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function (method, url) {
+          var promise = new Promise();
+          promise.complete([
+            {'status': true}
+          ]);
+          return promise;
+        });
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        claim_button.dispatchEvent(click_event);
+        expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('claim_patients');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Claim Patients?');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<p class="block">Claim patients shared with colleagues</p>');
+
+        var popup = document.getElementById('claim_patients');
+        var popup_options = popup.getElementsByClassName('options')[0];
+        var popup_claim = popup_options.getElementsByTagName('a')[0];
+        var click_claim = document.createEvent('CustomEvent');
+        click_claim.initCustomEvent('click', false, true, false);
+        popup_claim.dispatchEvent(click_claim);
+
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.claim_patients_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.count()).toBe(2);
+
+        var success_dialog = document.getElementById('claim_success');
+        expect(success_dialog).not.toBe(null);
+    });
+
+    it('On pressing the popup\'s claim button the server is sent a claim request but it fails', function(){
+        spyOn(NHMobileShare.prototype, 'claim_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'claim_patients_click').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function (method, url) {
+          var promise = new Promise();
+          promise.complete([
+            {'status': false}
+          ]);
+          return promise;
+        });
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        claim_button.dispatchEvent(click_event);
+        expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('claim_patients');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Claim Patients?');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<p class="block">Claim patients shared with colleagues</p>');
+
+        var popup = document.getElementById('claim_patients');
+        var popup_options = popup.getElementsByClassName('options')[0];
+        var popup_claim = popup_options.getElementsByTagName('a')[0];
+        var click_claim = document.createEvent('CustomEvent');
+        click_claim.initCustomEvent('click', false, true, false);
+        popup_claim.dispatchEvent(click_claim);
+
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.claim_patients_click).toHaveBeenCalled();
+        expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.count()).toBe(2);
+
+        var error_dialog = document.getElementById('claim_error');
+        expect(error_dialog).not.toBe(null);
+    });
+
+
 });

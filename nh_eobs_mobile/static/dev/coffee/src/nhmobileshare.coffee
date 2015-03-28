@@ -22,6 +22,11 @@ class NHMobileShare extends NHMobile
       if not event.handled
         self.assign_button_click(self, event)
         event.handled = true
+    document.addEventListener 'claim_patients', (event) ->
+      event.preventDefault()
+      if not event.handled
+        self.claim_patients_click(self, event)
+        event.handled = true
     super()
 
   # On share button being pressed:
@@ -64,6 +69,15 @@ class NHMobileShare extends NHMobile
   # - Send list of selected ids to server
   # - Update UI to reflect the change
   claim_button_click: (self) ->
+    assign_btn = '<a href="#" data-action="claim" '+
+      'data-target="claim_patients" data-ajax-action="json_claim_patients">'+
+      'Claim</a>'
+    can_btn = '<a href="#" data-action="close" data-target="claim_patients"'+
+      '>Cancel</a>'
+    claim_msg = '<p class="block">Claim patients shared with colleagues</p>'
+    btns = [assign_btn, can_btn]
+    new window.NH.NHModal('claim_patients', 'Claim Patients?',
+      claim_msg, btns, 0, self.form)
     return true
 
   # On Assign button being click in the modal:
@@ -100,12 +114,39 @@ class NHMobileShare extends NHMobile
             else
               ti.innerHTML += ', ' + data['shared_with'].join(', ')
 
-            cover = document.getElementById('cover')
-            document.getElementsByTagName('body')[0].removeChild(cover)
-            popup.parentNode.removeChild(popup)
+          cover = document.getElementById('cover')
+          document.getElementsByTagName('body')[0].removeChild(cover)
+          popup.parentNode.removeChild(popup)
         else
           error_message.innerHTML = 'Error assigning colleague(s),'+
             ' please try again'
+    return true
+
+  claim_patients_click: (self, event) ->
+    url = self.urls.json_claim_patients()
+    urlmeth = url.method
+    Promise.when(self.process_request(urlmeth, url.url)).then (server_data) ->
+      data = server_data[0][0]
+      popup = document.getElementById('claim_patients')
+      cover = document.getElementById('cover')
+      body = document.getElementsByTagName('body')[0]
+      body.removeChild(cover)
+      popup.parentNode.removeChild(popup)
+      if data['status']
+        can_btn = '<a href="#" data-action="close" data-target="claim_success"'+
+          '>Cancel</a>'
+        claim_msg = '<p class="block">Successfully claimed patients</p>'
+        btns = [can_btn]
+        new window.NH.NHModal('claim_success', 'Patients Claimed',
+          claim_msg, btns, 0, body)
+      else
+        can_btn = '<a href="#" data-action="close" data-target="claim_error"'+
+          '>Cancel</a>'
+        claim_msg = '<p class="block">There was an error claiming back your'+
+          ' patients, please contact your Ward Manager</p>'
+        btns = [can_btn]
+        new window.NH.NHModal('claim_error', 'Error claiming patients',
+          claim_msg, btns, 0, body)
     return true
 
 
