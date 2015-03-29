@@ -110,7 +110,7 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, nurses, submit_event;
+    var assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, nurses, submit_detail, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
@@ -122,9 +122,11 @@ NHModal = (function() {
         return dialog_id.parentNode.removeChild(dialog_id);
       case 'submit':
         event.preventDefault();
-        submit_event = new CustomEvent('post_score_submit', {
-          'detail': event.srcElement.getAttribute('data-ajax-action')
-        });
+        submit_event = document.createEvent('CustomEvent');
+        submit_detail = {
+          'endpoint': event.srcElement.getAttribute('data-ajax-action')
+        };
+        submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
         document.dispatchEvent(submit_event);
         dialog_id = document.getElementById(data_target);
         cover = document.getElementById('cover');
@@ -132,13 +134,17 @@ NHModal = (function() {
         return dialog_id.parentNode.removeChild(dialog_id);
       case 'partial_submit':
         event.preventDefault();
-        submit_event = new CustomEvent('partial_submit', {
-          'detail': {
+        if (!event.handled) {
+          submit_event = document.createEvent('CustomEvent');
+          submit_detail = {
             'action': data_action,
             'target': data_target
-          }
-        });
-        return document.dispatchEvent(submit_event);
+          };
+          submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
+          document.dispatchEvent(submit_event);
+          return event.handled = true;
+        }
+        break;
       case 'assign':
         event.preventDefault();
         dialog = document.getElementById(data_target);

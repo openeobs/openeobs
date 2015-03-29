@@ -43,25 +43,14 @@ class NHMobileForm extends NHMobile
     window.form_timeout = setTimeout(window.timeout_func, @form_timeout)
 
     document.addEventListener 'post_score_submit', (event) ->
-      form_elements = (element for element in self.form.elements when not
-        element.classList.contains('exclude'))
-      endpoint = event.detail
-      self.submit_observation(self,
-        form_elements, endpoint, self.form.getAttribute('ajax-args'))
+      if not event.handled
+        self.process_post_score_submit(self, event)
+        event.handled = true
 
     document.addEventListener 'partial_submit', (event) ->
-      form_elements = (element for element in self.form.elements when not
-        element.classList.contains('exclude'))
-      reason = document.getElementsByName('partial_reason')[0]
-      if reason
-        form_elements.push(reason)
-      details = event.detail
-      self.submit_observation(self, form_elements, details.action,
-        self.form.getAttribute('ajax-args'))
-      dialog_id = document.getElementById(details.target)
-      cover = document.getElementById('cover')
-      document.getElementsByTagName('body')[0].removeChild(cover)
-      dialog_id.parentNode.removeChild(dialog_id)
+      if not event.handled
+        self.process_partial_submit(self,event)
+        event.handled = true
 
     @patient_name_el.addEventListener 'click', (event) ->
       event.preventDefault()
@@ -220,6 +209,7 @@ class NHMobileForm extends NHMobile
     url = @.urls[endpoint].apply(this, args.split(','))
     Promise.when(@call_resource(url, serialised_string)).then (server_data) ->
       data = server_data[0][0]
+      body = document.getElementsByTagName('body')[0]
       if data and data.status is 3
         can_btn = '<a href="#" data-action="close" '+
           'data-target="submit_observation">Cancel</a>'
@@ -229,7 +219,7 @@ class NHMobileForm extends NHMobile
         new window.NH.NHModal('submit_observation',
           data.modal_vals['title'] + ' for ' + self.patient_name() + '?',
           data.modal_vals['content'],
-          [can_btn, act_btn], 0, self.form)
+          [can_btn, act_btn], 0, body)
         if 'clinical_risk' of data.score
           sub_ob = document.getElementById('submit_observation')
           cls = 'clinicalrisk-'+data.score['clinical_risk'].toLowerCase()
@@ -253,7 +243,7 @@ class NHMobileForm extends NHMobile
         task_list = if triggered_tasks then triggered_tasks else pos
         title = if triggered_tasks then 'Action required' else os
         new window.NH.NHModal('submit_success', title ,
-          task_list, buttons, 0, self.form)
+          task_list, buttons, 0, body)
       else if data and data.status is 4
         btn = '<a href="'+self.urls['task_list']().url+
           '" data-action="confirm" data-target="cancel_success">'+
@@ -326,7 +316,25 @@ class NHMobileForm extends NHMobile
     inp = document.getElementById(field)
     inp.classList.remove('exclude')
 
+  process_partial_submit: (self, event) ->
+    form_elements = (element for element in self.form.elements when not
+      element.classList.contains('exclude'))
+    reason = document.getElementsByName('partial_reason')[0]
+    if reason
+      form_elements.push(reason)
+      self.submit_observation(self, form_elements, event.detail.action,
+        self.form.getAttribute('ajax-args'))
+      dialog_id = document.getElementById(event.detail.target)
+      cover = document.getElementById('cover')
+      document.getElementsByTagName('body')[0].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)
 
+  process_post_score_submit: (self, event) ->
+    form_elements = (element for element in self.form.elements when not
+      element.classList.contains('exclude'))
+    endpoint = event.detail.endpoint
+    self.submit_observation(self,
+      form_elements, endpoint, self.form.getAttribute('ajax-args'))
 
 if !window.NH
   window.NH = {}

@@ -64,46 +64,16 @@ NHMobileForm = (function(superClass) {
     };
     window.form_timeout = setTimeout(window.timeout_func, this.form_timeout);
     document.addEventListener('post_score_submit', function(event) {
-      var element, endpoint, form_elements;
-      form_elements = (function() {
-        var j, len1, ref1, results;
-        ref1 = self.form.elements;
-        results = [];
-        for (j = 0, len1 = ref1.length; j < len1; j++) {
-          element = ref1[j];
-          if (!element.classList.contains('exclude')) {
-            results.push(element);
-          }
-        }
-        return results;
-      })();
-      endpoint = event.detail;
-      return self.submit_observation(self, form_elements, endpoint, self.form.getAttribute('ajax-args'));
+      if (!event.handled) {
+        self.process_post_score_submit(self, event);
+        return event.handled = true;
+      }
     });
     document.addEventListener('partial_submit', function(event) {
-      var cover, details, dialog_id, element, form_elements, reason;
-      form_elements = (function() {
-        var j, len1, ref1, results;
-        ref1 = self.form.elements;
-        results = [];
-        for (j = 0, len1 = ref1.length; j < len1; j++) {
-          element = ref1[j];
-          if (!element.classList.contains('exclude')) {
-            results.push(element);
-          }
-        }
-        return results;
-      })();
-      reason = document.getElementsByName('partial_reason')[0];
-      if (reason) {
-        form_elements.push(reason);
+      if (!event.handled) {
+        self.process_partial_submit(self, event);
+        return event.handled = true;
       }
-      details = event.detail;
-      self.submit_observation(self, form_elements, details.action, self.form.getAttribute('ajax-args'));
-      dialog_id = document.getElementById(details.target);
-      cover = document.getElementById('cover');
-      document.getElementsByTagName('body')[0].removeChild(cover);
-      return dialog_id.parentNode.removeChild(dialog_id);
     });
     return this.patient_name_el.addEventListener('click', function(event) {
       var can_btn, patient_id;
@@ -327,12 +297,13 @@ NHMobileForm = (function(superClass) {
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
     return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
-      var act_btn, btn, buttons, can_btn, cls, data, i, len, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
+      var act_btn, body, btn, buttons, can_btn, cls, data, i, len, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
       data = server_data[0][0];
+      body = document.getElementsByTagName('body')[0];
       if (data && data.status === 3) {
         can_btn = '<a href="#" data-action="close" ' + 'data-target="submit_observation">Cancel</a>';
         act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>';
-        new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], [can_btn, act_btn], 0, self.form);
+        new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
           cls = 'clinicalrisk-' + data.score['clinical_risk'].toLowerCase();
@@ -359,7 +330,7 @@ NHMobileForm = (function(superClass) {
         os = 'Observation successfully submitted';
         task_list = triggered_tasks ? triggered_tasks : pos;
         title = triggered_tasks ? 'Action required' : os;
-        return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, self.form);
+        return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, body);
       } else if (data && data.status === 4) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
         return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
@@ -439,6 +410,49 @@ NHMobileForm = (function(superClass) {
     el.style.display = 'block';
     inp = document.getElementById(field);
     return inp.classList.remove('exclude');
+  };
+
+  NHMobileForm.prototype.process_partial_submit = function(self, event) {
+    var cover, dialog_id, element, form_elements, reason;
+    form_elements = (function() {
+      var i, len, ref, results;
+      ref = self.form.elements;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        element = ref[i];
+        if (!element.classList.contains('exclude')) {
+          results.push(element);
+        }
+      }
+      return results;
+    })();
+    reason = document.getElementsByName('partial_reason')[0];
+    if (reason) {
+      form_elements.push(reason);
+      self.submit_observation(self, form_elements, event.detail.action, self.form.getAttribute('ajax-args'));
+      dialog_id = document.getElementById(event.detail.target);
+      cover = document.getElementById('cover');
+      document.getElementsByTagName('body')[0].removeChild(cover);
+      return dialog_id.parentNode.removeChild(dialog_id);
+    }
+  };
+
+  NHMobileForm.prototype.process_post_score_submit = function(self, event) {
+    var element, endpoint, form_elements;
+    form_elements = (function() {
+      var i, len, ref, results;
+      ref = self.form.elements;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        element = ref[i];
+        if (!element.classList.contains('exclude')) {
+          results.push(element);
+        }
+      }
+      return results;
+    })();
+    endpoint = event.detail.endpoint;
+    return self.submit_observation(self, form_elements, endpoint, self.form.getAttribute('ajax-args'));
   };
 
   return NHMobileForm;

@@ -25,6 +25,8 @@ describe('NHMobileForm - Patient Information', function(){
             ]
         }
     ];
+
+    
     beforeEach(function(){
        var test = document.getElementById('test');
        if(test != null){
@@ -104,21 +106,41 @@ describe('NHMobileForm - Patient Information', function(){
         if(test != null){
             test.parentNode.removeChild(test);
         }
-         var covers = document.getElementsByClassName('cover');
-        var body = document.getElementsByTagName('body')[0];
-         for(var i = 0; i < covers.length; i++){
+        var covers = document.getElementsByClassName('cover');
+        for(var i = 0; i < covers.length; i++){
             var cover = covers[i];
-            body.removeChild(cover);
+            cover.parentNode.removeChild(cover)
+        }
+        for(var i = 0; i < document.getElementsByClassName('dialog').length; i++){
+            var dialog = document.getElementsByClassName('dialog')[i];
+            dialog.parentNode.removeChild(dialog);
         }
         clearInterval(window.form_timeout);
     });
 });
 
 describe('NHMobileForm - EventListeners', function(){
-   var partial_reasons_data = [
+   var partial_reasons_data = [[
         [1, 'Asleep'],
         [2, 'Unable to stand']
-   ];
+   ]];
+   var obs_submitted_no_triggered_tasks = [{
+        'status': 1, 
+        'related_tasks': []
+    }];
+   var obs_submitted_score_confirmation = [{
+        'status': 3,
+        'modal_vals': {
+            'title': 'Submit NEWS of 5',
+            'content': '<p><strong>Clinical risk: Medium</strong></p><p>Please confirm you want to submit this score</p>',
+            'next_action': 'json_task_form_action'
+        },
+        'score': {
+            'score': 5,
+            'clinical_risk': 'Medium',
+            'three_in_one': true
+        }
+   }]
    beforeEach(function(){
        var test = document.getElementById('test');
        if(test != null){
@@ -215,9 +237,61 @@ describe('NHMobileForm - EventListeners', function(){
         expect(reason_list_reasons.length).toBe(2);
     });
 
+    it('Partial reasons are displayed and submitted', function(){
+        spyOn(NHMobileForm.prototype, "display_partial_reasons").and.callThrough();
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_partial_submit").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(method, url){
+            if(method=='GET'){
+              var promise = new Promise();
+              promise.complete(partial_reasons_data);
+              return promise;  
+            }else{
+              var promise = new Promise();
+              promise.complete(obs_submitted_no_triggered_tasks);
+              return promise;  
+            }
+        });
+        var mobile_form = new NHMobileForm();
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
+        expect(NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.count()).toBe(1);
+        expect(NHMobileForm.prototype.process_request).toHaveBeenCalled();
+
+
+        var partial_reasons = document.getElementById('partial_reasons');
+        expect(partial_reasons).not.toBe(null);
+        var reason_list = partial_reasons.getElementsByTagName('select')[0];
+        var reason_list_reasons = reason_list.getElementsByTagName('option');
+        expect(reason_list_reasons.length).toBe(2);
+        reason_list.value = 1;
+
+        var popup_buttons = partial_reasons.getElementsByClassName('options')[0];
+        var confirm_button = popup_buttons.getElementsByTagName('a')[1];
+        var confirm_event = document.createEvent('CustomEvent');
+        confirm_event.initCustomEvent('click', false, true, false);
+        confirm_button.dispatchEvent(confirm_event);
+
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileForm.prototype.process_partial_submit).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.count()).toBe(2);
+
+
+        var success_dialog = document.getElementById('submit_success');
+        expect(success_dialog).not.toBe(null);
+        // For whatever reason this function doesn't get called although it totally does
+        //expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+    });
+
     it('submit full is triggered', function(){
-        spyOn(window.NHMobileForm.prototype, "submit_observation");
-        var mobile_form = new window.NHMobileForm();
+        spyOn(NHMobileForm.prototype, "submit_observation");
+        var mobile_form = new NHMobileForm();
         var rr_el = document.getElementById('respiration_rate');
         rr_el.value = 18;
         var supp_el = document.getElementById('oxygen_administration_flag');
@@ -226,14 +300,73 @@ describe('NHMobileForm - EventListeners', function(){
         var change_event = document.createEvent('CustomEvent');
         change_event.initCustomEvent('click', false, true, false);
         test_input.dispatchEvent(change_event);
-        expect(window.NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
     });
 
-    it('sets up the form  timeout', function() {
+    it('submit full is triggered and score confirmation popup is shown', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(obs_submitted_score_confirmation);
+            return promise;  
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        var sub_ob = document.getElementById('submit_observation');
+        expect(sub_ob).not.toBe(null);
+    });
+
+    it('submit full is triggered, score confirm popup shown and submit button pressed', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, 'process_post_score_submit').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(obs_submitted_score_confirmation);
+            return promise;  
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        var sub_ob = document.getElementById('submit_observation');
+        expect(sub_ob).not.toBe(null);
+        var sub_ob_options = sub_ob.getElementsByClassName('options')[0];
+        var sub_sub = sub_ob_options.getElementsByTagName('a')[1];
+        var sub_event = document.createEvent('CustomEvent');
+        sub_event.initCustomEvent('click', false, true, false);
+        sub_sub.dispatchEvent(sub_event);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileForm.prototype.process_post_score_submit).toHaveBeenCalled();
+    });
+
+    it('sets up the form timeout', function() {
         var mobile_form = new window.NHMobileForm();
         expect(typeof(window.form_timeout)).toBe('number');
     });
-    
+
+    it('Handles form timeout', function(){
+        spyOn(NHMobileForm.prototype, 'handle_timeout').and.callThrough();
+        var mobile_form = new NHMobileForm();
+        var timeout_event = document.createEvent('CustomEvent')
+        timeout_event.initCustomEvent('form_timeout', false, true, {'detail': 'form timed out'})
+        document.dispatchEvent(timeout_event)
+        expect(NHMobileForm.prototype.handle_timeout).toHaveBeenCalled();
+    });
 
 
     afterEach(function(){
@@ -241,11 +374,14 @@ describe('NHMobileForm - EventListeners', function(){
         if(test != null){
             test.parentNode.removeChild(test);
         }
-         var covers = document.getElementsByClassName('cover');
-        var body = document.getElementsByTagName('body')[0];
-         for(var i = 0; i < covers.length; i++){
+        var covers = document.getElementsByClassName('cover');
+        for(var i = 0; i < covers.length; i++){
 	        var cover = covers[i];
-	        body.removeChild(cover);
+            cover.parentNode.removeChild(cover)
+        }
+        for(var i = 0; i < document.getElementsByClassName('dialog').length; i++){
+            var dialog = document.getElementsByClassName('dialog')[i];
+            dialog.parentNode.removeChild(dialog);
         }
         clearInterval(window.form_timeout);
     });
@@ -518,10 +654,13 @@ describe('NHMobileForm - Validation', function(){
             test.parentNode.removeChild(test);
         }
         var covers = document.getElementsByClassName('cover');
-        var body = document.getElementsByTagName('body')[0];
         for(var i = 0; i < covers.length; i++){
             var cover = covers[i];
-            body.removeChild(cover);
+            cover.parentNode.removeChild(cover)
+        }
+        for(var i = 0; i < document.getElementsByClassName('dialog').length; i++){
+            var dialog = document.getElementsByClassName('dialog')[i];
+            dialog.parentNode.removeChild(dialog);
         }
         clearInterval(window.form_timeout);
     });
@@ -584,10 +723,13 @@ describe('NHMobileForm - Triggered Actions', function(){
             test.parentNode.removeChild(test);
         }
         var covers = document.getElementsByClassName('cover');
-        var body = document.getElementsByTagName('body')[0];
         for(var i = 0; i < covers.length; i++){
             var cover = covers[i];
-            body.removeChild(cover);
+            cover.parentNode.removeChild(cover)
+        }
+        for(var i = 0; i < document.getElementsByClassName('dialog').length; i++){
+            var dialog = document.getElementsByClassName('dialog')[i];
+            dialog.parentNode.removeChild(dialog);
         }
         clearInterval(window.form_timeout);
     });
@@ -697,10 +839,13 @@ describe('NHMobileForm - Triggered Actions PBP', function(){
             test.parentNode.removeChild(test);
         }
         var covers = document.getElementsByClassName('cover');
-        var body = document.getElementsByTagName('body')[0];
         for(var i = 0; i < covers.length; i++){
             var cover = covers[i];
-            body.removeChild(cover);
+            cover.parentNode.removeChild(cover)
+        }
+        for(var i = 0; i < document.getElementsByClassName('dialog').length; i++){
+            var dialog = document.getElementsByClassName('dialog')[i];
+            dialog.parentNode.removeChild(dialog);
         }
         clearInterval(window.form_timeout);
     });

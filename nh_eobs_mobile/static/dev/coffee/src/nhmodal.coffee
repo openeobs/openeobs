@@ -120,8 +120,12 @@ class NHModal
         dialog_id.parentNode.removeChild(dialog_id)
       when 'submit'
         event.preventDefault()
-        submit_event = new CustomEvent 'post_score_submit',
-          {'detail': event.srcElement.getAttribute('data-ajax-action')}
+        submit_event = document.createEvent 'CustomEvent'
+        submit_detail = {
+          'endpoint': event.srcElement.getAttribute('data-ajax-action')
+        }
+        submit_event.initCustomEvent('post_score_submit', true, false,
+          submit_detail)
         document.dispatchEvent submit_event
         dialog_id = document.getElementById(data_target)
         cover = document.getElementById('cover')
@@ -129,10 +133,16 @@ class NHModal
         dialog_id.parentNode.removeChild(dialog_id)
       when 'partial_submit'
         event.preventDefault()
-        submit_event = new CustomEvent 'partial_submit',
-          {'detail': {'action':data_action,
-          'target': data_target}}
-        document.dispatchEvent submit_event
+        if not event.handled
+          submit_event = document.createEvent 'CustomEvent'
+          submit_detail = {
+            'action':data_action,
+            'target': data_target
+          }
+          submit_event.initCustomEvent('partial_submit',false,
+            true,submit_detail)
+          document.dispatchEvent submit_event
+          event.handled = true
       when 'assign'
         event.preventDefault()
         dialog = document.getElementById(data_target)
