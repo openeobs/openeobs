@@ -1,4 +1,124 @@
+describe('NHMobileForm - Patient Information', function(){
+    var mobile_form;
+
+    var patient_info_data = [
+        {
+            'full_name': 'Test Patient',
+            'gender': 'M',
+            'dob': '1988-01-12 00:00',
+            'location': 'Bed 1',
+            'parent_location': 'Ward 1',
+            'ews_score': 1,
+            'other_identifier': '012345678',
+            'patient_identifier': 'NHS012345678',
+            'activities': [
+                {
+                    'display_name': 'NEWS Observation',
+                    'id': 1,
+                    'time': 'Overdue: 00:10 hours'
+                },
+                {
+                    'display_name': 'Inform Medical Team',
+                    'id': 2,
+                    'time': ''
+                }
+            ]
+        }
+    ];
+    beforeEach(function(){
+       var test = document.getElementById('test');
+       if(test != null){
+           test.parentNode.removeChild(test);
+       }
+       var test_area = document.createElement('div');
+       test_area.setAttribute('id', 'test');
+       test_area.style.height = '500px';
+       test_area.innerHTML = '<h2 id="patientName" patient-id="11"><a href="#" patient-id="11">Test Patient</a></h2>'+
+         '<form action="" method="POST" data-type="ews" task-id="704" patient-id="11" id="obsForm" data-source="task" ajax-action="json_task_form_action" ajax-args="ews,7309">'+
+         '<div>'+
+         '<div class="block obsField" id="parent_respiration_rate">'+
+         '<div class="input-header">'+
+         '<label for="respiration_rate">Respiration Rate</label>'+
+         '<input type="number" name="respiration_rate" id="respiration_rate" min="1" max="59" step="1">'+
+         '</div>'+
+         '<div class="input-body">'+
+         '<span class="errors"></span><span class="help"></span>'+
+         '</div></div></div>'+
+         '<div><div class="block obsSelectField" id="parent_oxygen_administration_flag">'+
+         '<div class="input-header">'+
+         '<label for="oxygen_administration_flag">Patient on supplemental O2</label></div>'+
+         '<div class="input-body">'+
+         '<select id="oxygen_administration_flag" name="oxygen_administration_flag" data-onchange="[{\'False\': {\'hide\': [\'device_id\', \'flow_rate\', \'concentration\', \'cpap_peep\', \'niv_backup\', \'niv_ipap\', \'niv_epap\'], \'show\': []}, \'True\': {\'hide\': [], \'show\': [\'device_id\']}}]">'+
+         '<option value="">Please Select</option>'+
+         '<option value="False">No</option>'+
+         '<option value="True">Yes</option>'+
+         '</select>'+
+         '<span class="errors"></span><span class="help"></span>'+
+         '</div></div>'+
+         '</div>'+
+         '<div class="block obsSubmit">'+
+         '<input type="submit" value="Submit" id="submitButton" class="exclude"></div></form>';
+       document.getElementsByTagName('body')[0].appendChild(test_area);
+       mobile_form = new window.NHMobileForm();
+    });
+    
+    it('Get\'s the patient\'s name via the self.patient_name method', function(){
+        expect(mobile_form.patient_name()).toBe('Test Patient');
+    });
+
+    it('Calls get_patient_info when Patient Name clicked', function(){
+        spyOn(NHMobileForm.prototype, 'get_patient_info').and.callThrough();
+        spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+            var promise = new Promise();
+                promise.complete(patient_info_data);
+                return promise;
+        });
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        mobile_form.patient_name_el.dispatchEvent(click_event);
+        //expect(NHMobileForm.prototype.get_patient_info).toHaveBeenCalled();
+        expect(NHMobileForm.prototype.process_request).toHaveBeenCalled();
+        expect(document.getElementById('patient_info')).not.toBe(null);
+    });
+
+     it('shows error popup when unable to get patient id', function(){
+            spyOn(NHMobileForm.prototype, 'get_patient_info').and.callThrough();
+            spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                var promise = new Promise();
+                promise.complete(patient_info_data);
+                return promise;
+            });
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            mobile_form.patient_name_el.removeAttribute('patient-id');
+            mobile_form.patient_name_el.dispatchEvent(click_event);
+            //expect(NHMobileForm.prototype.get_patient_info).toHaveBeenCalled();
+            expect(NHMobileForm.prototype.process_request).not.toHaveBeenCalled();
+            expect(document.getElementById('patient_info_error')).not.toBe(null);
+        });
+
+
+
+ afterEach(function(){
+        var test = document.getElementById('test');
+        if(test != null){
+            test.parentNode.removeChild(test);
+        }
+         var covers = document.getElementsByClassName('cover');
+        var body = document.getElementsByTagName('body')[0];
+         for(var i = 0; i < covers.length; i++){
+            var cover = covers[i];
+            body.removeChild(cover);
+        }
+        clearInterval(window.form_timeout);
+    });
+});
+
 describe('NHMobileForm - EventListeners', function(){
+   var partial_reasons_data = [
+        [1, 'Asleep'],
+        [2, 'Unable to stand']
+   ];
    beforeEach(function(){
        var test = document.getElementById('test');
        if(test != null){
@@ -58,14 +178,6 @@ describe('NHMobileForm - EventListeners', function(){
        expect(window.NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
    });
 
-    /* it('submit event is triggered on submit button click', function(){
-        spyOn(window.NHMobileForm.prototype, "submit");
-        var mobile_form = new window.NHMobileForm();
-        var test_input = document.getElementById('submitButton');
-        test_input.click()
-        expect(window.NHMobileForm.prototype.submit).toHaveBeenCalled();
-    }); */
-
     it('submit partial is triggered', function(){
         spyOn(window.NHMobileForm.prototype, "display_partial_reasons");
         spyOn(window.NHMobileForm.prototype, "submit_observation");
@@ -77,6 +189,30 @@ describe('NHMobileForm - EventListeners', function(){
         //test_input.click();
         expect(window.NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
         expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
+    });
+
+    it('submit partial is triggered and partial reasons are displayed', function(){
+        spyOn(window.NHMobileForm.prototype, "display_partial_reasons").and.callThrough();
+        spyOn(window.NHMobileForm.prototype, "submit_observation");
+        spyOn(window.NHMobileForm.prototype, 'process_request').and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(partial_reasons_data);
+            return promise;
+        });
+        var mobile_form = new window.NHMobileForm();
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        //test_input.click();
+        expect(window.NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
+        expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
+        expect(window.NHMobileForm.prototype.process_request).toHaveBeenCalled();
+        var partial_reasons = document.getElementById('partial_reasons');
+        expect(partial_reasons).not.toBe(null);
+        var reason_list = partial_reasons.getElementsByTagName('select')[0];
+        var reason_list_reasons = reason_list.getElementsByTagName('option');
+        expect(reason_list_reasons.length).toBe(2);
     });
 
     it('submit full is triggered', function(){

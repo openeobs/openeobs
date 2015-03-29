@@ -199,23 +199,23 @@ NHMobile = (function(superClass) {
   NHMobile.prototype.get_patient_info = function(patient_id, self) {
     var patient_url;
     patient_url = this.urls.json_patient_info(patient_id).url;
-    return Promise.when(this.process_request('GET', patient_url)).then(function(server_data) {
+    Promise.when(this.process_request('GET', patient_url)).then(function(server_data) {
       var cancel, data, fullscreen, patientDOB, patient_details, patient_name;
       data = server_data[0][0];
       patient_name = '';
       patient_details = '';
       if (data.full_name) {
-        patient_name += " " + data.full_name;
+        patient_name += ' ' + data.full_name;
       }
       if (data.gender) {
         patient_name += '<span class="alignright">' + data.gender + '</span>';
       }
       if (data.dob) {
         patientDOB = self.date_from_string(data.dob);
-        patient_details += "<dt>DOB:</dt><dd>" + self.date_to_dob_string(patientDOB) + "</dd>";
+        patient_details += '<dt>DOB:</dt><dd>' + self.date_to_dob_string(patientDOB) + '</dd>';
       }
       if (data.location) {
-        patient_details += "<dt>Location:</dt><dd>" + data.location;
+        patient_details += '<dt>Location:</dt><dd>' + data.location;
       }
       if (data.parent_location) {
         patient_details += ',' + data.parent_location + '</dd>';
@@ -223,13 +223,13 @@ NHMobile = (function(superClass) {
         patient_details += '</dd>';
       }
       if (data.ews_score) {
-        patient_details += "<dt class='twoline'>Latest Score:</dt>' + '<dd class='twoline'>" + data.ews_score + "</dd>";
+        patient_details += '<dt class="twoline">Latest Score:</dt>' + '<dd class="twoline">' + data.ews_score + '</dd>';
       }
       if (data.other_identifier) {
-        patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier + "</dd>";
+        patient_details += '<dt>Hospital ID:</dt><dd>' + data.other_identifier + '</dd>';
       }
       if (data.patient_identifier) {
-        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier + "</dd>";
+        patient_details += '<dt>NHS Number:</dt><dd>' + data.patient_identifier + '</dd>';
       }
       patient_details = '<dl>' + patient_details + '</dl><p><a href="' + self.urls['single_patient'](patient_id).url + '" id="patient_obs_fullscreen" class="button patient_obs">' + 'View Patient Observation Data</a></p>';
       cancel = '<a href="#" data-target="patient_info" ' + 'data-action="close">Cancel</a>';
@@ -237,29 +237,36 @@ NHMobile = (function(superClass) {
       fullscreen = document.getElementById('patient_obs_fullscreen');
       return fullscreen.addEventListener('click', self.fullscreen_patient_info);
     });
+    return true;
   };
 
   NHMobile.prototype.fullscreen_patient_info = function(event) {
     var container, options, options_close, page;
     event.preventDefault();
-    container = document.createElement('div');
-    container.setAttribute('class', 'full-modal');
-    options = document.createElement('p');
-    options_close = document.createElement('a');
-    options_close.setAttribute('href', '#');
-    options_close.setAttribute('id', 'closeFullModal');
-    options_close.innerText = 'Close popup';
-    options_close.addEventListener('click', function() {
-      var body;
-      body = document.getElementsByTagName('body')[0];
-      return body.removeChild(document.getElementsByClassName('full-modal')[0]);
-    });
-    options.appendChild(options_close);
-    container.appendChild(options);
-    page = document.createElement('iframe');
-    page.setAttribute('src', event.srcElement.getAttribute('href'));
-    container.appendChild(page);
-    return document.getElementsByTagName('body')[0].appendChild(container);
+    if (!event.handled) {
+      container = document.createElement('div');
+      container.setAttribute('class', 'full-modal');
+      options = document.createElement('p');
+      options_close = document.createElement('a');
+      options_close.setAttribute('href', '#');
+      options_close.setAttribute('id', 'closeFullModal');
+      options_close.innerText = 'Close popup';
+      options_close.addEventListener('click', function(event) {
+        var body;
+        if (!event.handled) {
+          body = document.getElementsByTagName('body')[0];
+          body.removeChild(document.getElementsByClassName('full-modal')[0]);
+          return event.handled = true;
+        }
+      });
+      options.appendChild(options_close);
+      container.appendChild(options);
+      page = document.createElement('iframe');
+      page.setAttribute('src', event.srcElement.getAttribute('href'));
+      container.appendChild(page);
+      document.getElementsByTagName('body')[0].appendChild(container);
+      return event.handled = true;
+    }
   };
 
   return NHMobile;
@@ -1471,9 +1478,6 @@ NHModal = (function() {
           break;
         case 4:
           option_list.setAttribute('class', 'options four-col');
-          break;
-        default:
-          option_list.setAttribute('class', 'options one-col');
       }
       fn = function(self) {
         var option_button, ref;
