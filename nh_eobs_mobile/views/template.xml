@@ -68,11 +68,16 @@
             <t t-call="nh_eobs_mobile.base">
                 <div class="content">
                     <ul class="tasklist">
+                        <t t-if="notifications">
+                            <li><p>You have notifications pending</p></li>
+                            <li><hr/></li>
+                        </t>
                         <li t-foreach="items" t-as="item">
                             <a t-att-href="item['url']" t-att-class="item['color']+' block'">
                                 <div class="task-meta">
                                     <div class="task-right">
                                         <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                        <p class="aside"><t t-if="'followers' in item and item['followers']">Claim</t></p>
                                     </div>
                                     <div class="task-left">
                                         <t t-if="'notification' in item and item['notification']==True">
@@ -119,28 +124,31 @@
                 <div class="content share-content">
                     <form id="handover_form">
                         <ul class="tasklist sharelist">
-                            <li t-foreach="items" t-as="item">
-                                <label>
-                                    <input type="checkbox" t-att-name="'patient_share_'+str(item['id'])" t-att-value="item['id']" class="patient-share"/>
-                                    <div t-att-class="item['color']+' block'">
-                                        <div class="task-meta">
-                                            <div class="task-right">
-                                                <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                            <t t-foreach="items" t-as="item">
+                                <li>
+                                    <label t-att-class="'shared' if item['invited_users'] else ''">
+                                        <input type="checkbox" t-att-name="'patient_share_'+str(item['id'])" t-att-value="item['id']" class="patient-share"/>
+                                        <div t-att-class="item['color']+' block'">
+                                            <div class="task-meta">
+                                                <div class="task-right">
+                                                    <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                                </div>
+                                                <div class="task-left">
+                                                    <t t-if="'notification' in item and item['notification']==True">
+                                                        <i class="icon-alert"></i>
+                                                    </t>
+                                                    <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
+                                                    <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                                </div>
                                             </div>
-                                            <div class="task-left">
-                                                <t t-if="'notification' in item and item['notification']==True">
-                                                    <i class="icon-alert"></i>
-                                                </t>
-                                                <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
-                                                <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                            <div class="task-meta">
+                                                <p class="taskInfo"><t t-if="item['invited_users']">Shared with: <t t-esc="item['invited_users']"/></t><br/></p>
+                                                <p class="taskInfo"><t t-if="item['followers']">Following: <t t-esc="item['followers']"/></t><br/></p>
                                             </div>
                                         </div>
-                                        <div class="task-meta">
-                                            <p class="taskInfo"><t t-if="item['followers']">Shared with: <t t-esc="item['followers']"/></t><br/></p>
-                                        </div>
-                                    </div>
-                                </label>
-                            </li>
+                                    </label>
+                                </li>
+                            </t>
                         </ul>
                     </form>
                 </div>
