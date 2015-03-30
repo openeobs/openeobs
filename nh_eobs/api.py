@@ -209,6 +209,18 @@ class nh_eobs_api(orm.AbstractModel):
             activity_values = cr.dictfetchall()
         return activity_values
 
+    def get_assigned_activities(self, cr, uid, activity_type=None, context=None):
+        """
+        Get open assigned activities of the specified type (any by default).
+        """
+        activity_pool = self.pool['nh.activity']
+        domain = [['state', 'not in', ['cancelled', 'completed']],
+                  ['user_id', '=', uid]]
+        if activity_type:
+            domain.append(['data_model', '=', activity_type])
+        activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        return activity_ids
+
     def cancel(self, cr, uid, activity_id, data, context=None):
         """
         Cancel an activity
@@ -242,9 +254,11 @@ class nh_eobs_api(orm.AbstractModel):
 
     def unassign_my_activities(self, cr, uid, context=None):
         """calls unassign for every activity the user is assigned to.
-        It doesn't include hca notification activities because those activities are always tied to a specific user."""
+        It doesn't include activities that are always tied to a specific user."""
         activity_pool = self.pool['nh.activity']
-        domain = [['user_id', '=', uid], ['data_model', '!=', 'nh.clinical.notification.hca'], ['state', 'not in', ['completed', 'cancelled']]]
+        domain = [['user_id', '=', uid],
+                  ['data_model', 'not in', ['nh.clinical.notification.hca', 'nh.clinical.patient.follow']],
+                  ['state', 'not in', ['completed', 'cancelled']]]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         [self.unassign(cr, uid, aid, context=context) for aid in activity_ids]
         return True
@@ -530,6 +544,19 @@ class nh_eobs_api(orm.AbstractModel):
             cr.execute(sql)
             patient_values = cr.dictfetchall()
         return patient_values
+
+    def get_invited_users(self, cr, uid, patients, context=None):
+        """
+        Expects the return value from get_patients or get_followed_patients and adds the users that have an open follow invitation for each patient.
+        """
+        follow_pool = self.pool['nh.clinical.patient.follow']
+        for p in patients:
+            follow_ids = follow_pool.search(cr, uid, [
+                ['activity_id.state', 'not in', ['completed', 'cancelled']],
+                ['patient_ids', 'in', [p['id']]]], context=context)
+            p['invited_users'] = [{'id': f.activity_id.user_id.id, 'name': f.activity_id.user_id.name}
+                                      for f in follow_pool.browse(cr, uid, follow_ids, context=context)]
+        return True
 
     def get_patient_followers(self, cr, uid, patients, context=None):
         """
