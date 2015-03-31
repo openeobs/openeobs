@@ -39,7 +39,7 @@ class NHMobileShareInvite extends NHMobile
         pt_obj = '<li>'+
           '<div class="task-meta">'+
           '<div class="task-right">'+
-          '<p class="aside">'+pt['ews_deadline']+'</p></div>'+
+          '<p class="aside">'+pt['next_ews_time']+'</p></div>'+
           '<div class="task-left">'+
           '<strong>'+pt['full_name']+'</strong>'+
           '('+pt['ews_score']+' <i class="icon-'+

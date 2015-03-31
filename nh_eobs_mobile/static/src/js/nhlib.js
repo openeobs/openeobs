@@ -1473,7 +1473,7 @@ NHMobileShareInvite = (function(superClass) {
       pt_list = '<ul>';
       for (j = 0, len = data.length; j < len; j++) {
         pt = data[j];
-        pt_obj = '<li>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['ews_deadline'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['full_name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</li>';
+        pt_obj = '<li>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['next_ews_time'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['full_name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</li>';
         pt_list += pt_obj;
       }
       pt_list += '</ul>';

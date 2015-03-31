@@ -136,7 +136,7 @@ describe('NHMobileShareInvite', function(){
         var patient_list_data = [[
                 {
                     'full_name': 'Patient, Test A',
-                    'ews_deadline': '01:00 hours',
+                    'next_ews_time': '01:00 hours',
                     'ews_score': 5,
                     'ews_trend': 'first',
                     'parent_location': 'Ward A',
@@ -144,7 +144,7 @@ describe('NHMobileShareInvite', function(){
                 },
                 {
                     'full_name': 'Patient, Test B',
-                    'ews_deadline': '02:00 hours',
+                    'next_ews_time': '02:00 hours',
                     'ews_score': 4,
                     'ews_trend': 'up',
                     'parent_location': 'Ward A',

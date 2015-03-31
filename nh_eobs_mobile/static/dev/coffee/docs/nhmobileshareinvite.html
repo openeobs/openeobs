@@ -93,13 +93,13 @@ notification in patient list</p>
     url = self.urls.json_invite_patients(activity_id)
     urlmeth = url.method
     Promise.<span class="hljs-keyword">when</span>(self.process_request(urlmeth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
-      data = server_data[<span class="hljs-number">0</span>]
+      data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
       pt_list = <span class="hljs-string">'&lt;ul&gt;'</span>
       <span class="hljs-keyword">for</span> pt <span class="hljs-keyword">in</span> data
         pt_obj = <span class="hljs-string">'&lt;li&gt;'</span>+
           <span class="hljs-string">'&lt;div class="task-meta"&gt;'</span>+
           <span class="hljs-string">'&lt;div class="task-right"&gt;'</span>+
-          <span class="hljs-string">'&lt;p class="aside"&gt;'</span>+pt[<span class="hljs-string">'ews_deadline'</span>]+<span class="hljs-string">'&lt;/p&gt;&lt;/div&gt;'</span>+
+          <span class="hljs-string">'&lt;p class="aside"&gt;'</span>+pt[<span class="hljs-string">'next_ews_time'</span>]+<span class="hljs-string">'&lt;/p&gt;&lt;/div&gt;'</span>+
           <span class="hljs-string">'&lt;div class="task-left"&gt;'</span>+
           <span class="hljs-string">'&lt;strong&gt;'</span>+pt[<span class="hljs-string">'full_name'</span>]+<span class="hljs-string">'&lt;/strong&gt;'</span>+
           <span class="hljs-string">'('</span>+pt[<span class="hljs-string">'ews_score'</span>]+<span class="hljs-string">' &lt;i class="icon-'</span>+
