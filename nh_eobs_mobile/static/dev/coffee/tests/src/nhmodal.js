@@ -110,7 +110,7 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, invite, nurses, submit_detail, submit_event;
+    var accept_detail, accept_event, assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, invite, nurses, reject_detail, reject_event, submit_detail, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
@@ -187,6 +187,16 @@ NHModal = (function() {
         };
         accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
         document.dispatchEvent(accept_event);
+        break;
+      case 'reject':
+        event.preventDefault();
+        reject_event = document.createEvent('CustomEvent');
+        invite = event.srcElement ? event.srcElement : event.target;
+        reject_detail = {
+          'invite_id': invite.getAttribute('data-invite-id')
+        };
+        reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
+        document.dispatchEvent(reject_event);
     }
   };
 

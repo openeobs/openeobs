@@ -171,6 +171,16 @@ class NHModal
         accept_event.initCustomEvent('accept_invite', false, true,
           accept_detail)
         document.dispatchEvent accept_event
+      when 'reject'
+        event.preventDefault()
+        reject_event = document.createEvent 'CustomEvent'
+        invite = if event.srcElement then event.srcElement else event.target
+        reject_detail = {
+          'invite_id': invite.getAttribute('data-invite-id')
+        }
+        reject_event.initCustomEvent('reject_invite', false, true,
+          reject_detail)
+        document.dispatchEvent reject_event
     return
 
 if !window.NH

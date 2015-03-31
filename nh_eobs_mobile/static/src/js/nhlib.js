@@ -1460,6 +1460,14 @@ NHMobileShareInvite = (function(superClass) {
         return event.handled = true;
       }
     });
+    document.addEventListener('reject_invite', function(event) {
+      var activity_id;
+      if (!event.handled) {
+        activity_id = event.detail.invite_id;
+        self.handle_reject_button_click(self, activity_id);
+        return event.handled = true;
+      }
+    });
     NHMobileShareInvite.__super__.constructor.call(this);
   }
 
@@ -1468,7 +1476,7 @@ NHMobileShareInvite = (function(superClass) {
     url = self.urls.json_invite_patients(activity_id);
     urlmeth = url.method;
     Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var acpt_btn, body, btns, can_btn, data, j, len, pt, pt_list, pt_obj;
+      var acpt_btn, body, btns, can_btn, cls_btn, data, j, len, pt, pt_list, pt_obj;
       data = server_data[0][0];
       pt_list = '<ul>';
       for (j = 0, len = data.length; j < len; j++) {
@@ -1477,9 +1485,10 @@ NHMobileShareInvite = (function(superClass) {
         pt_list += pt_obj;
       }
       pt_list += '</ul>';
+      cls_btn = '<a href="#" data-action="close" data-target="accept_invite"' + '>Close</a>';
+      can_btn = '<a href="#" data-action="reject" data-target="accept_invite"' + 'data-ajax-action="json_reject_invite" ' + 'data-invite-id="' + activity_id + '">Reject</a>';
       acpt_btn = '<a href="#" data-action="accept" data-target="accept_invite"' + 'data-ajax-action="json_accept_invite" ' + 'data-invite-id="' + activity_id + '">Accept</a>';
-      can_btn = '<a href="#" data-action="close" data-target="assign_nurse"' + '>Cancel</a>';
-      btns = [acpt_btn, can_btn];
+      btns = [cls_btn, can_btn, acpt_btn];
       body = document.getElementsByTagName('body')[0];
       return new window.NH.NHModal('accept_invite', 'Accept invitation to follow patients?', pt_list, btns, 0, body);
     });
@@ -1487,13 +1496,12 @@ NHMobileShareInvite = (function(superClass) {
   };
 
   NHMobileShareInvite.prototype.handle_accept_button_click = function(self, activity_id) {
-    var body, btns, url, urlmeth;
+    var body, url, urlmeth;
     url = self.urls.json_accept_patients(activity_id);
     urlmeth = url.method;
-    btns = ['<a href="#" data-action="close" data-target="assign_nurse"' + '>Cancel</a>'];
     body = document.getElementsByTagName('body')[0];
     return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var data, i, invite, invites;
+      var btns, data, i, invite, invites;
       data = server_data[0][0];
       if (data['status']) {
         invites = document.getElementsByClassName('share_invite');
@@ -1509,9 +1517,42 @@ NHMobileShareInvite = (function(superClass) {
           return results;
         })())[0];
         invite.parentNode.removeChild(invite);
+        btns = ['<a href="#" data-action="close" data-target="invite_success"' + '>Cancel</a>'];
         return new window.NH.NHModal('invite_success', 'Successfully accepted patients', 'Now following ' + data['count'] + ' patients from ' + data['user'], btns, 0, body);
       } else {
+        btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Cancel</a>'];
         return new window.NH.NHModal('invite_error', 'Error accepting patients', 'There was an error accepting the invite to follow, Please try again', btns, 0, body);
+      }
+    });
+  };
+
+  NHMobileShareInvite.prototype.handle_reject_button_click = function(self, activity_id) {
+    var body, url, urlmeth;
+    url = self.urls.json_reject_patients(activity_id);
+    urlmeth = url.method;
+    body = document.getElementsByTagName('body')[0];
+    return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
+      var btns, data, i, invite, invites;
+      data = server_data[0][0];
+      if (data['status']) {
+        invites = document.getElementsByClassName('share_invite');
+        invite = ((function() {
+          var j, len, results;
+          results = [];
+          for (j = 0, len = invites.length; j < len; j++) {
+            i = invites[j];
+            if (i.getAttribute('data-invite-id') === activity_id) {
+              results.push(i);
+            }
+          }
+          return results;
+        })())[0];
+        invite.parentNode.removeChild(invite);
+        btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
+        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', 'The invitation to follow ' + data['user'] + '\'s patients was rejected', btns, 0, body);
+      } else {
+        btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
+        return new window.NH.NHModal('reject_error', 'Error rejecting patients', 'There was an error rejecting the invite to follow, Please try again', btns, 0, body);
       }
     });
   };
@@ -1640,7 +1681,7 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, invite, nurses, submit_detail, submit_event;
+    var accept_detail, accept_event, assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, invite, nurses, reject_detail, reject_event, submit_detail, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
@@ -1717,6 +1758,16 @@ NHModal = (function() {
         };
         accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
         document.dispatchEvent(accept_event);
+        break;
+      case 'reject':
+        event.preventDefault();
+        reject_event = document.createEvent('CustomEvent');
+        invite = event.srcElement ? event.srcElement : event.target;
+        reject_detail = {
+          'invite_id': invite.getAttribute('data-invite-id')
+        };
+        reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
+        document.dispatchEvent(reject_event);
     }
   };
 

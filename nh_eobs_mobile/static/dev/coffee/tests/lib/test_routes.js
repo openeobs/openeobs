@@ -332,6 +332,14 @@ var frontend_routes = {}; (function(_root){
            url: base_url+'staff/accept/' + (function(k,v){ return v})('invite_id', invite_id)
        })
     };
+
+    _nS('json_reject_patients');
+    _root.json_reject_patients = function(invite_id){
+       return _wA({
+           method: 'POST',
+           url: base_url+'staff/reject/' + (function(k,v){ return v})('invite_id', invite_id)
+       })
+    };
     
     
 

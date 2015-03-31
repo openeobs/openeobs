@@ -227,7 +227,7 @@ describe('NHMobileShareInvite', function(){
                 expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Accept invitation to follow patients?');
                 var dialog = document.getElementById('accept_invite');
                 var dialog_options = dialog.getElementsByClassName('options')[0];
-                accept_button = dialog_options.getElementsByTagName('a')[0];
+                accept_button = dialog_options.getElementsByTagName('a')[2];
                 spyOn(NHMobileShareInvite.prototype, 'handle_accept_button_click').and.callThrough();
             });
 
@@ -278,7 +278,7 @@ describe('NHMobileShareInvite', function(){
                 expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Accept invitation to follow patients?');
                 var dialog = document.getElementById('accept_invite');
                 var dialog_options = dialog.getElementsByClassName('options')[0];
-                accept_button = dialog_options.getElementsByTagName('a')[0];
+                accept_button = dialog_options.getElementsByTagName('a')[2];
                 spyOn(NHMobileShareInvite.prototype, 'handle_accept_button_click').and.callThrough();
             });
 
@@ -296,6 +296,110 @@ describe('NHMobileShareInvite', function(){
                 expect(error_dialog).not.toBe(null);
             });
         });
+
+        describe('Rejecting invite - success', function(){
+            var reject_button;
+            beforeEach(function(){
+                spyOn(NHMobileShareInvite.prototype, 'process_request').and.callFake(function(method, url){
+                    if(method=='GET'){
+                        var promise = new Promise();
+                        promise.complete(patient_list_data);
+                        return promise;
+                    }else if (method=='POST'){
+                       var promise = new Promise();
+                        promise.complete([{
+                            'status': true,
+                            'count': 3,
+                            'user': 'Norah'
+                        }]);
+                        return promise;
+                    }
+                });
+                var invites = document.getElementsByClassName('share_invite');
+                for(var i = 0; i < invites.length; i++){
+                    var invite = invites[i];
+                    var click_event = document.createEvent('CustomEvent');
+                    click_event.initCustomEvent('click', true, false, true);
+                    invite.dispatchEvent(click_event);
+                }
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('accept_invite');
+                expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Accept invitation to follow patients?');
+                var dialog = document.getElementById('accept_invite');
+                var dialog_options = dialog.getElementsByClassName('options')[0];
+                reject_button = dialog_options.getElementsByTagName('a')[1];
+                spyOn(NHMobileShareInvite.prototype, 'handle_reject_button_click').and.callThrough();
+            });
+
+            it('Sends a request to the server on pressing Reject button in modal', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', true, false, true);
+                reject_button.dispatchEvent(click_event);
+                //expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_reject_button_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_reject_button_click.calls.argsFor(0)[1]).toBe('1');
+                expect(NHMobileShareInvite.prototype.process_request.calls.count()).toBe(2);
+                expect(NHModal.prototype.create_dialog.calls.count()).toBe(2);
+                expect(NHModal.prototype.create_dialog.calls.argsFor(1)[1]).toBe('reject_success');
+                var success_dialog = document.getElementById('reject_success');
+                expect(success_dialog).not.toBe(null);
+            });
+        });
+
+        describe('Rejecting invite - Error', function(){
+            var reject_button;
+            beforeEach(function(){
+                spyOn(NHMobileShareInvite.prototype, 'process_request').and.callFake(function(method, url){
+                    if(method=='GET'){
+                        var promise = new Promise();
+                        promise.complete(patient_list_data);
+                        return promise;
+                    }else if (method=='POST'){
+                       var promise = new Promise();
+                        promise.complete([{
+                            'status': false,
+                            'count': 3,
+                            'user': 'Norah'
+                        }]);
+                        return promise;
+                    }
+                });
+                var invites = document.getElementsByClassName('share_invite');
+                for(var i = 0; i < invites.length; i++){
+                    var invite = invites[i];
+                    var click_event = document.createEvent('CustomEvent');
+                    click_event.initCustomEvent('click', true, false, true);
+                    invite.dispatchEvent(click_event);
+                }
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('accept_invite');
+                expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Accept invitation to follow patients?');
+                var dialog = document.getElementById('accept_invite');
+                var dialog_options = dialog.getElementsByClassName('options')[0];
+                reject_button = dialog_options.getElementsByTagName('a')[1];
+                spyOn(NHMobileShareInvite.prototype, 'handle_reject_button_click').and.callThrough();
+            });
+
+            it('Sends a request to the server on pressing Reject button in modal', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', true, false, true);
+                reject_button.dispatchEvent(click_event);
+                //expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_reject_button_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_reject_button_click.calls.argsFor(0)[1]).toBe('1');
+                expect(NHMobileShareInvite.prototype.process_request.calls.count()).toBe(2);
+                expect(NHModal.prototype.create_dialog.calls.count()).toBe(2);
+                expect(NHModal.prototype.create_dialog.calls.argsFor(1)[1]).toBe('reject_error');
+                var error_dialog = document.getElementById('reject_error');
+                expect(error_dialog).not.toBe(null);
+            });
+        });
+
+
     });
 
     afterEach(function(){
