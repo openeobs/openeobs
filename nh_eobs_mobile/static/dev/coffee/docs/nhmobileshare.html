@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nhmobileshare.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nhmobileshare.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHMobileShare
+Allows users to share patients with other users when they are not on ward</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHMobileShare</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NHMobile</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>on initalisation we need to:</p>
+<ul>
+<li>set up click event listener for share button</li>
+<li>set up click event listener for claim button</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@share_button</span>, <span class="hljs-property">@claim_button</span>)</span> -&gt;</span>
+    self = @
+    <span class="hljs-property">@form</span> = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
+    <span class="hljs-property">@share_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      event.preventDefault()
+      share_button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+      self.share_button_click(self)
+    <span class="hljs-property">@claim_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      event.preventDefault()
+      claim_button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+      self.claim_button_click(self)
+    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'assign_nurse'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      event.preventDefault()
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+        self.assign_button_click(self, event)
+        event.handled = <span class="hljs-literal">true</span>
+    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'claim_patients'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      event.preventDefault()
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+        self.claim_patients_click(self, event)
+        event.handled = <span class="hljs-literal">true</span>
+    <span class="hljs-keyword">super</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>On share button being pressed:</p>
+<ul>
+<li>Create an array of IDs for patients to be shared</li>
+<li>Get the list of nurses available to assign patients to</li>
+<li>Popup the nurse selection screen in a fullscreen modal</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">share_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
+    patients = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> self.form.elements \
+        <span class="hljs-keyword">when</span> el.checked <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
+    <span class="hljs-keyword">if</span> patients.length &gt; <span class="hljs-number">0</span>
+      url = self.urls.json_colleagues_list()
+      urlmeth = url.method
+      Promise.<span class="hljs-keyword">when</span>(self.process_request(urlmeth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
+        data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+        nurse_list = <span class="hljs-string">'&lt;form id="nurse_list"&gt;&lt;ul class="sharelist"&gt;'</span>
+        <span class="hljs-keyword">for</span> nurse <span class="hljs-keyword">in</span> data
+          nurse_list += <span class="hljs-string">'&lt;li&gt;&lt;input type="checkbox" name="nurse_select_'</span>+
+            nurse[<span class="hljs-string">'id'</span>]+<span class="hljs-string">'" class="patient_share_nurse" value="'</span>+
+            nurse[<span class="hljs-string">'id'</span>]+<span class="hljs-string">'"/&gt;&lt;label for="nurse_select_'</span>+nurse[<span class="hljs-string">'id'</span>]+<span class="hljs-string">'"&gt;'</span>+
+            nurse[<span class="hljs-string">'name'</span>]+<span class="hljs-string">' ('</span>+nurse[<span class="hljs-string">'patients'</span>]+<span class="hljs-string">')&lt;/label&gt;&lt;/li&gt;'</span>
+        nurse_list += <span class="hljs-string">'&lt;/ul&gt;&lt;p class="error"&gt;&lt;/p&gt;&lt;/form&gt;'</span>
+        assign_btn = <span class="hljs-string">'&lt;a href="#" data-action="assign" '</span>+
+          <span class="hljs-string">'data-target="assign_nurse" data-ajax-action="json_assign_nurse"&gt;'</span>+
+          <span class="hljs-string">'Assign&lt;/a&gt;'</span>
+        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="assign_nurse"'</span>+
+          <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
+        btns = [assign_btn, can_btn]
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'assign_nurse'</span>, <span class="hljs-string">'Assign patient to colleague'</span>,
+          nurse_list, btns, <span class="hljs-number">0</span>, self.form)
+    <span class="hljs-keyword">else</span>
+      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please select patients to hand'</span>+
+        <span class="hljs-string">' to another staff member&lt;/p&gt;'</span>
+      btn = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>]
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invalid_form'</span>, <span class="hljs-string">'No Patients selected'</span>,
+        msg, btn, <span class="hljs-number">0</span>, self.form)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>On claim button being pressed:</p>
+<ul>
+<li>Create an array of IDs for patients to be claimed</li>
+<li>Send list of selected ids to server</li>
+<li>Update UI to reflect the change</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">claim_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
+    assign_btn = <span class="hljs-string">'&lt;a href="#" data-action="claim" '</span>+
+      <span class="hljs-string">'data-target="claim_patients" data-ajax-action="json_claim_patients"&gt;'</span>+
+      <span class="hljs-string">'Claim&lt;/a&gt;'</span>
+    can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_patients"'</span>+
+      <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
+    claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;Claim patients shared with colleagues&lt;/p&gt;'</span>
+    btns = [assign_btn, can_btn]
+    <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_patients'</span>, <span class="hljs-string">'Claim Patients?'</span>,
+      claim_msg, btns, <span class="hljs-number">0</span>, self.form)
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>On Assign button being click in the modal:</p>
+<ul>
+<li>Check to see if nurses are selected</li>
+<li>If so then send data over to the server</li>
+<li>If not then show an error message</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">assign_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+    nurses = event.detail.nurses
+    form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
+    popup = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'assign_nurse'</span>)
+    error_message = popup.getElementsByClassName(<span class="hljs-string">'error'</span>)[<span class="hljs-number">0</span>]
+    patients = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements \
+        <span class="hljs-keyword">when</span> el.checked <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
+    <span class="hljs-keyword">if</span> nurses.length &lt; <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> patients.length &lt; <span class="hljs-number">1</span>
+      error_message.innerHTML = <span class="hljs-string">'Please select colleague(s) to share with'</span>
+    <span class="hljs-keyword">else</span>
+      error_message.innerHTML = <span class="hljs-string">''</span>
+      url = self.urls.share_patients()
+      data_string = <span class="hljs-string">''</span>
+      nurse_ids = <span class="hljs-string">'user_ids='</span>+nurses
+      patient_ids = <span class="hljs-string">'patient_ids='</span>+patients
+      data_string = patient_ids + <span class="hljs-string">'&amp;'</span>+ nurse_ids
+      Promise.<span class="hljs-keyword">when</span>(self.call_resource(url, data_string)).<span class="hljs-keyword">then</span> (server_data) -&gt;
+        data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+        <span class="hljs-keyword">if</span> data[<span class="hljs-string">'status'</span>]
+          pts = (el <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements <span class="hljs-keyword">when</span> el.value <span class="hljs-keyword">in</span> patients)
+          <span class="hljs-keyword">for</span> pt <span class="hljs-keyword">in</span> pts
+            pt.checked = <span class="hljs-literal">false</span>
+            pt_el = pt.parentNode.getElementsByClassName(<span class="hljs-string">'block'</span>)[<span class="hljs-number">0</span>]
+            pt_el.parentNode.classList.add(<span class="hljs-string">'shared'</span>)
+            ti = pt_el.getElementsByClassName(<span class="hljs-string">'taskInfo'</span>)[<span class="hljs-number">0</span>]
+            <span class="hljs-keyword">if</span> ti.innerHTML.indexOf(<span class="hljs-string">'Shared'</span>) &lt; <span class="hljs-number">0</span>
+              ti.innerHTML = <span class="hljs-string">'Shared with: '</span> + data[<span class="hljs-string">'shared_with'</span>].join(<span class="hljs-string">', '</span>)
+            <span class="hljs-keyword">else</span>
+              ti.innerHTML += <span class="hljs-string">', '</span> + data[<span class="hljs-string">'shared_with'</span>].join(<span class="hljs-string">', '</span>)
+
+          cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+          <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+          popup.parentNode.removeChild(popup)
+        <span class="hljs-keyword">else</span>
+          error_message.innerHTML = <span class="hljs-string">'Error assigning colleague(s),'</span>+
+            <span class="hljs-string">' please try again'</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+
+  <span class="hljs-attribute">claim_patients_click</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+    url = self.urls.json_claim_patients()
+    urlmeth = url.method
+    Promise.<span class="hljs-keyword">when</span>(self.process_request(urlmeth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
+      data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+      popup = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'claim_patients'</span>)
+      cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+      body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+      body.removeChild(cover)
+      popup.parentNode.removeChild(popup)
+      <span class="hljs-keyword">if</span> data[<span class="hljs-string">'status'</span>]
+        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_success"'</span>+
+          <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
+        claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;Successfully claimed patients&lt;/p&gt;'</span>
+        btns = [can_btn]
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_success'</span>, <span class="hljs-string">'Patients Claimed'</span>,
+          claim_msg, btns, <span class="hljs-number">0</span>, body)
+      <span class="hljs-keyword">else</span>
+        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_error"'</span>+
+          <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
+        claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;There was an error claiming back your'</span>+
+          <span class="hljs-string">' patients, please contact your Ward Manager&lt;/p&gt;'</span>
+        btns = [can_btn]
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_error'</span>, <span class="hljs-string">'Error claiming patients'</span>,
+          claim_msg, btns, <span class="hljs-number">0</span>, body)
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+
+
+<span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+<span class="hljs-built_in">window</span>?.NH.NHMobileShare = NHMobileShare</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
