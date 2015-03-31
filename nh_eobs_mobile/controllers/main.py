@@ -297,6 +297,46 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return request.make_response(json.dumps(api.get_share_users(cr, uid, context=context)),
                                      headers={'Content-Type': 'application/json'})
 
+    @http.route(URLS['json_invite_patients']+'<activity_id>', type='http', auth='user')
+    def get_shared_patients(self, activity_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry['nh.eobs.api']
+        activities = api.get_assigned_activities(cr, uid, activity_type='nh.clinical.patient.follow', context=context)
+        res = {}
+        for a in activities:
+            if a['id'] == int(activity_id):
+                res = api.get_patients(cr, uid, a['patient_ids'], context=context)
+                break
+        return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['json_accept_patients']+'<activity_id>', type='http', auth='user')
+    def accept_shared_patients(self, activity_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry['nh.eobs.api']
+        activities = api.get_assigned_activities(cr, uid, activity_type='nh.clinical.patient.follow', context=context)
+        res = {}
+        for a in activities:
+            if a['id'] == int(activity_id):
+                res = a
+                res['status'] = True
+                break
+        api.complete(cr, uid, activity_id, {}, context=context)
+        return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
+
+    @http.route(URLS['json_reject_patients']+'<activity_id>', type='http', auth='user')
+    def reject_shared_patients(self, activity_id, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry['nh.eobs.api']
+        activities = api.get_assigned_activities(cr, uid, activity_type='nh.clinical.patient.follow', context=context)
+        res = {}
+        for a in activities:
+            if a['id'] == int(activity_id):
+                res = a
+                res['status'] = True
+                break
+        api.cancel(cr, uid, activity_id, context=context)
+        return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
+
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context

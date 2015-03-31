@@ -69,9 +69,11 @@
                 <div class="content">
                     <ul class="tasklist">
                         <t t-if="notifications">
-                            <li t-foreach="notifications" t-as="notification" class="white block">
-                                <p class="taskInfo"><t t-if="notification['message']"><t t-esc="notification['message']"/></t><br/></p>
-                            </li>
+                            <t t-foreach="notifications" t-as="notification">
+                                <li class="white block share_invite" t-att-data-invite-id="notification['id']">
+                                    <p class="taskInfo" t-att-data-invite-id="notification['id']"><t t-if="notification['message']"><t t-esc="notification['message']"/></t><br/></p>
+                                </li>
+                            </t>
                             <li><hr/></li>
                         </t>
                         <li t-foreach="items" t-as="item">
@@ -120,6 +122,10 @@
                         </t>
                     </ul>
                 </div>
+                <script type="text/javascript">
+                    var patient_list = document.getElementsByClassName('tasklist')[0];
+                    document.addEventListener('DOMContentLoaded', new window.NH.NHMobileShareInvite(patient_list), false);
+                </script>
             </t>
         </template>
 

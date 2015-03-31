@@ -199,6 +199,24 @@ routes = [
         'args': False
     },
     {
+        'name': 'json_invite_patients',
+        'endpoint': 'staff/invite/',
+        'method': 'GET',
+        'args': ['activity_id']
+    },
+    {
+        'name': 'json_accept_patients',
+        'endpoint': 'staff/accept/',
+        'method': 'POST',
+        'args': ['activity_id']
+    },
+    {
+        'name': 'json_reject_patients',
+        'endpoint': 'staff/reject/',
+        'method': 'POST',
+        'args': ['activity_id']
+    },
+    {
         'name': 'ajax_task_cancellation_options',
         'endpoint': 'tasks/cancel_reasons/',
         'method': 'GET',
