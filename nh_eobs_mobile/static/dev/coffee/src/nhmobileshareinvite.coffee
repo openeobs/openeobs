@@ -7,6 +7,7 @@ class NHMobileShareInvite extends NHMobile
   # On initialisation
   # - Find all invitations to follow a patient in the patient list
   # - Add an EventListener to the invite's element to present modal for invite
+  # - Add an EventListener to document to capture the NHModal callback
   constructor: (patient_list) ->
     self = @
     invite_list = patient_list.getElementsByClassName('share_invite')
@@ -61,6 +62,10 @@ class NHMobileShareInvite extends NHMobile
         pt_list, btns, 0, body)
     return true
 
+  # On the accept button being clicked
+  # - Hit up the server to accept the invitation to follow
+  # - If successful remove the invite from DOM and show modal
+  # - If not successful inform the user of error
   handle_accept_button_click: (self, activity_id) ->
     url = self.urls.json_accept_patients(activity_id)
     urlmeth = url.method
