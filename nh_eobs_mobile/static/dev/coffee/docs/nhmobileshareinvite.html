@@ -69,6 +69,11 @@ notification in patient list</p>
         activity_id = event.detail.invite_id
         self.handle_accept_button_click(self, activity_id)
         event.handled = <span class="hljs-literal">true</span>
+    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'reject_invite'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+        activity_id = event.detail.invite_id
+        self.handle_reject_button_click(self, activity_id)
+        event.handled = <span class="hljs-literal">true</span>
     <span class="hljs-keyword">super</span>()</pre></div></div>
             
         </li>
@@ -110,12 +115,15 @@ notification in patient list</p>
           <span class="hljs-string">'&lt;/li&gt;'</span>
         pt_list += pt_obj
       pt_list += <span class="hljs-string">'&lt;/ul&gt;'</span>
+      cls_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="accept_invite"'</span>+
+        <span class="hljs-string">'&gt;Close&lt;/a&gt;'</span>
+      can_btn = <span class="hljs-string">'&lt;a href="#" data-action="reject" data-target="accept_invite"'</span>+
+        <span class="hljs-string">'data-ajax-action="json_reject_invite" '</span>+
+        <span class="hljs-string">'data-invite-id="'</span>+activity_id+<span class="hljs-string">'"&gt;Reject&lt;/a&gt;'</span>
       acpt_btn = <span class="hljs-string">'&lt;a href="#" data-action="accept" data-target="accept_invite"'</span>+
         <span class="hljs-string">'data-ajax-action="json_accept_invite" '</span>+
         <span class="hljs-string">'data-invite-id="'</span>+activity_id+<span class="hljs-string">'"&gt;Accept&lt;/a&gt;'</span>
-      can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="assign_nurse"'</span>+
-        <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
-      btns = [acpt_btn, can_btn]
+      btns = [cls_btn, can_btn, acpt_btn]
       body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'accept_invite'</span>,
         <span class="hljs-string">'Accept invitation to follow patients?'</span>,
@@ -143,8 +151,6 @@ notification in patient list</p>
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_accept_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, activity_id)</span> -&gt;</span>
     url = self.urls.json_accept_patients(activity_id)
     urlmeth = url.method
-    btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="assign_nurse"'</span>+
-        <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
     body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
     Promise.<span class="hljs-keyword">when</span>(self.process_request(urlmeth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
       data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
@@ -153,14 +159,61 @@ notification in patient list</p>
         invite = (i <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> invites <span class="hljs-keyword">when</span> \
           i.getAttribute(<span class="hljs-string">'data-invite-id'</span>) <span class="hljs-keyword">is</span> activity_id)[<span class="hljs-number">0</span>]
         invite.parentNode.removeChild(invite)
+        btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invite_success"'</span>+
+        <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invite_success'</span>,
           <span class="hljs-string">'Successfully accepted patients'</span>,
           <span class="hljs-string">'Now following '</span>+data[<span class="hljs-string">'count'</span>]+<span class="hljs-string">' patients from '</span>+data[<span class="hljs-string">'user'</span>],
           btns, <span class="hljs-number">0</span>, body)
       <span class="hljs-keyword">else</span>
+        btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invite_error"'</span>+
+        <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invite_error'</span>,
           <span class="hljs-string">'Error accepting patients'</span>,
           <span class="hljs-string">'There was an error accepting the invite to follow, Please try again'</span>,
+          btns, <span class="hljs-number">0</span>, body)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>On the reject button being clicked</p>
+<ul>
+<li>Hit up the server to reject the invitation to follow</li>
+<li>If successful remove the invite from DOM and show modal</li>
+<li>If not successful inform the user of error</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_reject_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, activity_id)</span> -&gt;</span>
+    url = self.urls.json_reject_patients(activity_id)
+    urlmeth = url.method
+    body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+    Promise.<span class="hljs-keyword">when</span>(self.process_request(urlmeth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
+      data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+      <span class="hljs-keyword">if</span> data[<span class="hljs-string">'status'</span>]
+        invites = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'share_invite'</span>)
+        invite = (i <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> invites <span class="hljs-keyword">when</span> \
+          i.getAttribute(<span class="hljs-string">'data-invite-id'</span>) <span class="hljs-keyword">is</span> activity_id)[<span class="hljs-number">0</span>]
+        invite.parentNode.removeChild(invite)
+        btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="reject_success"'</span>+
+        <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'reject_success'</span>,
+          <span class="hljs-string">'Successfully rejected patients'</span>,
+          <span class="hljs-string">'The invitation to follow '</span>+data[<span class="hljs-string">'user'</span>]+<span class="hljs-string">'\'s patients was rejected'</span>,
+          btns, <span class="hljs-number">0</span>, body)
+      <span class="hljs-keyword">else</span>
+        btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="reject_success"'</span>+
+        <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'reject_error'</span>,
+          <span class="hljs-string">'Error rejecting patients'</span>,
+          <span class="hljs-string">'There was an error rejecting the invite to follow, Please try again'</span>,
           btns, <span class="hljs-number">0</span>, body)
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH

@@ -351,6 +351,16 @@ Currently offers</p>
         accept_event.initCustomEvent(<span class="hljs-string">'accept_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
           accept_detail)
         <span class="hljs-built_in">document</span>.dispatchEvent accept_event
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'reject'</span>
+        event.preventDefault()
+        reject_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+        invite = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+        reject_detail = {
+          <span class="hljs-string">'invite_id'</span>: invite.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
+        }
+        reject_event.initCustomEvent(<span class="hljs-string">'reject_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+          reject_detail)
+        <span class="hljs-built_in">document</span>.dispatchEvent reject_event
     <span class="hljs-keyword">return</span>
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
