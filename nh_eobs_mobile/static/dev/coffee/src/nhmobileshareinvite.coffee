@@ -33,7 +33,7 @@ class NHMobileShareInvite extends NHMobile
     url = self.urls.json_invite_patients(activity_id)
     urlmeth = url.method
     Promise.when(self.process_request(urlmeth, url.url)).then (server_data) ->
-      data = server_data[0]
+      data = server_data[0][0]
       pt_list = '<ul>'
       for pt in data
         pt_obj = '<li>'+

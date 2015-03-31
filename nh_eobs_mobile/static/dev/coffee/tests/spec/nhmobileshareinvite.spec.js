@@ -133,7 +133,7 @@ describe('NHMobileShareInvite', function(){
     });
 
     describe('Clicking on an invite', function(){
-        var patient_list_data = [
+        var patient_list_data = [[
                 {
                     'full_name': 'Patient, Test A',
                     'ews_deadline': '01:00 hours',
@@ -150,7 +150,7 @@ describe('NHMobileShareInvite', function(){
                     'parent_location': 'Ward A',
                     'location': 'Bed 4'
                 }
-            ];
+            ]];
 
         beforeEach(function(){
             // create instance of NHMobileShareInvite

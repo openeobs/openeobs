@@ -346,7 +346,7 @@ Currently offers</p>
         accept_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
         invite = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
         accept_detail = {
-          <span class="hljs-string">'invite_id'</span>: parseInt(invite.getAttribute(<span class="hljs-string">'data-invite-id'</span>))
+          <span class="hljs-string">'invite_id'</span>: invite.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
         }
         accept_event.initCustomEvent(<span class="hljs-string">'accept_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
           accept_detail)

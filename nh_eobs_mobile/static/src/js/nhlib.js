@@ -1469,7 +1469,7 @@ NHMobileShareInvite = (function(superClass) {
     urlmeth = url.method;
     Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
       var acpt_btn, body, btns, can_btn, data, j, len, pt, pt_list, pt_obj;
-      data = server_data[0];
+      data = server_data[0][0];
       pt_list = '<ul>';
       for (j = 0, len = data.length; j < len; j++) {
         pt = data[j];
