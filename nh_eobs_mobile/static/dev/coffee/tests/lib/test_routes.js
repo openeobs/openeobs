@@ -283,7 +283,7 @@ var frontend_routes = {}; (function(_root){
 		   method: 'GET',
 		   url: base_url+'src/img/bristol_stools_chart.png'
 	   })
-   }
+   };
 
    	 _nS('json_patient_barcode');
    	_root.json_patient_barcode = function(hospital_number){
@@ -291,7 +291,7 @@ var frontend_routes = {}; (function(_root){
    			method: 'GET',
    			url: base_url+'patient/barcode/' + (function(k,v){ return v})('hospital_number', hospital_number)
    		})
-   	}
+   	};
 
     _nS('json_colleagues_list');
     _root.json_colleagues_list = function(){
@@ -299,7 +299,7 @@ var frontend_routes = {}; (function(_root){
         method: 'GET',
         url: base_url+'staff/colleagues/'
       })
-    }
+    };
 
     _nS('share_patients');
     _root.share_patients = function(){
@@ -307,7 +307,7 @@ var frontend_routes = {}; (function(_root){
         method: 'POST',
         url: base_url+'staff/assign/'
       })
-    }
+    };
 
     _nS('json_claim_patients');
     _root.json_claim_patients = function(){
@@ -315,7 +315,23 @@ var frontend_routes = {}; (function(_root){
         method: 'POST',
         url: base_url+'staff/claim/'
       })
-    }
+    };
+
+    _nS('json_invite_patients');
+    _root.json_invite_patients = function(invite_id){
+       return _wA({
+           method: 'GET',
+           url: base_url+'staff/invite/' + (function(k,v){ return v})('invite_id', invite_id)
+       })
+    };
+
+    _nS('json_accept_patients');
+    _root.json_accept_patients = function(invite_id){
+       return _wA({
+           method: 'POST',
+           url: base_url+'staff/accept/' + (function(k,v){ return v})('invite_id', invite_id)
+       })
+    };
     
     
 

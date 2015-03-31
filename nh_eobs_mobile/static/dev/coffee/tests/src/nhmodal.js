@@ -110,7 +110,7 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, nurses, submit_detail, submit_event;
+    var accept_detail, accept_event, assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, invite, nurses, submit_detail, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
@@ -119,7 +119,8 @@ NHModal = (function() {
         dialog_id = document.getElementById(data_target);
         cover = document.getElementById('cover');
         document.getElementsByTagName('body')[0].removeChild(cover);
-        return dialog_id.parentNode.removeChild(dialog_id);
+        dialog_id.parentNode.removeChild(dialog_id);
+        break;
       case 'submit':
         event.preventDefault();
         submit_event = document.createEvent('CustomEvent');
@@ -131,7 +132,8 @@ NHModal = (function() {
         dialog_id = document.getElementById(data_target);
         cover = document.getElementById('cover');
         document.getElementsByTagName('body')[0].removeChild(cover);
-        return dialog_id.parentNode.removeChild(dialog_id);
+        dialog_id.parentNode.removeChild(dialog_id);
+        break;
       case 'partial_submit':
         event.preventDefault();
         if (!event.handled) {
@@ -142,7 +144,7 @@ NHModal = (function() {
           };
           submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
           document.dispatchEvent(submit_event);
-          return event.handled = true;
+          event.handled = true;
         }
         break;
       case 'assign':
@@ -168,12 +170,23 @@ NHModal = (function() {
           'nurses': nurses
         };
         assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
-        return document.dispatchEvent(assign_event);
+        document.dispatchEvent(assign_event);
+        break;
       case 'claim':
         event.preventDefault();
         claim_event = document.createEvent('CustomEvent');
         claim_event.initCustomEvent('claim_patients', false, true);
-        return document.dispatchEvent(claim_event);
+        document.dispatchEvent(claim_event);
+        break;
+      case 'accept':
+        event.preventDefault();
+        accept_event = document.createEvent('CustomEvent');
+        invite = event.srcElement ? event.srcElement : event.target;
+        accept_detail = {
+          'invite_id': parseInt(invite.getAttribute('data-invite-id'))
+        };
+        accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
+        document.dispatchEvent(accept_event);
     }
   };
 

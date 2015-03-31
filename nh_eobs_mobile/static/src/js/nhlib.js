@@ -1429,6 +1429,105 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShare = NHMobileShare;
 }
 
+var NHMobileShareInvite,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+NHMobileShareInvite = (function(superClass) {
+  extend(NHMobileShareInvite, superClass);
+
+  function NHMobileShareInvite(patient_list) {
+    var invite, invite_list, j, len, self;
+    self = this;
+    invite_list = patient_list.getElementsByClassName('share_invite');
+    for (j = 0, len = invite_list.length; j < len; j++) {
+      invite = invite_list[j];
+      invite.addEventListener('click', function(event) {
+        var activity_id, btn;
+        if (!event.handled) {
+          btn = event.srcElement ? event.srcElement : event.target;
+          activity_id = parseInt(btn.getAttribute('data-invite-id'));
+          self.handle_invite_click(self, activity_id);
+          return event.handled = true;
+        }
+      });
+    }
+    document.addEventListener('accept_invite', function(event) {
+      var activity_id;
+      if (!event.handled) {
+        activity_id = event.detail.invite_id;
+        self.handle_accept_button_click(self, activity_id);
+        return event.handled = true;
+      }
+    });
+    NHMobileShareInvite.__super__.constructor.call(this);
+  }
+
+  NHMobileShareInvite.prototype.handle_invite_click = function(self, activity_id) {
+    var url, urlmeth;
+    url = self.urls.json_invite_patients(activity_id);
+    urlmeth = url.method;
+    Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
+      var acpt_btn, body, btns, can_btn, data, j, len, pt, pt_list, pt_obj;
+      data = server_data[0];
+      pt_list = '<ul>';
+      for (j = 0, len = data.length; j < len; j++) {
+        pt = data[j];
+        pt_obj = '<li>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['ews_deadline'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</li>';
+        pt_list += pt_obj;
+      }
+      pt_list += '</ul>';
+      acpt_btn = '<a href="#" data-action="accept" data-target="accept_invite"' + 'data-ajax-action="json_accept_invite" ' + 'data-invite-id="' + activity_id + '">Accept</a>';
+      can_btn = '<a href="#" data-action="close" data-target="assign_nurse"' + '>Cancel</a>';
+      btns = [acpt_btn, can_btn];
+      body = document.getElementsByTagName('body')[0];
+      return new window.NH.NHModal('accept_invite', 'Accept invitation to follow patients?', pt_list, btns, 0, body);
+    });
+    return true;
+  };
+
+  NHMobileShareInvite.prototype.handle_accept_button_click = function(self, activity_id) {
+    var body, btns, url, urlmeth;
+    url = self.urls.json_accept_patients(activity_id);
+    urlmeth = url.method;
+    btns = ['<a href="#" data-action="close" data-target="assign_nurse"' + '>Cancel</a>'];
+    body = document.getElementsByTagName('body')[0];
+    return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
+      var data, i, invite, invites;
+      data = server_data[0][0];
+      if (data['status']) {
+        invites = document.getElementsByClassName('share_invite');
+        invite = ((function() {
+          var j, len, results;
+          results = [];
+          for (j = 0, len = invites.length; j < len; j++) {
+            i = invites[j];
+            if (parseInt(i.getAttribute('data-invite-id')) === activity_id) {
+              results.push(i);
+            }
+          }
+          return results;
+        })())[0];
+        invite.parentNode.removeChild(invite);
+        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', 'Now following ' + data['count'] + ' patients from ' + data['user'], btns, 0, body);
+      } else {
+        return new window.NH.NHModal('invite_error', 'Error accepting patients', 'There was an error accepting the invite to follow, Please try again', btns, 0, body);
+      }
+    });
+  };
+
+  return NHMobileShareInvite;
+
+})(NHMobile);
+
+if (!window.NH) {
+  window.NH = {};
+}
+
+if (typeof window !== "undefined" && window !== null) {
+  window.NH.NHMobileShareInvite = NHMobileShareInvite;
+}
+
 var NHModal;
 
 NHModal = (function() {
@@ -1541,7 +1640,7 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, nurses, submit_detail, submit_event;
+    var accept_detail, accept_event, assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, invite, nurses, submit_detail, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
@@ -1550,7 +1649,8 @@ NHModal = (function() {
         dialog_id = document.getElementById(data_target);
         cover = document.getElementById('cover');
         document.getElementsByTagName('body')[0].removeChild(cover);
-        return dialog_id.parentNode.removeChild(dialog_id);
+        dialog_id.parentNode.removeChild(dialog_id);
+        break;
       case 'submit':
         event.preventDefault();
         submit_event = document.createEvent('CustomEvent');
@@ -1562,7 +1662,8 @@ NHModal = (function() {
         dialog_id = document.getElementById(data_target);
         cover = document.getElementById('cover');
         document.getElementsByTagName('body')[0].removeChild(cover);
-        return dialog_id.parentNode.removeChild(dialog_id);
+        dialog_id.parentNode.removeChild(dialog_id);
+        break;
       case 'partial_submit':
         event.preventDefault();
         if (!event.handled) {
@@ -1573,7 +1674,7 @@ NHModal = (function() {
           };
           submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
           document.dispatchEvent(submit_event);
-          return event.handled = true;
+          event.handled = true;
         }
         break;
       case 'assign':
@@ -1599,12 +1700,23 @@ NHModal = (function() {
           'nurses': nurses
         };
         assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
-        return document.dispatchEvent(assign_event);
+        document.dispatchEvent(assign_event);
+        break;
       case 'claim':
         event.preventDefault();
         claim_event = document.createEvent('CustomEvent');
         claim_event.initCustomEvent('claim_patients', false, true);
-        return document.dispatchEvent(claim_event);
+        document.dispatchEvent(claim_event);
+        break;
+      case 'accept':
+        event.preventDefault();
+        accept_event = document.createEvent('CustomEvent');
+        invite = event.srcElement ? event.srcElement : event.target;
+        accept_detail = {
+          'invite_id': parseInt(invite.getAttribute('data-invite-id'))
+        };
+        accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
+        document.dispatchEvent(accept_event);
     }
   };
 

@@ -161,6 +161,17 @@ class NHModal
         claim_event = document.createEvent 'CustomEvent'
         claim_event.initCustomEvent('claim_patients', false, true)
         document.dispatchEvent claim_event
+      when 'accept'
+        event.preventDefault()
+        accept_event = document.createEvent 'CustomEvent'
+        invite = if event.srcElement then event.srcElement else event.target
+        accept_detail = {
+          'invite_id': parseInt(invite.getAttribute('data-invite-id'))
+        }
+        accept_event.initCustomEvent('accept_invite', false, true,
+          accept_detail)
+        document.dispatchEvent accept_event
+    return
 
 if !window.NH
   window.NH = {}
