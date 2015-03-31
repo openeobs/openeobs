@@ -49,6 +49,7 @@ notification in patient list</p>
 <ul>
 <li>Find all invitations to follow a patient in the patient list</li>
 <li>Add an EventListener to the invite’s element to present modal for invite</li>
+<li>Add an EventListener to document to capture the NHModal callback</li>
 </ul>
 
             </div>
@@ -60,7 +61,7 @@ notification in patient list</p>
       invite.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
         <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
           btn = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-          activity_id = parseInt(btn.getAttribute(<span class="hljs-string">'data-invite-id'</span>))
+          activity_id = btn.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
           self.handle_invite_click(self, activity_id)
           event.handled = <span class="hljs-literal">true</span>
     <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'accept_invite'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
@@ -100,7 +101,7 @@ notification in patient list</p>
           <span class="hljs-string">'&lt;div class="task-right"&gt;'</span>+
           <span class="hljs-string">'&lt;p class="aside"&gt;'</span>+pt[<span class="hljs-string">'ews_deadline'</span>]+<span class="hljs-string">'&lt;/p&gt;&lt;/div&gt;'</span>+
           <span class="hljs-string">'&lt;div class="task-left"&gt;'</span>+
-          <span class="hljs-string">'&lt;strong&gt;'</span>+pt[<span class="hljs-string">'name'</span>]+<span class="hljs-string">'&lt;/strong&gt;'</span>+
+          <span class="hljs-string">'&lt;strong&gt;'</span>+pt[<span class="hljs-string">'full_name'</span>]+<span class="hljs-string">'&lt;/strong&gt;'</span>+
           <span class="hljs-string">'('</span>+pt[<span class="hljs-string">'ews_score'</span>]+<span class="hljs-string">' &lt;i class="icon-'</span>+
           pt[<span class="hljs-string">'ews_trend'</span>]+<span class="hljs-string">'-arrow"&gt;&lt;/i&gt; )'</span>+
           <span class="hljs-string">'&lt;em&gt;'</span>+pt[<span class="hljs-string">'location'</span>]+<span class="hljs-string">', '</span>+pt[<span class="hljs-string">'parent_location'</span>]+<span class="hljs-string">'&lt;/em&gt;'</span>+
@@ -119,9 +120,27 @@ notification in patient list</p>
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'accept_invite'</span>,
         <span class="hljs-string">'Accept invitation to follow patients?'</span>,
         pt_list, btns, <span class="hljs-number">0</span>, body)
-    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>On the accept button being clicked</p>
+<ul>
+<li>Hit up the server to accept the invitation to follow</li>
+<li>If successful remove the invite from DOM and show modal</li>
+<li>If not successful inform the user of error</li>
+</ul>
 
-  <span class="hljs-attribute">handle_accept_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, activity_id)</span> -&gt;</span>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_accept_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, activity_id)</span> -&gt;</span>
     url = self.urls.json_accept_patients(activity_id)
     urlmeth = url.method
     btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="assign_nurse"'</span>+
@@ -132,7 +151,7 @@ notification in patient list</p>
       <span class="hljs-keyword">if</span> data[<span class="hljs-string">'status'</span>]
         invites = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'share_invite'</span>)
         invite = (i <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> invites <span class="hljs-keyword">when</span> \
-          parseInt(i.getAttribute(<span class="hljs-string">'data-invite-id'</span>)) <span class="hljs-keyword">is</span> activity_id)[<span class="hljs-number">0</span>]
+          i.getAttribute(<span class="hljs-string">'data-invite-id'</span>) <span class="hljs-keyword">is</span> activity_id)[<span class="hljs-number">0</span>]
         invite.parentNode.removeChild(invite)
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invite_success'</span>,
           <span class="hljs-string">'Successfully accepted patients'</span>,

@@ -166,7 +166,7 @@ class NHModal
         accept_event = document.createEvent 'CustomEvent'
         invite = if event.srcElement then event.srcElement else event.target
         accept_detail = {
-          'invite_id': parseInt(invite.getAttribute('data-invite-id'))
+          'invite_id': invite.getAttribute('data-invite-id')
         }
         accept_event.initCustomEvent('accept_invite', false, true,
           accept_detail)

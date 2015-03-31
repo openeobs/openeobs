@@ -63,7 +63,7 @@ describe('NHMobileShareInvite', function(){
                     invite.dispatchEvent(click_event);
                 }
                 expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
-                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.argsFor(0)[1]).toBe(1);
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.argsFor(0)[1]).toBe('1');
             });
         });
 
@@ -93,7 +93,7 @@ describe('NHMobileShareInvite', function(){
                     click_event.initCustomEvent('click', true, false, true);
                     invite.dispatchEvent(click_event);
                     var counter = i + 1;
-                    expect(NHMobileShareInvite.prototype.handle_invite_click.calls.argsFor(i)[1]).toBe(counter)
+                    expect(NHMobileShareInvite.prototype.handle_invite_click.calls.argsFor(i)[1]).toBe(counter.toString())
                 }
                 expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(2);
             });
@@ -125,7 +125,7 @@ describe('NHMobileShareInvite', function(){
                     click_event.initCustomEvent('click', true, false, true);
                     invite.dispatchEvent(click_event);
                     var counter = i + 1;
-                    expect(NHMobileShareInvite.prototype.handle_invite_click.calls.argsFor(i)[1]).toBe(counter)
+                    expect(NHMobileShareInvite.prototype.handle_invite_click.calls.argsFor(i)[1]).toBe(counter.toString())
                 }
                 expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(20);
             });
@@ -135,7 +135,7 @@ describe('NHMobileShareInvite', function(){
     describe('Clicking on an invite', function(){
         var patient_list_data = [
                 {
-                    'name': 'Patient, Test A',
+                    'full_name': 'Patient, Test A',
                     'ews_deadline': '01:00 hours',
                     'ews_score': 5,
                     'ews_trend': 'first',
@@ -143,7 +143,7 @@ describe('NHMobileShareInvite', function(){
                     'location': 'Bed 5'
                 },
                 {
-                    'name': 'Patient, Test B',
+                    'full_name': 'Patient, Test B',
                     'ews_deadline': '02:00 hours',
                     'ews_score': 4,
                     'ews_trend': 'up',
@@ -237,7 +237,7 @@ describe('NHMobileShareInvite', function(){
                 accept_button.dispatchEvent(click_event);
                 //expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
                 expect(NHMobileShareInvite.prototype.handle_accept_button_click).toHaveBeenCalled();
-                expect(NHMobileShareInvite.prototype.handle_accept_button_click.calls.argsFor(0)[1]).toBe(1);
+                expect(NHMobileShareInvite.prototype.handle_accept_button_click.calls.argsFor(0)[1]).toBe('1');
                 expect(NHMobileShareInvite.prototype.process_request.calls.count()).toBe(2);
                 expect(NHModal.prototype.create_dialog.calls.count()).toBe(2);
                 expect(NHModal.prototype.create_dialog.calls.argsFor(1)[1]).toBe('invite_success');
@@ -288,7 +288,7 @@ describe('NHMobileShareInvite', function(){
                 accept_button.dispatchEvent(click_event);
                 //expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
                 expect(NHMobileShareInvite.prototype.handle_accept_button_click).toHaveBeenCalled();
-                expect(NHMobileShareInvite.prototype.handle_accept_button_click.calls.argsFor(0)[1]).toBe(1);
+                expect(NHMobileShareInvite.prototype.handle_accept_button_click.calls.argsFor(0)[1]).toBe('1');
                 expect(NHMobileShareInvite.prototype.process_request.calls.count()).toBe(2);
                 expect(NHModal.prototype.create_dialog.calls.count()).toBe(2);
                 expect(NHModal.prototype.create_dialog.calls.argsFor(1)[1]).toBe('invite_error');

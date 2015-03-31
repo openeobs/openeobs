@@ -183,7 +183,7 @@ NHModal = (function() {
         accept_event = document.createEvent('CustomEvent');
         invite = event.srcElement ? event.srcElement : event.target;
         accept_detail = {
-          'invite_id': parseInt(invite.getAttribute('data-invite-id'))
+          'invite_id': invite.getAttribute('data-invite-id')
         };
         accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
         document.dispatchEvent(accept_event);

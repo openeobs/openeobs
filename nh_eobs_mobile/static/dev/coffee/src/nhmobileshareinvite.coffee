@@ -15,7 +15,7 @@ class NHMobileShareInvite extends NHMobile
       invite.addEventListener 'click', (event) ->
         if not event.handled
           btn = if event.srcElement then event.srcElement else event.target
-          activity_id = parseInt(btn.getAttribute('data-invite-id'))
+          activity_id = btn.getAttribute('data-invite-id')
           self.handle_invite_click(self, activity_id)
           event.handled = true
     document.addEventListener 'accept_invite', (event) ->
@@ -41,7 +41,7 @@ class NHMobileShareInvite extends NHMobile
           '<div class="task-right">'+
           '<p class="aside">'+pt['ews_deadline']+'</p></div>'+
           '<div class="task-left">'+
-          '<strong>'+pt['name']+'</strong>'+
+          '<strong>'+pt['full_name']+'</strong>'+
           '('+pt['ews_score']+' <i class="icon-'+
           pt['ews_trend']+'-arrow"></i> )'+
           '<em>'+pt['location']+', '+pt['parent_location']+'</em>'+
@@ -77,7 +77,7 @@ class NHMobileShareInvite extends NHMobile
       if data['status']
         invites = document.getElementsByClassName('share_invite')
         invite = (i for i in invites when \
-          parseInt(i.getAttribute('data-invite-id')) is activity_id)[0]
+          i.getAttribute('data-invite-id') is activity_id)[0]
         invite.parentNode.removeChild(invite)
         return new window.NH.NHModal('invite_success',
           'Successfully accepted patients',

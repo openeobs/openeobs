@@ -1446,7 +1446,7 @@ NHMobileShareInvite = (function(superClass) {
         var activity_id, btn;
         if (!event.handled) {
           btn = event.srcElement ? event.srcElement : event.target;
-          activity_id = parseInt(btn.getAttribute('data-invite-id'));
+          activity_id = btn.getAttribute('data-invite-id');
           self.handle_invite_click(self, activity_id);
           return event.handled = true;
         }
@@ -1473,7 +1473,7 @@ NHMobileShareInvite = (function(superClass) {
       pt_list = '<ul>';
       for (j = 0, len = data.length; j < len; j++) {
         pt = data[j];
-        pt_obj = '<li>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['ews_deadline'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</li>';
+        pt_obj = '<li>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['ews_deadline'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['full_name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</li>';
         pt_list += pt_obj;
       }
       pt_list += '</ul>';
@@ -1502,7 +1502,7 @@ NHMobileShareInvite = (function(superClass) {
           results = [];
           for (j = 0, len = invites.length; j < len; j++) {
             i = invites[j];
-            if (parseInt(i.getAttribute('data-invite-id')) === activity_id) {
+            if (i.getAttribute('data-invite-id') === activity_id) {
               results.push(i);
             }
           }
@@ -1713,7 +1713,7 @@ NHModal = (function() {
         accept_event = document.createEvent('CustomEvent');
         invite = event.srcElement ? event.srcElement : event.target;
         accept_detail = {
-          'invite_id': parseInt(invite.getAttribute('data-invite-id'))
+          'invite_id': invite.getAttribute('data-invite-id')
         };
         accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
         document.dispatchEvent(accept_event);
