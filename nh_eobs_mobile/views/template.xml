@@ -38,18 +38,18 @@
                     <t t-raw="0"/>
                     <t t-if="share_list">
                         <div class="share-footer">
-                        <p class="user"><t t-esc="username"/></p>
-                        <ul class="header-menu three-col">
-                            <li><a href="#" class="share">Share</a></li>
-                            <li><a href="#" class="claim">Claim</a></li>
-                            <li><a href="/mobile/patients/">Cancel</a></li>
-                        </ul>
-                    </div>
-                    <script type="text/javascript">
-                        var share_button = document.getElementsByClassName('share')[0];
-                        var claim_button = document.getElementsByClassName('claim')[0];
-                        document.addEventListener('DOMContentLoaded', new window.NH.NHMobileShare(share_button, claim_button), false);
-                    </script>
+                            <p class="user"><t t-esc="username"/></p>
+                            <ul class="header-menu three-col">
+                                <li><a href="#" class="share">Share</a></li>
+                                <li><a href="#" class="claim">Claim</a></li>
+                                <li><a href="/mobile/patients/">Cancel</a></li>
+                            </ul>
+                        </div>
+                        <script type="text/javascript">
+                            var share_button = document.getElementsByClassName('share')[0];
+                            var claim_button = document.getElementsByClassName('claim')[0];
+                            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileShare(share_button, claim_button), false);
+                        </script>
                     </t>
                     <t t-if="share_list==None">
                         <div class="footer block">
@@ -69,7 +69,9 @@
                 <div class="content">
                     <ul class="tasklist">
                         <t t-if="notifications">
-                            <li><p>You have notifications pending</p></li>
+                            <li t-foreach="notifications" t-as="notification" class="white block">
+                                <p class="taskInfo"><t t-if="notification['message']"><t t-esc="notification['message']"/></t><br/></p>
+                            </li>
                             <li><hr/></li>
                         </t>
                         <li t-foreach="items" t-as="item">
@@ -77,7 +79,9 @@
                                 <div class="task-meta">
                                     <div class="task-right">
                                         <p class="aside"><t t-esc="item['deadline_time']"/></p>
-                                        <p class="aside"><t t-if="'followers' in item and item['followers']">Claim</t></p>
+                                        <t t-if="'followers' in item and item['followers']">
+                                            <p class="aside">Claim</p>
+                                        </t>
                                     </div>
                                     <div class="task-left">
                                         <t t-if="'notification' in item and item['notification']==True">
