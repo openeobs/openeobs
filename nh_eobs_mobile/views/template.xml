@@ -81,7 +81,7 @@
                                 <div class="task-meta">
                                     <div class="task-right">
                                         <p class="aside"><t t-esc="item['deadline_time']"/></p>
-                                        <t t-if="'followers' in item and item['followers']">
+                                        <t t-if="'follower_ids' in item and user_id in item['follower_ids']">
                                             <p class="aside">Claim</p>
                                         </t>
                                     </div>

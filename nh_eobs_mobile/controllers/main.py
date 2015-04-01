@@ -244,9 +244,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return request.render('nh_eobs_mobile.patient_task_list', qcontext={'notifications': follow_activities,
                                                                             'items': patients,
                                                                             'following_items': following_patients,
-                                                                             'section': 'patient',
-                                                                             'username': request.session['login'],
-                                                                             'urls': URLS})
+                                                                            'section': 'patient',
+                                                                            'username': request.session['login'],
+                                                                            'urls': URLS})
 
     @http.route(URLS['share_patient_list'], type='http', auth='user')
     def get_share_patients(self, *args, **kw):
@@ -265,6 +265,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             if patient.get('followers'):
                 followers = patient['followers']
                 patient['followers'] = ', '.join([f['name'] for f in followers])
+                patient['follower_ids'] = [f['id'] for f in followers]
             if patient.get('invited_users'):
                 users = patient['invited_users']
                 patient['invited_users'] = ', '.join([u['name'] for u in users])
@@ -272,7 +273,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                               'section': 'patient',
                                                                               'username': request.session['login'],
                                                                               'share_list': True,
-                                                                              'urls': URLS})
+                                                                              'urls': URLS,
+                                                                              'user_id': uid})
 
     @http.route(URLS['share_patients'], type='http', auth='user')
     def share_patients(self, *args, **kw):
@@ -320,7 +322,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 res = a
                 res['status'] = True
                 break
-        api.complete(cr, uid, activity_id, {}, context=context)
+        api.complete(cr, uid, int(activity_id), {}, context=context)
         return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['json_reject_patients']+'<activity_id>', type='http', auth='user')
@@ -334,7 +336,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 res = a
                 res['status'] = True
                 break
-        api.cancel(cr, uid, activity_id, context=context)
+        api.cancel(cr, uid, int(activity_id), {}, context=context)
         return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['task_list'], type='http', auth='user')
