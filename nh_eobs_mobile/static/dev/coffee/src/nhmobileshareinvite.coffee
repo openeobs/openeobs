@@ -87,6 +87,11 @@ class NHMobileShareInvite extends NHMobile
         invite.parentNode.removeChild(invite)
         btns = ['<a href="#" data-action="close" data-target="invite_success"'+
         '>Cancel</a>']
+        covers = document.getElementsByClassName('cover')
+        for cover in covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = document.getElementById('accept_invite')
+        invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('invite_success',
           'Successfully accepted patients',
           'Now following '+data['count']+' patients from '+data['user'],
@@ -94,6 +99,11 @@ class NHMobileShareInvite extends NHMobile
       else
         btns = ['<a href="#" data-action="close" data-target="invite_error"'+
         '>Cancel</a>']
+        covers = document.getElementsByClassName('cover')
+        for cover in covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = document.getElementById('accept_invite')
+        invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('invite_error',
           'Error accepting patients',
           'There was an error accepting the invite to follow, Please try again',
@@ -116,6 +126,11 @@ class NHMobileShareInvite extends NHMobile
         invite.parentNode.removeChild(invite)
         btns = ['<a href="#" data-action="close" data-target="reject_success"'+
         '>Cancel</a>']
+        covers = document.getElementsByClassName('cover')
+        for cover in covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = document.getElementById('accept_invite')
+        invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('reject_success',
           'Successfully rejected patients',
           'The invitation to follow '+data['user']+'\'s patients was rejected',
@@ -123,6 +138,11 @@ class NHMobileShareInvite extends NHMobile
       else
         btns = ['<a href="#" data-action="close" data-target="reject_success"'+
         '>Cancel</a>']
+        covers = document.getElementsByClassName('cover')
+        for cover in covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = document.getElementById('accept_invite')
+        invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('reject_error',
           'Error rejecting patients',
           'There was an error rejecting the invite to follow, Please try again',

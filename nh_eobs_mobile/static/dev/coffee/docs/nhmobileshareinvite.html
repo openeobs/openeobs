@@ -161,6 +161,11 @@ notification in patient list</p>
         invite.parentNode.removeChild(invite)
         btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invite_success"'</span>+
         <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
+        covers = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'cover'</span>)
+        <span class="hljs-keyword">for</span> cover <span class="hljs-keyword">in</span> covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'accept_invite'</span>)
+        invite_modal.parentNode.removeChild(invite_modal)
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invite_success'</span>,
           <span class="hljs-string">'Successfully accepted patients'</span>,
           <span class="hljs-string">'Now following '</span>+data[<span class="hljs-string">'count'</span>]+<span class="hljs-string">' patients from '</span>+data[<span class="hljs-string">'user'</span>],
@@ -168,6 +173,11 @@ notification in patient list</p>
       <span class="hljs-keyword">else</span>
         btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invite_error"'</span>+
         <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
+        covers = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'cover'</span>)
+        <span class="hljs-keyword">for</span> cover <span class="hljs-keyword">in</span> covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'accept_invite'</span>)
+        invite_modal.parentNode.removeChild(invite_modal)
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invite_error'</span>,
           <span class="hljs-string">'Error accepting patients'</span>,
           <span class="hljs-string">'There was an error accepting the invite to follow, Please try again'</span>,
@@ -204,6 +214,11 @@ notification in patient list</p>
         invite.parentNode.removeChild(invite)
         btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="reject_success"'</span>+
         <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
+        covers = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'cover'</span>)
+        <span class="hljs-keyword">for</span> cover <span class="hljs-keyword">in</span> covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'accept_invite'</span>)
+        invite_modal.parentNode.removeChild(invite_modal)
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'reject_success'</span>,
           <span class="hljs-string">'Successfully rejected patients'</span>,
           <span class="hljs-string">'The invitation to follow '</span>+data[<span class="hljs-string">'user'</span>]+<span class="hljs-string">'\'s patients was rejected'</span>,
@@ -211,6 +226,11 @@ notification in patient list</p>
       <span class="hljs-keyword">else</span>
         btns = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="reject_success"'</span>+
         <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>]
+        covers = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'cover'</span>)
+        <span class="hljs-keyword">for</span> cover <span class="hljs-keyword">in</span> covers
+          cover?.parentNode.removeChild(cover)
+        invite_modal = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'accept_invite'</span>)
+        invite_modal.parentNode.removeChild(invite_modal)
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'reject_error'</span>,
           <span class="hljs-string">'Error rejecting patients'</span>,
           <span class="hljs-string">'There was an error rejecting the invite to follow, Please try again'</span>,
