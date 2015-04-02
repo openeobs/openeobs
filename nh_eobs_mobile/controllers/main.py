@@ -292,6 +292,17 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                  'shared_with': [user['display_name'] for user in users]}),
                                      headers={'Content-Type': 'application/json'})
 
+    @http.route(URLS['claim_patients'], type='http', auth='user')
+    def claim_patients(self, *args, **kw):
+        cr, uid, context = request.cr, request.uid, request.context
+        api = request.registry['nh.eobs.api']
+        kw_copy = kw.copy()
+        patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
+        api.remove_followers(cr, uid, patient_ids, context=context)
+        return request.make_response(json.dumps({'status': True,
+                                                 'reason': 'Followers removed successfully.'}),
+                                     headers={'Content-Type': 'application/json'})
+
     @http.route(URLS['json_colleagues_list'], type='http', auth='user')
     def get_colleagues(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context

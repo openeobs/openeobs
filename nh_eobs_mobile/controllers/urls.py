@@ -193,6 +193,12 @@ routes = [
         'args': False
     },
     {
+        'name': 'claim_patients',
+        'endpoint': 'staff/unassign/',
+        'method': 'POST',
+        'args': False
+    },
+    {
         'name': 'share_patient_list',
         'endpoint': 'patients/share/',
         'method': 'GET',
