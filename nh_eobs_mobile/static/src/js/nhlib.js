@@ -1530,10 +1530,10 @@ NHMobileShareInvite = (function(superClass) {
     Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
       var acpt_btn, body, btns, can_btn, cls_btn, data, j, len, pt, pt_list, pt_obj;
       data = server_data[0][0];
-      pt_list = '<ul>';
+      pt_list = '<ul class="tasklist">';
       for (j = 0, len = data.length; j < len; j++) {
         pt = data[j];
-        pt_obj = '<li>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['next_ews_time'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['full_name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</li>';
+        pt_obj = '<li class="block"><a>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['next_ews_time'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['full_name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<br><em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</a></li>';
         pt_list += pt_obj;
       }
       pt_list += '</ul>';
@@ -1579,7 +1579,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', 'Now following ' + data['count'] + ' patients from ' + data['user'], btns, 0, body);
+        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', '<p class="block">Now following ' + data['count'] + ' patients from ' + data['user'] + '</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
@@ -1591,7 +1591,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_error', 'Error accepting patients', 'There was an error accepting the invite to follow, Please try again', btns, 0, body);
+        return new window.NH.NHModal('invite_error', 'Error accepting patients', '<p class="block">There was an error accepting the invite to follow,' + 'Please try again</p>', btns, 0, body);
       }
     });
   };
@@ -1628,7 +1628,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', 'The invitation to follow ' + data['user'] + '\'s patients was rejected', btns, 0, body);
+        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', '<p class="block">The invitation to follow ' + data['user'] + '\'s ' + 'patients was rejected</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
@@ -1640,7 +1640,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_error', 'Error rejecting patients', 'There was an error rejecting the invite to follow, Please try again', btns, 0, body);
+        return new window.NH.NHModal('reject_error', 'Error rejecting patients', '<p class="block">There was an error rejecting the invite to follow,' + ' Please try again</p>', btns, 0, body);
       }
     });
   };

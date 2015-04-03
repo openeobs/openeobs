@@ -39,9 +39,9 @@ class NHMobileShareInvite extends NHMobile
     urlmeth = url.method
     Promise.when(self.process_request(urlmeth, url.url)).then (server_data) ->
       data = server_data[0][0]
-      pt_list = '<ul>'
+      pt_list = '<ul class="tasklist">'
       for pt in data
-        pt_obj = '<li>'+
+        pt_obj = '<li class="block"><a>'+
           '<div class="task-meta">'+
           '<div class="task-right">'+
           '<p class="aside">'+pt['next_ews_time']+'</p></div>'+
@@ -49,10 +49,10 @@ class NHMobileShareInvite extends NHMobile
           '<strong>'+pt['full_name']+'</strong>'+
           '('+pt['ews_score']+' <i class="icon-'+
           pt['ews_trend']+'-arrow"></i> )'+
-          '<em>'+pt['location']+', '+pt['parent_location']+'</em>'+
+          '<br><em>'+pt['location']+', '+pt['parent_location']+'</em>'+
           '</div>'+
           '</div>'+
-          '</li>'
+          '</a></li>'
         pt_list += pt_obj
       pt_list += '</ul>'
       cls_btn = '<a href="#" data-action="close" data-target="accept_invite"'+
@@ -94,7 +94,8 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('invite_success',
           'Successfully accepted patients',
-          'Now following '+data['count']+' patients from '+data['user'],
+          '<p class="block">Now following '+data['count']+' patients from '+
+            data['user'] + '</p>',
           btns, 0, body)
       else
         btns = ['<a href="#" data-action="close" data-target="invite_error"'+
@@ -106,7 +107,8 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('invite_error',
           'Error accepting patients',
-          'There was an error accepting the invite to follow, Please try again',
+          '<p class="block">There was an error accepting the invite to follow,'+
+            'Please try again</p>',
           btns, 0, body)
 
   # On the reject button being clicked
@@ -133,7 +135,8 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('reject_success',
           'Successfully rejected patients',
-          'The invitation to follow '+data['user']+'\'s patients was rejected',
+          '<p class="block">The invitation to follow '+data['user']+'\'s '+
+            'patients was rejected</p>',
           btns, 0, body)
       else
         btns = ['<a href="#" data-action="close" data-target="reject_success"'+
@@ -145,7 +148,8 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('reject_error',
           'Error rejecting patients',
-          'There was an error rejecting the invite to follow, Please try again',
+          '<p class="block">There was an error rejecting the invite to follow,'+
+            ' Please try again</p>',
           btns, 0, body)
 
 if !window.NH

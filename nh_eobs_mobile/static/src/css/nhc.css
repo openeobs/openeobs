@@ -1522,3 +1522,28 @@ text.title {
 .sharelist li label.shared{
     background-color: #eeeeee;
 }
+
+#assign_nurse .dialogContent input{
+    height: 2.4em;
+    margin: 0.5em 0;
+}
+
+.dialogContent .tasklist{
+    list-style: none;
+}
+.dialogContent .tasklist .block > a{
+    padding-bottom: 0;
+}
+.dialogContent .tasklist .task-meta{
+    display: inline-block;
+}
+
+.share_invite{
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+.share_invite .urgent{
+    background-color: #ffcccc;
+    padding: 1em 5%;
+    border-radius: 10px;
+}

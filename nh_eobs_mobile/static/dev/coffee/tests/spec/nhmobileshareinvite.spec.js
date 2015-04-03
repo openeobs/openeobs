@@ -192,7 +192,7 @@ describe('NHMobileShareInvite', function(){
                 var patients = dialog_content.getElementsByTagName('li');
                 var patient_list = dialog_content.getElementsByTagName('ul')[0];
                 expect(patients.length).toBe(2);
-                expect(patient_list.innerHTML).toBe('<li><div class="task-meta"><div class="task-right"><p class="aside">01:00 hours</p></div><div class="task-left"><strong>Patient, Test A</strong>(5 <i class="icon-first-arrow"></i> )<em>Bed 5, Ward A</em></div></div></li><li><div class="task-meta"><div class="task-right"><p class="aside">02:00 hours</p></div><div class="task-left"><strong>Patient, Test B</strong>(4 <i class="icon-up-arrow"></i> )<em>Bed 4, Ward A</em></div></div></li>')
+                expect(patient_list.innerHTML).toBe('<li class="block"><a><div class="task-meta"><div class="task-right"><p class="aside">01:00 hours</p></div><div class="task-left"><strong>Patient, Test A</strong>(5 <i class="icon-first-arrow"></i> )<br><em>Bed 5, Ward A</em></div></div></a></li><li class="block"><a><div class="task-meta"><div class="task-right"><p class="aside">02:00 hours</p></div><div class="task-left"><strong>Patient, Test B</strong>(4 <i class="icon-up-arrow"></i> )<br><em>Bed 4, Ward A</em></div></div></a></li>')
             });
         });
         describe('Accepting invite - success', function(){

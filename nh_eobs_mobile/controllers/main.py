@@ -269,7 +269,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             if patient.get('invited_users'):
                 users = patient['invited_users']
                 patient['invited_users'] = ', '.join([u['name'] for u in users])
-        return request.render('nh_eobs_mobile.share_patients_list', qcontext={'items': patients,
+        sorted_pts = sorted(patients, key=lambda k: cmp(k['followers'], k['invited_users']))
+        return request.render('nh_eobs_mobile.share_patients_list', qcontext={'items': sorted_pts,
                                                                               'section': 'patient',
                                                                               'username': request.session['login'],
                                                                               'share_list': True,
