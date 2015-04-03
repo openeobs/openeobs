@@ -69,15 +69,25 @@ class NHMobileShare extends NHMobile
   # - Send list of selected ids to server
   # - Update UI to reflect the change
   claim_button_click: (self) ->
-    assign_btn = '<a href="#" data-action="claim" '+
-      'data-target="claim_patients" data-ajax-action="json_claim_patients">'+
-      'Claim</a>'
-    can_btn = '<a href="#" data-action="close" data-target="claim_patients"'+
-      '>Cancel</a>'
-    claim_msg = '<p class="block">Claim patients shared with colleagues</p>'
-    btns = [assign_btn, can_btn]
-    new window.NH.NHModal('claim_patients', 'Claim Patients?',
-      claim_msg, btns, 0, self.form)
+    form = document.getElementById('handover_form')
+    patients = (el.value for el in form.elements \
+      when el.checked and not el.classList.contains('exclude'))
+    if patients.length > 0
+      assign_btn = '<a href="#" data-action="claim" '+
+        'data-target="claim_patients" data-ajax-action="json_claim_patients">'+
+        'Claim</a>'
+      can_btn = '<a href="#" data-action="close" data-target="claim_patients"'+
+        '>Cancel</a>'
+      claim_msg = '<p class="block">Claim patients shared with colleagues</p>'
+      btns = [assign_btn, can_btn]
+      new window.NH.NHModal('claim_patients', 'Claim Patients?',
+        claim_msg, btns, 0, self.form)
+    else
+      msg = '<p class="block">Please select patients to claim back</p>'
+      btn = ['<a href="#" data-action="close" data-target="invalid_form">'+
+        'Cancel</a>']
+      new window.NH.NHModal('invalid_form', 'No Patients selected',
+        msg, btn, 0, self.form)
     return true
 
   # On Assign button being click in the modal:
@@ -95,7 +105,7 @@ class NHMobileShare extends NHMobile
       error_message.innerHTML = 'Please select colleague(s) to share with'
     else
       error_message.innerHTML = ''
-      url = self.urls.share_patients()
+      url = self.urls.json_share_patients()
       data_string = ''
       nurse_ids = 'user_ids='+nurses
       patient_ids = 'patient_ids='+patients
@@ -123,9 +133,12 @@ class NHMobileShare extends NHMobile
     return true
 
   claim_patients_click: (self, event) ->
+    form = document.getElementById('handover_form')
+    patients = (el.value for el in form.elements \
+      when el.checked and not el.classList.contains('exclude'))
+    data_string = 'patient_ids=' + patients
     url = self.urls.json_claim_patients()
-    urlmeth = url.method
-    Promise.when(self.process_request(urlmeth, url.url)).then (server_data) ->
+    Promise.when(self.call_resource(url, data_string)).then (server_data) ->
       data = server_data[0][0]
       popup = document.getElementById('claim_patients')
       cover = document.getElementById('cover')
@@ -133,8 +146,15 @@ class NHMobileShare extends NHMobile
       body.removeChild(cover)
       popup.parentNode.removeChild(popup)
       if data['status']
-        can_btn = '<a href="#" data-action="close" data-target="claim_success"'+
-          '>Cancel</a>'
+        pts = (el for el in form.elements when el.value in patients)
+        for pt in pts
+          pt.checked = false
+          pt_el = pt.parentNode.getElementsByClassName('block')[0]
+          pt_el.parentNode.classList.remove('shared')
+          ti = pt_el.getElementsByClassName('taskInfo')[0]
+          ti.innerHTML = '<br>'
+        can_btn = '<a href="#" data-action="close" '+
+            'data-target="claim_success">Cancel</a>'
         claim_msg = '<p class="block">Successfully claimed patients</p>'
         btns = [can_btn]
         new window.NH.NHModal('claim_success', 'Patients Claimed',

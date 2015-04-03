@@ -301,8 +301,8 @@ var frontend_routes = {}; (function(_root){
       })
     };
 
-    _nS('share_patients');
-    _root.share_patients = function(){
+    _nS('json_share_patients');
+    _root.json_share_patients = function(){
       return _wA({
         method: 'POST',
         url: base_url+'staff/assign/'

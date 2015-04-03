@@ -143,15 +143,25 @@ Allows users to share patients with other users when they are not on ward</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">claim_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
-    assign_btn = <span class="hljs-string">'&lt;a href="#" data-action="claim" '</span>+
-      <span class="hljs-string">'data-target="claim_patients" data-ajax-action="json_claim_patients"&gt;'</span>+
-      <span class="hljs-string">'Claim&lt;/a&gt;'</span>
-    can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_patients"'</span>+
-      <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
-    claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;Claim patients shared with colleagues&lt;/p&gt;'</span>
-    btns = [assign_btn, can_btn]
-    <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_patients'</span>, <span class="hljs-string">'Claim Patients?'</span>,
-      claim_msg, btns, <span class="hljs-number">0</span>, self.form)
+    form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
+    patients = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements \
+      <span class="hljs-keyword">when</span> el.checked <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
+    <span class="hljs-keyword">if</span> patients.length &gt; <span class="hljs-number">0</span>
+      assign_btn = <span class="hljs-string">'&lt;a href="#" data-action="claim" '</span>+
+        <span class="hljs-string">'data-target="claim_patients" data-ajax-action="json_claim_patients"&gt;'</span>+
+        <span class="hljs-string">'Claim&lt;/a&gt;'</span>
+      can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_patients"'</span>+
+        <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
+      claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;Claim patients shared with colleagues&lt;/p&gt;'</span>
+      btns = [assign_btn, can_btn]
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_patients'</span>, <span class="hljs-string">'Claim Patients?'</span>,
+        claim_msg, btns, <span class="hljs-number">0</span>, self.form)
+    <span class="hljs-keyword">else</span>
+      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please select patients to claim back&lt;/p&gt;'</span>
+      btn = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>]
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invalid_form'</span>, <span class="hljs-string">'No Patients selected'</span>,
+        msg, btn, <span class="hljs-number">0</span>, self.form)
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span></pre></div></div>
             
         </li>
@@ -183,7 +193,7 @@ Allows users to share patients with other users when they are not on ward</p>
       error_message.innerHTML = <span class="hljs-string">'Please select colleague(s) to share with'</span>
     <span class="hljs-keyword">else</span>
       error_message.innerHTML = <span class="hljs-string">''</span>
-      url = self.urls.share_patients()
+      url = self.urls.json_share_patients()
       data_string = <span class="hljs-string">''</span>
       nurse_ids = <span class="hljs-string">'user_ids='</span>+nurses
       patient_ids = <span class="hljs-string">'patient_ids='</span>+patients
@@ -211,9 +221,12 @@ Allows users to share patients with other users when they are not on ward</p>
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
 
   <span class="hljs-attribute">claim_patients_click</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+    form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
+    patients = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements \
+      <span class="hljs-keyword">when</span> el.checked <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
+    data_string = <span class="hljs-string">'patient_ids='</span> + patients
     url = self.urls.json_claim_patients()
-    urlmeth = url.method
-    Promise.<span class="hljs-keyword">when</span>(self.process_request(urlmeth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
+    Promise.<span class="hljs-keyword">when</span>(self.call_resource(url, data_string)).<span class="hljs-keyword">then</span> (server_data) -&gt;
       data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
       popup = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'claim_patients'</span>)
       cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
@@ -221,8 +234,15 @@ Allows users to share patients with other users when they are not on ward</p>
       body.removeChild(cover)
       popup.parentNode.removeChild(popup)
       <span class="hljs-keyword">if</span> data[<span class="hljs-string">'status'</span>]
-        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_success"'</span>+
-          <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
+        pts = (el <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements <span class="hljs-keyword">when</span> el.value <span class="hljs-keyword">in</span> patients)
+        <span class="hljs-keyword">for</span> pt <span class="hljs-keyword">in</span> pts
+          pt.checked = <span class="hljs-literal">false</span>
+          pt_el = pt.parentNode.getElementsByClassName(<span class="hljs-string">'block'</span>)[<span class="hljs-number">0</span>]
+          pt_el.parentNode.classList.remove(<span class="hljs-string">'shared'</span>)
+          ti = pt_el.getElementsByClassName(<span class="hljs-string">'taskInfo'</span>)[<span class="hljs-number">0</span>]
+          ti.innerHTML = <span class="hljs-string">'&lt;br&gt;'</span>
+        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
+            <span class="hljs-string">'data-target="claim_success"&gt;Cancel&lt;/a&gt;'</span>
         claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;Successfully claimed patients&lt;/p&gt;'</span>
         btns = [can_btn]
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_success'</span>, <span class="hljs-string">'Patients Claimed'</span>,

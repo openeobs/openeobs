@@ -187,13 +187,13 @@ routes = [
         'args': False
     },
     {
-        'name': 'share_patients',
+        'name': 'json_share_patients',
         'endpoint': 'staff/assign/',
         'method': 'POST',
         'args': False
     },
     {
-        'name': 'claim_patients',
+        'name': 'json_claim_patients',
         'endpoint': 'staff/unassign/',
         'method': 'POST',
         'args': False

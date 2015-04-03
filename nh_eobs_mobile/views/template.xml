@@ -152,8 +152,8 @@
                                                 </div>
                                             </div>
                                             <div class="task-meta">
-                                                <p class="taskInfo"><t t-if="item['invited_users']">Shared with: <t t-esc="item['invited_users']"/></t><br/></p>
-                                                <p class="taskInfo"><t t-if="item['followers']">Following: <t t-esc="item['followers']"/></t><br/></p>
+                                                <p class="taskInfo"><t t-if="item['invited_users']">Shared with: <t t-esc="item['invited_users']"/></t><br/>
+                                                <t t-if="item['followers']">Following: <t t-esc="item['followers']"/></t><br/></p>
                                             </div>
                                         </div>
                                     </label>

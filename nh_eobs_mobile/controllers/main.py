@@ -276,7 +276,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                               'urls': URLS,
                                                                               'user_id': uid})
 
-    @http.route(URLS['share_patients'], type='http', auth='user')
+    @http.route(URLS['json_share_patients'], type='http', auth='user')
     def share_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
@@ -292,7 +292,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                  'shared_with': [user['display_name'] for user in users]}),
                                      headers={'Content-Type': 'application/json'})
 
-    @http.route(URLS['claim_patients'], type='http', auth='user')
+    @http.route(URLS['json_claim_patients'], type='http', auth='user')
     def claim_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']

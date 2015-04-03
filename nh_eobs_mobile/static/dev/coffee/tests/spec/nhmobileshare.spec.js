@@ -719,9 +719,12 @@ describe('NHMobileShare - Claim back patients from colleagues', function() {
     });
 
 
-    it('Shows popup with Claim options when pressing claim button', function(){
+    it('Shows popup with Claim options when pressing claim button and have selected patients', function(){
         spyOn(NHMobileShare.prototype, 'claim_button_click').and.callThrough();
         spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        var test_patients = document.getElementsByClassName('patient_share_checkbox');
+         test_patients[0].checked = true;
+
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
         claim_button.dispatchEvent(click_event);
@@ -731,6 +734,22 @@ describe('NHMobileShare - Claim back patients from colleagues', function() {
         expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Claim Patients?');
         expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<p class="block">Claim patients shared with colleagues</p>');
     });
+
+    it('Shows error popup when no patients selected', function(){
+        spyOn(NHMobileShare.prototype, 'claim_button_click').and.callThrough();
+        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+        var test_patients = document.getElementsByClassName('patient_share_checkbox');
+
+        var click_event = document.createEvent('CustomEvent');
+        click_event.initCustomEvent('click', false, true, false);
+        claim_button.dispatchEvent(click_event);
+        expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('invalid_form');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('No Patients selected');
+        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<p class="block">Please select patients to claim back</p>');
+    });
+
     it('On pressing the popup\'s claim button the server is sent a claim request', function(){
         spyOn(NHMobileShare.prototype, 'claim_button_click').and.callThrough();
         spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
@@ -743,6 +762,8 @@ describe('NHMobileShare - Claim back patients from colleagues', function() {
           ]);
           return promise;
         });
+        var test_patients = document.getElementsByClassName('patient_share_checkbox');
+        test_patients[0].checked = true;
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
         claim_button.dispatchEvent(click_event);
@@ -766,6 +787,9 @@ describe('NHMobileShare - Claim back patients from colleagues', function() {
 
         var success_dialog = document.getElementById('claim_success');
         expect(success_dialog).not.toBe(null);
+
+        var test_patients = document.getElementsByClassName('patient_share_checkbox');
+        expect(test_patients[0].checked).toBe(false);
     });
 
     it('On pressing the popup\'s claim button the server is sent a claim request but it fails', function(){
@@ -780,6 +804,8 @@ describe('NHMobileShare - Claim back patients from colleagues', function() {
           ]);
           return promise;
         });
+        var test_patients = document.getElementsByClassName('patient_share_checkbox');
+        test_patients[0].checked = true;
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
         claim_button.dispatchEvent(click_event);
