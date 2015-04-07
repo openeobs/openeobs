@@ -243,7 +243,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             fpatient['summary'] = fpatient['summary'] if fpatient.get('summary') else False
         return request.render('nh_eobs_mobile.patient_task_list', qcontext={'notifications': follow_activities,
                                                                             'items': patients,
-                                                                            'following_items': following_patients,
+                                                                            'followed_items': following_patients,
                                                                             'section': 'patient',
                                                                             'username': request.session['login'],
                                                                             'urls': URLS})

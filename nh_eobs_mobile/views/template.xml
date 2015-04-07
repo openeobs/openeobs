@@ -20,7 +20,7 @@
                         <div class="header-main block">
                             <img t-att-src="urls['logo']" class="logo"/>
                             <ul class="header-meta">
-                                <li class="share"><a t-att-href="urls['share_patient_list']" class="button share back">Handover</a></li>
+                                <li><a t-att-href="urls['share_patient_list']" class="button back">Handover</a></li>
                                 <li class="scan_parent"><a href="#" class="button scan go">Scan</a></li>
                                 <li class="logout"><a t-att-href="urls['logout']" class="button back">Logout</a></li>
                             </ul>
