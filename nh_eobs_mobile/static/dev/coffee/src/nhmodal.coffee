@@ -84,18 +84,30 @@ class NHModal
   # calculate the correct size of the dialog
   # uses clientHeight to calculate the height of objects
   calculate_dimensions: (dialog, dialog_content, el) ->
-    margins = 80
+    margins = {
+      top: 80,
+      bottom: 300,
+      right: 0,
+      left: 0
+    }
     available_space = (dialog, el) ->
-      dialog_header = dialog.getElementsByTagName('h2')
-      dialog_header_height = dialog_header?[0]?.clientHeight
-      dialog_options = dialog.getElementsByClassName('options')
-      dialog_opt_first = dialog_options?[0]?.getElementsByTagName('li')
-      dialog_options_height = dialog_opt_first?[0]?.clientHeight
-      el_height = el.clientHeight
-      return el_height - ((dialog_header_height +
-        dialog_options_height) + (margins*2))
+      dh = dialog.getElementsByTagName('h2')
+      # dialog_header_height = dialog_header?[0]?.clientHeight
+      dhh = parseInt(document.defaultView.getComputedStyle(dh?[0], \
+        '').getPropertyValue('height').replace('px', ''))
+      dopt = dialog.getElementsByClassName('options')
+      # dialog_opt_first = dialog_options?[0]?.getElementsByTagName('li')
+      dopth = parseInt(document.defaultView.getComputedStyle(dopt?[0], \
+        '').getPropertyValue('height').replace('px', ''))
+      # el_height = el.clientHeight
+      elh = parseInt(document.defaultView.getComputedStyle(el, \
+        '').getPropertyValue('height').replace('px', ''))
+      dialog_height = ((dhh + dopth) + (margins.top + margins.bottom))
+      if elh > window.innerHeight
+        return window.innerHeight - dialog_height
+      return elh - dialog_height
     max_height = available_space(dialog, el)
-    top_offset = el.offsetTop + margins
+    top_offset = el.offsetTop + margins.top
     dialog.style.top = top_offset+'px'
     dialog.style.display = 'inline-block'
     if max_height

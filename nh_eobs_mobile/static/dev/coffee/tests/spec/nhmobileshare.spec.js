@@ -246,7 +246,7 @@ describe('NHMobileShare', function() {
         var click_event = document.createEvent('CustomEvent');
         click_event.initCustomEvent('click', false, true, false);
         share_button.dispatchEvent(click_event);
-        
+
         // assert that modal is called with error message
         expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
         expect(NHModal.prototype.create_dialog).toHaveBeenCalled();

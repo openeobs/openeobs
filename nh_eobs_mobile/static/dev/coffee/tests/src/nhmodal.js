@@ -89,19 +89,27 @@ NHModal = (function() {
 
   NHModal.prototype.calculate_dimensions = function(dialog, dialog_content, el) {
     var available_space, margins, max_height, top_offset;
-    margins = 80;
+    margins = {
+      top: 80,
+      bottom: 300,
+      right: 0,
+      left: 0
+    };
     available_space = function(dialog, el) {
-      var dialog_header, dialog_header_height, dialog_opt_first, dialog_options, dialog_options_height, el_height, ref, ref1, ref2;
-      dialog_header = dialog.getElementsByTagName('h2');
-      dialog_header_height = dialog_header != null ? (ref = dialog_header[0]) != null ? ref.clientHeight : void 0 : void 0;
-      dialog_options = dialog.getElementsByClassName('options');
-      dialog_opt_first = dialog_options != null ? (ref1 = dialog_options[0]) != null ? ref1.getElementsByTagName('li') : void 0 : void 0;
-      dialog_options_height = dialog_opt_first != null ? (ref2 = dialog_opt_first[0]) != null ? ref2.clientHeight : void 0 : void 0;
-      el_height = el.clientHeight;
-      return el_height - ((dialog_header_height + dialog_options_height) + (margins * 2));
+      var dh, dhh, dialog_height, dopt, dopth, elh;
+      dh = dialog.getElementsByTagName('h2');
+      dhh = parseInt(document.defaultView.getComputedStyle(dh != null ? dh[0] : void 0, '').getPropertyValue('height').replace('px', ''));
+      dopt = dialog.getElementsByClassName('options');
+      dopth = parseInt(document.defaultView.getComputedStyle(dopt != null ? dopt[0] : void 0, '').getPropertyValue('height').replace('px', ''));
+      elh = parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('height').replace('px', ''));
+      dialog_height = (dhh + dopth) + (margins.top + margins.bottom);
+      if (elh > window.innerHeight) {
+        return window.innerHeight - dialog_height;
+      }
+      return elh - dialog_height;
     };
     max_height = available_space(dialog, el);
-    top_offset = el.offsetTop + margins;
+    top_offset = el.offsetTop + margins.top;
     dialog.style.top = top_offset + 'px';
     dialog.style.display = 'inline-block';
     if (max_height) {

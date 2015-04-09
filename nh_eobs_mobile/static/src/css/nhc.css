@@ -838,7 +838,7 @@ a.patientInfo .obs {
   position: fixed;
   top: 40%;
   left: 0px;
-  display: none;
+  /*display: none;*/
   z-index: 9999;
 }
 .dialog.clinicalrisk-low {
