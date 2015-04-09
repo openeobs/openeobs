@@ -105,12 +105,18 @@ class nh_eobs_api(orm.AbstractModel):
         result = []
         user_pool = self.pool['res.users']
         activity_pool = self.pool['nh.activity']
+        location_pool = self.pool['nh.clinical.location']
         user = user_pool.browse(cr, SUPERUSER_ID, uid, context=context)
         groups = [g.name for g in user.groups_id]
+        wards = list(set([location_pool.find_nearest_location_id(cr, uid, loc.id, 'ward', context=context)
+                          for loc in user.location_ids]))
+        location_ids = []
+        for ward_id in wards:
+            location_ids += location_pool.search(cr, uid, [['id', 'child_of', ward_id]])
         share_groups = ['NH Clinical Ward Manager Group', 'NH Clinical Nurse Group', 'NH Clinical HCA Group']
         while share_groups[0] not in groups and len(share_groups) > 0:
             share_groups.remove(share_groups[0])
-        domain = [['id', '!=', uid], ['groups_id.name', 'in', share_groups]]
+        domain = [['id', '!=', uid], ['groups_id.name', 'in', share_groups], ['location_ids', 'in', location_ids]]
         user_ids = user_pool.search(cr, uid, domain, context=context)
         for user_id in user_ids:
             user_data = user_pool.read(cr, SUPERUSER_ID, user_id, ['name'])

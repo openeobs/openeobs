@@ -608,16 +608,21 @@ class TestAPI(SingleTransactionCase):
         
     def test_get_share_users(self):
         cr, uid = self.cr, self.uid
-        
+
+        # Scenario 1: Get HCAs list of users.
         hca_result = self.extapi.get_share_users(cr, self.hu_id)
-        self.assertTrue(self.ht_id in [u['id'] for u in hca_result], msg="HCA share users: User missing from result")
+        self.assertFalse(hca_result, msg="HCA share users: Non expected user returned")
+
+        # Scenario 2: Get Nurse list of users.
         nurse_result = self.extapi.get_share_users(cr, self.nu_id)
-        self.assertTrue(self.nt_id in [u['id'] for u in nurse_result], msg="Nurse share users: User missing from result")
-        self.assertTrue(self.ht_id in [u['id'] for u in nurse_result], msg="Nurse share users: User missing from result")
+        self.assertTrue(self.nt_id not in [u['id'] for u in nurse_result], msg="Nurse share users: Non expected user returned")
+        self.assertTrue(self.ht_id not in [u['id'] for u in nurse_result], msg="Nurse share users: Non expected user returned")
         self.assertTrue(self.hu_id in [u['id'] for u in nurse_result], msg="Nurse share users: User missing from result")
+
+        # Scenario 3: Get Ward Manager list of users.
         wm_result = self.extapi.get_share_users(cr, self.wmu_id)
-        self.assertTrue(self.wmt_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
+        self.assertTrue(self.wmt_id not in [u['id'] for u in wm_result], msg="Ward Manager share users: Non expected user returned")
         self.assertTrue(self.nu_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
-        self.assertTrue(self.nt_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
-        self.assertTrue(self.ht_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
+        self.assertTrue(self.nt_id not in [u['id'] for u in wm_result], msg="Ward Manager share users: Non expected user returned")
+        self.assertTrue(self.ht_id not in [u['id'] for u in wm_result], msg="Ward Manager share users: Non expected user returned")
         self.assertTrue(self.hu_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
