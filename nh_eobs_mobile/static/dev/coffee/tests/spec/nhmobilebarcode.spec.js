@@ -192,6 +192,7 @@ describe('NHMobileBarcode', function(){
         change_event.initCustomEvent('keypress', false, true, false);
         change_event.keyCode = 13;
     	input.dispatchEvent(change_event);
+
     	// go get data from server 
     	expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
     	expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
@@ -235,101 +236,124 @@ describe('NHMobileBarcode', function(){
         expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
     });
 
-    it('It receives patient\'s data, processes it and shows popup via keydown with keycode 13', function(){
-        spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
-        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
-        spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
-        var trigger_button = test_area.getElementsByClassName('scan')[0];
-        // get input showing
-        var click_event = document.createEvent('CustomEvent');
-        click_event.initCustomEvent('click', false, true, false);
-        trigger_button.dispatchEvent(click_event);
-        expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
-        // fire change event on input
-        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
-        var input = document.getElementsByClassName('barcode_scan')[0];
-        input.value = '123412341234,123445';
-        var change_event = document.createEvent('CustomEvent');
-        change_event.initCustomEvent('keydown', false, true, false);
-        change_event.keyCode = 13;
-        input.dispatchEvent(change_event);
-        // go get data from server 
-        expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
-        expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
-        var content = '<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><h3>Tasks</h3><ul class="menu"><li class="rightContent"><a href="http://localhost:8069/mobile/task/1">NEWS Observation<span class="aside">Overdue: 00:10 hours</span></a></li><li class="rightContent"><a href="http://localhost:8069/mobile/task/2">Inform Medical Team<span class="aside"></span></a></li></ul>';
+    describe('KeyDown async tests', function(){
 
-        //Modal content is updated to content
-        var modal = document.getElementById('patient_barcode');
-        var modal_content = modal.getElementsByClassName('dialogContent')[0];
-        expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
+        beforeEach(function(){
+           jasmine.clock().install();
+        });
+
+        afterEach(function(){
+           jasmine.clock().uninstall();
+        });
+
+        it('It receives patient\'s data, processes it and shows popup via keydown with keycode 13', function(){
+            spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+            spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+            spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
+            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            // get input showing
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            trigger_button.dispatchEvent(click_event);
+            expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+            // fire change event on input
+            expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
+            var input = document.getElementsByClassName('barcode_scan')[0];
+            input.value = '123412341234,123445';
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('keydown', false, true, false);
+            change_event.keyCode = 13;
+            input.dispatchEvent(change_event);
+
+            jasmine.clock().tick(1001);
+
+            // go get data from server
+            expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+            expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
+            var content = '<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><h3>Tasks</h3><ul class="menu"><li class="rightContent"><a href="http://localhost:8069/mobile/task/1">NEWS Observation<span class="aside">Overdue: 00:10 hours</span></a></li><li class="rightContent"><a href="http://localhost:8069/mobile/task/2">Inform Medical Team<span class="aside"></span></a></li></ul>';
+
+            //Modal content is updated to content
+            var modal = document.getElementById('patient_barcode');
+            var modal_content = modal.getElementsByClassName('dialogContent')[0];
+            expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
+        });
+
+        it('It receives patient\'s data, processes it and shows popup via keydown with keycode 0', function(){
+            spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+            spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+            spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
+            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            // get input showing
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            trigger_button.dispatchEvent(click_event);
+            expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+            // fire change event on input
+            expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
+            var input = document.getElementsByClassName('barcode_scan')[0];
+            input.value = '123412341234,123445';
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('keydown', false, true, false);
+            change_event.keyCode = 0;
+            input.dispatchEvent(change_event);
+
+            jasmine.clock().tick(1001);
+
+            // go get data from server
+            expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+            expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
+            var content = '<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><h3>Tasks</h3><ul class="menu"><li class="rightContent"><a href="http://localhost:8069/mobile/task/1">NEWS Observation<span class="aside">Overdue: 00:10 hours</span></a></li><li class="rightContent"><a href="http://localhost:8069/mobile/task/2">Inform Medical Team<span class="aside"></span></a></li></ul>';
+
+            //Modal content is updated to content
+            var modal = document.getElementById('patient_barcode');
+            var modal_content = modal.getElementsByClassName('dialogContent')[0];
+            expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
+        });
+
+        it('It receives patient\'s data, processes it and shows popup via keydown with keycode 116', function(){
+            spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+            spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+            spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
+            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            // get input showing
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            trigger_button.dispatchEvent(click_event);
+            expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+            // fire change event on input
+            expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
+            var input = document.getElementsByClassName('barcode_scan')[0];
+            input.value = '123412341234,123445';
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('keydown', false, true, false);
+            change_event.keyCode = 116;
+            input.dispatchEvent(change_event);
+
+            jasmine.clock().tick(1001);
+
+            // go get data from server
+            expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+            expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
+            var content = '<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><h3>Tasks</h3><ul class="menu"><li class="rightContent"><a href="http://localhost:8069/mobile/task/1">NEWS Observation<span class="aside">Overdue: 00:10 hours</span></a></li><li class="rightContent"><a href="http://localhost:8069/mobile/task/2">Inform Medical Team<span class="aside"></span></a></li></ul>';
+
+            //Modal content is updated to content
+            var modal = document.getElementById('patient_barcode');
+            var modal_content = modal.getElementsByClassName('dialogContent')[0];
+            expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
+        });
     });
 
-    it('It receives patient\'s data, processes it and shows popup via keydown with keycode 0', function(){
-        spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
-        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
-        spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
-        var trigger_button = test_area.getElementsByClassName('scan')[0];
-        // get input showing
-        var click_event = document.createEvent('CustomEvent');
-        click_event.initCustomEvent('click', false, true, false);
-        trigger_button.dispatchEvent(click_event);
-        expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
-        // fire change event on input
-        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
-        var input = document.getElementsByClassName('barcode_scan')[0];
-        input.value = '123412341234,123445';
-        var change_event = document.createEvent('CustomEvent');
-        change_event.initCustomEvent('keydown', false, true, false);
-        change_event.keyCode = 0;
-        input.dispatchEvent(change_event);
-        // go get data from server 
-        expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
-        expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
-        var content = '<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><h3>Tasks</h3><ul class="menu"><li class="rightContent"><a href="http://localhost:8069/mobile/task/1">NEWS Observation<span class="aside">Overdue: 00:10 hours</span></a></li><li class="rightContent"><a href="http://localhost:8069/mobile/task/2">Inform Medical Team<span class="aside"></span></a></li></ul>';
 
-        //Modal content is updated to content
-        var modal = document.getElementById('patient_barcode');
-        var modal_content = modal.getElementsByClassName('dialogContent')[0];
-        expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
-    });
 
-    it('It receives patient\'s data, processes it and shows popup via keydown with keycode 116', function(){
-        spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
-        spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
-        spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
-        var trigger_button = test_area.getElementsByClassName('scan')[0];
-        // get input showing
-        var click_event = document.createEvent('CustomEvent');
-        click_event.initCustomEvent('click', false, true, false);
-        trigger_button.dispatchEvent(click_event);
-        expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
-        // fire change event on input
-        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_barcode');
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Scan patient wristband');
-        expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
-        var input = document.getElementsByClassName('barcode_scan')[0];
-        input.value = '123412341234,123445';
-        var change_event = document.createEvent('CustomEvent');
-        change_event.initCustomEvent('keydown', false, true, false);
-        change_event.keyCode = 116;
-        input.dispatchEvent(change_event);
-        // go get data from server 
-        expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
-        expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
-        var content = '<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1,Ward 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><h3>Tasks</h3><ul class="menu"><li class="rightContent"><a href="http://localhost:8069/mobile/task/1">NEWS Observation<span class="aside">Overdue: 00:10 hours</span></a></li><li class="rightContent"><a href="http://localhost:8069/mobile/task/2">Inform Medical Team<span class="aside"></span></a></li></ul>';
-
-        //Modal content is updated to content
-        var modal = document.getElementById('patient_barcode');
-        var modal_content = modal.getElementsByClassName('dialogContent')[0];
-        expect(modal_content.innerHTML).toBe(content); //currently failing due to async issue?
-    });
 
     it('It receives patient\'s data, processes it and shows popup via keypress with keycode 116', function(){
         spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();

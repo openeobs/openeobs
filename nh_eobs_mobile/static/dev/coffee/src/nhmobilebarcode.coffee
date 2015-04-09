@@ -26,7 +26,9 @@ class NHMobileBarcode extends NHMobile
     self.input.addEventListener 'keydown', (event) ->
       if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
         event.preventDefault()
-        self.barcode_scanned(self, event)
+        setTimeout( ->
+          self.barcode_scanned(self, event)
+        , 1000)
 
     self.input.addEventListener 'keypress', (event) ->
       if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
