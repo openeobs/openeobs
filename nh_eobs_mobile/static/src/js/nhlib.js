@@ -320,13 +320,11 @@ NHMobileBarcode = (function(superClass) {
   };
 
   NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
-    var dialog, hosp_num, input, url, url_meth;
+    var dialog, input, url, url_meth;
     event.preventDefault();
     input = event.srcElement ? event.srcElement : event.target;
-    hosp_num = input.value;
     dialog = input.parentNode.parentNode;
-    hosp_num = hosp_num.split(',')[1];
-    url = self.urls.json_patient_barcode(hosp_num);
+    url = self.urls.json_patient_barcode(input.value.split(',')[1]);
     url_meth = url.method;
     return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
       var activities_string, activity, activties_string, content, data, i, len, patientDOB, patient_details, ref;

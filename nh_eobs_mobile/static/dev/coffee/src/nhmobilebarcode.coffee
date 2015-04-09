@@ -41,11 +41,11 @@ class NHMobileBarcode extends NHMobile
   barcode_scanned: (self, event) ->
     event.preventDefault()
     input = if event.srcElement then event.srcElement else event.target
-    hosp_num = input.value
+    # hosp_num = input.value
     dialog = input.parentNode.parentNode
     # process hosp_num from wristband
-    hosp_num = hosp_num.split(',')[1]
-    url = self.urls.json_patient_barcode(hosp_num)
+    # hosp_num = hosp_num.split(',')[1]
+    url = self.urls.json_patient_barcode(input.value.split(',')[1])
     url_meth = url.method
     Promise.when(self.process_request(url_meth, url.url)).then (server_data) ->
       data = server_data[0][0]
