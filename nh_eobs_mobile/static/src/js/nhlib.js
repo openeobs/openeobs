@@ -307,7 +307,9 @@ NHMobileBarcode = (function(superClass) {
     self.input.addEventListener('keydown', function(event) {
       if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
         event.preventDefault();
-        return self.barcode_scanned(self, event);
+        return setTimeout(function() {
+          return self.barcode_scanned(self, event);
+        }, 1000);
       }
     });
     self.input.addEventListener('keypress', function(event) {
@@ -324,6 +326,9 @@ NHMobileBarcode = (function(superClass) {
     event.preventDefault();
     input = event.srcElement ? event.srcElement : event.target;
     dialog = input.parentNode.parentNode;
+    if (input.value === '') {
+      return;
+    }
     url = self.urls.json_patient_barcode(input.value.split(',')[1]);
     url_meth = url.method;
     return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {

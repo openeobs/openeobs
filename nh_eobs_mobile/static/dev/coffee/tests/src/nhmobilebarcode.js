@@ -43,6 +43,9 @@ NHMobileBarcode = (function(superClass) {
     event.preventDefault();
     input = event.srcElement ? event.srcElement : event.target;
     dialog = input.parentNode.parentNode;
+    if (input.value === '') {
+      return;
+    }
     url = self.urls.json_patient_barcode(input.value.split(',')[1]);
     url_meth = url.method;
     return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {

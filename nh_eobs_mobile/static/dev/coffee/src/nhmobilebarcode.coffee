@@ -38,6 +38,8 @@ class NHMobileBarcode extends NHMobile
 
   # On barcode being scanned:
   # - get the hospital number from the input
+  # - MioCare devices trigger the barcode scan event twice so return when not
+  # ready
   # - use that hospital number to call the server
   # - on receiving data change the modal content
   barcode_scanned: (self, event) ->
@@ -45,6 +47,8 @@ class NHMobileBarcode extends NHMobile
     input = if event.srcElement then event.srcElement else event.target
     # hosp_num = input.value
     dialog = input.parentNode.parentNode
+    if input.value is ''
+      return
     # process hosp_num from wristband
     # hosp_num = hosp_num.split(',')[1]
     url = self.urls.json_patient_barcode(input.value.split(',')[1])
