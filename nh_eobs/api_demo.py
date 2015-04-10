@@ -57,14 +57,20 @@ class nh_clinical_api_demo(orm.AbstractModel):
         """
         Generates demo news data over a period of time for the patients in patient_ids.
         :param begin_date: Starting point of the demo. If not specified it defaults to now - 1 day.
-        :param patient_ids: List of patients that are going to be used.
+        :param patient_ids: List of patients that are going to be used. Every patient by default.
         :return: True if successful
         """
         activity_pool = self.pool['nh.activity']
+        patient_pool = self.pool['nh.clinical.patient']
         if not begin_date:
             begin_date = (dt.now()-td(days=1)).strftime(dtf)
         if not patient_ids:
-            return True
+            patient_ids = patient_pool.search(cr, uid, [], context=context)
+        if uid == SUPERUSER_ID:
+            group_pool = self.pool['res.groups']
+            user_pool = self.pool['res.users']
+            nurse_group_id = group_pool.search(cr, uid, [['name', '=', 'NH Clinical Nurse Group']], context=context)
+            user_pool.write(cr, uid, SUPERUSER_ID, {'groups_id': [(4, nurse_group_id[0])]})
 
         ews_activity_ids = activity_pool.search(cr, uid, [['patient_id', 'in', patient_ids], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']]], context=context)
         activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
