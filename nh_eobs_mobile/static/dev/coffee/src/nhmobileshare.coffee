@@ -6,7 +6,7 @@ class NHMobileShare extends NHMobile
   # on initalisation we need to:
   # - set up click event listener for share button
   # - set up click event listener for claim button
-  constructor: (@share_button, @claim_button) ->
+  constructor: (@share_button, @claim_button, @all_button) ->
     self = @
     @form = document.getElementById('handover_form')
     @share_button.addEventListener 'click', (event) ->
@@ -17,6 +17,20 @@ class NHMobileShare extends NHMobile
       event.preventDefault()
       claim_button = if event.srcElement then event.srcElement else event.target
       self.claim_button_click(self)
+    @all_button.addEventListener 'click', (event) ->
+      event.preventDefault()
+      if not event.handled
+        button = if event.srcElement then event.srcElement else event.target
+        button_mode = button.getAttribute('mode')
+        if button_mode is 'select'
+          self.select_all_patients(self, event)
+          button.textContent = 'Unselect all'
+          button.setAttribute('mode', 'unselect')
+        else
+          self.unselect_all_patients(self, event)
+          button.textContent = 'Select all'
+          button.setAttribute('mode', 'select')
+        event.handled = true
     document.addEventListener 'assign_nurse', (event) ->
       event.preventDefault()
       if not event.handled
@@ -167,6 +181,18 @@ class NHMobileShare extends NHMobile
         btns = [can_btn]
         new window.NH.NHModal('claim_error', 'Error claiming patients',
           claim_msg, btns, 0, body)
+    return true
+
+  select_all_patients: (self, event) ->
+    form = document.getElementById('handover_form')
+    (el.checked = true for el in form.elements \
+      when not el.classList.contains('exclude'))
+    return true
+
+  unselect_all_patients: (self, event) ->
+    form = document.getElementById('handover_form')
+    (el.checked = false for el in form.elements \
+      when not el.classList.contains('exclude'))
     return true
 
 

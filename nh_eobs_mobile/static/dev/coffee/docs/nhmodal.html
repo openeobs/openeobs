@@ -250,23 +250,14 @@ uses clientHeight to calculate the height of objects</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">calculate_dimensions</span>: <span class="hljs-function"><span class="hljs-params">(dialog, dialog_content, el)</span> -&gt;</span>
-    margins = <span class="hljs-number">80</span>
+    margins = {
+      <span class="hljs-attribute">top</span>: <span class="hljs-number">80</span>,
+      <span class="hljs-attribute">bottom</span>: <span class="hljs-number">300</span>,
+      <span class="hljs-attribute">right</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attribute">left</span>: <span class="hljs-number">0</span>
+    }
 <span class="hljs-function">    <span class="hljs-title">available_space</span> = <span class="hljs-params">(dialog, el)</span> -&gt;</span>
-      dialog_header = dialog.getElementsByTagName(<span class="hljs-string">'h2'</span>)
-      dialog_header_height = dialog_header?[<span class="hljs-number">0</span>]?.clientHeight
-      dialog_options = dialog.getElementsByClassName(<span class="hljs-string">'options'</span>)
-      dialog_opt_first = dialog_options?[<span class="hljs-number">0</span>]?.getElementsByTagName(<span class="hljs-string">'li'</span>)
-      dialog_options_height = dialog_opt_first?[<span class="hljs-number">0</span>]?.clientHeight
-      el_height = el.clientHeight
-      <span class="hljs-keyword">return</span> el_height - ((dialog_header_height +
-        dialog_options_height) + (margins*<span class="hljs-number">2</span>))
-    max_height = available_space(dialog, el)
-    top_offset = el.offsetTop + margins
-    dialog.style.top = top_offset+<span class="hljs-string">'px'</span>
-    dialog.style.display = <span class="hljs-string">'inline-block'</span>
-    <span class="hljs-keyword">if</span> max_height
-      dialog_content.style.maxHeight = max_height+<span class="hljs-string">'px'</span>
-    <span class="hljs-keyword">return</span></pre></div></div>
+      dh = dialog.getElementsByTagName(<span class="hljs-string">'h2'</span>)</pre></div></div>
             
         </li>
         
@@ -276,6 +267,66 @@ uses clientHeight to calculate the height of objects</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>dialog_header_height = dialog_header?[0]?.clientHeight</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      dhh = parseInt(<span class="hljs-built_in">document</span>.defaultView.getComputedStyle(dh?[<span class="hljs-number">0</span>], \
+        <span class="hljs-string">''</span>).getPropertyValue(<span class="hljs-string">'height'</span>).replace(<span class="hljs-string">'px'</span>, <span class="hljs-string">''</span>))
+      dopt = dialog.getElementsByClassName(<span class="hljs-string">'options'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>dialog_opt_first = dialog_options?[0]?.getElementsByTagName(‘li’)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      dopth = parseInt(<span class="hljs-built_in">document</span>.defaultView.getComputedStyle(dopt?[<span class="hljs-number">0</span>], \
+        <span class="hljs-string">''</span>).getPropertyValue(<span class="hljs-string">'height'</span>).replace(<span class="hljs-string">'px'</span>, <span class="hljs-string">''</span>))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>el_height = el.clientHeight</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      elh = parseInt(<span class="hljs-built_in">document</span>.defaultView.getComputedStyle(el, \
+        <span class="hljs-string">''</span>).getPropertyValue(<span class="hljs-string">'height'</span>).replace(<span class="hljs-string">'px'</span>, <span class="hljs-string">''</span>))
+      dialog_height = ((dhh + dopth) + (margins.top + margins.bottom))
+      <span class="hljs-keyword">if</span> elh &gt; <span class="hljs-built_in">window</span>.innerHeight
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>.innerHeight - dialog_height
+      <span class="hljs-keyword">return</span> elh - dialog_height
+    max_height = available_space(dialog, el)
+    top_offset = el.offsetTop + margins.top
+    dialog.style.top = top_offset+<span class="hljs-string">'px'</span>
+    dialog.style.display = <span class="hljs-string">'inline-block'</span>
+    <span class="hljs-keyword">if</span> max_height
+      dialog_content.style.maxHeight = max_height+<span class="hljs-string">'px'</span>
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Handle events from buttons created in options array
 Currently offers</p>

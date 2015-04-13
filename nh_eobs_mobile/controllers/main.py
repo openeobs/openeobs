@@ -232,7 +232,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
-            patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
         for fpatient in following_patients:
@@ -361,7 +360,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         for task in tasks:
             task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
             task['color'] = self.calculate_ews_class(task['clinical_risk'])
-            task['trend_icon'] = 'icon-{0}-arrow'.format(task['ews_trend'])
         return request.render('nh_eobs_mobile.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
                                                                              'username': request.session['login'],
@@ -789,29 +787,29 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
-    # hack to get cookies to play nice
-    def get_response(self, httprequest, result, explicit_session):
-        if isinstance(result, Response) and result.is_qweb:
-            try:
-                result.flatten()
-            except(Exception), e:
-                if request.db:
-                    result = request.registry['ir.http']._handle_exception(e)
-                else:
-                    raise
-
-        if isinstance(result, basestring):
-            response = Response(result, mimetype='text/html')
-        else:
-            response = result
-
-        if httprequest.session.should_save:
-            self.session_store.save(httprequest.session)
-
-        cookie_lifespan = 3600*12 # 12 hours, maybe set in config?
-
-        if response.response and not isinstance(response, exceptions.HTTPException):
-            response.set_cookie('session_id', httprequest.session.sid, max_age=cookie_lifespan)
-        return response
-
-    Root.get_response = get_response
+    # # hack to get cookies to play nice
+    # def get_response(self, httprequest, result, explicit_session):
+    #     if isinstance(result, Response) and result.is_qweb:
+    #         try:
+    #             result.flatten()
+    #         except(Exception), e:
+    #             if request.db:
+    #                 result = request.registry['ir.http']._handle_exception(e)
+    #             else:
+    #                 raise
+    #
+    #     if isinstance(result, basestring):
+    #         response = Response(result, mimetype='text/html')
+    #     else:
+    #         response = result
+    #
+    #     if httprequest.session.should_save:
+    #         self.session_store.save(httprequest.session)
+    #
+    #     cookie_lifespan = 3600*12 # 12 hours, maybe set in config?
+    #
+    #     if response.response and not isinstance(response, exceptions.HTTPException):
+    #         response.set_cookie('session_id', httprequest.session.sid, max_age=cookie_lifespan)
+    #     return response
+    #
+    # Root.get_response = get_response

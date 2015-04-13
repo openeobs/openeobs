@@ -86,7 +86,9 @@ Handles barcode scanning on MioCare devices</p>
     self.input.addEventListener <span class="hljs-string">'keydown'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
       <span class="hljs-keyword">if</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">13</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">116</span>
         event.preventDefault()
-        self.barcode_scanned(self, event)
+        setTimeout( <span class="hljs-function">-&gt;</span>
+          self.barcode_scanned(self, event)
+        , <span class="hljs-number">1000</span>)
 
     self.input.addEventListener <span class="hljs-string">'keypress'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
       <span class="hljs-keyword">if</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">13</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">116</span>
@@ -106,6 +108,8 @@ Handles barcode scanning on MioCare devices</p>
               <p>On barcode being scanned:</p>
 <ul>
 <li>get the hospital number from the input</li>
+<li>MioCare devices trigger the barcode scan event twice so return when not
+ready</li>
 <li>use that hospital number to call the server</li>
 <li>on receiving data change the modal content</li>
 </ul>
@@ -114,9 +118,7 @@ Handles barcode scanning on MioCare devices</p>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">barcode_scanned</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
     event.preventDefault()
-    input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-    hosp_num = input.value
-    dialog = input.parentNode.parentNode</pre></div></div>
+    input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target</pre></div></div>
             
         </li>
         
@@ -127,12 +129,29 @@ Handles barcode scanning on MioCare devices</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>process hosp_num from wristband</p>
+              <p>hosp_num = input.value</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    hosp_num = hosp_num.split(<span class="hljs-string">','</span>)[<span class="hljs-number">1</span>]
-    url = self.urls.json_patient_barcode(hosp_num)
+            <div class="content"><div class='highlight'><pre>    dialog = input.parentNode.parentNode
+    <span class="hljs-keyword">if</span> input.value <span class="hljs-keyword">is</span> <span class="hljs-string">''</span>
+      <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>process hosp_num from wristband
+hosp_num = hosp_num.split(‘,’)[1]</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    url = self.urls.json_patient_barcode(input.value.split(<span class="hljs-string">','</span>)[<span class="hljs-number">1</span>])
     url_meth = url.method
     Promise.<span class="hljs-keyword">when</span>(self.process_request(url_meth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
       data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]

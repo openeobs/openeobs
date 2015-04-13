@@ -1244,10 +1244,11 @@ var NHMobileShare,
 NHMobileShare = (function(superClass) {
   extend(NHMobileShare, superClass);
 
-  function NHMobileShare(share_button1, claim_button1) {
+  function NHMobileShare(share_button1, claim_button1, all_button) {
     var self;
     this.share_button = share_button1;
     this.claim_button = claim_button1;
+    this.all_button = all_button;
     self = this;
     this.form = document.getElementById('handover_form');
     this.share_button.addEventListener('click', function(event) {
@@ -1261,6 +1262,24 @@ NHMobileShare = (function(superClass) {
       event.preventDefault();
       claim_button = event.srcElement ? event.srcElement : event.target;
       return self.claim_button_click(self);
+    });
+    this.all_button.addEventListener('click', function(event) {
+      var button, button_mode;
+      event.preventDefault();
+      if (!event.handled) {
+        button = event.srcElement ? event.srcElement : event.target;
+        button_mode = button.getAttribute('mode');
+        if (button_mode === 'select') {
+          self.select_all_patients(self, event);
+          button.textContent = 'Unselect all';
+          button.setAttribute('mode', 'unselect');
+        } else {
+          self.unselect_all_patients(self, event);
+          button.textContent = 'Select all';
+          button.setAttribute('mode', 'select');
+        }
+        return event.handled = true;
+      }
     });
     document.addEventListener('assign_nurse', function(event) {
       event.preventDefault();
@@ -1469,6 +1488,32 @@ NHMobileShare = (function(superClass) {
         return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);
       }
     });
+    return true;
+  };
+
+  NHMobileShare.prototype.select_all_patients = function(self, event) {
+    var el, form, i, len, ref;
+    form = document.getElementById('handover_form');
+    ref = form.elements;
+    for (i = 0, len = ref.length; i < len; i++) {
+      el = ref[i];
+      if (!el.classList.contains('exclude')) {
+        el.checked = true;
+      }
+    }
+    return true;
+  };
+
+  NHMobileShare.prototype.unselect_all_patients = function(self, event) {
+    var el, form, i, len, ref;
+    form = document.getElementById('handover_form');
+    ref = form.elements;
+    for (i = 0, len = ref.length; i < len; i++) {
+      el = ref[i];
+      if (!el.classList.contains('exclude')) {
+        el.checked = false;
+      }
+    }
     return true;
   };
 

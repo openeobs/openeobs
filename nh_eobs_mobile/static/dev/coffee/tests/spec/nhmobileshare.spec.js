@@ -12,6 +12,7 @@ var test_dom = '<div class="header">' +
             '<div class="content">'+
             '<form id="handover_form">'+
             '<ul class="tasklist">'+
+            '<li><a href="#" class="share_all" mode="select">All</a></li>' +
             '<li>' +
             '<input type="checkbox" name="patient_share_74" class="patient_share_checkbox"  value="74"/>'+
             '<a href="/mobile/patient/74" class="level-none block">' +
@@ -135,7 +136,7 @@ var patient_info_data = [
     ];
 
 describe('NHMobileShare', function() {
-    var mobile, test_area, share_button, claim_button;
+    var mobile, test_area, share_button, claim_button, all_button;
 
     beforeEach(function () {
         // set up the DOM for test
@@ -152,7 +153,8 @@ describe('NHMobileShare', function() {
         if (mobile == null) {
             share_button = test_area.getElementsByClassName('share')[0];
             claim_button = test_area.getElementsByClassName('claim')[0];
-            mobile = new NHMobileShare(share_button, claim_button);
+            all_button = test_area.getElementsByClassName('share_all')[0];
+            mobile = new NHMobileShare(share_button, claim_button, all_button);
         }
 
         spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(method, url){
@@ -583,7 +585,7 @@ describe('NHMobileShare', function() {
 });
 
 describe('NHMobileShare - server unable to assign patient to colleague', function(){
-    var mobile, test_area, share_button, claim_button;
+    var mobile, test_area, share_button, claim_button, all_button;
 
 
     beforeEach(function () {
@@ -601,7 +603,8 @@ describe('NHMobileShare - server unable to assign patient to colleague', functio
         if (mobile == null) {
             share_button = test_area.getElementsByClassName('share')[0];
             claim_button = test_area.getElementsByClassName('claim')[0];
-            mobile = new NHMobileShare(share_button, claim_button);
+            all_button = test_area.getElementsByClassName('share_all')[0];
+            mobile = new NHMobileShare(share_button, claim_button, all_button);
         }
 
         spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(method, url){
@@ -685,7 +688,7 @@ describe('NHMobileShare - server unable to assign patient to colleague', functio
 });
 
 describe('NHMobileShare - Claim back patients from colleagues', function() {
-    var mobile, test_area, share_button, claim_button;
+    var mobile, test_area, share_button, claim_button, all_button;
 
 
     beforeEach(function () {
@@ -703,7 +706,8 @@ describe('NHMobileShare - Claim back patients from colleagues', function() {
         if (mobile == null) {
             share_button = test_area.getElementsByClassName('share')[0];
             claim_button = test_area.getElementsByClassName('claim')[0];
-            mobile = new NHMobileShare(share_button, claim_button);
+            all_button = test_area.getElementsByClassName('share_all')[0];
+            mobile = new NHMobileShare(share_button, claim_button, all_button);
         }
     });
 
@@ -830,6 +834,105 @@ describe('NHMobileShare - Claim back patients from colleagues', function() {
         var error_dialog = document.getElementById('claim_error');
         expect(error_dialog).not.toBe(null);
     });
+});
 
+describe('All Button', function(){
 
+    var test_area, mobile, share_button, claim_button, all_button;
+
+    beforeEach(function () {
+        // set up the DOM for test
+        var body_el = document.getElementsByTagName('body')[0];
+        var test = document.getElementById('test');
+        if (test != null) {
+            test.parentNode.removeChild(test);
+        }
+        test_area = document.createElement('div');
+        test_area.setAttribute('id', 'test');
+        test_area.style.height = '500px';
+        test_area.innerHTML = test_dom;
+        body_el.appendChild(test_area);
+        if (mobile == null) {
+            share_button = test_area.getElementsByClassName('share')[0];
+            claim_button = test_area.getElementsByClassName('claim')[0];
+            all_button = test_area.getElementsByClassName('share_all')[0];
+            mobile = new NHMobileShare(share_button, claim_button, all_button);
+        }
+    });
+
+    afterEach(function () {
+        if (mobile != null) {
+            mobile = null;
+        }
+        var test = document.getElementById('test');
+        if (test != null) {
+            test.parentNode.removeChild(test);
+        }
+        var body = document.getElementsByTagName('body')[0];
+    });
+
+    it('Sets up the event listener', function(){
+        spyOn(NHMobileShare.prototype, 'select_all_patients');
+        var select_all = document.getElementsByClassName('share_all')[0];
+        var click_all = document.createEvent('CustomEvent');
+        click_all.initCustomEvent('click', false, true, false);
+        select_all.dispatchEvent(click_all);
+
+        expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
+    });
+
+    it('Sets all the patient checkboxes in the link to ticked when I press the button', function(){
+       spyOn(NHMobileShare.prototype, 'select_all_patients').and.callThrough();
+        var select_all = document.getElementsByClassName('share_all')[0];
+        var click_all = document.createEvent('CustomEvent');
+        click_all.initCustomEvent('click', false, true, false);
+        select_all.dispatchEvent(click_all);
+
+        expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
+
+        var patient_checkboxes = document.getElementsByClassName('patient_share_checkbox');
+        for(var i = 0; i < patient_checkboxes.length; i++){
+            var patient_checkbox = patient_checkboxes[i];
+            expect(patient_checkbox.checked).toBe(true);
+        }
+
+        select_all = document.getElementsByClassName('share_all')[0];
+        expect(select_all.getAttribute('mode')).toBe('unselect');
+        expect(select_all.textContent).toBe('Unselect all');
+    });
+
+    it('Sets all the patient checkboxes back to unchecked if they are already checked', function(){
+        spyOn(NHMobileShare.prototype, 'select_all_patients').and.callThrough();
+        spyOn(NHMobileShare.prototype, 'unselect_all_patients').and.callThrough();
+        var select_all = document.getElementsByClassName('share_all')[0];
+        var click_all = document.createEvent('CustomEvent');
+        click_all.initCustomEvent('click', false, true, false);
+        select_all.dispatchEvent(click_all);
+
+        expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
+
+        var patient_checkboxes = document.getElementsByClassName('patient_share_checkbox');
+        for(var i = 0; i < patient_checkboxes.length; i++){
+            var patient_checkbox = patient_checkboxes[i];
+            expect(patient_checkbox.checked).toBe(true);
+        }
+        select_all = document.getElementsByClassName('share_all')[0];
+        expect(select_all.getAttribute('mode')).toBe('unselect');
+        expect(select_all.textContent).toBe('Unselect all');
+
+        var unclick_all = document.createEvent('CustomEvent');
+        unclick_all.initCustomEvent('click', false, true, false);
+        select_all.dispatchEvent(unclick_all);
+
+        expect(NHMobileShare.prototype.unselect_all_patients).toHaveBeenCalled();
+
+        var patient_checkboxes = document.getElementsByClassName('patient_share_checkbox');
+        for(var i = 0; i < patient_checkboxes.length; i++){
+            var patient_checkbox = patient_checkboxes[i];
+            expect(patient_checkbox.checked).toBe(false);
+        }
+        select_all = document.getElementsByClassName('share_all')[0];
+        expect(select_all.getAttribute('mode')).toBe('select');
+        expect(select_all.textContent).toBe('Select all');
+    });
 });
