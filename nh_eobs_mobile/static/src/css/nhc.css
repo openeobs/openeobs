@@ -601,6 +601,7 @@ a.patientInfo .obs {
   width: 100%;
   clear: both;
   float: none;
+    display: inline-block;
 }
 .tasklist li a .task-right {
   float: right;
@@ -1538,14 +1539,29 @@ text.title {
     display: inline-block;
 }
 
-.share_invite{
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-}
-.share_invite .urgent{
+.share_invite .task-meta{
+    padding-top: 1em;
+    padding-bottom: 0;
     background-color: #ffcccc;
-    padding: 1em 5%;
     border-radius: 10px;
+}
+
+.share_invite .task-meta .task-left{
+    padding-left: 2.5%;
+    width: 65%;
+}
+
+.share_invite .task-meta .task-right{
+    padding-right: 2.5%;
+    width: 25%;
+}
+
+.share_invite .task-meta .task-right .aside{
+    float: right;
+    background-color: #4491ce;
+    color: white;
+    border-radius: 10px;
+    padding: 0.5em 2.5%;
 }
 
 .share_all{

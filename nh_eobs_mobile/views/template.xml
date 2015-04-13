@@ -72,9 +72,22 @@
                     <ul class="tasklist">
                         <t t-if="notifications">
                             <t t-foreach="notifications" t-as="notification">
-                                <li class="block share_invite" t-att-data-invite-id="notification['id']">
-                                    <p class="urgent" t-att-data-invite-id="notification['id']"><t t-if="notification['message']"><t t-esc="notification['message']"/></t><br/></p>
+                                <li>
+                                    <a href="#" class="share_invite block" t-att-data-invite-id="notification['id']">
+                                        <div class="task-meta" t-att-data-invite-id="notification['id']">
+                                            <div class="task-right" t-att-data-invite-id="notification['id']">
+                                                <p class="aside" t-att-data-invite-id="notification['id']">Accept</p>
+                                            </div>
+                                            <div class="task-left" t-att-data-invite-id="notification['id']">
+                                                <i class="icon-alert" t-att-data-invite-id="notification['id']"></i> <t t-if="notification['message']"><t t-esc="notification['message']"/></t>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </li>
+
+                                <!--<li class="block share_invite" t-att-data-invite-id="notification['id']">-->
+                                    <!--<p class="urgent icon-alert" t-att-data-invite-id="notification['id']"><t t-if="notification['message']"><t t-esc="notification['message']"/></t><br/></p>-->
+                                <!--</li>-->
                             </t>
                         </t>
                         <li t-foreach="items" t-as="item">
