@@ -28,11 +28,11 @@
                         <ul class="header-menu two-col">
                             <t t-if="section=='task'">
                                 <li><a t-att-href="urls['task_list']" id="taskNavItem" class="selected">Tasks</a></li>
-                                <li><a t-att-href="urls['patient_list']" id="patientNavItem">My Patients</a></li>
+                                <li><a t-att-href="urls['patient_list']" id="patientNavItem">My Patients <t t-if="notification_count and notification_count &gt; 0"><span class="urgent-badge"><t t-esc="notification_count"/></span></t></a></li>
                             </t>
                             <t t-if="section=='patient'">
                                 <li><a t-att-href="urls['task_list']" id="taskNavItem">Tasks</a></li>
-                                <li><a t-att-href="urls['patient_list']" id="patientNavItem" class="selected">My Patients</a></li>
+                                <li><a t-att-href="urls['patient_list']" id="patientNavItem" class="selected">My Patients <t t-if="notification_count and notification_count &gt; 0"><span class="urgent-badge"><t t-esc="notification_count"/></span></t></a></li>
                             </t>
                         </ul>
                     </div>

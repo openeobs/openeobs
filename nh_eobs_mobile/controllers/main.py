@@ -242,6 +242,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             fpatient['summary'] = fpatient['summary'] if fpatient.get('summary') else False
         return request.render('nh_eobs_mobile.patient_task_list', qcontext={'notifications': follow_activities,
                                                                             'items': patients,
+                                                                            'notification_count': len(follow_activities),
                                                                             'followed_items': following_patients,
                                                                             'section': 'patient',
                                                                             'username': request.session['login'],
@@ -255,6 +256,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patients = api.get_patients(cr, uid, [], context=context)
         api.get_patient_followers(cr, uid, patients, context=context)
         api.get_invited_users(cr, uid, patients, context=context)
+        follow_activities = api.get_assigned_activities(cr, uid,
+                                                        activity_type='nh.clinical.patient.follow',
+                                                        context=context)
         for patient in patients:
             patient['url'] = '{0}{1}'.format(URLS['single_patient'], patient['id'])
             patient['color'] = self.calculate_ews_class(patient['clinical_risk'])
@@ -273,6 +277,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                               'section': 'patient',
                                                                               'username': request.session['login'],
                                                                               'share_list': True,
+                                                                              'notification_count': len(follow_activities),
                                                                               'urls': URLS,
                                                                               'user_id': uid})
 
@@ -355,6 +360,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         task_api = request.registry['nh.eobs.api']
         task_api.unassign_my_activities(cr, uid)
+        follow_activities = task_api.get_assigned_activities(cr, uid,
+                                                        activity_type='nh.clinical.patient.follow',
+                                                        context=context)
         # grab the patient object and get id?
         tasks = task_api.get_activities(cr, uid, [], context=context)
         for task in tasks:
@@ -363,6 +371,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         return request.render('nh_eobs_mobile.patient_task_list', qcontext={'items': tasks,
                                                                              'section': 'task',
                                                                              'username': request.session['login'],
+                                                                             'notification_count': len(follow_activities),
                                                                              'urls': URLS})
 
     @http.route(URLS['json_take_task']+'<task_id>', type="http", auth="user")
@@ -404,6 +413,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         activity_reg = request.registry['nh.activity']
         api_reg = request.registry['nh.eobs.api']
         task_id = int(task_id)
+        follow_activities = api_reg.get_assigned_activities(cr, uid,
+                                                        activity_type='nh.clinical.patient.follow',
+                                                        context=context)
         task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=context)
         patient = dict()
         if task['patient_id']:
@@ -426,6 +438,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             return request.render('nh_eobs_mobile.error', qcontext={'error_string': 'Task is taken by another user',
                                                                      'section': 'task',
                                                                      'username': request.session['login'],
+                                                                     'notification_count': len(follow_activities),
                                                                      'urls': URLS})
         try:
             api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
@@ -464,14 +477,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form['type'] = re.match(r'nh\.clinical\.notification\.(.*)', task['data_model']).group(1)
             else:
                 form['type'] = 'placement'
-            return request.render('nh_eobs_mobile.notification_confirm_cancel', qcontext={'name': task['summary'],
-                                                                                           'inputs': form_desc,
-                                                                                           'cancellable': cancellable,
-                                                                                           'patient': patient,
-                                                                                           'form': form,
-                                                                                           'section': 'task',
-                                                                                           'username': request.session['login'],
-                                                                                           'urls': URLS})
+            return request.render('nh_eobs_mobile.notification_confirm_cancel',
+                                  qcontext={'name': task['summary'],
+                                            'inputs': form_desc,
+                                            'cancellable': cancellable,
+                                            'patient': patient,
+                                            'form': form,
+                                            'section': 'task',
+                                            'username': request.session['login'],
+                                            'notification_count': len(follow_activities),
+                                            'urls': URLS})
         elif 'observation' in task['data_model']:
             # load obs foo
             obs_reg = request.registry['nh.eobs.api']
@@ -505,6 +520,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                                 'form': form,
                                                                                 'section': 'task',
                                                                                 'username': request.session['login'],
+                                                                                'notification_count': len(follow_activities),
                                                                                 'urls': URLS})
         else:
             return request.render('nh_eobs_mobile.error', qcontext={'error_string': 'Task is neither a notification nor an observation',
@@ -685,10 +701,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api_pool = request.registry('nh.eobs.api')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
         obs = api_pool.get_active_observations(cr, uid, context=context)
+        follow_activities = api_pool.get_assigned_activities(cr, uid,
+                                                        activity_type='nh.clinical.patient.follow',
+                                                        context=context)
         return request.render('nh_eobs_mobile.patient', qcontext={'patient': patient,
                                                                    'urls': URLS,
                                                                    'section': 'patient',
                                                                    'obs_list': obs,
+                                                                   'notification_count': len(follow_activities),
                                                                    'username': request.session['login']})
 
 
@@ -706,6 +726,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def take_patient_observation(self, observation, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
+        follow_activities = api_pool.get_assigned_activities(cr, uid,
+                                                        activity_type='nh.clinical.patient.follow',
+                                                        context=context)
 
         patient = dict()
         patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
@@ -752,6 +775,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                              'patient': patient,
                                                                              'form': form,
                                                                              'section': 'patient',
+                                                                             'notification_count': len(follow_activities),
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
 
@@ -786,30 +810,3 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         result = api.complete(cr, uid, int(new_activity), converted_data, context)
         triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
-
-    # # hack to get cookies to play nice
-    # def get_response(self, httprequest, result, explicit_session):
-    #     if isinstance(result, Response) and result.is_qweb:
-    #         try:
-    #             result.flatten()
-    #         except(Exception), e:
-    #             if request.db:
-    #                 result = request.registry['ir.http']._handle_exception(e)
-    #             else:
-    #                 raise
-    #
-    #     if isinstance(result, basestring):
-    #         response = Response(result, mimetype='text/html')
-    #     else:
-    #         response = result
-    #
-    #     if httprequest.session.should_save:
-    #         self.session_store.save(httprequest.session)
-    #
-    #     cookie_lifespan = 3600*12 # 12 hours, maybe set in config?
-    #
-    #     if response.response and not isinstance(response, exceptions.HTTPException):
-    #         response.set_cookie('session_id', httprequest.session.sid, max_age=cookie_lifespan)
-    #     return response
-    #
-    # Root.get_response = get_response
