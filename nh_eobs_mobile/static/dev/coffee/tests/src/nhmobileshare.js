@@ -128,11 +128,12 @@ NHMobileShare = (function(superClass) {
   };
 
   NHMobileShare.prototype.assign_button_click = function(self, event) {
-    var data_string, el, error_message, form, nurse_ids, nurses, patient_ids, patients, popup, url;
+    var body, data_string, el, error_message, form, nurse_ids, nurses, patient_ids, patients, popup, url;
     nurses = event.detail.nurses;
     form = document.getElementById('handover_form');
     popup = document.getElementById('assign_nurse');
     error_message = popup.getElementsByClassName('error')[0];
+    body = document.getElementsByTagName('body')[0];
     patients = (function() {
       var i, len, ref, results;
       ref = form.elements;
@@ -155,7 +156,7 @@ NHMobileShare = (function(superClass) {
       patient_ids = 'patient_ids=' + patients;
       data_string = patient_ids + '&' + nurse_ids;
       Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-        var cover, data, i, len, pt, pt_el, pts, ti;
+        var btns, can_btn, cover, data, i, len, pt, pt_el, pts, share_msg, ti;
         data = server_data[0][0];
         if (data['status']) {
           pts = (function() {
@@ -184,7 +185,11 @@ NHMobileShare = (function(superClass) {
           }
           cover = document.getElementById('cover');
           document.getElementsByTagName('body')[0].removeChild(cover);
-          return popup.parentNode.removeChild(popup);
+          popup.parentNode.removeChild(popup);
+          can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
+          share_msg = '<p class="block">Successfully shared patients with' + data['shared_with'].join(', ') + '</p>';
+          btns = [can_btn];
+          return new window.NH.NHModal('share_success', 'Patients Shared', share_msg, btns, 0, body);
         } else {
           return error_message.innerHTML = 'Error assigning colleague(s),' + ' please try again';
         }

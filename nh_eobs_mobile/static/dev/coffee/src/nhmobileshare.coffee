@@ -113,6 +113,7 @@ class NHMobileShare extends NHMobile
     form = document.getElementById('handover_form')
     popup = document.getElementById('assign_nurse')
     error_message = popup.getElementsByClassName('error')[0]
+    body = document.getElementsByTagName('body')[0]
     patients = (el.value for el in form.elements \
         when el.checked and not el.classList.contains('exclude'))
     if nurses.length < 1 or patients.length < 1
@@ -141,6 +142,13 @@ class NHMobileShare extends NHMobile
           cover = document.getElementById('cover')
           document.getElementsByTagName('body')[0].removeChild(cover)
           popup.parentNode.removeChild(popup)
+          can_btn = '<a href="#" data-action="close" '+
+            'data-target="share_success">Cancel</a>'
+          share_msg = '<p class="block">Successfully shared patients with '+
+            data['shared_with'].join(', ') + '</p>'
+          btns = [can_btn]
+          new window.NH.NHModal('share_success', 'Patients Shared',
+            share_msg, btns, 0, body)
         else
           error_message.innerHTML = 'Error assigning colleague(s),'+
             ' please try again'
