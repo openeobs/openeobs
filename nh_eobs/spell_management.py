@@ -20,7 +20,8 @@ class nh_clinical_spellboard(orm.Model):
         res = {}
         location_pool = self.pool['nh.clinical.location']
         for spell in self.browse(cr, uid, ids, context=context):
-            res[spell.id] = location_pool.find_nearest_location_id(cr, uid, spell.location_id.id, context=context)
+            res[spell.id] = spell.location_id.id if spell.location_id.usage == 'ward' \
+                else location_pool.get_closest_parent_id(cr, uid, spell.location_id.id, context=context)
         return res
 
     _columns = {

@@ -108,7 +108,8 @@ class nh_eobs_api(orm.AbstractModel):
         location_pool = self.pool['nh.clinical.location']
         user = user_pool.browse(cr, SUPERUSER_ID, uid, context=context)
         groups = [g.name for g in user.groups_id]
-        wards = list(set([location_pool.find_nearest_location_id(cr, uid, loc.id, 'ward', context=context)
+        wards = list(set([location_pool.get_closest_parent_id(cr, uid, loc.id, 'ward', context=context)
+                          if loc.usage != 'ward' else loc.id
                           for loc in user.location_ids]))
         location_ids = []
         for ward_id in wards:
