@@ -204,7 +204,7 @@ openerp.nh_eobs = function (instance) {
 
         do_button_action: function (name, id, callback) {
             this.handle_button(name, id, callback);
-            if (name == "activate_deactivate"){
+            if (name == "switch_active_status"){
                 refresh_active_poc = true;
             }
         },

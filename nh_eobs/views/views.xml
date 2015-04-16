@@ -88,7 +88,7 @@
             <field name="arch" type="xml">
                 <tree string="Location Tree View" version="7.0" create="0">
                     <field name="active" invisible="1"/>
-                    <button name="activate_deactivate" type="object" string="Activate/Deactivate" widget="act_button"/>
+                    <button name="switch_active_status" type="object" string="Activate/Deactivate" widget="act_button"/>
                     <field name="parent_id"/>
                     <field name="name"/>
                     <field name="code" />
@@ -222,8 +222,8 @@
                     <field name="name"/>
                     <field name="related_hcas"/>
                     <field name="related_nurses"/>
-                    <field name="related_patients"/>
-                    <field name="related_patients_childs"/>
+                    <field name="waiting_patients"/>
+                    <field name="child_patients"/>
                     <field name="assigned_wm_ids"/>
                     <field name="assigned_doctor_ids"/>
                     <templates>
@@ -240,10 +240,10 @@
                                     Nurses: <span><field name="related_nurses"/></span>
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
-                                    Patients waiting: <span><field name="related_patients"/></span>
+                                    Patients waiting: <span><field name="waiting_patients"/></span>
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
-                                    Patients in bed: <span><field name="related_patients_childs"/></span>
+                                    Patients in bed: <span><field name="child_patients"/></span>
                                 </div>
                             </div>
                             <div class="oe_clear"></div>
