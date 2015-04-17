@@ -74,8 +74,7 @@ class nh_eobs_api(orm.AbstractModel):
     def _cancel_activity(self, cr, uid, patient_id, activity_type, context=None):
         # Y: what if more than one activities of the type for the patient exist?
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
-            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
         activity_pool = self.pool['nh.activity']
         domain = [('data_model', '=', activity_type), ('state', '=', 'completed')]
         admit_activity = activity_pool.search(cr, uid, domain, order='date_terminated desc', context=context)
@@ -598,12 +597,14 @@ class nh_eobs_api(orm.AbstractModel):
         """
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
+        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
             nhs_data = data.copy()
             nhs_data['other_identifier'] = patient_id
-            if not patient_pool._check_nhs_number(cr, uid, data.get('patient_identifier'), nhs_data, context=context):
+            if not patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
                 _logger.warn("Patient registered from an update call - data available:%s" % data)
                 self.register(cr, uid, patient_id, data, context=context)
+            else:
+                patient_pool.update(cr, uid, patient_id, data, context=context)
         data.update({'other_identifier': patient_id})
         update_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.update', {}, {}, context=context)
         res = activity_pool.submit(cr, uid, update_activity, data, context=context)
@@ -651,10 +652,11 @@ class nh_eobs_api(orm.AbstractModel):
         activity_pool = self.pool['nh.activity']
         spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
+        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
             nhs_data = data.copy()
             nhs_data['other_identifier'] = patient_id
-            patient_pool._check_nhs_number(cr, uid, data.get('patient_identifier'), nhs_data, context=context)
+            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
+                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
         data.update({'other_identifier': patient_id})
         admit_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, admit_activity, data, context=context)
@@ -669,10 +671,11 @@ class nh_eobs_api(orm.AbstractModel):
         """
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
+        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
             nhs_data = data.copy()
             nhs_data['other_identifier'] = patient_id
-            patient_pool._check_nhs_number(cr, uid, data.get('patient_identifier'), nhs_data, context=context)
+            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
+                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
         data.update({'other_identifier': patient_id})
         update_activity = self._create_activity(cr, uid, 'nh.clinical.adt.spell.update', {}, {}, context=context)
         activity_pool.submit(cr, uid, update_activity, data, context=context)
@@ -687,8 +690,7 @@ class nh_eobs_api(orm.AbstractModel):
         activity_pool = self.pool['nh.activity']
         spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
-            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
         data = {'other_identifier': patient_id}
         cancel_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_admit', {}, {}, context=context)
         activity_pool.submit(cr, uid, cancel_activity, data, context=context)
@@ -707,10 +709,11 @@ class nh_eobs_api(orm.AbstractModel):
         spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
+        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
             nhs_data = data.copy()
             nhs_data['other_identifier'] = patient_id
-            patient_pool._check_nhs_number(cr, uid, data.get('patient_identifier'), nhs_data, context=context)
+            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
+                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.discharge', {'patient_id': patientdb_id[0]}, {'other_identifier': patient_id, 'discharge_date': data.get('discharge_date')}, context=context)
         spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
@@ -723,8 +726,7 @@ class nh_eobs_api(orm.AbstractModel):
         Cancels the last discharge of the patient.
         """
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
-            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
         spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
@@ -744,8 +746,7 @@ class nh_eobs_api(orm.AbstractModel):
             from_identifier: Hospital number of the patient we want to merge FROM
         """
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
-            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
         activity_pool = self.pool['nh.activity']
         data.update({'into_identifier': patient_id})
         merge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.merge', {}, {}, context=context)
@@ -764,10 +765,11 @@ class nh_eobs_api(orm.AbstractModel):
         spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
+        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
             nhs_data = data.copy()
             nhs_data['other_identifier'] = patient_id
-            patient_pool._check_nhs_number(cr, uid, data.get('patient_identifier'), nhs_data, context=context)
+            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
+                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
         data.update({'other_identifier': patient_id})
         transfer_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
@@ -783,8 +785,7 @@ class nh_eobs_api(orm.AbstractModel):
         Cancels the last transfer of the patient.
         """
         patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool._check_hospital_number(cr, uid, patient_id, context=context):
-            raise osv.except_osv(_('Error!'), 'Patient ID not found: %s' % patient_id)
+        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
         activity_pool = self.pool['nh.activity']
         spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
