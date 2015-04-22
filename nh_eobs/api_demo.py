@@ -15,7 +15,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
     _name = 'nh.clinical.api.demo'
     _inherit = 'nh.clinical.api.demo'
 
-    def register_patients(self, cr, uid, patients_data=None, context=None):
+    def generate_patients(self, cr, uid, patients=0, context=None):
         """
         Register a list of patients.
         :param patients_data: List of dictionaries containing the patients information.
@@ -36,21 +36,35 @@ class nh_clinical_api_demo(orm.AbstractModel):
         identifiers = []
         api = self.pool['nh.eobs.api']
         patient_pool = self.pool['nh.clinical.patient']
-        if not patients_data:
-            patients_data = []
-        for data in patients_data:
-            patient = {
-                'patient_identifier': data.get('patient_identifier'),
-                'family_name': data.get('family_name'),
-                'middle_names': data.get('middle_names'),
-                'given_name': data.get('given_name'),
-                'dob': data.get('dob'),
-                'gender': data.get('gender'),
-                'sex': data.get('sex'),
-                'ethnicity': data.get('ethnicity')
-            }
-            api.register(cr, uid, data.get('other_identifier'), patient, context=context)
-            identifiers += patient_pool.search(cr, uid, [['other_identifier', '=', data.get('other_identifier')]], context=context)
+        user_pool = self.pool['res.users']
+        group_pool = self.pool['res.groups']
+
+        # fetch ADT user ids
+        adtgroup_id = group_pool.search(cr, uid, [['name', '=', 'NH Clinical ADT Group']], context=context)
+        adtuid_ids = user_pool.search(cr, uid, [['groups_id', 'in', adtgroup_id]], context=context)
+        if not adtuid_ids:
+            raise osv.except_osv('No ADT User!', 'ADT user required to register patient.')
+
+        # loop through ADT user ids, creating patients for each ADT.
+        for uid in adtuid_ids:
+            for data in range(patients):
+                gender = fake.random_element(['M', 'F'])
+                other_identifier = fake.bothify('#?#?#?#?#?#?#?#?#?')
+                patient = {
+                    'patient_identifier': fake.bothify('#?#?#?#?#?#?#?#?#?'),
+                    'family_name': fake.last_name(),
+                    'middle_names': fake.last_name(),
+                    'given_name': fake.last_name(),
+                    'dob': fake.date_time(),
+                    'gender': gender,
+                    'sex': gender,
+                    'ethnicity': fake.random_element(patient_pool._ethnicity)[0]
+                }
+                # create patient
+                api.register(cr, uid, other_identifier, patient, context=context)
+                _logger.info("Patient '%s' created", other_identifier)
+                identifiers += patient_pool.search(cr, uid, [['other_identifier', '=', other_identifier]], context=context)
+
         return identifiers
 
     def generate_news_simulation(self, cr, uid, begin_date=False, patient_ids=None, context=None):

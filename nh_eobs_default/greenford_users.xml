@@ -6,7 +6,7 @@
             <field name="name">GUH-ADT</field>
             <field name="login">adt</field>
             <field name="password">adt</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_admin'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_adt'))]"/>
             <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
