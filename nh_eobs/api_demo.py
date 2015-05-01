@@ -15,25 +15,144 @@ class nh_clinical_api_demo(orm.AbstractModel):
     _name = 'nh.clinical.api.demo'
     _inherit = 'nh.clinical.api.demo'
 
+    def place_patients(self, cr, uid, patient_ids, ward_id):
+        """
+        Places a list of patients in vacant beds in a particular ward.
+        :param patient_ids: list of patients to be placed in beds
+        :param ward_id: the ward id for the ward to place the patients in.
+        :return: list of bed_ids for those beds filled.
+        """
+        activity_pool = self.pool['nh.activity']
+        location_pool = self.pool['nh.clinical.location']
+        identifiers = list()
+
+        ward = location_pool.browse(cr, uid, ward_id)
+        bed_ids = [bed.id for bed in ward.child_ids if bed.is_available]
+        activity_ids = activity_pool.search(cr, uid, [
+            ('data_model', '=', 'nh.clinical.patient.placement'),
+            ('patient_id', 'in', patient_ids)])
+
+        for index, bed_id in enumerate(bed_ids):
+            if index < len(activity_ids):
+                activity_pool.submit(cr, uid, activity_ids[index], {'location_id': bed_id})
+                activity_pool.complete(cr, uid, activity_ids[index])
+                identifiers.append(bed_id)
+            else:
+                break
+
+        return identifiers
+
+    def admit_patients(self, cr, uid, patient_ids, adt_id, data):
+        """
+        Admits a list of patients.
+        :param patient_ids: list parameter of patient ids.
+        :param adt_id: the user id for an ADT user.
+        :param data: dictionary parameter that contains the following
+            location: location code where the patient will be admitted.
+            start_date: admission start date.
+        :return: list of ids for admitted patients.
+        """
+        api = self.pool['nh.eobs.api']
+        patient_pool = self.pool['nh.clinical.patient']
+        activity_pool = self.pool['nh.activity']
+        identifiers = list()
+
+        for patient_id in patient_ids:
+            patient = patient_pool.browse(cr, uid, patient_id)
+            spell_activity_id = activity_pool.search(cr, uid, [
+                ('data_model', '=', 'nh.clinical.spell'),
+                ('patient_id', '=', patient.id)])
+
+            if not spell_activity_id:
+                if api.admit(cr, adt_id, patient.other_identifier, data):
+                    identifiers.append(patient_id)
+
+        return identifiers
+
+    def generate_users(self, cr, uid, location_id):
+        """
+        Generates a ward manager, nurse, HCA, junior doctor, consultant,
+        registrar, receptionist, admin and ADT user.
+        :param location_id: the id of the location the users will be assigned to.
+        :return: Dictionary { 'ward manager': id, 'nurse': id, ... }
+        """
+        identifiers = dict()
+        user_pool = self.pool['res.users']
+        group_pool = self.pool['res.groups']
+        location_pool = self.pool['nh.clinical.location']
+
+        groups = ['NH Clinical Ward Manager', 'NH Clinical Nurse Group',
+                  'NH Clinical HCA Group', 'NH Clinical Junior Doctor Group',
+                  'NH Clinical Consultant Group', 'NH Clinical Registrar Group',
+                  'NH Clinical Receptionist Group', 'NH Clinical Admin Group',
+                  'NH Clinical ADT Group']
+        users = ['ward_manager', 'nurse', 'hca', 'jnr_doctor', 'consultant',
+                 'registrar', 'receptionist', 'admin', 'adt']
+        pos_id = location_pool.read(cr, uid, [location_id], ['pos_id'])[0]['pos_id'][0]
+
+        for i in range(9):
+            user_login = users[i] + '_' + str(location_id)
+            group_id = group_pool.search(cr, uid, [['name', '=', groups[i]]])
+            user_id = user_pool.create(cr, uid, {
+                'name': fake.name(), 'login': user_login,
+                'password': user_login, 'groups_id': [[6, False, group_id]],
+                'pos_id': pos_id, 'location_ids': [[6, False, [location_id]]]})
+            identifiers.update({users[i]: user_id})
+
+        return identifiers
+
+    def generate_locations(self, cr, uid, wards=0, beds=0, hospital=False):
+        """
+        Generates a specified number of locations (Hospital, wards, bays, beds).
+        :param wards: the number of wards in hospital.
+        :param beds: the number of beds per ward.
+        :return: Dict { 'Ward 1' : [ward_id, bed_id, bed_id], 'Ward 2': [ward_id_2, bed_id, etc. }
+        """
+        identifiers = dict()
+        location_pool = self.pool['nh.clinical.location']
+        pos_pool = self.pool['nh.clinical.pos']
+        company_pool = self.pool['res.company']
+        context_pool = self.pool['nh.clinical.context']
+
+        context_id = context_pool.search(cr, uid, [['name', '=', 'eobs']])
+
+        if hospital:
+            hospital_id = location_pool.create(cr, uid, {'name': fake.company()})
+            admission_id = location_pool.create(cr, uid, {'name': fake.company()})
+            discharge_id = location_pool.create(cr, uid, {'name': fake.company()})
+            company_id = company_pool.create(cr, uid, {'name': fake.company()})
+
+            # creates POS (clinical point of service)
+            pos_pool.create(cr, uid, {'name': fake.company(), 'location_id': hospital_id,
+                'company_id': company_id, 'lot_admission_id': admission_id,
+                'lot_discharge_id': discharge_id})
+        else:
+            hospital_id = location_pool.search(cr, uid, [['id', '>', 0]])[0]
+
+        for ward in range(wards):
+            ward_name = 'Ward ' + str(ward + 1)
+            ward_id = location_pool.create(cr, uid, {
+                'name': ward_name, 'usage': 'ward',
+                'context_ids': [[6, False, context_id]],
+                'parent_id': hospital_id,
+                'code': fake.bothify('#?#?#?#?')})
+            identifiers.update({ward_name: [ward_id]})
+            # test for unique 'code'.
+            for bed in range(beds):
+                bed_id = location_pool.create(cr, uid, {
+                    'name': 'Bed ' + str(bed + 1), 'parent_id': ward_id,
+                    'usage': 'bed'})
+                identifiers[ward_name].append(bed_id)
+
+        return identifiers
+
     def generate_patients(self, cr, uid, patients=0, context=None):
         """
-        Register a list of patients.
-        :param patients_data: List of dictionaries containing the patients information.
-            {
-                'other_identifier': String - represents the Hospital Number. REQUIRED. UNIQUE.
-                'patient_identifier': String - represents the NHS Number. UNIQUE.
-                'given_name': String - patient first name
-                'family_name': String - patient last name
-                'middle_names': String - patient middle names
-                'gender': String - patient gender. Must be a value from: 'BOTH', 'F', 'I', 'M', 'NSP', 'U'
-                'sex': String - patient sex. Same values as gender.
-                'ethnicity': String - patient ethnicity code. The values can be found in the patient class.
-                'dob': String - patient date of birth. The value must be formatted in the default datetime format:
-                                                                                                    '%Y-%m-%d %H:%M:%S'
-            }
-        :return: List of ids of the patients registered
+        Generates a specified number of patients.
+        :param patients: the number of patients to register.
+        :return: List of ids of the patients registered.
         """
-        identifiers = []
+        identifiers = list()
         api = self.pool['nh.eobs.api']
         patient_pool = self.pool['nh.clinical.patient']
         user_pool = self.pool['res.users']
