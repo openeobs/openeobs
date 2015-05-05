@@ -19,7 +19,7 @@ class nh_clinical_patient_admission(orm.Model):
                                'type': 'schedule',
                                'context': 'eobs',
                                'create_data': {
-                                   'suggested_location_id': 'data_ref.suggested_location_id.id'
+                                   'suggested_location_id': 'activity.data_ref.suggested_location_id.id'
                                }}]}
 
 
@@ -32,7 +32,7 @@ class nh_clinical_adt_patient_transfer(orm.Model):
                                'context': 'eobs',
                                'cancel_others': True,
                                'create_data': {
-                                   'suggested_location_id': 'data_ref.location_id.id'
+                                   'suggested_location_id': 'activity.data_ref.location_id.id'
                                }
                               }]}
     
@@ -46,9 +46,9 @@ class nh_clinical_adt_spell_update(orm.Model):
                                'context': 'eobs',
                                'cancel_others': True,
                                'create_data': {
-                                   'suggested_location_id': 'data_ref.suggested_location_id.id'
+                                   'suggested_location_id': 'activity.data_ref.suggested_location_id.id'
                                }
-                              }]}
+                               }]}
     
 
 class nh_clinical_adt_patient_cancel_discharge(orm.Model):
@@ -60,9 +60,13 @@ class nh_clinical_adt_patient_cancel_discharge(orm.Model):
                                'context': 'eobs',
                                'cancel_others': True,
                                'create_data': {
-                                   'suggested_location_id': 'data_ref.last_location_id.parent_id.id'
+                                   'suggested_location_id':
+                                       "location_pool.get_closest_parent_id(cr, uid, 'ward', "
+                                       "activity.data_ref.last_location_id.id, context=context) if "
+                                       "activity.data_ref.last_location_id.usage != 'ward' else "
+                                       "activity.data_ref.last_location_id.id"
                                }
-                              }]}
+                               }]}
 
 
 class nh_clinical_adt_patient_cancel_transfer(orm.Model):
@@ -74,6 +78,6 @@ class nh_clinical_adt_patient_cancel_transfer(orm.Model):
                                'context': 'eobs',
                                'cancel_others': True,
                                'create_data': {
-                                   'suggested_location_id': 'data_ref.last_location_id.id'
+                                   'suggested_location_id': 'activity.data_ref.last_location_id.id'
                                }
-                              }]}
+                               }]}

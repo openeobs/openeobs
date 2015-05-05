@@ -629,9 +629,9 @@ class nh_eobs_api(orm.AbstractModel):
         register_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.register', {}, {}, context=context)
         data.update({'other_identifier': patient_id})
         activity_pool.submit(cr, uid, register_activity, data, context=context)
-        activity_pool.complete(cr, uid, register_activity, context=context)
+        res = activity_pool.complete(cr, uid, register_activity, context=context)
         _logger.debug("Patient registered\n data: %s" % data)
-        return True
+        return res
 
     def admit(self, cr, uid, patient_id, data, context=None):
         """
