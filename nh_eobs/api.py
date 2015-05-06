@@ -715,7 +715,16 @@ class nh_eobs_api(orm.AbstractModel):
             if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
                 patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
         patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
-        discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.discharge', {'patient_id': patientdb_id[0]}, {'other_identifier': patient_id, 'discharge_date': data.get('discharge_date')}, context=context)
+        spell_id = activity_pool.search(cr, uid, [['patient_id', '=', patientdb_id[0]],
+                                                  ['state', 'not in', ['completed', 'cancelled']],
+                                                  ['data_model', '=', 'nh.clinical.spell']], context=context)
+        if not spell_id:
+            raise osv.except_osv('Discharge Error!', 'Patient does not have an open spell!')
+        discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.discharge',
+                                                   {'parent_id': spell_id[0],
+                                                    'patient_id': patientdb_id[0]},
+                                                   {'other_identifier': patient_id,
+                                                    'discharge_date': data.get('discharge_date')}, context=context)
         spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
         activity_pool.complete(cr, uid, discharge_activity, context=context)
         _logger.debug("Patient discharged: %s" % patient_id)
