@@ -119,7 +119,7 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="arch" type="xml">
                 <tree string="Wardboard Tree View" class="nhc_wardboard" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
-                   <button name="wardboard_chart" string="Chart" type="object" class="oe_highlight" nh_icon="chart"/>
+                   <button name="%(action_wardboard_chart)d" string="Chart" type="action" class="oe_highlight" nh_icon="chart"/>
                    <button name="wardboard_ews" string="EWS" type="object" class="oe_highlight" nh_icon="observation"/>
                     <field name="sex" widget="nh_gender" string=""/>
                    <field name="full_name" string="Patient"/>
@@ -842,11 +842,22 @@
             <field name="context">{'search_default_clinical_risk':1}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
+
+
         <record model="ir.actions.act_window.view" id="act_view_wardboard_kiosk">
             <field eval="0" name="sequence"/>
             <field name="view_mode">kanban</field>
             <field name="view_id" ref="view_wardboard_kanban"/>
             <field name="act_window_id" ref="action_kiosk_patients_board"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_chart">
+            <field name="name">Chart</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_chart_form"/>
         </record>
     </data>
 </openerp>
