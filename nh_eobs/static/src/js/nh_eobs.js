@@ -193,6 +193,8 @@ openerp.nh_eobs = function (instance) {
         },
 
         select_record: function (index, view) {
+            // called when selecting the row
+
             view = view || index == null ? 'form' : 'form';
             this.dataset.index = index;
             if (this.fields_view.name != "NH Clinical Placement Tree View"){
@@ -203,6 +205,7 @@ openerp.nh_eobs = function (instance) {
         },
 
         do_button_action: function (name, id, callback) {
+            // called when pressing a button on row
             this.handle_button(name, id, callback);
             if (name == "switch_active_status"){
                 refresh_active_poc = true;
@@ -366,7 +369,7 @@ openerp.nh_eobs = function (instance) {
             this.dataset.child_name = this.name;
             var self = this
         },
-        start: function() {
+        set_value: function(value) {
         	this._super();
             this.model = new instance.web.Model('nh.eobs.api');
             var vid = this.view.dataset.context.active_id;
@@ -377,7 +380,7 @@ openerp.nh_eobs = function (instance) {
                 printing = true;
             }
 
-            var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'ews'], {context: this.view.dataset.context}).done(function(records){
+            var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[this.view.dataset.index],'ews'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
                 if(records.length > 0){
                     var obs = records.reverse();
@@ -521,7 +524,8 @@ openerp.nh_eobs = function (instance) {
                     }
 
                 }else{
-                    d3.select(svg.el).append("text").text("No data available for this patient");
+                    $(svg.el).html('<p>No data available for this patient</p>');
+                    //d3.select(svg.el).append("text").text("No data available for this patient");
                 }
             });
         }
@@ -692,20 +696,20 @@ openerp.nh_eobs = function (instance) {
                     location.reload();
                 });
             }, logout_time);
-        }
+        },
     });
 
     instance.web.views.add('form', 'instance.nh_eobs.FormView');
 
     instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
     	
-    	on_groups_started: function() {
-            if (this.group_by == 'clinical_risk'){
-            	var cols = this.$el.find('td.oe_kanban_column');
-            	var heads = this.$el.find('td.oe_kanban_group_header');
-            	var titles = this.$el.find('span.oe_kanban_group_title_vertical');
-            	var cards = this.$el.find('div.oe_kanban_card');
-            	console.log($(cards));
+    	n_groups_started: function() {
+           if (this.group_by == 'clinical_risk'){
+           	var cols = this.$el.find('td.oe_kanban_column');
+           	var heads = this.$el.find('td.oe_kanban_group_header');
+           	var titles = this.$el.find('span.oe_kanban_group_title_vertical');
+           	var cards = this.$el.find('div.oe_kanban_card');
+           	console.log($(cards));
             	class_map = {"No Score Yet": "none", "High Risk": "high", "Medium Risk": "medium", "Low Risk": "low", "No Risk": "no"}
             	for (i=0; i < heads.length; i++){
             		column_string = $(titles[i]).text().trim();
@@ -950,15 +954,35 @@ openerp.nh_eobs = function (instance) {
 
                     if (record_id) {
                         ncontext.add({
-                            active_id: record_id,
+                            index: active_ids_to_send.indexOf(record_id),
                             active_ids: active_ids_to_send,
                         });
                     }
                     ncontext.add(action.context || {});
                     action.context = ncontext;
-                    return self.do_action(action, {
-                        on_close: result_handler,
-                    });
+                    //return self.do_action(action, {
+                    //    on_close: result_handler,
+                    //});
+
+                    self.dataset.index = active_ids_to_send.indexOf(record_id);
+                    self.dataset.ids = active_ids_to_send;
+
+
+                    var pop = new instance.nh_eobs.PagedFormOpenPopup(action);
+                    pop.show_element(
+                            action.res_model,
+                            action.res_id,
+                            action.context,
+                            {
+                                title: _t("Patient Chart"),
+                                view_id: action.view_id[0],
+                                readonly: true,
+                                active_id: record_id,
+                                active_index: active_ids_to_send.indexOf(record_id),
+                                active_ids: active_ids_to_send
+                            }
+                    );
+
                 } else {
                     self.do_action({"type":"ir.actions.act_window_close"});
                     return result_handler();
@@ -1009,7 +1033,7 @@ openerp.nh_eobs = function (instance) {
 
                 return this.rpc('/web/action/load', {
                     action_id: action_data.name,
-                    context: _.extend(instance.web.pyeval.eval('context', context), {'active_model': dataset.model, 'active_ids': active_ids_to_send, 'active_id': record_id}),
+                    context: _.extend(instance.web.pyeval.eval('context', context), {'active_model': dataset.model, 'ids': active_ids_to_send, 'id': record_id}),
                     do_not_eval: true
                 }).then(handler);
             } else  {
@@ -1017,4 +1041,96 @@ openerp.nh_eobs = function (instance) {
             }
         },
     })
+
+    instance.nh_eobs.PagedFormOpenPopup = instance.web.form.FormOpenPopup.extend({
+         init_popup: function(model, row_id, domain, context, options) {
+            this.row_id = row_id;
+            this.model = model;
+            this.domain = domain || [];
+            this.context = context || {};
+            this.ids = options.active_ids;
+            this.options = options;
+            _.defaults(this.options, {
+            });
+        },
+        init_dataset: function() {
+            var self = this;
+            this.created_elements = [];
+            ids = this.ids;
+            index = this.index;
+            this.dataset = new instance.web.ProxyDataSet(this, this.model, this.context);
+            if(ids){
+                this.dataset.ids = ids;
+            }
+            this.dataset.read_function = this.options.read_function;
+            this.dataset.create_function = function(data, options, sup) {
+                var fct = self.options.create_function || sup;
+                return fct.call(this, data, options).done(function(r) {
+                    self.trigger('create_completed saved', r);
+                    self.created_elements.push(r);
+                });
+            };
+            this.dataset.write_function = function(id, data, options, sup) {
+                var fct = self.options.write_function || sup;
+                return fct.call(this, id, data, options).done(function(r) {
+                    self.trigger('write_completed saved', r);
+                });
+            };
+            this.dataset.parent_view = this.options.parent_view;
+            this.dataset.child_name = this.options.child_name;
+        },
+        setup_form_view: function() {
+            var self = this;
+            if (this.options.active_index) {
+                //this.dataset.ids = [this.row_id];
+                this.dataset.index = this.options.active_index;
+            } else {
+                this.dataset.index = 0;
+            }
+            var options = _.clone(self.options.form_view_options) || {};
+            if (this.row_id !== null) {
+                options.initial_mode = this.options.readonly ? "view" : "edit";
+            }
+            _.extend(options, {
+                $buttons: this.$buttonpane,
+            });
+            //this.view_form = new instance.web.FormView(this, this.dataset, this.options.view_id || false, options);
+            //if (this.options.alternative_form_view) {
+            //    this.view_form.set_embedded_view(this.options.alternative_form_view);
+            //}
+            this.viewmanager = new instance.web.ViewManager(this, this.dataset, [[this.options.view_id, "form"]], {});
+            this.viewmanager.appendTo(this.$el.find('.oe_popup_form'));
+            //this.view_form.appendTo(this.$el.find(".oe_popup_form"));
+            //this.view_form.on("form_view_loaded", self, function() {
+            //    var multi_select = self.row_id === null && ! self.options.disable_multiple_selection;
+            //    self.$buttonpane.html(QWeb.render("AbstractFormPopup.buttons", {
+            //        multi_select: multi_select,
+            //        readonly: self.row_id !== null && self.options.readonly,
+            //    }));
+            //    var $snbutton = self.$buttonpane.find(".oe_abstractformpopup-form-save-new");
+            //    $snbutton.click(function() {
+            //        $.when(self.view_form.save()).done(function() {
+            //            self.view_form.reload_mutex.exec(function() {
+            //                self.view_form.on_button_new();
+            //            });
+            //        });
+            //    });
+            //    var $sbutton = self.$buttonpane.find(".oe_abstractformpopup-form-save");
+            //    $sbutton.click(function() {
+            //        $.when(self.view_form.save()).done(function() {
+            //            self.view_form.reload_mutex.exec(function() {
+            //                self.check_exit();
+            //            });
+            //        });
+            //    });
+            //    var $cbutton = self.$buttonpane.find(".oe_abstractformpopup-form-close");
+            //    $cbutton.click(function() {
+            //        self.view_form.trigger('on_button_cancel');
+            //        self.check_exit();
+            //    });
+            //    self.view_form.do_show();
+            //    self.view_form.$pager.init();
+            //});
+        },
+    });
 }
