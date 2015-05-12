@@ -1,4 +1,5 @@
 from openerp.osv import orm, osv
+from openerp.fields import datetime
 from openerp import SUPERUSER_ID
 import logging
 from datetime import datetime as dt, timedelta as td
@@ -14,6 +15,34 @@ fake = Faker()
 class nh_clinical_api_demo(orm.AbstractModel):
     _name = 'nh.clinical.api.demo'
     _inherit = 'nh.clinical.api.demo'
+
+    def generate_hospital(self, cr, uid, wards=0, beds=0, patients=0, days=0, hospital=True):
+        location_pool = self.pool['nh.clinical.location']
+
+        location_ids = self.generate_locations(cr, uid, wards=wards, beds=beds, hospital=hospital)
+        news_sim_begin_date = (dt.now()-td(days=days)).strftime(dtf)
+        start_date = dt.now()-td(days=days)
+        admit_no_patients = 150
+        place_no_patients = 100
+        patients_registered = False
+
+        # returns list of admitted patients (not placed)
+        patient_list = []
+
+        for k in location_ids:
+            ward_id = location_ids[k][0]
+            user_ids = self.generate_users(cr, uid, ward_id)
+            if not patients_registered and patients != 0:
+                results = location_pool.read(cr, uid, [ward_id], ['code'])
+                data = {'location': results[0]['code'], 'start_date': start_date}
+                patient_ids = self.generate_patients(cr, uid, user_ids['adt'], patients)
+                admit_patient_ids = self.admit_patients(cr, uid, patient_ids[:admit_no_patients], user_ids['adt'], data)
+                self.place_patients(cr, uid, admit_patient_ids[:place_no_patients], ward_id)
+                self.generate_news_simulation(cr, uid, begin_date=news_sim_begin_date, patient_ids=admit_patient_ids)
+                patients_registered = True
+                patient_list += admit_patient_ids
+
+        return patient_list
 
     def place_patients(self, cr, uid, patient_ids, ward_id):
         """
@@ -37,6 +66,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 activity_pool.submit(cr, uid, activity_ids[index], {'location_id': bed_id})
                 activity_pool.complete(cr, uid, activity_ids[index])
                 identifiers.append(bed_id)
+                _logger.info("Patient placed in %s", bed_id)
             else:
                 break
 
@@ -66,6 +96,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
             if not spell_activity_id:
                 if api.admit(cr, adt_id, patient.other_identifier, data):
                     identifiers.append(patient_id)
+                    _logger.info("Patient '%s' admitted", patient.other_identifier)
 
         return identifiers
 
@@ -81,23 +112,28 @@ class nh_clinical_api_demo(orm.AbstractModel):
         group_pool = self.pool['res.groups']
         location_pool = self.pool['nh.clinical.location']
 
-        groups = ['NH Clinical Ward Manager', 'NH Clinical Nurse Group',
+        groups = ['NH Clinical Ward Manager Group', 'NH Clinical Nurse Group',
                   'NH Clinical HCA Group', 'NH Clinical Junior Doctor Group',
                   'NH Clinical Consultant Group', 'NH Clinical Registrar Group',
                   'NH Clinical Receptionist Group', 'NH Clinical Admin Group',
-                  'NH Clinical ADT Group']
+                  'NH Clinical Admin Group']
         users = ['ward_manager', 'nurse', 'hca', 'jnr_doctor', 'consultant',
                  'registrar', 'receptionist', 'admin', 'adt']
         pos_id = location_pool.read(cr, uid, [location_id], ['pos_id'])[0]['pos_id'][0]
 
         for i in range(9):
             user_login = users[i] + '_' + str(location_id)
-            group_id = group_pool.search(cr, uid, [['name', '=', groups[i]]])
+            assign_groups = [groups[i], 'Employee']
+            if users[i] in ('ward_manager', 'admin', 'adt'):
+                assign_groups.append('Contact Creation')
+
+            group_id = group_pool.search(cr, uid, [['name', 'in', assign_groups]])
             user_id = user_pool.create(cr, uid, {
                 'name': fake.name(), 'login': user_login,
                 'password': user_login, 'groups_id': [[6, False, group_id]],
                 'pos_id': pos_id, 'location_ids': [[6, False, [location_id]]]})
             identifiers.update({users[i]: user_id})
+            _logger.info("'%s' created", users[i])
 
         return identifiers
 
@@ -137,16 +173,18 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 'parent_id': hospital_id,
                 'code': fake.bothify('#?#?#?#?')})
             identifiers.update({ward_name: [ward_id]})
+            _logger.info("'%s' created", ward_name)
             # test for unique 'code'.
             for bed in range(beds):
+                bed_name = 'Bed ' + str(bed + 1)
                 bed_id = location_pool.create(cr, uid, {
-                    'name': 'Bed ' + str(bed + 1), 'parent_id': ward_id,
-                    'usage': 'bed'})
+                    'name': bed_name, 'parent_id': ward_id,
+                    'usage': 'bed', 'context_ids': [[6, False, context_id]]})
                 identifiers[ward_name].append(bed_id)
-
+                _logger.info("'%s' created", bed_name)
         return identifiers
 
-    def generate_patients(self, cr, uid, patients=0, context=None):
+    def generate_patients(self, cr, uid, adt_id, patients, context=None):
         """
         Generates a specified number of patients.
         :param patients: the number of patients to register.
@@ -155,34 +193,25 @@ class nh_clinical_api_demo(orm.AbstractModel):
         identifiers = list()
         api = self.pool['nh.eobs.api']
         patient_pool = self.pool['nh.clinical.patient']
-        user_pool = self.pool['res.users']
-        group_pool = self.pool['res.groups']
-
-        # fetch ADT user ids
-        adtgroup_id = group_pool.search(cr, uid, [['name', '=', 'NH Clinical ADT Group']], context=context)
-        adtuid_ids = user_pool.search(cr, uid, [['groups_id', 'in', adtgroup_id]], context=context)
-        if not adtuid_ids:
-            raise osv.except_osv('No ADT User!', 'ADT user required to register patient.')
 
         # loop through ADT user ids, creating patients for each ADT.
-        for uid in adtuid_ids:
-            for data in range(patients):
-                gender = fake.random_element(['M', 'F'])
-                other_identifier = fake.bothify('#?#?#?#?#?#?#?#?#?')
-                patient = {
-                    'patient_identifier': fake.bothify('#?#?#?#?#?#?#?#?#?'),
-                    'family_name': fake.last_name(),
-                    'middle_names': fake.last_name(),
-                    'given_name': fake.last_name(),
-                    'dob': fake.date_time(),
-                    'gender': gender,
-                    'sex': gender,
-                    'ethnicity': fake.random_element(patient_pool._ethnicity)[0]
-                }
-                # create patient
-                api.register(cr, uid, other_identifier, patient, context=context)
-                _logger.info("Patient '%s' created", other_identifier)
-                identifiers += patient_pool.search(cr, uid, [['other_identifier', '=', other_identifier]], context=context)
+        for data in range(patients):
+            gender = fake.random_element(['M', 'F'])
+            other_identifier = fake.bothify('#?#?#?#?#')
+            patient = {
+                'patient_identifier': fake.bothify('#?#?#?#?#'),
+                'family_name': fake.last_name(),
+                'middle_names': fake.last_name(),
+                'given_name': fake.last_name(),
+                'dob': fake.date_time(),
+                'gender': gender,
+                'sex': gender,
+                'ethnicity': fake.random_element(patient_pool._ethnicity)[0]
+            }
+            # create patient
+            api.register(cr, adt_id, other_identifier, patient, context=context)
+            _logger.info("Patient '%s' created", other_identifier)
+            identifiers += patient_pool.search(cr, uid, [['other_identifier', '=', other_identifier]], context=context)
 
         return identifiers
 
@@ -209,8 +238,11 @@ class nh_clinical_api_demo(orm.AbstractModel):
         activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
 
         current_date = dt.strptime(begin_date, dtf)
+
         while current_date < dt.now():
             ews_activity_ids = activity_pool.search(cr, uid, [['patient_id', 'in', patient_ids], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']], ['date_scheduled', '<=', current_date.strftime(dtf)]], context=context)
+            if not ews_activity_ids:
+               return False
             nearest_date = False
             for ews_id in ews_activity_ids:
                 ews_data = {
@@ -225,6 +257,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 }
                 activity_pool.submit(cr, uid, ews_id, ews_data, context=context)
                 activity_pool.complete(cr, uid, ews_id, context=context)
+                _logger.info("EWS observation '%s' made", ews_id)
                 ews_activity = activity_pool.browse(cr, uid, ews_id, context=context)
                 overdue = fake.random_element([False, False, False, False, False, False, False, True, True, True])
                 if overdue:
