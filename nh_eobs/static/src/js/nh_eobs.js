@@ -369,9 +369,14 @@ openerp.nh_eobs = function (instance) {
             this.dataset.child_name = this.name;
             var self = this
         },
-        set_value: function(value) {
-        	this._super();
+        set_value: function(value_){
+            this.set({'value': value_});
+            this.render_chart();
+            console.log(value_);
+        },
+        render_chart: function(){
             this.model = new instance.web.Model('nh.eobs.api');
+            this.wardboard_model = new instance.web.Model('nh.clinical.wardboard');
             var vid = this.view.dataset.context.active_id;
         	var self = this;
 
@@ -382,6 +387,7 @@ openerp.nh_eobs = function (instance) {
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[this.view.dataset.index],'ews'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
+                $(svg.el).html('');
                 if(records.length > 0){
                     var obs = records.reverse();
 
@@ -528,7 +534,7 @@ openerp.nh_eobs = function (instance) {
                     //d3.select(svg.el).append("text").text("No data available for this patient");
                 }
             });
-        }
+        },
     });
 
     instance.web.form.widgets.add('nh_ewschart', 'instance.nh_eobs.EwsChartWidget');
@@ -934,13 +940,15 @@ openerp.nh_eobs = function (instance) {
                     ncontext.add({active_model: dataset.model});
 
                     // Add records from self.records._proxies
-                    var active_ids_to_send = []
+                    var active_ids_to_send = [];
+                    var active_records_to_send = [];
                     if(typeof(self.records._proxies) == 'object'){
                         for(key in self.records._proxies){
                             if(self.records._proxies.hasOwnProperty(key)){
                                 for(var i = 0; i < self.records._proxies[key].records.length; i++){
                                     var rec = self.records._proxies[key].records[i];
                                     active_ids_to_send.push(rec.attributes.id);
+                                    active_records_to_send.push(rec.attributes);
                                 }
                                 //active_ids_to_send = self.records._proxies[key].records;
                             }
@@ -956,6 +964,7 @@ openerp.nh_eobs = function (instance) {
                         ncontext.add({
                             index: active_ids_to_send.indexOf(record_id),
                             active_ids: active_ids_to_send,
+                            active_recs: active_records_to_send,
                         });
                     }
                     ncontext.add(action.context || {});
@@ -966,6 +975,7 @@ openerp.nh_eobs = function (instance) {
 
                     self.dataset.index = active_ids_to_send.indexOf(record_id);
                     self.dataset.ids = active_ids_to_send;
+                    self.dataset.records = active_records_to_send;
 
 
                     var pop = new instance.nh_eobs.PagedFormOpenPopup(action);
@@ -979,7 +989,8 @@ openerp.nh_eobs = function (instance) {
                                 readonly: true,
                                 active_id: record_id,
                                 active_index: active_ids_to_send.indexOf(record_id),
-                                active_ids: active_ids_to_send
+                                active_ids: active_ids_to_send,
+                                active_records: active_records_to_send,
                             }
                     );
 
@@ -1040,6 +1051,11 @@ openerp.nh_eobs = function (instance) {
                 return dataset.exec_workflow(record_id, action_data.name).then(handler);
             }
         },
+    });
+
+    instance.nh_eobs.PagedFormOpenViewManager = instance.web.ViewManager.extend({
+        template: "PagedFormOpenViewManager",
+
     })
 
     instance.nh_eobs.PagedFormOpenPopup = instance.web.form.FormOpenPopup.extend({
@@ -1094,43 +1110,9 @@ openerp.nh_eobs = function (instance) {
             _.extend(options, {
                 $buttons: this.$buttonpane,
             });
-            //this.view_form = new instance.web.FormView(this, this.dataset, this.options.view_id || false, options);
-            //if (this.options.alternative_form_view) {
-            //    this.view_form.set_embedded_view(this.options.alternative_form_view);
-            //}
-            this.viewmanager = new instance.web.ViewManager(this, this.dataset, [[this.options.view_id, "form"]], {});
+            this.viewmanager = new instance.nh_eobs.PagedFormOpenViewManager(this, this.dataset, [[this.options.view_id, "form"]], {});
             this.viewmanager.appendTo(this.$el.find('.oe_popup_form'));
-            //this.view_form.appendTo(this.$el.find(".oe_popup_form"));
-            //this.view_form.on("form_view_loaded", self, function() {
-            //    var multi_select = self.row_id === null && ! self.options.disable_multiple_selection;
-            //    self.$buttonpane.html(QWeb.render("AbstractFormPopup.buttons", {
-            //        multi_select: multi_select,
-            //        readonly: self.row_id !== null && self.options.readonly,
-            //    }));
-            //    var $snbutton = self.$buttonpane.find(".oe_abstractformpopup-form-save-new");
-            //    $snbutton.click(function() {
-            //        $.when(self.view_form.save()).done(function() {
-            //            self.view_form.reload_mutex.exec(function() {
-            //                self.view_form.on_button_new();
-            //            });
-            //        });
-            //    });
-            //    var $sbutton = self.$buttonpane.find(".oe_abstractformpopup-form-save");
-            //    $sbutton.click(function() {
-            //        $.when(self.view_form.save()).done(function() {
-            //            self.view_form.reload_mutex.exec(function() {
-            //                self.check_exit();
-            //            });
-            //        });
-            //    });
-            //    var $cbutton = self.$buttonpane.find(".oe_abstractformpopup-form-close");
-            //    $cbutton.click(function() {
-            //        self.view_form.trigger('on_button_cancel');
-            //        self.check_exit();
-            //    });
-            //    self.view_form.do_show();
-            //    self.view_form.$pager.init();
-            //});
+
         },
     });
 }

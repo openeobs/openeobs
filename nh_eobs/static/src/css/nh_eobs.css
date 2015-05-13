@@ -92,3 +92,29 @@
 .nhc_kanban_color_green {
     background-color: #4DB84D !important;
 }
+
+.paged_form_view_header{
+    padding: 0;
+    float: none !important;
+    margin-bottom: 0;
+    margin-left: 1px !important;
+    vertical-align: middle;
+    margin-top: 0.5em;
+}
+.paged_form_view_header li{
+    display: inline;
+    float: left;
+    padding: 0.2em 10px;
+}
+.paged_form_view_header li .oe_form_field{
+    width: inherit !important;
+    padding: 0 !important;
+    margin-top: 1px;
+}
+
+.paged_form_view_title .oe_view_title{
+    margin-left: 15px !important;
+}
+.paged_form_view_pager .oe_view_manager_pager{
+    margin-right: 15px !important;
+}

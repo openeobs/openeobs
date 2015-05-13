@@ -6,16 +6,16 @@
             <field name="target">new</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
-            <field name="view_mode">list,form</field>
-            <!--<field name="view_id" ref="view_wardboard_chart_form"/>-->
-        </record>
-
-        <record model="ir.actions.act_window.view" id="act_wardboard_chart_form">
-            <field name="sequence" eval="0"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_wardboard_chart_form"/>
-            <field name="act_window_id" ref="action_wardboard_chart"/>
         </record>
+
+        <!--<record model="ir.actions.act_window.view" id="act_wardboard_chart_form">-->
+            <!--<field name="sequence" eval="0"/>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="view_wardboard_chart_form"/>-->
+            <!--<field name="act_window_id" ref="action_wardboard_chart"/>-->
+        <!--</record>-->
 
         <record model="ir.ui.view" id="view_wardboard_swap_beds_form">
             <field name="name">Wardboard Swap Beds</field>
@@ -342,6 +342,15 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="arch" type="xml">
                 <form string="Wardboard EWS Chart Form View" version="7.0" create="0">
+                    <header>
+                        <ul class="paged_form_view_header">
+                            <li><strong>Age:</strong> <field name="age"/></li>
+                            <li><strong>Sex: </strong> <field name="sex"/></li>
+                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score"/></li>
+                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk"/></li>
+                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend"/></li>
+                        </ul>
+                    </header>
                     <sheet>
                         <field name="ews_ids" widget="nh_ewschart"/>
                     </sheet>
