@@ -912,7 +912,7 @@ openerp.nh_eobs = function (instance) {
     // Override of the do_action implementation in web.View so it actually gets record ids [WI-577]
     instance.web.View.include({
         do_execute_action: function (action_data, dataset, record_id, on_closed) {
-            if(dataset.model !== 'nh.clinical.wardboard' || this.fields_view.type !== 'tree'){
+            if(dataset.model !== 'nh.clinical.wardboard' || this.fields_view.type !== 'tree' || action_data.type !== 'action'){
                 return this._super(action_data, dataset, record_id, on_closed);
             }
 
