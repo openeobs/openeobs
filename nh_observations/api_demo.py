@@ -98,14 +98,24 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         admit_activity_ids = False
         for wcode in wards:
-            admit_activity_ids = [self.create_activity(cr, adt_uid, 'nh.clinical.adt.patient.admit', None, {}, {'location': wcode}) for i in range(patient_admit_count)]
-            [api.complete(cr, adt_uid, id) for id in admit_activity_ids]
+            activity_pool = self.pool['nh.activity']
+            adt_register_pool = self.pool['nh.clinical.adt.patient.register']
+            adt_admit_pool = self.pool['nh.clinical.adt.patient.admit']
+            reg_activity_ids = [adt_register_pool.create_activity(cr, adt_uid, {},
+                                                                  {'other_identifier': 'hn_'+wcode+str(i)})
+                                for i in range(patient_admit_count)]
+            [activity_pool.complete(cr, adt_uid, id) for id in reg_activity_ids]
+            admit_activity_ids = [adt_admit_pool.create_activity(cr, adt_uid, {},
+                                                                 {'other_identifier': 'hn_'+wcode+str(i),
+                                                                  'location': wcode})
+                                  for i in range(patient_admit_count)]
+            [activity_pool.complete(cr, adt_uid, id) for id in admit_activity_ids]
 
         for wid in ward_ids:
             code = location_pool.read(cr, uid, wid, ['code'])['code']
             wmuid = user_pool.search(cr, uid, [('location_ids', 'in', [wid]), ('groups_id.name', 'in', ['NH Clinical Ward Manager Group'])])
             wmuid = uid if not wmuid else wmuid[0]
-            admit_ids = self.pool['nh.clinical.adt.patient.admit'].search(cr, uid, [['suggested_location_id', '=', wid]])
+            admit_ids = self.pool['nh.clinical.adt.patient.admit'].search(cr, uid, [['location_id', '=', wid]])
             admit_activity_ids = [admit.activity_id.id for admit in self.pool['nh.clinical.adt.patient.admit'].browse(cr, uid, admit_ids)]
             if not admit_activity_ids:
                 continue
