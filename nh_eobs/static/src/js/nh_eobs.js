@@ -709,7 +709,7 @@ openerp.nh_eobs = function (instance) {
 
     instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
     	
-    	n_groups_started: function() {
+    	on_groups_started: function() {
            if (this.group_by == 'clinical_risk'){
            	var cols = this.$el.find('td.oe_kanban_column');
            	var heads = this.$el.find('td.oe_kanban_group_header');

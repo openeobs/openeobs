@@ -368,8 +368,18 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 d_ids[d] = self.create(cr, uid, 'res.users', 'user_doctor', {'name': d, 'login': users['doctors'][d][0], 'location_ids': [[6, False, lids]]})
 
         for wcode in wards:
-            admit_activity_ids = [self.create_activity(cr, adt_uid, 'nh.clinical.adt.patient.admit', None, {}, {'location': wcode}) for i in range(patient_admit_count)]
-            [api.complete(cr, adt_uid, id) for id in admit_activity_ids]
+            activity_pool = self.pool['nh.activity']
+            adt_register_pool = self.pool['nh.clinical.adt.patient.register']
+            adt_admit_pool = self.pool['nh.clinical.adt.patient.admit']
+            reg_activity_ids = [adt_register_pool.create_activity(cr, adt_uid, {},
+                                                                  {'other_identifier': 'hn_'+wcode+str(i)})
+                                for i in range(patient_admit_count)]
+            [activity_pool.complete(cr, adt_uid, id) for id in reg_activity_ids]
+            admit_activity_ids = [adt_admit_pool.create_activity(cr, adt_uid, {},
+                                                                 {'other_identifier': 'hn_'+wcode+str(i),
+                                                                  'location': wcode})
+                                  for i in range(patient_admit_count)]
+            [activity_pool.complete(cr, adt_uid, id) for id in admit_activity_ids]
 
         for wid in ward_ids:
             code = location_pool.read(cr, uid, wid, ['code'])['code']

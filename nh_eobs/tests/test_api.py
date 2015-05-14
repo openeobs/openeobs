@@ -134,7 +134,7 @@ class TestAPI(SingleTransactionCase):
         
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0001',
+            'patient_identifier': 'TESTNHS001',
             'family_name': "Al'Thor",
             'given_name': 'Rand',
             'dob': dob,
@@ -159,7 +159,7 @@ class TestAPI(SingleTransactionCase):
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0002',
+            'patient_identifier': 'TESTNHS002',
             'family_name': 'Aybara',
             'given_name': 'Perrin',
             'dob': dob,
@@ -257,7 +257,7 @@ class TestAPI(SingleTransactionCase):
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0003',
+            'patient_identifier': 'TESTNHS003',
             'family_name': "Machera",
             'given_name': 'Elyas',
             'dob': dob,
@@ -309,7 +309,7 @@ class TestAPI(SingleTransactionCase):
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0004',
+            'patient_identifier': 'TESTNHS004',
             'family_name': 'Trakand',
             'given_name': 'Morgase',
             'dob': dob,
@@ -362,7 +362,7 @@ class TestAPI(SingleTransactionCase):
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0005',
+            'patient_identifier': 'TESTNHS005',
             'family_name': "al'Meara",
             'given_name': 'Nynaeve',
             'dob': dob,
@@ -414,7 +414,7 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(patient2.given_name == 'Thomdril', msg='Patient given name does not match after merge')
         self.assertTrue(patient2.gender == 'M', msg='Patient gender does not match after merge')
         self.assertTrue(patient2.sex == 'M', msg='Patient sex does not match after merge')
-        self.assertTrue(patient2.patient_identifier == 'TESTNHS0005', msg='Patient NHS number does not match after merge')
+        self.assertTrue(patient2.patient_identifier == 'TESTNHS005', msg='Patient NHS number does not match after merge')
         self.assertTrue(patient2.other_identifier == 'TESTP0006', msg='Patient hospital number does not match after merge')
         self.assertTrue(patient2.dob == dob, msg='Patient date of birth does not match after merge')
         patient = self.patient_pool.browse(cr, uid, patient_id[0])
@@ -425,7 +425,7 @@ class TestAPI(SingleTransactionCase):
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0007',
+            'patient_identifier': 'TESTNHS007',
             'family_name': 'Mandragoran',
             'given_name': 'Lan',
             'dob': dob,
@@ -488,7 +488,7 @@ class TestAPI(SingleTransactionCase):
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0008',
+            'patient_identifier': 'TESTNHS008',
             'family_name': 'Trakand',
             'given_name': 'Elayne',
             'dob': dob,
@@ -549,7 +549,7 @@ class TestAPI(SingleTransactionCase):
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
         patient_data = {
-            'patient_identifier': 'TESTNHS0009',
+            'patient_identifier': 'TESTNHS009',
             'family_name': 'Cauthon',
             'given_name': 'Matrim',
             'dob': dob,

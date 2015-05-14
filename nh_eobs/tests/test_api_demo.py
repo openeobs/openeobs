@@ -1,7 +1,7 @@
 import logging
 
-from datetime import timedelta
-from openerp.fields import datetime
+from datetime import datetime, timedelta
+from openerp.osv import osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.tests.common import TransactionCase
 
