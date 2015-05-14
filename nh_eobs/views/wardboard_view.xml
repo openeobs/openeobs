@@ -24,6 +24,27 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="view_wardboard_ewslist_form">
+            <field name="name">Wardboard EWS List Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard EWS List Form View" version="7.0" edit="0" create="0" class="paged_table">
+                    <header>
+                        <ul class="paged_form_view_header">
+                            <li><strong>Age:</strong> <field name="age"/></li>
+                            <li><strong>Sex: </strong> <field name="sex"/></li>
+                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score"/></li>
+                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk"/></li>
+                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend"/></li>
+                        </ul>
+                    </header>
+                    <sheet>
+                        <field name="ews_ids"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <record model="ir.actions.act_window" id="action_wardboard_chart">
             <field name="name">Chart</field>
             <field name="target">new</field>
@@ -31,6 +52,15 @@
             <field name="view_type">form</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_wardboard_chart_form"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_ews">
+            <field name="name">Table</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_ewslist_form"/>
         </record>
 
         <record model="ir.ui.view" id="view_wardboard_swap_beds_form">
@@ -152,7 +182,7 @@
             <field name="arch" type="xml">
                 <tree string="Wardboard Tree View" class="nhc_wardboard" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
                    <button name="%(action_wardboard_chart)d" string="Chart" type="action" class="oe_highlight" nh_icon="chart"/>
-                   <button name="wardboard_ews" string="EWS" type="object" class="oe_highlight" nh_icon="observation"/>
+                   <button name="%(action_wardboard_ews)d" string="EWS" type="action" class="oe_highlight" nh_icon="observation"/>
                     <field name="sex" widget="nh_gender" string=""/>
                    <field name="full_name" string="Patient"/>
                    <field name="location"/>

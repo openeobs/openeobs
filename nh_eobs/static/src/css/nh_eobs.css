@@ -118,3 +118,12 @@
 .paged_form_view_pager .oe_view_manager_pager{
     margin-right: 15px !important;
 }
+
+.paged_table .oe_form_sheetbg, .paged_table .oe_form_sheetbg .oe_form_sheet{
+    padding: 0 !important;
+}
+ .paged_table .oe_form_sheetbg .oe_form_sheet{
+     max-width: 100%;
+     width: 100%;
+     margin: 0;
+ }
