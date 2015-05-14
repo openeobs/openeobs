@@ -10,11 +10,11 @@
                 <form string="Wardboard EWS Chart Form View" version="7.0" edit="0" create="0">
                     <header>
                         <ul class="paged_form_view_header">
-                            <li><strong>Age:</strong> <field name="age"/></li>
-                            <li><strong>Sex: </strong> <field name="sex"/></li>
-                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score"/></li>
-                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk"/></li>
-                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend"/></li>
+                            <li><strong>Age:</strong> <field name="age" readonly="1"/></li>
+                            <li><strong>Sex: </strong> <field name="sex" readonly="1"/></li>
+                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score" readonly="1"/></li>
+                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk" readonly="1"/></li>
+                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend" readonly="1"/></li>
                         </ul>
                     </header>
                     <sheet>
@@ -31,11 +31,11 @@
                 <form string="Wardboard EWS List Form View" version="7.0" edit="0" create="0" class="paged_table">
                     <header>
                         <ul class="paged_form_view_header">
-                            <li><strong>Age:</strong> <field name="age"/></li>
-                            <li><strong>Sex: </strong> <field name="sex"/></li>
-                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score"/></li>
-                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk"/></li>
-                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend"/></li>
+                            <li><strong>Age:</strong> <field name="age" readonly="1"/></li>
+                            <li><strong>Sex: </strong> <field name="sex" readonly="1"/></li>
+                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score" readonly="1"/></li>
+                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk" readonly="1"/></li>
+                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend" readonly="1"/></li>
                         </ul>
                     </header>
                     <sheet>
