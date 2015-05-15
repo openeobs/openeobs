@@ -13,7 +13,7 @@ describe('NHMobileBarcode', function(){
     		{
     			'display_name': 'NEWS Observation',
     			'id': 1,
-                'time': 'Overdue: 00:10 hours'
+                'time': 'Ov                                                                                                                                                                                                                                                                                                                                             erdue: 00:10 hours'
     		},
     		{
     			'display_name': 'Inform Medical Team',
@@ -24,7 +24,7 @@ describe('NHMobileBarcode', function(){
     }];
 
 	beforeEach(function () {
-		// set up the DOM for test
+		// set up the DOM for tes
 		var body_el = document.getElementsByTagName('body')[0];
 		var test = document.getElementById('test');
        	if(test != null){
