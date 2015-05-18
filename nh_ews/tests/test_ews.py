@@ -51,7 +51,6 @@ class TestEWS(common.SingleTransactionCase):
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
         cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
 
-
     def test_ews_observations_policy_static(self):
         cr, uid = self.cr, self.uid
         ews_test_data = {
@@ -107,6 +106,9 @@ class TestEWS(common.SingleTransactionCase):
             # completion must be made as nurse user, otherwise notifications are not created
             self.api_pool.assign(cr, uid, ews_activity_id, user_id)
             ews_activity = self.api_pool.submit_complete(cr, user_id, ews_activity_id, data)
+
+            self.assertEqual(self.ews_pool.get_last_case(cr, uid, spell_activity.patient_id.id),
+                             ews_test_data['CASE'][i])
 
             frequency = ews_policy['frequencies'][ews_test_data['CASE'][i]]
             clinical_risk = ews_policy['risk'][ews_test_data['CASE'][i]]

@@ -50,9 +50,11 @@ class nh_clinical_api_extension(orm.AbstractModel):
             # notifications: [{'summary','model','groups'}]
             if values.get('group') in n['groups']:
                 pool = self.pool['nh.clinical.notification.'+n['model']]
+                deadline = (dt.now()+td(minutes=n.get('minutes_due'))).strftime(DTF) if n.get('minutes_due') \
+                    else (dt.now()+td(minutes=5)).strftime(DTF)
                 a_values = {
                     'parent_id': values.get('parent_id'),
-                    'date_deadline': (dt.now()+td(minutes=5)).strftime(DTF),
+                    'date_deadline': deadline,
                     'creator_id': values.get('creator_id'),
                 }
                 if n.get('summary'):

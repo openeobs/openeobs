@@ -39,3 +39,19 @@ class nh_clinical_patient_o2target(orm.Model):
         'level_id': fields.many2one('nh.clinical.o2level', 'O2 Level', required=True),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
+
+    def get_last(self, cr, uid, patient_id, context=None):
+        """
+        Checks if there is an O2 Target assigned for the provided Patient
+        :return: False if there is no assigned O2 Target.
+                nh.clinical.o2level id of the last assigned O2 Target
+        """
+        domain = [['patient_id', '=', patient_id], ['data_model', '=', 'nh.clinical.patient.o2target'],
+                  ['state', '=', 'completed'], ['parent_id.state', '=', 'started']]
+        activity_pool = self.pool['nh.activity']
+        o2target_ids = activity_pool.search(cr, uid, domain, order='date_terminated desc, sequence desc',
+                                            context=context)
+        if not o2target_ids:
+            return False
+        activity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
+        return activity.data_ref.level_id.id

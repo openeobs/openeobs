@@ -334,6 +334,33 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     _order = "order_by desc, id desc"
 
+    def handle_o2_devices(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['nh.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        device_activity_ids = activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.device.session'],
+            ['state', 'not in', ['completed', 'cancelled']]], context=context)
+        da_browse = activity_pool.browse(cr, uid, device_activity_ids, context=context)
+        device_activity_ids = [da.id for da in da_browse if da.data_ref.device_type_id.category_id.name == 'Supplemental O2']
+        if not activity.data_ref.oxygen_administration_flag:
+            [activity_pool.complete(cr, uid, dai, context=context) for dai in device_activity_ids]
+        elif activity.data_ref.device_id:
+            add_device = False
+            if not device_activity_ids:
+                add_device = True
+            else:
+                device_activity_ids = [da.id for da in da_browse if da.data_ref.device_type_id.category_id.name != activity.data_ref.device_id.name]
+                if not any([da.id for da in da_browse if da.data_ref.device_type_id.name == activity.data_ref.device_id.name]):
+                    add_device = True
+                [activity_pool.complete(cr, uid, dai, context=context) for dai in device_activity_ids]
+            if add_device:
+                device_activity_id = self.pool['nh.clinical.device.session'].create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': activity.parent_id.id}, {
+                    'patient_id': activity.patient_id.id,
+                    'device_type_id': activity.data_ref.device_id.id,
+                    'device_id': False})
+                activity_pool.start(cr, uid, device_activity_id, context=context)
+
     def submit(self, cr, uid, activity_id, data_vals={}, context=None):
         vals = data_vals.copy()
         if vals.get('oxygen_administration'):
@@ -357,31 +384,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'NH Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         spell_activity_id = activity.parent_id.id
-        except_if(not group, cap="Are you sure you are supposed to complete this activity?", msg="Current user is not found in groups Nurse, HCA")
-        # OXYGEN ADMINISTRATION STUFF
-        device_activity_ids = activity_pool.search(cr, uid, [
-            ['data_model', '=', 'nh.clinical.device.session'],
-            ['state', 'not in', ['completed', 'cancelled']]], context=context)
-        da_browse = activity_pool.browse(cr, uid, device_activity_ids, context=context)
-        device_activity_ids = [da.id for da in da_browse if da.data_ref.device_type_id.category_id.name == 'Supplemental O2']
-        if not activity.data_ref.oxygen_administration_flag:
-            [activity_pool.complete(cr, uid, dai, context=context) for dai in device_activity_ids]
-        elif activity.data_ref.device_id:
-            add_device = False
-            if not device_activity_ids:
-                add_device = True
-            else:
-                device_activity_ids = [da.id for da in da_browse if da.data_ref.device_type_id.category_id.name != activity.data_ref.device_id.name]
-                if not any([da.id for da in da_browse if da.data_ref.device_type_id.name == activity.data_ref.device_id.name]):
-                    add_device = True
-                [activity_pool.complete(cr, uid, dai, context=context) for dai in device_activity_ids]
-            if add_device:
-                device_activity_id = self.pool['nh.clinical.device.session'].create_activity(cr, SUPERUSER_ID,
-                                                        {'parent_id': spell_activity_id},
-                                                        {'patient_id': activity.patient_id.id,
-                                                         'device_type_id': activity.data_ref.device_id.id,
-                                                         'device_id': False})
-                activity_pool.start(cr, uid, device_activity_id, context)
+        self.handle_o2_devices(cr, uid, activity_id, context=context)
 
         # TRIGGER NOTIFICATIONS
         if not activity.data_ref.is_partial:
@@ -444,3 +447,24 @@ class nh_clinical_patient_observation_ews(orm.Model):
             if field['name'] == 'device_id':
                 field['selection'] = device_selection
         return fd
+
+    def get_last_case(self, cr, uid, patient_id, context=None):
+        """
+        Checks for the last completed NEWS observation for the provided patient and returns the case.
+        :return: False if there is no NEWS observation completed.
+                0 to 3 integer. Number representing each case.
+                0 - No Risk
+                1 - Low Risk
+                2 - Medium Risk
+                3 - High Risk
+        """
+        domain = [['patient_id', '=', patient_id], ['data_model', '=', 'nh.clinical.patient.observation.ews'],
+                  ['state', '=', 'completed'], ['parent_id.state', '=', 'started']]
+        activity_pool = self.pool['nh.activity']
+        ews_ids = activity_pool.search(cr, uid, domain, order='date_terminated desc, sequence desc', context=context)
+        if not ews_ids:
+            return False
+        activity = activity_pool.browse(cr, uid, ews_ids[0], context=context)
+        case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
+        case = 2 if activity.data_ref.three_in_one and case < 3 else case
+        return case
