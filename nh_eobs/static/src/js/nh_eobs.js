@@ -13,6 +13,7 @@ openerp.nh_eobs = function (instance) {
     var wardboard_groups_opened = false;
     var kiosk_mode = false;
     var kiosk_t;
+    var ranged_chart = null;
 
     instance.web.NHTreeView = instance.web.TreeView.extend({
 
@@ -371,14 +372,22 @@ openerp.nh_eobs = function (instance) {
         },
         set_value: function(value_){
             this.set({'value': value_});
+            $('#rangify').on('mouseup', function(e){
+               if($('#rangify').attr('checked')){
+                   ranged_chart = false;
+               }else{
+                   ranged_chart = true;
+               }
+            });
             this.render_chart();
-            console.log(value_);
         },
         render_chart: function(){
             this.model = new instance.web.Model('nh.eobs.api');
             this.wardboard_model = new instance.web.Model('nh.clinical.wardboard');
             var vid = this.view.dataset.context.active_id;
         	var self = this;
+
+
 
 
             if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
@@ -514,6 +523,31 @@ openerp.nh_eobs = function (instance) {
                     svg.data.raw = obs;
                     svg.init();
                     svg.draw();
+                    if(ranged_chart == null){
+                        if($('#rangify:checked').length < 1){
+                            $('#rangify').click();
+                        }else{
+                            $('#rangify').click();
+                            $('#rangify').click();
+                        }
+                    }else{
+                        if(ranged_chart){
+                            if($('#rangify:checked').length < 1){
+                                $('#rangify').click();
+                            }else{
+                                $('#rangify').click();
+                                $('#rangify').click();
+                            }
+                        }else{
+                            if($('#rangify:checked').length < 1){
+                                $('#rangify').click();
+                                $('#rangify').click();
+                            }else{
+                                $('#rangify').click();
+                            }
+                        }
+                    }
+
 
                     if(printing){
                         if (typeof(timing4) != 'undefined'){
