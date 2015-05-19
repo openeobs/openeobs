@@ -341,18 +341,6 @@ openerp.nh_eobs = function (instance) {
                 refresh_placement = true;
                 console.log(this);
             }
-            if ((this.field_manager.ViewManager.dataset.model == "nh.clinical.wardboard") && this.string == "Print Report"){
-                // Do some shit
-                // Old stuff below...
-                this.model = new instance.web.Model("nh.clinical.wardboard");
-                var attachment_id = this.model.call('print_report',[[this.view.datarecord.id]], {context: this.view.dataset.context}).done(function(response){
-                    if (response[0]){
-                        var dataToSend = {"data":'{"data": null, "model":"ir.attachment","field":"datas","filename_field":"datas_fname","id":'+response[0]+', "context": '+JSON.stringify(response[1])+'}'}
-                        var options = {url: '/web/binary/saveas_ajax', data: dataToSend};
-                        openerp.instances.instance0.session.get_file(options);
-                    }
-                });
-            }
         },
     });
     instance.web.form.tags.add('button', 'instance.nh_eobs.WidgetButton');
@@ -1148,5 +1136,32 @@ openerp.nh_eobs = function (instance) {
             this.viewmanager.appendTo(this.$el.find('.oe_popup_form'));
 
         },
+    });
+
+    instance.web.ActionManager = instance.web.ActionManager.extend({
+        ir_actions_action_nh_clinical_download_report: function(action, options){
+            if(!this.dialog){
+                options.on_close();
+            }
+            this.dialog_stop();
+            var c = instance.webclient.crashmanager;
+            this.session.get_file({
+                url: '/web/binary/saveas_ajax',
+                data: {data: JSON.stringify({
+                    model: 'ir.attachment',
+                    id: (action.id || ''),
+                    field: 'datas',
+                    filename_field: 'datas_fname',
+                    data: '',
+                    context: this.session.user_context
+                })},
+                complete: instance.web.unblockUI,
+                error: c.rpc_error.bind(c)
+            });
+
+
+            //instance.webclient.action_manager.ir_actions_report_xml(action, options);
+            return $.when();
+        }
     });
 }

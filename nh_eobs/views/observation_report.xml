@@ -1,0 +1,13 @@
+<openerp>
+    <data>
+        <template id="observation_report">
+            <t t-call="report.html_container">
+                <t t-call="report.internal_layout">
+                    <div class="page">
+                        <h1>Observation Report</h1>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>

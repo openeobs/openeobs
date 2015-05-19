@@ -9,3 +9,4 @@ import policy
 import api_demo
 import kamishibai
 import spell_management
+import report

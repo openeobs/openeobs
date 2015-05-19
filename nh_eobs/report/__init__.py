@@ -1,2 +1,2 @@
-import cancel_notifications
+__author__ = 'colinwren'
 import print_observation_report
