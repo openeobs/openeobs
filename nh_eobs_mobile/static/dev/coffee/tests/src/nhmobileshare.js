@@ -187,7 +187,7 @@ NHMobileShare = (function(superClass) {
           document.getElementsByTagName('body')[0].removeChild(cover);
           popup.parentNode.removeChild(popup);
           can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
-          share_msg = '<p class="block">Successfully shared patients with' + data['shared_with'].join(', ') + '</p>';
+          share_msg = '<p class="block">Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
           btns = [can_btn];
           return new window.NH.NHModal('share_success', 'Patients Shared', share_msg, btns, 0, body);
         } else {
