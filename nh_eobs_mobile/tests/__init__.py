@@ -18,3 +18,4 @@
 # import test_ajax_score
 # import test_ajax_partial_reasons
 # import test_ajax_task_cancellation_reasons
+import test_api
