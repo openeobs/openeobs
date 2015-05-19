@@ -12,12 +12,12 @@ class print_observation_report_wizard(osv.TransientModel):
     _name = 'nh.clinical.observation_report_wizard'
     _columns = {
         'start_time': fields.datetime('Start Time'),
-        'end_time': fields.datetime('End Time')
+        'end_time': fields.datetime('End Time'),
     }
 
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
-
+        data.spell_id = context['active_id']
         # get PDF version of the report
         report_pool = self.pool['report']
         report_pdf = report_pool.get_pdf(cr, uid, ids,
