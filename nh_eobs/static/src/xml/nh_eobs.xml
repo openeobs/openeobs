@@ -220,7 +220,7 @@
             </table>
         </t>
         <t t-jquery=".oe_view_manager > .oe_view_manager_wrapper" t-operation="after">
-            <div class="oe_view_manager_buttons"/>
+            <div style="padding: 15px 0 15px 15px;" class="oe_view_manager_buttons"/>
         </t>
     </t>
 

@@ -222,6 +222,12 @@ openerp.nh_eobs = function (instance) {
 
     });
 
+    //instance.web.ListView.List.include({
+    //    row_clicked: function(e, view){
+    //        if()
+    //    }
+    //})
+
     instance.nh_eobs.NHMany2One = instance.web.form.FieldMany2One.extend({
         get_search_result: function(search_val) {
             var self = this;
@@ -728,6 +734,25 @@ openerp.nh_eobs = function (instance) {
     });
 
     instance.web.views.add('form', 'instance.nh_eobs.FormView');
+
+    instance.web.FormView.include({
+         can_be_discarded: function() {
+             // Hack to save if on the patient allocation stuff
+            if(this.model !== 'nh.clinical.allocating.user'){
+                return this._super();
+            }
+
+            this.save();
+
+            //if (this.$el.is('.oe_form_dirty')) {
+            //    if (!confirm(_t("Warning, the record has been modified, your changes will be discarded.\n\nAre you sure you want to leave this page ?"))) {
+            //        return false;
+            //    }
+            //    this.$el.removeClass('oe_form_dirty');
+            //}
+            return true;
+        },
+    })
 
     instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
     	
