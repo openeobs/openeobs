@@ -189,8 +189,8 @@ class nh_eobs_api(orm.AbstractModel):
             end as ews_score,
             case
                 when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
-                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) > 0 then 'down'
-                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'up'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) > 0 then 'up'
+                when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'down'
                 when ews1.id is null and ews2.id is null then 'none'
                 when ews1.id is not null and ews2.id is null then 'first'
                 when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen.
