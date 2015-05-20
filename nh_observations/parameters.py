@@ -36,6 +36,26 @@ class nh_clinical_patient_diabetes(orm.Model):
     }
 
 
+class nh_clinical_patient_palliative_care(orm.Model):
+    _name = 'nh.clinical.patient.palliative_care'
+    _inherit = ['nh.activity.data']
+    _columns = {
+        'status': fields.boolean('On Palliative Care?', required=True),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+    }
+
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['nh.activity']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        if activity.data_ref.status:
+            activity_ids = activity_pool.search(cr, uid, [['patient_id', '=', activity.data_ref.patient_id.id],
+                                                          ['state', 'not in', ['completed', 'cancelled']],
+                                                          '|', ['data_model', 'ilike', '%observation%'],
+                                                          ['data_model', 'ilike', '%notification%']], context=context)
+            [activity_pool.cancel(cr, uid, aid, context=context) for aid in activity_ids]
+        return super(nh_clinical_patient_palliative_care, self).complete(cr, uid, activity_id, context=context)
+
+
 class nh_clinical_patient_weight_monitoring(orm.Model):
     _name = 'nh.clinical.patient.weight_monitoring'
     _inherit = ['nh.activity.data']
