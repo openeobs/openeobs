@@ -181,4 +181,47 @@
         </t>
     </t>
 
+    <t t-name="PagedFormOpenViewManager2" t-extend="ViewManager">
+        <t t-jquery=".oe_view_manager > .oe_view_manager_header" t-operation="replace">
+            <table class="oe_view_manager_header">
+                <col width="20%"/>
+                <col width="35%"/>
+                <col width="15%"/>
+                <col width="30%"/>
+                <tr class="oe_header_row oe_header_row_top">
+                    <td colspan="2" class="paged_form_view_title">
+                            <h2 class="oe_view_title paged_form_view_title" t-if="widget.flags.display_title !== false">
+                                <span class="oe_view_title_text oe_breadcrumb_title"/>
+                            </h2>
+                    </td>
+                    <td colspan="2" class="paged_form_view_pager">
+                            <div class="oe_view_manager_pager oe_right"/>
+                    </td>
+                </tr>
+                <tr class="oe_header_row">
+                    <td colspan="2">
+                        <div class="oe_view_manager_sidebar"/>
+                    </td>
+                    <td>
+                        <ul class="oe_view_manager_switch oe_button_group oe_right">
+                            <t t-if="widget.views_src.length > 1" t-foreach="widget.views_src" t-as="view">
+                              <li class="oe_e">
+                                <a t-attf-class="oe_vm_switch_#{view.view_type}" t-att-data-view-type="view.view_type"
+                                   t-att-title="view.button_label"/>
+                              </li>
+                            </t>
+                        </ul>
+                        <div class="oe_view_manager_pager oe_right"/>
+                    </td>
+                    <td>
+
+                    </td>
+                </tr>
+            </table>
+        </t>
+        <t t-jquery=".oe_view_manager > .oe_view_manager_wrapper" t-operation="after">
+            <div class="oe_view_manager_buttons"/>
+        </t>
+    </t>
+
 </templates>

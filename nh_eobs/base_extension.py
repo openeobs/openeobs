@@ -1,4 +1,4 @@
-from openerp.osv import orm
+from openerp.osv import orm,fields
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -8,6 +8,39 @@ class nh_ui_location(orm.Model):
 
     _name = 'nh.clinical.location'
     _inherit = 'nh.clinical.location'
+
+    def _get_patient_info(self, cr, uid, ids, field_names, arg, context=None):
+        ewsfields = {
+            'patient_score': 'score',
+            'patient_risk': 'clinical_risk'
+        }
+        res = {id: {field_name: [] for field_name in field_names} for id in ids}
+        activity_pool = self.pool['nh.activity']
+        for location_id in ids:
+            spell_id = activity_pool.search(cr, uid, [
+                ['location_id', '=', location_id],
+                ['data_model', '=', 'nh.clinical.spell'],
+                ['state', '=', 'started']], context=context)
+            ews = False
+            if len(spell_id) == 1:
+                ews_id = activity_pool.search(cr, uid, [
+                    ['data_model', '=', 'nh.clinical.patient.observation.ews'],
+                    ['state', '=', 'completed'],
+                    ['parent_id', '=', spell_id[0]]
+                ], order='date_terminated desc, sequence desc', context=context)
+                if ews_id:
+                    ews = activity_pool.browse(cr, uid, ews_id[0], context=context).data_ref
+            for field_name in field_names:
+                if not ews:
+                    res[location_id][field_name] = False
+                else:
+                    res[location_id][field_name] = str(eval("ews.%s" % ewsfields[field_name]))
+        return res
+
+    _columns = {
+        'patient_score': fields.function(_get_patient_info, type='char', multi='score_string', string='Score'),
+        'patient_risk': fields.function(_get_patient_info, type='char', multi='clinical_risk', string='Risk')
+    }
 
     def search(self, cr, uid, domain, offset=0, limit=None, order=None, context=None, count=False):
         if context is None:

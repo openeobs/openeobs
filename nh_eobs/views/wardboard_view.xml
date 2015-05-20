@@ -258,6 +258,7 @@
                                     <field name="height" string="Height (m)" readonly="1"/>
                                     <field name="mrsa"/>
                                     <field name="diabetes"/>
+                                    <field name="palliative_care"/>
                                 </group>
                                 <group string="Weight">
 

@@ -934,7 +934,7 @@ openerp.nh_eobs = function (instance) {
     // Override of the do_action implementation in web.View so it actually gets record ids [WI-577]
     instance.web.View.include({
         do_execute_action: function (action_data, dataset, record_id, on_closed) {
-            if(dataset.model !== 'nh.clinical.wardboard' || this.fields_view.type !== 'tree' || action_data.type !== 'action'){
+            if((['nh.clinical.allocating.user', 'nh.clinical.wardboard'].indexOf(dataset.model) < 0) || (typeof(this.fields_view.type) !== 'undefined' && this.fields_view.type !== 'tree') || action_data.type !== 'action'){
                 return this._super(action_data, dataset, record_id, on_closed);
             }
 
@@ -964,20 +964,28 @@ openerp.nh_eobs = function (instance) {
                     // Add records from self.records._proxies
                     var active_ids_to_send = [];
                     var active_records_to_send = [];
-                    if(typeof(self.records._proxies) == 'object'){
-                        for(key in self.records._proxies){
-                            if(self.records._proxies.hasOwnProperty(key)){
-                                for(var i = 0; i < self.records._proxies[key].records.length; i++){
-                                    var rec = self.records._proxies[key].records[i];
-                                    active_ids_to_send.push(rec.attributes.id);
-                                    active_records_to_send.push(rec.attributes);
+                    if (dataset.model === 'nh.clinical.wardboard') {
+                        if (typeof(self.records._proxies) == 'object') {
+                            for (key in self.records._proxies) {
+                                if (self.records._proxies.hasOwnProperty(key)) {
+                                    for (var i = 0; i < self.records._proxies[key].records.length; i++) {
+                                        var rec = self.records._proxies[key].records[i];
+                                        active_ids_to_send.push(rec.attributes.id);
+                                        active_records_to_send.push(rec.attributes);
+                                    }
+                                    //active_ids_to_send = self.records._proxies[key].records;
                                 }
-                                //active_ids_to_send = self.records._proxies[key].records;
+                            }
+                        } else {
+                            if (record_id) {
+                                active_ids_to_send = [record_id]
                             }
                         }
-                    }else{
-                        if(record_id){
-                            active_ids_to_send = [record_id]
+                    } else {
+                        for (var j=0; j<self.records.records.length;j++){
+                            var rec = self.records.records[j];
+                            active_ids_to_send.push(rec.attributes.id);
+                            active_records_to_send.push(rec.attributes);
                         }
                     }
 
@@ -1080,6 +1088,11 @@ openerp.nh_eobs = function (instance) {
 
     })
 
+    instance.nh_eobs.PagedFormOpenViewManager2 = instance.web.ViewManager.extend({
+        template: "PagedFormOpenViewManager2",
+
+    })
+
     instance.nh_eobs.PagedFormOpenPopup = instance.web.form.FormOpenPopup.extend({
          init_popup: function(model, row_id, domain, context, options) {
             this.row_id = row_id;
@@ -1132,7 +1145,11 @@ openerp.nh_eobs = function (instance) {
             _.extend(options, {
                 $buttons: this.$buttonpane,
             });
-            this.viewmanager = new instance.nh_eobs.PagedFormOpenViewManager(this, this.dataset, [[this.options.view_id, "form"]], {});
+            if (this.dataset.model === 'nh.clinical.wardboard') {
+                this.viewmanager = new instance.nh_eobs.PagedFormOpenViewManager(this, this.dataset, [[this.options.view_id, "form"]], {});
+            } else {
+                this.viewmanager = new instance.nh_eobs.PagedFormOpenViewManager2(this, this.dataset, [[this.options.view_id, "form"]], {});
+            }
             this.viewmanager.appendTo(this.$el.find('.oe_popup_form'));
 
         },
@@ -1164,4 +1181,13 @@ openerp.nh_eobs = function (instance) {
             return $.when();
         }
     });
+
+    instance.web.ViewManager.include({
+        do_create_view: function(view_type){
+            if (this.dataset.model === 'nh.clinical.allocating.user'){
+                this.views[view_type].options.initial_mode = 'edit';
+            }
+            return this._super(view_type);
+        }
+    })
 }

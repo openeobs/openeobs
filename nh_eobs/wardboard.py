@@ -281,6 +281,7 @@ class nh_clinical_wardboard(orm.Model):
         'ews_trend': fields.integer("Score Trend"),
         'mrsa': fields.selection(_boolean_selection, "MRSA"),
         'diabetes': fields.selection(_boolean_selection, "Diabetes"),
+        'palliative_care': fields.selection(_boolean_selection, "Palliative Care"),
         'pbp_monitoring': fields.selection(_boolean_selection, "Postural Blood Pressure Monitoring"),
         'weight_monitoring': fields.selection(_boolean_selection, "Weight Monitoring"),
         'height': fields.float("Height"),
@@ -637,6 +638,15 @@ class nh_clinical_wardboard(orm.Model):
                     'level_id': vals['o2target']
                 }, context=context)
                 activity_pool.complete(cr, uid, o2target_id, context=context)
+            if 'palliative_care' in vals:
+                pc_pool = self.pool['nh.clinical.patient.palliative_care']
+                pc_id = pc_pool.create_activity(cr, SUPERUSER_ID, {
+                    'parent_id': wb.spell_activity_id.id,
+                }, {
+                    'patient_id': wb.spell_activity_id.patient_id.id,
+                    'status': vals['palliative_care'] == 'yes'
+                }, context=context)
+                activity_pool.complete(cr, uid, pc_id, context=context)
         return True
 
     def init(self, cr):
@@ -766,6 +776,7 @@ nh_clinical_wardboard as(
             mrsa.mrsa,
             pbpm.pbp_monitoring,
             wm.weight_monitoring,
+            pc.status,
             o2target_level.id as o2target_level_id
         from wb_activity_latest activity
         left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
@@ -774,7 +785,8 @@ nh_clinical_wardboard as(
         left join nh_clinical_patient_weight_monitoring wm on activity.ids && array[wm.activity_id]
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
-        left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]    
+        left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
+        left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
         where activity.state = 'completed'
     )
     
@@ -833,6 +845,7 @@ nh_clinical_wardboard as(
         case when param.diabetes then 'yes' else 'no' end as diabetes,
         case when param.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
         case when param.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
+        case when param.status then 'yes' else 'no' end as palliative_care,
         cosulting_doctors.names as consultant_names
         
     from nh_clinical_spell spell
