@@ -652,9 +652,6 @@ class nh_clinical_wardboard(orm.Model):
     def init(self, cr):
         cr.execute("""
 
-drop materialized view if exists placement cascade;
-drop materialized view if exists cosulting_doctors cascade;
-drop materialized view if exists param cascade;
 drop materialized view if exists ews0 cascade;
 drop materialized view if exists ews1 cascade;
 drop materialized view if exists ews2 cascade;
@@ -791,7 +788,7 @@ ews2 as(
             where activity.rank = 2 and activity.state = 'completed'
 );
 
-create materialized view
+create or replace view
 placement as(
             select
                 activity.patient_id,
@@ -806,7 +803,7 @@ placement as(
             where activity.state = 'completed'
 );
 
-create materialized view
+create or replace view
 cosulting_doctors as(
             select
                 spell.id as spell_id,
@@ -817,7 +814,7 @@ cosulting_doctors as(
             group by spell.id
 );
 
-create materialized view
+create or replace view
 param as(
         select
             activity.spell_id,
@@ -836,10 +833,7 @@ param as(
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
-<<<<<<< Updated upstream
         left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
-=======
->>>>>>> Stashed changes
         where activity.state = 'completed'
 );
 
