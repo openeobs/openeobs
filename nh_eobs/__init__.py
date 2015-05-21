@@ -9,4 +9,8 @@ import policy
 import api_demo
 import kamishibai
 import spell_management
+<<<<<<< Updated upstream
 import report
+=======
+import observation_extension
+>>>>>>> Stashed changes

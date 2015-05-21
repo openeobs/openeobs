@@ -652,13 +652,14 @@ class nh_clinical_wardboard(orm.Model):
     def init(self, cr):
         cr.execute("""
 
+drop materialized view if exists placement cascade;
+drop materialized view if exists cosulting_doctors cascade;
+drop materialized view if exists param cascade;
+drop materialized view if exists ews0 cascade;
+drop materialized view if exists ews1 cascade;
+drop materialized view if exists ews2 cascade;
 
-drop view if exists nh_clinical_wardboard;
-drop view if exists wb_activity_ranked;
-drop view if exists wb_activity_latest;
-drop view if exists wb_activity_data;
-
-create or replace view 
+create or replace view
 -- activity per spell, data_model, state
 wb_activity_ranked as(
         select 
@@ -683,7 +684,7 @@ ward_locations as(
     select * from ward_loc
 );
 
-create or replace view 
+create or replace view
 wb_activity_latest as(
     with 
     max_sequence as(
@@ -721,15 +722,12 @@ wb_activity_data as(
         group by spell_id, spell.patient_id, activity.data_model, activity.state
 ); 
 
-
-create or replace view
-nh_clinical_wardboard as(
-    with 
-    ews as(
-            select 
+create materialized view
+ews0 as(
+            select
                 activity.patient_id,
                 activity.spell_id,
-                activity.state, 
+                activity.state,
                 activity.date_scheduled,
                 ews.id,
                 ews.score,
@@ -738,14 +736,63 @@ nh_clinical_wardboard as(
                 case when activity.date_scheduled < now() at time zone 'UTC' then 'overdue: ' else '' end as next_diff_polarity,
                 case activity.date_scheduled is null
                     when false then justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC', activity.date_scheduled))
-                    else interval '0s' 
+                    else interval '0s'
                 end as next_diff_interval,
                 activity.rank
             from wb_activity_ranked activity
-            inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id 
+            inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
                 and activity.data_model = 'nh.clinical.patient.observation.ews'
-    ),
-    placement as(
+            where activity.rank = 1 and activity.state = 'scheduled'
+);
+
+create materialized view
+ews1 as(
+            select
+                activity.patient_id,
+                activity.spell_id,
+                activity.state,
+                activity.date_scheduled,
+                ews.id,
+                ews.score,
+                ews.frequency,
+                ews.clinical_risk,
+                case when activity.date_scheduled < now() at time zone 'UTC' then 'overdue: ' else '' end as next_diff_polarity,
+                case activity.date_scheduled is null
+                    when false then justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC', activity.date_scheduled))
+                    else interval '0s'
+                end as next_diff_interval,
+                activity.rank
+            from wb_activity_ranked activity
+            inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
+                and activity.data_model = 'nh.clinical.patient.observation.ews'
+            where activity.rank = 1 and activity.state = 'completed'
+);
+
+create materialized view
+ews2 as(
+            select
+                activity.patient_id,
+                activity.spell_id,
+                activity.state,
+                activity.date_scheduled,
+                ews.id,
+                ews.score,
+                ews.frequency,
+                ews.clinical_risk,
+                case when activity.date_scheduled < now() at time zone 'UTC' then 'overdue: ' else '' end as next_diff_polarity,
+                case activity.date_scheduled is null
+                    when false then justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC', activity.date_scheduled))
+                    else interval '0s'
+                end as next_diff_interval,
+                activity.rank
+            from wb_activity_ranked activity
+            inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
+                and activity.data_model = 'nh.clinical.patient.observation.ews'
+            where activity.rank = 2 and activity.state = 'completed'
+);
+
+create materialized view
+placement as(
             select
                 activity.patient_id,
                 activity.spell_id,
@@ -756,20 +803,23 @@ nh_clinical_wardboard as(
             from wb_activity_ranked activity
             inner join nh_clinical_patient_placement plc on activity.data_id = plc.id
                 and activity.data_model = 'nh.clinical.patient.placement'
-    ),
-    cosulting_doctors as(
-            select 
+            where activity.state = 'completed'
+);
+
+create materialized view
+cosulting_doctors as(
+            select
                 spell.id as spell_id,
-                array_to_string(array_agg(doctor.name), ' / ') as names    
+                array_to_string(array_agg(doctor.name), ' / ') as names
             from nh_clinical_spell spell
             inner join con_doctor_spell_rel on con_doctor_spell_rel.spell_id = spell.id
             inner join res_partner doctor on con_doctor_spell_rel.doctor_id = doctor.id
             group by spell.id
-            ),
-            
-    param as(
-    
-        select 
+);
+
+create materialized view
+param as(
+        select
             activity.spell_id,
             height.height,
             diabetes.diabetes,
@@ -786,10 +836,15 @@ nh_clinical_wardboard as(
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
+<<<<<<< Updated upstream
         left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
+=======
+>>>>>>> Stashed changes
         where activity.state = 'completed'
-    )
-    
+);
+
+create or replace view
+nh_clinical_wardboard as(
     select 
         spell.id as id,
         spell.patient_id as patient_id,
@@ -852,14 +907,13 @@ nh_clinical_wardboard as(
     inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
     inner join nh_clinical_patient patient on spell.patient_id = patient.id
     left join nh_clinical_location location on location.id = spell.location_id
+    left join ews1 on spell.id = ews1.spell_id
+    left join ews2 on spell.id = ews2.spell_id
+    left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
-    left join ews ews1 on spell.id = ews1.spell_id and ews1.rank = 1 and ews1.state = 'completed'
-    left join ews ews2 on spell.id = ews2.spell_id and ews2.rank = 2 and ews2.state = 'completed'
-    left join ews ews0 on spell.id = ews0.spell_id and ews0.rank = 1 and ews0.state = 'scheduled'
-    left join placement plc on spell.id = plc.spell_id and plc.state = 'completed'
+    left join placement plc on spell.id = plc.spell_id
     left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
     inner join param on param.spell_id = spell.id
-
     where spell_activity.state = 'started'
 );
 
