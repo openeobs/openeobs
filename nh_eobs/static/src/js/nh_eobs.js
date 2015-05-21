@@ -1222,5 +1222,93 @@ openerp.nh_eobs = function (instance) {
             }
             return this._super(view_type);
         }
-    })
+    });
+
+    instance.web.FormView.include({
+        on_button_save: function(e) {
+            if (this.dataset.model === 'nh.clinical.allocating.user'){
+                var self = this;
+                $(e.target).attr("disabled", true);
+                return this.save().done(function(result) {
+                    self.trigger("save", result);
+                    self.reload();
+                }).always(function(){
+                   $(e.target).attr("disabled", false)
+                });
+            } else {
+                return this._super(e);
+            }
+        },
+        on_button_cancel: function(e) {
+            if (this.dataset.model === 'nh.clinical.allocating.user'){
+                var self = this;
+                if (this.can_be_discarded()) {
+                    this.to_view_mode();
+                    $.when.apply(null, this.render_value_defs).then(function(){
+                        self.trigger('load_record', self.datarecord);
+                    });
+                    this.to_edit_mode();
+                }
+                this.trigger('on_button_cancel');
+                return false;
+            } else {
+                return this._super(e);
+            }
+        }
+    });
+
+    instance.web.ListView.List.include({
+       init: function (group, opts) {
+           var self = this;
+           this._super(group, opts);
+           if (this.dataset.model === 'nh.clinical.allocating.user'){
+               this.$current = $('<tbody>')
+                    .delegate('input[readonly=readonly]', 'click', function (e) {
+                        e.preventDefault();
+                    })
+                    .delegate('th.oe_list_record_selector', 'click', function (e) {
+                        e.stopPropagation();
+                        var selection = self.get_selection();
+                        var checked = $(e.currentTarget).find('input').prop('checked');
+                        $(self).trigger(
+                                'selected', [selection.ids, selection.records, ! checked]);
+                    })
+                    .delegate('td.oe_list_record_delete button', 'click', function (e) {
+                        e.stopPropagation();
+                        var $row = $(e.target).closest('tr');
+                        $(self).trigger('deleted', [[self.row_id($row)]]);
+                    })
+                    .delegate('td.oe_list_field_cell button', 'click', function (e) {
+                        e.stopPropagation();
+                        var $target = $(e.currentTarget),
+                              field = $target.closest('td').data('field'),
+                               $row = $target.closest('tr'),
+                          record_id = self.row_id($row);
+
+                        if ($target.attr('disabled')) {
+                            return;
+                        }
+                        //$target.attr('disabled', 'disabled');
+
+                        $(self).trigger('action', [field.toString(), record_id, function (id) {
+                            //$target.removeAttr('disabled');
+                            return self.reload_record(self.records.get(id));
+                        }]);
+                    })
+                    .delegate('a', 'click', function (e) {
+                        e.stopPropagation();
+                    })
+                    .delegate('tr', 'click', function (e) {
+                        var row_id = self.row_id(e.currentTarget);
+                        if (row_id) {
+                            e.stopPropagation();
+                            if (!self.dataset.select_id(row_id)) {
+                                throw new Error(_t("Could not find id in dataset"));
+                            }
+                            self.row_clicked(e);
+                        }
+                    });
+           }
+       }
+    });
 }
