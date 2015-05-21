@@ -150,15 +150,6 @@ class TestApiDemo(TransactionCase):
         self.assertEquals(len(bed_ids), 0)
         self.assertEquals([], [bed.id for bed in ward.child_ids if bed.is_available])
 
-    def test_generate_hospital(self):
-        cr, uid = self.cr, self.uid
-
-        patients = self.api_demo.generate_hospital(cr, uid, wards=1, beds=5, patients=5, days=3, hospital=True)
-        self.assertEquals(len(patients), 5)
-
-        patients = self.api_demo.generate_hospital(cr, uid, wards=2, beds=5, patients=0, days=3, hospital=True)
-        self.assertEquals(len(patients), 0)
-
     def test_generate_news_simulation(self):
         cr, uid = self.cr, self.uid
 

@@ -26,9 +26,6 @@ class nh_clinical_api_demo(orm.AbstractModel):
         place_no_patients = 100
         patients_registered = False
 
-        # returns list of admitted patients (not placed)
-        patient_list = []
-
         for k in location_ids:
             ward_id = location_ids[k][0]
             user_ids = self.generate_users(cr, uid, ward_id)
@@ -40,9 +37,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 self.place_patients(cr, uid, admit_patient_ids[:place_no_patients], ward_id)
                 self.generate_news_simulation(cr, uid, begin_date=news_sim_begin_date, patient_ids=admit_patient_ids)
                 patients_registered = True
-                patient_list += admit_patient_ids
 
-        return patient_list
+        return True
 
     def place_patients(self, cr, uid, patient_ids, ward_id):
         """
@@ -72,7 +68,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return identifiers
 
-    def admit_patients(self, cr, uid, patient_ids, adt_id, data):
+    def admit_patients(self, cr, uid, patient_ids, adt_id, data, context=None):
         """
         Admits a list of patients.
         :param patient_ids: list parameter of patient ids.
@@ -94,7 +90,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 ('patient_id', '=', patient.id)])
 
             if not spell_activity_id:
-                if api.admit(cr, adt_id, patient.other_identifier, data):
+                if api.admit(cr, adt_id, patient.other_identifier, data, context=context):
                     identifiers.append(patient_id)
                     _logger.info("Patient '%s' admitted", patient.other_identifier)
 
