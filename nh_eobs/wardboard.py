@@ -836,10 +836,7 @@ param as(
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
-<<<<<<< Updated upstream
         left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
-=======
->>>>>>> Stashed changes
         where activity.state = 'completed'
 );
 
