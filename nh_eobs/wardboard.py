@@ -282,6 +282,7 @@ class nh_clinical_wardboard(orm.Model):
         'mrsa': fields.selection(_boolean_selection, "MRSA"),
         'diabetes': fields.selection(_boolean_selection, "Diabetes"),
         'palliative_care': fields.selection(_boolean_selection, "Palliative Care"),
+        'post_surgery': fields.selection(_boolean_selection, "Post Surgery"),
         'pbp_monitoring': fields.selection(_boolean_selection, "Postural Blood Pressure Monitoring"),
         'weight_monitoring': fields.selection(_boolean_selection, "Weight Monitoring"),
         'height': fields.float("Height"),
@@ -804,7 +805,7 @@ placement as(
 );
 
 create or replace view
-cosulting_doctors as(
+consulting_doctors as(
             select
                 spell.id as spell_id,
                 array_to_string(array_agg(doctor.name), ' / ') as names
@@ -824,7 +825,8 @@ param as(
             pbpm.pbp_monitoring,
             wm.weight_monitoring,
             pc.status,
-            o2target_level.id as o2target_level_id
+            o2target_level.id as o2target_level_id,
+            ps.status as post_surgery
         from wb_activity_latest activity
         left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
@@ -834,6 +836,7 @@ param as(
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
         left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
+        left join nh_clinical_patient_post_surgery ps on activity.ids && array[ps.activity_id]
         where activity.state = 'completed'
 );
 
@@ -895,7 +898,8 @@ nh_clinical_wardboard as(
         case when param.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
         case when param.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
         case when param.status then 'yes' else 'no' end as palliative_care,
-        cosulting_doctors.names as consultant_names
+        case when param.post_surgery then 'yes' else 'no' end as post_surgery,
+        consulting_doctors.names as consultant_names
         
     from nh_clinical_spell spell
     inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
@@ -906,7 +910,7 @@ nh_clinical_wardboard as(
     left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
     left join placement plc on spell.id = plc.spell_id
-    left join cosulting_doctors on cosulting_doctors.spell_id = spell.id
+    left join consulting_doctors on consulting_doctors.spell_id = spell.id
     inner join param on param.spell_id = spell.id
     where spell_activity.state = 'started'
 );
