@@ -742,7 +742,10 @@ openerp.nh_eobs = function (instance) {
                 return this._super();
             }
 
-            this.save();
+            if(this.view_id){
+                this.save();
+            }
+
 
             //if (this.$el.is('.oe_form_dirty')) {
             //    if (!confirm(_t("Warning, the record has been modified, your changes will be discarded.\n\nAre you sure you want to leave this page ?"))) {
