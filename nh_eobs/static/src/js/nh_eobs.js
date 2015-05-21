@@ -1035,6 +1035,11 @@ openerp.nh_eobs = function (instance) {
                     self.dataset.ids = active_ids_to_send;
                     self.dataset.records = active_records_to_send;
 
+                    var title_to_use = 'Patient Chart'
+                    if(self.dataset.model == 'nh.clinical.allocating.user'){
+                        title_to_use = 'User Allocation';
+                    }
+
 
                     var pop = new instance.nh_eobs.PagedFormOpenPopup(action);
                     pop.show_element(
@@ -1042,7 +1047,7 @@ openerp.nh_eobs = function (instance) {
                             action.res_id,
                             action.context,
                             {
-                                title: _t("Patient Chart"),
+                                title: _t(title_to_use),
                                 view_id: action.view_id[0],
                                 readonly: true,
                                 active_id: record_id,
