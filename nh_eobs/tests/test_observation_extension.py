@@ -142,3 +142,23 @@ class TestClinicalPatientObservationEwsRefresh(SingleTransactionCase):
         # activity_rank
         self.assertEquals(1, rows[0][10])
 
+    def test_nh_clinical_wardboard_is_updated(self):
+        cr, uid = self.cr, self.uid
+
+        cr.execute("""SELECT * FROM nh_clinical_wardboard""")
+        wb_rows = cr.fetchall()
+        cr.execute("""SELECT * FROM ews1""")
+        ews1_rows = cr.fetchall()
+
+        # test for correct patient
+        self.assertEquals(wb_rows[0][1], self.patient_id)
+        # spell_code
+        self.assertEquals(wb_rows[0][6], '1234')
+        # ews_score (should be equal to ews1.score)
+        ews1_score = str(ews1_rows[0][5])
+        self.assertEquals(wb_rows[0][23], ews1_score)
+        # ews_trend_string
+        self.assertEquals(wb_rows[0][25], 'up')
+        # clinical_risk (should be equal to ews1.clinical_risk)
+        ews1_clinical_risk = ews1_rows[0][7]
+        self.assertEquals(wb_rows[0][26], ews1_clinical_risk)
