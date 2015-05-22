@@ -96,10 +96,34 @@ class nh_clinical_patient_post_surgery(orm.Model):
         a_ids = activity_pool.search(cr, uid, [['patient_id', '=', patient_id], ['data_model', '=', self._name],
                                                ['state', '=', 'completed'],
                                                ['date_terminated', '>=', (dt.now()-td(hours=4)).strftime(dtf)]],
-                                     context=context)
+                                     order='date_terminated desc, sequence desc', context=context)
         if not a_ids:
             return False
-        return any([a.data_ref.status for a in activity_pool.browse(cr, uid, a_ids, context=context)])
+        return activity_pool.browse(cr, uid, a_ids[0], context=context).data_ref.status
+
+
+class nh_clinical_patient_critical_care(orm.Model):
+    _name = 'nh.clinical.patient.critical_care'
+    _inherit = ['nh.activity.data']
+    _columns = {
+        'status': fields.boolean('On Critical Care?', required=True),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+    }
+    _ews_frequency = 240
+
+    def current_status(self, cr, uid, patient_id, context=None):
+        """
+        Checks what is the current Critical Care status for the provided patient
+        :return: True if the patient was marked on critical care within the last 24 hours. False in any other case.
+        """
+        activity_pool = self.pool['nh.activity']
+        a_ids = activity_pool.search(cr, uid, [['patient_id', '=', patient_id], ['data_model', '=', self._name],
+                                               ['state', '=', 'completed'],
+                                               ['date_terminated', '>=', (dt.now()-td(hours=24)).strftime(dtf)]],
+                                     order='date_terminated desc, sequence desc', context=context)
+        if not a_ids:
+            return False
+        return activity_pool.browse(cr, uid, a_ids[0], context=context).data_ref.status
 
 
 class nh_clinical_patient_weight_monitoring(orm.Model):

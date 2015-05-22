@@ -126,17 +126,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(nh_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
-
-        # create next GCS
-        next_activity_id = self.create_activity(cr, SUPERUSER_ID, 
-                             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
-                             {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.change_activity_frequency(cr, SUPERUSER_ID,
-                                           activity.data_ref.patient_id.id,
-                                           self._name,
-                                           self._POLICY['frequencies'][case], context=context)
-        return res
+        return super(nh_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
     def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
         assert vals_data.get('patient_id'), "patient_id is a required field!"
