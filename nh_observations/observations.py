@@ -279,3 +279,24 @@ class nh_clinical_patient_observation_blood_sugar(orm.Model):
             'initially_hidden': False
         }
     ]
+
+
+class nh_clinical_patient_observation_pain(orm.Model):
+    _name = 'nh.clinical.patient.observation.pain'
+    _inherit = ['nh.clinical.patient.observation']
+    _required = ['score']
+    _num_fields = ['score']
+    _description = "Pain Score Observation"
+    _columns = {
+        'score': fields.integer('Pain Score')
+    }
+    _form_description = [
+        {
+            'name': 'score',
+            'type': 'integer',
+            'label': 'Pain Score',
+            'min': 0,
+            'max': 10,
+            'initially_hidden': False
+        }
+    ]
