@@ -1261,7 +1261,7 @@ openerp.nh_eobs = function (instance) {
        init: function (group, opts) {
            var self = this;
            this._super(group, opts);
-           if (this.dataset.model === 'nh.clinical.allocating.user'){
+           if (this.dataset.model === 'nh.clinical.allocating.user' || this.dataset.model === 'nh.clinical.wardboard'){
                this.$current = $('<tbody>')
                     .delegate('input[readonly=readonly]', 'click', function (e) {
                         e.preventDefault();
