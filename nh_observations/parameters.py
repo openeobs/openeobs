@@ -40,8 +40,16 @@ class nh_clinical_patient_diabetes(orm.Model):
 class nh_clinical_patient_palliative_care(orm.Model):
     _name = 'nh.clinical.patient.palliative_care'
     _inherit = ['nh.activity.data']
+
+    def _get_value(self, cr, uid, ids, fn, args, context=None):
+        result = dict.fromkeys(ids, False)
+        for r in self.read(cr, uid, ids, ['status'], context=context):
+            result[r['id']] = 'Yes' if r['status'] else 'No'
+        return result
+
     _columns = {
         'status': fields.boolean('On Palliative Care?', required=True),
+        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
@@ -60,8 +68,16 @@ class nh_clinical_patient_palliative_care(orm.Model):
 class nh_clinical_patient_post_surgery(orm.Model):
     _name = 'nh.clinical.patient.post_surgery'
     _inherit = ['nh.activity.data']
+
+    def _get_value(self, cr, uid, ids, fn, args, context=None):
+        result = dict.fromkeys(ids, False)
+        for r in self.read(cr, uid, ids, ['status'], context=context):
+            result[r['id']] = 'Yes' if r['status'] else 'No'
+        return result
+
     _columns = {
         'status': fields.boolean('On Recovery from Surgery?', required=True),
+        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
     _ews_frequency = 60
@@ -105,8 +121,16 @@ class nh_clinical_patient_post_surgery(orm.Model):
 class nh_clinical_patient_critical_care(orm.Model):
     _name = 'nh.clinical.patient.critical_care'
     _inherit = ['nh.activity.data']
+
+    def _get_value(self, cr, uid, ids, fn, args, context=None):
+        result = dict.fromkeys(ids, False)
+        for r in self.read(cr, uid, ids, ['status'], context=context):
+            result[r['id']] = 'Yes' if r['status'] else 'No'
+        return result
+
     _columns = {
         'status': fields.boolean('On Critical Care?', required=True),
+        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
     _ews_frequency = 240
