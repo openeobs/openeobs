@@ -283,6 +283,7 @@ class nh_clinical_wardboard(orm.Model):
         'diabetes': fields.selection(_boolean_selection, "Diabetes"),
         'palliative_care': fields.selection(_boolean_selection, "Palliative Care"),
         'post_surgery': fields.selection(_boolean_selection, "Post Surgery"),
+        'critical_care': fields.selection(_boolean_selection, "Critical Care"),
         'pbp_monitoring': fields.selection(_boolean_selection, "Postural Blood Pressure Monitoring"),
         'weight_monitoring': fields.selection(_boolean_selection, "Weight Monitoring"),
         'height': fields.float("Height"),
@@ -301,6 +302,7 @@ class nh_clinical_wardboard(orm.Model):
         'weight_monitoring_ids': fields.function(_get_data_ids_multi, multi='weight_monitoring_ids',type='many2many', relation='nh.clinical.patient.weight_monitoring', string='Weight Monitoring'),
         'pbp_ids': fields.function(_get_data_ids_multi, multi='pbp_ids',type='many2many', relation='nh.clinical.patient.observation.pbp', string='PBP Obs'),
         'ews_ids': fields.function(_get_data_ids_multi, multi='ews_ids',type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs'),
+        'gcs_ids': fields.function(_get_data_ids_multi, multi='gcs_ids', type='many2many', relation='nh.clinical.patient.observation.gcs', string='GCS Obs'),
         'ews_list_ids': fields.function(_get_data_ids_multi, multi='ews_list_ids',type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs List'),
         'transferred_user_ids': fields.function(_get_transferred_user_ids, type='many2many', relation='res.users', fnct_search=_transferred_user_ids_search, string='Recently Transferred Access'),
         'placed': fields.boolean('Placed?')
@@ -827,7 +829,9 @@ param as(
             pc.status,
             o2target_level.id as o2target_level_id,
             ps.status as post_surgery,
-            psactivity.date_terminated as post_surgery_date
+            psactivity.date_terminated as post_surgery_date,
+            cc.status as critical_care,
+            ccactivity.date_terminated as critical_care_date
         from wb_activity_latest activity
         left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
@@ -839,6 +843,8 @@ param as(
         left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
         left join nh_clinical_patient_post_surgery ps on activity.ids && array[ps.activity_id]
         left join nh_activity psactivity on psactivity.id = ps.activity_id
+        left join nh_clinical_patient_critical_care cc on activity.ids && array[cc.activity_id]
+        left join nh_activity ccactivity on ccactivity.id = cc.activity_id
         where activity.state = 'completed'
 );
 
@@ -904,6 +910,10 @@ nh_clinical_wardboard as(
             when param.post_surgery and param.post_surgery_date > now() - interval '4h' then 'yes'
             else 'no'
         end as post_surgery,
+        case
+            when param.critical_care and param.critical_care_date > now() - interval '24h' then 'yes'
+            else 'no'
+        end as critical_care,
         consulting_doctors.names as consultant_names
         
     from nh_clinical_spell spell
