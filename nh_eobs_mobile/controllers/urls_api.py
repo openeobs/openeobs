@@ -1,11 +1,12 @@
 __author__ = 'lorenzo'
 import jinja2
-import logging
+import json
+#import logging
 import re
 from openerp.tools import config
 
 
-test_logger = logging.getLogger(__name__)
+#test_logger = logging.getLogger(__name__)
 
 
 class Route(object):
@@ -70,7 +71,7 @@ class RouteManager(object):
         """
         return self.ROUTES.get(route_name, None)
 
-    def get_javascript_routes(self, template_name, template_path, route_list=None, additional_context=None):  # TODO: rename this ! It's not JavaScript strictly related!
+    def get_javascript_routes(self, template_name, template_path, route_list=None, additional_context=None):  # TODO: rename this ! It's not strictly JavaScript related!
         """Render a template file using Jinja.
 
         :param template_name: The name of the template file
@@ -92,3 +93,28 @@ class RouteManager(object):
         else:
             default_context.update(additional_context)
             return template.render(default_context)
+
+
+class ResponseJSON(object):
+    """Class managing a JSON-encoded response (for an API request)."""
+    STATUS_SUCCESS = 'success'
+    STATUS_FAIL = 'fail'
+    STATUS_ERROR = 'error'
+    HEADER_CONTENT_TYPE = {'Content-Type': 'application/json'}  # default Content-Type header for this class' responses
+
+    def get_json_data(self, status=STATUS_ERROR, title=False, description=False, data=False):
+        """Build a dictionary containing all the arguments' data, and encode it as JSON.
+
+        :param status: A string with the status of the response (please, use the STATUS_* constants defined in this class!)
+        :param title: A string with summary information about the response (in case of error: the name of the Exception)
+        :param description: A string with complete information about the response (in case of error: the complete error message)
+        :param data: A dictionary with the actual payload of the JSON response
+        :return: A JSON-encoded dictionary containing all the data from the arguments passed to this function
+        """
+        json_response = {
+            'status': status,
+            'title': title,
+            'description': description,
+            'data': data
+        }
+        return json.dumps(json_response)
