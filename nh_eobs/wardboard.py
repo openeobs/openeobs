@@ -826,7 +826,8 @@ param as(
             wm.weight_monitoring,
             pc.status,
             o2target_level.id as o2target_level_id,
-            ps.status as post_surgery
+            ps.status as post_surgery,
+            psactivity.date_terminated as post_surgery_date
         from wb_activity_latest activity
         left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
@@ -837,6 +838,7 @@ param as(
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
         left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
         left join nh_clinical_patient_post_surgery ps on activity.ids && array[ps.activity_id]
+        left join nh_activity psactivity on psactivity.id = ps.activity_id
         where activity.state = 'completed'
 );
 
@@ -898,7 +900,10 @@ nh_clinical_wardboard as(
         case when param.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
         case when param.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
         case when param.status then 'yes' else 'no' end as palliative_care,
-        case when param.post_surgery then 'yes' else 'no' end as post_surgery,
+        case
+            when param.post_surgery and param.post_surgery_date > now() - interval '4h' then 'yes'
+            else 'no'
+        end as post_surgery,
         consulting_doctors.names as consultant_names
         
     from nh_clinical_spell spell
@@ -916,8 +921,4 @@ nh_clinical_wardboard as(
 );
 
 select * from nh_clinical_wardboard;
-
-
-
-
-        """)
+""")
