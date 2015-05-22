@@ -258,7 +258,6 @@
                                     <field name="height" string="Height (m)" readonly="1"/>
                                     <field name="mrsa"/>
                                     <field name="diabetes"/>
-                                    <field name="palliative_care"/>
                                 </group>
                                 <group string="Weight">
 
@@ -346,6 +345,16 @@
                                     </group>
                             </page>
                             <page string="Monitoring">
+                                <group string="Special Circumstances">
+                                    <field name="palliative_care"/>
+                                    <field name="palliative_care_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid" string="Changed By"/>
+                                        </tree>
+                                    </field>
+                                </group>
                                 <group string="Postural Blood Pressure">
                                     <field name="pbp_monitoring" string="Active"/>
                                     <field name="pbp_monitoring_ids" colspan="2" readonly="True" nolabel="1">
