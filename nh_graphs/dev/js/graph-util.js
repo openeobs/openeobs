@@ -87,13 +87,13 @@ resizeGraphs: function() {
     context.xAxis.scale(context.xScale);
     context.obj.selectAll(".x.axis").call(context.xAxis).style("stroke-width", "1");
     context.area.x(function(d) {
-        return context.xScale(d.date_started);
+        return context.xScale(d.date_terminated);
     }).y(function(d) {
         return context.yScale(d.score);
     });
     context.obj.selectAll(".contextPath").transition().duration(svg.transitionDuration).attr("d", context.area);
     context.obj.selectAll(".contextPoint").transition().duration(svg.transitionDuration).attr("cx", function(d) {
-        return context.xScale(d.date_started);
+        return context.xScale(d.date_terminated);
     });
     context.obj.selectAll(".x.axis g text").each(this.insertLinebreaks);
     context.obj.selectAll(".horizontalGrid").transition().duration(svg.transitionDuration).attr("x2", w - svg.infoAreaRight - 10);
@@ -135,8 +135,8 @@ initTable: function() {
         var startDate = new Date(focus.xScale.domain()[0]);
         var endDate = new Date(focus.xScale.domain()[1]);
         for (var i = 0; i < svg.data.length; i++) {
-            if (svg.data[i].date_started >= startDate && svg.data[i].date_started <= endDate) {
-                headerData.push(svg.data[i].date_started);
+            if (svg.data[i].date_terminated >= startDate && svg.data[i].date_terminated <= endDate) {
+                headerData.push(svg.data[i].date_terminated);
             }
         }
         dataTableTr = nh_graphs.select("#chartTable").append("tr");
