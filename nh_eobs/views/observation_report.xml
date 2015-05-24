@@ -37,17 +37,68 @@
             <t t-call="nh_eobs.observation_report_footer"/>
         </template>
 
+        <template id="observation_report_header_override" inherit_id="report.layout" primary="True">
+            <xpath expr="//head" position="inside">
+                <style>
+
+                    svg .title{
+                        font-weight: bold;
+                    }
+
+                    svg .axis path,
+                    svg .axis line {
+                        fill: none;
+                        stroke: #262626;
+                        shape-rendering: crispEdges;
+                    }
+                    svg .axis text {
+                        font-family: sans-serif;
+                    }
+                    svg .y.axis text{
+                        font-size: 8px;
+                    }
+                    svg .background .green {
+                        fill: #ccffcc;
+                    }
+                    svg .background .amber {
+                        fill: #ffe9c8;
+                    }
+                    svg .background .red {
+                        fill: #ffcccc;
+                    }
+                    svg .background .normal {
+                        fill: rgba(0, 0, 0, 0.2);
+                        stroke: rgba(0, 0, 0, 0.2);
+                    }
+                    svg .background line {
+                        fill: none;
+                        stroke: rgba(0, 0, 0, 0.15);
+                        shape-rendering: crispEdges;
+                    }
+                    svg .brush {
+                        fill: rgba(0, 0, 0, 0.3);
+                    }
+                    svg .data path {
+                        fill: none;
+                        stroke: rgba(40, 40, 40, 0.6);
+                        shape-rendering: optimizeSpeed;
+                    }
+                </style>
+            </xpath>
+        </template>
+
         <template id="html_container">
             <t t-set="body_classname" t-value="'container'"/>
-            <t t-call="nh_eobs.observation_report_layout">
-                <t t-raw="0"/>
+            <t t-call="nh_eobs.observation_report_header_override">
+                <t t-call="nh_eobs.observation_report_layout">
+                    <t t-raw="0"/>
+                </t>
             </t>
         </template>
 
 
         <template id="observation_report">
             <t t-call="nh_eobs.html_container">
-            <!--<t t-call="nh_eobs.observation_report_layout">-->
                 <div class="page">
                     <div class="col-xs-12 row">
                         <h1>Patient Observation Chart</h1>
@@ -123,9 +174,13 @@
                         </table>
                     </div>
                     <div class="col-xs-12 row">
-                        <p>Chart</p>
+                        <div id="chart" style="width: 800px; height: 810px;"></div>
+                        <script type="text/javascript" src="/nh_graphs/static/lib/js/d3.js"></script>
+                        <script type="text/javascript" src="/nh_graphs/static/src/js/nh_graphlib.js"></script>
+                        <script type="text/javascript">var obs_data = <t t-raw="ews_data"/>;</script>
+                        <script type="text/javascript" t-att-src="draw_graph_js"></script>
                     </div>
-                    <p style="page-break-before: always;"></p>
+                    <!--<p style="page-break-before: always;"></p>-->
                     <t t-if="len(weights) > 0">
                         <div class="row">
                             <h3>Weight Values</h3>
@@ -302,7 +357,6 @@
                         </div>
                     </t>
                 </div>
-            <!--</t>-->
             </t>
         </template>
     </data>

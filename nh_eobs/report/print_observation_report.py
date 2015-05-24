@@ -48,6 +48,7 @@ class ObservationReport(models.AbstractModel):
         report_obj = self.env['report']
         report = report_obj._get_report_from_name('nh.clinical.observation_report')
         pretty_date_format = '%d/%m/%Y %H:%M'
+        wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
 
         if isinstance(data, dict):
             data = self.data_dict_to_obj(data)
@@ -179,9 +180,15 @@ class ObservationReport(models.AbstractModel):
                 patient['ward'] = transfer_history[-1]['ward'] if transfer_history[-1]['ward'] else False
             #
             json_obs = [v['values'] for v in ews]
-            # for json_ob in json_obs:
-            #     json_ob['date_terminated'] = datetime.strftime(datetime.strptime(json_ob['date_terminated'], dtf), phantomjs_date_format)
+            for json_ob in json_obs:
+                json_ob['write_date'] = datetime.strftime(datetime.strptime(json_ob['write_date'], dtf), wkhtmltopdf_format)
+                json_ob['create_date'] = datetime.strftime(datetime.strptime(json_ob['create_date'], dtf), wkhtmltopdf_format)
+                json_ob['date_started'] = datetime.strftime(datetime.strptime(json_ob['date_started'], dtf), wkhtmltopdf_format)
+                json_ob['date_terminated'] = datetime.strftime(datetime.strptime(json_ob['date_terminated'], dtf), wkhtmltopdf_format)
             json_ews = json.dumps(json_obs)
+
+            # Get the script files to load
+            observation_report = '/nh_eobs/static/src/js/observation_report.js'
 
             docargs = {
                 'doc_ids': self._ids,
@@ -201,6 +208,8 @@ class ObservationReport(models.AbstractModel):
                 'time_generated': time_generated,
                 'hospital_name': company_name,
                 'user_name': user,
+                'ews_data': json_ews,
+                'draw_graph_js': observation_report
             }
             return report_obj.render('nh_eobs.observation_report', docargs)
         else:
