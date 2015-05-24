@@ -221,7 +221,7 @@ drawChart: function() {
             .defined(function(d){ if(d.none_values == "[]"){ return d; }})
             .x(function(d) {
                 console.log(d);
-                return context.xScale(d.date_started);
+                return context.xScale(d.date_terminated);
             })
             .y(function(d) {
                 return context.yScale(d.score);
@@ -235,7 +235,7 @@ drawChart: function() {
         context.obj.selectAll("circle.contextPoint")
             .data(svg.data.filter(function(d){ if(d.none_values == "[]"){ return d; }}))
             .enter().append("circle").attr("cx", function(d) {
-                return context.xScale(d.date_started);
+                return context.xScale(d.date_terminated);
             }).attr("cy", function(d) {
                 return context.yScale(d.score);
             }).attr("r", 3).attr("class", "contextPoint").on("mouseover", function(d) {
@@ -254,7 +254,7 @@ drawChart: function() {
         }))
             .enter().append("circle")
             .attr("cx", function(d) {
-                return context.xScale(d.date_started);
+                return context.xScale(d.date_terminated);
             })
             .attr("cy", function(d) {
                 return context.yScale(context.yScale.domain()[1] / 2);
@@ -360,7 +360,7 @@ drawGraph: function() {
                     return thisEntry.yScale(d.blood_pressure_systolic);
                 },
                 'x': function(d){
-                    return focus.xScale(d.date_started) - (focus.BPWidth / 2);
+                    return focus.xScale(d.date_terminated) - (focus.BPWidth / 2);
                 },
                 'height': 2,
                 'width': focus.BPWidth,
@@ -386,7 +386,7 @@ drawGraph: function() {
                     return thisEntry.yScale(d.blood_pressure_diastolic);
                 },
                 'x': function(d){
-                    return focus.xScale(d.date_started) - (focus.BPWidth / 2);
+                    return focus.xScale(d.date_terminated) - (focus.BPWidth / 2);
                 },
                 'height': 2,
                 'width': focus.BPWidth,
@@ -411,7 +411,7 @@ drawGraph: function() {
                         return thisEntry.yScale(d["blood_pressure_diastolic"]) - thisEntry.yScale(d["blood_pressure_systolic"]);
                     },
                     x: function(d) {
-                        return focus.xScale(d.date_started) - 1;
+                        return focus.xScale(d.date_terminated) - 1;
                     },
                     y: function(d) {
                         return thisEntry.yScale(d["blood_pressure_systolic"]);
@@ -477,7 +477,7 @@ drawGraph: function() {
             thisEntry.area = nh_graphs.svg.line().interpolate("linear")
                 .defined(function(d){ if(d[thisEntry.key] !== false){ return d; }})
                 .x(function(d) {
-                    return focus.xScale(d.date_started);
+                    return focus.xScale(d.date_terminated);
                 }).y(function(d) {
                     return thisEntry.yScale(d[thisEntry.key]);
                 });
@@ -492,7 +492,7 @@ drawGraph: function() {
             focus.obj.selectAll("#" + thisEntry.label)
                 .data(svg.data.filter(function(d){ if(d[thisEntry.key] !== false){ return d; }}))
                 .enter().append("circle").attr("cx", function(d) {
-                    return focus.xScale(d.date_started);
+                    return focus.xScale(d.date_terminated);
                 }).attr("cy", function(d) {
                     return thisEntry.yScale(d[thisEntry.key]);
                 }).attr("r", 3).attr("class", "data_points data-" + thisEntry.label).style("display", function(d) {
@@ -582,7 +582,7 @@ redrawContext: function(){
         .interpolate("step-after")
         .defined(function(d){ if(d.none_values == "[]"){ return d; }})
         .x(function(d) {
-            return context.xScale(d.date_started);
+            return context.xScale(d.date_terminated);
         })
         .y(function(d) {
             return context.yScale(d.score);
@@ -675,7 +675,7 @@ redrawFocus: function(transition) {
     var context = this.context, focus = this.focus, svg = this.svg;
     var self = this;
     focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d) {
-        return focus.xScale(d.date_started);
+        return focus.xScale(d.date_terminated);
     });
 
 
@@ -688,7 +688,7 @@ redrawFocus: function(transition) {
     for (var i = 0; i < focus.graphs.length; i++) {
         var thisEntry = focus.graphs[i];
         thisEntry.area = nh_graphs.svg.line().interpolate("linear").x(function(d) {
-            return focus.xScale(d.date_started);
+            return focus.xScale(d.date_terminated);
         }).y(function(d) {
             return thisEntry.yScale(d[thisEntry.key]);
         });
@@ -716,7 +716,7 @@ redrawFocus: function(transition) {
         });
 
         if(thisEntry.label == "BP"){
-            focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(d) { return focus.xScale(d.date_started);})
+            focus.obj.selectAll(".data_lines").transition().duration(svg.transitionDuration).attr("x", function(d) { return focus.xScale(d.date_terminated);})
                 .attr('y', function(d){ return thisEntry.yScale(d.blood_pressure_systolic); })
                 .attr('height', function(d) { return thisEntry.yScale(d["blood_pressure_diastolic"]) - thisEntry.yScale(d["blood_pressure_systolic"]);});
 
@@ -728,20 +728,20 @@ redrawFocus: function(transition) {
 
 
     focus.obj.selectAll(".data_points").transition().duration(svg.transitionDuration).attr("cx", function(d) {
-        return focus.xScale(d.date_started);
+        return focus.xScale(d.date_terminated);
     });
 
     focus.obj.selectAll('.'+thisEntry.label+'-top-line').attr({'y': function(d){
         return thisEntry.yScale(d.blood_pressure_systolic);
     },
         'x': function(d){
-            return (focus.xScale(d.date_started) - ((focus.BPWidth/2)-1));
+            return (focus.xScale(d.date_terminated) - ((focus.BPWidth/2)-1));
         }});
     focus.obj.selectAll('.'+thisEntry.label+'-bottom-line').attr({'y': function(d){
         return thisEntry.yScale(d.blood_pressure_diastolic);
     },
         'x': function(d){
-            return (focus.xScale(d.date_started) - ((focus.BPWidth/2)-1));
+            return (focus.xScale(d.date_terminated) - ((focus.BPWidth/2)-1));
         }});
 //            }
 
@@ -757,7 +757,7 @@ drawTable: function() {
         var startDate = new Date(focus.xScale.domain()[0]);
         var endDate = new Date(focus.xScale.domain()[1]);
         for (var j = 0; j < svg.data.length; j++) {
-            if (svg.data[j].date_started >= startDate && svg.data[j].date_started <= endDate) {
+            if (svg.data[j].date_terminated >= startDate && svg.data[j].date_terminated <= endDate) {
                 tableData.push(svg.data[j][thisEntry.key]);
             }
         }
@@ -774,7 +774,7 @@ drawTabularObs: function(el){
     var container = nh_graphs.select('#table-content').append('div').attr('style', 'padding-top: 1em');
     var cards = container.selectAll('.card').data(svg.data.reverse()).enter().append('div').attr('class','card');
     var header = cards.append('h3').text(function(d){
-        return ("0" + d.date_started.getHours()).slice(-2) + ":" + ("0" + d.date_started.getMinutes()).slice(-2) + " " + ("0" + d.date_started.getDate()).slice(-2) + "/" + ("0" + (d.date_started.getMonth() + 1)).slice(-2) + "/" + d.date_started.getFullYear(); });
+        return ("0" + d.date_terminated.getHours()).slice(-2) + ":" + ("0" + d.date_terminated.getMinutes()).slice(-2) + " " + ("0" + d.date_terminated.getDate()).slice(-2) + "/" + ("0" + (d.date_terminated.getMonth() + 1)).slice(-2) + "/" + d.date_terminated.getFullYear(); });
     var list = cards.append('table');
     var list_items = list.selectAll('tr').data(function(d){ return $.map(d, function(v,k){ if(k !== "indirect_oxymetry_spo2_label"){ var name = graph_lib.process_obs_name(k); if(typeof(name) !== "undefined"){ return {key: name, value: v};}} }); }).enter();
     list_items.append('tr').html(function(d){
@@ -882,13 +882,13 @@ resizeGraphs: function() {
     context.xAxis.scale(context.xScale);
     context.obj.selectAll(".x.axis").call(context.xAxis).style("stroke-width", "1");
     context.area.x(function(d) {
-        return context.xScale(d.date_started);
+        return context.xScale(d.date_terminated);
     }).y(function(d) {
         return context.yScale(d.score);
     });
     context.obj.selectAll(".contextPath").transition().duration(svg.transitionDuration).attr("d", context.area);
     context.obj.selectAll(".contextPoint").transition().duration(svg.transitionDuration).attr("cx", function(d) {
-        return context.xScale(d.date_started);
+        return context.xScale(d.date_terminated);
     });
     context.obj.selectAll(".x.axis g text").each(this.insertLinebreaks);
     context.obj.selectAll(".horizontalGrid").transition().duration(svg.transitionDuration).attr("x2", w - svg.infoAreaRight - 10);
@@ -930,8 +930,8 @@ initTable: function() {
         var startDate = new Date(focus.xScale.domain()[0]);
         var endDate = new Date(focus.xScale.domain()[1]);
         for (var i = 0; i < svg.data.length; i++) {
-            if (svg.data[i].date_started >= startDate && svg.data[i].date_started <= endDate) {
-                headerData.push(svg.data[i].date_started);
+            if (svg.data[i].date_terminated >= startDate && svg.data[i].date_terminated <= endDate) {
+                headerData.push(svg.data[i].date_terminated);
             }
         }
         dataTableTr = nh_graphs.select("#chartTable").append("tr");
