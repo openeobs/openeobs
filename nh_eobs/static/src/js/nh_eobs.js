@@ -15,7 +15,7 @@ openerp.nh_eobs = function (instance) {
     var kiosk_t;
     var ranged_chart = null;
     // regex to sort out Odoo's idiotic timestamp format
-    var date_regex = /([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])/
+    var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
     instance.web.NHTreeView = instance.web.TreeView.extend({
 
