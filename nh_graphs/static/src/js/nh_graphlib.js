@@ -242,6 +242,9 @@
       thead.append('tr').selectAll('th').data(header_row.concat(self.data.raw.reverse())).enter().append('th').html(function(d) {
         var date_rotate;
         date_rotate = d.date_terminated.split(' ');
+        if (date_rotate.length === 1) {
+          return date_rotate[0];
+        }
         return date_rotate[1] + '<br>' + date_rotate[0];
       });
       rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
