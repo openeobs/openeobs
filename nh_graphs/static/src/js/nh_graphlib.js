@@ -240,7 +240,9 @@
         }
       ];
       thead.append('tr').selectAll('th').data(header_row.concat(self.data.raw.reverse())).enter().append('th').html(function(d) {
-        return d.date_terminated.replace(' ', '<br>');
+        var date_rotate;
+        date_rotate = d.date_terminated.split(' ');
+        return date_rotate[1] + '<br>' + date_rotate[0];
       });
       rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
       return cells = rows.selectAll('td').data(function(d) {
