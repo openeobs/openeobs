@@ -625,12 +625,21 @@ openerp.nh_eobs = function (instance) {
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'blood_sugar'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
-                if(records.length > 0){
+
+                var obs = records.reverse();
+                if(obs.length > 0){
                     /*records.forEach(function(d){
                         d.date_started = svg.startParse(d.date_terminated);
                         d.score = d.blood_sugar;
                         d.blood_sugar_null = false;
                     });*/
+
+                    obs.forEach(function(d){
+                        var date_els = d.date_terminated.match(date_regex);
+                        var dt = new Date(date_els[1], (parseInt(date_els[2])-1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
+                        var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
+                        d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0'+(dt.getMonth() + 1)).slice(-2) + "/" + ('0'+(dt.getFullYear())).slice(-2) + " " + ('0'+(dt.getHours())).slice(-2) + ":" + ('0'+(dt.getMinutes())).slice(-2);
+                    });
 
                     var bs_graph = new window.NH.NHGraph();
                     bs_graph.options.keys = ['blood_sugar'];
@@ -648,6 +657,7 @@ openerp.nh_eobs = function (instance) {
                     var focus = new window.NH.NHFocus();
                     focus.graphs.push(bs_graph);
                     focus.style.padding.right = 0;
+                    focus.style.margin.top = 80;
                     svg.focus = focus;
                     svg.data.raw = obs;
                     svg.init();
@@ -688,8 +698,15 @@ openerp.nh_eobs = function (instance) {
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[0],'weight'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
-                if(records.length > 0){
+                var obs = records.reverse();
+                if(obs.length > 0){
 
+                    obs.forEach(function(d){
+                        var date_els = d.date_terminated.match(date_regex);
+                        var dt = new Date(date_els[1], (parseInt(date_els[2])-1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
+                        var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
+                        d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0'+(dt.getMonth() + 1)).slice(-2) + "/" + ('0'+(dt.getFullYear())).slice(-2) + " " + ('0'+(dt.getHours())).slice(-2) + ":" + ('0'+(dt.getMinutes())).slice(-2);
+                    });
 
                     var wmin = (18*(height*height)).toFixed(0);
                     var wmax = (25*(height*height)).toFixed(0);
@@ -712,6 +729,7 @@ openerp.nh_eobs = function (instance) {
                     var focus = new window.NH.NHFocus();
                     focus.graphs.push(bs_graph);
                     focus.style.padding.right = 0;
+                    focus.style.margin.top = 80;
                     svg.focus = focus;
                     svg.data.raw = obs;
                     svg.init();
