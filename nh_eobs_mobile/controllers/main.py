@@ -701,6 +701,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         api_pool = request.registry('nh.eobs.api')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
         obs = api_pool.get_active_observations(cr, uid, context=context)
+        for index, ob in enumerate(obs):
+            if ob['type'] == 'ews':
+                obs.insert(0, obs.pop(index))
+            if ob['type'] == 'gcs':
+                obs.insert(1, obs.pop(index))
+            if ob['type'] == 'pain':
+                obs.insert(2, obs.pop(index))
+
         follow_activities = api_pool.get_assigned_activities(cr, uid,
                                                         activity_type='nh.clinical.patient.follow',
                                                         context=context)
