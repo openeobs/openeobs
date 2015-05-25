@@ -67,6 +67,8 @@ class ObservationReport(models.AbstractModel):
         weight_pool = self.pool['nh.clinical.patient.observation.weight']
         height_pool = self.pool['nh.clinical.patient.observation.height']
         pbp_pool = self.pool['nh.clinical.patient.observation.pbp']
+        gcs_pool = self.pool['nh.clinical.patient.observation.gcs']
+        bs_pool = self.pool['nh.clinical.patient.observation.blood_sugar']
         oxygen_target_pool = self.pool['nh.clinical.patient.o2target']
         transfer_history_pool = self.pool['nh.clinical.patient.move']
         company_pool = self.pool['res.company']
@@ -156,6 +158,24 @@ class ObservationReport(models.AbstractModel):
                 observation['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
                 observation['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
             #
+            # # get GCS observations
+            # # - search gcs model with parent_id of spell - dates
+            gcs_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.gcs', start_time, end_time))
+            gcss = activity_pool.read(cr, uid, gcs_ids)
+            for observation in gcss:
+                observation['values'] = gcs_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
+                observation['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
+            #
+            # # get BS observations
+            # # - search bs model with parent_id of spell - dates
+            bs_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.blood_sugar', start_time, end_time))
+            bss = activity_pool.read(cr, uid, bs_ids)
+            for observation in bss:
+                observation['values'] = bs_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
+                observation['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
+            #
             # # get o2 target history
             # # - search o2target model on patient with parent_id of spell - dates
             oxygen_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.o2target', start_time, end_time))
@@ -205,6 +225,8 @@ class ObservationReport(models.AbstractModel):
                 'table_ews': table_ews,
                 'weights': weights,
                 'pbps': pbps,
+                'gcs': gcss,
+                'bs': bss,
                 'targeto2': oxygen_history,
                 'transfer_history': transfer_history,
                 'report_start': report_start,
