@@ -4,6 +4,7 @@ from datetime import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.osv import fields
 import json
+import copy
 
 
 class DataObj(object):
@@ -179,7 +180,11 @@ class ObservationReport(models.AbstractModel):
                 patient['bed'] = transfer_history[-1]['bed'] if transfer_history[-1]['bed'] else False
                 patient['ward'] = transfer_history[-1]['ward'] if transfer_history[-1]['ward'] else False
             #
-            json_obs = [v['values'] for v in ews]
+            ews_for_json = copy.deepcopy(ews)
+            json_obs = [v['values'] for v in ews_for_json]
+            table_ews = [v['values'] for v in ews]
+            for table_ob in table_ews:
+                table_ob['date_terminated'] = datetime.strftime(datetime.strptime(table_ob['date_terminated'], dtf), pretty_date_format)
             for json_ob in json_obs:
                 json_ob['write_date'] = datetime.strftime(datetime.strptime(json_ob['write_date'], dtf), wkhtmltopdf_format)
                 json_ob['create_date'] = datetime.strftime(datetime.strptime(json_ob['create_date'], dtf), wkhtmltopdf_format)
@@ -197,6 +202,7 @@ class ObservationReport(models.AbstractModel):
                 'spell': spell,
                 'patient': patient,
                 'ews': ews,
+                'table_ews': table_ews,
                 'weights': weights,
                 'pbps': pbps,
                 'targeto2': oxygen_history,
