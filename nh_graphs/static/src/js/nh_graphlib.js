@@ -235,7 +235,7 @@
       cards = container.selectAll('.card').data(self.data.raw.reverse()).enter().append('div').attr('class', 'card');
       header = cards.append('h3').text(function(d) {
         var date_to_use;
-        date_to_use = self.date_from_string(d.date_started);
+        date_to_use = self.date_from_string(d.date_terminated);
         return ("0" + date_to_use.getHours()).slice(-2) + ":" + ("0" + date_to_use.getMinutes()).slice(-2) + " " + ("0" + date_to_use.getDate()).slice(-2) + "/" + ("0" + (date_to_use.getMonth() + 1)).slice(-2) + "/" + date_to_use.getFullYear();
       });
       list = cards.append('table');
