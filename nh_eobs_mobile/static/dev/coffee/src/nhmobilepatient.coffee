@@ -184,7 +184,7 @@ class NHMobilePatient extends NHMobile
           keys: ['avpu_text']
         },
         {
-          title: 'Patient on Supplmental O2',
+          title: 'Patient on Supplemental O2',
           keys: ['oxygen_administration_flag']
         },
         {

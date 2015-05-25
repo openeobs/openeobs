@@ -1286,6 +1286,27 @@ rect.green {
 #table-content {
   padding-top: 2em;
 }
+
+#table-content table{
+    width: 100%;
+}
+
+#table-content tr th, #table-content tr td{
+    text-align: center;
+    vertical-align: top;
+}
+
+#table-content tbody tr:nth-child(odd){
+    background-color: rgba(128, 126, 126, 0.1);
+}
+
+#table-content tr th:first-child, #table-content tr td:first-child{
+    text-align: left;
+}
+
+#table-content thead th, #table-content tbody td{
+    padding: 0.5em 10px;
+}
 /* svg stuff */
 svg .axis path,
 svg .axis line {
