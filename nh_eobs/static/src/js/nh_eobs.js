@@ -14,6 +14,8 @@ openerp.nh_eobs = function (instance) {
     var kiosk_mode = false;
     var kiosk_t;
     var ranged_chart = null;
+    // regex to sort out Odoo's idiotic timestamp format
+    var date_regex = /([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])/
 
     instance.web.NHTreeView = instance.web.TreeView.extend({
 
@@ -390,12 +392,20 @@ openerp.nh_eobs = function (instance) {
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[this.view.dataset.index],'ews'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
+
                 $(svg.el).html('');
                 if(records.length > 0){
                     var obs = records.reverse();
 
-                    records.forEach(function(d){
+                    obs.forEach(function(d){
                         d.body_temperature = d.body_temperature.toFixed(1);
+
+                        var date_els = d.date_terminated.match(date_regex);
+                        var dt = new Date(date_els[1], (parseInt(date_els[2])-1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
+                        var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
+                        d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0'+(dt.getMonth() + 1)).slice(-2) + "/" + ('0'+(dt.getFullYear())).slice(-2) + " " + ('0'+(dt.getHours())).slice(-2) + ":" + ('0'+(dt.getMinutes())).slice(-2);
+
+
                         if (d.flow_rate > -1){
                             plotO2 = true;
                             d.inspired_oxygen = "";
