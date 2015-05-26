@@ -4,6 +4,7 @@ from openerp.addons.nh_activity.activity import except_if
 import logging
 import bisect
 from openerp import SUPERUSER_ID
+import copy
 
 _logger = logging.getLogger(__name__)
 
@@ -427,7 +428,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         device_pool = self.pool['nh.clinical.device.type']
         o2target_pool = self.pool['nh.clinical.patient.o2target']
         o2level_pool = self.pool['nh.clinical.o2level']
-        fd = list(self._form_description)
+        fd = copy.deepcopy(self._form_description)
         # Find the O2 target
         o2level_id = o2target_pool.get_last(cr, uid, patient_id, context=context)
         if not o2level_id:
@@ -441,7 +442,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
         for field in fd:
             if field['name'] == 'indirect_oxymetry_spo2' and o2target:
-                field['secondary_label'] = o2target
+                field['secondary_label'] = 'Target: {0}'.format(o2target)
             if field['name'] == 'device_id':
                 field['selection'] = device_selection
         return fd
