@@ -426,17 +426,15 @@ class nh_clinical_patient_observation_ews(orm.Model):
     def get_form_description(self, cr, uid, patient_id, context=None):
         activity_pool = self.pool['nh.activity']
         device_pool = self.pool['nh.clinical.device.type']
+        o2target_pool = self.pool['nh.clinical.patient.o2target']
         fd = list(self._form_description)
         # Find the O2 target
-        o2target_ids = activity_pool.search(cr, uid, [
-            ('state', '=', 'completed'),
-            ('patient_id', '=', patient_id),
-            ('data_model', '=', 'nh.clinical.patient.o2target')], order='date_terminated desc', context=context)
-        if not o2target_ids:
+        o2level_id = o2target_pool.get_last(cr, uid, patient_id, context=context)
+        if not o2level_id:
             o2target = False
         else:
-            o2tactivity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
-            o2target = o2tactivity.data_ref.level_id.name
+            o2level = activity_pool.browse(cr, uid, o2level_id, context=context)
+            o2target = o2level.name
         # Find O2 devices
         device_ids = device_pool.search(cr, uid, [('category_id.name', '=', 'Supplemental O2')], context=context)
         device_selection = [[d, device_pool.read(cr, uid, d, ['name'], context=context)['name']] for d in device_ids]
