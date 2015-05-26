@@ -807,7 +807,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_partial_submit = function(self, event) {
-    var cover, dialog_id, element, form_elements, reason;
+    var cancel_reason, cover, dialog_id, element, form_elements, reason, reason_to_use;
     form_elements = (function() {
       var i, len, ref, results;
       ref = self.form.elements;
@@ -820,9 +820,17 @@ NHMobileForm = (function(superClass) {
       }
       return results;
     })();
+    reason_to_use = false;
     reason = document.getElementsByName('partial_reason')[0];
+    cancel_reason = document.getElementsByName('reason')[0];
     if (reason) {
-      form_elements.push(reason);
+      reason_to_use = reason;
+    }
+    if (cancel_reason) {
+      reason_to_use = cancel_reason;
+    }
+    if (reason_to_use) {
+      form_elements.push(reason_to_use);
       self.submit_observation(self, form_elements, event.detail.action, self.form.getAttribute('ajax-args'));
       dialog_id = document.getElementById(event.detail.target);
       cover = document.getElementById('cover');
