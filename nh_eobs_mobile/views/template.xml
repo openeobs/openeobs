@@ -282,7 +282,7 @@
         <template name="Input box" t-name="nh_eobs_mobile.observation_data_input">
             <div t-att-class="'block obsField valHide' if item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
-                    <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
+                    <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
                         <!-- <t t-if="item['target']">
                             <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
                         </t> -->
