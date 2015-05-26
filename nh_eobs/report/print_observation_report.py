@@ -75,6 +75,7 @@ class ObservationReport(models.AbstractModel):
         partner_pool = self.pool['res.partner']
         user_pool = self.pool['res.users']
         location_pool = self.pool['nh.clinical.location']
+        o2_level_pool = self.pool['nh.clinical.o2level']
 
         # get user data
         #user_id = user_pool.search(cr, uid, [('login', '=', request.session['login'])],context=context)[0]
@@ -122,6 +123,9 @@ class ObservationReport(models.AbstractModel):
                 observation['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
                 triggered_actions_ids = activity_pool.search(cr, uid, [['creator_id', '=', observation['id']]])
                 observation['values'] = ews_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                o2_level_id = oxygen_target_pool.get_last(cr, uid, patient_id, observation['values']['date_terminated'])
+                o2_level = o2_level_pool.browse(cr, uid, o2_level_id) if o2_level_id else False
+                observation['values']['o2_target'] = o2_level.name if o2_level else False
                 observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), dtf) if observation['values']['date_started'] else False
                 observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), dtf) if observation['values']['date_terminated'] else False
                 observation['triggered_actions'] = [v for v in activity_pool.read(cr, uid, triggered_actions_ids) if v['data_model'] != 'nh.clinical.patient.observation.ews']
