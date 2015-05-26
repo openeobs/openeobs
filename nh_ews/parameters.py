@@ -4,6 +4,7 @@ from openerp.osv import orm, fields
 import logging
 from openerp import SUPERUSER_ID
 from datetime import datetime as dt
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 _logger = logging.getLogger(__name__)
 
 
@@ -40,14 +41,16 @@ class nh_clinical_patient_o2target(orm.Model):
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
-    def get_last(self, cr, uid, patient_id, context=None):
+    def get_last(self, cr, uid, patient_id, datetime=False, context=None):
         """
         Checks if there is an O2 Target assigned for the provided Patient
         :return: False if there is no assigned O2 Target.
                 nh.clinical.o2level id of the last assigned O2 Target
         """
+        if not datetime:
+            datetime = dt.now().strftime(dtf)
         domain = [['patient_id', '=', patient_id], ['data_model', '=', 'nh.clinical.patient.o2target'],
-                  ['state', '=', 'completed'], ['parent_id.state', '=', 'started']]
+                  ['state', '=', 'completed'], ['parent_id.state', '=', 'started'], ['date_terminated', '<=', datetime]]
         activity_pool = self.pool['nh.activity']
         o2target_ids = activity_pool.search(cr, uid, domain, order='date_terminated desc, sequence desc',
                                             context=context)
