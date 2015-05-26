@@ -14,6 +14,8 @@ frequencies = [
     (120, 'Every 2 Hours'),
     (240, 'Every 4 Hours'),
     (360, 'Every 6 Hours'),
+    (480, 'Every 8 Hours'),
+    (600, 'Every 10 Hours'),
     (720, 'Every 12 Hours'),
     (1440, 'Every Day')
 ]

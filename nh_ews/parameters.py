@@ -36,7 +36,7 @@ class nh_clinical_patient_o2target(orm.Model):
     _inherit = ['nh.activity.data']
     _rec_name = 'level_id'
     _columns = {
-        'level_id': fields.many2one('nh.clinical.o2level', 'O2 Level', required=True),
+        'level_id': fields.many2one('nh.clinical.o2level', 'O2 Level'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
@@ -54,4 +54,4 @@ class nh_clinical_patient_o2target(orm.Model):
         if not o2target_ids:
             return False
         activity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
-        return activity.data_ref.level_id.id
+        return activity.data_ref.level_id.id if activity.data_ref.level_id else False
