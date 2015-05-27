@@ -531,22 +531,20 @@
                             <table class="striped col-xs-12 row">
                                 <thead>
                                     <tr>
-                                        <th class="col-xs-1">Device</th>
-                                        <th class="col-xs-1">Type</th>
-                                        <th class="col-xs-1">Location</th>
-                                        <th class="col-xs-1">Inserted</th>
-                                        <th class="col-xs-1">Planned</th>
+                                        <th class="col-xs-3">Device</th>
+                                        <th class="col-xs-3">Type</th>
+                                        <th class="col-xs-3">Location</th>
+                                        <th class="col-xs-3">Inserted</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="device_session_history" t-as="device_session">
                                         <t t-if="not device_session['values']['date_terminated']">
                                             <tr class="main-entry">
-                                                <td class="col-xs-1"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
-                                                <td class="col-xs-1"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
-                                                <td class="col-xs-1"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
-                                                <td class="col-xs-1"><t t-esc="device_session['values']['date_started']"/></td>
-                                                <td class="col-xs-1"><t t-if="device_session['values']['planned']"><t t-esc="device_session['values']['planned']"/></t></td>
+                                                <td class="col-xs-3"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
+                                                <td class="col-xs-3"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
+                                                <td class="col-xs-3"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
+                                                <td class="col-xs-3"><t t-esc="device_session['values']['date_started']"/></td>
                                             </tr>
                                         </t>
                                     </t>
@@ -615,6 +613,47 @@
                             <p></p>
                         </div>
                     </t>
+
+                    <div class="row col-xs-12">
+                        <h3>Patient Monitoring Exceptions</h3>
+                        <table class="striped col-xs-12 row">
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-3">Date</th>
+                                    <th class="col-xs-3">Flag</th>
+                                    <th class="col-xs-3">Action</th>
+                                    <th class="col-xs-3">User</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="mrsa_history" t-as="mrsa">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="mrsa['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">MRSA</td>
+                                        <td class="col-xs-3"><t t-esc="mrsa['values']['mrsa']"/></td>
+                                        <td class="col-xs-3"><t t-esc="mrsa['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="diabetes_history" t-as="diabetes">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="diabetes['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Diabetes</td>
+                                        <td class="col-xs-3"><t t-esc="diabetes['values']['diabetes']"/></td>
+                                        <td class="col-xs-3"><t t-esc="diabetes['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="palliative_care_history" t-as="palliative_care">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Palliative Care</td>
+                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['palliative_care']"/></td>
+                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <p></p>
+                    </div>
 
                     <t t-if="len(ews) > 0">
                         <div class="row col-xs-12">

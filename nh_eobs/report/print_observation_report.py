@@ -77,6 +77,9 @@ class ObservationReport(models.AbstractModel):
         location_pool = self.pool['nh.clinical.location']
         o2_level_pool = self.pool['nh.clinical.o2level']
         device_session_pool = self.pool['nh.clinical.device.session']
+        mrsa_pool = self.pool['nh.clinical.patient.mrsa']
+        diabetes_pool = self.pool['nh.clinical.patient.diabetes']
+        palliative_care_pool = self.pool['nh.clinical.patient.palliative_care']
 
         # get user data
         #user_id = user_pool.search(cr, uid, [('login', '=', request.session['login'])],context=context)[0]
@@ -199,6 +202,36 @@ class ObservationReport(models.AbstractModel):
                 device_session['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(device_session['values']['date_started'], dtf), pretty_date_format) if device_session['values']['date_started'] else False
                 device_session['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(device_session['values']['date_terminated'], dtf), pretty_date_format) if device_session['values']['date_terminated'] else False
             #
+            # # get MRSA flag history
+            # # - search mrsa model on patient with parent_id of spell - dates
+            mrsa_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.mrsa', start_time, end_time))
+            mrsa_history = activity_pool.read(cr, uid, mrsa_history_ids)
+            for mrsa in mrsa_history:
+                mrsa['values'] = mrsa_pool.read(cr, uid, int(mrsa['data_ref'].split(',')[1]), [])
+                mrsa['values']['mrsa'] = 'True' if mrsa['values']['mrsa'] else 'False'
+                mrsa['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_started'], dtf), pretty_date_format) if mrsa['values']['date_started'] else False
+                mrsa['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_terminated'], dtf), pretty_date_format) if mrsa['values']['date_terminated'] else False
+            #
+            # # get diabetes flag history
+            # # - search diabetes model on patient with parent_id of spell - dates
+            diabetes_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.diabetes', start_time, end_time))
+            diabetes_history = activity_pool.read(cr, uid, diabetes_history_ids)
+            for diabetes in diabetes_history:
+                diabetes['values'] = diabetes_pool.read(cr, uid, int(diabetes['data_ref'].split(',')[1]), [])
+                diabetes['values']['diabetes'] = 'True' if diabetes['values']['diabetes'] else 'False'
+                diabetes['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_started'], dtf), pretty_date_format) if diabetes['values']['date_started'] else False
+                diabetes['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_terminated'], dtf), pretty_date_format) if diabetes['values']['date_terminated'] else False
+            #
+            # # get palliative_care flag history
+            # # - search palliative_care model on patient with parent_id of spell - dates
+            palliative_care_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.palliative_care', start_time, end_time))
+            palliative_care_history = activity_pool.read(cr, uid, palliative_care_history_ids)
+            for palliative_care in palliative_care_history:
+                palliative_care['values'] = palliative_care_pool.read(cr, uid, int(palliative_care['data_ref'].split(',')[1]), [])
+                palliative_care['values']['palliative_care'] = 'True' if palliative_care['values']['status'] else 'False'
+                palliative_care['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_started'], dtf), pretty_date_format) if palliative_care['values']['date_started'] else False
+                palliative_care['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_terminated'], dtf), pretty_date_format) if palliative_care['values']['date_terminated'] else False
+            #
             # # get transfer history
             # # - search move on patient with parent_id of spell - dates
             transfer_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.move', start_time, end_time))
@@ -214,6 +247,7 @@ class ObservationReport(models.AbstractModel):
                 patient['bed'] = transfer_history[-1]['bed'] if transfer_history[-1]['bed'] else False
                 patient['ward'] = transfer_history[-1]['ward'] if transfer_history[-1]['ward'] else False
             #
+            # # convert the obs into usable obs for table & report
             ews_for_json = copy.deepcopy(ews)
             json_obs = [v['values'] for v in ews_for_json]
             table_ews = [v['values'] for v in ews]
@@ -243,6 +277,9 @@ class ObservationReport(models.AbstractModel):
                 'bs': bss,
                 'targeto2': oxygen_history,
                 'device_session_history': device_session_history,
+                'mrsa_history': mrsa_history,
+                'diabetes_history': diabetes_history,
+                'palliative_care_history': palliative_care_history,
                 'transfer_history': transfer_history,
                 'report_start': report_start,
                 'report_end': report_end,
