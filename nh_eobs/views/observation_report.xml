@@ -4,7 +4,7 @@
         <template id="observation_report_footer">
             <div class="footer">
                 <div class="col-xs-9">
-                        <p><strong>REF:</strong> <t t-esc="user_name"/> - <t t-esc="time_generated"/> - <t t-esc="hospital_name"/> - <t t-esc="patient['other_identifier']"/></p>
+                        <p><img src="/nh_eobs/static/src/img/open_eobs_logo.png" style="height: 16px;"/> <t t-esc="user_name"/> - <t t-esc="time_generated"/> - <t t-esc="hospital_name"/> - <t t-esc="patient['other_identifier']"/></p>
                 </div>
                 <div class="col-xs-3 pull-right">
                     <p>Page: <span class="page"/>/<span class="topage"/></p>
