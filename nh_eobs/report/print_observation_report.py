@@ -76,6 +76,7 @@ class ObservationReport(models.AbstractModel):
         user_pool = self.pool['res.users']
         location_pool = self.pool['nh.clinical.location']
         o2_level_pool = self.pool['nh.clinical.o2level']
+        device_session_pool = self.pool['nh.clinical.device.session']
 
         # get user data
         #user_id = user_pool.search(cr, uid, [('login', '=', request.session['login'])],context=context)[0]
@@ -189,6 +190,15 @@ class ObservationReport(models.AbstractModel):
                 observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
                 observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             #
+            # # get Device Session history
+            # # - search device session model on patient with parent_id of spell - dates
+            device_session_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.o2target', start_time, end_time))
+            device_session_history = activity_pool.read(cr, uid, device_session_history_ids)
+            for device_session in device_session_history:
+                device_session['values'] = device_session_pool.read(cr, uid, int(device_session['data_ref'].split(',')[1]), [])
+                device_session['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(device_session['values']['date_started'], dtf), pretty_date_format) if device_session['values']['date_started'] else False
+                device_session['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(device_session['values']['date_terminated'], dtf), pretty_date_format) if device_session['values']['date_terminated'] else False
+            #
             # # get transfer history
             # # - search move on patient with parent_id of spell - dates
             transfer_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.move', start_time, end_time))
@@ -232,6 +242,7 @@ class ObservationReport(models.AbstractModel):
                 'gcs': gcss,
                 'bs': bss,
                 'targeto2': oxygen_history,
+                'device_session_history': device_session_history,
                 'transfer_history': transfer_history,
                 'report_start': report_start,
                 'report_end': report_end,
