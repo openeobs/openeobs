@@ -80,6 +80,8 @@ class ObservationReport(models.AbstractModel):
         mrsa_pool = self.pool['nh.clinical.patient.mrsa']
         diabetes_pool = self.pool['nh.clinical.patient.diabetes']
         palliative_care_pool = self.pool['nh.clinical.patient.palliative_care']
+        post_surgery_pool = self.pool['nh.clinical.patient.post_surgery']
+        critical_care_pool = self.pool['nh.clinical.patient.critical_care']
 
         # get user data
         #user_id = user_pool.search(cr, uid, [('login', '=', request.session['login'])],context=context)[0]
@@ -232,6 +234,26 @@ class ObservationReport(models.AbstractModel):
                 palliative_care['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_started'], dtf), pretty_date_format) if palliative_care['values']['date_started'] else False
                 palliative_care['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_terminated'], dtf), pretty_date_format) if palliative_care['values']['date_terminated'] else False
             #
+            # # get post_surgery flag history
+            # # - search post_surgery model on patient with parent_id of spell - dates
+            post_surgery_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.post_surgery', start_time, end_time))
+            post_surgery_history = activity_pool.read(cr, uid, post_surgery_history_ids)
+            for post_surgery in post_surgery_history:
+                post_surgery['values'] = post_surgery_pool.read(cr, uid, int(post_surgery['data_ref'].split(',')[1]), [])
+                post_surgery['values']['post_surgery'] = 'True' if post_surgery['values']['status'] else 'False'
+                post_surgery['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(post_surgery['values']['date_started'], dtf), pretty_date_format) if post_surgery['values']['date_started'] else False
+                post_surgery['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(post_surgery['values']['date_terminated'], dtf), pretty_date_format) if post_surgery['values']['date_terminated'] else False
+            #
+            # # get critical_care flag history
+            # # - search critical_care model on patient with parent_id of spell - dates
+            critical_care_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.critical_care', start_time, end_time))
+            critical_care_history = activity_pool.read(cr, uid, critical_care_history_ids)
+            for critical_care in critical_care_history:
+                critical_care['values'] = critical_care_pool.read(cr, uid, int(critical_care['data_ref'].split(',')[1]), [])
+                critical_care['values']['critical_care'] = 'True' if critical_care['values']['status'] else 'False'
+                critical_care['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(critical_care['values']['date_started'], dtf), pretty_date_format) if critical_care['values']['date_started'] else False
+                critical_care['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(critical_care['values']['date_terminated'], dtf), pretty_date_format) if critical_care['values']['date_terminated'] else False
+            #
             # # get transfer history
             # # - search move on patient with parent_id of spell - dates
             transfer_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.move', start_time, end_time))
@@ -280,6 +302,8 @@ class ObservationReport(models.AbstractModel):
                 'mrsa_history': mrsa_history,
                 'diabetes_history': diabetes_history,
                 'palliative_care_history': palliative_care_history,
+                'post_surgery_history': post_surgery_history,
+                'critical_care_history': critical_care_history,
                 'transfer_history': transfer_history,
                 'report_start': report_start,
                 'report_end': report_end,

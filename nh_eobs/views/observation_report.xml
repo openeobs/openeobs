@@ -650,6 +650,22 @@
                                         <td class="col-xs-3"><t t-esc="palliative_care['values']['terminate_uid'][1]"/></td>
                                     </tr>
                                 </t>
+                                <t t-foreach="post_surgery_history" t-as="post_surgery">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Palliative Care</td>
+                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['post_surgery']"/></td>
+                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="critical_care_history" t-as="critical_care">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="critical_care['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Palliative Care</td>
+                                        <td class="col-xs-3"><t t-esc="critical_care['values']['critical_care']"/></td>
+                                        <td class="col-xs-3"><t t-esc="critical_care['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
                             </tbody>
                         </table>
                         <p></p>
