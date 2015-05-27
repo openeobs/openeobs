@@ -63,6 +63,9 @@ class ObservationReport(models.AbstractModel):
         activity_pool = self.pool['nh.activity']
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
+        pain_pool = self.pool['nh.clinical.patient.observation.pain']
+        blood_product_pool = self.pool['nh.clinical.patient.observation.blood_product']
+        bristol_stool_pool = self.pool['nh.clinical.patient.observation.stools']
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
         weight_pool = self.pool['nh.clinical.patient.observation.weight']
         height_pool = self.pool['nh.clinical.patient.observation.height']
@@ -148,6 +151,37 @@ class ObservationReport(models.AbstractModel):
                 observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
                 observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             patient['weight'] = weights[-1]['values']['weight'] if len(weights) > 0 else False
+            # get pain observations
+            # - search pain model with parent_id of spell - dates
+            pain_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.pain', start_time, end_time))
+            pains = activity_pool.read(cr, uid, pain_ids)
+            for observation in pains:
+                observation['values'] = pain_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+            # get blood_product observations
+            # - search blood_product model with parent_id of spell - dates
+            blood_product_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.blood_product', start_time, end_time))
+            blood_products = activity_pool.read(cr, uid, blood_product_ids)
+            for observation in blood_products:
+                observation['values'] = blood_product_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+            # get bristol_stool observations
+            # - search bristol_stool model with parent_id of spell - dates
+            bristol_stool_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.stools', start_time, end_time))
+            bristol_stools = activity_pool.read(cr, uid, bristol_stool_ids)
+            for observation in bristol_stools:
+                observation['values'] = bristol_stool_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['bowel_open'] = 'True' if observation['values']['bowel_open'] else 'False'
+                observation['values']['vomiting'] = 'True' if observation['values']['vomiting'] else 'False'
+                observation['values']['nausea'] = 'True' if observation['values']['nausea'] else 'False'
+                observation['values']['strain'] = 'True' if observation['values']['strain'] else 'False'
+                observation['values']['offensive'] = 'True' if observation['values']['offensive'] else 'False'
+                observation['values']['laxatives'] = 'True' if observation['values']['laxatives'] else 'False'
+                observation['values']['rectal_exam'] = 'True' if observation['values']['rectal_exam'] else 'False'
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             #
             # # get height observations
             # # - search height model with parent_id of spell - dates
@@ -297,6 +331,9 @@ class ObservationReport(models.AbstractModel):
                 'pbps': pbps,
                 'gcs': gcss,
                 'bs': bss,
+                'bristol_stools': bristol_stools,
+                'pains': pains,
+                'blood_products': blood_products,
                 'targeto2': oxygen_history,
                 'device_session_history': device_session_history,
                 'mrsa_history': mrsa_history,

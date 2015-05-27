@@ -436,14 +436,102 @@
                                 <thead>
                                     <tr>
                                         <th class="col-xs-3">Date</th>
-                                        <th class="col-xs-3">Blood Sugar (mmol/L)</th>
+                                        <th class="col-xs-9">Blood Sugar (mmol/L)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="bs" t-as="bs_score">
                                         <tr>
                                             <td class="col-xs-3"><t t-esc="bs_score['values']['date_terminated']"/></td>
-                                            <td class="col-xs-3"><t t-esc="bs_score['values']['blood_sugar']"/></td>
+                                            <td class="col-xs-9"><t t-esc="bs_score['values']['blood_sugar']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(pains) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Pain Score Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-9">Pain Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="pains" t-as="pain">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="pain['values']['date_terminated']"/></td>
+                                            <td class="col-xs-9"><t t-esc="pain['values']['score']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(blood_products) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Blood Product Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-3">Vol (ml)</th>
+                                        <th class="col-xs-6">Blood Product</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="blood_products" t-as="blood_product">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="blood_product['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="blood_product['values']['vol']"/></td>
+                                            <td class="col-xs-6"><t t-esc="blood_product['values']['product']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(bristol_stools) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Bristol Stools Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-1">Date</th>
+                                        <th class="col-xs-1">Bowel Open</th>
+                                        <th class="col-xs-1">Nausea</th>
+                                        <th class="col-xs-1">Vomiting</th>
+                                        <th class="col-xs-1">Quantity</th>
+                                        <th class="col-xs-1">Colour</th>
+                                        <th class="col-xs-1">Bristol Type</th>
+                                        <th class="col-xs-1">Offensive</th>
+                                        <th class="col-xs-1">Strain</th>
+                                        <th class="col-xs-1">Laxatives</th>
+                                        <th class="col-xs-1">Samples</th>
+                                        <th class="col-xs-1">Rectal Exam</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="bristol_stools" t-as="bristol_stool">
+                                        <tr>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['date_terminated']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['bowel_open']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['nausea']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['vomiting']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['quantity']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['colour']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['bristol_type']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['offensive']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['strain']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['laxatives']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['samples']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['rectal_exam']"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
