@@ -186,7 +186,7 @@ class nh_clinical_patient_observation_pbp(orm.Model):
 
         res = super(nh_clinical_patient_observation_pbp, self).complete(cr, uid, activity_id, context)
 
-        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
+        activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
 
         # create next PBP (schedule)
         domain = [

@@ -26,10 +26,9 @@ class nh_clinical_patient_pbp_monitoring(orm.Model):
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
-        api_pool = self.pool['nh.clinical.api']
         pbp_pool = self.pool['nh.clinical.patient.observation.pbp']
         if activity.data_ref.pbp_monitoring:
-            api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, pbp_pool._name, context=context)
+            activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, pbp_pool._name, context=context)
             pbp_activity_id = pbp_pool.create_activity(cr, SUPERUSER_ID,
                                  {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
                                  {'patient_id': activity.data_ref.patient_id.id})

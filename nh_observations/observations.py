@@ -183,24 +183,25 @@ class nh_clinical_patient_observation_weight(orm.Model):
     ]
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
-        hour = td(hours=1)
-        schedule_times = []
-        for s in self._POLICY['schedule']:
-            schedule_times.append(dt.now().replace(hour=s[0], minute=s[1], second=0, microsecond=0))
-        date_schedule = date_scheduled if date_scheduled else dt.now().replace(minute=0, second=0, microsecond=0)
-        utctimes = [fields.datetime.utc_timestamp(cr, uid, t, context=context) for t in schedule_times]
-        while all([date_schedule.hour != date_schedule.strptime(ut, DTF).hour for ut in utctimes]):
-            date_schedule += hour
-        return super(nh_clinical_patient_observation_weight, self).schedule(cr, uid, activity_id, date_schedule.strftime(DTF), context=context)
+        if not date_scheduled:
+            hour = td(hours=1)
+            schedule_times = []
+            for s in self._POLICY['schedule']:
+                schedule_times.append(dt.now().replace(hour=s[0], minute=s[1], second=0, microsecond=0))
+            date_schedule = dt.now().replace(minute=0, second=0, microsecond=0) + td(hours=2)
+            utctimes = [fields.datetime.utc_timestamp(cr, uid, t, context=context) for t in schedule_times]
+            while all([date_schedule.hour != date_schedule.strptime(ut, DTF).hour for ut in utctimes]):
+                date_schedule += hour
+            date_scheduled = date_schedule.strftime(DTF)
+        return super(nh_clinical_patient_observation_weight, self).schedule(cr, uid, activity_id, date_scheduled, context=context)
 
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
-        api_pool = self.pool['nh.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
 
         res = super(nh_clinical_patient_observation_weight, self).complete(cr, uid, activity_id, context)
 
-        api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
+        activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
 
         # create next Weight activity (schedule)
         domain = [
@@ -215,9 +216,7 @@ class nh_clinical_patient_observation_weight(orm.Model):
                                  {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
                                  {'patient_id': activity.data_ref.patient_id.id})
 
-            date_schedule = dt.now().replace(minute=0, second=0, microsecond=0) + td(hours=2)
-
-            activity_pool.schedule(cr, uid, next_activity_id, date_schedule, context=context)
+            activity_pool.schedule(cr, uid, next_activity_id, context=context)
         return res
 
 

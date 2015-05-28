@@ -163,7 +163,7 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
         return result
 
     _columns = {
-        'weight_monitoring': fields.boolean('Postural Blood Presssure Monitoring', required=True),
+        'weight_monitoring': fields.boolean('Weight Monitoring', required=True),
         'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
@@ -171,14 +171,12 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
-        api_pool = self.pool['nh.clinical.api']
         weight_pool = self.pool['nh.clinical.patient.observation.weight']
         if activity.data_ref.weight_monitoring:
-            api_pool.cancel_open_activities(cr, uid, activity.parent_id.id, weight_pool._name, context=context)
+            activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, weight_pool._name, context=context)
             weight_activity_id = weight_pool.create_activity(cr, SUPERUSER_ID,
                                  {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
                                  {'patient_id': activity.data_ref.patient_id.id})
-            date_schedule = dt.now().replace(minute=0, second=0, microsecond=0)
-            activity_pool.schedule(cr, SUPERUSER_ID, weight_activity_id, date_schedule, context=context)
+            activity_pool.schedule(cr, SUPERUSER_ID, weight_activity_id, context=context)
 
         return super(nh_clinical_patient_weight_monitoring, self).complete(cr, uid, activity_id, context=context)
