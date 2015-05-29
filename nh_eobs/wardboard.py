@@ -288,12 +288,15 @@ class nh_clinical_wardboard(orm.Model):
         'weight_monitoring': fields.selection(_boolean_selection, "Weight Monitoring"),
         'height': fields.float("Height"),
         'o2target': fields.many2one('nh.clinical.o2level', 'O2 Target'),
+        'uotarget_vol': fields.integer('Target Volume'),
+        'uotarget_unit': fields.selection([[1, 'ml/hour'], [2, 'L/day']], 'Unit'),
         'consultant_names': fields.text("Consulting Doctors"),
         'terminated_device_session_ids': fields.function(_get_terminated_device_session_ids, type='many2many', relation='nh.clinical.device.session', string='Device Session History'),
         'started_device_session_ids': fields.function(_get_started_device_session_ids, type='many2many', relation='nh.clinical.device.session', string='Started Device Sessions'),
         'spell_ids': fields.function(_get_data_ids_multi, multi='spell_ids', type='many2many', relation='nh.clinical.spell', string='Spells'),
         'move_ids': fields.function(_get_data_ids_multi, multi='move_ids', type='many2many', relation='nh.clinical.patient.move', string='Patient Moves'),
         'o2target_ids': fields.function(_get_data_ids_multi, multi='o2target_ids',type='many2many', relation='nh.clinical.patient.o2target', string='O2 Targets'),
+        'uotarget_ids': fields.function(_get_data_ids_multi, multi='uotarget_ids',type='many2many', relation='nh.clinical.patient.uotarget', string='Urine Output Targets'),
         'weight_ids': fields.function(_get_data_ids_multi, multi='weight_ids', type='many2many', relation='nh.clinical.patient.observation.weight', string='Weight Obs'),
         'blood_sugar_ids': fields.function(_get_data_ids_multi, multi='blood_sugar_ids', type='many2many', relation='nh.clinical.patient.observation.blood_sugar', string='Blood Sugar Obs'),
         'mrsa_ids': fields.function(_get_data_ids_multi, multi='mrsa_ids', type='many2many', relation='nh.clinical.patient.mrsa', string='MRSA'),
@@ -836,7 +839,9 @@ param as(
             ps.status as post_surgery,
             psactivity.date_terminated as post_surgery_date,
             cc.status as critical_care,
-            ccactivity.date_terminated as critical_care_date
+            ccactivity.date_terminated as critical_care_date,
+            uotarget.volume as uotarget_vol,
+            uotarget.unit as uotarget_unit
         from wb_activity_latest activity
         left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
@@ -847,6 +852,7 @@ param as(
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
         left join nh_clinical_patient_palliative_care pc on activity.ids && array[pc.activity_id]
         left join nh_clinical_patient_post_surgery ps on activity.ids && array[ps.activity_id]
+        left join nh_clinical_patient_uotarget uotarget on activity.ids && array[uotarget.activity_id]
         left join nh_activity psactivity on psactivity.id = ps.activity_id
         left join nh_clinical_patient_critical_care cc on activity.ids && array[cc.activity_id]
         left join nh_activity ccactivity on ccactivity.id = cc.activity_id
@@ -919,6 +925,8 @@ nh_clinical_wardboard as(
             when param.critical_care and param.critical_care_date > now() - interval '24h' then 'yes'
             else 'no'
         end as critical_care,
+        param.uotarget_vol,
+        param.uotarget_unit,
         consulting_doctors.names as consultant_names
         
     from nh_clinical_spell spell
