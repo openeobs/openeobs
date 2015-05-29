@@ -180,3 +180,27 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
             activity_pool.schedule(cr, SUPERUSER_ID, weight_activity_id, context=context)
 
         return super(nh_clinical_patient_weight_monitoring, self).complete(cr, uid, activity_id, context=context)
+
+
+class nh_clinical_patient_urine_output_target(orm.Model):
+    _name = 'nh.clinical.patient.uotarget'
+    _inherit = ['nh.activity.data']
+    _columns = {
+        'volume': fields.integer('Volume', required=True),
+        'unit': fields.selection([[1, 'ml/hour'], [2, 'L/day']], 'Unit', required=True),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+    }
+
+    def current_target(self, cr, uid, patient_id, context=None):
+        """
+        Checks what is the current Urine Output target for the provided patient
+        :return: list with [volume,unit] if target exists. False otherwise
+        """
+        activity_pool = self.pool['nh.activity']
+        a_ids = activity_pool.search(cr, uid, [['patient_id', '=', patient_id], ['data_model', '=', self._name],
+                                               ['state', '=', 'completed']],
+                                     order='date_terminated desc, sequence desc', context=context)
+        if not a_ids:
+            return False
+        activity = activity_pool.browse(cr, uid, a_ids[0], context=context)
+        return [activity.data_ref.volume, activity.data_ref.unit]
