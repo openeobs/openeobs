@@ -42,10 +42,6 @@ class nh_eobs_api(orm.AbstractModel):
         {
             'type': 'pbp',
             'name': 'Postural Blood Pressure'
-        },
-        {
-            'type': 'pain',
-            'name': 'Pain Score'
         }
     ]
 
