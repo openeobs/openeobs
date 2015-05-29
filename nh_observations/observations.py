@@ -299,3 +299,21 @@ class nh_clinical_patient_observation_pain(orm.Model):
             'initially_hidden': False
         }
     ]
+
+class nh_clinical_patient_observation_urine_output(orm.Model):
+    _name = 'nh.clinical.patient.observation.urine_output'
+    _inherit = ['nh.clinical.patient.observation']
+    _required = ['urine_output']
+    _description = "Urine Output Flag"
+    _columns = {
+        'urine_output': fields.selection([['yes', 'Yes'], ['no', 'No']], 'Urine Output')
+    }
+    _form_description = [
+        {
+            'name': 'urine_output',
+            'type': 'selection',
+            'label': 'Urine Output',
+            'selection': [['yes', 'Yes'], ['no', 'No']],
+            'initially_hidden': False
+        }
+    ]
