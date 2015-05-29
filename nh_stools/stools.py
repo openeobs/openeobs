@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields
-from openerp.addons.nh_activity.activity import except_if
-from openerp.addons.nh_observations.parameters import frequencies
 import logging
 
 _logger = logging.getLogger(__name__)
