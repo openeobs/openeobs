@@ -311,6 +311,7 @@ class nh_clinical_wardboard(orm.Model):
         'gcs_ids': fields.function(_get_data_ids_multi, multi='gcs_ids', type='many2many', relation='nh.clinical.patient.observation.gcs', string='GCS Obs'),
         'pain_ids': fields.function(_get_data_ids_multi, multi='pain_ids', type='many2many', relation='nh.clinical.patient.observation.pain', string='Pain Obs'),
         'urine_output_ids': fields.function(_get_data_ids_multi, multi='urine_output_ids', type='many2many', relation='nh.clinical.patient.observation.urine_output', string='Urine Output Flag'),
+        'bowels_open_ids': fields.function(_get_data_ids_multi, multi='bowel_open_ids', type='many2many', relation='nh.clinical.patient.observation.bowels_open', string='Bowel Open Flag'),
         'ews_list_ids': fields.function(_get_data_ids_multi, multi='ews_list_ids', type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs List'),
         'transferred_user_ids': fields.function(_get_transferred_user_ids, type='many2many', relation='res.users', fnct_search=_transferred_user_ids_search, string='Recently Transferred Access'),
         'placed': fields.boolean('Placed?')
