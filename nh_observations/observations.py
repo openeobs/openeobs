@@ -317,3 +317,22 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
             'initially_hidden': False
         }
     ]
+
+
+class nh_clinical_patient_observation_bowels_open(orm.Model):
+    _name = 'nh.clinical.patient.observation.bowels_open'
+    _inherit = ['nh.clinical.patient.observation']
+    _required = ['bowels_open']
+    _description = "Bowels Open Flag"
+    _columns = {
+        'bowels_open': fields.selection([['yes', 'Yes'], ['no', 'No']], 'Bowels Open')
+    }
+    _form_description = [
+        {
+            'name': 'bowels_open',
+            'type': 'selection',
+            'label': 'Bowels Open',
+            'selection': [['yes', 'Yes'], ['no', 'No']],
+            'initially_hidden': False
+        }
+    ]
