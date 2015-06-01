@@ -666,6 +666,10 @@ class nh_clinical_wardboard(orm.Model):
 drop materialized view if exists ews0 cascade;
 drop materialized view if exists ews1 cascade;
 drop materialized view if exists ews2 cascade;
+drop materialized view if exists ward_locations cascade;
+drop materialized view if exists param cascade;
+drop materialized view if exists placement cascade;
+
 
 create or replace view
 -- activity per spell, data_model, state
@@ -679,7 +683,7 @@ wb_activity_ranked as(
         inner join nh_activity activity on activity.spell_activity_id = spell.activity_id
 );
 
-create or replace view
+create materialized view
 ward_locations as(
     with recursive ward_loc(id, parent_id, path, ward_id) as (
         select lc.id, lc.parent_id, ARRAY[lc.id] as path, lc.id as ward_id
@@ -716,7 +720,7 @@ wb_activity_latest as(
     group by max_sequence.spell_id, activity.state
 );
 
-create or replace view 
+create or replace view
 -- activity data ids per spell/patient_id, data_model, state
 wb_activity_data as(
         select 
@@ -799,7 +803,7 @@ ews2 as(
             where activity.rank = 2 and activity.state = 'completed'
 );
 
-create or replace view
+create materialized view
 placement as(
             select
                 activity.patient_id,
@@ -825,7 +829,7 @@ consulting_doctors as(
             group by spell.id
 );
 
-create or replace view
+create materialized view
 param as(
         select
             activity.spell_id,
@@ -939,7 +943,7 @@ nh_clinical_wardboard as(
     left join ward_locations wlocation on wlocation.id = location.id
     left join placement plc on spell.id = plc.spell_id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
-    inner join param on param.spell_id = spell.id
+    left join param on param.spell_id = spell.id
     where spell_activity.state = 'started'
 );
 
