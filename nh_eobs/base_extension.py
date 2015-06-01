@@ -60,3 +60,11 @@ class nh_ui_location(orm.Model):
                             location_ids = [l.id for l in user.location_ids]
                             domain += [('id', 'in', location_ids)]
         return super(nh_ui_location, self).search(cr, uid, domain, offset=offset, limit=limit, order=order, context=context, count=count)
+
+    def create(self, cr, uid, vals, context=None):
+        res = super(nh_ui_location, self).create(cr, uid, vals, context=context)
+        sql = """
+                refresh materialized view ward_locations;
+        """
+        cr.execute(sql)
+        return res
