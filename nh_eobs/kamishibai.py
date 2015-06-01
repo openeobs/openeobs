@@ -41,19 +41,6 @@ class nh_clinical_kamishibai(orm.Model):
 drop view if exists nh_clinical_kamishibai;
 
 create or replace view
-ward_locations as(
-    with recursive ward_loc(id, parent_id, path, ward_id) as (
-        select lc.id, lc.parent_id, ARRAY[lc.id] as path, lc.id as ward_id
-        from nh_clinical_location as lc
-        where lc.usage = 'ward'
-        union all
-        select l.id, l.parent_id, w.path || ARRAY[l.id] as path, w.path[1] as ward_id
-        from ward_loc as w, nh_clinical_location as l
-        where l.parent_id = w.id)
-    select * from ward_loc
-);
-
-create or replace view
 created_activities as(
     with recursive created_act(id, parent_id, creator_id, data_model, date_scheduled, date_terminated, created) as (
         select
