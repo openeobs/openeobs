@@ -189,6 +189,22 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             response.set_cookie('session_id', value=request.session_id, max_age=3600)
             return response
         if request.httprequest.method == 'POST':
+            ### Custom Hacking TODO: REMOVE / REFACTOR this code !!!
+            card_pin = request.params.get('card_pin', None)
+            if card_pin:
+                #print('we have a card PIN !!!')
+                nfc_api = request.registry['nh.eobs.mobile.nfc']
+                user_id = nfc_api.get_user_id_from_card_pin(request.cr, 1, card_pin)
+                user_login = nfc_api.get_user_login_from_user_id(request.cr, 1, user_id)
+                if user_id is not False:
+                    #print('we have a user ID !!!')
+                    request.session.db = 'nhclinical'  # instead should use the variable 'database'
+                    request.session.uid = user_id
+                    request.session.login = user_login
+                    request.session.password = 'nadine'  # instead should use the variable 'card_pin'
+                    #request.uid = uid
+                    return utils.redirect(URLS['task_list'], 303)
+            ### end of Custom Hacking
             database = values['database'] if 'database' in values else False
             if database:
                 uid = request.session.authenticate(database, request.params['username'], request.params['password'])
