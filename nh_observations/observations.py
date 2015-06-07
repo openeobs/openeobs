@@ -304,16 +304,17 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
     _name = 'nh.clinical.patient.observation.urine_output'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['urine_output']
-    _description = "Urine Output Flag"
+    _description = "Urine Output Observation"
     _columns = {
-        'urine_output': fields.selection([['yes', 'Yes'], ['no', 'No']], 'Urine Output')
+        'urine_output': fields.integer('Urine Output')
     }
     _form_description = [
         {
             'name': 'urine_output',
-            'type': 'selection',
-            'label': 'Urine Output',
-            'selection': [['yes', 'Yes'], ['no', 'No']],
+            'type': 'integer',
+            'label': 'Urine Output (ml/hour)',
+            'min': 0,
+            'max': 1000,
             'initially_hidden': False
         }
     ]
