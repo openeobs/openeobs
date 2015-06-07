@@ -18,23 +18,24 @@ class nh_clinical_patient_observation_gcs(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
-    _eyes = [('1', '1: Does not open eyes'),
-             ('2', '2: Opens eyes in response to painful stimuli'),
+    _eyes = [('4', '4: Opens eyes spontaneously'),
              ('3', '3: Opens eyes in response to voice'),
-             ('4', '4: Opens eyes spontaneously'),
+             ('2', '2: Opens eyes in response to painful stimuli'),
+             ('1', '1: Does not open eyes'),
              ('C', 'C: Closed by swelling')]
-    _verbal = [('1', '1: Makes no sounds'),
-               ('2', '2: Incomprehensible sounds'),
-               ('3', '3: Utters inappropiate words'),
+    _verbal = [('5', '5: Oriented, converses normally'),
                ('4', '4: Confused, disoriented'),
-               ('5', '5: Oriented, converses normally'),
+               ('3', '3: Utters inappropiate words'),
+               ('2', '2: Incomprehensible sounds'),
+               ('1', '1: Makes no sounds'),
                ('T', 'T: Intubated')]
-    _motor = [('1', '1: Makes no movements'),
-              ('2', '2: Extension to painful stimuli (decerebrate response)'),
-              ('3', '3: Abnormal flexion to painful stimuli (decorticate response)'),
-              ('4', '4: Flexion / Withdrawal to painful stimuli'),
+    _motor = [('6', '6: Obeys commands'),
               ('5', '5: Localizes painful stimuli'),
-              ('6', '6: Obeys commands')]
+              ('4', '4: Flexion / Withdrawal to painful stimuli'),
+              ('3', '3: Abnormal flexion to painful stimuli (decorticate response)'),
+              ('2', '2: Extension to painful stimuli (decerebrate response)'),
+              ('1', '1: Makes no movements')
+              ]
 
     """
     Default GCS policy has 5 different scenarios:
