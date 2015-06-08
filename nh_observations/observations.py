@@ -5,6 +5,7 @@ from openerp.addons.nh_observations.parameters import frequencies
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import SUPERUSER_ID
+import copy
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -283,17 +284,26 @@ class nh_clinical_patient_observation_blood_sugar(orm.Model):
 class nh_clinical_patient_observation_pain(orm.Model):
     _name = 'nh.clinical.patient.observation.pain'
     _inherit = ['nh.clinical.patient.observation']
-    _required = ['score']
-    _num_fields = ['score']
+    _required = ['rest_score', 'movement_score']
+    _num_fields = ['rest_score', 'movement_score']
     _description = "Pain Score Observation"
     _columns = {
-        'score': fields.integer('Pain Score')
+        'rest_score': fields.integer('Pain Score at rest'),
+        'movement_score': fields.integer('Pain Score on movement')
     }
     _form_description = [
         {
-            'name': 'score',
+            'name': 'rest_score',
             'type': 'integer',
-            'label': 'Pain Score',
+            'label': 'Pain Score at rest (0 to 10)',
+            'min': 0,
+            'max': 10,
+            'initially_hidden': False
+        },
+        {
+            'name': 'movement_score',
+            'type': 'integer',
+            'label': 'Pain Score on movement (0 to 10)',
             'min': 0,
             'max': 10,
             'initially_hidden': False
@@ -318,6 +328,18 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
             'initially_hidden': False
         }
     ]
+
+    def get_form_description(self, cr, uid, patient_id, context=None):
+        uotarget_pool = self.pool['nh.clinical.patient.uotarget']
+        units = {1: 'ml/hour', 2: 'L/day'}
+        fd = copy.deepcopy(self._form_description)
+        # Find the Urine Output target
+        uotarget = uotarget_pool.current_target(cr, uid, patient_id, context=context)
+
+        for field in fd:
+            if field['name'] == 'urine_output' and uotarget:
+                field['secondary_label'] = 'Target: {0} {1}'.format(uotarget[0], units[uotarget[1]])
+        return fd
 
 
 class nh_clinical_patient_observation_bowels_open(orm.Model):
