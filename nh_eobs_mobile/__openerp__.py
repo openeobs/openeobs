@@ -10,7 +10,6 @@
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['web', 'nh_eobs'],
     'data': ['views/template.xml'],
-    'demo': ['data/nfc.xml'],
     'images': [],
     'qweb': [],
     'application': True,
