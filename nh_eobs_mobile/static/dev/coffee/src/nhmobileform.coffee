@@ -32,6 +32,8 @@ class NHMobileForm extends NHMobile
                   self.trigger_actions)
           when 'select' then input.addEventListener('change',
             self.trigger_actions)
+          when 'button' then input.addEventListener('click',
+            self.show_reference)
 
     # Set up form timeout so that the task is put back in the task list after
     # a certain time
@@ -184,6 +186,25 @@ class NHMobileForm extends NHMobile
     else
       # display the partial obs dialog
       @display_partial_reasons(@)
+
+  show_reference: (event) =>
+    event.preventDefault()
+    @.reset_form_timeout(@)
+    input = if event.srcElement then event.srcElement else event.target
+    ref_type = input.getAttribute('data-type')
+    ref_url = input.getAttribute('data-url')
+    ref_title = input.getAttribute('data-title')
+    if ref_type is 'image'
+      img = '<img src="' + ref_url + '"/>'
+      btn = '<a href="#" data-action="close" data-target="popup_image">'+
+        'Cancel</a>'
+      new window.NH.NHModal('popup_image', ref_title, img, [btn], 0, @.form)
+    if ref_type is 'iframe'
+      iframe = '<iframe src="'+ ref_url + '"></iframe>'
+      btn = '<a href="#" data-action="close" data-target="popup_iframe">'+
+        'Cancel</a>'
+      new window.NH.NHModal('popup_iframe', ref_title, iframe, [btn], 0, @.form)
+
 
   display_partial_reasons: (self) =>
     Promise.when(@call_resource(@.urls.json_partial_reasons())).then (data) ->

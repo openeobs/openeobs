@@ -404,6 +404,7 @@ NHMobileForm = (function(superClass) {
     this.cancel_notification = bind(this.cancel_notification, this);
     this.submit_observation = bind(this.submit_observation, this);
     this.display_partial_reasons = bind(this.display_partial_reasons, this);
+    this.show_reference = bind(this.show_reference, this);
     this.submit = bind(this.submit, this);
     this.trigger_actions = bind(this.trigger_actions, this);
     this.validate = bind(this.validate, this);
@@ -440,6 +441,8 @@ NHMobileForm = (function(superClass) {
           break;
         case 'select':
           return input.addEventListener('change', self.trigger_actions);
+        case 'button':
+          return input.addEventListener('click', self.show_reference);
       }
     };
     for (i = 0, len = ref.length; i < len; i++) {
@@ -656,6 +659,26 @@ NHMobileForm = (function(superClass) {
       return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
     } else {
       return this.display_partial_reasons(this);
+    }
+  };
+
+  NHMobileForm.prototype.show_reference = function(event) {
+    var btn, iframe, img, input, ref_title, ref_type, ref_url;
+    event.preventDefault();
+    this.reset_form_timeout(this);
+    input = event.srcElement ? event.srcElement : event.target;
+    ref_type = input.getAttribute('data-type');
+    ref_url = input.getAttribute('data-url');
+    ref_title = input.getAttribute('data-title');
+    if (ref_type === 'image') {
+      img = '<img src="' + ref_url + '"/>';
+      btn = '<a href="#" data-action="close" data-target="popup_image">' + 'Cancel</a>';
+      new window.NH.NHModal('popup_image', ref_title, img, [btn], 0, this.form);
+    }
+    if (ref_type === 'iframe') {
+      iframe = '<iframe src="' + ref_url + '"></iframe>';
+      btn = '<a href="#" data-action="close" data-target="popup_iframe">' + 'Cancel</a>';
+      return new window.NH.NHModal('popup_iframe', ref_title, iframe, [btn], 0, this.form);
     }
   };
 
