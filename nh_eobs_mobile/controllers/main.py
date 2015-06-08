@@ -487,6 +487,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                         opt['value'] = '{0}'.format(option[0])
                         opt['label'] = option[1]
                         form_input['selection_options'].append(opt)
+                elif form_input['type'] == 'text':
+                    form_input['info'] = ''
+                    form_input['errors'] = ''
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
             if 'notification' in task['data_model']:
@@ -527,6 +530,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                         opt['value'] = '{0}'.format(option[0])
                         opt['label'] = option[1]
                         form_input['selection_options'].append(opt)
+                elif form_input['type'] == 'text':
+                    form_input['info'] = ''
+                    form_input['errors'] = ''
                 elif form_input['type'] == 'meta':
                     form['obs_needs_score'] = form_input['score'] if 'score' in form_input else False
 

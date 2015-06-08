@@ -234,6 +234,9 @@
                             <t t-if="item['type']=='number'">
                                 <t t-call="nh_eobs_mobile.observation_data_input"/>
                             </t>
+                            <t t-if="item['type']=='text'">
+                                <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                            </t>
                             <t t-if="item['type']=='selection'">
                                 <t t-call="nh_eobs_mobile.observation_data_select"/>
                             </t>
@@ -298,6 +301,36 @@
                     <span class="errors"><t t-esc="item['errors']"/></span>
                     <span class="help"><t t-esc="item['info']"/></span>
                 </div>
+            </div>
+        </template>
+
+        <template name="Input box" t-name="nh_eobs_mobile.observation_data_text_input">
+            <div t-att-class="'block obsField valHide' if item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
+                <div class="input-header">
+                    <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
+                        <!-- <t t-if="item['target']">
+                            <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
+                        </t> -->
+
+                    <!-- <t t-if="item['number']">-->
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
+                    <!-- </t>
+                    <t t-if="item['text']">
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
+                    </t>  -->
+                </div>
+                <!--<div class="input-body">-->
+                    <!--<span class="errors">-->
+                        <!--<t t-if="item['errors']">-->
+                            <!--<t t-esc="item['errors']"/>-->
+                        <!--</t>-->
+                    <!--</span>-->
+                    <!--<span class="help">-->
+                        <!--<t t-if="item['info']">-->
+                            <!--<t t-esc="item['info']"/>-->
+                        <!--</t>-->
+                    <!--</span>-->
+                <!--</div>-->
             </div>
         </template>
 
