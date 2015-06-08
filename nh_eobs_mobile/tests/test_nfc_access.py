@@ -6,10 +6,11 @@ from openerp import tests
 test_logger = logging.getLogger(__name__)
 
 
-class TestMobileNFCAccess(tests.HttpCase):
+class TestNFCModel(tests.HttpCase):
 
     def test_nfc_access_using_only_card_pin(self):
-        resp = requests.post('http://localhost:8069/mobile/login/', {'card_pin': '123456'})
-        # print(resp.text)
-        self.assertIn('<title>Open-eObs</title>', resp.text)
+        resp = requests.post('http://localhost:8069/mobile/login/',
+                             {'card_pin': '444555',
+                              'database': 'nhclinical_test'})
+        test_logger.debug(resp.text)
         self.assertIn('class="tasklist"', resp.text)

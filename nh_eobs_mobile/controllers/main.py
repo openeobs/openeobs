@@ -192,7 +192,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             ### Custom Hacking TODO: REMOVE / REFACTOR this code !!!
             card_pin = request.params.get('card_pin', None)
             if card_pin:
-                #print('we have a card PIN !!!')
+                #print('we have a card PIN {}'.format(card_pin))
                 nfc_api = request.registry['res.users']
                 user_id = nfc_api.get_user_id_from_card_pin(request.cr, request.uid, card_pin)
                 user_login = nfc_api.get_user_login_from_user_id(request.cr, request.uid, user_id)
@@ -201,7 +201,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     request.session.db = 'nhclinical'  # instead should use the variable 'database'
                     request.session.uid = user_id
                     request.session.login = user_login
-                    request.session.password = 'nadine'  # instead should use the variable 'card_pin'
+                    request.session.password = user_login  # instead should use the variable 'card_pin'
                     #request.uid = uid
                     return utils.redirect(URLS['task_list'], 303)
             ### end of Custom Hacking

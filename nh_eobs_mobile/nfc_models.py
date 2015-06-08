@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_eobs_mobile_nfc(orm.Model):
-    """Storing user ID and card's PIN related to that user (for NFC authentication purpose)."""
+    """Extend the users' model with a card's PIN field (for NFC authentication purpose)."""
     _name = 'res.users'
     _inherit = 'res.users'
 
@@ -29,7 +29,7 @@ class nh_eobs_mobile_nfc(orm.Model):
                 return user_id[0]
 
     def get_user_login_from_user_id(self, cr, uid, user_id, context=None):
-        """Return the user name related to the user ID passed as argument."""
+        """Return the user name (stored in the 'login' field) related to the user ID passed as argument."""
         user_login = self.search_read(cr, uid, domain=[('id', '=', user_id)], fields=['login'], context=context)
         if not user_login:
             _logger.debug('Cannot find a user related to the user ID passed.')
