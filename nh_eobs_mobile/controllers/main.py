@@ -193,9 +193,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             card_pin = request.params.get('card_pin', None)
             if card_pin:
                 #print('we have a card PIN !!!')
-                nfc_api = request.registry['nh.eobs.mobile.nfc']
-                user_id = nfc_api.get_user_id_from_card_pin(request.cr, 1, card_pin)
-                user_login = nfc_api.get_user_login_from_user_id(request.cr, 1, user_id)
+                nfc_api = request.registry['res.users']
+                user_id = nfc_api.get_user_id_from_card_pin(request.cr, request.uid, card_pin)
+                user_login = nfc_api.get_user_login_from_user_id(request.cr, request.uid, user_id)
                 if user_id is not False:
                     #print('we have a user ID !!!')
                     request.session.db = 'nhclinical'  # instead should use the variable 'database'

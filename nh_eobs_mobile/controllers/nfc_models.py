@@ -8,16 +8,16 @@ _logger = logging.getLogger(__name__)
 
 class nh_eobs_mobile_nfc(orm.Model):
     """Storing user ID and card's PIN related to that user (for NFC authentication purpose)."""
-    _name = 'nh.eobs.mobile.nfc'
+    _name = 'res.users'
+    _inherit = 'res.users'
 
     _columns = {
-        'user_id': fields.integer('User ID', required=True),
         'card_pin': fields.char('Card PIN')
     }
 
-    def get_user_id_from_card_pin(self, cr, uid, card_pin):
+    def get_user_id_from_card_pin(self, cr, uid, card_pin, context=None):
         """Return the user ID related to the card PIN passed as argument."""
-        user_id = self.search_read(cr, uid, domain=[('card_pin', '=', card_pin)], fields=['user_id'])
+        user_id = self.search(cr, uid, [('card_pin', '=', card_pin)], context=context)
         if not user_id:
             _logger.debug('Cannot find a user ID related to the card PIN passed.')
             return False
@@ -26,11 +26,11 @@ class nh_eobs_mobile_nfc(orm.Model):
                 raise osv.except_osv('Error!', "More than one user ID found!")
             elif len(user_id) == 1:
                 _logger.debug('User ID found ! User ID {}'.format(user_id))
-                return user_id[0]['user_id']
+                return user_id[0]
 
-    def get_user_login_from_user_id(self, cr, uid, user_id):
+    def get_user_login_from_user_id(self, cr, uid, user_id, context=None):
         """Return the user name related to the user ID passed as argument."""
-        user_login = self.pool['res.users'].search_read(cr, uid, domain=[('id', '=', user_id)], fields=['login'])
+        user_login = self.search_read(cr, uid, domain=[('id', '=', user_id)], fields=['login'], context=context)
         if not user_login:
             _logger.debug('Cannot find a user related to the user ID passed.')
             return False
