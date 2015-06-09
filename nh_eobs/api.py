@@ -151,19 +151,6 @@ class nh_eobs_api(orm.AbstractModel):
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_ids_sql = ','.join(map(str, activity_ids))
         sql = """
-        with
-            completed_ews as(
-                select
-                    ews.id,
-                    spell.patient_id,
-                    ews.score,
-                    ews.clinical_risk,
-                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
-                from nh_clinical_spell spell
-                left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-                inner join nh_activity activity on ews.activity_id = activity.id
-                where activity.state = 'completed' and ews.none_values = '[]'
-            )
         select activity.id,
             activity.summary,
             patient.id as patient_id,
@@ -204,8 +191,8 @@ class nh_eobs_api(orm.AbstractModel):
         inner join nh_clinical_patient patient on patient.id = activity.patient_id
         inner join nh_clinical_location location on location.id = spell.location_id
         inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
-        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
-        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
+        left join ews1 on ews1.patient_id = activity.patient_id
+        left join ews2 on ews2.patient_id = activity.patient_id
         where activity.id in (%s)
         order by deadline asc, activity.id desc
         """ % activity_ids_sql
@@ -404,31 +391,6 @@ class nh_eobs_api(orm.AbstractModel):
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
         spell_ids_sql = ','.join(map(str, spell_ids))
         sql = """
-        with
-            completed_ews as(
-                select
-                    ews.id,
-                    spell.patient_id,
-                    ews.score,
-                    ews.three_in_one,
-                    ews.clinical_risk,
-                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
-                from nh_clinical_spell spell
-                left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-                inner join nh_activity activity on ews.activity_id = activity.id
-                where activity.state = 'completed' and ews.none_values = '[]'
-            ),
-            scheduled_ews as(
-                select
-                    spell.patient_id,
-                    activity.date_scheduled,
-                    ews.frequency,
-                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
-                from nh_clinical_spell spell
-                left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-                inner join nh_activity activity on ews.activity_id = activity.id
-                where activity.state = 'scheduled'
-            )
         select patient.id,
             patient.dob,
             patient.gender,
@@ -450,10 +412,6 @@ class nh_eobs_api(orm.AbstractModel):
                 when ews1.score is not null then ews1.score::text
                 else ''
             end as ews_score,
-            case
-                when ews1.score is not null then ews1.three_in_one
-                else False
-            end as ews_3in1,
             ews1.clinical_risk,
             case
                 when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
@@ -471,9 +429,9 @@ class nh_eobs_api(orm.AbstractModel):
         inner join nh_clinical_patient patient on patient.id = activity.patient_id
         inner join nh_clinical_location location on location.id = activity.location_id
         inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
-        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
-        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
-        left join scheduled_ews ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1
+        left join ews1 on ews1.patient_id = activity.patient_id
+        left join ews2 on ews2.patient_id = activity.patient_id
+        left join ews0 on ews0.patient_id = activity.patient_id
         where activity.state = 'started' and activity.data_model = 'nh.clinical.spell' and activity.id in (%s)
         """ % spell_ids_sql
         patient_values = []
@@ -490,31 +448,6 @@ class nh_eobs_api(orm.AbstractModel):
         patient_ids = patient_pool.search(cr, uid, [['follower_ids', 'in', [uid]]], context=context)
         patient_ids_sql = ','.join(map(str, patient_ids))
         sql = """
-        with
-            completed_ews as(
-                select
-                    ews.id,
-                    spell.patient_id,
-                    ews.score,
-                    ews.three_in_one,
-                    ews.clinical_risk,
-                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
-                from nh_clinical_spell spell
-                left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-                inner join nh_activity activity on ews.activity_id = activity.id
-                where activity.state = 'completed' and ews.none_values = '[]'
-            ),
-            scheduled_ews as(
-                select
-                    spell.patient_id,
-                    activity.date_scheduled,
-                    ews.frequency,
-                    rank() over (partition by spell.patient_id order by activity.date_terminated desc, activity.id desc)
-                from nh_clinical_spell spell
-                left join nh_clinical_patient_observation_ews ews on ews.patient_id = spell.patient_id
-                inner join nh_activity activity on ews.activity_id = activity.id
-                where activity.state = 'scheduled'
-            )
         select patient.id,
             patient.dob,
             patient.gender,
@@ -557,9 +490,9 @@ class nh_eobs_api(orm.AbstractModel):
         inner join nh_clinical_patient patient on patient.id = activity.patient_id
         inner join nh_clinical_location location on location.id = activity.location_id
         inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
-        left join completed_ews ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
-        left join completed_ews ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
-        left join scheduled_ews ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1
+        left join ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
+        left join ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
+        left join ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1
         where activity.state = 'started' and activity.data_model = 'nh.clinical.spell' and patient.id in (%s)
         """ % patient_ids_sql
         patient_values = []
