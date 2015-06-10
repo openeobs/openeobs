@@ -469,10 +469,6 @@ class nh_eobs_api(orm.AbstractModel):
                 when ews1.score is not null then ews1.score::text
                 else ''
             end as ews_score,
-            case
-                when ews1.score is not null then ews1.three_in_one
-                else False
-            end as ews_3in1,
             ews1.clinical_risk,
             case
                 when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
