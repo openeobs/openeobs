@@ -104,7 +104,7 @@
                                             <i class="icon-alert"></i>
                                         </t>
                                         <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i>)<br/>
-                                        <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                        <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
                                     </div>
                                 </div>
                                 <div class="task-meta">
@@ -125,7 +125,7 @@
                                                 <i class="icon-alert"></i>
                                             </t>
                                             <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
-                                            <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                            <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
                                         </div>
                                     </div>
                                     <div class="task-meta">
@@ -165,7 +165,7 @@
                                                         <i class="icon-alert"></i>
                                                     </t>
                                                     <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
-                                                    <em><t t-esc="item['location']"/>,<t t-esc="item['parent_location']"/></em>
+                                                    <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
                                                 </div>
                                             </div>
                                             <div class="task-meta">
