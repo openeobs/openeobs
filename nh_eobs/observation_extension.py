@@ -56,7 +56,7 @@ class nh_clinical_patient_palliative_care(orm.Model):
     _inherit = 'nh.clinical.patient.palliative_care'
 
     def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_palliative_care, self).complete(cr, uid, uid, activity_id, context=context)
+        res = super(nh_clinical_patient_palliative_care, self).complete(cr, uid, activity_id, context=context)
         cr.execute("""refresh materialized view param""")
         return res
 
