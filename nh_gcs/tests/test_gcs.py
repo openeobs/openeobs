@@ -29,7 +29,6 @@ class TestGCS(common.SingleTransactionCase):
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
         cls.spell_pool = cls.registry('nh.clinical.spell')
-        cls.api_pool = cls.registry('nh.clinical.api')
 
         cls.placement_pool = cls.registry('nh.clinical.patient.placement')
         cls.gcs_pool = cls.registry('nh.clinical.patient.observation.gcs')
@@ -91,8 +90,10 @@ class TestGCS(common.SingleTransactionCase):
                 'verbal': gcs_test_data['VERBAL'][i],
                 'motor': gcs_test_data['MOTOR'][i],
             }
-            self.api_pool.assign(cr, uid, gcs_activity_id, user_id)
-            gcs_activity = self.api_pool.submit_complete(cr, user_id, gcs_activity_id, data)
+            self.activity_pool.assign(cr, uid, gcs_activity_id, user_id)
+            self.activity_pool.submit(cr, user_id, gcs_activity_id, data)
+            self.activity_pool.complete(cr, user_id, gcs_activity_id)
+            gcs_activity = self.activity_pool.browse(cr, uid, gcs_activity_id)
 
             frequency = gcs_policy['frequencies'][gcs_test_data['CASE'][i]]
             nurse_notifications = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['nurse']

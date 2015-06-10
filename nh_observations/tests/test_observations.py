@@ -30,8 +30,7 @@ class test_observations(common.SingleTransactionCase):
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
         cls.spell_pool = cls.registry('nh.clinical.spell')
-        cls.api_pool = cls.registry('nh.clinical.api')
-        
+
         # OBSERVATIONS DATA MODELS
         cls.height_pool = cls.registry('nh.clinical.patient.observation.height')
         cls.weight_pool = cls.registry('nh.clinical.patient.observation.weight')

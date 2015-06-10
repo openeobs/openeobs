@@ -29,7 +29,6 @@ class TestBristolStools(common.SingleTransactionCase):
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
         cls.spell_pool = cls.registry('nh.clinical.spell')
-        cls.api_pool = cls.registry('nh.clinical.api')
 
         cls.placement_pool = cls.registry('nh.clinical.patient.placement')
         cls.stools_pool = cls.registry('nh.clinical.patient.observation.stools')
@@ -79,8 +78,10 @@ class TestBristolStools(common.SingleTransactionCase):
                 'samples': fake.random_element(['none', 'micro', 'virol', 'm+v']),
                 'rectal_exam': fake.random_element([True, False])
             }
-            self.api_pool.assign(cr, uid, stools_activity_id, user_id)
-            stools_activity = self.api_pool.submit_complete(cr, user_id, stools_activity_id, data)
+            self.activity_pool.assign(cr, uid, stools_activity_id, user_id)
+            self.activity_pool.submit(cr, user_id, stools_activity_id, data)
+            self.activity_pool.complete(cr, user_id, stools_activity_id)
+            stools_activity = self.activity_pool.browse(cr, uid, stools_activity_id)
             self.assertTrue(stools_activity.state == 'completed', msg="Bristol Stools not completed")
             self.assertTrue(stools_activity.date_terminated, msg="Bristol Stools date terminated not registered")
             for key in data.keys():

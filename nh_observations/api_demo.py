@@ -46,7 +46,6 @@ class nh_clinical_api_demo(orm.AbstractModel):
         assert patient_admit_count >= patient_placement_count
         assert bed_count >= patient_placement_count
         fake = self.next_seed_fake()
-        api = self.pool['nh.clinical.api']
         activity_pool = self.pool['nh.activity']
         location_pool = self.pool['nh.clinical.location']
         user_pool = self.pool['res.users']
@@ -126,7 +125,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 patient_id = admission.data_ref.patient_id.id
                 spell_activity_id = activity_pool.search(cr, uid, [['patient_id', '=', patient_id]])[0]
                 placement_activity_id = self.pool['nh.clinical.patient.placement'].create_activity(cr, wmuid, {'parent_id': spell_activity_id, 'patient_id': patient_id}, {'suggested_location_id': wid, 'patient_id': patient_id})
-                api.submit_complete(cr, wmuid, placement_activity_id, {'location_id': bed_location_id})
+                activity_pool.submit(cr, wmuid, placement_activity_id, {'location_id': bed_location_id})
+                activity_pool.complete(cr, wmuid, placement_activity_id)
                 admit_activity_ids.remove(admit_activity_id)
                 bed_ids[code].remove(bed_location_id)
 

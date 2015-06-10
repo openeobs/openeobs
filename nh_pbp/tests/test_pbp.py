@@ -29,7 +29,6 @@ class TestPBP(common.SingleTransactionCase):
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
         cls.spell_pool = cls.registry('nh.clinical.spell')
-        cls.api_pool = cls.registry('nh.clinical.api')
 
         cls.placement_pool = cls.registry('nh.clinical.patient.placement')
         cls.pbp_pool = cls.registry('nh.clinical.patient.observation.pbp')

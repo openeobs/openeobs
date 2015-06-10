@@ -30,7 +30,6 @@ class TestEWS(common.SingleTransactionCase):
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
         cls.spell_pool = cls.registry('nh.clinical.spell')
-        cls.api_pool = cls.registry('nh.clinical.api')
 
         cls.placement_pool = cls.registry('nh.clinical.patient.placement')
         # cls.placement_pool._POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews', 'type': 'recurring'}]}
@@ -104,8 +103,10 @@ class TestEWS(common.SingleTransactionCase):
             }
 
             # completion must be made as nurse user, otherwise notifications are not created
-            self.api_pool.assign(cr, uid, ews_activity_id, user_id)
-            ews_activity = self.api_pool.submit_complete(cr, user_id, ews_activity_id, data)
+            self.activity_pool.assign(cr, uid, ews_activity_id, user_id)
+            self.activity_pool.submit(cr, user_id, ews_activity_id, data)
+            self.activity_pool.complete(cr, user_id, ews_activity_id)
+            ews_activity = self.activity_pool.browse(cr, uid, ews_activity_id)
 
             self.assertEqual(self.ews_pool.get_last_case(cr, uid, spell_activity.patient_id.id),
                              ews_test_data['CASE'][i])

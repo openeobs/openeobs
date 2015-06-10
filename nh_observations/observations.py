@@ -38,8 +38,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return False
 
     def complete(self, cr, uid, activity_id, context=None):
-        api = self.pool['nh.clinical.api']
-        activity = api.get_activity(cr, uid, activity_id)
+        activity_pool = self.pool['nh.activity']
+        activity = activity_pool.browse(cr, uid, activity_id)
         res = super(nh_clinical_patient_observation, self).complete(cr, uid, activity_id, context)
         except_if(activity.data_ref.is_partial and not activity.data_ref.partial_reason,
                   msg="Partial observation didn't have reason")
@@ -74,11 +74,11 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     
     def create_activity(self, cr, uid, activity_vals={}, data_vals={}, context=None):
         assert data_vals.get('patient_id'), "patient_id is a required field!"
-        activity_pool = self.pool['nh.activity']
-        api_pool = self.pool['nh.clinical.api']
-        spell_activity_id = api_pool.get_patient_spell_activity_id(cr, SUPERUSER_ID, data_vals['patient_id'], context=context)
-        except_if(not spell_activity_id, msg="Current spell is not found for patient_id: %s" %  data_vals['patient_id'])
-        activity_vals.update({'parent_id': spell_activity_id})
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, SUPERUSER_ID, data_vals['patient_id'], context=context)
+        spell = spell_pool.browse(cr, uid, spell_id, context=context)
+        except_if(not spell_id, msg="Current spell is not found for patient_id: %s" %  data_vals['patient_id'])
+        activity_vals.update({'parent_id': spell.activity_id.id})
         return super(nh_clinical_patient_observation, self).create_activity(cr, uid, activity_vals, data_vals, context)      
                 
     def write(self, cr, uid, ids, vals, context=None):
