@@ -7,7 +7,6 @@ class TaskPatientListTest(NHMobileCommonTest):
     def setUp(self):
         super(TaskPatientListTest, self).setUp()
 
-        # demo data
         self.demo_data = self.create_test_data(self.cr, self.uid)
         self.nurse = self.demo_data[0]['users']['nurse']
         self.nurse2 = self.demo_data[1]['users']['nurse']
@@ -164,15 +163,18 @@ class TaskPatientListTest(NHMobileCommonTest):
         patients = self.api.get_patients(cr, self.nurse['id'], [],
                                          context=self.context)
         for patient in patients:
-            patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'], patient['id'])
+            patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'],
+                                             patient['id'])
             patient['color'] = 'level-one'
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient['summary'] if patient.get('summary') else False
 
-        followed_patients = self.api.get_followed_patients(cr, self.nurse['id'], context=self.context)
+        followed_patients = self.api.get_followed_patients(
+            cr, self.nurse['id'], context=self.context)
         for patient in followed_patients:
-            patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'], patient['id'])
+            patient['url'] = '{0}{1}'.format(helpers.URLS['single_patient'],
+                                             patient['id'])
             patient['color'] = 'level-one'
             patient['trend_icon'] = 'icon-{0}-arrow'.format(patient['ews_trend'])
             patient['deadline_time'] = patient['next_ews_time']
