@@ -1277,6 +1277,7 @@ rect.green {
 .full-modal iframe {
   width: 100%;
   height: 100%;
+  background-color: white;
 }
 #table-content,
 #graph-content {
