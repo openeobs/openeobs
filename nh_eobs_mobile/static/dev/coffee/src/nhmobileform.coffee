@@ -159,6 +159,12 @@ class NHMobileForm extends NHMobile
           if action['action'] is 'show'
             for field in action['fields']
               @.show_triggered_elements(field)
+          if action['action'] is 'disable'
+            for field in action['fields']
+              @.disable_triggered_elements(field)
+          if action['action'] is 'enable'
+            for field in action['fields']
+              @.enable_triggered_elements(field)
     return
    
   submit: (event) =>
@@ -340,6 +346,16 @@ class NHMobileForm extends NHMobile
     el.style.display = 'block'
     inp = document.getElementById(field)
     inp.classList.remove('exclude')
+
+  disable_triggered_elements: (field) ->
+    inp = document.getElementById(field)
+    inp.classList.add('exclude')
+    inp.disabled = true
+
+  enable_triggered_elements: (field) ->
+    inp = document.getElementById(field)
+    inp.classList.remove('exclude')
+    inp.disabled = false
 
   process_partial_submit: (self, event) ->
     form_elements = (element for element in self.form.elements when not

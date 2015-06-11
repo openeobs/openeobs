@@ -546,7 +546,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.trigger_actions = function(event) {
-    var action, actions, condition, conditions, el, field, i, input, j, k, l, len, len1, len2, len3, len4, len5, m, mode, n, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, value;
+    var action, actions, condition, conditions, el, field, i, input, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, mode, n, o, p, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, value;
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
     value = input.value;
@@ -606,6 +606,20 @@ NHMobileForm = (function(superClass) {
             for (n = 0, len5 = ref7.length; n < len5; n++) {
               field = ref7[n];
               this.show_triggered_elements(field);
+            }
+          }
+          if (action['action'] === 'disable') {
+            ref8 = action['fields'];
+            for (o = 0, len6 = ref8.length; o < len6; o++) {
+              field = ref8[o];
+              this.disable_triggered_elements(field);
+            }
+          }
+          if (action['action'] === 'enable') {
+            ref9 = action['fields'];
+            for (p = 0, len7 = ref9.length; p < len7; p++) {
+              field = ref9[p];
+              this.enable_triggered_elements(field);
             }
           }
         }
@@ -829,6 +843,20 @@ NHMobileForm = (function(superClass) {
     el.style.display = 'block';
     inp = document.getElementById(field);
     return inp.classList.remove('exclude');
+  };
+
+  NHMobileForm.prototype.disable_triggered_elements = function(field) {
+    var inp;
+    inp = document.getElementById(field);
+    inp.classList.add('exclude');
+    return inp.disabled = true;
+  };
+
+  NHMobileForm.prototype.enable_triggered_elements = function(field) {
+    var inp;
+    inp = document.getElementById(field);
+    inp.classList.remove('exclude');
+    return inp.disabled = false;
   };
 
   NHMobileForm.prototype.process_partial_submit = function(self, event) {
