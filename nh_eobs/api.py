@@ -524,22 +524,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
         Update patient information
         """
-        activity_pool = self.pool['nh.activity']
-        patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
-            nhs_data = data.copy()
-            nhs_data['other_identifier'] = patient_id
-            if not patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
-                _logger.warn("Patient registered from an update call - data available:%s" % data)
-                self.register(cr, uid, patient_id, data, context=context)
-            else:
-                patient_pool.update(cr, uid, patient_id, data, context=context)
-        data.update({'other_identifier': patient_id})
-        update_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.update', {}, {}, context=context)
-        res = activity_pool.submit(cr, uid, update_activity, data, context=context)
-        activity_pool.complete(cr, uid, update_activity, context=context)
-        _logger.debug("Patient updated\n data: %s" % data)
-        return res
+        return self.pool['nh.clinical.api'].update(cr, uid, patient_id, data, context=context)
 
     def register(self, cr, uid, patient_id, data, context=None):
         """
@@ -554,13 +539,7 @@ class nh_eobs_api(orm.AbstractModel):
             gender: Gender (M/F)
             sex: Sex (M/F)
         """
-        activity_pool = self.pool['nh.activity']
-        register_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.register', {}, {}, context=context)
-        data.update({'other_identifier': patient_id})
-        activity_pool.submit(cr, uid, register_activity, data, context=context)
-        res = activity_pool.complete(cr, uid, register_activity, context=context)
-        _logger.debug("Patient registered\n data: %s" % data)
-        return res
+        return self.pool['nh.clinical.api'].register(cr, uid, patient_id, data, context=context)
 
     def admit(self, cr, uid, patient_id, data, context=None):
         """
@@ -578,55 +557,22 @@ class nh_eobs_api(orm.AbstractModel):
                ...]
                 if doctor doesn't exist, we create partner, but don't create user for that doctor.
         """
-        activity_pool = self.pool['nh.activity']
-        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
-        patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
-            nhs_data = data.copy()
-            nhs_data['other_identifier'] = patient_id
-            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
-                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
-        data.update({'other_identifier': patient_id})
-        admit_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.admit', {}, {}, context=context)
-        activity_pool.submit(cr, uid, admit_activity, data, context=context)
-        activity_pool.complete(cr, uid, admit_activity, context=context)
-        spell_timespan_pool.start_patient_timespan(cr, uid, patient_id, context=context)
-        _logger.debug("Patient admitted\n data: %s" % data)
-        return True
+        res = self.pool['nh.clinical.api'].admit(cr, uid, patient_id, data, context=context)
+        self.pool['nh.clinical.spell.timespan'].start_patient_timespan(cr, uid, patient_id, context=context)
+        return res
     
     def admit_update(self, cr, uid, patient_id, data, context=None):
         """
         Updates the spell information of the patient. Accepts the same parameters as admit.
         """
-        activity_pool = self.pool['nh.activity']
-        patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
-            nhs_data = data.copy()
-            nhs_data['other_identifier'] = patient_id
-            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
-                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
-        data.update({'other_identifier': patient_id})
-        update_activity = self._create_activity(cr, uid, 'nh.clinical.adt.spell.update', {}, {}, context=context)
-        activity_pool.submit(cr, uid, update_activity, data, context=context)
-        activity_pool.complete(cr, uid, update_activity, context=context)
-        _logger.debug("Admission updated\n data: %s" % data)
-        return True
+        return self.pool['nh.clinical.api'].admit_update(cr, uid, patient_id, data, context=context)
         
     def cancel_admit(self, cr, uid, patient_id, context=None):
         """
         Cancels the open admission of the patient.
         """
-        activity_pool = self.pool['nh.activity']
-        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
-        patient_pool = self.pool['nh.clinical.patient']
-        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
-        data = {'other_identifier': patient_id}
-        cancel_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_admit', {}, {}, context=context)
-        activity_pool.submit(cr, uid, cancel_activity, data, context=context)
-        spell_timespan_pool.delete_patient_timespans(cr, uid, patient_id, context=context)
-        activity_pool.complete(cr, uid, cancel_activity, context=context)
-        _logger.debug("Admission cancelled\n data: %s" % data)
-        return True
+        self.pool['nh.clinical.spell.timespan'].delete_patient_timespans(cr, uid, patient_id, context=context)
+        return self.pool['nh.clinical.api'].cancel_admit(cr, uid, patient_id, context=context)
 
     def discharge(self, cr, uid, patient_id, data, context=None):
         """
@@ -635,46 +581,16 @@ class nh_eobs_api(orm.AbstractModel):
         :param data: dictionary parameter that may contain the following keys:
             discharge_date: patient discharge date.
         """
-        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
-        activity_pool = self.pool['nh.activity']
-        patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
-            nhs_data = data.copy()
-            nhs_data['other_identifier'] = patient_id
-            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
-                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
-        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
-        spell_id = activity_pool.search(cr, uid, [['patient_id', '=', patientdb_id[0]],
-                                                  ['state', 'not in', ['completed', 'cancelled']],
-                                                  ['data_model', '=', 'nh.clinical.spell']], context=context)
-        if not spell_id:
-            raise osv.except_osv('Discharge Error!', 'Patient does not have an open spell!')
-        discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.discharge',
-                                                   {'parent_id': spell_id[0],
-                                                    'patient_id': patientdb_id[0]},
-                                                   {'other_identifier': patient_id,
-                                                    'discharge_date': data.get('discharge_date')}, context=context)
-        spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
-        activity_pool.complete(cr, uid, discharge_activity, context=context)
-        _logger.debug("Patient discharged: %s" % patient_id)
-        return True
+        self.pool['nh.clinical.spell.timespan'].end_patient_timespan(cr, uid, patient_id, context=context)
+        return self.pool['nh.clinical.api'].discharge(cr, uid, patient_id, data, context=context)
 
     def cancel_discharge(self, cr, uid, patient_id, context=None):
         """
         Cancels the last discharge of the patient.
         """
-        patient_pool = self.pool['nh.clinical.patient']
-        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
-        activity_pool = self.pool['nh.activity']
-        patient_pool = self.pool['nh.clinical.patient']
-        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
-        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
-        cancel_discharge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_discharge', {'patient_id': patientdb_id[0]}, {}, context=context)
-        activity_pool.submit(cr, uid, cancel_discharge_activity, {'other_identifier': patient_id}, context=context)
-        activity_pool.complete(cr, uid, cancel_discharge_activity, context=context)
-        spell_timespan_pool.cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
-        _logger.debug("Discharge cancelled for patient: %s" % patient_id)
-        return True
+        res = self.pool['nh.clinical.api'].cancel_discharge(cr, uid, patient_id, context=context)
+        self.pool['nh.clinical.spell.timespan'].cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
+        return res
 
     def merge(self, cr, uid, patient_id, data, context=None):
         """
@@ -683,15 +599,7 @@ class nh_eobs_api(orm.AbstractModel):
         :param data: dictionary parameter that may contain the following keys:
             from_identifier: Hospital number of the patient we want to merge FROM
         """
-        patient_pool = self.pool['nh.clinical.patient']
-        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
-        activity_pool = self.pool['nh.activity']
-        data.update({'into_identifier': patient_id})
-        merge_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.merge', {}, {}, context=context)
-        activity_pool.submit(cr, uid, merge_activity, data, context=context)
-        activity_pool.complete(cr, uid, merge_activity, context=context)
-        _logger.debug("Patient merged\n data: %s" % data)
-        return True
+        return self.pool['nh.clinical.api'].merge(cr, uid, patient_id, data, context=context)
 
     def transfer(self, cr, uid, patient_id, data, context=None):
         """
@@ -701,38 +609,18 @@ class nh_eobs_api(orm.AbstractModel):
             location: location code where the patient will be transferred. REQUIRED
         """
         spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
-        activity_pool = self.pool['nh.activity']
-        patient_pool = self.pool['nh.clinical.patient']
-        if not patient_pool.check_hospital_number(cr, uid, patient_id, context=context):
-            nhs_data = data.copy()
-            nhs_data['other_identifier'] = patient_id
-            if patient_pool.check_nhs_number(cr, uid, data.get('patient_identifier'), context=context):
-                patient_pool.update(cr, uid, patient_id, nhs_data, context=context)
-        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
-        data.update({'other_identifier': patient_id})
-        transfer_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
-        activity_pool.submit(cr, uid, transfer_activity, data, context=context)
-        activity_pool.complete(cr, uid, transfer_activity, context=context)
+        res = self.pool['nh.clinical.api'].transfer(cr, uid, patient_id, data, context=context)
         spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
         spell_timespan_pool.start_patient_timespan(cr, uid, patient_id, start=dt.now().strftime(DTF), context=context)
-        _logger.debug("Patient transferred\n data: %s" % data)
-        return True
+        return res
 
     def cancel_transfer(self, cr, uid, patient_id, context=None):
         """
         Cancels the last transfer of the patient.
         """
-        patient_pool = self.pool['nh.clinical.patient']
-        patient_pool.check_hospital_number(cr, uid, patient_id, exception='False', context=context)
-        activity_pool = self.pool['nh.activity']
-        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
-        patientdb_id = patient_pool.search(cr, uid, [('other_identifier', '=', patient_id)], context=context)
-        cancel_transfer_activity = self._create_activity(cr, uid, 'nh.clinical.adt.patient.cancel_transfer', {'patient_id': patientdb_id[0]}, {}, context=context)
-        activity_pool.submit(cr, uid, cancel_transfer_activity, {'other_identifier': patient_id}, context=context)
-        activity_pool.complete(cr, uid, cancel_transfer_activity, context=context)
-        spell_timespan_pool.cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
-        _logger.debug("Transfer cancelled for patient: %s" % patient_id)
-        return True
+        res = self.pool['nh.clinical.api'].cancel_transfer(cr, uid, patient_id, context=context)
+        self.pool['nh.clinical.spell.timespan'].cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
+        return res
 
     def check_patient_responsibility(self, cr, uid, patient_id, context=None):
         spell_pool = self.pool['nh.clinical.spell']
