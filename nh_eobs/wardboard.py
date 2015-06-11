@@ -191,7 +191,7 @@ class nh_clinical_wardboard(orm.Model):
     def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
         user_pool = self.pool['res.users']
         user_ids = user_pool.search(cr, user, [['groups_id.name', 'in', ['NH Clinical Doctor Group']]], context=context)
-        self._co.umsn['o2target'].readonly = not (user in user_ids)
+        self._columns['o2target'].readonly = not (user in user_ids)
         res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)    
         return res
 
