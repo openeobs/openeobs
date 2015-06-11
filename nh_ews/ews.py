@@ -285,7 +285,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'min': 0,
             'max': 100.0,
             'digits': [3, 1],
-            'initially_hidden': True
+            'initially_hidden': True,
+            'on_change': [
+                {
+                    'fields': ['concentration'],
+                    'condition': [['flow_rate', '!=', '']],
+                    'action': 'disable'
+                },
+                {
+                    'fields': ['concentration'],
+                    'condition': [['flow_rate', '==', '']],
+                    'action': 'enable'
+                }
+            ]
         },
         {
             'name': 'concentration',
@@ -293,7 +305,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'label': 'Concentration',
             'min': 0,
             'max': 100,
-            'initially_hidden': True
+            'initially_hidden': True,
+            'on_change': [
+                {
+                    'fields': ['flow_rate'],
+                    'condition': [['concentration', '!=', '']],
+                    'action': 'disable'
+                },
+                {
+                    'fields': ['flow_rate'],
+                    'condition': [['concentration', '==', '']],
+                    'action': 'enable'
+                }
+            ]
         },
         {
             'name': 'cpap_peep',
