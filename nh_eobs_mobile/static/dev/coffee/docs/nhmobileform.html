@@ -88,7 +88,9 @@ observation form</p>
               <span class="hljs-keyword">when</span> <span class="hljs-string">'radio'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>,
                   self.trigger_actions)
           <span class="hljs-keyword">when</span> <span class="hljs-string">'select'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'change'</span>,
-            self.trigger_actions)</pre></div></div>
+            self.trigger_actions)
+          <span class="hljs-keyword">when</span> <span class="hljs-string">'button'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>,
+            self.show_reference)</pre></div></div>
             
         </li>
         
@@ -303,7 +305,27 @@ in the input’s data-onchange attribute and does the appropriate action</p>
             
             <div class="content"><div class='highlight'><pre>      <span class="hljs-property">@display_partial_reasons</span>(@)
 
+  <span class="hljs-attribute">show_reference</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
+    event.preventDefault()
+    @.reset_form_timeout(@)
+    input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+    ref_type = input.getAttribute(<span class="hljs-string">'data-type'</span>)
+    ref_url = input.getAttribute(<span class="hljs-string">'data-url'</span>)
+    ref_title = input.getAttribute(<span class="hljs-string">'data-title'</span>)
+    <span class="hljs-keyword">if</span> ref_type <span class="hljs-keyword">is</span> <span class="hljs-string">'image'</span>
+      img = <span class="hljs-string">'&lt;img src="'</span> + ref_url + <span class="hljs-string">'"/&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="popup_image"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'popup_image'</span>, ref_title, img, [btn], <span class="hljs-number">0</span>, @.form)
+    <span class="hljs-keyword">if</span> ref_type <span class="hljs-keyword">is</span> <span class="hljs-string">'iframe'</span>
+      iframe = <span class="hljs-string">'&lt;iframe src="'</span>+ ref_url + <span class="hljs-string">'"&gt;&lt;/iframe&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="popup_iframe"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'popup_iframe'</span>, ref_title, iframe, [btn], <span class="hljs-number">0</span>, @.form)
+
+
   <span class="hljs-attribute">display_partial_reasons</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> =&gt;</span>
+    form_type = self.form.getAttribute(<span class="hljs-string">'data-source'</span>)
     Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(@.urls.json_partial_reasons())).<span class="hljs-keyword">then</span> (data) -&gt;
       options = <span class="hljs-string">''</span>
       <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
@@ -311,9 +333,12 @@ in the input’s data-onchange attribute and does the appropriate action</p>
         option_name = option[<span class="hljs-number">1</span>]
         options += <span class="hljs-string">'&lt;option value="'</span>+option_val+<span class="hljs-string">'"&gt;'</span>+option_name+<span class="hljs-string">'&lt;/option&gt;'</span>
       select = <span class="hljs-string">'&lt;select name="partial_reason"&gt;'</span>+options+<span class="hljs-string">'&lt;/select&gt;'</span>
-      con_btn = <span class="hljs-string">'&lt;a href="#" data-target="partial_reasons" '</span>+
+      con_btn = <span class="hljs-keyword">if</span> form_type <span class="hljs-keyword">is</span> <span class="hljs-string">'task'</span> <span class="hljs-keyword">then</span> <span class="hljs-string">'&lt;a href="#" '</span> +
+        <span class="hljs-string">'data-target="partial_reasons" data-action="partial_submit" '</span>+
+        <span class="hljs-string">'data-ajax-action="json_task_form_action"&gt;Confirm&lt;/a&gt;'</span> <span class="hljs-keyword">else</span>
+        <span class="hljs-string">'&lt;a href="#" data-target="partial_reasons" '</span>+
         <span class="hljs-string">'data-action="partial_submit" '</span>+
-        <span class="hljs-string">'data-ajax-action="json_task_form_action"&gt;Confirm&lt;/a&gt;'</span>
+        <span class="hljs-string">'data-ajax-action="json_patient_form_action"&gt;Confirm&lt;/a&gt;'</span>
       can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
         <span class="hljs-string">'data-target="partial_reasons"&gt;Cancel&lt;/a&gt;'</span>
       msg = <span class="hljs-string">'&lt;p class="block"&gt;Please state reason for '</span>+
@@ -450,9 +475,15 @@ in the input’s data-onchange attribute and does the appropriate action</p>
   <span class="hljs-attribute">process_partial_submit</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
     form_elements = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span>
       element.classList.contains(<span class="hljs-string">'exclude'</span>))
+    reason_to_use = <span class="hljs-literal">false</span>
     reason = <span class="hljs-built_in">document</span>.getElementsByName(<span class="hljs-string">'partial_reason'</span>)[<span class="hljs-number">0</span>]
+    cancel_reason = <span class="hljs-built_in">document</span>.getElementsByName(<span class="hljs-string">'reason'</span>)[<span class="hljs-number">0</span>]
     <span class="hljs-keyword">if</span> reason
-      form_elements.push(reason)
+      reason_to_use = reason
+    <span class="hljs-keyword">if</span> cancel_reason
+      reason_to_use = cancel_reason
+    <span class="hljs-keyword">if</span> reason_to_use
+      form_elements.push(reason_to_use)
       self.submit_observation(self, form_elements, event.detail.action,
         self.form.getAttribute(<span class="hljs-string">'ajax-args'</span>))
       dialog_id = <span class="hljs-built_in">document</span>.getElementById(event.detail.target)

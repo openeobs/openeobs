@@ -683,6 +683,8 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.display_partial_reasons = function(self) {
+    var form_type;
+    form_type = self.form.getAttribute('data-source');
     return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(data) {
       var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
       options = '';
@@ -694,7 +696,7 @@ NHMobileForm = (function(superClass) {
         options += '<option value="' + option_val + '">' + option_name + '</option>';
       }
       select = '<select name="partial_reason">' + options + '</select>';
-      con_btn = '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>';
+      con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="close" ' + 'data-target="partial_reasons">Cancel</a>';
       msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
       return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);

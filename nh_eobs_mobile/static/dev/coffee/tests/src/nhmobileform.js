@@ -10,6 +10,7 @@ NHMobileForm = (function(superClass) {
     this.cancel_notification = bind(this.cancel_notification, this);
     this.submit_observation = bind(this.submit_observation, this);
     this.display_partial_reasons = bind(this.display_partial_reasons, this);
+    this.show_reference = bind(this.show_reference, this);
     this.submit = bind(this.submit, this);
     this.trigger_actions = bind(this.trigger_actions, this);
     this.validate = bind(this.validate, this);
@@ -46,6 +47,8 @@ NHMobileForm = (function(superClass) {
           break;
         case 'select':
           return input.addEventListener('change', self.trigger_actions);
+        case 'button':
+          return input.addEventListener('click', self.show_reference);
       }
     };
     for (i = 0, len = ref.length; i < len; i++) {
@@ -265,7 +268,29 @@ NHMobileForm = (function(superClass) {
     }
   };
 
+  NHMobileForm.prototype.show_reference = function(event) {
+    var btn, iframe, img, input, ref_title, ref_type, ref_url;
+    event.preventDefault();
+    this.reset_form_timeout(this);
+    input = event.srcElement ? event.srcElement : event.target;
+    ref_type = input.getAttribute('data-type');
+    ref_url = input.getAttribute('data-url');
+    ref_title = input.getAttribute('data-title');
+    if (ref_type === 'image') {
+      img = '<img src="' + ref_url + '"/>';
+      btn = '<a href="#" data-action="close" data-target="popup_image">' + 'Cancel</a>';
+      new window.NH.NHModal('popup_image', ref_title, img, [btn], 0, this.form);
+    }
+    if (ref_type === 'iframe') {
+      iframe = '<iframe src="' + ref_url + '"></iframe>';
+      btn = '<a href="#" data-action="close" data-target="popup_iframe">' + 'Cancel</a>';
+      return new window.NH.NHModal('popup_iframe', ref_title, iframe, [btn], 0, this.form);
+    }
+  };
+
   NHMobileForm.prototype.display_partial_reasons = function(self) {
+    var form_type;
+    form_type = self.form.getAttribute('data-source');
     return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(data) {
       var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
       options = '';
@@ -277,7 +302,8 @@ NHMobileForm = (function(superClass) {
         options += '<option value="' + option_val + '">' + option_name + '</option>';
       }
       select = '<select name="partial_reason">' + options + '</select>';
-      con_btn = '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>';
+      con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : void 0;
+      '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="close" ' + 'data-target="partial_reasons">Cancel</a>';
       msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
       return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
@@ -413,7 +439,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_partial_submit = function(self, event) {
-    var cover, dialog_id, element, form_elements, reason;
+    var cancel_reason, cover, dialog_id, element, form_elements, reason, reason_to_use;
     form_elements = (function() {
       var i, len, ref, results;
       ref = self.form.elements;
@@ -426,9 +452,17 @@ NHMobileForm = (function(superClass) {
       }
       return results;
     })();
+    reason_to_use = false;
     reason = document.getElementsByName('partial_reason')[0];
+    cancel_reason = document.getElementsByName('reason')[0];
     if (reason) {
-      form_elements.push(reason);
+      reason_to_use = reason;
+    }
+    if (cancel_reason) {
+      reason_to_use = cancel_reason;
+    }
+    if (reason_to_use) {
+      form_elements.push(reason_to_use);
       self.submit_observation(self, form_elements, event.detail.action, self.form.getAttribute('ajax-args'));
       dialog_id = document.getElementById(event.detail.target);
       cover = document.getElementById('cover');

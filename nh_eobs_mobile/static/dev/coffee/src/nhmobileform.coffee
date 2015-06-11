@@ -207,6 +207,7 @@ class NHMobileForm extends NHMobile
 
 
   display_partial_reasons: (self) =>
+    form_type = self.form.getAttribute('data-source')
     Promise.when(@call_resource(@.urls.json_partial_reasons())).then (data) ->
       options = ''
       for option in data[0][0]
@@ -214,9 +215,12 @@ class NHMobileForm extends NHMobile
         option_name = option[1]
         options += '<option value="'+option_val+'">'+option_name+'</option>'
       select = '<select name="partial_reason">'+options+'</select>'
-      con_btn = '<a href="#" data-target="partial_reasons" '+
-        'data-action="partial_submit" '+
+      con_btn = if form_type is 'task' then '<a href="#" ' +
+        'data-target="partial_reasons" data-action="partial_submit" '+
         'data-ajax-action="json_task_form_action">Confirm</a>'
+        else '<a href="#" data-target="partial_reasons" '+
+        'data-action="partial_submit" '+
+        'data-ajax-action="json_patient_form_action">Confirm</a>'
       can_btn = '<a href="#" data-action="close" '+
         'data-target="partial_reasons">Cancel</a>'
       msg = '<p class="block">Please state reason for '+
