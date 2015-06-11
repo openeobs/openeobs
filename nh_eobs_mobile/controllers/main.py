@@ -553,12 +553,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="user")
     def process_form(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('nh.clinical.api')
+        activity_api = request.registry('nh.activity')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         kw_copy['date_started'] = datetime.fromtimestamp(int(kw_copy['startTimestamp'])).strftime(DTF)
         del kw_copy['startTimestamp']
-        api.submit_complete(cr, uid, int(task_id), kw_copy, context)
+        activity_api.submit(cr, uid, int(task_id), kw_copy, context)
+        activity_api.complete(cr, uid, int(task_id), context)
         return utils.redirect(URLS['task_list'])
 
 
@@ -566,7 +567,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def process_ajax_form(self, observation, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
-        base_api = request.registry('nh.clinical.api')
+        activity_api = request.registry('nh.activity')
         ews_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
@@ -589,7 +590,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         if device_id:
             converted_data['device_id'] = device_id
         result = api.complete(cr, uid, int(task_id), converted_data, context)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
+        triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
+        triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
+        triggered_tasks = [v for v in triggered_tasks if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['calculate_obs_score']+'<observation>', type="http", auth="user")
@@ -661,7 +664,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def confirm_clinical(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
-        base_api = request.registry('nh.clinical.api')
+        activity_api = request.registry('nh.activity')
         kw_copy = kw.copy()
         if 'taskId' in kw_copy:
             del kw_copy['taskId']
@@ -670,7 +673,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         if 'location_id' in kw_copy:
             kw_copy['location_id'] = int(kw_copy['location_id'])
         result = api.complete(cr, uid, int(task_id), kw_copy)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
+        triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
+        triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
+        triggered_tasks = [v for v in triggered_tasks if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     # TODO: remove this once switch to coffeescript
@@ -679,12 +684,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def confirm_review_frequency(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
-        base_api = request.registry('nh.clinical.api')
+        activity_api = request.registry('nh.activity')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         kw_copy['frequency'] = int(kw_copy['frequency'])
         result = api.complete(cr, uid, int(task_id), kw_copy)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
+        triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
+        triggered_tasks = [v for v in activity_api.read(cr, uid, triggered_ids, []) if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
 
     # TODO: remove this once switch to coffeescript
@@ -693,12 +699,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def confirm_bed_placement(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
-        base_api = request.registry('nh.clinical.api')
         kw_copy = kw.copy()
         del kw_copy['taskId']
         kw_copy['location_id'] = int(kw_copy['location_id'])
         result = api.complete(cr, uid, int(task_id), kw_copy)
-        # triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(task_id)]).values() if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})
 
 
@@ -813,7 +817,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def process_patient_observation_form(self, observation, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
-        base_api = request.registry('nh.clinical.api')
+        activity_api = request.registry('nh.activity')
         observation_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
@@ -838,5 +842,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         new_activity = api.create_activity_for_patient(cr, uid, int(patient_id), observation, context=context)
         result = api.complete(cr, uid, int(new_activity), converted_data, context)
-        triggered_tasks = [v for v in base_api.activity_map(cr, uid, creator_ids=[int(new_activity)]).values() if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
+        triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(new_activity)]])
+        triggered_tasks = [v for v in activity_api.read(cr, uid, triggered_ids, []) if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
