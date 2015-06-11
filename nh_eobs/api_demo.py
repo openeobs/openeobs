@@ -307,7 +307,6 @@ class nh_clinical_api_demo(orm.AbstractModel):
         assert patient_admit_count >= patient_placement_count
         assert bed_count >= patient_placement_count
         fake = self.next_seed_fake()
-        api = self.pool['nh.clinical.api']
         activity_pool = self.pool['nh.activity']
         location_pool = self.pool['nh.clinical.location']
         context_pool = self.pool['nh.clinical.context']
@@ -389,7 +388,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
             for i in range(patient_placement_count):
                 placement_activity_id = fake.random_element(placement_activity_ids)
                 bed_location_id = fake.random_element(bed_ids[code])
-                api.submit_complete(cr, wmuid, placement_activity_id, {'location_id': bed_location_id})
+                activity_pool.submit(cr, wmuid, placement_activity_id, {'location_id': bed_location_id})
+                activity_pool.complete(cr, wmuid, placement_activity_id)
                 placement_activity_ids.remove(placement_activity_id)
                 bed_ids[code].remove(bed_location_id)
 
@@ -402,8 +402,9 @@ class nh_clinical_api_demo(orm.AbstractModel):
             for ews in activity_pool.browse(cr, uid, ews_activity_ids):
                 nuid = user_pool.search(cr, uid, [('location_ids', 'in', [ews.location_id.id]), ('groups_id.name', 'in', ['NH Clinical Nurse Group'])])
                 nuid = uid if not nuid else nuid[0]
-                api.assign(cr, uid, ews.id, nuid)
-                api.submit_complete(cr, nuid, ews.id, self.demo_data(cr, uid, 'nh.clinical.patient.observation.ews'))
+                activity_pool.assign(cr, uid, ews.id, nuid)
+                activity_pool.submit(cr, nuid, ews.id, self.demo_data(cr, uid, 'nh.clinical.patient.observation.ews'))
+                activity_pool.complete(cr, nuid, ews.id)
 
         return True
 

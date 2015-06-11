@@ -17,24 +17,26 @@ class wardboard_swap_beds(orm.TransientModel):
         'location1_id':  fields.many2one('nh.clinical.location', "Current Patient's Location"),
         'location2_id':  fields.many2one('nh.clinical.location', "Location To Swap With"),
     }
+
     def do_swap(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0])
         values = {
             'location1_id': data.location1_id.id,
             'location2_id': data.location2_id.id
         }
-        api = self.pool['nh.clinical.api']
-        api.create_complete(cr, uid, 'nh.clinical.patient.swap_beds', {}, values)
-        
+        activity_pool = self.pool['nh.activity']
+        swap_pool = self.pool['nh.clinical.patient.swap_beds']
+        swap_id = swap_pool.create_activity(cr, uid, {}, values, context=context)
+        activity_pool.complete(cr, uid, swap_id, context=context)
     
     def onchange_location2(self, cr, uid, ids, location2_id, context=None):
         if not location2_id:
             return {'value': {'patient2_id': False}}
-        api = self.pool['nh.clinical.api']
-        patient = api.patient_map(cr, uid, location_ids=[location2_id])
-        if not patient:
+        patient_pool = self.pool['nh.clinical.patient']
+        patient_id = patient_pool.search(cr, uid, [['current_location_id', '=', location2_id]], context=context)
+        if not patient_id:
             return {'value': {'patient2_id': False, 'location2_id': False}}
-        return {'value': {'patient2_id': patient.values()[0]['id']}} 
+        return {'value': {'patient2_id': patient_id[0]}}
 
 class wardboard_patient_placement(orm.TransientModel):
     _name = "wardboard.patient.placement"
@@ -44,19 +46,21 @@ class wardboard_patient_placement(orm.TransientModel):
         'bed_src_location_id':  fields.many2one('nh.clinical.location', "Source Bed"),
         'bed_dst_location_id':  fields.many2one('nh.clinical.location', "Destination Bed")
     }
+
     def do_move(self, cr, uid, ids, context=None):
-        wiz = self.browse(cr, uid, ids[0])
-        api = self.pool['nh.clinical.api']
+        wiz = self.browse(cr, uid, ids[0], context=context)
+        spell_pool = self.pool['nh.clinical.spell']
         move_pool = self.pool['nh.clinical.patient.move']
         activity_pool = self.pool['nh.activity']
-        spell_activity_id = api.get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
+        spell_id = spell_pool.get_by_patient_id(cr, uid, wiz.patient_id.id, context=context)
+        spell = spell_pool.browse(cr, uid, spell_id, context=context)
         # move to location
         move_activity_id = move_pool.create_activity(cr, SUPERUSER_ID,
-                                                    {'parent_id': spell_activity_id},
+                                                    {'parent_id': spell.activity_id.id},
                                                     {'patient_id': wiz.patient_id.id,
                                                      'location_id': wiz.bed_dst_location_id.id})
         activity_pool.complete(cr, uid, move_activity_id)
-        activity_pool.submit(cr, uid, spell_activity_id, {'location_id': wiz.bed_dst_location_id.id})
+        activity_pool.submit(cr, uid, spell.activity_id.id, {'location_id': wiz.bed_dst_location_id.id})
 
 
 class wardboard_device_session_start(orm.TransientModel):
@@ -93,10 +97,12 @@ class wardboard_device_session_start(orm.TransientModel):
         return {'value': {'device_type_id': device.type_id.id}}
 
     def do_start(self, cr, uid, ids, context=None):
-        wiz = self.browse(cr, uid, ids[0])
-        spell_activity_id = self.pool['nh.clinical.api'].get_patient_spell_activity_id(cr, uid, wiz.patient_id.id)
+        wiz = self.browse(cr, uid, ids[0], context=context)
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, wiz.patient_id.id, context=context)
+        spell = spell_pool.browse(cr, uid, spell_id, context=context)
         device_activity_id = self.pool['nh.clinical.device.session'].create_activity(cr, uid,
-                                                {'parent_id': spell_activity_id},
+                                                {'parent_id': spell.activity_id.id},
                                                 {'patient_id': wiz.patient_id.id,
                                                  'device_type_id': wiz.device_type_id.id,
                                                  'device_id': wiz.device_id.id if wiz.device_id else False})
@@ -183,11 +189,9 @@ class nh_clinical_wardboard(orm.Model):
     
     
     def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
-        umap = self.pool['nh.clinical.api'].user_map(cr,user, 
-                                                     group_xmlids=['group_nhc_hca', 'group_nhc_nurse',
-                                                                   'group_nhc_ward_manager', 'group_nhc_doctor'])
-        
-        self._columns['o2target'].readonly = not (umap.get(user) and 'group_nhc_doctor' in umap[user]['group_xmlids'])
+        user_pool = self.pool['res.users']
+        user_ids = user_pool.search(cr, user, [['groups_id.name', 'in', ['NH Clinical Doctor Group']]], context=context)
+        self._co.umsn['o2target'].readonly = not (user in user_ids)
         res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)    
         return res
 
@@ -346,14 +350,13 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': view_id
         }
 
-
     def wardboard_swap_beds(self, cr, uid, ids, context=None):
-        api = self.pool['nh.clinical.api']
+        swap_beds_pool = self.pool['wardboard.swap_beds']
         wb = self.browse(cr, uid, ids[0])
-        res_id = api.create(cr, uid, 'wardboard.swap_beds', 
-                                     {'patient1_id':  wb.patient_id.id,
-                                      'location1_id': wb.location_id.id,
-                                      'ward_location_id': wb.location_id.parent_id.id})
+        res_id = swap_beds_pool.create(cr, uid, {
+            'patient1_id':  wb.patient_id.id,
+            'location1_id': wb.location_id.id,
+            'ward_location_id': wb.location_id.parent_id.id}, context=context)
         view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_swap_beds_form')[1]
         return {
             'name': "Swap Beds",

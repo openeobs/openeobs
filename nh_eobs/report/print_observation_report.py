@@ -59,7 +59,6 @@ class ObservationReport(models.AbstractModel):
         end_time = datetime.strptime(data.end_time, dtf) if data and data.end_time else False
 
         # set up pools
-        api_pool = self.pool['nh.clinical.api']
         activity_pool = self.pool['nh.activity']
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']

@@ -735,9 +735,10 @@ class nh_eobs_api(orm.AbstractModel):
         return True
 
     def check_patient_responsibility(self, cr, uid, patient_id, context=None):
-        api = self.pool['nh.clinical.api']
-        spell_activity_id = api.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
-        return self.check_activity_access(cr, uid, spell_activity_id, context=context)
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id, context=context)
+        spell = spell_pool.browse(cr, uid, spell_id, context=context)
+        return self.check_activity_access(cr, uid, spell.activity_id.id, context=context)
 
     def follow_invite(self, cr, uid, patient_ids, to_user_id, context=None):
         """

@@ -91,7 +91,6 @@ class VisitReportController(openerp.addons.web.controllers.main.Home):
 
             # Setup API calls
             uid, context = 1, request.context
-            api_pool = request.registry['nh.clinical.api']
             activity_pool = request.registry['nh.activity']
             spell_pool = request.registry['nh.clinical.spell']
             patient_pool = request.registry['nh.clinical.patient']
