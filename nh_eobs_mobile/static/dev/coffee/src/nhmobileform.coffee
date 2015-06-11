@@ -38,7 +38,9 @@ class NHMobileForm extends NHMobile
     # Set up form timeout so that the task is put back in the task list after
     # a certain time
     document.addEventListener 'form_timeout', (event) ->
-      self.handle_timeout(self, self.form.getAttribute('task-id'))
+      task_id = self.form.getAttribute('task-id')
+      if task_id
+        self.handle_timeout(self, task_id)
     window.timeout_func = () ->
       timeout = new CustomEvent('form_timeout', {'detail': 'form timed out'})
       document.dispatchEvent(timeout)

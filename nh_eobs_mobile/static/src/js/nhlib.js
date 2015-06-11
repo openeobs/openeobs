@@ -450,7 +450,11 @@ NHMobileForm = (function(superClass) {
       fn();
     }
     document.addEventListener('form_timeout', function(event) {
-      return self.handle_timeout(self, self.form.getAttribute('task-id'));
+      var task_id;
+      task_id = self.form.getAttribute('task-id');
+      if (task_id) {
+        return self.handle_timeout(self, task_id);
+      }
     });
     window.timeout_func = function() {
       var timeout;
