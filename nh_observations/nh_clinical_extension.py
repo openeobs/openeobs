@@ -24,6 +24,7 @@ class nh_clinical_api_extension(orm.AbstractModel):
 
     def change_activity_frequency(self, cr, uid, patient_id, activity_type, frequency, context=None):
         activity_pool = self.pool['nh.activity']
+        spell_pool = self.pool['nh.clinical.spell']
         change_freq_pool = self.pool['nh.clinical.notification.frequency']
         domain = [
             ('patient_id', '=', patient_id),
@@ -31,13 +32,14 @@ class nh_clinical_api_extension(orm.AbstractModel):
             ('data_model', '=', activity_type)
         ]
         activity_ids = activity_pool.search(cr, uid, domain, order='create_date desc, id desc', context=context)
-        spell_activity_id = self.get_patient_spell_activity_id(cr, uid, patient_id, context=context)
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id, context=context)
+        spell = spell_pool.browse(cr, uid, spell_id, context=context)
         if not activity_ids:
             creator_id = False
         else:
             creator_id = activity_ids[0]
         frequency_activity_id = change_freq_pool.create_activity(cr, SUPERUSER_ID, {
-            'creator_id': creator_id, 'parent_id': spell_activity_id
+            'creator_id': creator_id, 'parent_id': spell.activity_id.id
         }, {
             'patient_id': patient_id,
             'observation': activity_type,
