@@ -107,7 +107,9 @@ a certain time</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'form_timeout'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      self.handle_timeout(self, self.form.getAttribute(<span class="hljs-string">'task-id'</span>))
+      task_id = self.form.getAttribute(<span class="hljs-string">'task-id'</span>)
+      <span class="hljs-keyword">if</span> task_id
+        self.handle_timeout(self, task_id)
     <span class="hljs-built_in">window</span>.timeout_func = <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
       timeout = <span class="hljs-keyword">new</span> CustomEvent(<span class="hljs-string">'form_timeout'</span>, {<span class="hljs-string">'detail'</span>: <span class="hljs-string">'form timed out'</span>})
       <span class="hljs-built_in">document</span>.dispatchEvent(timeout)
@@ -251,6 +253,12 @@ in the input’s data-onchange attribute and does the appropriate action</p>
           <span class="hljs-keyword">if</span> action[<span class="hljs-string">'action'</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'show'</span>
             <span class="hljs-keyword">for</span> field <span class="hljs-keyword">in</span> action[<span class="hljs-string">'fields'</span>]
               @.show_triggered_elements(field)
+          <span class="hljs-keyword">if</span> action[<span class="hljs-string">'action'</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'disable'</span>
+            <span class="hljs-keyword">for</span> field <span class="hljs-keyword">in</span> action[<span class="hljs-string">'fields'</span>]
+              @.disable_triggered_elements(field)
+          <span class="hljs-keyword">if</span> action[<span class="hljs-string">'action'</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'enable'</span>
+            <span class="hljs-keyword">for</span> field <span class="hljs-keyword">in</span> action[<span class="hljs-string">'fields'</span>]
+              @.enable_triggered_elements(field)
     <span class="hljs-keyword">return</span>
    
   <span class="hljs-attribute">submit</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
@@ -335,8 +343,8 @@ in the input’s data-onchange attribute and does the appropriate action</p>
       select = <span class="hljs-string">'&lt;select name="partial_reason"&gt;'</span>+options+<span class="hljs-string">'&lt;/select&gt;'</span>
       con_btn = <span class="hljs-keyword">if</span> form_type <span class="hljs-keyword">is</span> <span class="hljs-string">'task'</span> <span class="hljs-keyword">then</span> <span class="hljs-string">'&lt;a href="#" '</span> +
         <span class="hljs-string">'data-target="partial_reasons" data-action="partial_submit" '</span>+
-        <span class="hljs-string">'data-ajax-action="json_task_form_action"&gt;Confirm&lt;/a&gt;'</span> <span class="hljs-keyword">else</span>
-        <span class="hljs-string">'&lt;a href="#" data-target="partial_reasons" '</span>+
+        <span class="hljs-string">'data-ajax-action="json_task_form_action"&gt;Confirm&lt;/a&gt;'</span>
+        <span class="hljs-keyword">else</span> <span class="hljs-string">'&lt;a href="#" data-target="partial_reasons" '</span>+
         <span class="hljs-string">'data-action="partial_submit" '</span>+
         <span class="hljs-string">'data-ajax-action="json_patient_form_action"&gt;Confirm&lt;/a&gt;'</span>
       can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
@@ -471,6 +479,16 @@ in the input’s data-onchange attribute and does the appropriate action</p>
     el.style.display = <span class="hljs-string">'block'</span>
     inp = <span class="hljs-built_in">document</span>.getElementById(field)
     inp.classList.remove(<span class="hljs-string">'exclude'</span>)
+
+  <span class="hljs-attribute">disable_triggered_elements</span>: <span class="hljs-function"><span class="hljs-params">(field)</span> -&gt;</span>
+    inp = <span class="hljs-built_in">document</span>.getElementById(field)
+    inp.classList.add(<span class="hljs-string">'exclude'</span>)
+    inp.disabled = <span class="hljs-literal">true</span>
+
+  <span class="hljs-attribute">enable_triggered_elements</span>: <span class="hljs-function"><span class="hljs-params">(field)</span> -&gt;</span>
+    inp = <span class="hljs-built_in">document</span>.getElementById(field)
+    inp.classList.remove(<span class="hljs-string">'exclude'</span>)
+    inp.disabled = <span class="hljs-literal">false</span>
 
   <span class="hljs-attribute">process_partial_submit</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
     form_elements = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span>

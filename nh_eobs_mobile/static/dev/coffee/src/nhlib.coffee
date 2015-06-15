@@ -13,9 +13,13 @@ class NHLib
     date = new Date(date_string)
     if isNaN(date.getTime())
       date = new Date(date_string.replace(' ', 'T'))
+    if isNaN(date.getTime())
+      throw new Error("Invalid date format")
     return date
 
   date_to_string: (date) =>
+    if isNaN(date.getTime())
+      throw new Error("Invalid date format")
     return date.getFullYear() + "-" +  @leading_zero(date.getMonth() + 1) +
       "-" + @leading_zero(date.getDate()) + " " +
       @leading_zero(date.getHours()) +
@@ -24,6 +28,8 @@ class NHLib
 
   # Date of Birth doesn't include Time so this returns string in such a way
   date_to_dob_string: (date) =>
+    if isNaN(date.getTime())
+      throw new Error("Invalid date format")
     return date.getFullYear() + "-" +
       @leading_zero(date.getMonth() + 1) +
       "-" + @leading_zero(date.getDate())

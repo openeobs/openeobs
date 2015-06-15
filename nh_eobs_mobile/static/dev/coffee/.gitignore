@@ -2,6 +2,7 @@
 node_modules/
 npm-debug.log
 coverage/
+karma_html
 
 # mac
 .DS_Store
