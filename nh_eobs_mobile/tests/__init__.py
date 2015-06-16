@@ -19,6 +19,6 @@
 # import test_ajax_partial_reasons
 # import test_ajax_task_cancellation_reasons
 #import test_api
-#import test_mobile_controller_routes
+import test_mobile_controller_routes
 import test_nfc_model
 #import test_routes

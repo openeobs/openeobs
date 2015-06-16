@@ -80,7 +80,6 @@ def ensure_db(redirect=URLS['login']):
 
 class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
-
     @http.route(URLS['stylesheet'], type='http', auth='none')
     def get_stylesheet(self, *args, **kw):
         with open(get_module_path('nh_eobs_mobile') + '/static/src/css/nhc.css', 'r') as stylesheet:
@@ -105,7 +104,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_font(self, xmlid, *args, **kw):
         with open(get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid, 'r') as font:
             return request.make_response(font.read(), headers={'Content-Type': 'application/font-woff'})
-
 
     @http.route(URLS['logo'], type='http', auth='none')
     def get_logo(self, *args, **kw):
@@ -183,28 +181,23 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         login_template = env.get_template('login.html')
 
-
         if request.httprequest.method == 'GET':
             response = request.make_response(login_template.render(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='', databases=values['databases']))  # , headers={'X-Openerp-Session-Id': request.session_id})
             response.set_cookie('session_id', value=request.session_id, max_age=3600)
             return response
         if request.httprequest.method == 'POST':
-            ### Custom Hacking TODO: REMOVE / REFACTOR this code !!!
+            # TODO: Refactor to better manage the 'card pin' use case
             card_pin = request.params.get('card_pin', None)
             if card_pin:
-                #print('we have a card PIN {}'.format(card_pin))
                 nfc_api = request.registry['res.users']
                 user_id = nfc_api.get_user_id_from_card_pin(request.cr, request.uid, card_pin)
                 user_login = nfc_api.get_user_login_from_user_id(request.cr, request.uid, user_id)
                 if user_id is not False:
-                    #print('we have a user ID !!!')
                     request.session.db = 'nhclinical'  # instead should use the variable 'database'
                     request.session.uid = user_id
                     request.session.login = user_login
                     request.session.password = user_login  # instead should use the variable 'card_pin'
-                    #request.uid = uid
                     return utils.redirect(URLS['task_list'], 303)
-            ### end of Custom Hacking
             database = values['database'] if 'database' in values else False
             if database:
                 uid = request.session.authenticate(database, request.params['username'], request.params['password'])
@@ -214,6 +207,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             response = request.make_response(login_template.render(stylesheet=URLS['stylesheet'], logo=URLS['logo'], form_action=URLS['login'], errors='<div class="alert alert-error">Invalid username/password</div>', databases=values['databases']))  # , headers={'X-Openerp-Session-Id': request.session_id})
             response.set_cookie('session_id', value=request.session_id, max_age=3600)
             return response
+
     @http.route(URLS['logout'], type='http', auth="user")
     def mobile_logout(self, *args, **kw):
         api = request.registry['nh.eobs.api']
@@ -436,7 +430,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         patient = dict()
         if task['patient_id']:
             patient_info = api_reg.get_patients(cr, uid, [task['patient_id'][0]], context=context)
-            if len(patient_info) >0:
+            if len(patient_info) > 0:
                 patient_info = patient_info[0]
             patient['url'] = URLS['single_patient'] + '{0}'.format(patient_info['id'])
             patient['name'] = patient_info['full_name']
@@ -447,7 +441,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['action'] = URLS['task_form_action']+'{0}'.format(task_id)
         form['type'] = task['data_model']
         form['task-id'] = int(task_id)
-        form['patient-id'] = int(patient['id'])
+        form['patient-id'] = int(patient['id']) if patient and 'id' in patient and patient['id'] else False
         form['source'] = "task"
         form['start'] = datetime.now().strftime('%s')
         if task.get('user_id') and task['user_id'][0] != uid:
@@ -766,7 +760,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         patient = dict()
         patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
-        if len(patient_info) >0:
+        if len(patient_info) > 0:
             patient_info = patient_info[0]
         patient['url'] = URLS['single_patient'] + '{0}'.format(patient_info['id'])
         patient['name'] = patient_info['full_name']
