@@ -17,6 +17,7 @@ class nh_clinical_patient_admission(orm.Model):
 
     _POLICY = {'activities': [{'model': 'nh.clinical.patient.placement',
                                'type': 'schedule',
+                               'cancel_others': True,
                                'context': 'eobs',
                                'create_data': {
                                    'suggested_location_id': 'activity.data_ref.location_id.id'

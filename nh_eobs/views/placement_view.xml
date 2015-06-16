@@ -18,7 +18,7 @@
             <field name="name">Patients without bed</field>
             <field name="res_model">nh.clinical.placement</field>
             <field name="view_type">form</field>
-            <field name="domain">[('user_ids','in',uid)]</field>
+            <field name="domain">[('user_ids','in',uid),('parent_id.state','=','started')]</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_nh_clinical_placement_tree"/>
         </record>
