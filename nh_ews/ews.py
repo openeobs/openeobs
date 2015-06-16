@@ -439,13 +439,11 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
         activity_pool = self.pool['nh.activity']
-        domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]
-        ids = activity_pool.search(cr, SUPERUSER_ID, domain)
-        #TODO THIS SHOULD NOT BE AN ERROR, CREATING REDUNDANT ACTIVITIES SHOULD BE ALLOWED BY REMOVING THE OLD ONES - ADD WARNING MAYBE
-        except_if(len(ids),
-                  msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
-                  % (self._name, str(ids)))
-        res = super(nh_clinical_patient_observation_ews, self).create_activity(cr, uid, vals_activity, vals_data, context)
+        domain = [['patient_id', '=', vals_data['patient_id']], ['data_model', '=', self._name], ['state', 'in', ['new', 'started', 'scheduled']]]
+        ids = activity_pool.search(cr, SUPERUSER_ID, domain, context=context)
+        for aid in ids:
+            activity_pool.cancel(cr, SUPERUSER_ID, aid, context=context)
+        res = super(nh_clinical_patient_observation_ews, self).create_activity(cr, uid, vals_activity, vals_data, context=context)
         return res
 
     def get_form_description(self, cr, uid, patient_id, context=None):
