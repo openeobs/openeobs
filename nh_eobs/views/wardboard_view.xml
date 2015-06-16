@@ -799,7 +799,8 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban,tree,form</field>
-            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
+            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid),
+                ('location_id.usage','=','bed')]</field>
             <field name="context">{'search_default_clinical_risk':1}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
@@ -827,7 +828,8 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,kanban</field>
-            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
+            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid),
+                ('location_id.usage','=','bed')]</field>
             <field name="context">{'search_default_group_by_ward':1}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
@@ -898,7 +900,8 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban</field>
-            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid)]</field>
+            <field name="domain">[('spell_date_terminated','=',False),('spell_activity_id.user_ids','in',uid),
+                ('location_id.usage','=','bed')]</field>
             <field name="context">{'search_default_clinical_risk':1}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
