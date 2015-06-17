@@ -949,7 +949,7 @@ nh_clinical_wardboard as(
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
     left join param on param.spell_id = spell.id
     where spell_activity.state = 'started'
-    order by location.name
+    order by location
 );
 
 select * from nh_clinical_wardboard;
