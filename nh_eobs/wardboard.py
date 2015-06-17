@@ -886,7 +886,7 @@ nh_clinical_wardboard as(
         patient.given_name,
         patient.middle_names,
         coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
-        location.code as location,
+        location.name as location,
         location.id as location_id,
         wlocation.ward_id as ward_id,
         patient.sex,
@@ -949,7 +949,7 @@ nh_clinical_wardboard as(
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
     left join param on param.spell_id = spell.id
     where spell_activity.state = 'started'
-    order by location
+    order by location.name
 );
 
 select * from nh_clinical_wardboard;

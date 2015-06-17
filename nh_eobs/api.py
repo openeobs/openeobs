@@ -433,6 +433,7 @@ class nh_eobs_api(orm.AbstractModel):
         left join ews2 on ews2.patient_id = activity.patient_id
         left join ews0 on ews0.patient_id = activity.patient_id
         where activity.state = 'started' and activity.data_model = 'nh.clinical.spell' and activity.id in (%s)
+        order by location
         """ % spell_ids_sql
         patient_values = []
         if spell_ids:
@@ -490,6 +491,7 @@ class nh_eobs_api(orm.AbstractModel):
         left join ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
         left join ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1
         where activity.state = 'started' and activity.data_model = 'nh.clinical.spell' and patient.id in (%s)
+        order by location
         """ % patient_ids_sql
         patient_values = []
         if patient_ids:
