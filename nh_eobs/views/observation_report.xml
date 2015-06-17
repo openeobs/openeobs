@@ -331,7 +331,7 @@
                                         <t t-if="ew['oxygen_administration_flag']">
                                             <tr>
                                                 <td class="col-xs-3"><t t-esc="ew['date_terminated']"/></td>
-                                                <td class="col-xs-3"><t t-esc="ew['device_id'][1]"/></td>
+                                                <td class="col-xs-3"><t t-if="ew['device_id'] and len(ew['device_id']) > 1"><t t-esc="ew['device_id'][1]"/></t></td>
                                                 <td class="col-xs-6">
                                                     <table class="col-xs-12 row">
                                                         <t t-if="ew['flow_rate']">
@@ -458,14 +458,16 @@
                                 <thead>
                                     <tr>
                                         <th class="col-xs-3">Date</th>
-                                        <th class="col-xs-9">Pain Score</th>
+                                        <th class="col-xs-4">Resting Score</th>
+                                        <th class="col-xs-4">Movement Score</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="pains" t-as="pain">
                                         <tr>
                                             <td class="col-xs-3"><t t-esc="pain['values']['date_terminated']"/></td>
-                                            <td class="col-xs-9"><t t-esc="pain['values']['score']"/></td>
+                                            <td class="col-xs-4"><t t-if="pain['values']['rest_score']"><t t-esc="pain['values']['rest_score']"/></t></td>
+                                            <td class="col-xs-4"><t t-if="pain['values']['movement_score']"><t t-esc="pain['values']['movement_score']"/></t></td>
                                         </tr>
                                     </t>
                                 </tbody>
