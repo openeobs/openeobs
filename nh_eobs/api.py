@@ -193,7 +193,7 @@ class nh_eobs_api(orm.AbstractModel):
         inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
         left join ews1 on ews1.patient_id = activity.patient_id
         left join ews2 on ews2.patient_id = activity.patient_id
-        where activity.id in (%s)
+        where activity.id in (%s) and spell.state = 'started'
         order by deadline asc, activity.id desc
         """ % activity_ids_sql
         activity_values = []
