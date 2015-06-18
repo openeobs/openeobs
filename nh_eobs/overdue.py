@@ -62,7 +62,7 @@ class nh_clinical_overdue(orm.Model):
                     left join res_users u on activity.user_id = u.id
                     left join res_partner partner on u.partner_id = partner.id
                     left join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
-                    where activity.state not in ('completed','cancelled') and activity.data_model != 'nh.clinical.spell'
+                    where activity.state not in ('completed','cancelled') and activity.data_model != 'nh.clinical.spell' and spell.state = 'started'
                     )
                     select
                         id,

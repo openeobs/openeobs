@@ -261,6 +261,7 @@ class nh_clinical_wardboard(orm.Model):
         'time_since_admission': fields.text('Time since Admission'),
         'move_date': fields.datetime('Time since Last Movement'),
         'spell_date_terminated': fields.datetime('Spell Discharge Date'),
+        'spell_state': fields.char('Spell State', size=50),
         'pos_id': fields.many2one('nh.clinical.pos', 'POS'),
         'spell_code': fields.text('Spell Code'),
         'full_name': fields.text("Family Name"),
@@ -877,6 +878,7 @@ nh_clinical_wardboard as(
         spell_activity.date_terminated as spell_date_terminated,
         spell.pos_id,
         spell.code as spell_code,
+        spell_activity.state as spell_state,
         case
             when extract(days from justify_hours(now() at time zone 'UTC' - spell_activity.date_started)) > 0 then extract(days from justify_hours(now() at time zone 'UTC' - spell_activity.date_started)) || ' day(s) '
             else ''
@@ -948,9 +950,8 @@ nh_clinical_wardboard as(
     left join placement plc on spell.id = plc.spell_id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
     left join param on param.spell_id = spell.id
-    where spell_activity.state = 'started'
-    order by location
+    where spell_activity.date_terminated > now() - interval '1d' or spell_activity.state = 'started'
 );
 
-select * from nh_clinical_wardboard;
+select * from nh_clinical_wardboard order by location;
 """)
