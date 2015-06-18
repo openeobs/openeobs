@@ -82,7 +82,7 @@ class TestMobileControllerRouting(tests.common.HttpCase):
             base_url = BASE_MOBILE_URL
         else:
             base_url = BASE_URL
-        return base_url + route_endpoint + (route_arguments if route_arguments else '')
+        return '{0}{1}{2}'.format(base_url, route_endpoint, (route_arguments if route_arguments else ''))
 
     def _get_authenticated_response(self, user_name):
         """Get a Response object with an authenticated session within its cookies.

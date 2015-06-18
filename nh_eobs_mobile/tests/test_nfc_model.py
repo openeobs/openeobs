@@ -15,7 +15,6 @@ class TestNFCModel(tests.SingleTransactionCase):
             'card_pin': '987654'
         }
         cls.test_user_id = cls.user_pool.create(cls.cr, cls.uid, cls.user_values, context=None)
-        print(cls.test_user_id)
 
     def test_get_user_id_from_card_pin(self):
         retrieved_user_id = self.user_pool.get_user_id_from_card_pin(self.cr, self.uid, '987654')
