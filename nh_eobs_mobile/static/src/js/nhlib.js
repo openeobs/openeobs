@@ -16,14 +16,23 @@ NHLib = (function() {
     if (isNaN(date.getTime())) {
       date = new Date(date_string.replace(' ', 'T'));
     }
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date format");
+    }
     return date;
   };
 
   NHLib.prototype.date_to_string = function(date) {
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date format");
+    }
     return date.getFullYear() + "-" + this.leading_zero(date.getMonth() + 1) + "-" + this.leading_zero(date.getDate()) + " " + this.leading_zero(date.getHours()) + ":" + this.leading_zero(date.getMinutes()) + ":" + this.leading_zero(date.getSeconds());
   };
 
   NHLib.prototype.date_to_dob_string = function(date) {
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date format");
+    }
     return date.getFullYear() + "-" + this.leading_zero(date.getMonth() + 1) + "-" + this.leading_zero(date.getDate());
   };
 
@@ -663,7 +672,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         element = form_elements[i];
-        if (!element.value) {
+        if (!element.value && element.type !== 'button') {
           results.push(element);
         }
       }

@@ -274,7 +274,7 @@
                         </t>
                    </select>
                    <t t-if="item['name']=='bristol_type'">
-                       <p><button data-type="image" t-att-data-url="urls['bristol_stools_chart']" data-title="Bristol Stools Chart" class="button">Bristol Type Reference</button></p>
+                       <p><button data-type="image" t-att-data-url="urls['bristol_stools_chart']" data-title="Bristol Stools Chart" class="button exclude">Bristol Type Reference</button></p>
                    </t>
                    <span class="errors"><t t-esc="item['errors']"/></span>
                    <span class="help"><t t-esc="item['info']"/></span>
