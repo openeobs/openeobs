@@ -7,6 +7,7 @@ from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from openerp.osv import fields
 
 URL_PREFIX = '/mobile/'
 URLS = urls.URLS
@@ -755,6 +756,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
+        for ew in ews:
+            for e in ew:
+                if e in ['date_terminated', 'create_date', 'write_date', 'date_started']:
+                    ew[e] = fields.datetime.context_timestamp(cr, uid, datetime.strptime(ew[e], DTF), context=context).strftime(DTF)
         return request.make_response(json.dumps({'obs': ews, 'obsType': 'ews'}), headers={'Content-Type': 'application/json'})
 
 
