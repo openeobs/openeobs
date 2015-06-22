@@ -141,3 +141,8 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
         self.assertIn('status', test_resp.content)
+
+    def test_method_get_font(self):
+        font_url = self._build_url('src/fonts/{}'.format('non-existing-font'), None, mobile=True)
+        test_resp = requests.get(font_url, cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 404)

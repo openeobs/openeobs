@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-s
-import openerp, re, json, urls, jinja2, bisect
+import openerp, re, json, urls, jinja2, bisect, os
 from openerp import http
 from openerp.http import Root, Response
 from openerp.modules.module import get_module_path
@@ -102,8 +102,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
-        with open(get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid, 'r') as font:
-            return request.make_response(font.read(), headers={'Content-Type': 'application/font-woff'})
+        font_file_request = get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid
+        # Consider only the file's name (without additional unwanted parts) when checking for file's existence
+        font_file_path = get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid.split('?')[0]
+        if isinstance(xmlid, basestring) and os.path.exists(font_file_path):
+            with open(font_file_request, 'r') as font:
+                return request.make_response(font.read(), headers={'Content-Type': 'application/font-woff'})
+        else:
+            exceptions.abort(404)
 
     @http.route(URLS['logo'], type='http', auth='none')
     def get_logo(self, *args, **kw):
