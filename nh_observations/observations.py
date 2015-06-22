@@ -127,7 +127,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
         spell_pool = self.pool['nh.clinical.spell']
-        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id, context=context)
         if spell_id:
             spell = spell_pool.browse(cr, uid, spell_id, context=context)
             return spell.activity_id.location_id.id
