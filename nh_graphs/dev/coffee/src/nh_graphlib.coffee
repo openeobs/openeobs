@@ -229,9 +229,10 @@ class NHGraphLib
       for obj in raw_data
         if d['keys'].length is 1
           key = d['keys'][0]
-          if obj[key]
+          if obj.hasOwnProperty(key)
             fix_val = obj[key]
-            fix_val = 'False' if fix_val is false
+            fix_val = 'No' if fix_val is false
+            fix_val = 'Yes' if fix_val is true
             if d['title']
               data.push {title: d['title'], value: fix_val}
         else

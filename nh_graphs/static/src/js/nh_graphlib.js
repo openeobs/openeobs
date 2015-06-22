@@ -258,10 +258,13 @@ NHGraphLib = (function() {
         obj = raw_data[i];
         if (d['keys'].length === 1) {
           key = d['keys'][0];
-          if (obj[key]) {
+          if (obj.hasOwnProperty(key)) {
             fix_val = obj[key];
             if (fix_val === false) {
-              fix_val = 'False';
+              fix_val = 'No';
+            }
+            if (fix_val === true) {
+              fix_val = 'Yes';
             }
             if (d['title']) {
               data.push({
