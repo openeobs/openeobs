@@ -68,14 +68,20 @@ class NHGraphLib
     #@init(self)
     #return self
 
+  # Certain browsers will use a space instead of the T between date and time
+  # hacky fix to normalise this
   date_from_string: (date_string) ->
     date = new Date(date_string)
     if isNaN(date.getTime())
       date = new Date(date_string.replace(' ', 'T'))
+    if isNaN(date.getTime())
+      throw new Error("Invalid date format")
     return date
 
   date_to_string: (date) =>
-    days = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ]
+    if isNaN(date.getTime())
+      throw new Error("Invalid date format")
+    days = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ]
     return days[date.getDay()] + " " + + date.getDate() +
       '/' + @leading_zero(date.getMonth() + 1) + "/" +
       @leading_zero(date.getFullYear()) + " " + @leading_zero(date.getHours()) +

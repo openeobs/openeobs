@@ -14,20 +14,21 @@ gulp.task('compile', function(){
 	.pipe(concat('nh_graphlib.js'))
 	.pipe(gulp.dest('../../src/js'))
 });
-//
-//gulp.task('test', function(){
-//	gulp.src(['src/*.coffee'])
-//	.pipe(coffeelint())
-//	.pipe(coffeelint.reporter())
-//	.pipe(coffee({bare: true}))
-//	.pipe(gulp.dest('tests/src'))
-//
-//	gulp.src(['tests/src/*.js', 'tests/lib/test_routes.js', 'tests/spec/*.js'])
-//	.pipe(karma({
-//		configFile: 'karma.conf.js',
-//		action: 'run'
-//	}))
-//});
+
+gulp.task('test', function(){
+	gulp.src(['src/*.coffee'])
+	.pipe(coffeelint())
+	.pipe(coffeelint.reporter())
+	.pipe(coffee({bare: true}))
+	.pipe(concat('nh_graphlib.js'))
+	.pipe(gulp.dest('tests/src'))
+
+	gulp.src(['tests/src/*.js', 'tests/lib/fixtures.js', 'tests/spec/*.js'])
+	.pipe(karma({
+		configFile: 'karma.conf.js',
+		action: 'run'
+	}))
+});
 
 gulp.task('docs', function(){
 	gulp.src(['src/*.coffee'])
