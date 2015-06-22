@@ -1,0 +1,22 @@
+{
+  "name": "NHGraphLib",
+  "description": "CoffeeScript / JavaScript Graphing Library for Open-eObs using D3.js",
+  "author": "Colin Wren <colin@neovahealth.co.uk>",
+  "dependencies": {
+  	"gulp": "3.9.0",
+  	"del": "1.1.1",
+    "gulp-karma": "0.0.4",
+    "gulp-coffeelint": "0.4.0",
+    "gulp-coffee": "2.3.1",
+    "gulp-notify": "2.2.0",
+    "gulp-concat": "2.5.2 ",
+    "gulp-docco": "0.0.4",
+    "karma-jasmine": "0.3.5",
+    "karma-junit-reporter": "0.2.2",
+    "karma-phantomjs-launcher": "0.1.4",
+    "phantomjs": "1.9.16",
+    "karma-coverage": "0.2.7",
+    "karma-nyan-reporter": "0.0.60",
+    "karma-html-reporter": "*"
+  }
+}

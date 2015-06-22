@@ -47,21 +47,33 @@ class NHFocus
       # add element to DOM
       @.parent_obj = parent_svg
       if @.title?
-        @.title_obj = @.parent_obj.obj.append('text').text(@.title).attr('class', 'title')
+        @.title_obj = @.parent_obj.obj.append('text').text(@.title)
+        .attr('class', 'title')
         if parent_svg.context?
-          @.title_obj.attr('transform', 'translate(0,'+(((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + parent_svg.style.padding.top) + @.style.margin.top)+')')
+          @.title_obj.attr('transform', 'translate(0,'+
+            (((parent_svg.context.style.dimensions.height +
+            parent_svg.context.style.margin.bottom) +
+            parent_svg.style.padding.top) + @.style.margin.top)+')')
         else
-          @.title_obj.attr('transform', 'translate(0,'+(parent_svg.style.padding.top + @.style.margin.top)+')')
+          @.title_obj.attr('transform', 'translate(0,'+
+            (parent_svg.style.padding.top + @.style.margin.top)+')')
       @.obj = parent_svg.obj.append('g')
       @.obj.attr('class', 'nhfocus')
       top_offset = (parent_svg.style.padding.top + @.style.margin.top)
       if @.title?
         top_offset += @.style.title_height
       if parent_svg.context?
-        @.obj.attr('transform', 'translate('+(parent_svg.style.padding.left + @.style.margin.left)+','+((parent_svg.context.style.dimensions.height + parent_svg.context.style.margin.bottom) + top_offset)+')')
+        @.obj.attr('transform', 'translate('+
+          (parent_svg.style.padding.left +@.style.margin.left)+','+
+          ((parent_svg.context.style.dimensions.height +
+          parent_svg.context.style.margin.bottom) + top_offset)+')')
       else
-        @.obj.attr('transform', 'translate('+(parent_svg.style.padding.left + @.style.margin.left)+','+top_offset+')')
-      @.style.dimensions.width = parent_svg.style.dimensions.width - ((parent_svg.style.padding.left + parent_svg.style.padding.right) + (@.style.margin.left + @.style.margin.right))
+        @.obj.attr('transform', 'translate('+
+          (parent_svg.style.padding.left + @.style.margin.left)+
+          ','+top_offset+')')
+      @.style.dimensions.width = parent_svg.style.dimensions.width -
+        ((parent_svg.style.padding.left + parent_svg.style.padding.right) +
+        (@.style.margin.left + @.style.margin.right))
       @.obj.attr('width', @.style.dimensions.width)
       @.axes.x.min = parent_svg.data.extent.start
       @.axes.x.max = parent_svg.data.extent.end
@@ -69,7 +81,8 @@ class NHFocus
       # figure out how big the focus is going to be
       for graph in @.graphs
         graph.init(@)
-        @.style.dimensions.height += graph.style.dimensions.height + @.style.spacing
+        @.style.dimensions.height += graph.style.dimensions.height +
+          @.style.spacing
 
       for table in @.tables
         table.init(@)
@@ -78,22 +91,28 @@ class NHFocus
         @.style.dimensions.height += @.style.title_height
 
 
-      parent_svg.style.dimensions.height += @.style.dimensions.height + (@.style.margin.top + @.style.margin.bottom)
+      parent_svg.style.dimensions.height += @.style.dimensions.height +
+        (@.style.margin.top + @.style.margin.bottom)
 
       self = @
       window.addEventListener('focus_resize', (event) ->
-        self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right))
+        self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+          ((self.parent_obj.style.padding.left +
+          self.parent_obj.style.padding.right) + (self.style.margin.left +
+          self.style.margin.right))
         self.obj.attr('width', self.style.dimensions.width)
         self.axes.x.scale?.range()[1] = self.style.dimensions.width
         if self.parent_obj.options.mobile.is_mob
           if window.innerWidth > window.innerHeight
             new_date = new Date(self.axes.x.max)
-            d = new_date.getDate()-self.parent_obj.options.mobile.date_range.landscape
+            d = new_date.getDate()-
+              self.parent_obj.options.mobile.date_range.landscape
             new_date.setDate(d)
             self.redraw([new_date, self.axes.x.max])
           else
             new_date = new Date(self.axes.x.max)
-            d = new_date.getDate()-self.parent_obj.options.mobile.date_range.portrait
+            d = new_date.getDate()-
+              self.parent_obj.options.mobile.date_range.portrait
             new_date.setDate(d)
             self.redraw([new_date, self.axes.x.max])
         else
@@ -117,7 +136,8 @@ class NHFocus
     for graph in @.graphs
       graph.axes.x.scale.domain([extent[0], extent[1]])
       graph.axes.x.axis.ticks((@.style.dimensions.width/100))
-      graph.axes.x.scale.range([0, @.style.dimensions.width - graph.style.label_width])
+      graph.axes.x.scale.range([0, @.style.dimensions.width -
+        graph.style.label_width])
       graph.redraw(@)
 
     for table in @.tables

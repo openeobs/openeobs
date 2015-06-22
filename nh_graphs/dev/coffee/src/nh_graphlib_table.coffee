@@ -9,7 +9,7 @@ class NHTable
     @title = null
     @title_obj = null
 
-  date_from_string: (date_string) =>
+  date_from_string: (date_string) ->
     date = new Date(date_string)
     if isNaN(date.getTime())
       date = new Date(date_string.replace(' ', 'T'))
@@ -17,16 +17,20 @@ class NHTable
 
   date_to_string: (date) =>
     days = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ]
-    return days[date.getDay()] + " " + + date.getDate() + '/' + @leading_zero(date.getMonth() + 1) + "/" + @leading_zero(date.getFullYear()) + " " + @leading_zero(date.getHours()) + ":" + @leading_zero(date.getMinutes())
+    return days[date.getDay()] + " " + + date.getDate() + '/' +
+      @leading_zero(date.getMonth() + 1) + "/" +
+      @leading_zero(date.getFullYear()) + " " + @leading_zero(date.getHours()) +
+      ":" + @leading_zero(date.getMinutes())
 
-  leading_zero: (date_element) =>
+  leading_zero: (date_element) ->
     return ("0" + date_element).slice(-2)
 
   init: (parent_obj) =>
     # add element to DOM
     @.parent_obj = parent_obj
     if @.title?
-      @.title_obj = nh_graphs.select(@.parent_obj.parent_obj.el).append('h3').html(@.title)
+      @.title_obj = nh_graphs.select(@.parent_obj.parent_obj.el)
+      .append('h3').html(@.title)
     @.obj = nh_graphs.select(parent_obj.parent_obj.el).append('table')
     @.obj.attr('class', 'nhtable')
 
@@ -37,7 +41,8 @@ class NHTable
     for key in @.keys
       header.push(key['title'])
     @.header_row = @.obj.append('thead').append('tr')
-    @.header_row.selectAll('th').data(header).enter().append('th').text((d) -> return d)
+    @.header_row.selectAll('th').data(header).enter()
+    .append('th').text((d) -> return d)
     @.data_rows = @.obj.append('tbody')
     return
 
@@ -50,7 +55,8 @@ class NHTable
     self.data_rows.selectAll('tr')
     .data(() ->
       data_map = self.parent_obj.parent_obj.data.raw.map((row) ->
-        if self.date_from_string(row['date_terminated']) >= self.range[0] and self.date_from_string(row['date_terminated']) <= self.range[1]
+        if(self.date_from_string(row['date_terminated']) >= self.range[0] and \
+        self.date_from_string(row['date_terminated']) <= self.range[1])
           return keys.map((column) ->
             return {column: column, value: row[column]}
           )
@@ -79,7 +85,8 @@ class NHTable
     self.data_rows.selectAll('tr')
     .data(() ->
       data_map = self.parent_obj.parent_obj.data.raw.map((row) ->
-        if self.date_from_string(row['date_terminated']) >= self.range[0] and self.date_from_string(row['date_terminated']) <= self.range[1]
+        if(self.date_from_string(row['date_terminated']) >= self.range[0] and \
+        self.date_from_string(row['date_terminated']) <= self.range[1])
           return keys.map((column) ->
             return {column: column, value: row[column]}
           )

@@ -89,7 +89,7 @@ class NHGraph
     @obj = null
     @parent_obj = null
 
-  date_from_string: (date_string) =>
+  date_from_string: (date_string) ->
     date = new Date(date_string)
     if isNaN(date.getTime())
       date = new Date(date_string.replace(' ', 'T'))
@@ -97,25 +97,30 @@ class NHGraph
 
   date_to_string: (date) =>
     days = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ]
-    return days[date.getDay()] + " " + + date.getDate() + '/' + @leading_zero(date.getMonth() + 1) + "/" + @leading_zero(date.getFullYear()) + " " + @leading_zero(date.getHours()) + ":" + @leading_zero(date.getMinutes())
+    return days[date.getDay()] + " " + + date.getDate() + '/' +
+      @leading_zero(date.getMonth() + 1) + "/" +
+      @leading_zero(date.getFullYear()) + " " +
+      @leading_zero(date.getHours()) + ":" + @leading_zero(date.getMinutes())
 
-  leading_zero: (date_element) =>
+  leading_zero: (date_element) ->
     return ("0" + date_element).slice(-2)
 
-  show_popup: (string, x, y) =>
+  show_popup: (string, x, y) ->
     cp = document.getElementById('chart_popup')
-    cp.innerHTML = string;
+    cp.innerHTML = string
     cp.style.top = y+'px'
     cp.style.left = x+'px'
     cp.classList.remove('hidden')
 
-  hide_popup: () =>
+  hide_popup: () ->
     cp = document.getElementById('chart_popup')
     cp.classList.add('hidden')
 
-  rangify_graph: (self, event) =>
+  rangify_graph: (self, event) ->
     if event.srcElement.checked
-      self.axes.y.scale.domain([self.axes.y.ranged_extent[0]-self.style.range_padding, self.axes.y.ranged_extent[1]+self.style.range_padding])
+      self.axes.y.scale.domain( \
+        [self.axes.y.ranged_extent[0]-self.style.range_padding,
+         self.axes.y.ranged_extent[1]+self.style.range_padding])
     else
       self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
     self.redraw(self.parent_obj)
@@ -126,7 +131,9 @@ class NHGraph
     @.parent_obj = parent_obj
     @.obj = parent_obj.obj.append('g')
     @.obj.attr('class', 'nhgraph')
-    @.style.dimensions.width = parent_obj.style.dimensions.width - ((parent_obj.style.padding.left + parent_obj.style.padding.right) + (@.style.margin.left + @.style.margin.right)) - @.style.label_width
+    @.style.dimensions.width = parent_obj.style.dimensions.width -
+      ((parent_obj.style.padding.left + parent_obj.style.padding.right) +
+      (@.style.margin.left + @.style.margin.right)) - @.style.label_width
     @.obj.attr('width', @.style.dimensions.width)
     left_offset = (parent_obj.style.padding.left + @.style.margin.left)
     top_offset = (parent_obj.style.dimensions.height + @.style.margin.top)
@@ -138,12 +145,16 @@ class NHGraph
     # add xscale
     @.axes.x.min = parent_obj.axes.x.min
     @.axes.x.max = parent_obj.axes.x.max
-    @.axes.x.scale = nh_graphs.time.scale().domain([@.axes.x.min, @.axes.x.max]).range([left_offset, @.style.dimensions.width])
+    @.axes.x.scale = nh_graphs.time.scale()
+    .domain([@.axes.x.min, @.axes.x.max]).range([left_offset,
+      @.style.dimensions.width])
 
     # add xaxis
-    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top").ticks((@.style.dimensions.width/100)) # .tickPadding(@.style.axis_label_text_padding)
+    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top")
+    .ticks((@.style.dimensions.width/100))
     if not @.style.axis.x.hide
-      @.axes.x.obj = @.axes.obj.append("g").attr("class", "x axis").call(@.axes.x.axis)
+      @.axes.x.obj = @.axes.obj.append("g").attr("class", "x axis")
+      .call(@.axes.x.axis)
 
       # sort line breaks out
       line_self = @
@@ -155,7 +166,9 @@ class NHGraph
           tspan = el.append("tspan").text(word)
           if i > 0
             tspan.attr("x", 0).attr("dy", "15")
-        el.attr("y", "-" + (words.length * line_self.style.axis_label_text_height + line_self.style.axis_label_text_height))
+        el.attr("y", "-" +
+          (words.length * line_self.style.axis_label_text_height +
+          line_self.style.axis_label_text_height))
       )
       @.style.axis.x.size = @.axes.x.obj[0][0].getBBox()
       @.style.dimensions.height -= @.style.axis.x.size.height
@@ -163,15 +176,22 @@ class NHGraph
 
 
     # add clippath
-    @.obj.append("defs").append("clipPath").attr("class", "clip").attr('id', @.options.keys.join('-')+'-clip').append("rect").attr("width",  @.style.dimensions.width).attr("height", @.style.dimensions.height).attr("y", top_offset).attr("x", left_offset);
+    @.obj.append("defs").append("clipPath").attr("class", "clip")
+    .attr('id', @.options.keys.join('-')+'-clip').append("rect")
+    .attr("width",  @.style.dimensions.width)
+    .attr("height", @.style.dimensions.height)
+    .attr("y", top_offset).attr("x", left_offset)
 
     # add yscale
-    @.axes.y.scale = nh_graphs.scale.linear().domain([@.axes.y.min, @.axes.y.max]).range([top_offset+@style.dimensions.height, top_offset])
+    @.axes.y.scale = nh_graphs.scale.linear()
+    .domain([@.axes.y.min, @.axes.y.max])
+    .range([top_offset+@style.dimensions.height, top_offset])
 
     #add yaxis
     @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
     if not @.style.axis.y.hide
-      @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis').call(@.axes.y.axis)
+      @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
+      .call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
     self = @
     if self.options.keys.length>1
@@ -180,39 +200,50 @@ class NHGraph
         values.push(ob[key] for key in self.options.keys)
       @.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values))
     else
-      @.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
+      @.axes.y.ranged_extent = \
+      nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
         return d[self.options.keys[0]]
       )
 
 
     if @.options.label?
+      y_label = @.axes.y.scale(@.axes.y.min) -
+        (@.style.label_text_height*(@.options.keys.length+1))
       @.drawables.background.obj.append('text').text(@.options.label).attr({
         'x': @.style.dimensions.width + @.style.label_text_height,
-        'y': @.axes.y.scale(@.axes.y.min) - (@.style.label_text_height*(@.options.keys.length+1)),
+        'y': y_label,
         'class': 'label'
       })
       self = @
-      @.drawables.background.obj.selectAll('text.measurement').data(@.options.keys).enter().append('text').text((d, i) ->
+      @.drawables.background.obj.selectAll('text.measurement')
+      .data(@.options.keys).enter().append('text').text((d, i) ->
+        raw = self.parent_obj.parent_obj.data.raw
         if i isnt self.options.keys.length-1
-          return self.parent_obj.parent_obj.data.raw[self.parent_obj.parent_obj.data.raw.length-1][d]
+          return raw[self.parent_obj.parent_obj.data.raw.length-1][d]
         else
-          return self.parent_obj.parent_obj.data.raw[self.parent_obj.parent_obj.data.raw.length-1][d] + '' + self.options.measurement
+          return raw[self.parent_obj.parent_obj.data.raw.length-1][d] + '' +
+          self.options.measurement
       ).attr({
-          'x': self.style.dimensions.width + self.style.label_text_height,
-          'y': (d, i) ->
-            self.axes.y.scale(self.axes.y.min) - (self.style.label_text_height*(self.options.keys.length-i))
-          ,'class': 'measurement'
-        })
+        'x': self.style.dimensions.width + self.style.label_text_height,
+        'y': (d, i) ->
+          self.axes.y.scale(self.axes.y.min) -
+            (self.style.label_text_height*(self.options.keys.length-i))
+        ,'class': 'measurement'
+      })
 
 
     window.addEventListener('graph_resize', (event) ->
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right)) - @.style.label_width
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+        ((self.parent_obj.style.padding.left +
+        self.parent_obj.style.padding.right) + (self.style.margin.left +
+        self.style.margin.right)) - @.style.label_width
       self.obj.attr('width', self.style.dimensions.width)
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
       self.redraw(self.parent_obj)
     )
-    self.parent_obj.parent_obj.options.controls.rangify?.addEventListener('click', (event) ->
-        self.rangify_graph(self, event)
+    rangify = self.parent_obj.parent_obj.options.controls.rangify
+    rangify?.addEventListener('click', (event) ->
+      self.rangify_graph(self, event)
     )
     return
 
@@ -223,7 +254,8 @@ class NHGraph
     self = @
     if self.drawables.background.data?
       for background_object in self.drawables.background.data
-        self.drawables.background.obj.selectAll(".range").data(self.drawables.background.data).enter().append("rect").attr({
+        self.drawables.background.obj.selectAll(".range")
+        .data(self.drawables.background.data).enter().append("rect").attr({
           "class": (d) ->
             return d.class + ' range'
           ,
@@ -235,24 +267,26 @@ class NHGraph
           "clip-path": "url(#"+ self.options.keys.join('-')+'-clip' +")",
           height: (d) ->
             return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1)
-        });
+        })
 
     # draw normals
-    self.drawables.background.obj.selectAll('.normal').data([self.options.normal]).enter().append("rect")
+    self.drawables.background.obj.selectAll('.normal')
+    .data([self.options.normal]).enter().append("rect")
     .attr({
-        'class': 'normal'
-        'y': (d) ->
-          return self.axes.y.scale(d.max)
-        ,
-        'x': self.axes.x.scale(self.axes.x.scale.domain()[0]),
-        'width': self.style.dimensions.width,
-        'clip-path': 'url(#'+self.options.keys.join('-')+'-clip'+')',
-        'height': (d) ->
-          return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
-      })
+      'class': 'normal'
+      'y': (d) ->
+        return self.axes.y.scale(d.max)
+      ,
+      'x': self.axes.x.scale(self.axes.x.scale.domain()[0]),
+      'width': self.style.dimensions.width,
+      'clip-path': 'url(#'+self.options.keys.join('-')+'-clip'+')',
+      'height': (d) ->
+        return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
+    })
 
     # draw gridlines
-    self.drawables.background.obj.selectAll(".grid.vertical").data(self.axes.x.scale.ticks()).enter().append("line").attr({
+    self.drawables.background.obj.selectAll(".grid.vertical")
+    .data(self.axes.x.scale.ticks()).enter().append("line").attr({
       "class": "vertical grid",
       x1: (d) ->
         return self.axes.x.scale(d)
@@ -262,9 +296,10 @@ class NHGraph
       ,
       y1: self.axes.y.scale.range()[1],
       y2: self.axes.y.scale.range()[0],
-    });
+    })
 
-    self.drawables.background.obj.selectAll(".grid.horizontal").data(self.axes.y.scale.ticks()).enter().append("line").attr({
+    self.drawables.background.obj.selectAll(".grid.horizontal")
+    .data(self.axes.y.scale.ticks()).enter().append("line").attr({
       "class": "horizontal grid",
       x1: self.axes.x.scale(self.axes.x.scale.domain()[0]),
       x2: self.axes.x.scale(self.axes.x.scale.domain()[1]),
@@ -274,13 +309,14 @@ class NHGraph
       y2: (d) ->
         return self.axes.y.scale(d)
       ,
-    });
+    })
 
     # draw data
     switch self.style.data_style
       when 'stepped', 'linear' then (
         self.drawables.area = nh_graphs.svg.line()
-        .interpolate(if self.style.data_style is 'stepped' then "step-after" else "linear")
+        .interpolate(if self.style.data_style is \
+          'stepped' then "step-after" else "linear")
         .defined((d) ->
           if d.none_values is "[]"
             return d
@@ -293,12 +329,16 @@ class NHGraph
         )
 
         if self.parent_obj.parent_obj.data.raw.length > 1
-          self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")").attr("class", "path");
+          self.drawables.data.append("path")
+          .datum(self.parent_obj.parent_obj.data.raw)
+          .attr("d", self.drawables.area)
+          .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+          .attr("class", "path")
 
         self.drawables.data.selectAll(".point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-            if d.none_values is "[]"
-              return d
+          if d.none_values is "[]"
+            return d
           )
         )
         .enter().append("circle").attr("cx", (d) ->
@@ -316,7 +356,8 @@ class NHGraph
 
 
 
-        self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+        self.drawables.data.selectAll(".empty_point")
+        .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
           if d.none_values isnt "[]"
             return d
           )
@@ -340,7 +381,8 @@ class NHGraph
       )
       when 'range' then (
         if self.options.keys.length is 2
-          self.drawables.data.selectAll(".range.top").data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+          self.drawables.data.selectAll(".range.top")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
             if d[self.options.keys[0]]
               return d
             )
@@ -348,10 +390,12 @@ class NHGraph
           .append("rect")
           .attr({
             'y': (d) ->
-               return self.axes.y.scale(d[self.options.keys[0]])
+              return self.axes.y.scale(d[self.options.keys[0]])
             ,
             'x': (d) ->
-               return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
+              return \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/2)+1
             ,
             'height': self.style.range.cap.height,
             'width': self.style.range.cap.width,
@@ -369,24 +413,27 @@ class NHGraph
           )
 
 
-          self.drawables.data.selectAll(".range.bottom").data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-              if d[self.options.keys[1]]
-                return d
+          self.drawables.data.selectAll(".range.bottom")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            if d[self.options.keys[1]]
+              return d
             )
           ).enter()
           .append("rect")
           .attr({
-              'y': (d) ->
-                return self.axes.y.scale(d[self.options.keys[1]])
-              ,
-              'x': (d) ->
-                return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
-              ,
-              'height': self.style.range.cap.height,
-              'width': self.style.range.cap.width,
-              'class': 'range bottom',
-              'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-            }).on('mouseover', (d) ->
+            'y': (d) ->
+              return self.axes.y.scale(d[self.options.keys[1]])
+            ,
+            'x': (d) ->
+              return \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/2)+1
+            ,
+            'height': self.style.range.cap.height,
+            'width': self.style.range.cap.width,
+            'class': 'range bottom',
+            'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
+          }).on('mouseover', (d) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key + ': ' + d[key] + '<br>'
@@ -396,26 +443,28 @@ class NHGraph
             self.hide_popup()
           )
 
-          self.drawables.data.selectAll(".range.extent").data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-              if d[self.options.keys[0]] and d[self.options.keys[1]]
-                return d
+          self.drawables.data.selectAll(".range.extent")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            if d[self.options.keys[0]] and d[self.options.keys[1]]
+              return d
             )
           ).enter()
           .append("rect")
           .attr({
-              'y': (d) ->
-                return self.axes.y.scale(d[self.options.keys[0]])
-              ,
-              'x': (d) ->
-                return self.axes.x.scale(self.date_from_string(d.date_terminated))
-              ,
-              'height': (d) ->
-                self.axes.y.scale(d[self.options.keys[1]]) - self.axes.y.scale(d[self.options.keys[0]])
-              ,
-              'width': self.style.range.width,
-              'class': 'range extent',
-              'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-            }).on('mouseover', (d) ->
+            'y': (d) ->
+              return self.axes.y.scale(d[self.options.keys[0]])
+            ,
+            'x': (d) ->
+              return self.axes.x.scale(self.date_from_string(d.date_terminated))
+            ,
+            'height': (d) ->
+              self.axes.y.scale(d[self.options.keys[1]]) -
+                self.axes.y.scale(d[self.options.keys[0]])
+            ,
+            'width': self.style.range.width,
+            'class': 'range extent',
+            'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
+          }).on('mouseover', (d) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key + ': ' + d[key] + '<br>'
@@ -425,7 +474,8 @@ class NHGraph
             self.hide_popup()
           )
         else
-          throw new Error('Cannot plot ranged graph with ' + self.options.keys.length + 'data points')
+          throw new Error('Cannot plot ranged graph with ' +
+            self.options.keys.length + 'data points')
      )
       when 'star' then console.log('star')
       when 'pie' then console.log('pie')
@@ -446,20 +496,23 @@ class NHGraph
         tspan = el.append("tspan").text(word)
         if i > 0
           tspan.attr("x", 0).attr("dy", "15")
-      el.attr("y", "-" + (words.length * self.style.axis_label_text_height + self.style.axis_label_text_height))
+      el.attr("y", "-" + (words.length * self.style.axis_label_text_height +
+        self.style.axis_label_text_height))
     )
 
     self.drawables.background.obj.selectAll('.normal')
     .attr({
-        'width': self.axes.x.scale.range()[1],
-        'y': (d) ->
-          return self.axes.y.scale(d.max)
-        'height': (d) ->
-          return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
+      'width': self.axes.x.scale.range()[1],
+      'y': (d) ->
+        return self.axes.y.scale(d.max)
+      'height': (d) ->
+        return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
     })
 
-    self.drawables.background.obj.selectAll('.label').attr('x': self.axes.x.scale.range()[1] + self.style.label_text_height)
-    self.drawables.background.obj.selectAll('.measurement').attr('x': self.axes.x.scale.range()[1] + self.style.label_text_height)
+    self.drawables.background.obj.selectAll('.label')
+    .attr('x': self.axes.x.scale.range()[1] + self.style.label_text_height)
+    self.drawables.background.obj.selectAll('.measurement')
+    .attr('x': self.axes.x.scale.range()[1] + self.style.label_text_height)
 
 
     # redraw grid
@@ -487,7 +540,8 @@ class NHGraph
     .attr('y2', (d) ->
       return self.axes.y.scale(d)
     )
-    self.obj.selectAll('.clip').selectAll('rect').attr('width', self.axes.x.scale.range()[1])
+    self.obj.selectAll('.clip').selectAll('rect')
+    .attr('width', self.axes.x.scale.range()[1])
 
     #redraw data
     switch self.style.data_style
@@ -501,15 +555,17 @@ class NHGraph
       )
       when 'range' then (
         self.drawables.data.selectAll('.range.top').attr('x', (d) ->
-          return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
+          return self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+            (self.style.range.cap.width/2)+1
         ).attr('y': (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
 
         self.drawables.data.selectAll('.range.bottom').attr('x', (d) ->
-          return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width/2)+1
+          return self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+            (self.style.range.cap.width/2)+1
         ).attr('y': (d) ->
-            return self.axes.y.scale(d[self.options.keys[1]])
+          return self.axes.y.scale(d[self.options.keys[1]])
         )
 
         self.drawables.data.selectAll('.range.extent').attr('x', (d) ->
@@ -517,7 +573,8 @@ class NHGraph
         ).attr('y': (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         ).attr('height': (d) ->
-          return self.axes.y.scale(d[self.options.keys[1]]) - self.axes.y.scale(d[self.options.keys[0]])
+          return self.axes.y.scale(d[self.options.keys[1]]) -
+            self.axes.y.scale(d[self.options.keys[0]])
         )
       )
       when 'star' then console.log('star')
