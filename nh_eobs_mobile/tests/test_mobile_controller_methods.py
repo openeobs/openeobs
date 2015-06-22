@@ -21,7 +21,27 @@ BASE_MOBILE_URL = BASE_URL + MOBILE_URL_PREFIX
 test_logger = logging.getLogger(__name__)
 
 
-class TestMobileControllerRouting(tests.common.HttpCase):
+class TestMobileControllerMethods(tests.common.HttpCase):
+
+    model_observation_types = {
+        'height',
+        'weight',
+        'blood_product',
+        'blood_sugar',
+        'pain',
+        'urine_output',
+        'bowels_open',
+    }
+    active_observation_types = {
+        'height',
+        'weight',
+        'blood_product',
+        'blood_sugar',
+        'ews',
+        'stools',
+        'gcs',
+        'pbp',
+    }
 
     def _parse_route_arguments(self, route):
         """Parse route arguments according to specific rules.
@@ -32,28 +52,9 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         # Regex and variables for managing the route's arguments
         index_argument_regex = re.compile(r'_id$')
         observation_argument_regex = re.compile(r'^observation$')
-        model_observation_types = {
-            'height',
-            'weight',
-            'blood_product',
-            'blood_sugar',
-            'pain',
-            'urine_output',
-            'uotarget',
-            'bowels_open',
-        }
-        active_observation_types = {
-            'height',
-            'weight',
-            'blood_product',
-            'blood_sugar',
-            'ews',
-            'stools',
-            'gcs',
-            'pbp',
-        }
+
         # Use only observation's types present in both the sets
-        usable_observation_types = list(model_observation_types & active_observation_types)
+        usable_observation_types = list(self.model_observation_types & self.active_observation_types)
 
         # Parse the route's arguments
         route_arguments = None
@@ -111,7 +112,7 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         return login_name
 
     def setUp(self):
-        super(TestMobileControllerRouting, self).setUp()
+        super(TestMobileControllerMethods, self).setUp()
         self.session_resp = requests.post(BASE_URL + 'web', {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
             self.fail('Cannot retrieve a valid session to be used for the tests!')
@@ -128,14 +129,14 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         self.assertEqual(len(take_task_ajax_route), 1,
                          "Endpoint to the 'json_take_task' route not unique. Cannot run the test!")
 
-        # Retrieve an activity with no user related to it
+        # Try to retrieve an activity with no user related to it (skip the test if cannot find any)
         activity_registry = self.registry['nh.activity']
         task_id_list = activity_registry.search(self.cr, self.uid, [('user_id', '=', False)], limit=1)
-        self.assertGreater(len(task_id_list), 0,
-                           'Cannot find a task that has no user related to it. Cannot run the test!')
+        if len(task_id_list) == 0:
+            self.skipTest('Cannot find an activity that has no user related to it. Cannot run the test!')
 
-        obs_score_url = self._build_url(take_task_ajax_route[0]['endpoint'], task_id_list[0])
-        test_resp = requests.post(obs_score_url, cookies=self.auth_resp.cookies)
+        task_ajax_url = self._build_url(take_task_ajax_route[0]['endpoint'], task_id_list[0])
+        test_resp = requests.post(task_ajax_url, cookies=self.auth_resp.cookies)
 
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
