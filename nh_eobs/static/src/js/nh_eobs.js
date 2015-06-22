@@ -405,22 +405,28 @@ openerp.nh_eobs = function (instance) {
                         var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
                         d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0'+(dt.getMonth() + 1)).slice(-2) + "/" + ('0'+(dt.getFullYear())).slice(-2) + " " + ('0'+(dt.getHours())).slice(-2) + ":" + ('0'+(dt.getMinutes())).slice(-2);
 
-
-                        if (d.flow_rate > -1){
+                        d.oxygen_administration_device = 'No';
+                        if (d.flow_rate && d.flow_rate > -1 || d.concentration && d.concentration > -1 || d.oxygen_administration_flag){
                             plotO2 = true;
                             d.inspired_oxygen = "";
-                            if(d.flow_rate > -1){
+                            if(d.device_id){
+                                d.inspired_oxygen += "Device: " + d.device_id[1] + "<br>";
+                            }
+                            if(d.flow_rate && d.flow_rate > -1){
                                 d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
                             }
-                            if(d.inspired_oxygen > -1){
+                            if(d.concentration && d.concentration > -1){
                                 d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
                             }
-                            if(d.cpap_peep > -1){
+                            if(d.cpap_peep && d.cpap_peep > -1){
                                 d.inspired_oxygen += "CPAP PEEP: " + d.cpap_peep + "<br>";
-                            }else if(d.niv_backup > -1){
+                            }else if(d.niv_backup && d.niv_backup > -1){
                                 d.inspired_oxygen += "NIV Backup Rate: " + d.niv_backup + "<br>";
                                 d.inspired_oxygen += "NIV EPAP: " + d.niv_epap + "<br>";
                                 d.inspired_oxygen += "NIV IPAP: " + d.niv_ipap + "<br>";
+                            }
+                            if(d.oxygen_administration_flag) {
+                                d.oxygen_administration_device = 'Yes';
                             }
                         }
                         if (d.indirect_oxymetry_spo2) {
@@ -507,7 +513,7 @@ openerp.nh_eobs = function (instance) {
 
 
                     var tabular_obs = new window.NH.NHTable();
-                    tabular_obs.keys = [{key:'avpu_text', title: 'AVPU'}, {key:'oxygen_administration_flag', title: 'On Supplemental O2'}, {key:'inspired_oxygen', title: 'Inspired Oxygen'}];
+                    tabular_obs.keys = [{key:'avpu_text', title: 'AVPU'}, {key:'oxygen_administration_device', title: 'On Supplemental O2'}, {key:'inspired_oxygen', title: 'Inspired Oxygen'}];
                     tabular_obs.title = 'Tabular values';
                     var focus = new window.NH.NHFocus();
                     var context = new window.NH.NHContext();
