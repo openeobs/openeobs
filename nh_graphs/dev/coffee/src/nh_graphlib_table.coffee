@@ -1,4 +1,4 @@
-class NHTable
+class NHTable extends NHGraphLib
 
   constructor: () ->
     @range = null
@@ -8,22 +8,6 @@ class NHTable
     @data_rows = null
     @title = null
     @title_obj = null
-
-  date_from_string: (date_string) ->
-    date = new Date(date_string)
-    if isNaN(date.getTime())
-      date = new Date(date_string.replace(' ', 'T'))
-    return date
-
-  date_to_string: (date) =>
-    days = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ]
-    return days[date.getDay()] + " " + + date.getDate() + '/' +
-      @leading_zero(date.getMonth() + 1) + "/" +
-      @leading_zero(date.getFullYear()) + " " + @leading_zero(date.getHours()) +
-      ":" + @leading_zero(date.getMinutes())
-
-  leading_zero: (date_element) ->
-    return ("0" + date_element).slice(-2)
 
   init: (parent_obj) =>
     # add element to DOM

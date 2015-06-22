@@ -50,23 +50,25 @@ class NHFocus
         @.title_obj = @.parent_obj.obj.append('text').text(@.title)
         .attr('class', 'title')
         if parent_svg.context?
-          @.title_obj.attr('transform', 'translate(0,'+
-            (((parent_svg.context.style.dimensions.height +
-            parent_svg.context.style.margin.bottom) +
-            parent_svg.style.padding.top) + @.style.margin.top)+')')
+          h_mb = parent_svg.context.style.dimensions.height +
+            parent_svg.context.style.margin.bottom
+          h_mn_pt = h_mb + parent_svg.style.padding.top
+          final = h_mn_pt + @.style.margin.top
+          @.title_obj.attr('transform', 'translate(0,'+final+')')
         else
-          @.title_obj.attr('transform', 'translate(0,'+
-            (parent_svg.style.padding.top + @.style.margin.top)+')')
+          h_mt = parent_svg.style.padding.top + @.style.margin.top
+          @.title_obj.attr('transform', 'translate(0,'+h_mt+')')
       @.obj = parent_svg.obj.append('g')
       @.obj.attr('class', 'nhfocus')
       top_offset = (parent_svg.style.padding.top + @.style.margin.top)
       if @.title?
         top_offset += @.style.title_height
       if parent_svg.context?
-        @.obj.attr('transform', 'translate('+
-          (parent_svg.style.padding.left +@.style.margin.left)+','+
-          ((parent_svg.context.style.dimensions.height +
-          parent_svg.context.style.margin.bottom) + top_offset)+')')
+        pl_ml = parent_svg.style.padding.left + @.style.margin.left
+        h_mb = parent_svg.context.style.dimensions.height +
+          parent_svg.context.style.margin.bottom
+        final = h_mb + top_offset
+        @.obj.attr('transform', 'translate('+pl_ml+','+final+')')
       else
         @.obj.attr('transform', 'translate('+
           (parent_svg.style.padding.left + @.style.margin.left)+

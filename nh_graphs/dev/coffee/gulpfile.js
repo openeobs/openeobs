@@ -12,7 +12,7 @@ gulp.task('compile', function(){
 	.pipe(coffeelint.reporter())
 	.pipe(coffee({bare: true}))
 	.pipe(concat('nh_graphlib.js'))
-	.pipe(gulp.dest('../../src/js'))
+	.pipe(gulp.dest('../../static/src/js'))
 });
 
 gulp.task('test', function(){
