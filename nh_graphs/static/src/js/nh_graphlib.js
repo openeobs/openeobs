@@ -226,7 +226,7 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.draw_table = function(self) {
-    var cells, container, header_row, rows, table_el, tbody, thead;
+    var cells, container, header_row, raw_data, rows, table_el, tbody, thead;
     table_el = nh_graphs.select(self.table.element);
     container = nh_graphs.select('#table-content').append('table');
     thead = container.append('thead').attr('class', 'thead');
@@ -236,7 +236,8 @@ NHGraphLib = (function() {
         'date_terminated': 'Date'
       }
     ];
-    thead.append('tr').selectAll('th').data(header_row.concat(self.data.raw.reverse())).enter().append('th').html(function(d) {
+    raw_data = self.data.raw.reverse();
+    thead.append('tr').selectAll('th').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
       var date_rotate;
       date_rotate = d.date_terminated.split(' ');
       if (date_rotate.length === 1) {
@@ -246,16 +247,15 @@ NHGraphLib = (function() {
     });
     rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
     return cells = rows.selectAll('td').data(function(d) {
-      var data, fix_val, i, j, key, len, len1, o, obj, ref, ref1, t, v;
+      var data, fix_val, i, j, key, len, len1, o, obj, ref, t, v;
       data = [
         {
           title: d['title'],
           value: d['title']
         }
       ];
-      ref = self.data.raw.reverse();
-      for (i = 0, len = ref.length; i < len; i++) {
-        obj = ref[i];
+      for (i = 0, len = raw_data.length; i < len; i++) {
+        obj = raw_data[i];
         if (d['keys'].length === 1) {
           key = d['keys'][0];
           if (obj[key]) {
@@ -273,9 +273,9 @@ NHGraphLib = (function() {
         } else {
           t = d['title'];
           v = [];
-          ref1 = d['keys'];
-          for (j = 0, len1 = ref1.length; j < len1; j++) {
-            o = ref1[j];
+          ref = d['keys'];
+          for (j = 0, len1 = ref.length; j < len1; j++) {
+            o = ref[j];
             v.push({
               title: o['title'],
               value: obj[o['keys'][0]]
@@ -298,6 +298,9 @@ NHGraphLib = (function() {
         for (i = 0, len = ref.length; i < len; i++) {
           o = ref[i];
           if (o.value) {
+            if (Array.isArray(o.value) && o.value.length > 1) {
+              o.value = o.value[1];
+            }
             text += '<strong>' + o.title + ':</strong> ' + o.value + '<br>';
           }
         }

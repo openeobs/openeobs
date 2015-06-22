@@ -211,8 +211,9 @@ class NHGraphLib
     thead = container.append('thead').attr('class', 'thead')
     tbody = container.append('tbody').attr('class', 'tbody')
     header_row = [{'date_terminated': 'Date'}]
+    raw_data = self.data.raw.reverse()
     thead.append('tr').selectAll('th')
-    .data(header_row.concat(self.data.raw.reverse())).enter()
+    .data(header_row.concat(raw_data)).enter()
     .append('th').html((d) ->
       date_rotate = d.date_terminated.split(' ')
       if date_rotate.length is 1
@@ -225,7 +226,7 @@ class NHGraphLib
 
     cells = rows.selectAll('td').data((d) ->
       data = [{title: d['title'], value: d['title']}]
-      for obj in self.data.raw.reverse()
+      for obj in raw_data
         if d['keys'].length is 1
           key = d['keys'][0]
           if obj[key]
@@ -246,6 +247,8 @@ class NHGraphLib
         text = ''
         for o in d.value
           if o.value
+            if Array.isArray(o.value) and o.value.length > 1
+              o.value = o.value[1]
             text += '<strong>'+ o.title + ':</strong> ' + o.value + '<br>'
         return text
       else
