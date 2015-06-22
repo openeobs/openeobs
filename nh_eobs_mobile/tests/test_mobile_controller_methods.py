@@ -146,3 +146,16 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         font_url = self._build_url('src/fonts/{}'.format('non-existing-font'), None, mobile=True)
         test_resp = requests.get(font_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 404)
+
+    def test_method_take_patient_observation(self):
+        take_patient_obs_route = [r for r in routes if r['name'] == 'patient_ob']
+        self.assertEqual(len(take_patient_obs_route), 1,
+                         "Endpoint to the 'patient_ob' route not unique. Cannot run the test!")
+
+        # Retrieve only observations existing as model, but not as active observations
+        non_active_observation_types = list(self.model_observation_types - self.active_observation_types)
+        test_observation = random_choice(non_active_observation_types)
+
+        patient_obs_url = self._build_url(take_patient_obs_route[0]['endpoint'], '{}/1'.format(test_observation))
+        test_resp = requests.get(patient_obs_url, cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 404)

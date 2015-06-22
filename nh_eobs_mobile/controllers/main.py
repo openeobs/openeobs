@@ -807,8 +807,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             elif form_input['type'] == 'meta':
                 form['obs_needs_score'] = form_input['score'] if 'score' in form_input else False
 
+        observation_name_list = [v['name'] for v in api_pool._active_observations if v['type'] == observation]
+        if len(observation_name_list) == 0:
+            exceptions.abort(404)
         return request.render('nh_eobs_mobile.observation_entry', qcontext={'inputs': form_desc,
-                                                                             'name': [v['name'] for v in api_pool._active_observations if v['type'] == observation][0],
+                                                                             'name': observation_name_list[0],
                                                                              'patient': patient,
                                                                              'form': form,
                                                                              'section': 'patient',
