@@ -64,7 +64,7 @@ class NHTable extends NHGraphLib
     self = @
     keys = ['date_terminated']
     for key in self.keys
-      keys.push(key)
+      keys.push(key['key'])
     self.data_rows.selectAll('tr').remove()
     self.data_rows.selectAll('tr')
     .data(() ->
@@ -86,7 +86,7 @@ class NHTable extends NHGraphLib
     )
     .enter()
     .append('td')
-    .text((d) -> d.value)
+    .html((d) -> d.value)
     return
 
 if !window.NH

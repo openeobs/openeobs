@@ -1306,7 +1306,7 @@ NHTable = (function(superClass) {
     ref = self.keys;
     for (i = 0, len = ref.length; i < len; i++) {
       key = ref[i];
-      keys.push(key);
+      keys.push(key['key']);
     }
     self.data_rows.selectAll('tr').remove();
     self.data_rows.selectAll('tr').data(function() {
@@ -1335,7 +1335,7 @@ NHTable = (function(superClass) {
       return data_to_use;
     }).enter().append('tr').selectAll('td').data(function(d) {
       return d;
-    }).enter().append('td').text(function(d) {
+    }).enter().append('td').html(function(d) {
       return d.value;
     });
   };
