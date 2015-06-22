@@ -176,8 +176,8 @@ class nh_clinical_patient_observation_weight(orm.Model):
             'name': 'weight',
             'type': 'float',
             'label': 'Weight (Kg)',
-            'min': 1.0,
-            'max': 999.9,
+            'min': 35.0,
+            'max': 330.0,
             'digits': [3, 1],
             'initially_hidden': False
         }
