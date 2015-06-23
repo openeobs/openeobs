@@ -219,7 +219,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def mobile_logout(self, *args, **kw):
         api = request.registry['nh.eobs.api']
         api.unassign_my_activities(request.cr, request.session.uid)
-        request.session.logout()
+        request.session.logout(keep_db=True)
         return utils.redirect(URLS['login'], 303)
 
 

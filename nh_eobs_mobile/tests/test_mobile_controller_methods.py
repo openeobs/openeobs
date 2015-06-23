@@ -172,3 +172,21 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         obs_score_url = self._build_url(calculate_obs_score_route[0]['endpoint'], '{}'.format(test_observation))
         test_resp = requests.post(obs_score_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 400)
+
+    def test_method_mobile_logout(self):
+        # Retrieve the 'logout' route and build the complete URL for it
+        logout_route = [r for r in routes if r['name'] == 'logout']
+        self.assertEqual(len(logout_route), 1,
+                         "Endpoint to the 'logout' route not unique. Cannot run the test!")
+        logout_url = self._build_url(logout_route[0]['endpoint'], None, mobile=True)
+
+        # Retrieve the 'login' route and build the complete URL for it
+        login_route = [r for r in routes if r['name'] == 'login']
+        self.assertEqual(len(login_route), 1,
+                         "Endpoint to the 'login' route not unique. Cannot run the test!")
+        login_url = self._build_url(login_route[0]['endpoint'], None, mobile=True)
+
+        # Actually logout and test the response
+        test_resp = requests.get(logout_url, cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.url, login_url)
