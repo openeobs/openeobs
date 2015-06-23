@@ -48,7 +48,7 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         report_obj = self.env['report']
         report = report_obj._get_report_from_name('nh.clinical.observation_report')
-        pretty_date_format = '%d/%m/%Y %H:%M'
+        pretty_date_format = '%H:%M %d/%m/%y'
         wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
 
         if isinstance(data, dict):
