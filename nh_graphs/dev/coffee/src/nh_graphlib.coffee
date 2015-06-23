@@ -78,11 +78,14 @@ class NHGraphLib
       throw new Error("Invalid date format")
     return date
 
-  date_to_string: (date) =>
+  date_to_string: (date, day_flag=true) =>
     if isNaN(date.getTime())
       throw new Error("Invalid date format")
     days = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ]
-    return days[date.getDay()] + " " + + date.getDate() +
+    final = ''
+    if day_flag
+      final += days[date.getDay()] + " "
+    return  final += date.getDate() +
       '/' + @leading_zero(date.getMonth() + 1) + "/" +
       @leading_zero(date.getFullYear()) + " " + @leading_zero(date.getHours()) +
       ":" + @leading_zero(date.getMinutes())
@@ -215,7 +218,11 @@ class NHGraphLib
     thead.append('tr').selectAll('th')
     .data(header_row.concat(raw_data)).enter()
     .append('th').html((d) ->
-      date_rotate = d.date_terminated.split(' ')
+      term_date = d.date_terminated
+      if d.date_terminated isnt "Date"
+        term_date = self.date_to_string( \
+          self.date_from_string(d.date_terminated), false)
+      date_rotate = term_date.split(' ')
       if date_rotate.length is 1
         return date_rotate[0]
       return date_rotate[1] + '<br>' + date_rotate[0]

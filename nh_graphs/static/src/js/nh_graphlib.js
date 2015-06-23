@@ -83,13 +83,20 @@ NHGraphLib = (function() {
     return date;
   };
 
-  NHGraphLib.prototype.date_to_string = function(date) {
-    var days;
+  NHGraphLib.prototype.date_to_string = function(date, day_flag) {
+    var days, final;
+    if (day_flag == null) {
+      day_flag = true;
+    }
     if (isNaN(date.getTime())) {
       throw new Error("Invalid date format");
     }
     days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    return days[date.getDay()] + " " + +date.getDate() + '/' + this.leading_zero(date.getMonth() + 1) + "/" + this.leading_zero(date.getFullYear()) + " " + this.leading_zero(date.getHours()) + ":" + this.leading_zero(date.getMinutes());
+    final = '';
+    if (day_flag) {
+      final += days[date.getDay()] + " ";
+    }
+    return final += date.getDate() + '/' + this.leading_zero(date.getMonth() + 1) + "/" + this.leading_zero(date.getFullYear()) + " " + this.leading_zero(date.getHours()) + ":" + this.leading_zero(date.getMinutes());
   };
 
   NHGraphLib.prototype.leading_zero = function(date_element) {
@@ -238,8 +245,12 @@ NHGraphLib = (function() {
     ];
     raw_data = self.data.raw.reverse();
     thead.append('tr').selectAll('th').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
-      var date_rotate;
-      date_rotate = d.date_terminated.split(' ');
+      var date_rotate, term_date;
+      term_date = d.date_terminated;
+      if (d.date_terminated !== "Date") {
+        term_date = self.date_to_string(self.date_from_string(d.date_terminated), false);
+      }
+      date_rotate = term_date.split(' ');
       if (date_rotate.length === 1) {
         return date_rotate[0];
       }
@@ -1301,7 +1312,17 @@ NHTable = (function(superClass) {
     }).enter().append('tr').selectAll('td').data(function(d) {
       return d;
     }).enter().append('td').html(function(d) {
-      return d.value;
+      var data, date_rotate;
+      data = d.value;
+      if (d.column === 'date_terminated') {
+        data = self.date_to_string(self.date_from_string(data), false);
+        date_rotate = data.split(' ');
+        if (date_rotate.length === 1) {
+          data = date_rotate[0];
+        }
+        data = date_rotate[1] + ' ' + date_rotate[0];
+      }
+      return data;
     });
   };
 

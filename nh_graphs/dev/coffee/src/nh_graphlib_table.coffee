@@ -56,7 +56,16 @@ class NHTable extends NHGraphLib
     )
     .enter()
     .append('td')
-    .html((d) -> d.value)
+    .html((d) ->
+      data = d.value
+      if d.column is 'date_terminated'
+        data = self.date_to_string( \
+          self.date_from_string(data), false)
+        date_rotate = data.split(' ')
+        if date_rotate.length is 1
+          data = date_rotate[0]
+        data = date_rotate[1] + ' ' + date_rotate[0]
+      data)
     return
 
   redraw: (parent_obj) =>
