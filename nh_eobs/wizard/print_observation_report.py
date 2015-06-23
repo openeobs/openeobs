@@ -18,6 +18,9 @@ class print_observation_report_wizard(osv.TransientModel):
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
         data.spell_id = context['active_id']
+
+        spell_pool = self.pool['nh.clinical.spell']
+        patient_pool = self.pool['nh.clinical.patient']
         # get PDF version of the report
         report_pool = self.pool['report']
         report_pdf = report_pool.get_pdf(cr, uid, ids,
@@ -26,10 +29,15 @@ class print_observation_report_wizard(osv.TransientModel):
         attachment_id = None
         #
         # save it as an attachment in the Database
+        # Use the spell ID to find the patient's NHS number
+        spell = spell_pool.read(cr, uid, [data.spell_id])[0]
+        patient_id = spell['patient_id'][0]
+        patient = patient_pool.read(cr, uid, patient_id)
+        patient_nhs = patient['patient_identifier']
         attachment = {
             'name': 'nh.clinical.observation_report',
             'datas': base64.encodestring(report_pdf),
-            'datas_fname': datetime.strftime(datetime.now(), '%Y%m%d_observation_report.pdf'),
+            'datas_fname': '{nhs}_{date}_observation_report.pdf'.format(nhs=patient_nhs, date=datetime.strftime(datetime.now(), '%Y%m%d')),
             'res_model': 'nh.clinical.observation_report_wizard',
             'res_id': ids[0],
         }
