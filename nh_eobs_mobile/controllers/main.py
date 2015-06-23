@@ -621,9 +621,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         converted_data = converter(data, test)
 
         score_dict = api_pool.get_activity_score(cr, uid, model, converted_data, context=context)
+        if not score_dict:
+            exceptions.abort(400)
         modal_vals = {}
         modal_vals['next_action'] = 'json_task_form_action' if section == 'task' else 'json_patient_form_action'
-        modal_vals['title'] = 'Submit {score_type} of {score}'.format(score_type=observation.upper(), score=score_dict['score'])
+        modal_vals['title'] = 'Submit {score_type} of {score}'.format(score_type=observation.upper(), score=score_dict.get('score', ''))
         if 'clinical_risk' in score_dict:
             modal_vals['content'] = '<p><strong>Clinical risk: {risk}</strong></p><p>Please confirm you want to submit this score</p>'.format(risk=score_dict['clinical_risk'])
         else:

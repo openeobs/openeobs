@@ -159,3 +159,16 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         patient_obs_url = self._build_url(take_patient_obs_route[0]['endpoint'], '{}/1'.format(test_observation))
         test_resp = requests.get(patient_obs_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 404)
+
+    def test_method_calculate_obs_score(self):
+        """Pass to the method an observation type which doesn't allow a score calculation."""
+        calculate_obs_score_route = [r for r in routes if r['name'] == 'calculate_obs_score']
+        self.assertEqual(len(calculate_obs_score_route), 1,
+                         "Endpoint to the 'calculate_obs_score' route not unique. Cannot run the test!")
+
+        # Assure that neither 'ews' nor 'gcs' observations are used for the test
+        failing_score_observation_types = self.model_observation_types - {'ews', 'gcs'}
+        test_observation = random_choice(list(failing_score_observation_types))
+        obs_score_url = self._build_url(calculate_obs_score_route[0]['endpoint'], '{}'.format(test_observation))
+        test_resp = requests.post(obs_score_url, cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 400)
