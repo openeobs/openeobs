@@ -1,6 +1,12 @@
+# NHFocus provides a grouping of many graphs together so they can all be
+# manipulated at the same time
 class NHFocus
-
   constructor: () ->
+    # Style defines the styling of the main SVG block:
+    # - Margin: The offset of the SVG
+    # - Padding: The internal offset of elements drawn within the SVG
+    # - Dimensions: The required height and width of the SVG
+    # - Title Height: The height of the title used above context graph
     @style = {
       spacing: 20,
       margin: {
@@ -21,8 +27,14 @@ class NHFocus
       }
       title_height: 70
     }
+    # Array of NHGraph objects for the focus to handle
     @graphs = new Array()
+    # Array of NHTable objects for the focus to handle
     @tables = new Array()
+    # The X & Y axes used with the graph
+    # - Scale: The scale that the axis is drawn to
+    # - Axis: The D3 axis object
+    # - Min & Max: The start and end of the scale
     @axes = {
       x: {
         scale: null,
@@ -37,14 +49,49 @@ class NHFocus
         max: 0
       }
     }
+    # The parent SVG object
     @parent_obj = null
+    # The string for the title and the object it creates
     @title = null
     @title_obj = null
     self = @
 
+  # Handle resize event
+  handle_resize: (self, event) ->
+    self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+      ((self.parent_obj.style.padding.left +
+      self.parent_obj.style.padding.right) + (self.style.margin.left +
+      self.style.margin.right))
+    self.obj.attr('width', self.style.dimensions.width)
+    self.axes.x.scale?.range()[1] = self.style.dimensions.width
+    if self.parent_obj.options.mobile.is_mob
+      if window.innerWidth > window.innerHeight
+        new_date = new Date(self.axes.x.max)
+        d = new_date.getDate()-
+          self.parent_obj.options.mobile.date_range.landscape
+        new_date.setDate(d)
+        self.redraw([new_date, self.axes.x.max])
+      else
+        new_date = new Date(self.axes.x.max)
+        d = new_date.getDate()-
+          self.parent_obj.options.mobile.date_range.portrait
+        new_date.setDate(d)
+        self.redraw([new_date, self.axes.x.max])
+    else
+      self.redraw([self.axes.x.min, self.axes.x.max])
+
+  # Setup the focus object, this involves:
+  # 1. Setup up the parent SVG object
+  # 2. Add title if needed
+  # 3. Setup the title offset from context if present
+  # 4. Add the focus group to the SVG and position it properly
+  # 5. Setup the focus offset from context if present
+  # 6. Setup the axis based on the axis of the parent SVG object
+  # 7. Initialise the graphs and tables associated with the focus. For each
+  # graph add the height to the height of the focus so it contains them all
+  # 8. Setup the resize event listener
   init: (parent_svg) =>
     if parent_svg?
-      # add element to DOM
       @.parent_obj = parent_svg
       if @.title?
         @.title_obj = @.parent_obj.obj.append('text').text(@.title)
@@ -80,7 +127,6 @@ class NHFocus
       @.axes.x.min = parent_svg.data.extent.start
       @.axes.x.max = parent_svg.data.extent.end
 
-      # figure out how big the focus is going to be
       for graph in @.graphs
         graph.init(@)
         @.style.dimensions.height += graph.style.dimensions.height +
@@ -98,43 +144,25 @@ class NHFocus
 
       self = @
       window.addEventListener('focus_resize', (event) ->
-        self.style.dimensions.width = self.parent_obj.style.dimensions.width -
-          ((self.parent_obj.style.padding.left +
-          self.parent_obj.style.padding.right) + (self.style.margin.left +
-          self.style.margin.right))
-        self.obj.attr('width', self.style.dimensions.width)
-        self.axes.x.scale?.range()[1] = self.style.dimensions.width
-        if self.parent_obj.options.mobile.is_mob
-          if window.innerWidth > window.innerHeight
-            new_date = new Date(self.axes.x.max)
-            d = new_date.getDate()-
-              self.parent_obj.options.mobile.date_range.landscape
-            new_date.setDate(d)
-            self.redraw([new_date, self.axes.x.max])
-          else
-            new_date = new Date(self.axes.x.max)
-            d = new_date.getDate()-
-              self.parent_obj.options.mobile.date_range.portrait
-            new_date.setDate(d)
-            self.redraw([new_date, self.axes.x.max])
-        else
-          self.redraw([self.axes.x.min, self.axes.x.max])
+        self.handle_resize(self, event)
       )
+    # If no parent SVG object then it either doesn't exist or the focus has
+    # been initialised before the SVG has been
     else
       throw new Error('Focus init being called before SVG initialised')
 
+  # Draw the graphs and tables associated with the focus
   draw: (parent_svg) =>
     for graph in @.graphs
       graph.draw(@)
-
     for table in @.tables
       table.draw(@)
-
     return
 
+  # Redraw the graphs and tables
+  # 1. Update the axis and scales with new extent
+  # 2. Trigger the redraw on the NHGraph object
   redraw: (extent) =>
-    #@.axes.x.min = extent[0]
-    #@.axes.x.max = extent[1]
     for graph in @.graphs
       graph.axes.x.scale.domain([extent[0], extent[1]])
       graph.axes.x.axis.ticks((@.style.dimensions.width/100))

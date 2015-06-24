@@ -1,5 +1,14 @@
+# NHGraphLib includes utilities to deal with date conversion, event listening,
+# drawing a tabular view of the data (for mobile) and managing a collection of
+# Context, Focus, Graphs and Tables
 class NHGraphLib
   constructor: (element) ->
+    # Style defines the styling of the main SVG block:
+    # - Margin: The offset of the SVG
+    # - Padding: The internal offset of elements drawn within the SVG
+    # - Dimensions: The required height and width of the SVG
+    # - Label Gap: The pseudo line height of labels in SVG
+    # - Axis Label Text Height: The psuedo font size of labels in SVG
     @style = {
       margin: {
         top: 40,
@@ -22,10 +31,18 @@ class NHGraphLib
       axis_label_text_height: 10,
       time_padding: null
     }
+    # Patient defines the details of the patient
+    # - ID: The patient_id from the server
+    # - Name: The name of the patient
     @patient = {
       id: 0,
       name: ''
     }
+    # Options for devices and controls
+    # - Mobile: Handling if is displayed on 'mobile' device and ranges for
+    # device rotation
+    # - Controls: collects the inputs used for date_start, date_end, time_start,
+    # time_end and rangify checkbox
     @options = {
       mobile: {
         is_mob: false,
@@ -46,8 +63,13 @@ class NHGraphLib
         rangify: null
       }
     }
+    # Handle the DOM element to draw SVG into
     @el = if element then element else null
+    # Handle the popup to show on hover on data point
     @popup = null
+    # Collect the data used for graphing
+    # - Raw: unmodified version of the data
+    # - Extent: The date range the chart will cover
     @data = {
       raw: null,
       extent: {
@@ -55,9 +77,15 @@ class NHGraphLib
         start: null
       }
     }
+    # The JS object for the overall graph
     @obj = null
+    # The JS object for the graph's context object
     @context = null
+    # The JS object for the graph's focus object
     @focus = null
+    # The JS object for the graph's tabular representation
+    # - Element: Element to render the table into
+    # - Keys: List of keys to use with the data set to render table
     @table = {
       element: null,
       keys: null
@@ -65,11 +93,10 @@ class NHGraphLib
     @version = '0.0.1'
     self = @
 
-    #@init(self)
-    #return self
-
-  # Certain browsers will use a space instead of the T between date and time
-  # hacky fix to normalise this
+  # Create a Date Object from a string. As Odoo gives dates in a silly string
+  # format need to convert to proper Date to use with D3. Attempts to convert;
+  # falls back to use hack with T instead of space and finally throws error if
+  # cannot convert
   date_from_string: (date_string) ->
     date = new Date(date_string)
     if isNaN(date.getTime())
@@ -78,6 +105,8 @@ class NHGraphLib
       throw new Error("Invalid date format")
     return date
 
+  # Create a String in either Day DD/MM/YY HH:MM or DD/MM/YY HH:MM depending
+  # if day flag set, throws error if invalid date passed over
   date_to_string: (date, day_flag=true) =>
     if isNaN(date.getTime())
       throw new Error("Invalid date format")
@@ -90,9 +119,16 @@ class NHGraphLib
       @leading_zero(date.getFullYear()) + " " + @leading_zero(date.getHours()) +
       ":" + @leading_zero(date.getMinutes())
 
+  # Convert number like 1 into 01 and 12 into 12 (as no leading zero needed)
   leading_zero: (date_element) ->
     return ("0" + date_element).slice(-2)
 
+  # Handle events when input defined in options.controls.date.start changed
+  # 1. Gets the current date (which is graph's X axis start)
+  # 2. Get the value from input
+  # 3. Create date object from input value
+  # 4. Set the X axis start to be the date
+  # 5. Trigger redraw of focus
   mobile_date_start_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.min
@@ -103,6 +139,12 @@ class NHGraphLib
       self.focus.redraw([new_date, self.focus.axes.x.max])
     return
 
+  # Handle events when input defined in options.controls.date.end changed
+  # 1. Gets the current date (which is graph's X axis end)
+  # 2. Get the value from input
+  # 3. Create date object from input value
+  # 4. Set the X axis end to be the date
+  # 5. Trigger redraw of focus
   mobile_date_end_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.max
@@ -113,6 +155,12 @@ class NHGraphLib
       self.focus.redraw([self.focus.axes.x.min, new_date])
     return
 
+  # Handle events when input defined in options.controls.time.start changed
+  # 1. Gets the current date (which is graph's X axis start)
+  # 2. Get the value from input
+  # 3. Create date object from input value
+  # 4. Set the X axis start to be the date
+  # 5. Trigger redraw of focus
   mobile_time_start_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.min
@@ -122,6 +170,12 @@ class NHGraphLib
       self.focus.redraw([new_time, self.focus.axes.x.max])
     return
 
+  # Handle events when input defined in options.controls.time.end changed
+  # 1. Gets the current date (which is graph's X axis end)
+  # 2. Get the value from input
+  # 3. Create date object from input value
+  # 4. Set the X axis end to be the date
+  # 5. Trigger redraw of focus
   mobile_time_end_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.max
@@ -131,6 +185,10 @@ class NHGraphLib
       self.focus.redraw([self.focus.axes.x.min, new_time])
     return
 
+  # Handle browser resize event. Resize and redraw the graphs
+  # 1. Get the dimensions of main element
+  # 2. Set the attribute for the object
+  # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (self, event) ->
     self.style.dimensions.width = \
       nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
@@ -141,10 +199,21 @@ class NHGraphLib
     window.dispatchEvent(context_event)
     return
 
+  # Handle the creation of the graph objects and add event listeners
+  # 1. Make sure we actually have an element to draw graphs into otherwise throw
+  # a 'No element specified' error
+  # 2. Setup width of object based on width of the element to draw into
+  # 3. Setup and append the SVG element
+  # 4. Setup time padding if needed
+  # 5. Ensure have data points to draw
+  # 6. Set up times used for range of X axis and add/subtract minutes based on
+  # time padding
+  # 7. Setup focus and context if defined
+  # 8. Set dimensions on SVG element
+  # 9. Create popup element ready for data point roll over
+  # 10. Set up event listeners for controls if present
   init: () ->
-    # check to see if element to put svg in is defined
     if @.el?
-      # figure out dimensions of svg object
       container_el = nh_graphs.select(@.el)
       @.style.dimensions.width = container_el?[0]?[0].clientWidth -
         (@.style.margin.left + @.style.margin.right)
@@ -161,22 +230,17 @@ class NHGraphLib
         @.data.extent.start = start
         end.setMinutes(end.getMinutes()+@.style.time_padding)
         @.data.extent.end = end
-        #initialise context
         @.context?.init(@)
-        #initalise focus
         @.focus?.init(@)
 
-      # append svg element to container
       @.obj.attr('width', @.style.dimensions.width)
       @.obj.attr('height', @.style.dimensions.height)
 
-      # add popup
       @.popup = document.createElement('div')
       @.popup.setAttribute('class', 'hidden')
       @.popup.setAttribute('id', 'chart_popup')
       document.getElementsByTagName('body')[0].appendChild(@.popup)
 
-      # add mobile date entry
       self = @
       @.options.controls.date.start?.addEventListener('change', (event) ->
         self.mobile_date_start_change(self, event)
@@ -202,12 +266,23 @@ class NHGraphLib
     else
       throw new Error('No element specified')
 
+  # Trigger the draw functions for context, focus and tabular representation
   draw: () ->
     @.context?.draw(@)
     @.focus?.draw(@)
     if @.table.element?
       @.draw_table(@)
 
+  # Draw the tabular representation
+  # 1. Get the elements
+  # 2. append table header and body elements
+  # 3. Create the header row using date_terminated key of date records (adding
+  # Date as first header as will be used with other info). The date format used
+  # is HH:MM - line break - DD/MM/YY
+  # 4. For each key in the table add a new row and plot across the columns -
+  # need to change booleans to Yes/No for readability
+  # 5. If key is a collection of keys then need to render them inside a cell
+  # used for nested info like inspired_oxygen
   draw_table: (self) ->
     table_el = nh_graphs.select(self.table.element)
     container = nh_graphs.select('#table-content').append('table')

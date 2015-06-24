@@ -1,9 +1,16 @@
+# Add min ability to Array class to find smallest value in Array
 Array::min=->
   Math.min.apply(null, this)
 
-class NHGraph
-
+# NHGraph provides a graphic view of data which can be manipulated via a brush
+# or other method that changes the range of the axis
+class NHGraph extends NHGraphLib
   constructor: () ->
+    # X & Y axis for the graph and the object that holds them
+    # - Scale: The D3 scale used for the axis
+    # - Axis: The D3 axis used for the the axis
+    # - Min & Max: The extent of the axis
+    # - Obj: The object that holds the axis
     @axes = {
       x: {
         scale: null,
@@ -22,6 +29,32 @@ class NHGraph
       }
       obj: null
     }
+    # Style for the graph
+    # - Dimensions: The height and width of the graph
+    # - Margin: The offset from the parent focus / context
+    # - Padding: The offset internally
+    # - Axis: the size and visibility of X & Y axis objects
+    # - Data Style: The style of the graph can be one of:
+    #   - Stepped: A line graph with stepping on the line
+    #   - Linear: A line graph with a linear line between points
+    #   - Range: Used for plotting a range on a graph will draw a rect between
+    # the points passed over and put caps on the ends for easier reading
+    #   - Star: Not implemented
+    #   - Pie: Not implemented
+    #   - Sparkline: Not implemented
+    # - Norm Style: The method used to display the normal range of a graph can
+    # be one of:
+    #   - Rect: A rectangle that shows a range
+    #   - Line: A line that shows a value considered to be normal
+    # - Axis label height: Font size of the axis labels
+    # - Axis label padding: The amount of padding applied between each label
+    # - Label text height: Font size of the labels used on graphs
+    # - Label width: The width designated for graph labels, this stops the graph
+    # from overlapping the label
+    # - Range Cap: The dimensions for the caps on the ranged graph
+    # - Range Width: The width of the rectangle used for ranged graphs
+    # - Range Padding: The padding applied to ranged graphs so the values don't
+    # fall of the chart
     @style = {
       dimensions: {
         height: 200,
@@ -64,6 +97,13 @@ class NHGraph
       },
       range_padding: 1
     }
+    # Options
+    # - Keys: The keys from the dataset to plot. Normal a single item for
+    # stepped/linear graphs, two for ranged
+    # - Label: The name for the graph
+    # - Measurement: The measurement of the dataset
+    # - Normal: The normal range of the dataset and the difference between the
+    # two values
     @options = {
       keys: new Array(),
       label: null,
@@ -74,6 +114,16 @@ class NHGraph
         diff: 0
       }
     }
+    # Drawables; each graph has three layers; background, area & data
+    # - Area: Used by Step / Linear graphs to store the line
+    # - Graph: Used to store the D3 object for the graph
+    # - Data: Used to store the data points
+    # - Initial values: Stores the initial range so can reset from ranged graph
+    # - Ranged valued: Stores the ranged range so can switch to it
+    # - Background: Stores the background layer
+    #   - Obj: D3 object for background layer
+    #   - Data: The data used to plot the background rectangles
+    # - Brush: Stores the brush if the graph is associated with a NHContext
     @drawables = {
       area: null,
       graph_object: null,
@@ -86,25 +136,12 @@ class NHGraph
       },
       brush: null
     }
+    # Stores D3 for graph
     @obj = null
+    # Link to parent NHContext or NHFocus object
     @parent_obj = null
 
-  date_from_string: (date_string) ->
-    date = new Date(date_string)
-    if isNaN(date.getTime())
-      date = new Date(date_string.replace(' ', 'T'))
-    return date
-
-  date_to_string: (date) =>
-    days = [ "Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat" ]
-    return days[date.getDay()] + " " + + date.getDate() + '/' +
-      @leading_zero(date.getMonth() + 1) + "/" +
-      @leading_zero(date.getFullYear()) + " " +
-      @leading_zero(date.getHours()) + ":" + @leading_zero(date.getMinutes())
-
-  leading_zero: (date_element) ->
-    return ("0" + date_element).slice(-2)
-
+  # Show popup at x,y position with string and remove hidden class
   show_popup: (string, x, y) ->
     cp = document.getElementById('chart_popup')
     cp.innerHTML = string
@@ -112,10 +149,13 @@ class NHGraph
     cp.style.left = x+'px'
     cp.classList.remove('hidden')
 
+  # Add hidden class to popup
   hide_popup: () ->
     cp = document.getElementById('chart_popup')
     cp.classList.add('hidden')
 
+  # Handles rangify input event which changes the Y Axis to it's ranged scale
+  # or to initial scale
   rangify_graph: (self, event) ->
     if event.srcElement.checked
       self.axes.y.scale.domain( \
@@ -126,8 +166,29 @@ class NHGraph
     self.redraw(self.parent_obj)
     return
 
+  # Handle window resize event
+  resize_graph: (self, event) ->
+    self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+      ((self.parent_obj.style.padding.left +
+      self.parent_obj.style.padding.right) + (self.style.margin.left +
+      self.style.margin.right)) - @.style.label_width
+    self.obj.attr('width', self.style.dimensions.width)
+    self.axes.x.scale?.range()[1] = self.style.dimensions.width
+    self.redraw(self.parent_obj)
+
+  # Setup graph which involves:
+  # 1. Append a new group to the parent NHFocus or NHContext
+  # 2. Set the width and offsets for the graph
+  # 3. Add groups for the drawable layers
+  # 4. Setup X Axis
+  # 5. Append X Axis if not set to hidden
+  # 6. Process X Axis labels to add line breaks
+  # 7. Amend height of graph with X Axis height
+  # 8. Append the clip path so only draws data that is within range
+  # 9. Set up Y Axis
+  # 10. Set up labels for graph (name, measurement)
+  # 11. Add graph resize event listener
   init: (parent_obj) =>
-    # add element to DOM
     @.parent_obj = parent_obj
     @.obj = parent_obj.obj.append('g')
     @.obj.attr('class', 'nhgraph')
@@ -137,26 +198,22 @@ class NHGraph
     @.obj.attr('width', @.style.dimensions.width)
     left_offset = (parent_obj.style.padding.left + @.style.margin.left)
     top_offset = (parent_obj.style.dimensions.height + @.style.margin.top)
-    #@.obj.attr('transform', 'translate('+left_offset+','+top_offset+')')
     @.drawables.background.obj = @.obj.append('g').attr('class', 'background')
     @.axes.obj = @.obj.append('g').attr('class', 'axes')
     @.drawables.data = @.obj.append('g').attr('class', 'data')
 
-    # add xscale
     @.axes.x.min = parent_obj.axes.x.min
     @.axes.x.max = parent_obj.axes.x.max
     @.axes.x.scale = nh_graphs.time.scale()
     .domain([@.axes.x.min, @.axes.x.max]).range([left_offset,
       @.style.dimensions.width])
 
-    # add xaxis
     @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient("top")
     .ticks((@.style.dimensions.width/100))
     if not @.style.axis.x.hide
       @.axes.x.obj = @.axes.obj.append("g").attr("class", "x axis")
       .call(@.axes.x.axis)
 
-      # sort line breaks out
       line_self = @
       @.axes.obj.selectAll(".x.axis g text").each( (d) ->
         el = nh_graphs.select(@)
@@ -174,20 +231,16 @@ class NHGraph
       @.style.dimensions.height -= @.style.axis.x.size.height
     @.obj.attr('height', @.style.dimensions.height)
 
-
-    # add clippath
     @.obj.append("defs").append("clipPath").attr("class", "clip")
     .attr('id', @.options.keys.join('-')+'-clip').append("rect")
     .attr("width",  @.style.dimensions.width)
     .attr("height", @.style.dimensions.height)
     .attr("y", top_offset).attr("x", left_offset)
 
-    # add yscale
     @.axes.y.scale = nh_graphs.scale.linear()
     .domain([@.axes.y.min, @.axes.y.max])
     .range([top_offset+@style.dimensions.height, top_offset])
 
-    #add yaxis
     @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
     if not @.style.axis.y.hide
       @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
@@ -204,7 +257,6 @@ class NHGraph
       nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
         return d[self.options.keys[0]]
       )
-
 
     if @.options.label?
       y_label = @.axes.y.scale(@.axes.y.min) -
@@ -231,15 +283,8 @@ class NHGraph
         ,'class': 'measurement'
       })
 
-
     window.addEventListener('graph_resize', (event) ->
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width -
-        ((self.parent_obj.style.padding.left +
-        self.parent_obj.style.padding.right) + (self.style.margin.left +
-        self.style.margin.right)) - @.style.label_width
-      self.obj.attr('width', self.style.dimensions.width)
-      self.axes.x.scale?.range()[1] = self.style.dimensions.width
-      self.redraw(self.parent_obj)
+      self.resize_graph(self, event)
     )
     rangify = self.parent_obj.parent_obj.options.controls.rangify
     rangify?.addEventListener('click', (event) ->
@@ -247,10 +292,15 @@ class NHGraph
     )
     return
 
-
-
+  # Draw graph which involves:
+  # 1. Drawing Background objects
+  #    1. Drawing background.data ranges
+  #    2. Drawing Normal range
+  #    3. Drawing Vertical grid
+  #    4. Drawing Horizontal grid
+  # 2. Drawing Area
+  # 3. Drawing Data
   draw: (parent_obj) =>
-    # draw background
     self = @
     if self.drawables.background.data?
       for background_object in self.drawables.background.data
@@ -269,7 +319,6 @@ class NHGraph
             return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1)
         })
 
-    # draw normals
     self.drawables.background.obj.selectAll('.normal')
     .data([self.options.normal]).enter().append("rect")
     .attr({
@@ -284,7 +333,6 @@ class NHGraph
         return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
     })
 
-    # draw gridlines
     self.drawables.background.obj.selectAll(".grid.vertical")
     .data(self.axes.x.scale.ticks()).enter().append("line").attr({
       "class": "vertical grid",
@@ -311,8 +359,15 @@ class NHGraph
       ,
     })
 
-    # draw data
     switch self.style.data_style
+      # Draw a stepped or linear graph, which involves:
+      # 1. Plot the line using the iterpolate style of choice
+      #    1. If inconsistent values due then break the line
+      # 2. Append and draw the line using the plotted points
+      # 3. For each point in the line append a circle which event listeners for
+      # mouseover and mouseout to control the tool tips
+      # 4. For each empty point (normally used for partial observations) append
+      # a circle with class 'empty_point'
       when 'stepped', 'linear' then (
         self.drawables.area = nh_graphs.svg.line()
         .interpolate(if self.style.data_style is \
@@ -379,6 +434,16 @@ class NHGraph
           self.hide_popup()
         )
       )
+      # Draw a ranged graph, which involves:
+      # 1. Check that given two keys otherwise can't draw graph properly
+      # 2. Draw the top caps of the range using the dimensions and offsets
+      # defined in the style and add mouseover and mouseout event listeners for
+      # popups
+      # 3. Draw the bottom caps for the range using the dimensions and offsets
+      # defined in the style and add mouseover and mouseout event listeners for
+      # popups
+      # 4. Draw the rectangle for the range using the dimension in the style and
+      # add mouseover and mouseout event listeners for popups
       when 'range' then (
         if self.options.keys.length is 2
           self.drawables.data.selectAll(".range.top")
@@ -474,20 +539,29 @@ class NHGraph
             self.hide_popup()
           )
         else
+          # Throw error if given incorrect number of keys to plot
           throw new Error('Cannot plot ranged graph with ' +
             self.options.keys.length + 'data points')
      )
       when 'star' then console.log('star')
       when 'pie' then console.log('pie')
       when 'sparkline' then console.log('sparkline')
+      # Throw an error if graph style isn't defined
       else throw new Error('no graph style defined')
 
+  # Redraw graph data on changes from NHFocus or NHContext, which involves:
+  # 1. Redrawing Axis
+  # 2. Reformatting the X Axis tick labels
+  # 3. Redrawing the background layer ranges with the new Axis scales
+  # 4. Redrawing the normal ranges with the new Axis scales
+  # 5. Redrawing the Vertical Grid
+  # 6. Redrawing the Horizontal Grid
+  # 7. Redrawing the clip path so it hides everything properly
+  # 8. Redrawing the data
   redraw: (parent_obj) =>
     self = @
-
     self.axes.obj.select('.x.axis').call(self.axes.x.axis)
     self.axes.obj.select('.y.axis').call(self.axes.y.axis)
-    # sort line breaks out
     @.axes.obj.selectAll(".x.axis g text").each( (d) ->
       el = nh_graphs.select(@)
       words = self.date_to_string(d).split(" ")
@@ -498,6 +572,14 @@ class NHGraph
           tspan.attr("x", 0).attr("dy", "15")
       el.attr("y", "-" + (words.length * self.style.axis_label_text_height +
         self.style.axis_label_text_height))
+    )
+
+    self.drawables.background.obj.selectAll('.range')
+    .attr('width', self.axes.x.scale.range()[1])
+    .attr('y': (d) ->
+      return self.axes.y.scale(d.e) - 1
+    ).attr('height': (d) ->
+      return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1)
     )
 
     self.drawables.background.obj.selectAll('.normal')
@@ -514,23 +596,14 @@ class NHGraph
     self.drawables.background.obj.selectAll('.measurement')
     .attr('x': self.axes.x.scale.range()[1] + self.style.label_text_height)
 
-
-    # redraw grid
     self.drawables.background.obj.selectAll(".grid.vertical")
     .data(self.axes.x.scale.ticks())
-    #.enter()
     .attr('x1', (d) ->
       return self.axes.x.scale(d)
     ).attr('x2', (d) ->
       return self.axes.x.scale(d)
     )
-    self.drawables.background.obj.selectAll('.range')
-    .attr('width', self.axes.x.scale.range()[1])
-    .attr('y': (d) ->
-      return self.axes.y.scale(d.e) - 1
-    ).attr('height': (d) ->
-      return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1)
-    )
+
     self.drawables.background.obj.selectAll('.grid.horizontal')
     .data(self.axes.y.scale.ticks())
     .attr('x2', self.axes.x.scale.range()[1])
@@ -543,8 +616,9 @@ class NHGraph
     self.obj.selectAll('.clip').selectAll('rect')
     .attr('width', self.axes.x.scale.range()[1])
 
-    #redraw data
     switch self.style.data_style
+      # Redraw the line and points of the stepped and linear graphs with the
+      # new scales
       when 'stepped', 'linear' then (
         self.drawables.data.selectAll('.path').attr("d", self.drawables.area)
         self.drawables.data.selectAll('.point').attr('cx', (d) ->
@@ -553,6 +627,7 @@ class NHGraph
           return self.axes.y.scale(d[self.options.keys[0]])
         )
       )
+      # Redraw the range caps and extent with the new scales
       when 'range' then (
         self.drawables.data.selectAll('.range.top').attr('x', (d) ->
           return self.axes.x.scale(self.date_from_string(d.date_terminated)) -
@@ -580,6 +655,7 @@ class NHGraph
       when 'star' then console.log('star')
       when 'pie' then console.log('pie')
       when 'sparkline' then console.log('sparkline')
+      # If no graph style defined through an error
       else throw new Error('no graph style defined')
     return
 
