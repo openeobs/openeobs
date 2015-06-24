@@ -190,3 +190,24 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         test_resp = requests.get(logout_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.url, login_url)
+
+    def test_method_get_colleagues(self):
+        """Get the colleagues list while being authenticated as a user not belonging to any 'share group'.
+
+        The 'share groups' are defined inside the 'get_colleagues' method, and they are:
+            - 'NH Clinical Ward Manager Group'
+            - 'NH Clinical Nurse Group'
+            - 'NH Clinical HCA Group'
+        """
+        # Authenticate as a 'doctor' user (that is, a user NOT belonging to any 'share group')
+        login_name = self._get_user_belonging_to_group('NH Clinical Doctor Group')
+        auth_resp = self._get_authenticated_response(login_name)
+        self.assertEqual(self.auth_resp.status_code, 200, "Cannot authenticate as 'doctor' user for running this test!")
+
+        colleagues_list_route = [r for r in routes if r['name'] == 'json_colleagues_list']
+        self.assertEqual(len(colleagues_list_route), 1,
+                         "Endpoint to the 'json_colleagues_list' route not unique. Cannot run the test!")
+        colleagues_list_url = self._build_url(colleagues_list_route[0]['endpoint'], None, mobile=True)
+
+        test_resp = requests.get(colleagues_list_url, cookies=auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
