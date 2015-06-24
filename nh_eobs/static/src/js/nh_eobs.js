@@ -984,9 +984,8 @@ openerp.nh_eobs = function (instance) {
             case 'nhc_datetime':
                 if (typeof(value) == "string")
                     value = instance.web.auto_str_to_date(value);
-                s = value.toString(normalize_format(l10n.date_format)
-                            + ' ' + normalize_format(l10n.time_format));
-                return s.substring(0, s.length - 3);
+                return value.toString(normalize_format('%d/%m/%y')
+                            + ' ' + normalize_format('%H:%M'));
             default:
                 return value;
         }
