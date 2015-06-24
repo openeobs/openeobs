@@ -3,6 +3,7 @@
 from openerp.osv import orm, fields, osv
 from openerp.addons.nh_observations.parameters import frequencies
 import logging
+import copy
 _logger = logging.getLogger(__name__)
 
 
