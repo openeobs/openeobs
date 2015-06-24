@@ -114,7 +114,7 @@ class nh_eobs_api(orm.AbstractModel):
         for ward_id in wards:
             location_ids += location_pool.search(cr, uid, [['id', 'child_of', ward_id]])
         share_groups = ['NH Clinical Ward Manager Group', 'NH Clinical Nurse Group', 'NH Clinical HCA Group']
-        while share_groups[0] not in groups and len(share_groups) > 0:
+        while len(share_groups) > 0 and share_groups[0] not in groups:
             share_groups.remove(share_groups[0])
         domain = [['id', '!=', uid], ['groups_id.name', 'in', share_groups], ['location_ids', 'in', location_ids]]
         user_ids = user_pool.search(cr, uid, domain, context=context)
