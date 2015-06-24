@@ -41,7 +41,7 @@ class TestAPI(SingleTransactionCase):
         cls.ht_id = cls.users_pool.search(cr, uid, [('login', '=', 'HT')])[0]
         cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
 
-    def test_check_activity_access(self):
+    def test_01_check_activity_access(self):
         cr, uid = self.cr, self.uid
 
         u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
@@ -55,7 +55,7 @@ class TestAPI(SingleTransactionCase):
             self.assertTrue(self.extapi.check_activity_access(cr, self.nt_id, t_act_id), msg='Nurse T should have access to Ward T Activities')
             self.assertFalse(self.extapi.check_activity_access(cr, self.nu_id, t_act_id), msg='Nurse U should not have access to Ward T Activities')
 
-    def test_get_activities(self):
+    def test_02_get_activities(self):
         cr, uid = self.cr, self.uid
 
         u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
@@ -80,7 +80,7 @@ class TestAPI(SingleTransactionCase):
         t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
         self.assertTrue(patient_id not in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
 
-    def test_cancel_activity(self):
+    def test_03_cancel_activity(self):
         cr, uid = self.cr, self.uid
 
         u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
@@ -89,7 +89,7 @@ class TestAPI(SingleTransactionCase):
         state = self.activity_pool.read(cr, uid, u_activity_ids[0], ['state'])['state']
         self.assertTrue(state == 'cancelled', msg='Activity state did not change to cancelled after cancel')
 
-    def test_assign_unassign_activity(self):
+    def test_04_assign_unassign_activity(self):
         cr, uid = self.cr, self.uid
 
         u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
@@ -101,7 +101,7 @@ class TestAPI(SingleTransactionCase):
         user_id = self.activity_pool.read(cr, uid, u_activity_ids[0], ['user_id'])['user_id']
         self.assertFalse(user_id, msg='Activity user_id is not None after unassign')
 
-    def test_get_patients(self):
+    def test_05_get_patients(self):
         cr, uid = self.cr, self.uid
 
         u_patient_ids = self.patient_pool.search(cr, uid, [('current_location_id', 'child_of', self.wu_id), ('current_location_id.usage', '=', 'bed')])
@@ -115,7 +115,7 @@ class TestAPI(SingleTransactionCase):
         for a in t_api_patients:
             self.assertTrue(a['id'] in t_patient_ids, msg='Get patients returned a patient the Nurse is not responsible for')
 
-    def test_patient_update(self):
+    def test_06_patient_update(self):
         cr, uid = self.cr, self.uid
 
         patient_ids = self.patient_pool.search(cr, uid, [('current_location_id', 'child_of', self.pos_location_id)])
@@ -129,7 +129,7 @@ class TestAPI(SingleTransactionCase):
             check_nhs = self.patient_pool.read(cr, uid, pid, ['patient_identifier'])['patient_identifier']
             self.assertTrue(check_nhs == pnhs[pid], msg='NHS number does not match after patient update')
 
-    def test_patient_register(self):
+    def test_07_patient_register(self):
         cr, uid = self.cr, self.uid
         
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -154,7 +154,7 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(check_patient['gender'] == patient_data['gender'], msg='Gender does not match after patient register')
         self.assertTrue(check_patient['sex'] == patient_data['sex'], msg='Sex does not match after patient register')
 
-    def test_patient_admit_update_and_cancel(self):
+    def test_08_patient_admit_update_and_cancel(self):
         cr, uid = self.cr, self.uid
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -252,7 +252,7 @@ class TestAPI(SingleTransactionCase):
             self.activity_pool.search(cr, uid, [('parent_id', '=', spell_activity_id[0]), ('state', 'not in', ['completed', 'cancelled'])]),
             msg='Activities related to the cancelled spell remain open after admission cancel')
 
-    def test_patient_discharge_and_cancel(self):
+    def test_09_patient_discharge_and_cancel(self):
         cr, uid = self.cr, self.uid
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -304,7 +304,7 @@ class TestAPI(SingleTransactionCase):
         placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
         self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wu_id, msg='Placement activity does not have the correct location after cancel discharge')
 
-    def test_patient_transfer_and_cancel(self):
+    def test_10_patient_transfer_and_cancel(self):
         cr, uid = self.cr, self.uid
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -357,7 +357,7 @@ class TestAPI(SingleTransactionCase):
         placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
         self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wt_id, msg='Placement activity does not have the correct location after cancel transfer')
 
-    def test_patient_merge(self):
+    def test_11_patient_merge(self):
         cr, uid = self.cr, self.uid
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -420,7 +420,7 @@ class TestAPI(SingleTransactionCase):
         patient = self.patient_pool.browse(cr, uid, patient_id[0])
         self.assertFalse(patient.active, msg='First patient remains active after merge')
 
-    def test_submit_complete_activity_and_get_activities_for_patient_or_spell(self):
+    def test_12_submit_complete_activity_and_get_activities_for_patient_or_spell(self):
         cr, uid = self.cr, self.uid
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -483,7 +483,7 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(ews_activities[0]['pulse_rate'] == ews_data['pulse_rate'], msg='pulse rate does not match')
         self.assertTrue(ews_activities[0]['avpu_text'] == ews_data['avpu_text'], msg='avpu does not match')
 
-    def test_create_activity_for_patient(self):
+    def test_13_create_activity_for_patient(self):
         cr, uid = self.cr, self.uid
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -544,7 +544,7 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(ews_activities[0]['pulse_rate'] == ews_data['pulse_rate'], msg='pulse rate does not match')
         self.assertTrue(ews_activities[0]['avpu_text'] == ews_data['avpu_text'], msg='avpu does not match')
 
-    def test_start_and_stop_following(self):
+    def test_14_start_and_stop_following(self):
         cr, uid = self.cr, self.uid
 
         dob = (dt.now()+td(days=-7300)).strftime(dtf)
@@ -606,7 +606,7 @@ class TestAPI(SingleTransactionCase):
         check_patient = self.patient_pool.browse(cr, uid, patient_id)
         self.assertTrue(self.nu_id not in [user.id for user in check_patient.follower_ids], msg="The user should not be a follower after calling remove followers")
         
-    def test_get_share_users(self):
+    def test_15_get_share_users(self):
         cr, uid = self.cr, self.uid
 
         # Scenario 1: Get HCAs list of users.
