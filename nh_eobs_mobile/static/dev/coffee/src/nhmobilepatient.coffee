@@ -13,7 +13,8 @@ class NHMobilePatient extends NHMobile
     table_view.style.display = 'none'
 
     obs = document.getElementsByClassName('obs')
-    obs[0].addEventListener('click', @.show_obs_menu)
+    if obs and obs.length > 0
+      obs[0].addEventListener('click', @.show_obs_menu)
 
     tabs_el = document.getElementsByClassName('tabs')
     tabs = tabs_el[0].getElementsByTagName('a')

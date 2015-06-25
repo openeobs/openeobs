@@ -361,7 +361,9 @@
                                     <t t-esc="patient['location']"/>
                                 </t>
                             </h3>
-                            <h3 class="obs">Take observation</h3>
+                            <t t-if="len(obs_list) > 0">
+                                <h3 class="obs">Take observation</h3>
+                            </t>
                         </a>
                         <ul id="obsMenu" class="menu hidden">
                             <t t-foreach="obs_list" t-as="ob">

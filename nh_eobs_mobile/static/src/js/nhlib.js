@@ -672,7 +672,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         element = form_elements[i];
-        if (!element.value && element.type !== 'button') {
+        if (!element.value) {
           results.push(element);
         }
       }
@@ -951,7 +951,9 @@ NHMobilePatient = (function(superClass) {
     table_view = document.getElementById('table-content');
     table_view.style.display = 'none';
     obs = document.getElementsByClassName('obs');
-    obs[0].addEventListener('click', this.show_obs_menu);
+    if (obs && obs.length > 0) {
+      obs[0].addEventListener('click', this.show_obs_menu);
+    }
     tabs_el = document.getElementsByClassName('tabs');
     tabs = tabs_el[0].getElementsByTagName('a');
     for (i = 0, len = tabs.length; i < len; i++) {
