@@ -731,7 +731,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
-        obs = api_pool.get_active_observations(cr, uid, context=context)
+        obs = api_pool.get_active_observations(cr, uid, int(patient_id), context=context)
         for index, ob in enumerate(obs):
             if ob['type'] == 'ews':
                 obs.insert(0, obs.pop(index))
