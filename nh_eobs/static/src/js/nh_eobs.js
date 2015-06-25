@@ -398,7 +398,10 @@ openerp.nh_eobs = function (instance) {
                     var obs = records.reverse();
 
                     obs.forEach(function(d){
-                        d.body_temperature = d.body_temperature.toFixed(1);
+                        if(d.body_temperature){
+                            d.body_temperature = d.body_temperature.toFixed(1);
+                        }
+
 
                         var date_els = d.date_terminated.match(date_regex);
                         var dt = new Date(date_els[1], (parseInt(date_els[2])-1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
