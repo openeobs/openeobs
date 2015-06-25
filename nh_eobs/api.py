@@ -328,10 +328,13 @@ class nh_eobs_api(orm.AbstractModel):
         model_pool = self.pool[data_model]
         return model_pool.calculate_score(data) if 'observation' in data_model else False
 
-    def get_active_observations(self, cr, uid, context=None):
-        user = self.pool['res.users'].browse(cr, 1, uid, context=context)
-        groups = [g.name for g in user.groups_id]
-        if 'NH Clinical Nurse Group' in groups or 'NH Clinical HCA Group' in groups:
+    def get_active_observations(self, cr, uid, patient_id, context=None):
+        activity_pool = self.pool['nh.activity']
+        spell_id = activity_pool.search(cr, uid, [['location_id.user_ids', 'in', [uid]],
+                                                  ['patient_id', '=', patient_id],
+                                                  ['state', '=', 'started'],
+                                                  ['data_model', '=', 'nh.clinical.spell']], context=context)
+        if spell_id:
             return self._active_observations
         return []
 
