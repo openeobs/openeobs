@@ -560,6 +560,30 @@ NHFocus = (function() {
     self = this;
   }
 
+  NHFocus.prototype.handle_resize = function(self, event) {
+    var d, new_date, ref;
+    self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
+    self.obj.attr('width', self.style.dimensions.width);
+    if ((ref = self.axes.x.scale) != null) {
+      ref.range()[1] = self.style.dimensions.width;
+    }
+    if (self.parent_obj.options.mobile.is_mob) {
+      if (window.innerWidth > window.innerHeight) {
+        new_date = new Date(self.axes.x.max);
+        d = new_date.getDate() - self.parent_obj.options.mobile.date_range.landscape;
+        new_date.setDate(d);
+        return self.redraw([new_date, self.axes.x.max]);
+      } else {
+        new_date = new Date(self.axes.x.max);
+        d = new_date.getDate() - self.parent_obj.options.mobile.date_range.portrait;
+        new_date.setDate(d);
+        return self.redraw([new_date, self.axes.x.max]);
+      }
+    } else {
+      return self.redraw([self.axes.x.min, self.axes.x.max]);
+    }
+  };
+
   NHFocus.prototype.init = function(parent_svg) {
     var final, graph, h_mb, h_mn_pt, h_mt, i, j, len, len1, pl_ml, ref, ref1, self, table, top_offset;
     if (parent_svg != null) {
@@ -611,27 +635,7 @@ NHFocus = (function() {
       parent_svg.style.dimensions.height += this.style.dimensions.height + (this.style.margin.top + this.style.margin.bottom);
       self = this;
       return window.addEventListener('focus_resize', function(event) {
-        var d, new_date, ref2;
-        self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
-        self.obj.attr('width', self.style.dimensions.width);
-        if ((ref2 = self.axes.x.scale) != null) {
-          ref2.range()[1] = self.style.dimensions.width;
-        }
-        if (self.parent_obj.options.mobile.is_mob) {
-          if (window.innerWidth > window.innerHeight) {
-            new_date = new Date(self.axes.x.max);
-            d = new_date.getDate() - self.parent_obj.options.mobile.date_range.landscape;
-            new_date.setDate(d);
-            return self.redraw([new_date, self.axes.x.max]);
-          } else {
-            new_date = new Date(self.axes.x.max);
-            d = new_date.getDate() - self.parent_obj.options.mobile.date_range.portrait;
-            new_date.setDate(d);
-            return self.redraw([new_date, self.axes.x.max]);
-          }
-        } else {
-          return self.redraw([self.axes.x.min, self.axes.x.max]);
-        }
+        return self.handle_resize(self, event);
       });
     } else {
       throw new Error('Focus init being called before SVG initialised');
@@ -681,18 +685,21 @@ if (!window.NH) {
 window.NH.NHFocus = NHFocus;
 
 var NHGraph,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
 Array.prototype.min = function() {
   return Math.min.apply(null, this);
 };
 
-NHGraph = (function() {
+NHGraph = (function(superClass) {
+  extend(NHGraph, superClass);
+
   function NHGraph() {
     this.redraw = bind(this.redraw, this);
     this.draw = bind(this.draw, this);
     this.init = bind(this.init, this);
-    this.date_to_string = bind(this.date_to_string, this);
     this.axes = {
       x: {
         scale: null,
@@ -779,25 +786,6 @@ NHGraph = (function() {
     this.parent_obj = null;
   }
 
-  NHGraph.prototype.date_from_string = function(date_string) {
-    var date;
-    date = new Date(date_string);
-    if (isNaN(date.getTime())) {
-      date = new Date(date_string.replace(' ', 'T'));
-    }
-    return date;
-  };
-
-  NHGraph.prototype.date_to_string = function(date) {
-    var days;
-    days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
-    return days[date.getDay()] + " " + +date.getDate() + '/' + this.leading_zero(date.getMonth() + 1) + "/" + this.leading_zero(date.getFullYear()) + " " + this.leading_zero(date.getHours()) + ":" + this.leading_zero(date.getMinutes());
-  };
-
-  NHGraph.prototype.leading_zero = function(date_element) {
-    return ("0" + date_element).slice(-2);
-  };
-
   NHGraph.prototype.show_popup = function(string, x, y) {
     var cp;
     cp = document.getElementById('chart_popup');
@@ -820,6 +808,16 @@ NHGraph = (function() {
       self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max]);
     }
     self.redraw(self.parent_obj);
+  };
+
+  NHGraph.prototype.resize_graph = function(self, event) {
+    var ref;
+    self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right)) - this.style.label_width;
+    self.obj.attr('width', self.style.dimensions.width);
+    if ((ref = self.axes.x.scale) != null) {
+      ref.range()[1] = self.style.dimensions.width;
+    }
+    return self.redraw(self.parent_obj);
   };
 
   NHGraph.prototype.init = function(parent_obj) {
@@ -914,13 +912,7 @@ NHGraph = (function() {
       });
     }
     window.addEventListener('graph_resize', function(event) {
-      var ref1;
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right)) - this.style.label_width;
-      self.obj.attr('width', self.style.dimensions.width);
-      if ((ref1 = self.axes.x.scale) != null) {
-        ref1.range()[1] = self.style.dimensions.width;
-      }
-      return self.redraw(self.parent_obj);
+      return self.resize_graph(self, event);
     });
     rangify = self.parent_obj.parent_obj.options.controls.rangify;
     if (rangify != null) {
@@ -1146,6 +1138,15 @@ NHGraph = (function() {
       }
       return el.attr("y", "-" + (words.length * self.style.axis_label_text_height + self.style.axis_label_text_height));
     });
+    self.drawables.background.obj.selectAll('.range').attr('width', self.axes.x.scale.range()[1]).attr({
+      'y': function(d) {
+        return self.axes.y.scale(d.e) - 1;
+      }
+    }).attr({
+      'height': function(d) {
+        return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1);
+      }
+    });
     self.drawables.background.obj.selectAll('.normal').attr({
       'width': self.axes.x.scale.range()[1],
       'y': function(d) {
@@ -1165,15 +1166,6 @@ NHGraph = (function() {
       return self.axes.x.scale(d);
     }).attr('x2', function(d) {
       return self.axes.x.scale(d);
-    });
-    self.drawables.background.obj.selectAll('.range').attr('width', self.axes.x.scale.range()[1]).attr({
-      'y': function(d) {
-        return self.axes.y.scale(d.e) - 1;
-      }
-    }).attr({
-      'height': function(d) {
-        return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1);
-      }
     });
     self.drawables.background.obj.selectAll('.grid.horizontal').data(self.axes.y.scale.ticks()).attr('x2', self.axes.x.scale.range()[1]).attr('y1', function(d) {
       return self.axes.y.scale(d);
@@ -1234,7 +1226,7 @@ NHGraph = (function() {
 
   return NHGraph;
 
-})();
+})(NHGraphLib);
 
 if (!window.NH) {
   window.NH = {};
