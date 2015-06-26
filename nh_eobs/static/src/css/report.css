@@ -226,7 +226,7 @@ svg .background .red {
     fill: #ffcccc;
 }
 svg .background .normal {
-    fill: rgba(0, 0, 0, 0.2);
+    fill: rgba(0, 0, 0, 0.05);
     stroke: rgba(0, 0, 0, 0.2);
 }
 svg .background line {

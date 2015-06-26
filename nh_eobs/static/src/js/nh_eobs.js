@@ -443,11 +443,19 @@ openerp.nh_eobs = function (instance) {
                     resp_rate_graph.options.measurement = '/min';
                     resp_rate_graph.axes.y.min = 0;
                     resp_rate_graph.axes.y.max = 60;
-                    resp_rate_graph.options.normal.min = 12;
+                    resp_rate_graph.options.normal.min = 9;
                     resp_rate_graph.options.normal.max = 20;
                     resp_rate_graph.style.dimensions.height = 250;
                     resp_rate_graph.style.data_style = 'linear';
                     resp_rate_graph.style.label_width = 60;
+                    resp_rate_graph.drawables.background.data =  [
+                        {"class": "red",s: 0, e: 8},
+                        {"class": "amber",s: 8,e: 9},
+                        {"class": "green",s: 9,e: 11},
+                        {"class": "green",s: 20, e: 21},
+                        {"class": "amber",s: 21,e: 25},
+                        {"class": "green",s: 25,e: 60}
+                    ];
 
                     var oxy_graph = new window.NH.NHGraph()
                     oxy_graph.options.keys = ['indirect_oxymetry_spo2'];
@@ -461,6 +469,11 @@ openerp.nh_eobs = function (instance) {
                     oxy_graph.style.axis.x.hide = true;
                     oxy_graph.style.data_style = 'linear';
                     oxy_graph.style.label_width = 60;
+                    oxy_graph.drawables.background.data = [
+                        {"class": "red",s: 0, e: 92},
+                        {"class": "amber",s: 92,e: 94},
+                        {"class": "green",s: 94,e: 96},
+                    ];
 
                     var temp_graph = new window.NH.NHGraph();
                     temp_graph.options.keys = ['body_temperature'];
@@ -468,12 +481,19 @@ openerp.nh_eobs = function (instance) {
                     temp_graph.options.measurement = '°C';
                     temp_graph.axes.y.min = 15;
                     temp_graph.axes.y.max = 50;
-                    temp_graph.options.normal.min = 35;
-                    temp_graph.options.normal.max = 37.1;
+                    temp_graph.options.normal.min = 36.1;
+                    temp_graph.options.normal.max = 38.1;
                     temp_graph.style.dimensions.height = 200;
                     temp_graph.style.axis.x.hide = true;
                     temp_graph.style.data_style = 'linear';
                     temp_graph.style.label_width = 60;
+                    temp_graph.drawables.background.data =  [
+                        {"class": "red",s: 0, e: 35},
+                        {"class": "amber",s: 35,e: 35.1},
+                        {"class": "green",s: 35.1,e: 36.0},
+                        {"class": "green",s: 38.1, e: 39.1},
+                        {"class": "amber",s: 39.1,e:50},
+                    ];
 
                     var pulse_graph = new window.NH.NHGraph();
                     pulse_graph.options.keys = ['pulse_rate'];
@@ -482,11 +502,19 @@ openerp.nh_eobs = function (instance) {
                     pulse_graph.axes.y.min = 30;
                     pulse_graph.axes.y.max = 200;
                     pulse_graph.options.normal.min = 50;
-                    pulse_graph.options.normal.max = 100;
+                    pulse_graph.options.normal.max = 91;
                     pulse_graph.style.dimensions.height = 200;
                     pulse_graph.style.axis.x.hide = true;
                     pulse_graph.style.data_style = 'linear';
                     pulse_graph.style.label_width = 60;
+                    pulse_graph.drawables.background.data =  [
+                        {"class": "red",s: 0, e: 40},
+                        {"class": "amber",s: 40,e: 41},
+                        {"class": "green",s: 41,e: 50},
+                        {"class": "green",s: 91, e: 111},
+                        {"class": "amber",s: 111,e: 131},
+                        {"class": "green",s: 131,e: 200}
+                    ];
 
                     var bp_graph = new window.NH.NHGraph();
                     bp_graph.options.keys = ['blood_pressure_systolic', 'blood_pressure_diastolic'];
