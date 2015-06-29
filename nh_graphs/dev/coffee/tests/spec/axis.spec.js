@@ -224,7 +224,48 @@ describe('Axis', function () {
         });
 
         it('Adds line breaks to the X axis so ticks are easier to read', function () {
-            expect(false).toBe(true);
+            // Get focus
+            var focus_els = test_area.getElementsByClassName('nhfocus');
+            expect(focus_els.length).toBe(1);
+            var focus_el = focus_els[0];
+
+            // Get graph
+            var graph_els = focus_el.getElementsByClassName('nhgraph');
+            expect(graph_els.length).toBe(1);
+            var graph_el = graph_els[0];
+
+            // Get X Axis
+            var x_els = graph_el.getElementsByClassName('x');
+            expect(x_els.length).toBe(1);
+            var x_el = x_els[0];
+            expect(x_el.getAttribute('class')).toBe('x axis');
+
+            // Set up regex for ticks
+            var day_re = new RegExp('[MTWFS][a-z][a-z]');
+            var date_re = new RegExp('[0-9]?[0-9]/[0-9]?[0-9]/[0-9]?[0-9]');
+            var time_re = new RegExp('[0-2]?[0-9]:[0-5]?[0-9]');
+
+            // Get X Axis ticks
+            var tick_els = x_el.getElementsByClassName('tick');
+            for(var i = 0; i < tick_els.length; i++){
+                // do for each tick
+                var tick_el = tick_els[i];
+
+                // get text el
+                var text_els = tick_el.getElementsByTagName('text');
+                expect(text_els.length).toBe(1);
+                var text_el = text_els[0];
+
+                // get tspans (should be three, one for day, one for date, one for time
+                var tspan_els = text_el.getElementsByTagName('tspan');
+                expect(tspan_els.length).toBe(3);
+                var tspan_day = tspan_els[0].textContent;
+                var tspan_date = tspan_els[1].textContent;
+                var tspan_time = tspan_els[2].textContent;
+                expect(day_re.exec(tspan_day)).not.toBe(null);
+                expect(date_re.exec(tspan_date)).not.toBe(null);
+                expect(time_re.exec(tspan_time)).not.toBe(null);
+            }
         });
 
     });
