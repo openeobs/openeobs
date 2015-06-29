@@ -8,7 +8,7 @@ class NHGraphLib
     # - Padding: The internal offset of elements drawn within the SVG
     # - Dimensions: The required height and width of the SVG
     # - Label Gap: The pseudo line height of labels in SVG
-    # - Axis Label Text Height: The psuedo font size of labels in SVG
+    # - Axis Label Text Height: The psuedo font size of axis labels in SVG
     @style = {
       margin: {
         top: 40,

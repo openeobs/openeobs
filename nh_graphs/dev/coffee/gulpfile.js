@@ -20,10 +20,9 @@ gulp.task('test', function(){
 	.pipe(coffeelint())
 	.pipe(coffeelint.reporter())
 	.pipe(coffee({bare: true}))
-	//.pipe(concat('nh_graphlib.js'))
 	.pipe(gulp.dest('tests/src'))
 
-	gulp.src(['tests/src/*.js', 'tests/lib/fixtures.js', 'tests/spec/*.js'])
+	gulp.src(['tests/src/*.js', 'tests/lib/*.js', 'tests/spec/*.js'])
 	.pipe(karma({
 		configFile: 'karma.conf.js',
 		action: 'run'
