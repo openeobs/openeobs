@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
+from openerp.tools.translate import _
 import logging        
 _logger = logging.getLogger(__name__)
 from openerp.addons.nh_activity.activity import except_if
 from openerp import SUPERUSER_ID
 import openerp.addons.nh_eobs_reports.controllers.visit_report as visit_report
+
 
 
 class wardboard_swap_beds(orm.TransientModel):
@@ -870,7 +872,7 @@ param as(
 
 create or replace view
 nh_clinical_wardboard as(
-    select 
+    select distinct
         spell.id as id,
         spell.patient_id as patient_id,
         spell_activity.id as spell_activity_id,
@@ -953,5 +955,5 @@ nh_clinical_wardboard as(
     where spell_activity.date_terminated > now() - interval '1d' or spell_activity.state = 'started'
 );
 
-select * from nh_clinical_wardboard order by location;
+select distinct * from nh_clinical_wardboard order by location;
 """)
