@@ -641,7 +641,7 @@ openerp.nh_eobs = function (instance) {
 
     instance.nh_eobs.BloodSugarChartWidget = instance.web.form.AbstractField.extend({
         template: 'nh_bschart',
-        className: 'nh_ewschart',
+        className: 'nh_bsschart',
 
 
         init: function (field_manager, node) {
@@ -678,12 +678,16 @@ openerp.nh_eobs = function (instance) {
                         d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0'+(dt.getMonth() + 1)).slice(-2) + "/" + ('0'+(dt.getFullYear())).slice(-2) + " " + ('0'+(dt.getHours())).slice(-2) + ":" + ('0'+(dt.getMinutes())).slice(-2);
                     });
 
+                    var bs_extent = nh_graphs.extent(obs, function(d) {
+                        return d['blood_sugar'];
+                    });
+
                     var bs_graph = new window.NH.NHGraph();
                     bs_graph.options.keys = ['blood_sugar'];
                     bs_graph.options.label = 'BS';
                     bs_graph.options.measurement = 'mmol/L';
-                    bs_graph.axes.y.min = 0;
-                    bs_graph.axes.y.max = 8;
+                    bs_graph.axes.y.min = bs_extent[0] - 10;
+                    bs_graph.axes.y.max = bs_extent[1] + 10;
                     bs_graph.options.normal.min = 4;
                     bs_graph.options.normal.max = 7;
                     bs_graph.style.dimensions.height = 250;
@@ -712,7 +716,7 @@ openerp.nh_eobs = function (instance) {
 
     instance.nh_eobs.WeightChartWidget = instance.web.form.AbstractField.extend({
         template: 'nh_weightchart',
-        className: 'nh_ewschart',
+        className: 'nh_weightchart',
 
 
         init: function (field_manager, node) {
@@ -748,23 +752,27 @@ openerp.nh_eobs = function (instance) {
                     var wmin = (18*(height*height)).toFixed(0);
                     var wmax = (25*(height*height)).toFixed(0);
                     var wmax2 = (50*(height*height)).toFixed(0);
+                    
+                    var w_extent = nh_graphs.extent(obs, function(d) {
+                        return d['weight'];
+                    });
 
 
-                    var bs_graph = new window.NH.NHGraph();
-                    bs_graph.options.keys = ['weight'];
-                    bs_graph.options.label = 'W';
-                    bs_graph.options.measurement = 'kg';
-                    bs_graph.axes.y.min = 2;
-                    bs_graph.axes.y.max = wmax2;
-                    bs_graph.options.normal.min = wmin;
-                    bs_graph.options.normal.max = wmax;
-                    bs_graph.style.dimensions.height = 250;
-                    bs_graph.style.data_style = 'linear';
-                    bs_graph.style.label_width = 60;
+                    var w_graph = new window.NH.NHGraph();
+                    w_graph.options.keys = ['weight'];
+                    w_graph.options.label = 'W';
+                    w_graph.options.measurement = 'kg';
+                    w_graph.axes.y.min = w_extent[0] - 10;
+                    w_graph.axes.y.max = w_extent[1] + 10;
+                    w_graph.options.normal.min = wmin;
+                    w_graph.options.normal.max = wmax;
+                    w_graph.style.dimensions.height = 250;
+                    w_graph.style.data_style = 'linear';
+                    w_graph.style.label_width = 60;
 
 
                     var focus = new window.NH.NHFocus();
-                    focus.graphs.push(bs_graph);
+                    focus.graphs.push(w_graph);
                     focus.style.padding.right = 0;
                     focus.style.margin.top = 80;
                     svg.focus = focus;

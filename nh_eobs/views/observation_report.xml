@@ -2,9 +2,15 @@
     <data>
 
         <template id="observation_report_footer">
-            <div class="footer">
+            <div class="row footer col-xs-12">
                 <div class="col-xs-9">
-                        <p><img src="/nh_eobs/static/src/img/open_eobs_logo.png" style="height: 16px;"/> <t t-esc="user_name"/> - <t t-esc="time_generated"/> - <t t-esc="hospital_name"/> - <t t-esc="patient['other_identifier']"/></p>
+                        <p>
+                            <img src="/nh_eobs/static/src/img/open_eobs_logo.png" alt="Open-eObs" style="height: 16px;"/>
+                            <t t-esc="user_name"/> -
+                            <t t-esc="time_generated"/> -
+                            <t t-esc="company_name"/> -
+                            <t t-esc="patient['other_identifier']"/>
+                        </p>
                 </div>
                 <div class="col-xs-3 pull-right">
                     <p>Page: <span class="page"/>/<span class="topage"/></p>
@@ -19,7 +25,7 @@
                         <h2><t t-esc="patient['full_name']"/></h2>
                     </div>
                     <div class="col-xs-3 pull-right">
-                        <img t-if="company_logo" t-att-src="'data:image/png;base64,%s' % company_logo" style="max-height: 45px;"/>
+                        <img t-if="company_logo" t-att-src="'data:image/png;base64,{0}'.format(company_logo)" t-att-alt="company_name" style="max-height: 45px;" class="col-xs-12"/>
                     </div>
                 </div>
                 <div class="row zero_min_height">
@@ -289,15 +295,17 @@
                             <h3>NEWS Values</h3>
                             <table class="striped col-xs-12 row">
                                 <thead class="small-header">
-                                    <th class="col-xs-3">Date</th>
-                                    <th class="col-xs-1">Respiration<br/>Rate</th>
-                                    <th class="col-xs-1">O2<br/>Saturation</th>
-                                    <th class="col-xs-1">Body<br/>Temperature</th>
-                                    <th class="col-xs-1">Blood<br/>Pressure<br/>Systolic</th>
-                                    <th class="col-xs-1">Blood<br/>Pressure<br/>Diastolic</th>
-                                    <th class="col-xs-1">Pulse<br/>Rate</th>
-                                    <th class="col-xs-1">AVPU</th>
-                                    <th class="col-xs-1">Supplemental O2</th>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-1">Respiration<br/>Rate</th>
+                                        <th class="col-xs-1">O2<br/>Saturation</th>
+                                        <th class="col-xs-1">Body<br/>Temperature</th>
+                                        <th class="col-xs-1">Blood<br/>Pressure<br/>Systolic</th>
+                                        <th class="col-xs-1">Blood<br/>Pressure<br/>Diastolic</th>
+                                        <th class="col-xs-1">Pulse<br/>Rate</th>
+                                        <th class="col-xs-1">AVPU</th>
+                                        <th class="col-xs-1">Supplemental O2</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="table_ews" t-as="ew">
@@ -322,9 +330,11 @@
                             <h4>NEWS Values - Supplementary O2 Values</h4>
                             <table class="striped col-xs-12 row">
                                 <thead>
-                                    <th class="col-xs-3">Date</th>
-                                    <th class="col-xs-3">Device</th>
-                                    <th class="col-xs-6">Values</th>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-3">Device</th>
+                                        <th class="col-xs-6">Values</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="table_ews" t-as="ew">

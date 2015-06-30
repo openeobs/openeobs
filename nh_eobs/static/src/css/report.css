@@ -226,8 +226,12 @@ svg .background .red {
     fill: #ffcccc;
 }
 svg .background .normal {
-    fill: white;
+    fill: rgba(0,0,0,0.2);
     stroke: rgba(0, 0, 0, 0.2);
+}
+
+.nh_ewschart svg .background .normal {
+    fill: white;
 }
 svg .background line {
     fill: none;

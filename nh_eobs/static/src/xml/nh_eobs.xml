@@ -69,12 +69,12 @@
         <iframe t-att-src="url" height="800px" width="100%"></iframe>
     </div>
 
-    <div t-name="nh_bschart" class="nh_ewschart">
+    <div t-name="nh_bschart" class="nh_bschart">
         <h3 id="chartTitle">Blood Sugar</h3>
         <div id="chart" class="chart"></div>
     </div>
 
-    <div t-name="nh_weightchart" class="nh_ewschart">
+    <div t-name="nh_weightchart" class="nh_weightchart">
         <h3 id="chartTitle">Weight</h3>
         <div id="chart" class="chart"></div>
     </div>
