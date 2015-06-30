@@ -1263,11 +1263,14 @@ NHTable = (function(superClass) {
     this.data_rows = null;
     this.title = null;
     this.title_obj = null;
+    this.data = null;
   }
 
   NHTable.prototype.init = function(parent_obj) {
     var header, i, key, len, ref;
     this.parent_obj = parent_obj;
+    this.data = this.parent_obj.parent_obj.data.raw.concat();
+    this.data.reverse();
     if (this.title != null) {
       this.title_obj = nh_graphs.select(this.parent_obj.parent_obj.el).append('h3').html(this.title);
     }
@@ -1298,7 +1301,7 @@ NHTable = (function(superClass) {
     }
     self.data_rows.selectAll('tr').data(function() {
       var data, data_map, data_to_use;
-      data_map = self.parent_obj.parent_obj.data.raw.map(function(row) {
+      data_map = self.data.map(function(row) {
         if (self.date_from_string(row['date_terminated']) >= self.range[0] && self.date_from_string(row['date_terminated']) <= self.range[1]) {
           return keys.map(function(column) {
             return {
@@ -1349,7 +1352,7 @@ NHTable = (function(superClass) {
     self.data_rows.selectAll('tr').remove();
     self.data_rows.selectAll('tr').data(function() {
       var data, data_map, data_to_use;
-      data_map = self.parent_obj.parent_obj.data.raw.map(function(row) {
+      data_map = self.data.map(function(row) {
         if (self.date_from_string(row['date_terminated']) >= self.range[0] && self.date_from_string(row['date_terminated']) <= self.range[1]) {
           return keys.map(function(column) {
             return {

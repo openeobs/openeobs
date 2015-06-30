@@ -18,6 +18,7 @@ class NHTable extends NHGraphLib
     @data_rows = null
     @title = null
     @title_obj = null
+    @data = null
 
   # Setup the the table, which involves:
   # 1. Get the parent object (NHFocus) to render the table into
@@ -28,6 +29,8 @@ class NHTable extends NHGraphLib
   # 6. Append the tbody element to the DOM ready for drawing
   init: (parent_obj) =>
     @.parent_obj = parent_obj
+    @data = @.parent_obj.parent_obj.data.raw.concat()
+    @data.reverse()
     if @.title?
       @.title_obj = nh_graphs.select(@.parent_obj.parent_obj.el)
       .append('h3').html(@.title)
@@ -57,7 +60,7 @@ class NHTable extends NHGraphLib
       keys.push(key['key'])
     self.data_rows.selectAll('tr')
     .data(() ->
-      data_map = self.parent_obj.parent_obj.data.raw.map((row) ->
+      data_map = self.data.map((row) ->
         if(self.date_from_string(row['date_terminated']) >= self.range[0] and \
         self.date_from_string(row['date_terminated']) <= self.range[1])
           return keys.map((column) ->
@@ -103,7 +106,7 @@ class NHTable extends NHGraphLib
     self.data_rows.selectAll('tr').remove()
     self.data_rows.selectAll('tr')
     .data(() ->
-      data_map = self.parent_obj.parent_obj.data.raw.map((row) ->
+      data_map = self.data.map((row) ->
         if(self.date_from_string(row['date_terminated']) >= self.range[0] and \
         self.date_from_string(row['date_terminated']) <= self.range[1])
           return keys.map((column) ->
