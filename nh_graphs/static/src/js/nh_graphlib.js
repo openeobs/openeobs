@@ -747,6 +747,8 @@ NHGraph = (function(superClass) {
       },
       data_style: '',
       norm_style: '',
+      axis_label_font_size: 12,
+      axis_label_line_height: 1.2,
       axis_label_text_height: 10,
       axis_label_text_padding: 50,
       label_text_height: 18,
@@ -821,7 +823,7 @@ NHGraph = (function(superClass) {
   };
 
   NHGraph.prototype.init = function(parent_obj) {
-    var j, key, left_offset, len, line_self, ob, rangify, ref, self, top_offset, values, y_label;
+    var adjusted_line, j, key, left_offset, len, line_self, ob, rangify, ref, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -839,6 +841,9 @@ NHGraph = (function(superClass) {
     if (!this.style.axis.x.hide) {
       this.axes.x.obj = this.axes.obj.append("g").attr("class", "x axis").call(this.axes.x.axis);
       line_self = this;
+      tick_font_size = line_self.style.axis_label_font_size;
+      tick_line_height = line_self.style.axis_label_line_height;
+      adjusted_line = Math.round(((tick_font_size * tick_line_height) * 10) / 10);
       this.axes.obj.selectAll(".x.axis g text").each(function(d) {
         var el, i, j, len, tspan, word, words;
         el = nh_graphs.select(this);
@@ -847,11 +852,12 @@ NHGraph = (function(superClass) {
         for (i = j = 0, len = words.length; j < len; i = ++j) {
           word = words[i];
           tspan = el.append("tspan").text(word);
+          tspan.attr("style", "font-size: " + tick_font_size + "px;");
           if (i > 0) {
-            tspan.attr("x", 0).attr("dy", "15");
+            tspan.attr("x", 0).attr("dy", adjusted_line);
           }
         }
-        return el.attr("y", "-" + (words.length * line_self.style.axis_label_text_height + line_self.style.axis_label_text_height));
+        return el.attr("y", "-" + Math.round((words.length * adjusted_line) * 10) / 10);
       });
       this.style.axis.x.size = this.axes.x.obj[0][0].getBBox();
       this.style.dimensions.height -= this.style.axis.x.size.height;
@@ -1120,10 +1126,13 @@ NHGraph = (function(superClass) {
   };
 
   NHGraph.prototype.redraw = function(parent_obj) {
-    var self;
+    var adjusted_line, self, tick_font_size, tick_line_height;
     self = this;
     self.axes.obj.select('.x.axis').call(self.axes.x.axis);
     self.axes.obj.select('.y.axis').call(self.axes.y.axis);
+    tick_font_size = self.style.axis_label_font_size;
+    tick_line_height = self.style.axis_label_line_height;
+    adjusted_line = tick_font_size * tick_line_height;
     this.axes.obj.selectAll(".x.axis g text").each(function(d) {
       var el, i, j, len, tspan, word, words;
       el = nh_graphs.select(this);
@@ -1132,11 +1141,12 @@ NHGraph = (function(superClass) {
       for (i = j = 0, len = words.length; j < len; i = ++j) {
         word = words[i];
         tspan = el.append("tspan").text(word);
+        tspan.attr("style", "font-size: " + tick_font_size + "px;");
         if (i > 0) {
-          tspan.attr("x", 0).attr("dy", "15");
+          tspan.attr("x", 0).attr("dy", adjusted_line);
         }
       }
-      return el.attr("y", "-" + (words.length * self.style.axis_label_text_height + self.style.axis_label_text_height));
+      return el.attr("y", "-" + Math.round((words.length * adjusted_line) * 10) / 10);
     });
     self.drawables.background.obj.selectAll('.range').attr('width', self.axes.x.scale.range()[1]).attr({
       'y': function(d) {

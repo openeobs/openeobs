@@ -46,7 +46,9 @@ class NHGraph extends NHGraphLib
     # be one of:
     #   - Rect: A rectangle that shows a range
     #   - Line: A line that shows a value considered to be normal
-    # - Axis label height: Font size of the axis labels
+    # - Axis Label Font Size: Font size for the x axis label
+    # - Axis Label Line Height: The line height for the x axis label
+    # - Axis label height: text height of the axis labels
     # - Axis label padding: The amount of padding applied between each label
     # - Label text height: Font size of the labels used on graphs
     # - Label width: The width designated for graph labels, this stops the graph
@@ -84,6 +86,8 @@ class NHGraph extends NHGraphLib
       }
       data_style: '',
       norm_style: '',
+      axis_label_font_size: 12,
+      axis_label_line_height: 1.2,
       axis_label_text_height: 10,
       axis_label_text_padding: 50,
       label_text_height: 18,
@@ -215,17 +219,21 @@ class NHGraph extends NHGraphLib
       .call(@.axes.x.axis)
 
       line_self = @
+      tick_font_size = line_self.style.axis_label_font_size
+      tick_line_height = line_self.style.axis_label_line_height
+      adjusted_line = \
+        Math.round(((tick_font_size * tick_line_height) * 10) / 10)
       @.axes.obj.selectAll(".x.axis g text").each( (d) ->
         el = nh_graphs.select(@)
         words = line_self.date_to_string(d).split(" ")
         el.text("")
         for word, i in words
           tspan = el.append("tspan").text(word)
+          tspan.attr("style", "font-size: " + tick_font_size + "px;")
           if i > 0
-            tspan.attr("x", 0).attr("dy", "15")
-        el.attr("y", "-" +
-          (words.length * line_self.style.axis_label_text_height +
-          line_self.style.axis_label_text_height))
+            tspan.attr("x", 0).attr("dy", adjusted_line)
+        el.attr("y", "-" + \
+          Math.round((words.length * (adjusted_line)) * 10) / 10)
       )
       @.style.axis.x.size = @.axes.x.obj[0][0].getBBox()
       @.style.dimensions.height -= @.style.axis.x.size.height
@@ -562,16 +570,19 @@ class NHGraph extends NHGraphLib
     self = @
     self.axes.obj.select('.x.axis').call(self.axes.x.axis)
     self.axes.obj.select('.y.axis').call(self.axes.y.axis)
+    tick_font_size = self.style.axis_label_font_size
+    tick_line_height = self.style.axis_label_line_height
+    adjusted_line = tick_font_size * tick_line_height
     @.axes.obj.selectAll(".x.axis g text").each( (d) ->
       el = nh_graphs.select(@)
       words = self.date_to_string(d).split(" ")
       el.text("")
       for word, i in words
         tspan = el.append("tspan").text(word)
+        tspan.attr("style", "font-size: " + tick_font_size + "px;")
         if i > 0
-          tspan.attr("x", 0).attr("dy", "15")
-      el.attr("y", "-" + (words.length * self.style.axis_label_text_height +
-        self.style.axis_label_text_height))
+          tspan.attr("x", 0).attr("dy", adjusted_line)
+      el.attr("y", "-" + Math.round((words.length * (adjusted_line)) * 10) / 10)
     )
 
     self.drawables.background.obj.selectAll('.range')

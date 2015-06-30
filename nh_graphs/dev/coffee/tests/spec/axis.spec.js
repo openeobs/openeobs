@@ -36,7 +36,7 @@ describe('Axis', function () {
 
         focus.graphs.push(graph);
         graphlib.focus = focus;
-        graphlib.data.raw = ews_data.single;
+        graphlib.data.raw = ews_data.single_record;
     });
 
     afterEach(function () {
@@ -167,7 +167,7 @@ describe('Axis', function () {
         });
 
         it('Adds time padding of date difference divided by SVG width divided by 500 to the scale when plotting multiple data points and no time padding defined', function () {
-            graphlib.data.raw = ews_data.multiple;
+            graphlib.data.raw = ews_data.multiple_records;
             var original_extent = [graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']), graphlib.date_from_string(graphlib.data.raw[1]['date_terminated'])];
 
             graphlib.init();
@@ -186,7 +186,7 @@ describe('Axis', function () {
         });
 
          it('Adds time padding of 3 to the scale when plotting multiple data points when time padding of 3 is defined', function () {
-            graphlib.data.raw = ews_data.multiple;
+            graphlib.data.raw = ews_data.multiple_records;
             var original_extent = [graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']), graphlib.date_from_string(graphlib.data.raw[1]['date_terminated'])];
 
              // set time padding to 3
@@ -213,14 +213,6 @@ describe('Axis', function () {
         beforeEach(function(){
             graphlib.init();
             graphlib.draw();
-        });
-
-        it('Draws the labels as defined in the object', function () {
-            expect(false).toBe(true);
-        });
-
-        it('Creates the labels in the correct date format', function () {
-            expect(false).toBe(true);
         });
 
         it('Adds line breaks to the X axis so ticks are easier to read', function () {
@@ -272,16 +264,116 @@ describe('Axis', function () {
 
     describe('Ticks', function () {
 
-        beforeEach(function(){
+        it('Draws ticks in the default size if no size defined', function () {
+
             graphlib.init();
             graphlib.draw();
+
+            // Get focus
+            var focus_els = test_area.getElementsByClassName('nhfocus');
+            expect(focus_els.length).toBe(1);
+            var focus_el = focus_els[0];
+
+            // Get graph
+            var graph_els = focus_el.getElementsByClassName('nhgraph');
+            expect(graph_els.length).toBe(1);
+            var graph_el = graph_els[0];
+
+            // Get X Axis
+            var x_els = graph_el.getElementsByClassName('x');
+            expect(x_els.length).toBe(1);
+            var x_el = x_els[0];
+            expect(x_el.getAttribute('class')).toBe('x axis');
+
+            // Get X Axis ticks
+            var tick_els = x_el.getElementsByClassName('tick');
+            for(var i = 0; i < tick_els.length; i++){
+                // do for each tick
+                var tick_el = tick_els[i];
+
+                // get text el
+                var text_els = tick_el.getElementsByTagName('text');
+                expect(text_els.length).toBe(1);
+                var text_el = text_els[0];
+
+                // should be 3 words in the text so need to make sure that 3 * (axis_label_font_size time axis_label_lien_height) rounded
+                expect(text_el.getAttribute('y')).toBe('-42');
+
+                // get tspans and check that they are created with the settings
+                var tspan_els = text_el.getElementsByTagName('tspan');
+                expect(tspan_els.length).toBe(3);
+                var tspan_day = tspan_els[0];
+                var tspan_date = tspan_els[1];
+                var tspan_time = tspan_els[2];
+                expect(tspan_day.getAttribute('x')).toBe(null);
+                expect(tspan_day.getAttribute('dy')).toBe(null);
+                expect(tspan_day.getAttribute('style')).toBe('font-size: 12px;');
+                expect(tspan_date.getAttribute('x')).toBe('0');
+                expect(tspan_date.getAttribute('dy')).toBe('14');
+                expect(tspan_date.getAttribute('style')).toBe('font-size: 12px;');
+                expect(tspan_time.getAttribute('x')).toBe('0');
+                expect(tspan_time.getAttribute('dy')).toBe('14');
+                expect(tspan_time.getAttribute('style')).toBe('font-size: 12px;');
+            }
         });
 
-        it('Draws ticks in the right size', function () {
-            expect(false).toBe(true);
+        it('Draws ticks in the defined size if size defined', function () {
+
+            graph.style.axis_label_font_size = 30;
+            graph.style.axis_label_line_height = 2;
+            graphlib.init();
+            graphlib.draw();
+
+            // Get focus
+            var focus_els = test_area.getElementsByClassName('nhfocus');
+            expect(focus_els.length).toBe(1);
+            var focus_el = focus_els[0];
+
+            // Get graph
+            var graph_els = focus_el.getElementsByClassName('nhgraph');
+            expect(graph_els.length).toBe(1);
+            var graph_el = graph_els[0];
+
+            // Get X Axis
+            var x_els = graph_el.getElementsByClassName('x');
+            expect(x_els.length).toBe(1);
+            var x_el = x_els[0];
+            expect(x_el.getAttribute('class')).toBe('x axis');
+
+            // Get X Axis ticks
+            var tick_els = x_el.getElementsByClassName('tick');
+            for(var i = 0; i < tick_els.length; i++){
+                // do for each tick
+                var tick_el = tick_els[i];
+
+                // get text el
+                var text_els = tick_el.getElementsByTagName('text');
+                expect(text_els.length).toBe(1);
+                var text_el = text_els[0];
+
+                // should be 3 words in the text so need to make sure that 3 * axis_label_text_height and then add another axis_label_text_height
+                expect(text_el.getAttribute('y')).toBe('-180');
+
+                // get tspans and check that they are created with the settings
+                // graphlib styles should influence the axis text height
+                var tspan_els = text_el.getElementsByTagName('tspan');
+                expect(tspan_els.length).toBe(3);
+                var tspan_day = tspan_els[0];
+                var tspan_date = tspan_els[1];
+                var tspan_time = tspan_els[2];
+                expect(tspan_day.getAttribute('x')).toBe(null);
+                expect(tspan_day.getAttribute('dy')).toBe(null);
+                expect(tspan_day.getAttribute('style')).toBe('font-size: 30px;');
+                expect(tspan_date.getAttribute('x')).toBe('0');
+                expect(tspan_date.getAttribute('dy')).toBe('60');
+                expect(tspan_date.getAttribute('style')).toBe('font-size: 30px;');
+                expect(tspan_time.getAttribute('x')).toBe('0');
+                expect(tspan_time.getAttribute('dy')).toBe('60');
+                expect(tspan_time.getAttribute('style')).toBe('font-size: 30px;');
+            }
         });
 
-        it('Creates ticks in the right incremenets', function () {
+        it('Creates ticks in the right increments', function () {
             expect(false).toBe(true);
         });
 
