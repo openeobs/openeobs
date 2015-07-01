@@ -143,8 +143,8 @@ class nh_eobs_api(orm.AbstractModel):
 
         domain = [('id', 'in', ids)] if ids else [
             ('state', 'not in', ['completed', 'cancelled']),
-            '|', ('date_scheduled', '<=', (dt.now()+td(days=1)).strftime(DTF)),
-            ('date_deadline', '<=', (dt.now()+td(days=1)).strftime(DTF)),
+            '|', ('date_scheduled', '<=', (dt.now()+td(minutes=60)).strftime(DTF)),
+            ('date_deadline', '<=', (dt.now()+td(minutes=60)).strftime(DTF)),
             ('user_ids', 'in', [uid])
         ]
         activity_pool = self.pool['nh.activity']
