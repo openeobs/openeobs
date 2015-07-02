@@ -324,6 +324,8 @@ class nh_clinical_wardboard(orm.Model):
         'placed': fields.boolean('Placed?')
     }
 
+    _order = 'location asc'
+
     def _get_cr_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         res = [['NoScore', 'No Score Yet'], ['High', 'High Risk'], ['Medium', 'Medium Risk'], ['Low', 'Low Risk'], ['None', 'No Risk']]
         fold = {r[0]: False for r in res}
