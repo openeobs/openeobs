@@ -14,7 +14,7 @@ from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
 
 
 # Create the RouteManager and the Route objects for the tests
-route_manager = RouteManager()
+route_manager = RouteManager(url_prefix='/api/v1')
 route_list = [
     Route('json_share_patients', '/staff/assign/', methods=['POST']),
     Route('json_claim_patients', '/staff/unassign/', methods=['POST']),

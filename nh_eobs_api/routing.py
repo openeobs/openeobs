@@ -80,9 +80,10 @@ class RouteManager(object):
         :raise: KeyError (if no Route object matching the 'route_name' parameter is found)
         """
         route = self.ROUTES[route_name]
+        route_prefix = self.URL_PREFIX if self.URL_PREFIX else url_prefix
         if route:
             route_dict = {
-                'route': str(url_prefix) + route.url if url_prefix else route.url,
+                'route': str(route_prefix) + route.url if route_prefix else route.url,
                 'auth': route.auth,
                 'methods': route.methods,
                 'headers': route.headers,
