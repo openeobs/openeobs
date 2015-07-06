@@ -218,6 +218,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
         :param patient_ids: List of patients that are going to be used. Every patient by default.
         :return: True if successful
         """
+        # TODO: work out randomisation for demonstration data
         activity_pool = self.pool['nh.activity']
         patient_pool = self.pool['nh.clinical.patient']
         if not begin_date:
@@ -230,16 +231,24 @@ class nh_clinical_api_demo(orm.AbstractModel):
             nurse_group_id = group_pool.search(cr, uid, [['name', '=', 'NH Clinical Nurse Group']], context=context)
             user_pool.write(cr, uid, SUPERUSER_ID, {'groups_id': [(4, nurse_group_id[0])]})
 
-        ews_activity_ids = activity_pool.search(cr, uid, [['patient_id', 'in', patient_ids], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']]], context=context)
+        ews_activity_ids = activity_pool.search(cr, uid, [
+            ['patient_id', 'in', patient_ids],
+            ['data_model', '=', 'nh.clinical.patient.observation.ews'],
+            ['state', 'not in', ['completed', 'cancelled']]], context=context)
         activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
 
         current_date = dt.strptime(begin_date, dtf)
-
         while current_date < dt.now():
-            ews_activity_ids = activity_pool.search(cr, uid, [['patient_id', 'in', patient_ids], ['data_model', '=', 'nh.clinical.patient.observation.ews'], ['state', 'not in', ['completed', 'cancelled']], ['date_scheduled', '<=', current_date.strftime(dtf)]], context=context)
+            ews_activity_ids = activity_pool.search(cr, uid, [
+                ['patient_id', 'in', patient_ids],
+                ['data_model', '=', 'nh.clinical.patient.observation.ews'],
+                ['state', 'not in', ['completed', 'cancelled']],
+                ['date_scheduled', '<=', current_date.strftime(dtf)]], context=context)
+
             if not ews_activity_ids:
-               return False
+                return False
             nearest_date = False
+
             for ews_id in ews_activity_ids:
                 ews_data = {
                     'respiration_rate': fake.random_element([18]*90 + [11]*8 + [24]*2),
@@ -254,20 +263,24 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 activity_pool.submit(cr, uid, ews_id, ews_data, context=context)
                 activity_pool.complete(cr, uid, ews_id, context=context)
                 _logger.info("EWS observation '%s' made", ews_id)
-                ews_activity = activity_pool.browse(cr, uid, ews_id, context=context)
-                overdue = fake.random_element([False, False, False, False, False, False, False, True, True, True])
-                if overdue:
-                    complete_date = current_date + td(days=1)
-                else:
-                    complete_date = current_date + td(minutes=ews_activity.data_ref.frequency-10)
+                # set complete date
+                complete_date = current_date - td(minutes=10)
                 activity_pool.write(cr, uid, ews_id, {'date_terminated': complete_date.strftime(dtf)}, context=context)
-                triggered_ews_id = activity_pool.search(cr, uid, [['creator_id', '=', ews_id], ['data_model', '=', 'nh.clinical.patient.observation.ews']], context=context)
+                # get frequency of triggered ews
+                triggered_ews_id = activity_pool.search(cr, uid, [
+                    ['creator_id', '=', ews_id],
+                    ['data_model', '=', 'nh.clinical.patient.observation.ews']],
+                    context=context)
                 if not triggered_ews_id:
                     osv.except_osv('Error!', 'The NEWS observation was not triggered after previous submission!')
                 triggered_ews = activity_pool.browse(cr, uid, triggered_ews_id[0], context=context)
-                activity_pool.write(cr, uid, triggered_ews_id[0], {'date_scheduled': (complete_date + td(minutes=triggered_ews.data_ref.frequency)).strftime(dtf)}, context=context)
-                if not nearest_date or complete_date + td(minutes=triggered_ews.data_ref.frequency) < nearest_date:
-                    nearest_date = complete_date + td(minutes=triggered_ews.data_ref.frequency)
+                # set scheduled date
+                scheduled_date = complete_date + td(minutes=triggered_ews.data_ref.frequency)
+                activity_pool.write(cr, uid, triggered_ews_id[0],
+                                    {'date_scheduled': scheduled_date.strftime(dtf)}, context=context)
+                if not nearest_date or scheduled_date < nearest_date:
+                    nearest_date = scheduled_date
+
             current_date = nearest_date
         return True
 

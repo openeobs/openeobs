@@ -167,6 +167,9 @@ class TestApiDemo(TransactionCase):
         result = self.api_demo.generate_news_simulation(cr, uid, begin_date=datetime.strftime(start_date, dtf),
                                                         patient_ids=admit_patient_ids)
         self.assertEquals(result, True)
-
-
+        scheduled_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', 'in', patient_ids],
+            ['data_model', '=', 'nh.clinical.patient.observation.ews'],
+            ['state', 'not in', ['completed', 'cancelled']]])
+        self.assertEquals(len(scheduled_ids), 3)
 
