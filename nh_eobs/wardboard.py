@@ -746,6 +746,7 @@ wb_activity_data as(
 create materialized view
 ews0 as(
             select
+                activity.parent_id as spell_activity_id,
                 activity.patient_id,
                 activity.spell_id,
                 activity.state,
@@ -769,6 +770,7 @@ ews0 as(
 create materialized view
 ews1 as(
             select
+                activity.parent_id as spell_activity_id,
                 activity.patient_id,
                 activity.spell_id,
                 activity.state,
@@ -792,6 +794,7 @@ ews1 as(
 create materialized view
 ews2 as(
             select
+                activity.parent_id as spell_activity_id,
                 activity.patient_id,
                 activity.spell_id,
                 activity.state,

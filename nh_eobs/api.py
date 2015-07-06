@@ -394,7 +394,8 @@ class nh_eobs_api(orm.AbstractModel):
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
         spell_ids_sql = ','.join(map(str, spell_ids))
         sql = """
-        select patient.id,
+        select distinct activity.id,
+            patient.id,
             patient.dob,
             patient.gender,
             patient.sex,
@@ -432,9 +433,9 @@ class nh_eobs_api(orm.AbstractModel):
         inner join nh_clinical_patient patient on patient.id = activity.patient_id
         inner join nh_clinical_location location on location.id = activity.location_id
         inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
-        left join ews1 on ews1.patient_id = activity.patient_id
-        left join ews2 on ews2.patient_id = activity.patient_id
-        left join ews0 on ews0.patient_id = activity.patient_id
+        left join ews1 on ews1.spell_activity_id = activity.id
+        left join ews2 on ews2.spell_activity_id = activity.id
+        left join ews0 on ews0.spell_activity_id = activity.id
         where activity.state = 'started' and activity.data_model = 'nh.clinical.spell' and activity.id in (%s)
         order by location
         """ % spell_ids_sql
@@ -452,7 +453,8 @@ class nh_eobs_api(orm.AbstractModel):
         patient_ids = patient_pool.search(cr, uid, [['follower_ids', 'in', [uid]]], context=context)
         patient_ids_sql = ','.join(map(str, patient_ids))
         sql = """
-        select patient.id,
+        select distinct activity.id,
+            patient.id,
             patient.dob,
             patient.gender,
             patient.sex,
@@ -490,9 +492,9 @@ class nh_eobs_api(orm.AbstractModel):
         inner join nh_clinical_patient patient on patient.id = activity.patient_id
         inner join nh_clinical_location location on location.id = activity.location_id
         inner join nh_clinical_location location_parent on location_parent.id = location.parent_id
-        left join ews1 on ews1.patient_id = activity.patient_id and ews1.rank = 1
-        left join ews2 on ews2.patient_id = activity.patient_id and ews2.rank = 2
-        left join ews0 on ews0.patient_id = activity.patient_id and ews0.rank = 1
+        left join ews1 on ews1.spell_activity_id = activity.id
+        left join ews2 on ews2.spell_activity_id = activity.id
+        left join ews0 on ews0.spell_activity_id = activity.id
         where activity.state = 'started' and activity.data_model = 'nh.clinical.spell' and patient.id in (%s)
         order by location
         """ % patient_ids_sql
