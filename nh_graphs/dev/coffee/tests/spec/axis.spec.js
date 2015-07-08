@@ -297,7 +297,7 @@ describe('Axis', function () {
                 var text_el = text_els[0];
 
                 // should be 3 words in the text so need to make sure that 3 * (axis_label_font_size time axis_label_lien_height) rounded
-                expect(text_el.getAttribute('y')).toBe('-42');
+                expect(text_el.getAttribute('y')).toBe('-40');
 
                 // get tspans and check that they are created with the settings
                 var tspan_els = text_el.getElementsByTagName('tspan');
@@ -352,7 +352,7 @@ describe('Axis', function () {
                 var text_el = text_els[0];
 
                 // should be 3 words in the text so need to make sure that 3 * axis_label_text_height and then add another axis_label_text_height
-                expect(text_el.getAttribute('y')).toBe('-180');
+                expect(text_el.getAttribute('y')).toBe('-150');
 
                 // get tspans and check that they are created with the settings
                 // graphlib styles should influence the axis text height

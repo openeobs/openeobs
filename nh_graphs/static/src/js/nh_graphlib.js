@@ -845,7 +845,7 @@ NHGraph = (function(superClass) {
       tick_line_height = line_self.style.axis_label_line_height;
       adjusted_line = Math.round(((tick_font_size * tick_line_height) * 10) / 10);
       this.axes.obj.selectAll(".x.axis g text").each(function(d) {
-        var el, i, j, len, tspan, word, words;
+        var el, i, j, len, top_lines, tspan, word, words;
         el = nh_graphs.select(this);
         words = line_self.date_to_string(d).split(" ");
         el.text("");
@@ -857,7 +857,8 @@ NHGraph = (function(superClass) {
             tspan.attr("x", 0).attr("dy", adjusted_line);
           }
         }
-        return el.attr("y", "-" + Math.round((words.length * adjusted_line) * 10) / 10);
+        top_lines = ((words.length - 1) * adjusted_line) + tick_font_size;
+        return el.attr("y", "-" + Math.round((top_lines * 10) / 10));
       });
       this.style.axis.x.size = this.axes.x.obj[0][0].getBBox();
       this.style.dimensions.height -= this.style.axis.x.size.height;
@@ -1134,7 +1135,7 @@ NHGraph = (function(superClass) {
     tick_line_height = self.style.axis_label_line_height;
     adjusted_line = tick_font_size * tick_line_height;
     this.axes.obj.selectAll(".x.axis g text").each(function(d) {
-      var el, i, j, len, tspan, word, words;
+      var el, i, j, len, top_lines, tspan, word, words;
       el = nh_graphs.select(this);
       words = self.date_to_string(d).split(" ");
       el.text("");
@@ -1146,7 +1147,8 @@ NHGraph = (function(superClass) {
           tspan.attr("x", 0).attr("dy", adjusted_line);
         }
       }
-      return el.attr("y", "-" + Math.round((words.length * adjusted_line) * 10) / 10);
+      top_lines = ((words.length - 1) * adjusted_line) + tick_font_size;
+      return el.attr("y", "-" + Math.round((top_lines * 10) / 10));
     });
     self.drawables.background.obj.selectAll('.range').attr('width', self.axes.x.scale.range()[1]).attr({
       'y': function(d) {

@@ -232,8 +232,8 @@ class NHGraph extends NHGraphLib
           tspan.attr("style", "font-size: " + tick_font_size + "px;")
           if i > 0
             tspan.attr("x", 0).attr("dy", adjusted_line)
-        el.attr("y", "-" + \
-          Math.round((words.length * (adjusted_line)) * 10) / 10)
+        top_lines = ((words.length - 1) * adjusted_line) + tick_font_size
+        el.attr("y", "-" + Math.round((top_lines * 10) / 10))
       )
       @.style.axis.x.size = @.axes.x.obj[0][0].getBBox()
       @.style.dimensions.height -= @.style.axis.x.size.height
@@ -582,7 +582,8 @@ class NHGraph extends NHGraphLib
         tspan.attr("style", "font-size: " + tick_font_size + "px;")
         if i > 0
           tspan.attr("x", 0).attr("dy", adjusted_line)
-      el.attr("y", "-" + Math.round((words.length * (adjusted_line)) * 10) / 10)
+      top_lines = ((words.length - 1) * adjusted_line) + tick_font_size
+      el.attr("y", "-" + Math.round((top_lines * 10) / 10))
     )
 
     self.drawables.background.obj.selectAll('.range')
