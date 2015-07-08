@@ -77,12 +77,13 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         ews_activity_id = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id}, {'patient_id': self.patient_id})
         self.ews_pool.submit(cr, uid, ews_activity_id, self.ews_data)
         self.ews_pool.complete(cr, uid, ews_activity_id)
-        post_complete_flag_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
-        self.assertEqual(post_complete_flag_value, False, 'Flag not updated by complete method properly')
+        pre_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
+        self.assertEqual(pre_report_value, False, 'Flag not updated by complete method properly')
 
         # run the report printing method in api and check that the flag is set to True
         self.api_pool.print_report(cr, uid, spell_id)
-        self.assertEqual(False, True, 'Flag not updated by printing method properly')
+        post_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
+        self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
 
     def test_04_test_report_added_to_database(self):
         # run the report printing method in api and check that report added to DB
