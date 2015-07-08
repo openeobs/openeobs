@@ -9,7 +9,7 @@
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_clinical', 'nh_observations', 'nh_ews', 'nh_eobs'],
-    'data': [],
+    'data': ['data/cron.xml'],
     'qweb': [],
     'application': True,
     'installable': True,
