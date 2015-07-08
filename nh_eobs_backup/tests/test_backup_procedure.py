@@ -17,6 +17,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         self.pos_pool = self.registry('nh.clinical.pos')
         self.spell_pool = self.registry('nh.clinical.spell')
         self.apidemo = self.registry('nh.clinical.api.demo')
+        self.api_pool = self.registry('nh.eobs.api')
         self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
         self.activity_pool = self.registry('nh.activity')
         self.context_pool = self.registry('nh.clinical.context')
@@ -70,7 +71,17 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         self.assertEqual(post_complete_flag_value, False, 'Flag not updated by complete method properly')
 
     def test_03_test_flag_changed_by_report_printing_method(self):
+        # complete an observation and check flag is now False
+        cr, uid = self.cr, self.uid
+        spell_id = self.spell_pool.get_by_patient_id(cr, uid, self.patient_id)
+        ews_activity_id = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id}, {'patient_id': self.patient_id})
+        self.ews_pool.submit(cr, uid, ews_activity_id, self.ews_data)
+        self.ews_pool.complete(cr, uid, ews_activity_id)
+        post_complete_flag_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
+        self.assertEqual(post_complete_flag_value, False, 'Flag not updated by complete method properly')
+
         # run the report printing method in api and check that the flag is set to True
+        self.api_pool.print_report(cr, uid, spell_id)
         self.assertEqual(False, True, 'Flag not updated by printing method properly')
 
     def test_04_test_report_added_to_database(self):
