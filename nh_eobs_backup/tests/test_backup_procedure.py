@@ -51,7 +51,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         self.spell_id = spell_activity_id
         spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell2_data)
         self.activity_pool.start(cr, uid, spell_activity_id)
-        self.spell2_id = spell_activity_id
+        self.spell_id2 = spell_activity_id
         self.ews_data = {
             'respiration_rate': 40,
             'indirect_oxymetry_spo2': 99,
@@ -61,7 +61,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
             'blood_pressure_diastolic': 80,
             'pulse_rate': 55
         }
-        self.ews_data_2 = {
+        self.ews_data2 = {
             'respiration_rate': 59,
             'indirect_oxymetry_spo2': 100,
             'oxygen_administration_flag': False,
@@ -109,19 +109,32 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         post_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
         self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
 
-    def test_03_test_flag_changed_by_report_printing_method(self):
+    def test_04_test_flag_changed_by_report_printing_method_no_spell_defined(self):
         # complete an observation and check flag is now False
         cr, uid = self.cr, self.uid
+        # clean up before test
+        dirty_spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+        self.spell_pool.write(cr, uid, dirty_spell_ids, {'report_printed': True})
+
+        # add demo data
         spell_id = self.spell_pool.get_by_patient_id(cr, uid, self.patient_id)
+        spell_id2 = self.spell_pool.get_by_patient_id(cr, uid, self.patient_id2)
         ews_activity_id = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id}, {'patient_id': self.patient_id})
+        ews_activity_id2 = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id2}, {'patient_id': self.patient_id2})
         self.ews_pool.submit(cr, uid, ews_activity_id, self.ews_data)
         self.ews_pool.complete(cr, uid, ews_activity_id)
+        self.ews_pool.submit(cr, uid, ews_activity_id2, self.ews_data2)
+        self.ews_pool.complete(cr, uid, ews_activity_id2)
         pre_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
         self.assertEqual(pre_report_value, False, 'Flag not updated by complete method properly')
+        pre_report_value = self.spell_pool.read(cr, uid, spell_id2, ['report_printed'])['report_printed']
+        self.assertEqual(pre_report_value, False, 'Flag not updated by complete method properly on second report')
 
         # run the report printing method in api and check that the flag is set to True
-        self.api_pool.print_report(cr, uid, spell_id)
+        self.api_pool.print_report(cr, uid)
         post_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
+        self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
+        post_report_value = self.spell_pool.read(cr, uid, spell_id2, ['report_printed'])['report_printed']
         self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
 
     def test_05_test_report_added_to_database(self):

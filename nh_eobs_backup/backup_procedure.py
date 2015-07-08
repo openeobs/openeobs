@@ -78,7 +78,7 @@ class NHClinicalObservationReportPrinting(orm.Model):
         if spell_id:
             spell_ids.append(spell_id)
         else:
-            spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+            spell_ids = spell_pool.search(cr, uid, [['report_printed', '=', False]])
 
         # For each report; print it, save it to DB, save it to FS, set flag to True
         report_pool = self.pool['report']
