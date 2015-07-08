@@ -14,8 +14,7 @@ class NHClinicalBackupSpellFlag(orm.Model):
     }
 
 class NHClinicalObservationCompleteOverride(orm.AbstractModel):
-    _name = 'nh.clinical.patient.observation'
-    _inherit = 'nh.clinical.patient.observation'
+    _inherit = 'nh.clinical.patient.observation.ews'
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(NHClinicalObservationCompleteOverride, self).complete(cr, uid, activity_id, context=context)

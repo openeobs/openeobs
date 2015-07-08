@@ -8,7 +8,7 @@
     'description': """ Automatic backups for NHClinical """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_clinical', 'nh_ews', 'nh_eobs', 'nh_observations'],
+    'depends': ['nh_clinical', 'nh_observations', 'nh_ews', 'nh_eobs'],
     'data': [],
     'qweb': [],
     'application': True,
