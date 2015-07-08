@@ -73,11 +73,12 @@ class NHClinicalObservationReportPrinting(orm.Model):
 
     def print_report(self, cr, uid, spell_id=None, context=None):
         # Get spell ids for reports to be printed
+        spell_pool = self.pool['nh.clinical.spell']
         spell_ids = []
         if spell_id:
             spell_ids.append(spell_id)
         else:
-            spell_ids = self.pool['nh.clinical.spell'].search(cr, uid, [['report_printed', '=', False]])
+            spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
 
         # For each report; print it, save it to DB, save it to FS, set flag to True
         report_pool = self.pool['report']
@@ -100,17 +101,26 @@ class NHClinicalObservationReportPrinting(orm.Model):
                                              'nh.clinical.observation_report',
                                              html=report_html,
                                              data=data, context=context)
+
+            # file name in ward_surname_nhsnumber format
+            spell_obj = spell_pool.read(cr, uid, spell)
+            patient_id = spell_obj['patient_id'][0]
+            # patient = self.get_patients(cr, uid, [patient_id], context=context)[0]
+            patient = self.pool['nh.clinical.patient'].read(cr, uid, patient_id)
+            nhs_number = patient['patient_identifier'] if 'patient_identifier' in patient and patient['patient_identifier'] else None
+            ward = patient['location'] if 'location' in patient and patient['location'] else None
+            surname = patient['family_name'] if 'family_name' in patient and patient['family_name'] else None
+            file_name = '{w}_{s}_{n}'.format(w=ward, s=surname, n=nhs_number)
             # Save to database
             db = self.add_report_to_database(cr, uid, 'nh.clinical.observation_report',
                                              report_pdf,
-                                             '{nhs}_{date}_observation_report.pdf'.format(nhs=1, date=datetime.strftime(datetime.now(), '%Y%m%d')),
+                                             file_name,
                                              'nh.clinical.observation_report_wizard',
                                              obs_report_wizard_id)
 
             # Save to file system
             fs = self.add_report_to_backup_location('/bcp/out', report_pdf,
-                                                    '{nhs}_{date}_observation_report.pdf'.format(nhs=1, date=datetime.strftime(datetime.now(),
-                                                                                                                               '%Y%m%d')))
+                                                    file_name)
             if db and fs:
                 self.pool['nh.clinical.spell'].write(cr, uid, spell, {'report_printed': True})
         return True
