@@ -181,7 +181,7 @@ class ObservationReport(models.AbstractModel):
                 observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             patient['weight'] = weights[-1]['values']['weight'] if len(weights) > 0 else False
 
-            if 'ews_only' in data and data.ews_only:
+            if hasattr(data, 'ews_only') and data.ews_only:
                 docargs = {
                     'doc_ids': self._ids,
                     'doc_model': report.model,
