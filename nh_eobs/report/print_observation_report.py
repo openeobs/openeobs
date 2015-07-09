@@ -8,10 +8,11 @@ import copy
 
 
 class DataObj(object):
-    def __init__(self, spell_id=None, start_time=None, end_time=None):
+    def __init__(self, spell_id=None, start_time=None, end_time=None, ews_only=None):
         self.spell_id = spell_id
         self.start_time = start_time
         self.end_time = end_time
+        self.ews_only = ews_only
 
 class ObservationReport(models.AbstractModel):
     _name = 'report.nh.clinical.observation_report'
@@ -40,7 +41,8 @@ class ObservationReport(models.AbstractModel):
         spell_id = data_dict['spell_id'] if 'spell_id' in data_dict and data_dict['spell_id'] else None
         start = data_dict['start_time'] if 'start_time' in data_dict and data_dict['start_time'] else None
         end = data_dict['end_time'] if 'end_time' in data_dict and data_dict['end_time'] else None
-        return DataObj(spell_id, start, end)
+        ews_only = data_dict['ews_only'] if 'ews_only' in data_dict and data_dict['ews_only'] else None
+        return DataObj(spell_id, start, end, ews_only)
 
 
     @api.multi
@@ -141,6 +143,34 @@ class ObservationReport(models.AbstractModel):
                     t['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(t['date_started'], dtf), pretty_date_format) if t['date_started'] else False
                     t['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(t['date_terminated'], dtf), pretty_date_format) if t['date_terminated'] else False
 
+            #
+            # # convert the obs into usable obs for table & report
+            ews_for_json = copy.deepcopy(ews)
+            json_obs = [v['values'] for v in ews_for_json]
+            table_ews = [v['values'] for v in ews]
+            for table_ob in table_ews:
+                table_ob['date_terminated'] = datetime.strftime(datetime.strptime(table_ob['date_terminated'], dtf), pretty_date_format)
+            for json_ob in json_obs:
+                json_ob['write_date'] = datetime.strftime(datetime.strptime(json_ob['write_date'], dtf), wkhtmltopdf_format)
+                json_ob['create_date'] = datetime.strftime(datetime.strptime(json_ob['create_date'], dtf), wkhtmltopdf_format)
+                json_ob['date_started'] = datetime.strftime(datetime.strptime(json_ob['date_started'], dtf), wkhtmltopdf_format)
+                json_ob['date_terminated'] = datetime.strftime(datetime.strptime(json_ob['date_terminated'], dtf), wkhtmltopdf_format)
+            json_ews = json.dumps(json_obs)
+
+            # Get the script files to load
+            observation_report = '/nh_eobs/static/src/js/observation_report.js'
+
+            #
+            # # get height observations
+            # # - search height model with parent_id of spell - dates
+            height_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.height', start_time, end_time))
+            heights = activity_pool.read(cr, uid, height_ids)
+            for observation in heights:
+                observation['values'] = height_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+            patient['height'] = heights[-1]['values']['height'] if len(heights) > 0 else False
+
             # get weight observations
             # - search weight model with parent_id of spell - dates
             weight_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.weight', start_time, end_time))
@@ -150,6 +180,44 @@ class ObservationReport(models.AbstractModel):
                 observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
                 observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             patient['weight'] = weights[-1]['values']['weight'] if len(weights) > 0 else False
+
+            if 'ews_only' in data and data.ews_only:
+                docargs = {
+                    'doc_ids': self._ids,
+                    'doc_model': report.model,
+                    'docs': self,
+                    'spell': spell,
+                    'patient': patient,
+                    'ews': ews,
+                    'table_ews': table_ews,
+                    'weights': weights,
+                    'pbps': [],
+                    'gcs': [],
+                    'bs': [],
+                    'bristol_stools': [],
+                    'pains':[],
+                    'blood_products': [],
+                    'targeto2': [],
+                    'device_session_history': [],
+                    'mrsa_history': [],
+                    'diabetes_history': [],
+                    'palliative_care_history': [],
+                    'post_surgery_history': [],
+                    'critical_care_history': [],
+                    'transfer_history': [],
+                    'report_start': report_start,
+                    'report_end': report_end,
+                    'spell_start': spell_start,
+                    'company_logo': company_logo,
+                    'time_generated': time_generated,
+                    'hospital_name': company_name,
+                    'user_name': user,
+                    'ews_data': json_ews,
+                    'draw_graph_js': observation_report
+                }
+                return report_obj.render('nh_eobs.observation_report', docargs)
+
+
             # get pain observations
             # - search pain model with parent_id of spell - dates
             pain_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.pain', start_time, end_time))
@@ -181,16 +249,7 @@ class ObservationReport(models.AbstractModel):
                 observation['values']['rectal_exam'] = 'True' if observation['values']['rectal_exam'] else 'False'
                 observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
                 observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
-            #
-            # # get height observations
-            # # - search height model with parent_id of spell - dates
-            height_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.height', start_time, end_time))
-            heights = activity_pool.read(cr, uid, height_ids)
-            for observation in heights:
-                observation['values'] = height_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
-            patient['height'] = heights[-1]['values']['height'] if len(heights) > 0 else False
+
             #
             # # get PBP observations
             # # - search pbp model with parent_id of spell - dates
@@ -301,22 +360,7 @@ class ObservationReport(models.AbstractModel):
             if len(transfer_history) > 0:
                 patient['bed'] = transfer_history[-1]['bed'] if transfer_history[-1]['bed'] else False
                 patient['ward'] = transfer_history[-1]['ward'] if transfer_history[-1]['ward'] else False
-            #
-            # # convert the obs into usable obs for table & report
-            ews_for_json = copy.deepcopy(ews)
-            json_obs = [v['values'] for v in ews_for_json]
-            table_ews = [v['values'] for v in ews]
-            for table_ob in table_ews:
-                table_ob['date_terminated'] = datetime.strftime(datetime.strptime(table_ob['date_terminated'], dtf), pretty_date_format)
-            for json_ob in json_obs:
-                json_ob['write_date'] = datetime.strftime(datetime.strptime(json_ob['write_date'], dtf), wkhtmltopdf_format)
-                json_ob['create_date'] = datetime.strftime(datetime.strptime(json_ob['create_date'], dtf), wkhtmltopdf_format)
-                json_ob['date_started'] = datetime.strftime(datetime.strptime(json_ob['date_started'], dtf), wkhtmltopdf_format)
-                json_ob['date_terminated'] = datetime.strftime(datetime.strptime(json_ob['date_terminated'], dtf), wkhtmltopdf_format)
-            json_ews = json.dumps(json_obs)
 
-            # Get the script files to load
-            observation_report = '/nh_eobs/static/src/js/observation_report.js'
 
             docargs = {
                 'doc_ids': self._ids,

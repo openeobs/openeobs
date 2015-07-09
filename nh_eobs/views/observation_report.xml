@@ -252,12 +252,12 @@
                                                 </t>
                                             </td>
                                         </tr>
-                                        <t t-if="len(transfer_history) &gt; 1">
+                                        <t t-if="transfer_history and len(transfer_history) &gt; 1">
                                             <tr>
                                                 <td class="col-xs-4"><strong>Transfer History:</strong></td><td class="col-xs-8">See additional pages</td>
                                             </tr>
                                         </t>
-                                        <t t-if="len(transfer_history) &lt; 2">
+                                        <t t-if="transfer_history and len(transfer_history) &lt; 2">
                                             <tr>
                                                 <td class="col-xs-4"></td><td class="col-xs-8"></td>
                                             </tr>

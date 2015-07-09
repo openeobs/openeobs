@@ -88,7 +88,7 @@ class NHClinicalObservationReportPrinting(orm.Model):
             obs_report_wizard_id = obs_report_wizard_pool.create(cr, uid, {'start_time': None, 'end_time': None})
             data = obs_report_wizard_pool.read(cr, uid, obs_report_wizard_id)
             data['spell_id'] = spell
-            attachment_id = None
+            data['ews_only'] = True
 
             # Render the HTML for the report
             report_html = obs_report_pool.render_html(cr, uid,
