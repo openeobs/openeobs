@@ -106,9 +106,18 @@ class NHClinicalObservationReportPrinting(orm.Model):
             spell_obj = spell_pool.read(cr, uid, spell)
             patient_id = spell_obj['patient_id'][0]
             # patient = self.get_patients(cr, uid, [patient_id], context=context)[0]
-            patient = self.pool['nh.clinical.patient'].read(cr, uid, patient_id)
+            patient = self.pool['nh.clinical.patient'].read(cr, uid, patient_id, ['patient_identifier', 'current_location_id', 'family_name'])
             nhs_number = patient['patient_identifier'] if 'patient_identifier' in patient and patient['patient_identifier'] else None
-            ward = patient['location'] if 'location' in patient and patient['location'] else None
+            ward = None
+            ward_id = patient['current_location_id'][0] if 'current_location_id' in patient and patient['current_location_id'] else None
+            if ward_id:
+                loc_pool = self.pool['nh.clinical.location']
+                ward_usage = loc_pool.read(cr, uid, ward_id, ['usage', 'display_name'])
+                if ward_usage['usage'] != 'ward':
+                    ward_ward = loc_pool.get_closest_parent_id(cr, uid, ward_id, 'ward')
+                    ward = loc_pool.read(cr, uid, ward_ward, ['display_name'])['display_name'].replace(' ', '') if ward_ward else None
+                else:
+                    ward = ward_usage['display_name'].replace(' ', '')
             surname = patient['family_name'] if 'family_name' in patient and patient['family_name'] else None
             file_name = '{w}_{s}_{n}'.format(w=ward, s=surname, n=nhs_number)
             # Save to database
