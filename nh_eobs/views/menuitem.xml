@@ -69,9 +69,16 @@
                   action="nh_clinical.action_nhc_staff_allocation"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
+        <menuitem name="Nursing Re-Allocation"
+                  id="menu_nhui_left_nursing_reallocate"
+                  sequence="2"
+                  parent="menu_nhui_left_shift"
+                  action="nh_clinical.action_nhc_staff_reallocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
+
         <menuitem name="Medical Shift Management"
                   id="menu_nhui_left_medical_shift"
-                  sequence="2"
+                  sequence="3"
                   parent="menu_nhui_left_shift"
                   action="nh_clinical.action_nhc_doctor_allocation"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
