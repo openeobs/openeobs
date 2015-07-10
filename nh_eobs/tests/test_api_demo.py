@@ -1,4 +1,5 @@
 import logging
+from mock import MagicMock
 
 from datetime import datetime, timedelta
 from openerp.osv import osv
@@ -173,3 +174,68 @@ class TestApiDemo(TransactionCase):
             ['state', 'not in', ['completed', 'cancelled']]])
         self.assertEquals(len(scheduled_ids), 3)
 
+    def test_discharge_patients_calls_discharge(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.discharge = MagicMock()
+
+        self.api_demo.discharge_patients(cr, uid, [1, 2], {'discharge_date': '2015-01-01 00:00:00'})
+        self.assertEquals(api.discharge.call_count, 2)
+        api.discharge.assert_any_call(cr, uid, 1, {'discharge_date': '2015-01-01 00:00:00'}, context=None)
+        api.discharge.assert_any_call(cr, uid, 2, {'discharge_date': '2015-01-01 00:00:00'}, context=None)
+        del api.discharge
+
+    def test_discharge_patients_when_there_is_no_patient_or_spell(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.discharge = MagicMock(side_effect=osv.except_osv('Error!', 'Patient not found!'))
+
+        result = self.api_demo.discharge_patients(cr, uid, [1], {'discharge_date': '2015-01-01 00:00:00'})
+        self.assertEquals(result, [])
+        del api.discharge
+
+    def test_discharge_patients_will_discharge_patients(self):
+        cr, uid = self.cr, self.uid
+
+        locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=2, hospital=True)
+        ward_id = locations.get('Ward 1')[0]
+        users = self.api_demo.generate_users(cr, uid, ward_id)
+        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 2)
+        results = self.location_pool.read(cr, uid, [ward_id], ['code'])
+        start_date = '2014-12-31 00:00:00'
+        data = {'location': results[0]['code'], 'start_date': start_date}
+        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        res = self.patient_pool.read(cr, uid, admit_patient_ids, ['other_identifier'])
+        other_identifiers = [res[0]['other_identifier'], res[1]['other_identifier']]
+
+        dod = datetime.now().strftime(dtf)
+        hospital_numbers = self.api_demo.discharge_patients(cr, uid, other_identifiers, {'discharge_date': dod})
+        self.assertEquals(hospital_numbers, other_identifiers)
+
+        spell_activity_ids = self.activity_pool.search(cr, uid, [
+            ('data_model', '=', 'nh.clinical.spell'),
+            ('patient_id', 'in', patient_ids),
+            ('state', '=', 'completed')])
+        self.assertEquals(len(spell_activity_ids), 2)
+        spells = self.activity_pool.browse(cr, uid, spell_activity_ids)
+        self.assertTrue(dod == spells[0].date_terminated == spells[1].date_terminated)
+
+    # def test_transfer_patients_calls_transfer(self):
+    #     cr, uid = self.cr, self.uid
+    #     api = self.registry('nh.eobs.api')
+    #     api.transfer = MagicMock()
+    #
+    #     self.api_demo.transfer_patients(cr, uid, [1, 2], ['bed1', 'bed2'], context=None)
+    #     self.assertEquals(api.transfer.call_count, 2)
+    #     api.transfer.assert_any_call(cr, uid, 1, {'location': 'bed1'}, context=None)
+    #     api.transfer.assert_any_call(cr, uid, 2, {'location': 'bed2'}, context=None)
+    #     del api.transfer
+    #
+    # def test_get_available_location_codes(self):
+    #     cr, uid = self.cr, self.uid
+    #     location_pool = self.registry('nh.clinical.location')
+    #
+    #     res = self.api_demo.generate_locations(cr, uid, wards=1, beds=2, hospital=True)
+    #     location_codes = location_pool.browse(cr, uid, res['Ward 1']).mapped('code')
+    #     self.assertEquals(location_codes, '')
+    #     available_location_codes = self.api_demo._get_available_location_codes(cr, uid, location_codes)
