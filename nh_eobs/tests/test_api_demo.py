@@ -220,22 +220,39 @@ class TestApiDemo(TransactionCase):
         spells = self.activity_pool.browse(cr, uid, spell_activity_ids)
         self.assertTrue(dod == spells[0].date_terminated == spells[1].date_terminated)
 
-    # def test_transfer_patients_calls_transfer(self):
+    def test_transfer_patients_calls_transfer(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock()
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}, {'code': 'bed2'}])
+
+        self.api_demo.transfer_patients(cr, uid, ['TESTN1', 'TESTN2'], ['bed1', 'bed2'], context=None)
+        self.assertEquals(api.transfer.call_count, 2)
+        api.transfer.assert_any_call(cr, uid, 'TESTN1', {'location': 'bed1'}, context=None)
+        api.transfer.assert_any_call(cr, uid, 'TESTN2', {'location': 'bed2'}, context=None)
+
+        del api.transfer
+        del location_pool.read_group
+
+    def test_transfer_patients_when_there_is_no_patient_or_spell(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock(side_effect=osv.except_osv('Error!', 'Patient not found!'))
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
+
+        result = self.api_demo.transfer_patients(cr, uid, ['TESTN1'], ['bed1'], context=None)
+        self.assertEquals(result, [])
+
+        del api.transfer
+
+    # def test_transfer_patients_when_more_patients_than_available_locations(self):
     #     cr, uid = self.cr, self.uid
     #     api = self.registry('nh.eobs.api')
     #     api.transfer = MagicMock()
-    #
-    #     self.api_demo.transfer_patients(cr, uid, [1, 2], ['bed1', 'bed2'], context=None)
-    #     self.assertEquals(api.transfer.call_count, 2)
-    #     api.transfer.assert_any_call(cr, uid, 1, {'location': 'bed1'}, context=None)
-    #     api.transfer.assert_any_call(cr, uid, 2, {'location': 'bed2'}, context=None)
-    #     del api.transfer
-    #
-    # def test_get_available_location_codes(self):
-    #     cr, uid = self.cr, self.uid
     #     location_pool = self.registry('nh.clinical.location')
-    #
-    #     res = self.api_demo.generate_locations(cr, uid, wards=1, beds=2, hospital=True)
-    #     location_codes = location_pool.browse(cr, uid, res['Ward 1']).mapped('code')
-    #     self.assertEquals(location_codes, '')
-    #     available_location_codes = self.api_demo._get_available_location_codes(cr, uid, location_codes)
+    #     location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
+
+
+
