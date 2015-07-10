@@ -46,6 +46,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return auth_response
 
     def check_response_json(self, resp, status, title, description, data):
+        """Test the response JSON for correct status, title, desc and data values
+
+        :param resp: Raw response from requests
+        :param status: The expected status code for the response
+        :param title: The title to be shown on the popup on Frontend
+        :param description: The description to be used in the popup on Frontend
+        :param data: Data the be sent to the Frontend to show in popup
+        :return: True cos the tests will cause the thing to fail anyways
+        """
         returned_json = json.loads(resp.text)
         for k in self.json_response_structure_keys:
             self.assertIn(k, returned_json)
@@ -54,8 +63,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(returned_json['title'], title)
         self.assertEqual(returned_json['description'], description)
         self.assertEqual(returned_json['data'], data)
+        return True
 
     def setUp(self):
+        """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls
+
+        """
         super(TestOdooRouteDecoratorIntegration, self).setUp()
         self.session_resp = requests.post(route_manager.BASE_URL + '/web', {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
@@ -67,7 +80,6 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                             "Cannot find any 'nurse' user for authentication before running the test!")
         self.auth_resp = self._get_authenticated_response(login_name)
         self.assertEqual(self.auth_resp.status_code, 200)
-        #self.assertIn('class="tasklist"', self.auth_resp.content)
 
     def test_route_json_partial_reasons(self):
         # Check if the route under test is actually present into the Route Manager
