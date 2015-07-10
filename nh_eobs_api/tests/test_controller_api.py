@@ -81,7 +81,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.auth_resp = self._get_authenticated_response(login_name)
         self.assertEqual(self.auth_resp.status_code, 200)
 
-    def test_route_json_partial_reasons(self):
+
+    # Test Observation based routes
+    def test_01_route_calculate_ews_score(self):
+        """Test the EWS score route, send EWS parameters to route and make sure it sends back score
+        :return:
+        """
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_02_route_json_partial_reasons(self):
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_partial_reasons')
         self.assertIsInstance(route_under_test, Route)
@@ -98,7 +106,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Please select an option from the list',
                                  expected_json)
 
-    def test_route_json_colleagues_list(self):
+    # Test Stand-in routes
+    def test_03_route_share_patients(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_04_route_claim_patients(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_05_route_colleagues_list(self):
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_colleagues_list')
         self.assertIsInstance(route_under_test, Route)
@@ -115,34 +130,45 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Choose colleagues for stand-in',
                                  expected_json)
 
-    # def test_route_json_share_patients(self):
-    #     # Check if the route under test is actually present into the Route Manager
-    #     route_under_test = route_manager.get_route('json_share_patients')
-    #     self.assertIsInstance(route_under_test, Route)
-    #
-    #     # Try to access the route with a request method not allowed, expecting an error
-    #     # test_resp_wrong = requests.get(route_manager.BASE_URL + route_under_test.url,
-    #     #                                cookies=self.auth_resp.cookies)
-    #     # self.assertEqual(test_resp_wrong.status_code, 405)
-    #
-    #     # Access the route with the allowed request method
-    #     test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
-    #                               data={'user_ids': [1, 2, 3], 'patient_ids': [4, 5, 6]},
-    #                               cookies=self.auth_resp.cookies)
-    #     self.assertEqual(test_resp.status_code, 200)
-    #     self.assertEqual(test_resp.headers['content-type'], 'application/json')
-    #
-    #     # Check the returned JSON data against the expected ones
-    #     #expected_json = ''
-    #     returned_json = json.loads(test_resp.text)
-    #
-    #     ## check the returned JSON structure meets the 'standard' one
-    #     for k in self.json_response_structure_keys:
-    #         self.assertIn(k, returned_json)
-    #
-    #     """
-    #     self.assertEqual(returned_json['status'], ResponseJSON.STATUS_SUCCESS)
-    #     self.assertEqual(returned_json['title'], '')
-    #     self.assertEqual(returned_json['description'], '')
-    #     self.assertEqual(returned_json['data'], expected_json)
-    #     """
+    def test_06_route_invite_user(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_07_route_accept_user(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_08_route_reject_user(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    # Test Task routes
+
+    def test_09_route_take_task(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_10_route_cancel_take_task(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_11_route_task_form_action(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_12_route_confirm_notification(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_13_route_cancel_notification(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_14_route_task_cancellation_options(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    # Test Patient routes
+
+    def test_15_route_patient_info(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_16_route_patient_barcode(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_17_route_patient_obs(self):
+        self.assertEqual(False, True, 'Test not implemented')
+
+    def test_18_route_patient_form_action(self):
+        self.assertEqual(False, True, 'Test not implemented')
