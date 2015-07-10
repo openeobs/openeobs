@@ -1,0 +1,59 @@
+<openerp>
+    <data>
+        <record id="view_nhc_allocating_ext" model="ir.ui.view">
+            <field name="name">Allocating Form</field>
+            <field name="model">nh.clinical.allocating</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="nh_clinical.view_nhc_allocating"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='patient_ids']" position="after">
+                    <field name="clinical_risk" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_nhc_staff_allocation_wizard_ext" model="ir.ui.view">
+            <field name="name">Staff Allocation Wizard Form</field>
+            <field name="model">nh.clinical.staff.allocation</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="nh_clinical.view_nhc_staff_allocation_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='allocating_ids']" position="replace">
+                    <field name="allocating_ids" nolabel="1" options="{'no_create': True}" no_open="1"
+                       colspan="2" attrs="{'invisible': [['stage','!=','allocation']]}" readonly="1">
+                        <tree colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
+                            <field name="location_id" readonly="1"/>
+                            <field name="patient_ids" readonly="1"/>
+                            <field name="nurse_name" widget="nh_many2one"/>
+                            <field name="hca_name" widget="nh_many2one"/>
+                            <field name="clinical_risk" invisible="1"/>
+                            <button string="Allocate" type="action" name="%(nh_clinical.action_allocate)d" nh_icon="allocate_btn" class="oe_highlight"/>
+                        </tree>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_nhc_staff_reallocation_wizard_ext" model="ir.ui.view">
+            <field name="name">Staff Re-Allocation Wizard Form</field>
+            <field name="model">nh.clinical.staff.reallocation</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="nh_clinical.view_nhc_staff_reallocation_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='allocating_ids']" position="replace">
+                    <field name="allocating_ids" nolabel="1" options="{'no_create': True}" no_open="1"
+                       colspan="2" attrs="{'invisible': [['stage','!=','allocation']]}" readonly="1">
+                        <tree colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
+                            <field name="location_id" readonly="1"/>
+                            <field name="patient_ids" readonly="1"/>
+                            <field name="nurse_name" widget="nh_many2one"/>
+                            <field name="hca_name" widget="nh_many2one"/>
+                            <field name="clinical_risk" invisible="1"/>
+                            <button string="Allocate" type="action" name="%(nh_clinical.action_allocate)d" nh_icon="allocate_btn" class="oe_highlight"/>
+                        </tree>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
