@@ -19,7 +19,7 @@ route_list = [
     Route('json_share_patients', '/staff/assign/', methods=['POST']),
     Route('json_claim_patients', '/staff/unassign/', methods=['POST']),
     Route('json_colleagues_list', '/staff/colleagues/'),
-    Route('json_invite_patients', '/staff/invite/'),
+    Route('json_invite_patients', '/staff/invite/<activity_id>/'),
     Route('json_accept_patients', '/staff/accept/<activity_id>/', methods=['POST']),
     Route('json_reject_patients', '/staff/reject/<activity_id>/', methods=['POST']),
 
@@ -105,14 +105,14 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
         activities = api.get_assigned_activities(cr, uid, activity_type='nh.clinical.patient.follow', context=context)
-        res = {}
+        res = []
         for a in activities:
             if a['id'] == int(activity_id):
                 res = api.get_patients(cr, uid, a['patient_ids'], context=context)
                 break
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Patients shared with you',
+                                                   description='These patients have been shared for you to follow',
                                                    data=res)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
@@ -327,15 +327,15 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
         if len(patient_info) > 0:
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                       title='',
-                                                       description='',
+                                                       title=patient_info[0]['full_name'],
+                                                       description='Information on {0}'.format(patient_info[0]['full_name']),
                                                        data=patient_info[0])
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
         else:
             response_data = {'error': 'Patient not found.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
-                                                       title='',
-                                                       description='',
+                                                       title='Patient not found',
+                                                       description='Unable to get patient with id provided',
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
@@ -348,15 +348,15 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         patient_info = api_pool.get_patient_info(cr, uid, hospital_number, context=context)
         if len(patient_info) > 0:
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                       title='',
-                                                       description='',
+                                                       title=patient_info[0]['full_name'],
+                                                       description='Information on {0}'.format(patient_info[0]['full_name']),
                                                        data=patient_info[0])
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
         else:
             response_data = {'error': 'Patient not found.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
-                                                       title='',
-                                                       description='',
+                                                       title='Patient not found',
+                                                       description='Unable to get patient with id provided',
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 

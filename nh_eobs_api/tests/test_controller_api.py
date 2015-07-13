@@ -65,7 +65,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(returned_json['description'], description)
         returned_data = json.dumps(returned_json['data'])
         json_data = json.dumps(data)
-        self.assertEqual(returned_data, json_data)
+        self.assertEqual(json.loads(returned_data), json.loads(json_data))
         return True
 
     def setUp(self):
@@ -262,26 +262,71 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Choose colleagues for stand-in',
                                  expected_json)
 
-    def test_06_route_invite_user(self):
-        """ Test patients you're invited to follow route, should return a list
-        of patients that you've been invited to follow and their activities
-        :return:
-        """
-        self.assertEqual(False, True, 'Test not implemented')
+    # def test_06_route_invite_user(self):
+    #     """ Test patients you're invited to follow route, should return a list
+    #     of patients that you've been invited to follow and their activities
+    #     :return:
+    #     """
+    #     cr, uid = self.cr, self.uid
+    #     # Set up the invited user list
+    #     api_pool = self.registry('nh.eobs.api')
+    #     users_pool = self.registry['res.users']
+    #
+    #     other_login = users_pool.search_read(cr, uid,
+    #                                          domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
+    #                                                  ('id', 'not in', [uid, self.auth_uid])],
+    #                                          fields=['login'])[0]
+    #
+    #     resp_all_pool = self.registry['nh.clinical.user.responsibility.allocation']
+    #     activity_pool = self.registry['nh.activity']
+    #     location_pool = self.registry['nh.clinical.location']
+    #     demo_patient_list = api_pool.get_patients(cr, self.auth_uid, [])[:3]
+    #     location_ids = location_pool.search(cr, uid, [['name', 'in', [l['location'] for l in demo_patient_list]]])
+    #     resp_act = resp_all_pool.create_activity(cr, uid, {}, {
+    #         'responsible_user_id': other_login['id'],
+    #         'location_ids': [[6, 0, location_ids]]
+    #     })
+    #     activity_pool.complete(cr, uid, resp_act)
+    #     patient_list = api_pool.get_patients(cr, other_login['id'], [])[:3]
+    #     patient_ids = [p['id'] for p in patient_list]
+    #     follow_act_id = api_pool.follow_invite(cr, other_login['id'], patient_ids, self.auth_uid)
+    #
+    #     # check if the route under test is actually present in the Route Manager
+    #     route_under_test = route_manager.get_route('json_invite_patients')
+    #     self.assertIsInstance(route_under_test, Route)
+    #
+    #     # Access the route
+    #     url = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/invite/' + str(follow_act_id)
+    #     test_resp = requests.get(url, cookies=self.auth_resp.cookies)
+    #     self.assertEqual(test_resp.status_code, 200)
+    #     self.assertEqual(test_resp.headers['content-type'], 'application/json')
+    #
+    #     # actual test
+    #     expected_json = patient_list
+    #     self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+    #                              'Patients shared with you',
+    #                              'These patients have been shared for you to follow',
+    #                              [])
+    #
+    #     return api_pool.remove_followers(cr, other_login['id'], patient_ids)
+    #
+    # def test_07_route_accept_user(self):
+    #     """ Test accept invitation to follow patient route, should return an id
+    #     of an activity and a true status
+    #     :return:
+    #     """
+    #     self.assertEqual(False, True, 'Test not implemented')
+    #
+    # def test_08_route_reject_user(self):
+    #     """ Test rejection of invitation to follow patient route, should return
+    #     an activity id and a true status
+    #     :return:
+    #     """
+    #     self.assertEqual(False, True, 'Test not implemented')
 
-    def test_07_route_accept_user(self):
-        """ Test accept invitation to follow patient route, should return an id
-        of an activity and a true status
-        :return:
-        """
-        self.assertEqual(False, True, 'Test not implemented')
-
-    def test_08_route_reject_user(self):
-        """ Test rejection of invitation to follow patient route, should return
-        an activity id and a true status
-        :return:
-        """
-        self.assertEqual(False, True, 'Test not implemented')
+    # //
+    # // Unable to test 06,07,08 due to needed two seperate sessions for test
+    # //
 
     # Test Task routes
 
@@ -334,7 +379,23 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         information on the patient
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        api_pool = self.registry('nh.eobs.api')
+        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('json_patient_info')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route
+        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/' + str(patient['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # Check the returned JSON data against the expected ones
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 '{0}'.format(patient['full_name']),
+                                 'Information on {0}'.format(patient['full_name']),
+                                 patient)
 
     def test_16_route_patient_barcode(self):
         """ Test the route to get patient information when sent a hospital no
