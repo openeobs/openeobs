@@ -233,7 +233,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         ews_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
-        kw_copy = kw.copy()
+        kw_copy = json.loads(request.httprequest.data)
         test = {}
         timestamp = kw_copy['startTimestamp']
         device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
@@ -369,7 +369,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
         activity_api = request.registry('nh.activity')
-        kw_copy = kw.copy()
+        kw_copy = json.loads(request.httprequest.data)
         if 'taskId' in kw_copy:
             del kw_copy['taskId']
         if 'frequency' in kw_copy:
@@ -383,47 +383,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         response_data = {'related_tasks': triggered_tasks}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
-                                                   data=response_data)
-        return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
-
-    ####@http.route(URLS['confirm_review_frequency']+'<task_id>', type="http", auth="user")
-    @http.route(**route_manager.expose_route('confirm_review_frequency'))
-    def confirm_review_frequency(self, *args, **kw):
-        task_id = kw.get('task_id')  # TODO: add a check if is None (?)
-        cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('nh.eobs.api')
-        activity_api = request.registry('nh.activity')
-        kw_copy = kw.copy()
-        del kw_copy['taskId']
-        kw_copy['frequency'] = int(kw_copy['frequency'])
-        result = api.complete(cr, uid, int(task_id), kw_copy)
-        triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
-        triggered_tasks = [v for v in activity_api.read(cr, uid, triggered_ids, []) if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
-
-        response_data = {'related_tasks': triggered_tasks}
-        response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
-                                                   data=response_data)
-        return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
-
-    ####@http.route(URLS['confirm_bed_placement']+'<task_id>', type="http", auth="user")
-    @http.route(**route_manager.expose_route('confirm_bed_placement'))
-    def confirm_bed_placement(self, *args, **kw):
-        task_id = kw.get('task_id')  # TODO: add a check if is None (?)
-        cr, uid, context = request.cr, request.uid, request.context
-        api = request.registry('nh.eobs.api')
-        kw_copy = kw.copy()
-        del kw_copy['taskId']
-        kw_copy['location_id'] = int(kw_copy['location_id'])
-        result = api.complete(cr, uid, int(task_id), kw_copy)
-
-        response_data = {'related_tasks': []}
-        response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Submission successful',
+                                                   description='The notification was successfully submitted',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
@@ -433,14 +394,14 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         task_id = kw.get('task_id')  # TODO: add a check if is None (?)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
-        kw_copy = kw.copy()
+        kw_copy = json.loads(request.httprequest.data)
         kw_copy['reason'] = int(kw_copy['reason'])
         result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
 
         response_data = {'related_tasks': []}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Cancellation successful',
+                                                   description='The notification was successfully cancelled',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 

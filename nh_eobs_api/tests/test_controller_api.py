@@ -405,21 +405,116 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         and other activities to carry out
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        # api_pool = self.registry('nh.eobs.api')
+        # tasks = api_pool.get_activities(self.cr, self.auth_uid, [])
+        # task = [t for t in tasks if t['summary'] == 'NEWS Observation'][0]
+        #
+        # # test demo for ews observation
+        # demo_data = {
+        #     'respiration_rate': 40,
+        #     'indirect_oxymetry_spo2': 100,
+        #     'oxygen_administration_flag': False,
+        #     'body_temperature': 37.5,
+        #     'blood_pressure_systolic': 120,
+        #     'blood_pressure_diastolic': 80,
+        #     'pulse_rate': 80,
+        #     'avpu_text': 'A',
+        #     'taskId': task['id'],
+        #     'startTimestamp': 0
+        # }
+        #
+        # # Check if the route under test is actually present into the Route Manager
+        # route_under_test = route_manager.get_route('json_task_form_action')
+        # self.assertIsInstance(route_under_test, Route)
+        #
+        # # Access the route
+        # test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/submit_ajax/ews/' + str(task['id']),
+        #                           data=json.dumps(demo_data),
+        #                           cookies=self.auth_resp.cookies)
+        # self.assertEqual(test_resp.status_code, 200)
+        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        #
+        # expected_json = {
+        #     'related_tasks': []
+        # }
+        #
+        # self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+        #                          'Observation successfully submitted',
+        #                          'Here are related tasks based on the observation',
+        #                          expected_json)
+        self.assertEqual(False, True, 'Test currently not working due to bug after submitting observation')
 
     def test_12_route_confirm_notification(self):
         """ Test the confirmation submission for notifications, should return a
         status and other activities to carry out
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        # api_pool = self.registry('nh.eobs.api')
+        # activity_api = self.registry('nh.activity')
+        # tasks = api_pool.get_activities(self.cr, self.auth_uid, [])
+        # task = [t for t in tasks if t['summary'] in ['Assess Patient', 'Urgently inform medical team', 'Immediately inform medical team']][0]
+        # #
+        # # Check if the route under test is actually present into the Route Manager
+        # route_under_test = route_manager.get_route('confirm_clinical_notification')
+        # self.assertIsInstance(route_under_test, Route)
+        #
+        # # Access the route
+        # demo_data = {
+        #     'taskId': task['id']
+        # }
+        # test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/confirm_clinical/' + str(task['id']),
+        #                           data=json.dumps(demo_data),
+        #                           cookies=self.auth_resp.cookies)
+        # self.assertEqual(test_resp.status_code, 200)
+        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        #
+        # triggered_ids = activity_api.search(self.cr, self.auth_uid, [['creator_id', '=', task['id']]])
+        # triggered_tasks = activity_api.read(self.cr, self.auth_uid, triggered_ids, [])
+        # triggered_tasks = [v for v in triggered_tasks if 'ews' not in v['data_model'] and api_pool.check_activity_access(self.cr, self.auth_uid, v['id'])]
+        #
+        # expected_json = {
+        #     'related_tasks': triggered_tasks
+        # }
+        #
+        # self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+        #                          'Submission successful',
+        #                          'The notification was successfully submitted',
+        #                          expected_json)
+        self.assertEqual(False, True, 'Test currently not working due to not being able to get triggered tasks to assert against')
 
     def test_13_route_cancel_notification(self):
         """ Test the cancel submission for notifications, should return a status
         and other activities to carry out
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        api_pool = self.registry('nh.eobs.api')
+        activity_api = self.registry('nh.activity')
+        tasks = api_pool.get_activities(self.cr, self.auth_uid, [])
+        task = [t for t in tasks if t['summary'] in ['Assess Patient', 'Urgently inform medical team', 'Immediately inform medical team']][0]
+        #
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('cancel_clinical_notification')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route
+        demo_data = {
+            'reason': 1
+        }
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_clinical/' + str(task['id']),
+                                  data=json.dumps(demo_data),
+                                  cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        expected_json = {
+            'related_tasks': []
+        }
+
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Cancellation successful',
+                                 'The notification was successfully cancelled',
+                                 expected_json)
+        # self.assertEqual(False, True, 'Test currently not working due to not being able to get triggered tasks to assert against')
 
     def test_14_route_task_cancellation_options(self):
         """ Test the route to get the task cancellation options, should return
