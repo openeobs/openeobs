@@ -23,10 +23,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return: A string with the 'login' of the user belonging to the group passed as argument (or None if there isn't any user belonging to that group)
         """
         users_pool = self.registry['res.users']
-        users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', group_name)],
-                                                  fields=['login'])
-        login_name = random_choice(users_login_list).get('login')
+        #users_login_list = users_pool.search_read(self.cr, self.uid,
+        #                                          domain=[('groups_id.name', '=', group_name)],
+        #                                          fields=['login'])
+        #login_name = random_choice(users_login_list).get('login')
+        login_name = 'norah'
         login_uid = users_pool.search(self.cr, self.uid, [['login', '=', login_name]])
         if login_uid:
             self.auth_uid = login_uid[0]
@@ -82,7 +83,6 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                             "Cannot find any 'nurse' user for authentication before running the test!")
         self.auth_resp = self._get_authenticated_response(login_name)
         self.assertEqual(self.auth_resp.status_code, 200)
-
 
     # Test Observation based routes
     def test_01_route_calculate_ews_score(self):
@@ -169,7 +169,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         # get list of patients to share
         api_pool = self.registry('nh.eobs.api')
         patient_list = api_pool.get_patients(self.cr, self.auth_uid, [])[:3]
-
+        patient_ids = [p['id'] for p in patient_list]
         # check if the route under test is actually present in the Route Manager
         route_under_test = route_manager.get_route('json_share_patients')
         self.assertIsInstance(route_under_test, Route)
@@ -197,13 +197,49 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'An invite has been sent to follow the selected patients',
                                  expected_json)
 
+        return api_pool.remove_followers(self.cr, self.auth_uid, patient_ids)
 
     def test_04_route_claim_patients(self):
         """ Test the claim patients route, a post request with patient_ids
         should return a confirmation that you've taken those patients back
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        api_pool = self.registry('nh.eobs.api')
+        # set up the list of patients to claim
+        users_pool = self.registry['res.users']
+        users_login_list = users_pool.search_read(self.cr, self.uid,
+                                                  domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
+                                                          ('id', 'not in', [self.uid, self.auth_uid])],
+                                                  fields=['login'])[:3]
+        patient_list = api_pool.get_patients(self.cr, self.auth_uid, [])[:3]
+        patient_ids = [p['id'] for p in patient_list]
+        for user_id in users_login_list:
+            api_pool.follow_invite(self.cr, self.auth_uid, patient_ids, user_id['id'])
+
+        # check if the route under test is actually present in the Route Manager
+        route_under_test = route_manager.get_route('json_claim_patients')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Create demo data
+        demo_data = {
+            'patient_ids': ','.join([str(p['id']) for p in patient_list])
+        }
+
+        # Access the route
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
+                                  data=json.dumps(demo_data),
+                                  cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # actual test
+        expected_json = {
+            'reason': 'Followers removed successfully.'
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Patients claimed',
+                                 'Followers removed successfully',
+                                 expected_json)
 
     def test_05_route_colleagues_list(self):
         """ Test the colleagues list route, should return a list of colleagues

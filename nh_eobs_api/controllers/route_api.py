@@ -76,13 +76,13 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     def claim_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
-        kw_copy = kw.copy()
+        kw_copy = json.loads(request.httprequest.data) if request.httprequest.data else {}
         patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
         api.remove_followers(cr, uid, patient_ids, context=context)
         response_data = {'reason': 'Followers removed successfully.'}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Patients claimed',
+                                                   description='Followers removed successfully',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
