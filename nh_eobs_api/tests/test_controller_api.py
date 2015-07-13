@@ -107,7 +107,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'pulse_rate': 55,
             'avpu_text': 'A',
             'taskId': 666,
-            'startTimeStamp': 0,
+            'startTimestamp': 0,
         }
 
         # Access the route
@@ -264,11 +264,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Choose colleagues for stand-in',
                                  expected_json)
 
-    # def test_06_route_invite_user(self):
-    #     """ Test patients you're invited to follow route, should return a list
-    #     of patients that you've been invited to follow and their activities
-    #     :return:
-    #     """
+    def test_06_route_invite_user(self):
+        """ Test patients you're invited to follow route, should return a list
+        of patients that you've been invited to follow and their activities
+        :return:
+        """
     #     cr, uid = self.cr, self.uid
     #     # Set up the invited user list
     #     api_pool = self.registry('nh.eobs.api')
@@ -311,24 +311,22 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     #                              [])
     #
     #     return api_pool.remove_followers(cr, other_login['id'], patient_ids)
-    #
-    # def test_07_route_accept_user(self):
-    #     """ Test accept invitation to follow patient route, should return an id
-    #     of an activity and a true status
-    #     :return:
-    #     """
-    #     self.assertEqual(False, True, 'Test not implemented')
-    #
-    # def test_08_route_reject_user(self):
-    #     """ Test rejection of invitation to follow patient route, should return
-    #     an activity id and a true status
-    #     :return:
-    #     """
-    #     self.assertEqual(False, True, 'Test not implemented')
+        self.assertEqual(False, True, 'Test currently not working due to inability to create concurrent sessions')
 
-    # //
-    # // Unable to test 06,07,08 due to needed two seperate sessions for test
-    # //
+    def test_07_route_accept_user(self):
+        """ Test accept invitation to follow patient route, should return an id
+        of an activity and a true status
+        :return:
+        """
+        self.assertEqual(False, True, 'Test not implemented due issue with test 06')
+
+    def test_08_route_reject_user(self):
+        """ Test rejection of invitation to follow patient route, should return
+        an activity id and a true status
+        :return:
+        """
+        self.assertEqual(False, True, 'Test not implemented due issue with test 06')
+
 
     # Test Task routes
 
@@ -337,14 +335,67 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         task should return a status or an error
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        api_pool = self.registry('nh.eobs.api')
+        task = api_pool.get_activities(self.cr, self.auth_uid, [])[0]
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('json_take_task')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        expected_json = {
+            'reason': 'Task was free to take'
+        }
+        # Check the returned JSON data against the expected ones
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Task successfully taken',
+                                 'You can now perform this task',
+                                 expected_json)
+        api_pool.unassign(self.cr, self.auth_uid, task['id'])
 
     def test_10_route_cancel_take_task(self):
         """ Test the cancel take task route, Should return a status to say have
         put the task back into the pool
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        api_pool = self.registry('nh.eobs.api')
+        task = api_pool.get_activities(self.cr, self.auth_uid, [])[0]
+
+        # Take a task
+        route_under_test = route_manager.get_route('json_take_task')
+        self.assertIsInstance(route_under_test, Route)
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        expected_json = {
+            'reason': 'Task was free to take'
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Task successfully taken',
+                                 'You can now perform this task',
+                                 expected_json)
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('json_cancel_take_task')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        expected_json = {
+            'reason': 'Task was successfully unassigned from you'
+        }
+        # Check the returned JSON data against the expected ones
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Successfully released task',
+                                 'The task has now been released back into the task pool',
+                                 expected_json)
 
     def test_11_route_task_form_action(self):
         """ Test the form submission route (task side), Should return a status
@@ -416,7 +467,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        patient_info = api_pool.get_patient_info(self.cr, self.auth_uid, [patient['other_indentifier']])[0]
+        patient_info = api_pool.get_patient_info(self.cr, self.auth_uid, [patient['other_identifier']])[0]
         # Check the returned JSON data against the expected ones
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  '{0}'.format(patient['full_name']),
@@ -461,4 +512,39 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return a status and the ids of other activities to carry out
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        # api_pool = self.registry('nh.eobs.api')
+        # patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        #
+        # # test demo for ews observation
+        # demo_data = {
+        #     'respiration_rate': 40,
+        #     'indirect_oxymetry_spo2': 100,
+        #     'oxygen_administration_flag': False,
+        #     'body_temperature': 37.5,
+        #     'blood_pressure_systolic': 120,
+        #     'blood_pressure_diastolic': 80,
+        #     'pulse_rate': 80,
+        #     'avpu_text': 'A',
+        #     'startTimestamp': 0
+        # }
+        #
+        # # Check if the route under test is actually present into the Route Manager
+        # route_under_test = route_manager.get_route('json_patient_form_action')
+        # self.assertIsInstance(route_under_test, Route)
+        #
+        # # Access the route
+        # test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/submit_ajax/ews/' + str(patient['id']),
+        #                           data=json.dumps(demo_data),
+        #                           cookies=self.auth_resp.cookies)
+        # self.assertEqual(test_resp.status_code, 200)
+        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        #
+        # expected_json = {
+        #     'related_tasks': []
+        # }
+        #
+        # self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+        #                          'Observation successfully submitted',
+        #                          'Here are related tasks based on the observation',
+        #                          expected_json)
+        self.assertEqual(False, True, 'Test currently not working due to bug after submitting observation')

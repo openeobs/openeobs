@@ -168,8 +168,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         if task and task.get('user_id') and task['user_id'][0] != uid:
             response_data = {'reason': 'Task assigned to another user.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_FAIL,
-                                                       title='',
-                                                       description='',
+                                                       title='Unable to take task',
+                                                       description='This task is already assigned to another user',
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
         else:
@@ -178,14 +178,15 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             except Exception:
                 response_data = {'reason': 'Unable to assign to user.'}
                 response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
-                                                           title='',
-                                                           description='',
+                                                           title='Unable to take task',
+                                                           description='An error occurred when trying to take the task',
                                                            data=response_data)
                 return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
+            response_data = {'reason': 'Task was free to take'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                           title='',
-                                           description='',
-                                           data='')
+                                           title='Task successfully taken',
+                                           description='You can now perform this task',
+                                           data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
     ####@http.route(URLS['json_cancel_take_task']+'<task_id>', type="http", auth="user")
@@ -200,8 +201,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         if task.get('user_id') and task['user_id'][0] != uid:
             response_data = {'reason': "Can't cancel other user's task."}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_FAIL,
-                                                       title='',
-                                                       description='',
+                                                       title='Unable to release task',
+                                                       description='The task you are trying to release is being carried out by another user',
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
         else:
@@ -210,14 +211,15 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             except Exception:
                 response_data = {'reason': 'Unable to unassign task.'}
                 response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
-                                                           title='',
-                                                           description='',
+                                                           title='Unable to release task',
+                                                           description='An error occurred when trying to release the task back into the task pool',
                                                            data=response_data)
                 return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
+            response_data = {'reason': 'Task was successfully unassigned from you'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                       title='',
-                                                       description='',
-                                                       data='')
+                                                       title='Successfully released task',
+                                                       description='The task has now been released back into the task pool',
+                                                       data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
     ####@http.route(URLS['json_task_form_action']+'<observation>/<task_id>', type="http", auth="user")
@@ -488,7 +490,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         observation_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
-        kw_copy = kw.copy()
+        kw_copy = json.loads(request.httprequest.data)
         test = {}
         timestamp = kw_copy['startTimestamp']
         device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
@@ -514,7 +516,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         response_data = {'related_tasks': triggered_tasks}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Observation successfully submitted',
+                                                   description='Here are related tasks based on the observation',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
