@@ -128,7 +128,9 @@ class TestRoute(openerp.tests.TransactionCase):
         args = self.route.get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('patient_id', args)
+        self.assertNotIn('<patient_id>', args)
         self.assertIn('observation_id', args)
+        self.assertNotIn('<observation_id>', args)
 
         # Scenario 4:
         # Test URL with wrong-written named arguments
@@ -143,7 +145,9 @@ class TestRoute(openerp.tests.TransactionCase):
         args = self.route.get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('paTieNT_ID', args)
+        self.assertNotIn('<paTieNT_ID', args)
         self.assertIn('obSERvatioN_iD', args)
+        self.assertNotIn('<obSERvatioN_iD', args)
 
         # Scenario 6:
         # Test URL with arguments with digits in their names
@@ -158,7 +162,9 @@ class TestRoute(openerp.tests.TransactionCase):
         args = self.route.get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('patient_id', args)
+        self.assertNotIn('<patient_id>', args)
         self.assertIn('observation-id', args)
+        self.assertNotIn('<observation-id>', args)
 
         # Scenario 8:
         # Test URL with underscores and hyphens (but without chevrons)
@@ -173,7 +179,9 @@ class TestRoute(openerp.tests.TransactionCase):
         args = self.route.get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('patient_id', args)
+        self.assertNotIn('<patient_id>', args)
         self.assertIn('observation_id', args)
+        self.assertNotIn('<observation_id>', args)
 
         # Scenario 10:
         # Test URL with every possible VALID combination
@@ -181,7 +189,9 @@ class TestRoute(openerp.tests.TransactionCase):
         args = self.route.get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('Patient_strange-ID', args)
+        self.assertNotIn('<Patient_strange-ID', args)
         self.assertIn('obserVATion-very_Strange_Id', args)
+        self.assertNotIn('<obserVATion-very-Strange_Id>', args)
 
 
 class TestRouteManager(openerp.tests.TransactionCase):

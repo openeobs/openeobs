@@ -62,7 +62,9 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(returned_json['status'], status)
         self.assertEqual(returned_json['title'], title)
         self.assertEqual(returned_json['description'], description)
-        self.assertEqual(returned_json['data'], data)
+        returned_data = json.dumps(returned_json['data'])
+        json_data = json.dumps(data)
+        self.assertEqual(returned_data, json_data)
         return True
 
     def setUp(self):
@@ -88,7 +90,47 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         sure it sends back score
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        # check if the route under test is actually present in the Route Manager
+        route_under_test = route_manager.get_route('calculate_obs_score')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Create demo data
+        demo_data = {
+            'respiration_rate': 40,
+            'indirect_oxymetry_spo2': 99,
+            'oxygen_administration_flag': False,
+            'body_temperature': 37.0,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 55,
+            'avpu_text': 'A',
+            'taskId': 666,
+            'startTimeStamp': 0,
+        }
+
+        # Access the route
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/observation/score/ews/',
+                                  data=json.dumps(demo_data),
+                                  cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        expected_json = {
+            'score': {
+                'score': 3,
+                'clinical_risk': 'Medium',
+                'three_in_one': True
+            },
+            'modal_vals': {
+                'next_action': 'json_task_form_action',
+                'title': 'Submit NEWS of 3',
+                'content': '<p><strong>Clinical risk: Medium</strong></p><p>Please confirm you want to submit this score</p>'
+            }
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Submit NEWS of 3',
+                                 '<p><strong>Clinical risk: Medium</strong></p><p>Please confirm you want to submit this score</p>',
+                                 expected_json)
 
     def test_02_route_json_partial_reasons(self):
         """ Test the partial reasons route attribute of the EWS class

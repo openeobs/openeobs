@@ -271,7 +271,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         converter_pool = request.registry('ir.fields.converter')
         observation_pool = request.registry(model)
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
-        data = kw.copy()
+        data = json.loads(request.httprequest.data) if request.httprequest.data else {}
         test = {}
         section = 'task' if 'taskId' in data else 'patient'
         if 'startTimestamp' in data:
@@ -301,8 +301,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             'modal_vals': modal_vals
         }
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title=modal_vals['title'],
+                                                   description=modal_vals['content'],
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
