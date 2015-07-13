@@ -402,13 +402,48 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         from a barcode, should return a dict of information on the patient
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        api_pool = self.registry('nh.eobs.api')
+        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('json_patient_barcode')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route
+        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/barcode/' + str(patient['other_identifier']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        patient_info = api_pool.get_patient_info(self.cr, self.auth_uid, [patient['other_indentifier']])[0]
+        # Check the returned JSON data against the expected ones
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 '{0}'.format(patient['full_name']),
+                                 'Information on {0}'.format(patient['full_name']),
+                                 patient_info)
 
     def test_17_route_patient_obs(self):
         """ Test the route to get the observation data for a patient, should
         return an array of dictionaries with the observations
         :return:
         """
+        # api_pool = self.registry('nh.eobs.api')
+        # patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        #
+        # # Check if the route under test is actually present into the Route Manager
+        # route_under_test = route_manager.get_route('json_patient_info')
+        # self.assertIsInstance(route_under_test, Route)
+        #
+        # # Access the route
+        # test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/' + str(patient['id']), cookies=self.auth_resp.cookies)
+        # self.assertEqual(test_resp.status_code, 200)
+        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        #
+        # patient_info = api_pool.get_patient_info(self.cr, self.auth_uid, patient['other_indentifier'])[0]
+        # # Check the returned JSON data against the expected ones
+        # self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+        #                          '{0}'.format(patient['full_name']),
+        #                          'Information on {0}'.format(patient['full_name']),
+        #                          patient_info)
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_18_route_patient_form_action(self):
