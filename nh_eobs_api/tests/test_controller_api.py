@@ -7,7 +7,9 @@ from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from openerp.tests import DB as DB_NAME
 from random import choice as random_choice
-
+from openerp.osv import fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from datetime import datetime
 
 test_logger = logging.getLogger(__name__)
 
@@ -426,25 +428,33 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return an array of dictionaries with the observations
         :return:
         """
-        # api_pool = self.registry('nh.eobs.api')
-        # patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
-        #
-        # # Check if the route under test is actually present into the Route Manager
-        # route_under_test = route_manager.get_route('json_patient_info')
-        # self.assertIsInstance(route_under_test, Route)
-        #
-        # # Access the route
-        # test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/' + str(patient['id']), cookies=self.auth_resp.cookies)
-        # self.assertEqual(test_resp.status_code, 200)
-        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
-        #
-        # patient_info = api_pool.get_patient_info(self.cr, self.auth_uid, patient['other_indentifier'])[0]
-        # # Check the returned JSON data against the expected ones
-        # self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-        #                          '{0}'.format(patient['full_name']),
-        #                          'Information on {0}'.format(patient['full_name']),
-        #                          patient_info)
-        self.assertEqual(False, True, 'Test not implemented')
+        api_pool = self.registry('nh.eobs.api')
+        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('ajax_get_patient_obs')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route
+        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/ajax_obs/' + str(patient['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        ews = api_pool.get_activities_for_patient(self.cr, self.auth_uid, patient_id=int(patient['id']), activity_type='ews')
+        for ew in ews:
+            for e in ew:
+                if e in ['date_terminated', 'create_date', 'write_date', 'date_started']:
+                    ew[e] = fields.datetime.context_timestamp(self.cr, self.auth_uid, datetime.strptime(ew[e], DTF)).strftime(DTF)
+
+        expected_json = {
+            'obs': ews,
+            'obsType': 'ews'
+        }
+        # Check the returned JSON data against the expected ones
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 '{0}'.format(patient['full_name']),
+                                 'Observations for {0}'.format(patient['full_name']),
+                                 expected_json)
 
     def test_18_route_patient_form_action(self):
         """ Test the route to submit an observation via the patient form, should

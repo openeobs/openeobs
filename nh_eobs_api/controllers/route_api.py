@@ -460,6 +460,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         patient_id = kw.get('patient_id')  # TODO: add a check if is None (?)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
+        patient = api_pool.get_patients(cr, uid, [int(patient_id)])[0]
         ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
         for ew in ews:
             for e in ew:
@@ -471,8 +472,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             'obsType': 'ews'
         }
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='{0}'.format(patient['full_name']),
+                                                   description='Observations for {0}'.format(patient['full_name']),
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
