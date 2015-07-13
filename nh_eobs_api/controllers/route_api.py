@@ -451,8 +451,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         api_pool = request.registry('nh.eobs.api')
 
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Reason for cancelling task?',
+                                                   description='Please select an option from the dropdown',
                                                    data=api_pool.get_cancel_reasons(cr, uid, context=context))
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
