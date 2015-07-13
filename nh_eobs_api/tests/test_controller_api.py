@@ -84,12 +84,17 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     # Test Observation based routes
     def test_01_route_calculate_ews_score(self):
-        """Test the EWS score route, send EWS parameters to route and make sure it sends back score
+        """Test the EWS score route, send EWS parameters to route and make
+        sure it sends back score
         :return:
         """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_02_route_json_partial_reasons(self):
+        """ Test the partial reasons route attribute of the EWS class
+        (set in nh_observations)
+        :return:
+        """
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_partial_reasons')
         self.assertIsInstance(route_under_test, Route)
@@ -108,12 +113,25 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     # Test Stand-in routes
     def test_03_route_share_patients(self):
+        """ Test the share patients route, a post request with user_ids and
+        patient_ids should return a list of users who you've invited to
+        follow your patients
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_04_route_claim_patients(self):
+        """ Test the claim patients route, a post request with patient_ids
+        should return a confirmation that you've taken those patients back
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_05_route_colleagues_list(self):
+        """ Test the colleagues list route, should return a list of colleagues
+        you can invite to follow your patients
+        :return:
+        """
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_colleagues_list')
         self.assertIsInstance(route_under_test, Route)
@@ -131,44 +149,96 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_06_route_invite_user(self):
+        """ Test patients you're invited to follow route, should return a list
+        of patients that you've been invited to follow and their activities
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_07_route_accept_user(self):
+        """ Test accept invitation to follow patient route, should return an id
+        of an activity and a true status
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_08_route_reject_user(self):
+        """ Test rejection of invitation to follow patient route, should return
+        an activity id and a true status
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     # Test Task routes
 
     def test_09_route_take_task(self):
+        """ Test the take task route, Depending on the elligability to take the
+        task should return a status or an error
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_10_route_cancel_take_task(self):
+        """ Test the cancel take task route, Should return a status to say have
+        put the task back into the pool
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_11_route_task_form_action(self):
+        """ Test the form submission route (task side), Should return a status
+        and other activities to carry out
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_12_route_confirm_notification(self):
+        """ Test the confirmation submission for notifications, should return a
+        status and other activities to carry out
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_13_route_cancel_notification(self):
+        """ Test the cancel submission for notifications, should return a status
+        and other activities to carry out
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_14_route_task_cancellation_options(self):
+        """ Test the route to get the task cancellation options, should return
+        a list of task cancellation options
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     # Test Patient routes
 
     def test_15_route_patient_info(self):
+        """ Test the route to get patient information, should return a dict of
+        information on the patient
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_16_route_patient_barcode(self):
+        """ Test the route to get patient information when sent a hospital no
+        from a barcode, should return a dict of information on the patient
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_17_route_patient_obs(self):
+        """ Test the route to get the observation data for a patient, should
+        return an array of dictionaries with the observations
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
 
     def test_18_route_patient_form_action(self):
+        """ Test the route to submit an observation via the patient form, should
+        return a status and the ids of other activities to carry out
+        :return:
+        """
         self.assertEqual(False, True, 'Test not implemented')
