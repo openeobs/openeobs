@@ -160,7 +160,43 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         follow your patients
         :return:
         """
-        self.assertEqual(False, True, 'Test not implemented')
+        # get list of users to share with
+        users_pool = self.registry['res.users']
+        users_login_list = users_pool.search_read(self.cr, self.uid,
+                                                  domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
+                                                          ('id', 'not in', [self.uid, self.auth_uid])],
+                                                  fields=['login', 'display_name'])[:3]
+        # get list of patients to share
+        api_pool = self.registry('nh.eobs.api')
+        patient_list = api_pool.get_patients(self.cr, self.auth_uid, [])[:3]
+
+        # check if the route under test is actually present in the Route Manager
+        route_under_test = route_manager.get_route('json_share_patients')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Create demo data
+        demo_data = {
+            'patient_ids': ','.join([str(p['id']) for p in patient_list]),
+            'user_ids': ','.join([str(u['id']) for u in users_login_list])
+        }
+
+        # Access the route
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
+                                  data=json.dumps(demo_data),
+                                  cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # actual test
+        expected_json = {
+            'reason': 'An invite has been sent to follow the selected patients.',
+            'shared_with': [user['display_name'] for user in users_login_list]
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Invitation sent',
+                                 'An invite has been sent to follow the selected patients',
+                                 expected_json)
+
 
     def test_04_route_claim_patients(self):
         """ Test the claim patients route, a post request with patient_ids

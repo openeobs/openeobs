@@ -55,7 +55,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
         user_api = request.registry['res.users']
-        kw_copy = kw.copy()
+        kw_copy = json.loads(request.httprequest.data) if request.httprequest.data else {}
         user_ids = [int(id) for id in kw_copy['user_ids'].split(',')]
         patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
         users = user_api.read(cr, uid, user_ids, context=context)
@@ -66,8 +66,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             'shared_with': [user['display_name'] for user in users]
         }
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Invitation sent',
+                                                   description='An invite has been sent to follow the selected patients',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
