@@ -350,6 +350,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
         patient_pool = self.pool['nh.clinical.patient']
         activity_pool = self.pool['nh.activity']
+        patient_pool.check_hospital_number(cr, uid, hospital_number, exception='False', context=context)
         patient_ids = patient_pool.search(cr, uid, [['other_identifier', '=', hospital_number]], context=context)
         domain = [
             ('patient_id', '=', patient_ids[0]),
