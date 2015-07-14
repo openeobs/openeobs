@@ -333,14 +333,14 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         hospital_number = kw.get('hospital_number')  # TODO: add a check if is None (?)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
-        patient_info = api_pool.get_patient_info(cr, uid, hospital_number, context=context)
-        if len(patient_info) > 0:
+        try:
+            patient_info = api_pool.get_patient_info(cr, uid, hospital_number, context=context)
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                        title=patient_info[0]['full_name'],
                                                        description='Information on {0}'.format(patient_info[0]['full_name']),
                                                        data=patient_info[0])
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
-        else:
+        except Exception:
             response_data = {'error': 'Patient not found.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
                                                        title='Patient not found',
