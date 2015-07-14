@@ -55,32 +55,45 @@ class nh_clinical_api_demo(orm.AbstractModel):
             try:
                 api.discharge(cr, uid, hospital_number, data, context=context)
             except osv.except_osv as e:
-                _logger.warning('Failed to discharge patient!' + str(e))
+                _logger.error('Failed to discharge patient!' + str(e))
                 continue
             else:
                 patients.append(hospital_number)
 
         return patients
 
-    # def transfer_patients(self, cr, uid, hospital_numbers, locations, context=None):
-    #     """
-    #     Transfers a list of patients to a list of locations.
-    #     :param hospital_numbers: list of hospital numbers of the patients
-    #     :param locations: list of location codes where the patients will be
-    #         transferred to
-    #     :return: list of hospital numbers for the successfully transferred
-    #         patients
-    #     """
-    #     api = self.pool['nh.eobs.api']
-    #     location_pool = self.pool['nh.clinical.location']
-    #     patients = []
-    #
-    # def _get_available_location_codes(self, cr, uid, location_codes):
-    #     location_pool = self.pool['nh.clinical.location']
-    #     location_ids = location_pool.search(cr, uid, [
-    #         ('code', 'in', location_codes), ('is_available', '=', True)])
-    #     records = location_pool.browse(cr, uid, location_ids)
-    #     return records.mapped('code')
+    def transfer_patients(self, cr, uid, hospital_numbers, locations, context=None):
+        """
+        Transfers a list of patients to a list of locations.
+        :param hospital_numbers: list of hospital numbers of the patients
+        :param locations: list of location codes where the patients will be
+            transferred to
+        :return: list of hospital numbers for the successfully transferred
+            patients
+        """
+        api = self.pool['nh.eobs.api']
+        location_pool = self.pool['nh.clinical.location']
+        patients = []
+
+        # filter only available locations
+        codes = location_pool.read_group(cr, uid, [
+            ('code', 'in', locations), ('is_available', '=', True),
+            ], ['code'], ['code'])
+        location_codes = [{'location': code['code']} for code in codes]
+        # number of patients should equal number of location codes
+        hospital_numbers = hospital_numbers[:len(location_codes)]
+
+        for index, hospital_number in enumerate(hospital_numbers):
+            try:
+                api.transfer(cr, uid, hospital_number,
+                             location_codes[index], context=context)
+            except osv.except_osv as e:
+                _logger.error('Failed to transfer patient!' + str(e))
+                continue
+            else:
+                patients.append(hospital_number)
+
+        return patients
 
     def place_patients(self, cr, uid, patient_ids, ward_id):
         """
@@ -217,7 +230,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 bed_name = 'Bed ' + str(bed + 1)
                 bed_id = location_pool.create(cr, uid, {
                     'name': bed_name, 'parent_id': ward_id,
-                    'usage': 'bed', 'context_ids': [[6, False, context_id]]})
+                    'usage': 'bed', 'context_ids': [[6, False, context_id]],
+                    'code': fake.bothify('?#?#?#?#')})
                 identifiers[ward_name].append(bed_id)
                 _logger.info("'%s' created", bed_name)
         return identifiers

@@ -196,7 +196,6 @@ class TestApiDemo(TransactionCase):
 
     def test_discharge_patients_will_discharge_patients(self):
         cr, uid = self.cr, self.uid
-
         locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=2, hospital=True)
         ward_id = locations.get('Ward 1')[0]
         users = self.api_demo.generate_users(cr, uid, ward_id)
@@ -220,22 +219,65 @@ class TestApiDemo(TransactionCase):
         spells = self.activity_pool.browse(cr, uid, spell_activity_ids)
         self.assertTrue(dod == spells[0].date_terminated == spells[1].date_terminated)
 
-    # def test_transfer_patients_calls_transfer(self):
-    #     cr, uid = self.cr, self.uid
-    #     api = self.registry('nh.eobs.api')
-    #     api.transfer = MagicMock()
-    #
-    #     self.api_demo.transfer_patients(cr, uid, [1, 2], ['bed1', 'bed2'], context=None)
-    #     self.assertEquals(api.transfer.call_count, 2)
-    #     api.transfer.assert_any_call(cr, uid, 1, {'location': 'bed1'}, context=None)
-    #     api.transfer.assert_any_call(cr, uid, 2, {'location': 'bed2'}, context=None)
-    #     del api.transfer
-    #
-    # def test_get_available_location_codes(self):
-    #     cr, uid = self.cr, self.uid
-    #     location_pool = self.registry('nh.clinical.location')
-    #
-    #     res = self.api_demo.generate_locations(cr, uid, wards=1, beds=2, hospital=True)
-    #     location_codes = location_pool.browse(cr, uid, res['Ward 1']).mapped('code')
-    #     self.assertEquals(location_codes, '')
-    #     available_location_codes = self.api_demo._get_available_location_codes(cr, uid, location_codes)
+    def test_transfer_patients_calls_transfer(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock()
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}, {'code': 'bed2'}])
+
+        self.api_demo.transfer_patients(cr, uid, ['TESTN1', 'TESTN2'], ['bed1', 'bed2'], context=None)
+        self.assertEquals(api.transfer.call_count, 2)
+        api.transfer.assert_any_call(cr, uid, 'TESTN1', {'location': 'bed1'}, context=None)
+        api.transfer.assert_any_call(cr, uid, 'TESTN2', {'location': 'bed2'}, context=None)
+
+        del api.transfer
+        del location_pool.read_group
+
+    def test_transfer_patients_when_there_is_no_patient_or_spell(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock(side_effect=osv.except_osv('Error!', 'Patient not found!'))
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
+
+        result = self.api_demo.transfer_patients(cr, uid, ['TESTN1'], ['bed1'], context=None)
+        self.assertEquals(result, [])
+
+        del api.transfer
+        del location_pool.read_group
+
+    def test_transfer_patients_when_more_patients_than_available_locations(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock()
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
+
+        self.api_demo.transfer_patients(cr, uid, ['TESTN1', 'TESTN2'], ['bed1'])
+        self.assertEquals(api.transfer.call_count, 1)
+        api.transfer.assert_called_once_with(cr, uid, 'TESTN1', {'location': 'bed1'}, context=None)
+
+        del api.transfer
+        del location_pool.read_group
+
+    def test_transfer_patients_will_transfer_patients(self):
+        cr, uid = self.cr, self.uid
+        locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=4, hospital=True)
+        ward_id = locations.get('Ward 1')[0]
+        users = self.api_demo.generate_users(cr, uid, ward_id)
+        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 2)
+        results = self.location_pool.read(cr, uid, [ward_id], ['code'])
+        start_date = '2014-12-31 00:00:00'
+        data = {'location': results[0]['code'], 'start_date': start_date}
+        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        res = self.patient_pool.read(cr, uid, admit_patient_ids, ['other_identifier'])
+        other_identifiers = [res[0]['other_identifier'], res[1]['other_identifier']]
+        objects = self.location_pool.browse(cr, uid, locations.get('Ward 1'))
+        codes = [i.code for i in objects]
+
+        hospital_numbers = self.api_demo.transfer_patients(cr, users['adt'], other_identifiers, codes)
+        self.assertEquals(hospital_numbers, other_identifiers)
+
+
+
