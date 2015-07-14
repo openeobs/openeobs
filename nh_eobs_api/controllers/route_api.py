@@ -49,7 +49,6 @@ for r in route_list:
 
 class NH_API(openerp.addons.web.controllers.main.Home):
 
-    ####@http.route(URLS['json_share_patients'], type='http', auth='user')
     @http.route(**route_manager.expose_route('json_share_patients'))
     def share_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -71,7 +70,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_claim_patients'], type='http', auth='user')
     @http.route(**route_manager.expose_route('json_claim_patients'))
     def claim_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -86,7 +84,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_colleagues_list'], type='http', auth='user')
     @http.route(**route_manager.expose_route('json_colleagues_list'))
     def get_colleagues(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -97,8 +94,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=api.get_share_users(cr, uid, context=context))
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-
-    ####@http.route(URLS['json_invite_patients']+'<activity_id>', type='http', auth='user')
     @http.route(**route_manager.expose_route('json_invite_patients'))
     def get_shared_patients(self, *args, **kw):
         activity_id = kw.get('activity_id')  # TODO: add a check if is None (?)
@@ -116,7 +111,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=res)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_accept_patients']+'<activity_id>', type='http', auth='user')
     @http.route(**route_manager.expose_route('json_accept_patients'))
     def accept_shared_patients(self, *args, **kw):
         activity_id = kw.get('activity_id')  # TODO: add a check if is None (?)
@@ -136,7 +130,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=res)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_reject_patients']+'<activity_id>', type='http', auth='user')
     @http.route(**route_manager.expose_route('json_reject_patients'))
     def reject_shared_patients(self, *args, **kw):
         activity_id = kw.get('activity_id')  # TODO: add a check if is None (?)
@@ -156,7 +149,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=res)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_take_task']+'<task_id>', type="http", auth="user")
     @http.route(**route_manager.expose_route('json_take_task'))
     def take_task_ajax(self, *args, **kw):
         task_id = kw.get('task_id')  # TODO: add a check if is None (?)
@@ -189,7 +181,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                            data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_cancel_take_task']+'<task_id>', type="http", auth="user")
     @http.route(**route_manager.expose_route('json_cancel_take_task'))
     def cancel_take_task_ajax(self, *args, **kw):
         task_id = kw.get('task_id')  # TODO: add a check if is None (?)
@@ -222,7 +213,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_task_form_action']+'<observation>/<task_id>', type="http", auth="user")
     @http.route(**route_manager.expose_route('json_task_form_action'))
     def process_ajax_form(self, *args, **kw):
         observation = kw.get('observation')  # TODO: add a check if is None (?)
@@ -263,7 +253,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['calculate_obs_score']+'<observation>', type="http", auth="user")
     @http.route(**route_manager.expose_route('calculate_obs_score'))
     def calculate_obs_score(self, *args, **kw):
         observation = kw.get('observation')  # TODO: add a check if is None (?)
@@ -308,7 +297,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_partial_reasons'], type="http", auth="user")
     @http.route(**route_manager.expose_route('json_partial_reasons'))
     def get_partial_reasons(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -320,7 +308,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=ews_pool._partial_reasons)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_patient_info']+'<patient_id>', type="http", auth="user")
     @http.route(**route_manager.expose_route('json_patient_info'))
     def get_patient_info(self, *args, **kw):
         patient_id = kw.get('patient_id')  # TODO: add a check if is None (?)
@@ -341,7 +328,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_patient_barcode']+'<hospital_number>', type="http", auth="user")
     @http.route(**route_manager.expose_route('json_patient_barcode'))
     def get_patient_barcode(self, *args, **kw):
         hospital_number = kw.get('hospital_number')  # TODO: add a check if is None (?)
@@ -362,7 +348,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['confirm_clinical_notification']+'<task_id>', type="http", auth="user")
     @http.route(**route_manager.expose_route('confirm_clinical_notification'))
     def confirm_clinical(self, *args, **kw):
         task_id = kw.get('task_id')  # TODO: add a check if is None (?)
@@ -388,7 +373,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['cancel_clinical_notification']+'<task_id>', type="http", auth="user")
     @http.route(**route_manager.expose_route('cancel_clinical_notification'))
     def cancel_clinical(self, *args, **kw):
         task_id = kw.get('task_id')  # TODO: add a check if is None (?)
@@ -405,7 +389,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['ajax_task_cancellation_options'], type='http', auth='user')
     @http.route(**route_manager.expose_route('ajax_task_cancellation_options'))
     def cancel_reasons(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -417,7 +400,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=api_pool.get_cancel_reasons(cr, uid, context=context))
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['ajax_get_patient_obs']+'<patient_id>', type='http', auth='user')
     @http.route(**route_manager.expose_route('ajax_get_patient_obs'))
     def get_patient_obs(self, *args, **kw):
         patient_id = kw.get('patient_id')  # TODO: add a check if is None (?)
@@ -440,7 +422,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
-    ####@http.route(URLS['json_patient_form_action']+'<observation>/<patient_id>', type='http', auth='user')
     @http.route(**route_manager.expose_route('json_patient_form_action'))
     def process_patient_observation_form(self, *args, **kw):
         observation = kw.get('observation')  # TODO: add a check if is None (?)

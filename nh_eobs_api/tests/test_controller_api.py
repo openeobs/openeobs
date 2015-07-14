@@ -419,9 +419,69 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         try:
             api_pool.unassign(self.cr, self.auth_uid, task['id'])
         except Exception:
-            test_logger.info('test_09 seeems to have been unable to unassign task, potential nh.eobs.api issue?')
+            test_logger.info('test_11 seeems to have been unable to unassign task, potential nh.eobs.api issue?')
 
-    def test_12_route_cancel_take_task(self):
+    def test_12_route_take_task_different_user_group(self):
+        """ Test the take task route with a task id from a different user group
+        should return an error message
+        :return:
+        """
+        api_pool = self.registry('nh.eobs.api')
+        users_pool = self.registry['res.users']
+        other_name = 'winifred'
+        other_uid = users_pool.search(self.cr, self.uid, [['login', '=', other_name]])[0]
+        task = api_pool.get_activities(self.cr, other_uid, [])[0]
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('json_take_task')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route second time
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # check the output for error
+        expected_json = {
+            'reason': "Unable to assign to user."
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+                                 'Unable to take task',
+                                 'An error occurred when trying to take the task',
+                                 expected_json)
+        # self.assertEqual(False, True, 'Test currently not working due to needing to be able to assign task to different user to then unassign with user')
+
+    def test_13_route_take_task_different_user_assigned(self):
+        """ Test the take task route with a task id with a different user
+        already assigned should return an fail message
+        :return:
+        """
+        # api_pool = self.registry('nh.eobs.api')
+        # users_pool = self.registry['res.users']
+        # other_name = 'winifred'
+        # other_uid = users_pool.search(self.cr, self.uid, [['login', '=', other_name]])[0]
+        # task = api_pool.get_activities(self.cr, other_uid, [])[0]
+        #
+        # # Check if the route under test is actually present into the Route Manager
+        # route_under_test = route_manager.get_route('json_take_task')
+        # self.assertIsInstance(route_under_test, Route)
+        #
+        # # Access the route second time
+        # test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        # self.assertEqual(test_resp.status_code, 200)
+        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        #
+        # # check the output for error
+        # expected_json = {
+        #     'reason': "Unable to assign to user."
+        # }
+        # self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+        #                          'Unable to take task',
+        #                          'An error occurred when trying to take the task',
+        #                          expected_json)
+        self.assertEqual(False, True, 'Test currently not working due to needing to be able to assign task to different user to then assign with user')
+
+    def test_14_route_cancel_take_task(self):
         """ Test the cancel take task route, Should return a status to say have
         put the task back into the pool
         :return:
@@ -461,7 +521,68 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'The task has now been released back into the task pool',
                                  expected_json)
 
-    def test_13_route_task_form_action(self):
+    def test_15_route_cancel_take_task_already_unassigned(self):
+        """ Test the cancel take task route with a task that's already
+        unassigned, should return an error message
+        :return:
+        """
+        api_pool = self.registry('nh.eobs.api')
+        task = api_pool.get_activities(self.cr, self.auth_uid, [])[0]
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('json_cancel_take_task')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route first time
+        test_resp01 = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp01.status_code, 200)
+        self.assertEqual(test_resp01.headers['content-type'], 'application/json')
+
+        # Access the route second time
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # check the output for error
+        expected_json = {
+            'reason': 'Unable to unassign task.'
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+                                 'Unable to release task',
+                                 'An error occurred when trying to release the task back into the task pool',
+                                 expected_json)
+
+    def test_16_route_cancel_take_task_different_user(self):
+        """ Test the cancel take task route with a task id from a different user
+        should return an fail message
+        :return:
+        """
+        # api_pool = self.registry('nh.eobs.api')
+        # users_pool = self.registry['res.users']
+        # other_name = 'winifred'
+        # other_uid = users_pool.search(self.cr, self.uid, [['login', '=', other_name]])[0]
+        # task = api_pool.get_activities(self.cr, other_uid, [])[0]
+        #
+        # # Check if the route under test is actually present into the Route Manager
+        # route_under_test = route_manager.get_route('json_cancel_take_task')
+        # self.assertIsInstance(route_under_test, Route)
+        #
+        # # Access the route second time
+        # test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        # self.assertEqual(test_resp.status_code, 200)
+        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        #
+        # # check the output for error
+        # expected_json = {
+        #     'reason': "Can't cancel other user's task."
+        # }
+        # self.check_response_json(test_resp, ResponseJSON.STATUS_FAIL,
+        #                          'Unable to release task',
+        #                          'The task you are trying to release is being carried out by another user',
+        #                          expected_json)
+        self.assertEqual(False, True, 'Test currently not working due to needing to be able to assign task to different user to then unassign with user')
+
+    def test_17_route_task_form_action(self):
         """ Test the form submission route (task side), Should return a status
         and other activities to carry out
         :return:
@@ -505,7 +626,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         #                          expected_json)
         self.assertEqual(False, True, 'Test currently not working due to bug after submitting observation')
 
-    def test_14_route_confirm_notification(self):
+    def test_18_route_confirm_notification(self):
         """ Test the confirmation submission for notifications, should return a
         status and other activities to carry out
         :return:
@@ -543,7 +664,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         #                          expected_json)
         self.assertEqual(False, True, 'Test currently not working due to not being able to get triggered tasks to assert against')
 
-    def test_15_route_cancel_notification(self):
+    def test_19_route_cancel_notification(self):
         """ Test the cancel submission for notifications, should return a status
         and other activities to carry out
         :return:
@@ -577,7 +698,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
         # self.assertEqual(False, True, 'Test currently not working due to not being able to get triggered tasks to assert against')
 
-    def test_16_route_task_cancellation_options(self):
+    def test_20_route_task_cancellation_options(self):
         """ Test the route to get the task cancellation options, should return
         a list of task cancellation options
         :return:
@@ -602,7 +723,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     # Test Patient routes
 
-    def test_17_route_patient_info(self):
+    def test_21_route_patient_info(self):
         """ Test the route to get patient information, should return a dict of
         information on the patient
         :return:
@@ -625,7 +746,36 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Information on {0}'.format(patient['full_name']),
                                  patient)
 
-    def test_18_route_patient_barcode(self):
+    def test_22_route_patient_info_invalid_id(self):
+        """ Test the route to get patient information with an ID for a patient
+        not in the system, should return an error
+        :return:
+        """
+        api_pool = self.registry('nh.eobs.api')
+        patient_pool = self.registry('nh.clinical.patient')
+        patient = patient_pool.search(self.cr, self.uid, [])[-1]
+        patient = patient + 1
+        # patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+
+        # Check if the route under test is actually present into the Route Manager
+        route_under_test = route_manager.get_route('json_patient_info')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Access the route
+        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/' + str(patient), cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # Check the returned JSON data against the expected ones
+        expected_json = {
+            'error': 'Patient not found.'
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+                                 'Patient not found',
+                                 'Unable to get patient with id provided',
+                                 expected_json)
+
+    def test_23_route_patient_barcode(self):
         """ Test the route to get patient information when sent a hospital no
         from a barcode, should return a dict of information on the patient
         :return:
@@ -649,7 +799,35 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Information on {0}'.format(patient['full_name']),
                                  patient_info)
 
-    def test_19_route_patient_obs(self):
+    def test_24_route_patient_barcode_invalid_id(self):
+        """ Test the route to get patient information when sent an invalid
+        hospital no from a barcode, should return an error
+        :return:
+        """
+        # api_pool = self.registry('nh.eobs.api')
+        # patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        #
+        # # Check if the route under test is actually present into the Route Manager
+        # route_under_test = route_manager.get_route('json_patient_barcode')
+        # self.assertIsInstance(route_under_test, Route)
+        #
+        # # Access the route
+        # test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/barcode/this_should_not_work', cookies=self.auth_resp.cookies)
+        # self.assertEqual(test_resp.status_code, 200)
+        # self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        #
+        # expected_json = {
+        #     'error': 'Patient not found.'
+        # }
+        # # Check the returned JSON data against the expected ones
+        # self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+        #                          'Patient not found',
+        #                          'Unable to get patient with id provided',
+        #                          expected_json)
+
+        self.assertEqual(False, True, 'Test not implemented due to lower level api not working as expected')
+
+    def test_25_route_patient_obs(self):
         """ Test the route to get the observation data for a patient, should
         return an array of dictionaries with the observations
         :return:
@@ -682,7 +860,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Observations for {0}'.format(patient['full_name']),
                                  expected_json)
 
-    def test_20_route_patient_form_action(self):
+    def test_26_route_patient_form_action(self):
         """ Test the route to submit an observation via the patient form, should
         return a status and the ids of other activities to carry out
         :return:
