@@ -134,7 +134,46 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  '<p><strong>Clinical risk: Medium</strong></p><p>Please confirm you want to submit this score</p>',
                                  expected_json)
 
-    def test_02_route_json_partial_reasons(self):
+    def test_02_route_calculate_gcs_score(self):
+        """ Test the GCS score route, send GCS parameters to route and make sure
+        it sends back score but not clinical risk
+        :return:
+        """
+        # check if the route under test is actually present in the Route Manager
+        route_under_test = route_manager.get_route('calculate_obs_score')
+        self.assertIsInstance(route_under_test, Route)
+
+        # Create demo data
+        demo_data = {
+            'eyes': 4,
+            'verbal': 5,
+            'motor': 6,
+            'startTimestamp': 0,
+        }
+
+        # Access the route
+        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/observation/score/gcs/',
+                                  data=json.dumps(demo_data),
+                                  cookies=self.auth_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        expected_json = {
+            'score': {
+                'score': 15
+            },
+            'modal_vals': {
+                'next_action': 'json_patient_form_action',
+                'title': 'Submit GCS of 15',
+                'content': '<p>Please confirm you want to submit this score</p>'
+            }
+        }
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Submit GCS of 15',
+                                 '<p>Please confirm you want to submit this score</p>',
+                                 expected_json)
+
+    def test_03_route_json_partial_reasons(self):
         """ Test the partial reasons route attribute of the EWS class
         (set in nh_observations)
         :return:
@@ -156,7 +195,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     # Test Stand-in routes
-    def test_03_route_share_patients(self):
+    def test_04_route_share_patients(self):
         """ Test the share patients route, a post request with user_ids and
         patient_ids should return a list of users who you've invited to
         follow your patients
@@ -201,7 +240,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         return api_pool.remove_followers(self.cr, self.auth_uid, patient_ids)
 
-    def test_04_route_claim_patients(self):
+    def test_05_route_claim_patients(self):
         """ Test the claim patients route, a post request with patient_ids
         should return a confirmation that you've taken those patients back
         :return:
@@ -243,7 +282,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Followers removed successfully',
                                  expected_json)
 
-    def test_05_route_colleagues_list(self):
+    def test_06_route_colleagues_list(self):
         """ Test the colleagues list route, should return a list of colleagues
         you can invite to follow your patients
         :return:
@@ -264,7 +303,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Choose colleagues for stand-in',
                                  expected_json)
 
-    def test_06_route_invite_user(self):
+    def test_07_route_invite_user(self):
         """ Test patients you're invited to follow route, should return a list
         of patients that you've been invited to follow and their activities
         :return:
@@ -313,14 +352,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     #     return api_pool.remove_followers(cr, other_login['id'], patient_ids)
         self.assertEqual(False, True, 'Test currently not working due to inability to create concurrent sessions')
 
-    def test_07_route_accept_user(self):
+    def test_08_route_accept_user(self):
         """ Test accept invitation to follow patient route, should return an id
         of an activity and a true status
         :return:
         """
         self.assertEqual(False, True, 'Test not implemented due issue with test 06')
 
-    def test_08_route_reject_user(self):
+    def test_09_route_reject_user(self):
         """ Test rejection of invitation to follow patient route, should return
         an activity id and a true status
         :return:
@@ -330,7 +369,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     # Test Task routes
 
-    def test_09_route_take_task(self):
+    def test_10_route_take_task(self):
         """ Test the take task route, Depending on the elligability to take the
         task should return a status or an error
         :return:
@@ -360,7 +399,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         except Exception:
             test_logger.info('test_09 seeems to have been unable to unassign task, potential nh.eobs.api issue?')
 
-    def test_10_route_cancel_take_task(self):
+    def test_11_route_cancel_take_task(self):
         """ Test the cancel take task route, Should return a status to say have
         put the task back into the pool
         :return:
@@ -400,7 +439,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'The task has now been released back into the task pool',
                                  expected_json)
 
-    def test_11_route_task_form_action(self):
+    def test_12_route_task_form_action(self):
         """ Test the form submission route (task side), Should return a status
         and other activities to carry out
         :return:
@@ -444,7 +483,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         #                          expected_json)
         self.assertEqual(False, True, 'Test currently not working due to bug after submitting observation')
 
-    def test_12_route_confirm_notification(self):
+    def test_13_route_confirm_notification(self):
         """ Test the confirmation submission for notifications, should return a
         status and other activities to carry out
         :return:
@@ -482,7 +521,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         #                          expected_json)
         self.assertEqual(False, True, 'Test currently not working due to not being able to get triggered tasks to assert against')
 
-    def test_13_route_cancel_notification(self):
+    def test_14_route_cancel_notification(self):
         """ Test the cancel submission for notifications, should return a status
         and other activities to carry out
         :return:
@@ -516,7 +555,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
         # self.assertEqual(False, True, 'Test currently not working due to not being able to get triggered tasks to assert against')
 
-    def test_14_route_task_cancellation_options(self):
+    def test_15_route_task_cancellation_options(self):
         """ Test the route to get the task cancellation options, should return
         a list of task cancellation options
         :return:
@@ -541,7 +580,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     # Test Patient routes
 
-    def test_15_route_patient_info(self):
+    def test_16_route_patient_info(self):
         """ Test the route to get patient information, should return a dict of
         information on the patient
         :return:
@@ -564,7 +603,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Information on {0}'.format(patient['full_name']),
                                  patient)
 
-    def test_16_route_patient_barcode(self):
+    def test_17_route_patient_barcode(self):
         """ Test the route to get patient information when sent a hospital no
         from a barcode, should return a dict of information on the patient
         :return:
@@ -588,7 +627,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Information on {0}'.format(patient['full_name']),
                                  patient_info)
 
-    def test_17_route_patient_obs(self):
+    def test_18_route_patient_obs(self):
         """ Test the route to get the observation data for a patient, should
         return an array of dictionaries with the observations
         :return:
@@ -621,7 +660,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'Observations for {0}'.format(patient['full_name']),
                                  expected_json)
 
-    def test_18_route_patient_form_action(self):
+    def test_19_route_patient_form_action(self):
         """ Test the route to submit an observation via the patient form, should
         return a status and the ids of other activities to carry out
         :return:
