@@ -26,28 +26,132 @@ class TestApiDemo(TransactionCase):
         if not self.adtuid_ids:
             raise osv.except_osv('No ADT User!', 'ADT user required to register patient.')
 
-    def test_generate_patients(self):
+    ##############
+    # Unit Tests #
+    ##############
+
+    def test_01_load_users_calls_generate_users(self):
         cr, uid = self.cr, self.uid
+        config = {
+            'patients': 2,
+            'users': {'nurse': 2, 'jnr_doctor': 2},
+            'wards': 2, 'beds': 2,
+        }
+        self.api_demo.generate_users = MagicMock()
+        self.api_demo._load_users(cr, uid, [1, 2], config['users'])
 
-        patient_ids = self.api_demo.generate_patients(cr, uid, self.adtuid_ids[0], 10)
-        self.assertEquals(10, len(patient_ids))
-        # test if gender, sex, ethnicity, names, dob have been assigned.
-        for id in patient_ids:
-            patient = self.patient_pool.browse(cr, uid, id)
-            self.assertIn(patient.gender, ['M', 'F'])
-            self.assertIn(patient.sex, ['M', 'F'])
-            self.assertIn(patient.ethnicity, [e[0] for e in self.patient_pool._ethnicity])
-            self.assertEquals(len(patient.family_name) > 0, True)
-            self.assertEquals(len(patient.middle_names) > 0, True)
-            self.assertEquals(len(patient.given_name) > 0, True)
-            self.assertEquals(len(patient.dob) > 0, True)
+        self.assertEquals(self.api_demo.generate_users.call_count, 2)
+        self.api_demo.generate_users.assert_any_call(cr, uid, 1, data=config['users'])
+        self.api_demo.generate_users.assert_any_call(cr, uid, 2, data=config['users'])
 
-        # test for unexpected arguments.
-        self.assertEquals(0, len(self.api_demo.generate_patients(cr, uid, self.adtuid_ids[0], 0)))
-        self.assertEquals(0, len(self.api_demo.generate_patients(cr, uid, self.adtuid_ids[0], -1)))
-        self.assertRaises(TypeError, self.api_demo.generate_patients, cr, uid, self.adtuid_ids[0], "test")
+        del self.api_demo.generate_users
 
-    def test_generate_locations(self):
+    def test_02_load_patients_calls_generate_patients(self):
+        cr, uid = self.cr, self.uid
+        self.api_demo.generate_patients = MagicMock()
+        self.api_demo._load_patients(cr, uid, 2, 2)
+
+        self.assertEquals(self.api_demo.generate_patients.call_count, 2)
+        self.api_demo.generate_patients.assert_any_call(cr, uid, 2)
+        self.api_demo.generate_patients.assert_any_call(cr, uid, 2)
+
+        del self.api_demo.generate_patients
+
+    def test_03_load_admit_patients_calls_admit_patients(self):
+        cr, uid = self.cr, self.uid
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read = MagicMock(return_value=[{'code': 'W1'}, {'code': 'W2'}])
+
+        self.api_demo.admit_patients = MagicMock(side_effect=([1, 2], [3, 4]))
+
+        result = self.api_demo._load_admit_patients(cr, uid, [1, 2], [[1, 2], [3, 4]], days=2)
+        call_count = self.api_demo.admit_patients.call_count
+        self.assertEquals(2, call_count)
+        self.assertEquals([[1, 2], [3, 4]], result)
+
+        del self.api_demo.admit_patients
+        del location_pool.read
+
+    def test_04_load_place_patients_calls_place_patients(self):
+        cr, uid = self.cr, self.uid
+        self.api_demo.place_patients = MagicMock(side_effect=([1, 2], [3, 4]))
+
+        results = self.api_demo._load_place_patients(cr, uid, [1, 2], [[1, 2], [3, 4]], context=None)
+        self.assertEquals([[1, 2], [3, 4]], results)
+        call_count = self.api_demo.place_patients.call_count
+        self.assertEquals(2, call_count)
+        self.api_demo.place_patients.assert_any_call(cr, uid, [1, 2], 1, context=None)
+        self.api_demo.place_patients.assert_any_call(cr, uid, [3, 4], 2, context=None)
+
+        del self.api_demo.place_patients
+
+    def test_04_transfer_patients_calls_transfer(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock()
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}, {'code': 'bed2'}])
+
+        self.api_demo.transfer_patients(cr, uid, ['TESTN1', 'TESTN2'], ['bed1', 'bed2'], context=None)
+        self.assertEquals(api.transfer.call_count, 2)
+        api.transfer.assert_any_call(cr, uid, 'TESTN1', {'location': 'bed1'}, context=None)
+        api.transfer.assert_any_call(cr, uid, 'TESTN2', {'location': 'bed2'}, context=None)
+
+        del api.transfer
+        del location_pool.read_group
+
+    def test_05_transfer_patients_when_there_is_no_patient_or_spell(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock(side_effect=osv.except_osv('Error!', 'Patient not found!'))
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
+
+        result = self.api_demo.transfer_patients(cr, uid, ['TESTN1'], ['bed1'], context=None)
+        self.assertEquals(result, [])
+
+        del api.transfer
+        del location_pool.read_group
+
+    def test_06_transfer_patients_when_more_patients_than_available_locations(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.transfer = MagicMock()
+        location_pool = self.registry('nh.clinical.location')
+        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
+
+        self.api_demo.transfer_patients(cr, uid, ['TESTN1', 'TESTN2'], ['bed1'])
+        self.assertEquals(api.transfer.call_count, 1)
+        api.transfer.assert_called_once_with(cr, uid, 'TESTN1', {'location': 'bed1'}, context=None)
+
+        del api.transfer
+        del location_pool.read_group
+
+    def test_07_discharge_patients_calls_discharge(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.discharge = MagicMock()
+
+        self.api_demo.discharge_patients(cr, uid, [1, 2], {'discharge_date': '2015-01-01 00:00:00'})
+        self.assertEquals(api.discharge.call_count, 2)
+        api.discharge.assert_any_call(cr, uid, 1, {'discharge_date': '2015-01-01 00:00:00'}, context=None)
+        api.discharge.assert_any_call(cr, uid, 2, {'discharge_date': '2015-01-01 00:00:00'}, context=None)
+        del api.discharge
+
+    def test_08_discharge_patients_when_there_is_no_patient_or_spell(self):
+        cr, uid = self.cr, self.uid
+        api = self.registry('nh.eobs.api')
+        api.discharge = MagicMock(side_effect=osv.except_osv('Error!', 'Patient not found!'))
+
+        result = self.api_demo.discharge_patients(cr, uid, [1], {'discharge_date': '2015-01-01 00:00:00'})
+        self.assertEquals(result, [])
+        del api.discharge
+
+    #####################
+    # Integration Tests #
+    #####################
+
+    def test_09_generate_locations(self):
         cr, uid = self.cr, self.uid
 
         identifiers = self.api_demo.generate_locations(cr, uid, wards=2, beds=2)
@@ -61,7 +165,7 @@ class TestApiDemo(TransactionCase):
         identifiers = self.api_demo.generate_locations(cr, uid)
         self.assertEquals(0, len(identifiers))
 
-    def test_generate_users(self):
+    def test_10_generate_users(self):
         cr, uid = self.cr, self.uid
         hospital_id = self.location_pool.search(cr, uid, [['id', '>', 0]])[0]
         ward_id = self.location_pool.create(cr, uid, {
@@ -74,11 +178,10 @@ class TestApiDemo(TransactionCase):
         self.assertEquals(user.location_ids.name, 'ward_name')
         # test for correct login
         doctor = self.user_pool.browse(cr, uid, user_ids['jnr_doctor'])
-        self.assertEquals(doctor.login, 'jnr_doctor_' + str(ward_id))
+        self.assertEquals(doctor.login, 'jnr_doctor_' + str(1) + '_' + str(ward_id))
         # test group is properly assigned
         adt = self.user_pool.browse(cr, uid, user_ids['adt'])
-        self.assertIn('NH Clinical Admin Group', [group.name for group in adt.groups_id])
-        self.assertIn('Contact Creation', [group.name for group in adt.groups_id])
+        # self.assertIn('NH Clinical Admin Group', [group.name for group in adt.groups_id])
         self.assertIn('Employee', [group.name for group in adt.groups_id])
 
         # Scenario: create a second ward with unique users
@@ -90,28 +193,70 @@ class TestApiDemo(TransactionCase):
         self.assertEquals(user_2.location_ids.name, 'ward_name_2')
         self.assertNotEquals(user_2.id, user.id)
 
-    def test_admit_patients(self):
+    def test_11_generate_users_with_multiple_users_of_identical_type(self):
+        cr, uid = self.cr, self.uid
+        hospital_id = self.location_pool.search(cr, uid, [['id', '>', 0]])[0]
+        ward_id = self.location_pool.create(cr, uid, {
+            'name': 'ward_name', 'parent_id': hospital_id})
+        users = {'nurse': 4, 'jnr_doctor': 2}
+
+        # test for 4 nurses
+        user_ids = self.api_demo.generate_users(cr, uid, ward_id, data=users)
+        nurses = self.user_pool.browse(cr, uid, user_ids['nurse'])
+        self.assertEquals(len(nurses), 4)
+        self.assertEquals(nurses[0].location_ids.id, ward_id)
+        # test for 2 nurses
+        doctors = self.user_pool.browse(cr, uid, user_ids['jnr_doctor'])
+        self.assertEquals(len(doctors), 2)
+        self.assertEquals(doctors[0].location_ids.id, ward_id)
+        # test for 1 nurse
+        registrar = self.user_pool.browse(cr, uid, user_ids['registrar'])
+        self.assertEquals(len(registrar), 1)
+        self.assertEquals(registrar[0].location_ids.id, ward_id)
+
+    def test_12_generate_patients(self):
+        cr, uid = self.cr, self.uid
+
+        patient_ids = self.api_demo.generate_patients(cr, self.adtuid_ids[0], 10)
+        self.assertEquals(10, len(patient_ids))
+        # test if gender, sex, ethnicity, names, dob have been assigned.
+        for id in patient_ids:
+            patient = self.patient_pool.browse(cr, uid, id)
+            self.assertIn(patient.gender, ['M', 'F'])
+            self.assertIn(patient.sex, ['M', 'F'])
+            self.assertIn(patient.ethnicity, [e[0] for e in self.patient_pool._ethnicity])
+            self.assertEquals(len(patient.family_name) > 0, True)
+            self.assertEquals(len(patient.middle_names) > 0, True)
+            self.assertEquals(len(patient.given_name) > 0, True)
+            self.assertEquals(len(patient.dob) > 0, True)
+
+        # test for unexpected arguments.
+        self.assertEquals(0, len(self.api_demo.generate_patients(cr, self.adtuid_ids[0], 0)))
+        self.assertEquals(0, len(self.api_demo.generate_patients(cr, self.adtuid_ids[0], -1)))
+        self.assertRaises(TypeError, self.api_demo.generate_patients, cr, self.adtuid_ids[0], "test")
+
+    def test_13_admit_patients(self):
         cr, uid, = self.cr, self.uid
 
         # create patients and locations, register patients.
         locations = self.api_demo.generate_locations(cr, uid, wards=1, hospital=True)
         ward_id = locations.get('Ward 1')[0]
         users = self.api_demo.generate_users(cr, uid, ward_id)
-        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 10)
+        patient_ids = self.api_demo.generate_patients(cr, users['adt'][0], 10)
         results = self.location_pool.read(cr, uid, [ward_id], ['code'])
         data = {'location': results[0]['code'], 'start_date': datetime.now()}
 
         # Scenario 1: test patients can be successfully admitted.
-        admitted_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids[:5], users['adt'], data)
+        admitted_patient_ids = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids[:5], data)
         self.assertEquals(patient_ids[:5], admitted_patient_ids)
 
         # Scenario 2: test patients cannot be admitted more than once.
-        admitted_patient_ids_2 = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        admitted_patient_ids_2 = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
         self.assertEquals(admitted_patient_ids_2, patient_ids[5:])
-        empty_list = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        empty_list = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
         self.assertEquals(empty_list, [])
 
-    def test_place_patients(self):
+    def test_14_place_patients(self):
         cr, uid = self.cr, self.uid
 
         locations = self.api_demo.generate_locations(cr, uid, wards=3, beds=5, hospital=True)
@@ -119,10 +264,10 @@ class TestApiDemo(TransactionCase):
         # Scenario 1: There are vacant beds for all patients.
         ward_id = locations.get('Ward 1')[0]
         users = self.api_demo.generate_users(cr, uid, ward_id)
-        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 3)
+        patient_ids = self.api_demo.generate_patients(cr, users['adt'][0], 3)
         results = self.location_pool.read(cr, uid, [ward_id], ['code'])
         data = {'location': results[0]['code'], 'start_date': datetime.now()}
-        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        admit_patient_ids = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
 
         bed_ids = self.api_demo.place_patients(cr, uid, admit_patient_ids, ward_id)
         self.assertEquals(len(bed_ids), 3)
@@ -133,10 +278,10 @@ class TestApiDemo(TransactionCase):
         # Scenario 2: There are not enough vacant beds for all patients.
         ward_id = locations.get('Ward 2')[0]
         users = self.api_demo.generate_users(cr, uid, ward_id)
-        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 6)
+        patient_ids = self.api_demo.generate_patients(cr, users['adt'][0], 6)
         results = self.location_pool.read(cr, uid, [ward_id], ['code'])
         data = {'location': results[0]['code'], 'start_date': datetime.now()}
-        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        admit_patient_ids = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
 
         bed_ids = self.api_demo.place_patients(cr, uid, admit_patient_ids, ward_id)
         # should be 5 patients placed
@@ -145,65 +290,40 @@ class TestApiDemo(TransactionCase):
         self.assertEquals(bed_ids, [bed.id for bed in ward.child_ids if not bed.is_available])
 
         # Scenario 3: There are no beds available.
-        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 3)
-        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        patient_ids = self.api_demo.generate_patients(cr, users['adt'][0], 3)
+        admit_patient_ids = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
         bed_ids = self.api_demo.place_patients(cr, uid, admit_patient_ids, ward_id)
         self.assertEquals(len(bed_ids), 0)
         self.assertEquals([], [bed.id for bed in ward.child_ids if bed.is_available])
 
-    def test_generate_news_simulation(self):
+    def test_15_transfer_patients_will_transfer_patients(self):
         cr, uid = self.cr, self.uid
-
-        locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=3, hospital=True)
+        locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=4, hospital=True)
         ward_id = locations.get('Ward 1')[0]
         users = self.api_demo.generate_users(cr, uid, ward_id)
-        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 3)
+        patient_ids = self.api_demo.generate_patients(cr, users['adt'][0], 2)
         results = self.location_pool.read(cr, uid, [ward_id], ['code'])
-        # generate eobs for 2 days
-        start_date = datetime.now() - timedelta(days=2)
+        start_date = '2014-12-31 00:00:00'
         data = {'location': results[0]['code'], 'start_date': start_date}
-        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        admit_patient_ids = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
+        res = self.patient_pool.read(cr, uid, admit_patient_ids, ['other_identifier'])
+        other_identifiers = [res[0]['other_identifier'], res[1]['other_identifier']]
+        objects = self.location_pool.browse(cr, uid, locations.get('Ward 1'))
+        codes = [i.code for i in objects]
 
-        self.api_demo.place_patients(cr, uid, admit_patient_ids, ward_id)
-        result = self.api_demo.generate_news_simulation(cr, uid, begin_date=datetime.strftime(start_date, dtf),
-                                                        patient_ids=admit_patient_ids)
-        self.assertEquals(result, True)
-        scheduled_ids = self.activity_pool.search(cr, uid, [
-            ['patient_id', 'in', patient_ids],
-            ['data_model', '=', 'nh.clinical.patient.observation.ews'],
-            ['state', 'not in', ['completed', 'cancelled']]])
-        self.assertEquals(len(scheduled_ids), 3)
+        hospital_numbers = self.api_demo.transfer_patients(cr, users['adt'][0], other_identifiers, codes)
+        self.assertEquals(hospital_numbers, other_identifiers)
 
-    def test_discharge_patients_calls_discharge(self):
-        cr, uid = self.cr, self.uid
-        api = self.registry('nh.eobs.api')
-        api.discharge = MagicMock()
-
-        self.api_demo.discharge_patients(cr, uid, [1, 2], {'discharge_date': '2015-01-01 00:00:00'})
-        self.assertEquals(api.discharge.call_count, 2)
-        api.discharge.assert_any_call(cr, uid, 1, {'discharge_date': '2015-01-01 00:00:00'}, context=None)
-        api.discharge.assert_any_call(cr, uid, 2, {'discharge_date': '2015-01-01 00:00:00'}, context=None)
-        del api.discharge
-
-    def test_discharge_patients_when_there_is_no_patient_or_spell(self):
-        cr, uid = self.cr, self.uid
-        api = self.registry('nh.eobs.api')
-        api.discharge = MagicMock(side_effect=osv.except_osv('Error!', 'Patient not found!'))
-
-        result = self.api_demo.discharge_patients(cr, uid, [1], {'discharge_date': '2015-01-01 00:00:00'})
-        self.assertEquals(result, [])
-        del api.discharge
-
-    def test_discharge_patients_will_discharge_patients(self):
+    def test_16_discharge_patients_will_discharge_patients(self):
         cr, uid = self.cr, self.uid
         locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=2, hospital=True)
         ward_id = locations.get('Ward 1')[0]
         users = self.api_demo.generate_users(cr, uid, ward_id)
-        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 2)
+        patient_ids = self.api_demo.generate_patients(cr, users['adt'][0], 2)
         results = self.location_pool.read(cr, uid, [ward_id], ['code'])
         start_date = '2014-12-31 00:00:00'
         data = {'location': results[0]['code'], 'start_date': start_date}
-        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
+        admit_patient_ids = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
         res = self.patient_pool.read(cr, uid, admit_patient_ids, ['other_identifier'])
         other_identifiers = [res[0]['other_identifier'], res[1]['other_identifier']]
 
@@ -219,65 +339,28 @@ class TestApiDemo(TransactionCase):
         spells = self.activity_pool.browse(cr, uid, spell_activity_ids)
         self.assertTrue(dod == spells[0].date_terminated == spells[1].date_terminated)
 
-    def test_transfer_patients_calls_transfer(self):
+    def test_17_generate_news_simulation(self):
         cr, uid = self.cr, self.uid
-        api = self.registry('nh.eobs.api')
-        api.transfer = MagicMock()
-        location_pool = self.registry('nh.clinical.location')
-        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}, {'code': 'bed2'}])
 
-        self.api_demo.transfer_patients(cr, uid, ['TESTN1', 'TESTN2'], ['bed1', 'bed2'], context=None)
-        self.assertEquals(api.transfer.call_count, 2)
-        api.transfer.assert_any_call(cr, uid, 'TESTN1', {'location': 'bed1'}, context=None)
-        api.transfer.assert_any_call(cr, uid, 'TESTN2', {'location': 'bed2'}, context=None)
-
-        del api.transfer
-        del location_pool.read_group
-
-    def test_transfer_patients_when_there_is_no_patient_or_spell(self):
-        cr, uid = self.cr, self.uid
-        api = self.registry('nh.eobs.api')
-        api.transfer = MagicMock(side_effect=osv.except_osv('Error!', 'Patient not found!'))
-        location_pool = self.registry('nh.clinical.location')
-        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
-
-        result = self.api_demo.transfer_patients(cr, uid, ['TESTN1'], ['bed1'], context=None)
-        self.assertEquals(result, [])
-
-        del api.transfer
-        del location_pool.read_group
-
-    def test_transfer_patients_when_more_patients_than_available_locations(self):
-        cr, uid = self.cr, self.uid
-        api = self.registry('nh.eobs.api')
-        api.transfer = MagicMock()
-        location_pool = self.registry('nh.clinical.location')
-        location_pool.read_group = MagicMock(return_value=[{'code': 'bed1'}])
-
-        self.api_demo.transfer_patients(cr, uid, ['TESTN1', 'TESTN2'], ['bed1'])
-        self.assertEquals(api.transfer.call_count, 1)
-        api.transfer.assert_called_once_with(cr, uid, 'TESTN1', {'location': 'bed1'}, context=None)
-
-        del api.transfer
-        del location_pool.read_group
-
-    def test_transfer_patients_will_transfer_patients(self):
-        cr, uid = self.cr, self.uid
-        locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=4, hospital=True)
+        locations = self.api_demo.generate_locations(cr, uid, wards=1, beds=3, hospital=True)
         ward_id = locations.get('Ward 1')[0]
         users = self.api_demo.generate_users(cr, uid, ward_id)
-        patient_ids = self.api_demo.generate_patients(cr, uid, users['adt'], 2)
+        patient_ids = self.api_demo.generate_patients(cr, users['adt'][0], 3)
         results = self.location_pool.read(cr, uid, [ward_id], ['code'])
-        start_date = '2014-12-31 00:00:00'
+        # generate eobs for 2 days
+        start_date = datetime.now() - timedelta(days=2)
         data = {'location': results[0]['code'], 'start_date': start_date}
-        admit_patient_ids = self.api_demo.admit_patients(cr, uid, patient_ids, users['adt'], data)
-        res = self.patient_pool.read(cr, uid, admit_patient_ids, ['other_identifier'])
-        other_identifiers = [res[0]['other_identifier'], res[1]['other_identifier']]
-        objects = self.location_pool.browse(cr, uid, locations.get('Ward 1'))
-        codes = [i.code for i in objects]
+        admit_patient_ids = self.api_demo.admit_patients(cr, users['adt'][0], patient_ids, data)
 
-        hospital_numbers = self.api_demo.transfer_patients(cr, users['adt'], other_identifiers, codes)
-        self.assertEquals(hospital_numbers, other_identifiers)
+        self.api_demo.place_patients(cr, uid, admit_patient_ids, ward_id)
+        result = self.api_demo.generate_news_simulation(cr, uid, begin_date=datetime.strftime(start_date, dtf),
+                                                        patient_ids=admit_patient_ids)
+        self.assertEquals(result, True)
+        scheduled_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', 'in', patient_ids],
+            ['data_model', '=', 'nh.clinical.patient.observation.ews'],
+            ['state', 'not in', ['completed', 'cancelled']]])
+        self.assertEquals(len(scheduled_ids), 3)
 
-
-
+    def test_demo_loader(self):
+        pass
