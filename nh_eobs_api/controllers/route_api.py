@@ -248,8 +248,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         response_data = {'related_tasks': triggered_tasks}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='',
-                                                   description='',
+                                                   title='Successfully submitted observation',
+                                                   description='Here are related tasks based on the observation',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
