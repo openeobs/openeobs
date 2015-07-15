@@ -26,7 +26,21 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
     def demo_loader(self, cr, uid, config_file):
         """
-        Takes a dictionary objects for demo environment.
+        Creates the demo environment using the parameters specified in the
+        JSON configuration file.
+        :param config_file: the JSON file with parameters for your
+            demo environment...
+            {
+                "patients": 10      # per ward
+                "wards": 5,
+                "beds": 20          # per ward
+                "days": 3           # days ago patients were admitted
+                "users": {          # users per ward
+                            "nurse": 5,
+                            "jnr_doctor": 2,
+                            "HCA": 3,
+                }
+            }
         :return: True
         """
         config = self._file_loader(cr, uid, config_file)
@@ -42,9 +56,9 @@ class nh_clinical_api_demo(orm.AbstractModel):
                                                          ward_ids,
                                                          patient_ids,
                                                          config['days'])
-        bed_ids = self._load_place_patients(cr, adt_uid, ward_ids,
-                                            admitted_patient_ids)
-        return user_ids
+        self._load_place_patients(cr, adt_uid, ward_ids, admitted_patient_ids)
+
+        return True
 
     def _load_users(self, cr, uid, ward_ids, users):
         """
@@ -157,6 +171,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                     'code': bed_code})
                 identifiers[ward_name].append(bed_id)
                 _logger.info("'%s' created", bed_name)
+
         return identifiers
 
     def generate_users(self, cr, uid, location_id, data=dict()):
@@ -236,7 +251,6 @@ class nh_clinical_api_demo(orm.AbstractModel):
         api = self.pool['nh.eobs.api']
         patient_pool = self.pool['nh.clinical.patient']
 
-        # loop through ADT user ids, creating patients for each ADT.
         for data in range(patients):
             gender = fake.random_element(['M', 'F'])
             other_identifier = fake.bothify('#?#?#?#?#')
@@ -250,7 +264,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 'sex': gender,
                 'ethnicity': fake.random_element(patient_pool._ethnicity)[0]
             }
-            # create patient
+
             api.register(cr, uid, other_identifier, patient, context=context)
             _logger.info("Patient '%s' created", other_identifier)
             identifiers += patient_pool.search(cr, uid, [['other_identifier', '=', other_identifier]], context=context)
@@ -339,7 +353,6 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 api.transfer(cr, uid, hospital_number,
                              location_codes[index], context=context)
             except osv.except_osv as e:
-                # a list of lists of bed ids of placed patients
                 _logger.error('Failed to transfer patient!' + str(e))
                 continue
             else:
