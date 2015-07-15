@@ -204,7 +204,8 @@
                                         <field name="assigned_hca_ids" widget="many2many_tags"/>
                                         <field name="assigned_nurse_ids" widget="many2many_tags"/>
                                         <field name="patient_ids" widget="many2many_tags" readonly="1"/>
-                                        <field name="patient_follower_ids" widget="many2many_tags"/>
+                                        <field name="nurse_follower_ids" widget="many2many_tags"/>
+                                        <field name="hca_follower_ids" widget="many2many_tags"/>
                                     </tree>
                                 </field>
                             </page>
