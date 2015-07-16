@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_activity.activity import except_if
 import logging
 import bisect
 from openerp import SUPERUSER_ID

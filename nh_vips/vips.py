@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp.osv import orm, fields, osv
-from openerp.addons.nh_activity.activity import except_if
+from openerp.osv import orm, fields
 import logging
 import bisect
 from openerp import SUPERUSER_ID
@@ -148,14 +147,4 @@ class nh_clinical_patient_observation_vips(orm.Model):
                                            activity.data_ref.patient_id.id,
                                            self._name,
                                            self._POLICY['frequencies'][case], context=context)
-        return res
-
-    def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
-        activity_pool = self.pool['nh.activity']
-        domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]
-        ids = activity_pool.search(cr, SUPERUSER_ID, domain)
-        except_if(len(ids),
-                  msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
-                  % (self._name, str(ids)))
-        res = super(nh_clinical_patient_observation_vips, self).create_activity(cr, uid, vals_activity, vals_data, context)
         return res

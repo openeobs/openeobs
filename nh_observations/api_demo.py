@@ -1,7 +1,5 @@
 from openerp.osv import orm
-from openerp import SUPERUSER_ID
 import logging
-from openerp.addons.nh_activity.activity import except_if
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
