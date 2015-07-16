@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_activity.activity import except_if
-from openerp.addons.nh_observations.parameters import frequencies
-from datetime import datetime as dt, timedelta as td
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from dateutil.relativedelta import relativedelta as rd
 import logging
 import bisect
 from openerp import SUPERUSER_ID
-from math import fabs
 
 _logger = logging.getLogger(__name__)
 
@@ -134,8 +128,9 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         activity_pool = self.pool['nh.activity']
         domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]
         ids = activity_pool.search(cr, SUPERUSER_ID, domain)
-        except_if(len(ids),
-                  msg="Having more than one activity of type '%s' is restricted. Terminate activities with ids=%s first"
-                  % (self._name, str(ids)))
+        if len(ids):
+            raise osv.except_osv("GCS Create Error!",
+                                 "Having more than one activity of type '%s' is restricted. "
+                                 "Terminate activities with ids=%s first" % (self._name, str(ids)))
         res = super(nh_clinical_patient_observation_gcs, self).create_activity(cr, uid, vals_activity, vals_data, context)
         return res

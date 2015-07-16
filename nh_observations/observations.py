@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_activity.activity import except_if
 from openerp.addons.nh_observations.parameters import frequencies
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -41,8 +40,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id)
         res = super(nh_clinical_patient_observation, self).complete(cr, uid, activity_id, context)
-        except_if(activity.data_ref.is_partial and not activity.data_ref.partial_reason,
-                  msg="Partial observation didn't have reason")
+        if activity.data_ref.is_partial and not activity.data_ref.partial_reason:
+            raise osv.except_osv("Observation Error!", "Missing partial observation reason")
         if not activity.date_started:
             self.pool['nh.activity'].write(cr, uid, activity_id, {'date_started': activity.date_terminated}, context=context)
         return res
@@ -77,7 +76,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(cr, SUPERUSER_ID, data_vals['patient_id'], context=context)
         spell = spell_pool.browse(cr, uid, spell_id, context=context)
-        except_if(not spell_id, msg="Current spell is not found for patient_id: %s" %  data_vals['patient_id'])
+        if not spell_id:
+            raise osv.except_osv("Observation Error!", "Current spell is not found for patient_id: %s" %  data_vals['patient_id'])
         activity_vals.update({'parent_id': spell.activity_id.id})
         return super(nh_clinical_patient_observation, self).create_activity(cr, uid, activity_vals, data_vals, context)      
                 
