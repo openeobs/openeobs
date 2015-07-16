@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.tools.translate import _
-import logging        
+import logging
+
 _logger = logging.getLogger(__name__)
-from openerp.addons.nh_activity.activity import except_if
+
 from openerp import SUPERUSER_ID
 import openerp.addons.nh_eobs_reports.controllers.visit_report as visit_report
 
@@ -380,7 +380,8 @@ class nh_clinical_wardboard(orm.Model):
         wardboard = self.browse(cr, uid, ids[0], context=context)
         # assumed that patient's placement is completed
         # parent location of bed is taken as ward
-        except_if(wardboard.location_id.usage != 'bed', msg="Patient must be placed to bed before moving!")
+        if wardboard.location_id.usage != 'bed':
+            raise osv.except_osv("Patient Board Error!", "Patient must be placed to bed before moving!")
         sql = """
         with 
             recursive route(level, path, parent_id, id) as (
