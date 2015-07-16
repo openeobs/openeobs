@@ -1,68 +1,69 @@
 from openerp.tests.common import TransactionCase
-from datetime import datetime as dt
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+# from datetime import datetime as dt
+# from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 
 class TestClinicalPatientObservationEwsRefresh(TransactionCase):
+    pass
 
-    def setUp(self):
-        super(TestClinicalPatientObservationEwsRefresh, self).setUp()
-        cr, uid = self.cr, self.uid
-
-        self.users_pool = self.registry('res.users')
-        self.activity_pool = self.registry('nh.activity')
-        self.location_pool = self.registry('nh.clinical.location')
-        self.pos_pool = self.registry('nh.clinical.pos')
-        self.spell_pool = self.registry('nh.clinical.spell')
-        self.apidemo = self.registry('nh.clinical.api.demo')
-        self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
-        self.activity_pool = self.registry('nh.activity')
-        self.context_pool = self.registry('nh.clinical.context')
-        self.placement_pool = self.registry('nh.clinical.patient.placement')
-        self.mrsa_pool = self.registry('nh.clinical.patient.mrsa')
-        self.diabetes_pool = self.registry('nh.clinical.patient.diabetes')
-        self.patient_ids = self.apidemo.build_unit_test_env1(cr, uid, bed_count=4, patient_count=4)
-        self.wu_id = self.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
-        self.pos_id = self.location_pool.read(cr, uid, self.wu_id, ['pos_id'])['pos_id'][0]
-        self.patient_id = self.patient_ids[0]
-        self.patient_id2 = self.patient_ids[1]
-
-        spell_data = {
-            'patient_id': self.patient_id,
-            'pos_id': self.pos_id,
-            'code': '1234',
-            'start_date': dt.now().strftime(dtf)}
-        spell2_data = {
-            'patient_id': self.patient_id2,
-            'pos_id': self.pos_id,
-            'code': 'abcd',
-            'start_date': dt.now().strftime(dtf)}
-
-        spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell_data)
-        self.activity_pool.start(cr, uid, spell_activity_id)
-        self.spell_id = spell_activity_id
-        spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell2_data)
-        self.activity_pool.start(cr, uid, spell_activity_id)
-        self.spell2_id = spell_activity_id
-        self.ews_data = {
-            'respiration_rate': 40,
-            'indirect_oxymetry_spo2': 99,
-            'oxygen_administration_flag': False,
-            'body_temperature': 37.0,
-            'blood_pressure_systolic': 120,
-            'blood_pressure_diastolic': 80,
-            'pulse_rate': 55
-        }
-        self.ews_data_2 = {
-            'respiration_rate': 59,
-            'indirect_oxymetry_spo2': 100,
-            'oxygen_administration_flag': False,
-            'body_temperature': 44.9,
-            'blood_pressure_systolic': 300,
-            'blood_pressure_diastolic': 280,
-            'pulse_rate': 250,
-            'avpu_text': 'U'
-        }
+    # def setUp(self):
+        # super(TestClinicalPatientObservationEwsRefresh, self).setUp()
+        # cr, uid = self.cr, self.uid
+        #
+        # self.users_pool = self.registry('res.users')
+        # self.activity_pool = self.registry('nh.activity')
+        # self.location_pool = self.registry('nh.clinical.location')
+        # self.pos_pool = self.registry('nh.clinical.pos')
+        # self.spell_pool = self.registry('nh.clinical.spell')
+        # self.apidemo = self.registry('nh.clinical.api.demo')
+        # self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
+        # self.activity_pool = self.registry('nh.activity')
+        # self.context_pool = self.registry('nh.clinical.context')
+        # self.placement_pool = self.registry('nh.clinical.patient.placement')
+        # self.mrsa_pool = self.registry('nh.clinical.patient.mrsa')
+        # self.diabetes_pool = self.registry('nh.clinical.patient.diabetes')
+        # self.patient_ids = self.apidemo.build_unit_test_env1(cr, uid, bed_count=4, patient_count=4)
+        # self.wu_id = self.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
+        # self.pos_id = self.location_pool.read(cr, uid, self.wu_id, ['pos_id'])['pos_id'][0]
+        # self.patient_id = self.patient_ids[0]
+        # self.patient_id2 = self.patient_ids[1]
+        #
+        # spell_data = {
+        #     'patient_id': self.patient_id,
+        #     'pos_id': self.pos_id,
+        #     'code': '1234',
+        #     'start_date': dt.now().strftime(dtf)}
+        # spell2_data = {
+        #     'patient_id': self.patient_id2,
+        #     'pos_id': self.pos_id,
+        #     'code': 'abcd',
+        #     'start_date': dt.now().strftime(dtf)}
+        #
+        # spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell_data)
+        # self.activity_pool.start(cr, uid, spell_activity_id)
+        # self.spell_id = spell_activity_id
+        # spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell2_data)
+        # self.activity_pool.start(cr, uid, spell_activity_id)
+        # self.spell2_id = spell_activity_id
+        # self.ews_data = {
+        #     'respiration_rate': 40,
+        #     'indirect_oxymetry_spo2': 99,
+        #     'oxygen_administration_flag': False,
+        #     'body_temperature': 37.0,
+        #     'blood_pressure_systolic': 120,
+        #     'blood_pressure_diastolic': 80,
+        #     'pulse_rate': 55
+        # }
+        # self.ews_data_2 = {
+        #     'respiration_rate': 59,
+        #     'indirect_oxymetry_spo2': 100,
+        #     'oxygen_administration_flag': False,
+        #     'body_temperature': 44.9,
+        #     'blood_pressure_systolic': 300,
+        #     'blood_pressure_diastolic': 280,
+        #     'pulse_rate': 250,
+        #     'avpu_text': 'U'
+        # }
 
     # def test_complete_refreshes_ews0_ews1_ews2(self):
     #     cr, uid = self.cr, self.uid

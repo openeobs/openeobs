@@ -47,7 +47,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
         locations = self.generate_locations(cr, uid, wards=config['wards'],
                                             beds=config['beds'],
                                             hospital=True)
-        ward_ids = [locations[key][0] for key in locations]
+        ward_ids = map(lambda key: locations[key][0], locations)
         user_ids = self._load_users(cr, uid, ward_ids, config['users'])
         adt_uid = user_ids[0]['adt'][0]
         patient_ids = self._load_patients(cr, adt_uid, config['wards'],
@@ -68,11 +68,9 @@ class nh_clinical_api_demo(orm.AbstractModel):
         :return: list of dictionaries for user ids:
             [{'adt': [1], 'nurse': [2, 3]..}, {'adt': [1], 'nurse':[4, 5]}..]
         """
-        user_ids = []
-        for ward in ward_ids:
-            user_ids.append(self.generate_users(cr, uid, ward, data=users))
-
-        return user_ids
+        return map(
+            lambda x: self.generate_users(cr, uid, x, data=users), ward_ids
+        )
 
     def _load_patients(self, cr, uid, wards, patients):
         """
