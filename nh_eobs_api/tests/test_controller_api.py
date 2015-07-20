@@ -49,7 +49,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return auth_response
 
     def check_response_json(self, resp, status, title, description, data):
-        """Test the response JSON for correct status, title, desc and data values
+        """Test the response JSON for correct status, title, desc and data values.
 
         :param resp: Raw response from requests
         :param status: The expected status code for the response
@@ -71,9 +71,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return True
 
     def setUp(self):
-        """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls
-
-        """
+        """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls."""
         super(TestOdooRouteDecoratorIntegration, self).setUp()
         self.session_resp = requests.post(route_manager.BASE_URL + '/web', {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:

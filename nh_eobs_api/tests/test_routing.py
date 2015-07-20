@@ -145,9 +145,9 @@ class TestRoute(openerp.tests.TransactionCase):
         args = self.route.get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('paTieNT_ID', args)
-        self.assertNotIn('<paTieNT_ID', args)
+        self.assertNotIn('<paTieNT_ID>', args)
         self.assertIn('obSERvatioN_iD', args)
-        self.assertNotIn('<obSERvatioN_iD', args)
+        self.assertNotIn('<obSERvatioN_iD>', args)
 
         # Scenario 6:
         # Test URL with arguments with digits in their names
@@ -189,7 +189,7 @@ class TestRoute(openerp.tests.TransactionCase):
         args = self.route.get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('Patient_strange-ID', args)
-        self.assertNotIn('<Patient_strange-ID', args)
+        self.assertNotIn('<Patient_strange-ID>', args)
         self.assertIn('obserVATion-very_Strange_Id', args)
         self.assertNotIn('<obserVATion-very-Strange_Id>', args)
 
@@ -535,7 +535,7 @@ class ControllerForTesting(http.Controller):
     # TODO: is this useful ???
     @http.route(**route_manager_test.expose_route2('expose_route_2', url_prefix=MOBILE_URL_PREFIX, additional_parameters={'baz': 'ham'}))
     def expose_route_2(self, *args, **kwargs):
-        test_logger.warning(http.request.endpoint.routing)
+        #test_logger.warning(http.request.endpoint.routing)
         return http.request.make_response('Expose route 2 has received these keywords: {}'.format(http.request.endpoint.routing))
 
 
