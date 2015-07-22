@@ -14,7 +14,6 @@
              'observation_report.xml',
              'wizard/cancel_notifications_view.xml',
              'wizard/print_observation_report_view.xml',
-             'wizard/user_allocation_ext.xml',
              'views/wardboard_view.xml',
              'views/workload_view.xml',
              'views/placement_view.xml',

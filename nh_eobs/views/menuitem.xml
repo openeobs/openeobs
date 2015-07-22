@@ -62,7 +62,7 @@
                   action="nh_clinical.action_nhc_userboard"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
-        <menuitem name="Nursing Shift Change"
+        <menuitem name="Nursing Shift Management"
                   id="menu_nhui_left_nursing_shift"
                   sequence="1"
                   parent="menu_nhui_left_shift"
@@ -76,7 +76,7 @@
                   action="nh_clinical.action_nhc_staff_reallocation"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
-        <menuitem name="Medical Shift Change"
+        <menuitem name="Medical Shift Management"
                   id="menu_nhui_left_medical_shift"
                   sequence="3"
                   parent="menu_nhui_left_shift"

@@ -1,3 +1,2 @@
 import cancel_notifications
 import print_observation_report
-import user_allocation_ext
