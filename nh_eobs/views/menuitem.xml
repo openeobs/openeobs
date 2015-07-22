@@ -53,7 +53,7 @@
                   id="menu_nhui_left_user_management"
                   sequence="4"
                   parent="menu_nhui_left_ward"
-                  action="action_nhc_userboard"
+                  action="nh_clinical.action_nhc_userboard"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="User Allocation"
