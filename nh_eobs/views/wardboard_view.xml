@@ -158,6 +158,9 @@
             <field name="arch" type="xml">
                 <search string="Wardboard Search View">
                     <field name="ews_trend" />
+                    <field name="full_name"/>
+                    <field name="hospital_number"/>
+                    <field name="nhs_number"/>
                     <group expand="1" string="Filters">
                         <filter name="no_risk" string="No Risk" domain="[('clinical_risk','=','None')]"/>
                         <filter name="low_risk" string="Low Risk" domain="[('clinical_risk','=','Low')]"/>
