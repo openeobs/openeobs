@@ -220,7 +220,7 @@ class nh_clinical_wardboard(orm.Model):
     def _get_data_ids_multi(self, cr, uid, ids, field_names, arg, context=None):
         res = {id: {field_name: [] for field_name in field_names} for id in ids}
         for field_name in field_names:
-            model_name = self._columns[field_name].relation
+            model_name = self._columns[field_name]._obj
             sql = """select spell_id, ids from wb_activity_data where data_model='%s' and spell_id in (%s) and state='completed'"""\
                              % (model_name, ", ".join([str(spell_id) for spell_id in ids]))
             cr.execute(sql)

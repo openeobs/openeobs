@@ -158,6 +158,9 @@
             <field name="arch" type="xml">
                 <search string="Wardboard Search View">
                     <field name="ews_trend" />
+                    <field name="full_name"/>
+                    <field name="hospital_number"/>
+                    <field name="nhs_number"/>
                     <group expand="1" string="Filters">
                         <filter name="no_risk" string="No Risk" domain="[('clinical_risk','=','None')]"/>
                         <filter name="low_risk" string="Low Risk" domain="[('clinical_risk','=','Low')]"/>
@@ -205,7 +208,7 @@
                         <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
-                        <button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <!--<button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>-->
                         <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user"/>
                         <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user"/>
                         <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user"/>
