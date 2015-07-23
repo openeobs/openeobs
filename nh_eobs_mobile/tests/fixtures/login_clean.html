@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Open-eObs</title>
+        <link href="/mobile/src/css/main.css" rel="stylesheet" type="text/css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-main block">
+                <img src="/mobile/src/img/logo.png" class="logo"/>
+                <ul class="header-meta">
+                </ul>
+            </div>
+        </div>
+        <div class="content block">
+            <form action="/mobile/login/" method="POST">
+                <fieldset>
+                    <legend>Sign in</legend>
+                    <p>
+                        <input type="text" name="username" placeholder="Username" id="username"/>
+                    </p>
+                    <p>
+                        <input type="password" name="password" id="password" placeholder="Password"/>
+                    </p>
+                    <input type="hidden" name="database" id="database" value="nhclinical"/>
+                    <button type="submit" id="loginbutton" class="alignright go">Login</button>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>
