@@ -533,7 +533,7 @@ openerp.nh_eobs = function (instance) {
                         {"class": "amber",s: 91, e: 101},
                         {"class": "green",s: 101,e: 111},
                         {"class": "red",s: 220, e:260}
-                    ]
+                    ];
 
                     var score_graph = new window.NH.NHGraph();
                     score_graph.options.keys = ['score'];
