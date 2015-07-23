@@ -1328,8 +1328,8 @@ svg .background .red {
   fill: #ffcccc;
 }
 svg .background .normal {
-  fill: rgba(0, 0, 0, 0.2);
-  stroke: rgba(0, 0, 0, 0.2);
+  fill: white;
+  stroke: white;
 }
 svg .background line {
   fill: none;
@@ -1386,6 +1386,7 @@ svg .data path {
   padding-bottom: 0.3em;
   text-align: center;
   border-left: 1px solid #262626;
+  vertical-align: top;
 }
 .nhtable tbody tr td:first-child {
   text-align: left;
