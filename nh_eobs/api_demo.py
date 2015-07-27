@@ -42,7 +42,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                             "HCA": 3,
                 }
             }
-        :return: True
+        :return: True (and a JSON file is created with all user logins)
         """
         config = self._file_loader(cr, uid, config_file)
         locations = self.generate_locations(cr, uid, wards=config['wards'],
@@ -67,6 +67,9 @@ class nh_clinical_api_demo(orm.AbstractModel):
         return True
 
     def _get_users_login(self, cr, uid):
+        """
+        :return: a list of usernames for all users.
+        """
         user_pool = self.pool['res.users']
         users = user_pool.read_group(cr, uid, [], ['login'], ['login'])
         return [user['login'] for user in users]
