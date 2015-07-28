@@ -1,4 +1,5 @@
 from openerp.osv import orm
+from openerp.sql_db import TestCursor
 
 
 class nh_clinical_patient_observation_ews(orm.Model):
@@ -8,12 +9,13 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context=context)
-        sql = """
-                refresh materialized view ews0;
-                refresh materialized view ews1;
-                refresh materialized view ews2;
-        """
-        cr.execute(sql)
+        if not isinstance(cr, TestCursor):
+            sql = """
+                    refresh materialized view ews0;
+                    refresh materialized view ews1;
+                    refresh materialized view ews2;
+            """
+            cr.execute(sql)
         return res
 
 
