@@ -12,11 +12,11 @@ class nh_clinical_workload(orm.Model):
     _auto = False
     _table = "nh_activity_workload"
     _proximity_intervals = [(10, '46- minutes'),
-                           (20, '45-31 minutes remain'),
-                           (30, '30-16 minutes remain'),
-                           (40, '15-0 minutes remain'),
-                           (50, '1-15 minutes late'),
-                           (60, '16+ minutes late')]    
+                            (20, '45-31 minutes remain'),
+                            (30, '30-16 minutes remain'),
+                            (40, '15-0 minutes remain'),
+                            (50, '1-15 minutes late'),
+                            (60, '16+ minutes late')]
     _columns = {
         'activity_id': fields.many2one('nh.activity', 'Activity', required=1, ondelete='restrict'),
         'proximity_interval': fields.selection(_proximity_intervals, 'Proximity Interval', readonly=True),
@@ -50,7 +50,8 @@ class nh_clinical_workload(orm.Model):
                         inner join nh_clinical_patient patient on activity.patient_id = patient.id
                         inner join nh_clinical_location bed on activity.location_id = bed.id
                         inner join nh_clinical_location ward on bed.parent_id = ward.id
-                        left join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
+                        inner join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
+                        where activity.state != 'completed' and activity.state != 'cancelled' and spell.state = 'started'
                         )
                         select
                             id,
@@ -73,8 +74,7 @@ class nh_clinical_workload(orm.Model):
                         from activity
                 )
         """ % (self._table, self._table))
-        
-        
+
     def _get_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         pi_copy =  [(pi[0],pi[1]) for pi in self._proximity_intervals]
         groups = pi_copy
