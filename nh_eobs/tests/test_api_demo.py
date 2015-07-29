@@ -37,12 +37,16 @@ class TestApiDemo(TransactionCase):
             'users': {'nurse': 2, 'jnr_doctor': 2},
             'wards': 2, 'beds': 2,
         }
+        locations = {
+            'Ward 1': [1, 2, 3],
+            'Ward 2': [4, 5, 6]
+        }
         self.api_demo.generate_users = MagicMock()
-        self.api_demo._load_users(cr, uid, [1, 2], config['users'])
+        self.api_demo._load_users(cr, uid, locations, config['users'])
 
         self.assertEquals(self.api_demo.generate_users.call_count, 2)
-        self.api_demo.generate_users.assert_any_call(cr, uid, 1, data=config['users'])
-        self.api_demo.generate_users.assert_any_call(cr, uid, 2, data=config['users'])
+        self.api_demo.generate_users.assert_any_call(cr, uid, [1, 2, 3], data=config['users'])
+        self.api_demo.generate_users.assert_any_call(cr, uid, [4, 5, 6], data=config['users'])
 
         del self.api_demo.generate_users
 

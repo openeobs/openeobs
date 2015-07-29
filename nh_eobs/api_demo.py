@@ -49,7 +49,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                                             beds=config['beds'],
                                             hospital=True)
         ward_ids = map(lambda key: locations[key][0], locations)
-        user_ids = self._load_users(cr, uid, ward_ids, config['users'])
+        user_ids = self._load_users(cr, uid, locations, config['users'])
         adt_uid = user_ids[0]['adt'][0]
         patient_ids = self._load_patients(cr, adt_uid, config['wards'],
                                           config['patients'])
@@ -57,8 +57,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                                                          ward_ids,
                                                          patient_ids,
                                                          config['days'])
-        placed_patient_ids = self._load_place_patients(cr, adt_uid, ward_ids, admitted_patient_ids)
-        self._generate_news(cr, uid, placed_patient_ids, config['days'])
+        self._load_place_patients(cr, adt_uid, ward_ids, admitted_patient_ids)
 
         if return_file:
             directory_name = os.path.dirname(os.path.abspath(config_file))
@@ -78,23 +77,26 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
     def _get_users_login(self, cr, uid):
         """
-        :return: a list of usernames for all users.
+        :return: a list of user names for all users.
         """
         user_pool = self.pool['res.users']
         users = user_pool.read_group(cr, uid, [], ['login'], ['login'])
         return [user['login'] for user in users]
 
-    def _load_users(self, cr, uid, ward_ids, users):
+    def _load_users(self, cr, uid, locations, users):
         """
         Creates users for each ward.
-        :param ward_ids: list of ward ids
+        :param locations: a dictionary of location ids per ward
+            (see return value for self.generate_locations)
         :param users: dictionary containing the number of users for each ward.
         :return: list of dictionaries for user ids:
             [{'adt': [1], 'nurse': [2, 3]..}, {'adt': [1], 'nurse':[4, 5]}..]
         """
-        return map(
-            lambda x: self.generate_users(cr, uid, x, data=users), ward_ids
-        )
+        result = []
+        for k in locations:
+            result.append(self.generate_users(cr, uid, locations[k], data=users))
+
+        return result
 
     def _load_patients(self, cr, uid, wards, patients):
         """
@@ -199,8 +201,9 @@ class nh_clinical_api_demo(orm.AbstractModel):
     def generate_users(self, cr, uid, location_ids, data=dict()):
         """
         Generates a ward manager, nurse, HCA, junior doctor, consultant,
-        registrar, receptionist, admin and ADT user.
-        :param location_ids: the id of the location the users will be assigned to.
+        registrar, receptionist, admin and ADT user. Nurses and HCAs are
+        assigned to all beds in ward.
+        :param location_ids: ['ward_id', 'bed_id_1', 'bed_id_2'...]
         :return: Dictionary { 'adt' : [id], 'nurse': [id, id], ... }
         """
         identifiers = dict()
