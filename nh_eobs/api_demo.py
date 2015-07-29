@@ -1,5 +1,6 @@
 import logging
 import json
+import os
 from datetime import datetime as dt, timedelta as td
 
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
@@ -24,7 +25,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return data
 
-    def demo_loader(self, cr, uid, config_file):
+    def demo_loader(self, cr, uid, config_file, return_file='users.json'):
         """
         Creates the demo environment using the parameters specified in the
         JSON configuration file.
@@ -41,7 +42,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                             "HCA": 3,
                 }
             }
-        :return: True
+        :return: True (and a JSON file is created with all user logins)
         """
         config = self._file_loader(cr, uid, config_file)
         locations = self.generate_locations(cr, uid, wards=config['wards'],
@@ -57,14 +58,27 @@ class nh_clinical_api_demo(orm.AbstractModel):
                                                          patient_ids,
                                                          config['days'])
         self._load_place_patients(cr, adt_uid, ward_ids, admitted_patient_ids)
+        if return_file:
+            directory_name = os.path.dirname(os.path.abspath(config_file))
+            logins = self._get_users_login(cr, uid)
+            with open(os.path.join(directory_name, return_file), 'w') as outfile:
+                json.dump({'logins': logins}, outfile)
 
         return True
+
+    def _get_users_login(self, cr, uid):
+        """
+        :return: a list of usernames for all users.
+        """
+        user_pool = self.pool['res.users']
+        users = user_pool.read_group(cr, uid, [], ['login'], ['login'])
+        return [user['login'] for user in users]
 
     def _load_users(self, cr, uid, ward_ids, users):
         """
         Creates users for each ward.
         :param ward_ids: list of ward ids
-        :param users: dictionary containing the number of users fo each ward.
+        :param users: dictionary containing the number of users for each ward.
         :return: list of dictionaries for user ids:
             [{'adt': [1], 'nurse': [2, 3]..}, {'adt': [1], 'nurse':[4, 5]}..]
         """

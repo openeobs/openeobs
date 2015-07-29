@@ -442,7 +442,7 @@ openerp.nh_eobs = function (instance) {
                     resp_rate_graph.options.label = 'RR';
                     resp_rate_graph.options.measurement = '/min';
                     resp_rate_graph.axes.y.min = 0;
-                    resp_rate_graph.axes.y.max = 60;
+                    resp_rate_graph.axes.y.max = 40;
                     resp_rate_graph.options.normal.min = 9;
                     resp_rate_graph.options.normal.max = 20;
                     resp_rate_graph.style.dimensions.height = 250;
@@ -454,7 +454,7 @@ openerp.nh_eobs = function (instance) {
                         {"class": "green",s: 9,e: 11},
                         {"class": "green",s: 20, e: 21},
                         {"class": "amber",s: 21,e: 25},
-                        {"class": "green",s: 25,e: 60}
+                        {"class": "red",s: 25,e: 60}
                     ];
 
                     var oxy_graph = new window.NH.NHGraph()
@@ -479,8 +479,8 @@ openerp.nh_eobs = function (instance) {
                     temp_graph.options.keys = ['body_temperature'];
                     temp_graph.options.label = 'Temp';
                     temp_graph.options.measurement = '°C';
-                    temp_graph.axes.y.min = 15;
-                    temp_graph.axes.y.max = 50;
+                    temp_graph.axes.y.min = 25;
+                    temp_graph.axes.y.max = 45;
                     temp_graph.options.normal.min = 36.1;
                     temp_graph.options.normal.max = 38.1;
                     temp_graph.style.dimensions.height = 200;
@@ -499,7 +499,7 @@ openerp.nh_eobs = function (instance) {
                     pulse_graph.options.keys = ['pulse_rate'];
                     pulse_graph.options.label = 'HR';
                     pulse_graph.options.measurement = '/min';
-                    pulse_graph.axes.y.min = 30;
+                    pulse_graph.axes.y.min = 25;
                     pulse_graph.axes.y.max = 200;
                     pulse_graph.options.normal.min = 50;
                     pulse_graph.options.normal.max = 91;
@@ -513,7 +513,7 @@ openerp.nh_eobs = function (instance) {
                         {"class": "green",s: 41,e: 50},
                         {"class": "green",s: 91, e: 111},
                         {"class": "amber",s: 111,e: 131},
-                        {"class": "green",s: 131,e: 200}
+                        {"class": "red",s: 131,e: 200}
                     ];
 
                     var bp_graph = new window.NH.NHGraph();
@@ -528,6 +528,12 @@ openerp.nh_eobs = function (instance) {
                     bp_graph.style.axis.x.hide = true;
                     bp_graph.style.data_style = 'range';
                     bp_graph.style.label_width = 60;
+                    bp_graph.drawables.background.data = [
+                        {"class": "red",s: 0, e:91},
+                        {"class": "amber",s: 91, e: 101},
+                        {"class": "green",s: 101,e: 111},
+                        {"class": "red",s: 220, e:260}
+                    ];
 
                     var score_graph = new window.NH.NHGraph();
                     score_graph.options.keys = ['score'];

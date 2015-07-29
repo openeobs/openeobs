@@ -147,6 +147,17 @@ class TestApiDemo(TransactionCase):
         self.assertEquals(result, [])
         del api.discharge
 
+    def test_09_get_users_login(self):
+        cr, uid = self.cr, self.uid
+        return_value = [
+            {'login': 'nurse_login'}, {'login': 'dr_login'}
+        ]
+        self.user_pool.read_group = MagicMock(return_value=return_value)
+
+        result = self.api_demo._get_users_login(cr, uid)
+        self.assertEquals(result, ['nurse_login', 'dr_login'])
+        del self.user_pool.read_group
+
     #####################
     # Integration Tests #
     #####################
