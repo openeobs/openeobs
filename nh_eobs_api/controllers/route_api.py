@@ -225,22 +225,26 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
         kw_copy = json.loads(request.httprequest.data)
         test = {}
-        timestamp = kw_copy['startTimestamp']
-        device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
+        data_timestamp = kw_copy.get('startTimestamp', False)
+        data_task_id = kw_copy.get('taskId', False)
+        data_device_id = kw_copy.get('device_id', False)
 
-        del kw_copy['startTimestamp']
-        if 'taskId' in kw_copy:
+        if data_timestamp:
+            del kw_copy['startTimestamp']
+        if data_task_id:
             del kw_copy['taskId']
-        if device_id:
+        if data_device_id:
             del kw_copy['device_id']
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
 
         converted_data = converter(kw_copy, test)
-        converted_data['date_started'] = datetime.fromtimestamp(int(timestamp)).strftime(DTF)
-        if device_id:
-            converted_data['device_id'] = device_id
+        if data_timestamp:
+            converted_data['date_started'] = datetime.fromtimestamp(int(data_timestamp)).strftime(DTF)
+        if data_device_id:
+            converted_data['device_id'] = data_device_id
+
         result = api.complete(cr, uid, int(task_id), converted_data, context)
         triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
         triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
@@ -434,22 +438,25 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
         kw_copy = json.loads(request.httprequest.data)
         test = {}
-        timestamp = kw_copy['startTimestamp']
-        device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
+        data_timestamp = kw_copy.get('startTimestamp', False)
+        data_task_id = kw_copy.get('taskId', False)
+        data_device_id = kw_copy.get('device_id', False)
 
-        del kw_copy['startTimestamp']
-        if 'taskId' in kw_copy:
+        if data_timestamp:
+            del kw_copy['startTimestamp']
+        if data_task_id:
             del kw_copy['taskId']
-        if device_id:
+        if data_device_id:
             del kw_copy['device_id']
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
 
         converted_data = converter(kw_copy, test)
-        converted_data['date_started'] = datetime.fromtimestamp(int(timestamp)).strftime(DTF)
-        if device_id:
-            converted_data['device_id'] = device_id
+        if data_timestamp:
+            converted_data['date_started'] = datetime.fromtimestamp(int(data_timestamp)).strftime(DTF)
+        if data_device_id:
+            converted_data['device_id'] = data_device_id
 
         new_activity = api.create_activity_for_patient(cr, uid, int(patient_id), observation, context=context)
         result = api.complete(cr, uid, int(new_activity), converted_data, context)
