@@ -25,7 +25,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return data
 
-    def demo_loader(self, cr, uid, config_file, return_file='users.json'):
+    def demo_loader(self, cr, uid, config_file, return_file):
         """
         Creates the demo environment using the parameters specified in the
         JSON configuration file.
@@ -42,7 +42,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
                             "HCA": 3,
                 }
             }
-        :return: True (and a JSON file is created with all user logins)
+        :param return_file: a JSON file that will contain user credentials.
+        :return: True
         """
         config = self._file_loader(cr, uid, config_file)
         locations = self.generate_locations(cr, uid, wards=config['wards'],
@@ -66,14 +67,6 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 json.dump({'logins': logins}, outfile)
 
         return True
-
-    # def _generate_news(self, cr, uid, patient_ids, begin_date):
-    #     d = dt.now() - td(days=begin_date)
-    #     date = dt.strftime(d, dtf)
-    #     for patients in patient_ids:
-    #         self.generate_news_simulation(
-    #             cr, uid, begin_date=date, patient_ids=patients
-    #         )
 
     def _get_users_login(self, cr, uid):
         """
