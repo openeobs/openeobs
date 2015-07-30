@@ -196,6 +196,9 @@
                                 <t t-if="item['type']=='selection'">
                                     <t t-call="nh_eobs_mobile.observation_data_select"/>
                                 </t>
+                                <t t-if="item['type']=='text'">
+                                    <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                                </t>
                             </div>
                          </t>
 
