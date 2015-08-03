@@ -263,6 +263,7 @@ class nh_clinical_wardboard(orm.Model):
         'time_since_admission': fields.text('Time since Admission'),
         'move_date': fields.datetime('Time since Last Movement'),
         'spell_date_terminated': fields.datetime('Spell Discharge Date'),
+        'recently_discharged': fields.boolean('Recently Discharged'),
         'spell_state': fields.char('Spell State', size=50),
         'pos_id': fields.many2one('nh.clinical.pos', 'POS'),
         'spell_code': fields.text('Spell Code'),
@@ -354,6 +355,31 @@ class nh_clinical_wardboard(orm.Model):
             'context': context,
             'view_id': view_id
         }
+
+    def open_previous_spell(self, cr, uid, ids, context=None):
+        activity_pool = self.pool['nh.activity']
+        wb = self.browse(cr, uid, ids[0], context=context)
+        activity_ids = activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.spell'], ['patient_id', '=', wb.patient_id.id],
+            ['sequence', '<', wb.spell_activity_id.sequence], ['state', '=', 'completed']
+        ], order='sequence desc', context=context)
+        if not activity_ids:
+            raise osv.except_osv('No previous spell!', 'This is the oldest spell available for this patient.')
+        spell_id = activity_pool.browse(cr, uid, activity_ids[0], context=context).data_ref.id
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs',
+                                                                  'view_wardboard_form_discharged')[1]
+        return {
+            'name': 'Previous Spell',
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': spell_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'current',
+            'context': context,
+            'view_id': view_id
+        }
+
 
     def wardboard_swap_beds(self, cr, uid, ids, context=None):
         swap_beds_pool = self.pool['wardboard.swap_beds']
@@ -740,7 +766,8 @@ wb_activity_data as(
             activity.state,
             array_agg(split_part(activity.data_ref, ',', 2)::int order by split_part(activity.data_ref, ',', 2)::int desc) as ids
         from nh_clinical_spell spell
-        inner join nh_activity activity on activity.patient_id = spell.patient_id
+        inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
+        inner join nh_activity activity on activity.parent_id = spell_activity.id
         group by spell_id, spell.patient_id, activity.data_model, activity.state
 ); 
 
@@ -945,7 +972,11 @@ nh_clinical_wardboard as(
         end as critical_care,
         param.uotarget_vol,
         param.uotarget_unit,
-        consulting_doctors.names as consultant_names
+        consulting_doctors.names as consultant_names,
+        case
+            when spell_activity.date_terminated > now() - interval '1d' and spell_activity.state = 'completed' then true
+            else false
+        end as recently_discharged
         
     from nh_clinical_spell spell
     inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
@@ -958,7 +989,6 @@ nh_clinical_wardboard as(
     left join placement plc on spell.id = plc.spell_id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
     left join param on param.spell_id = spell.id
-    where spell_activity.date_terminated > now() - interval '1d' or spell_activity.state = 'started'
     order by location.name
 );
 """)

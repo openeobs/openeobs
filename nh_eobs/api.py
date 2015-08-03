@@ -94,11 +94,22 @@ class nh_eobs_api(orm.AbstractModel):
         else:
             return spell_pool.write(cr, SUPERUSER_ID, spell_ids, {field_name: data['frequency']}, context=context)
 
-    # ALTERNATIVE TO GET ACTIVITIES FOR PATIENT IF WE ONLY HAVE SPELL ID
     def get_activities_for_spell(self, cr, uid, spell_id, activity_type, start_date=None, end_date=None, context=None):
         spell_pool = self.pool['nh.clinical.spell']
         spell = spell_pool.browse(cr, uid, spell_id, context=None)
-        return self.get_activities_for_patient(cr, uid, spell.patient_id.id, activity_type, start_date, end_date, context=context)
+        start_date = dt.now()-td(days=30) if not start_date else start_date
+        end_date = dt.now() if not end_date else end_date
+        model_pool = self.pool['nh.clinical.patient.observation.'+activity_type] if activity_type else self.pool['nh.activity']
+        domain = [
+            ('activity_id.parent_id', '=', spell.activity_id.id),
+            ('patient_id', '=', spell.patient_id.id),
+            ('state', '=', 'completed'),
+            ('date_terminated', '>=', start_date.strftime(DTF)),
+            ('date_terminated', '<=', end_date.strftime(DTF))] if activity_type \
+            else [('activity_id.parent_id', '=', spell.activity_id.id),
+                  ('patient_id', '=', spell.patient_id.id), ('state', 'not in', ['completed', 'cancelled'])]
+        ids = model_pool.search(cr, uid, domain, context=context)
+        return model_pool.read(cr, uid, ids, [], context=context)
 
     def get_share_users(self, cr, uid, context=None):
         result = []

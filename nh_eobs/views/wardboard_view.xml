@@ -205,6 +205,7 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Form View" version="7.0" create="0" delete="0">
                     <header>
+                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
@@ -626,6 +627,7 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Discharged Patients Form View" version="7.0" create="0" delete="0">
                     <header>
+                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button name="print_report" string="Print Report" type="object"/>
                         <button name="wardboard_chart" string="NEWS Chart" type="object"/>
                         <button name="wardboard_ews" string="NEWS List" type="object"/>
@@ -860,7 +862,7 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('spell_state','=','completed')]</field>
+            <field name="domain">[('spell_state','=','completed'),('recently_discharged','=',True)]</field>
             <field name="context">{'search_default_clinical_risk':0,'search_default_group_by_ward':0}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
