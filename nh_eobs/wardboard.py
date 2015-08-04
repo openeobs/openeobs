@@ -380,7 +380,6 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': view_id
         }
 
-
     def wardboard_swap_beds(self, cr, uid, ids, context=None):
         swap_beds_pool = self.pool['wardboard.swap_beds']
         wb = self.browse(cr, uid, ids[0])
@@ -401,7 +400,6 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': view_id
         }
 
-    
     def wardboard_patient_placement(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
         # assumed that patient's placement is completed
