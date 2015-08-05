@@ -4,6 +4,9 @@ from datetime import datetime as dt
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 import base64
 import os.path
+from openerp.osv import osv
+
+mocked_print_called = 0
 
 
 class TestNHClinicalBackupProcedure(TransactionCase):
@@ -11,6 +14,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
     def setUp(self):
         super(TestNHClinicalBackupProcedure, self).setUp()
         cr, uid = self.cr, self.uid
+        mocked_print_called = 0
 
         self.users_pool = self.registry('res.users')
         self.activity_pool = self.registry('nh.activity')
@@ -34,6 +38,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         self.patient_pool.write(cr, uid, self.patient_id, {'family_name': 'Wren',
                                                            'patient_identifier': '1231231231'})
         self.patient_id2 = self.patient_ids[1]
+        self.patient_id3 = self.patient_ids[2]
 
         spell_data = {
             'patient_id': self.patient_id,
@@ -45,6 +50,11 @@ class TestNHClinicalBackupProcedure(TransactionCase):
             'pos_id': self.pos_id,
             'code': 'abcd',
             'start_date': dt.now().strftime(dtf)}
+        spell3_data = {
+            'patient_id': self.patient_id3,
+            'pos_id': self.pos_id,
+            'code': '5678',
+            'start_date': dt.now().strftime(dtf)}
 
         spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell_data)
         self.activity_pool.start(cr, uid, spell_activity_id)
@@ -52,6 +62,9 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell2_data)
         self.activity_pool.start(cr, uid, spell_activity_id)
         self.spell_id2 = spell_activity_id
+        spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell3_data)
+        self.activity_pool.start(cr, uid, spell_activity_id)
+        self.spell_id3 = spell_activity_id
         self.ews_data = {
             'respiration_rate': 40,
             'indirect_oxymetry_spo2': 99,
@@ -137,7 +150,53 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         post_report_value = self.spell_pool.read(cr, uid, spell_id2, ['report_printed'])['report_printed']
         self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
 
-    def test_05_test_no_spell_defined_domain_returns_empty_when_no_non_printed_spells(self):
+    def test_05_test_flag_not_change_by_wkhtmltopdf_error(self):
+        # complete an observation and check flag is now False
+        cr, uid = self.cr, self.uid
+
+        def mock_print(*args, **kwargs):
+            global mocked_print_called
+            mocked_print_called = mocked_print_called + 1
+            if mocked_print_called == 2:
+                raise osv.except_osv('Report (PDF)', 'Wkhtmltopdf failed (error code: -11). Message:')
+            return mock_print.origin(*args, **kwargs)
+
+        self.registry('report')._patch_method('_run_wkhtmltopdf', mock_print)
+        # clean up before test
+        dirty_spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+        self.spell_pool.write(cr, uid, dirty_spell_ids, {'report_printed': True})
+
+        # add demo data
+        spell_id = self.spell_pool.get_by_patient_id(cr, uid, self.patient_id)
+        spell_id2 = self.spell_pool.get_by_patient_id(cr, uid, self.patient_id2)
+        spell_id3 = self.spell_pool.get_by_patient_id(cr, uid, self.patient_id3)
+        ews_activity_id = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id}, {'patient_id': self.patient_id})
+        ews_activity_id2 = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id2}, {'patient_id': self.patient_id2})
+        ews_activity_id3 = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id3}, {'patient_id': self.patient_id3})
+        self.ews_pool.submit(cr, uid, ews_activity_id, self.ews_data)
+        self.ews_pool.complete(cr, uid, ews_activity_id)
+        self.ews_pool.submit(cr, uid, ews_activity_id2, self.ews_data2)
+        self.ews_pool.complete(cr, uid, ews_activity_id2)
+        self.ews_pool.submit(cr, uid, ews_activity_id3, self.ews_data2)
+        self.ews_pool.complete(cr, uid, ews_activity_id3)
+        pre_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
+        self.assertEqual(pre_report_value, False, 'Flag not updated by complete method properly')
+        pre_report_value = self.spell_pool.read(cr, uid, spell_id2, ['report_printed'])['report_printed']
+        self.assertEqual(pre_report_value, False, 'Flag not updated by complete method properly on second report')
+        pre_report_value = self.spell_pool.read(cr, uid, spell_id3, ['report_printed'])['report_printed']
+        self.assertEqual(pre_report_value, False, 'Flag not updated by complete method properly on second report')
+
+        # run the report printing method in api and check that the flag is set to True
+        self.api_pool.print_report(cr, uid)
+        post_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
+        self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
+        post_report_value = self.spell_pool.read(cr, uid, spell_id2, ['report_printed'])['report_printed']
+        self.assertEqual(post_report_value, False, 'Flag not updated by printing method properly')
+        post_report_value = self.spell_pool.read(cr, uid, spell_id3, ['report_printed'])['report_printed']
+        self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
+        self.registry('report')._revert_method('_run_wkhtmltopdf')
+
+    def test_06_test_no_spell_defined_domain_returns_empty_when_no_non_printed_spells(self):
         cr, uid = self.cr, self.uid
         dirty_spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
         self.spell_pool.write(cr, uid, dirty_spell_ids, {'report_printed': True})
@@ -145,7 +204,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         test_empty = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
         self.assertEqual(test_empty, [], 'No Spell Domain returned spells when should be empty')
 
-    def test_06_test_no_spell_defined_domain_returns_empty_when_no_non_printed_spells(self):
+    def test_07_test_no_spell_defined_domain_returns_empty_when_no_non_printed_spells(self):
         cr, uid = self.cr, self.uid
         dirty_spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
         test_spell = dirty_spell_ids[0]
@@ -154,7 +213,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         test_empty = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
         self.assertEqual(test_empty, [test_spell], 'No Spell Domain returned more than one spell')
 
-    def test_07_test_report_added_to_database(self):
+    def test_08_test_report_added_to_database(self):
         # run the report printing method in api and check that report added to DB
         cr, uid = self.cr, self.uid
         attachment_id = self.api_pool.add_report_to_database(cr, uid,
@@ -169,7 +228,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
 
         self.assertEqual(report_str, 'test_data', 'Report not added to database properly')
 
-    def test_08_test_report_added_to_file_system(self):
+    def test_09_test_report_added_to_file_system(self):
         # run the report printing method in api and check that file was created on FS
         # /bcp/out
         self.api_pool.add_report_to_backup_location('/bcp/out',
@@ -180,7 +239,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
             file_content = file.read()
         self.assertEqual(file_content, 'test_data', 'Report not added to filesystem properly')
 
-    def test_09_test_report_filename_is_correct(self):
+    def test_10_test_report_filename_is_correct(self):
         # run the report pringing method in teh api and check that the file is correctly named
         # ward_surname_nhs_number
         cr, uid = self.cr, self.uid

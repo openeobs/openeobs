@@ -2,7 +2,7 @@ __author__ = 'colinwren'
 from openerp.osv import orm, fields
 import logging
 _logger = logging.getLogger(__name__)
-from openerp.exceptions import AccessError
+from openerp.exceptions import AccessError, except_orm
 from datetime import datetime
 import base64
 import os
@@ -97,40 +97,43 @@ class NHClinicalObservationReportPrinting(orm.Model):
                                                       context=context)
 
             # Create PDF from HTML
-            report_pdf = report_pool.get_pdf(cr, uid, [obs_report_wizard_id],
-                                             'nh.clinical.observation_report',
-                                             html=report_html,
-                                             data=data, context=context)
+            try:
+                report_pdf = report_pool.get_pdf(cr, uid, [obs_report_wizard_id],
+                                                 'nh.clinical.observation_report',
+                                                 html=report_html,
+                                                 data=data, context=context)
 
-            # file name in ward_surname_nhsnumber format
-            spell_obj = spell_pool.read(cr, uid, spell)
-            patient_id = spell_obj['patient_id'][0]
-            # patient = self.get_patients(cr, uid, [patient_id], context=context)[0]
-            patient = self.pool['nh.clinical.patient'].read(cr, uid, patient_id, ['patient_identifier', 'current_location_id', 'family_name'])
-            nhs_number = patient['patient_identifier'] if 'patient_identifier' in patient and patient['patient_identifier'] else None
-            ward = None
-            ward_id = patient['current_location_id'][0] if 'current_location_id' in patient and patient['current_location_id'] else None
-            if ward_id:
-                loc_pool = self.pool['nh.clinical.location']
-                ward_usage = loc_pool.read(cr, uid, ward_id, ['usage', 'display_name'])
-                if ward_usage['usage'] != 'ward':
-                    ward_ward = loc_pool.get_closest_parent_id(cr, uid, ward_id, 'ward')
-                    ward = loc_pool.read(cr, uid, ward_ward, ['display_name'])['display_name'].replace(' ', '') if ward_ward else None
-                else:
-                    ward = ward_usage['display_name'].replace(' ', '')
-            surname = patient['family_name'] if 'family_name' in patient and patient['family_name'] else None
-            file_name = '{w}_{s}_{n}'.format(w=ward, s=surname, n=nhs_number)
-            # Save to database
-            db = self.add_report_to_database(cr, uid, 'nh.clinical.observation_report',
-                                             report_pdf,
-                                             file_name,
-                                             'nh.clinical.observation_report_wizard',
-                                             obs_report_wizard_id)
+                # file name in ward_surname_nhsnumber format
+                spell_obj = spell_pool.read(cr, uid, spell)
+                patient_id = spell_obj['patient_id'][0]
+                # patient = self.get_patients(cr, uid, [patient_id], context=context)[0]
+                patient = self.pool['nh.clinical.patient'].read(cr, uid, patient_id, ['patient_identifier', 'current_location_id', 'family_name'])
+                nhs_number = patient['patient_identifier'] if 'patient_identifier' in patient and patient['patient_identifier'] else None
+                ward = None
+                ward_id = patient['current_location_id'][0] if 'current_location_id' in patient and patient['current_location_id'] else None
+                if ward_id:
+                    loc_pool = self.pool['nh.clinical.location']
+                    ward_usage = loc_pool.read(cr, uid, ward_id, ['usage', 'display_name'])
+                    if ward_usage['usage'] != 'ward':
+                        ward_ward = loc_pool.get_closest_parent_id(cr, uid, ward_id, 'ward')
+                        ward = loc_pool.read(cr, uid, ward_ward, ['display_name'])['display_name'].replace(' ', '') if ward_ward else None
+                    else:
+                        ward = ward_usage['display_name'].replace(' ', '')
+                surname = patient['family_name'] if 'family_name' in patient and patient['family_name'] else None
+                file_name = '{w}_{s}_{n}'.format(w=ward, s=surname, n=nhs_number)
+                # Save to database
+                db = self.add_report_to_database(cr, uid, 'nh.clinical.observation_report',
+                                                 report_pdf,
+                                                 file_name,
+                                                 'nh.clinical.observation_report_wizard',
+                                                 obs_report_wizard_id)
 
-            # Save to file system
-            fs = self.add_report_to_backup_location('/bcp/out', report_pdf,
-                                                    file_name)
-            if db and fs:
-                self.pool['nh.clinical.spell'].write(cr, uid, spell, {'report_printed': True})
+                # Save to file system
+                fs = self.add_report_to_backup_location('/bcp/out', report_pdf,
+                                                        file_name)
+                if db and fs:
+                    self.pool['nh.clinical.spell'].write(cr, uid, spell, {'report_printed': True})
+            except except_orm:
+                pass
         return True
 
