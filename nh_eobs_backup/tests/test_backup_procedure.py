@@ -137,7 +137,24 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         post_report_value = self.spell_pool.read(cr, uid, spell_id2, ['report_printed'])['report_printed']
         self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
 
-    def test_05_test_report_added_to_database(self):
+    def test_05_test_no_spell_defined_domain_returns_empty_when_no_non_printed_spells(self):
+        cr, uid = self.cr, self.uid
+        dirty_spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+        self.spell_pool.write(cr, uid, dirty_spell_ids, {'report_printed': True})
+
+        test_empty = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+        self.assertEqual(test_empty, [], 'No Spell Domain returned spells when should be empty')
+
+    def test_06_test_no_spell_defined_domain_returns_empty_when_no_non_printed_spells(self):
+        cr, uid = self.cr, self.uid
+        dirty_spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+        test_spell = dirty_spell_ids[0]
+        self.spell_pool.write(cr, uid, dirty_spell_ids[1:], {'report_printed': True})
+
+        test_empty = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+        self.assertEqual(test_empty, [test_spell], 'No Spell Domain returned more than one spell')
+
+    def test_07_test_report_added_to_database(self):
         # run the report printing method in api and check that report added to DB
         cr, uid = self.cr, self.uid
         attachment_id = self.api_pool.add_report_to_database(cr, uid,
@@ -152,7 +169,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
 
         self.assertEqual(report_str, 'test_data', 'Report not added to database properly')
 
-    def test_06_test_report_added_to_file_system(self):
+    def test_08_test_report_added_to_file_system(self):
         # run the report printing method in api and check that file was created on FS
         # /bcp/out
         self.api_pool.add_report_to_backup_location('/bcp/out',
@@ -163,7 +180,7 @@ class TestNHClinicalBackupProcedure(TransactionCase):
             file_content = file.read()
         self.assertEqual(file_content, 'test_data', 'Report not added to filesystem properly')
 
-    def test_07_test_report_filename_is_correct(self):
+    def test_09_test_report_filename_is_correct(self):
         # run the report pringing method in teh api and check that the file is correctly named
         # ward_surname_nhs_number
         cr, uid = self.cr, self.uid
