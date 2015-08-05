@@ -188,13 +188,15 @@ class nh_clinical_wardboard(orm.Model):
                                 ['None', 'No Risk']]
     _boolean_selection = [('yes', 'Yes'),
                           ('no', 'No')]
-    
-    
+
     def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
-        user_pool = self.pool['res.users']
-        user_ids = user_pool.search(cr, user, [['groups_id.name', 'in', ['NH Clinical Doctor Group']]], context=context)
-        self._columns['o2target'].readonly = not (user in user_ids)
-        res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)    
+        res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)
+        if view_type == 'form':
+            user_pool = self.pool['res.users']
+            user_ids = user_pool.search(cr, user, [
+                ['groups_id.name', 'in', ['NH Clinical Doctor Group', 'NH Clinical Ward Manager Group']]
+            ], context=context)
+            res['fields']['o2target']['readonly'] = not (user in user_ids)
         return res
 
     def _get_started_device_session_ids(self, cr, uid, ids, field_name, arg, context=None):

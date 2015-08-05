@@ -42,6 +42,7 @@ class TestWardboard(SingleTransactionCase):
         cls.hca_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical HCA Group']])[0]
         cls.nurse_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Nurse Group']])[0]
         cls.wm_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Ward Manager Group']])[0]
+        cls.dr_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Doctor Group']])[0]
 
         cls.hospital_id = cls.location_pool.create(cr, uid, {'name': 'Test Hospital', 'code': 'TESTHOSP',
                                                              'usage': 'hospital'})
@@ -61,6 +62,9 @@ class TestWardboard(SingleTransactionCase):
                                                        'groups_id': [[4, cls.nurse_group_id]], 'location_ids': [[5]]})
         cls.wm_uid = cls.user_pool.create(cr, uid, {'name': 'WM0', 'login': 'wm0', 'password': 'wm0',
                                                     'groups_id': [[4, cls.wm_group_id]],
+                                                    'location_ids': [[4, cls.ward_id]]})
+        cls.dr_uid = cls.user_pool.create(cr, uid, {'name': 'DR0', 'login': 'dr0', 'password': 'dr0',
+                                                    'groups_id': [[4, cls.dr_group_id]],
                                                     'location_ids': [[4, cls.ward_id]]})
         cls.patients = [cls.patient_pool.create(cr, uid, {'other_identifier': 'HN00'+str(i)}) for i in range(3)]
 
@@ -211,3 +215,53 @@ class TestWardboard(SingleTransactionCase):
             'context': None,
             'view_id': view_id
         })
+
+    def test_06_get_logo(self):
+        cr, uid = self.cr, self.uid
+
+        wardboard_id = self.wardboard_pool.search(cr, uid, [['spell_state', '=', 'started'],
+                                                            ['patient_id', '=', self.patients[0]]])[0]
+        patient = self.patient_pool.browse(cr, uid, self.patients[0])
+        res = self.wardboard_pool._get_logo(cr, uid, [wardboard_id], 'company_logo', None)
+        self.assertEqual(res[wardboard_id], patient.partner_id.company_id.logo)
+
+    def test_07_fields_view_get(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool.fields_view_get(cr, self.nurse_uid, view_id=False, view_type='form')
+        self.assertTrue(res['fields']['o2target']['readonly'])
+        res = self.wardboard_pool.fields_view_get(cr, self.wm_uid, view_id=False, view_type='form')
+        self.assertFalse(res['fields']['o2target']['readonly'])
+        res = self.wardboard_pool.fields_view_get(cr, self.wm_uid, view_id=False, view_type='tree')
+        self.assertTrue(res)
+
+    def test_08_get_started_device_session_ids(self):
+        cr, uid = self.cr, self.uid
+
+        devtype_id = self.devtype_pool.search(cr, uid, [])[1]
+        devcategory_id = self.devtype_pool.browse(cr, uid, devtype_id).category_id.id
+        device_id = self.device_pool.create(cr, uid, {'type_id': devtype_id, 'serial_number': '000112'})
+
+        devses_start_id = self.devses_start_pool.create(cr, uid, {
+            'patient_id': self.patients[0], 'device_category_id': devcategory_id, 'device_type_id': devtype_id,
+            'device_id': device_id, 'location': 'arm'})
+        self.devses_start_pool.do_start(cr, self.wm_uid, [devses_start_id])
+
+        wardboard_id = self.wardboard_pool.search(cr, uid, [['spell_state', '=', 'started'],
+                                                            ['patient_id', '=', self.patients[0]]])[0]
+        res = self.wardboard_pool._get_started_device_session_ids(cr, self.wm_uid, [wardboard_id],
+                                                                  'started_device_session_ids', None)
+        ids = self.dev_session_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['activity_id.state', '=', 'started']])
+        self.assertListEqual(res[wardboard_id], ids)
+
+    def test_09_get_terminated_device_session_ids(self):
+        cr, uid = self.cr, self.uid
+
+        wardboard_id = self.wardboard_pool.search(cr, uid, [['spell_state', '=', 'started'],
+                                                            ['patient_id', '=', self.patients[0]]])[0]
+        res = self.wardboard_pool._get_terminated_device_session_ids(cr, self.wm_uid, [wardboard_id],
+                                                                  'terminated_device_session_ids', None)
+        ids = self.dev_session_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['activity_id.state', 'in', ['completed', 'cancelled']]])
+        self.assertListEqual(res[wardboard_id], ids)
