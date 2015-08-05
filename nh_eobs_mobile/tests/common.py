@@ -2,6 +2,7 @@ from openerp.tests import common
 import xml.etree.ElementTree as et
 import helpers
 
+
 class NHMobileCommonTest(common.TransactionCase):
 
     def setUp(self):
@@ -17,7 +18,7 @@ class NHMobileCommonTest(common.TransactionCase):
         self.users = self.registry.get('res.users')
         self.api_demo = self.registry('nh.clinical.api.demo')
         self.api = self.registry('nh.eobs.api')
-        self.view = self.registry("ir.ui.view")
+        self.view = self.registry('ir.ui.view')
         self.context = {
             'lang': 'en_GB',
             'tz': 'Europe/London',
@@ -25,11 +26,10 @@ class NHMobileCommonTest(common.TransactionCase):
         }
         self.nurse = None
 
-
     def tearDown(self):
         super(NHMobileCommonTest, self).tearDown()
 
-    def create_test_data(self, cr, uid, wards=['U','T'], bed_count=2, patient_admit_count=2, patient_placement_count=2,
+    def create_test_data(self, cr, uid, wards=['U', 'T'], bed_count=2, patient_admit_count=2, patient_placement_count=2,
                          ews_count=2, context='eobs', weight_count=0, blood_sugar_count=0, height_count=0,
                          o2target_count=0):
         """
@@ -42,7 +42,7 @@ class NHMobileCommonTest(common.TransactionCase):
         The environment is customizable, the wards parameter must be a list of ward codes. All the other parameters are
         the number of beds, patients, placements and observations we want.
 
-        Returns an dict with the ward, users
+        Returns a list of dictionaries, each with the 'ward' and 'users' keys
         """
         self.api_demo.build_unit_test_env(cr, uid, wards, bed_count, patient_admit_count, patient_placement_count,
                                            ews_count, context, weight_count, blood_sugar_count, height_count,
@@ -54,7 +54,6 @@ class NHMobileCommonTest(common.TransactionCase):
             ward_id = self.location.search(cr, uid, [('code', '=', ward)])[0]
             ward_obj = self.location.read(cr, uid, ward_id, [])
 
-
             # get ward manager and nurse users and add to ward list
             wm_id = self.users.search(cr, uid, [('login', '=', 'WM{0}'.format(ward))])[0]
             ward_manager = self.users.read(cr, uid, wm_id, [])
@@ -64,7 +63,6 @@ class NHMobileCommonTest(common.TransactionCase):
             nurse = self.users.read(cr, uid, n_id, [])
             users['nurse'] = nurse
             data.append({'ward': ward_obj, 'users': users})
-
         return data
 
     def render_template(self, cr, uid, template_name=None, options=None):
@@ -80,7 +78,6 @@ class NHMobileCommonTest(common.TransactionCase):
         dom_two_tree = et.tostring(et.fromstring(dom_two)).replace('\n', '').replace(' ', '')
         dom_two_tree = dom_two_tree.replace('<optionvalue="7">Type7</option></select>', '<optionvalue="7">Type7</option></select><p><aclass="button"href="#"id="bristolPopup">BristolTypeReference</a></p>')
         return dom_one_tree == dom_two_tree
-
 
     def process_form_description(self, form_desc):
         for form_input in form_desc:
@@ -107,7 +104,7 @@ class NHMobileCommonTest(common.TransactionCase):
         return vals.replace('<', '&lt;').replace('>', '&gt;')
 
     def process_test_form(self, form_desc):
-        obs_form_string = ""
+        obs_form_string = ''
         for form_field in form_desc:
             if form_field['type'] is 'number':
                 obs_form_string += helpers.OBS_INPUT.format(
@@ -134,7 +131,6 @@ class NHMobileCommonTest(common.TransactionCase):
                     hidden_block=' valHide' if form_field['initially_hidden'] else '',
                     hidden_input=' class="exclude"' if form_field['initially_hidden'] else '',
                     )
-
         return obs_form_string
 
     def create_test_patient_form(self, test_patient, type, url_type):
