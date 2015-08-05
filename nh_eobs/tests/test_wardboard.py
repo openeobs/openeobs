@@ -26,6 +26,8 @@ class TestWardboard(SingleTransactionCase):
         cls.devcategory_pool = cls.registry('nh.clinical.device.category')
         cls.devtype_pool = cls.registry('nh.clinical.device.type')
         cls.device_pool = cls.registry('nh.clinical.device')
+        cls.dev_session_pool = cls.registry('nh.clinical.device.session')
+        cls.model_data = cls.registry('ir.model.data')
 
         # Wardboard Models
         cls.swap_pool = cls.registry('wardboard.swap_beds')
@@ -33,6 +35,7 @@ class TestWardboard(SingleTransactionCase):
         cls.movement_pool = cls.registry('wardboard.patient.placement')
         cls.devses_start_pool = cls.registry('wardboard.device.session.start')
         cls.devses_complete_pool = cls.registry('wardboard.device.session.complete')
+        cls.wardboard_pool = cls.registry('nh.clinical.wardboard')
 
         cls.eobs_context_id = cls.context_pool.search(cr, uid, [['name', '=', 'eobs']])[0]
         cls.admin_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Admin Group']])[0]
@@ -159,3 +162,52 @@ class TestWardboard(SingleTransactionCase):
         self.assertTrue(self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[0]], ['data_model', '=', 'nh.clinical.device.session'],
             ['state', '=', 'started']]))
+
+    def test_04_device_session_complete(self):
+        cr, uid = self.cr, self.uid
+
+        activity_id = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['data_model', '=', 'nh.clinical.device.session'],
+            ['state', '=', 'started']])
+        activity = self.activity_pool.browse(cr, uid, activity_id[0])
+        devses_complete_id = self.devses_complete_pool.create(cr, uid, {
+            'session_id': activity.data_ref.id, 'removal_reason': 'No reason', 'planned': 'planned'})
+        res = self.devses_complete_pool.do_complete(cr, self.wm_uid, [devses_complete_id])
+        activity = self.activity_pool.browse(cr, uid, activity_id[0])
+        wardboard_id = self.wardboard_pool.search(cr, uid, [['spell_state', '=', 'started'],
+                                                            ['patient_id', '=', self.patients[0]]])[0]
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_form')[1]
+        self.assertEqual(activity.state, 'completed')
+        self.assertDictEqual(res, {
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': wardboard_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'inline',
+            'context': None,
+            'view_id': view_id
+        })
+
+    def test_05_device_session_complete_method(self):
+        cr, uid = self.cr, self.uid
+
+        activity_id = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['data_model', '=', 'nh.clinical.device.session'],
+            ['state', '=', 'completed']])
+        activity = self.activity_pool.browse(cr, uid, activity_id[0])
+        res = self.dev_session_pool.device_session_complete(cr, uid, [activity.data_ref.id])
+        res_id = self.devses_complete_pool.search(cr, uid, [], order="id desc")[0]
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs',
+                                                       'view_wardboard_device_session_complete_form')[1]
+        self.assertDictEqual(res, {
+            'name': "Complete Device Session: %s" % activity.data_ref.patient_id.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'wardboard.device.session.complete',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': None,
+            'view_id': view_id
+        })
