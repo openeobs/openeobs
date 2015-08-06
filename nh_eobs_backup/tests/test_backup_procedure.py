@@ -179,6 +179,8 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         self.ews_pool.complete(cr, uid, ews_activity_id2)
         self.ews_pool.submit(cr, uid, ews_activity_id3, self.ews_data2)
         self.ews_pool.complete(cr, uid, ews_activity_id3)
+
+        # Test that all false
         pre_report_value = self.spell_pool.read(cr, uid, spell_id, ['report_printed'])['report_printed']
         self.assertEqual(pre_report_value, False, 'Flag not updated by complete method properly')
         pre_report_value = self.spell_pool.read(cr, uid, spell_id2, ['report_printed'])['report_printed']
@@ -194,6 +196,11 @@ class TestNHClinicalBackupProcedure(TransactionCase):
         self.assertEqual(post_report_value, False, 'Flag not updated by printing method properly')
         post_report_value = self.spell_pool.read(cr, uid, spell_id3, ['report_printed'])['report_printed']
         self.assertEqual(post_report_value, True, 'Flag not updated by printing method properly')
+
+        # Test that only failed spell is returned for printing
+        new_dirty_spell_ids = self.spell_pool.search(cr, uid, [['report_printed', '=', False]])
+        self.assertEqual(new_dirty_spell_ids, [spell_id2], 'Spells returned post failed print not correct')
+
         self.registry('report')._revert_method('_run_wkhtmltopdf')
 
     def test_06_test_no_spell_defined_domain_returns_empty_when_no_non_printed_spells(self):
