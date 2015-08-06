@@ -103,7 +103,7 @@
                                         <t t-if="'notification' in item and item['notification']==True">
                                             <i class="icon-alert"></i>
                                         </t>
-                                        <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i>)<br/>
+                                        <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
                                         <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
                                     </div>
                                 </div>
