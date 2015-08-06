@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <!-- Activity Workload Kanban View -->
+       <!-- Activity Workload Kanban View -->
        <record model="ir.ui.view" id="view_activity_workload_kanban">
             <field name="name">nh.activity.workload.kanban</field>
             <field name="model">nh.activity.workload</field>
@@ -20,11 +20,64 @@
                         <div t-attf-class="oe_kanban_card oe_kanban_global_click">
                             <div class="oe_kanban_content">
                                 <div><b><field name="summary"/></b></div>
-                                <div><field name="patient_id"/> - <field name="patient_other_id"/></div>
+                                <div>
+                                    <field name="patient_id"/>
+                                </div>
                                 <div>
                                     <t t-if="record.date_scheduled.raw_value and record.date_scheduled.raw_value lt (new Date())" t-set="red">oe_kanban_text_red</t>
                                     <span t-attf-class="#{red || ''}"><i><field name="date_scheduled"/></i></span>
                                 </div>
+                                <t t-if="record.patient_other_id.raw_value != ''">
+                                    <div>Hospital Number: <field name="patient_other_id"/></div>
+                                </t>
+                                <t t-if="record.nhs_number.raw_value != ''">
+                                    <div>NHS Number: <field name="nhs_number"/></div>
+                                </t>
+                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
+                                    <field name="location_id"/> (<field name="ward_id"/>)
+                                    <field name="user_id"/>
+                                </div>
+                            </div>
+                            <div class="oe_clear"></div>
+                        </div>
+                    </t>
+                    </templates>
+                </kanban>
+            </field>
+         </record>
+
+        <!-- Activity Workload Kiosk Kanban View -->
+       <record model="ir.ui.view" id="view_activity_workload_kiosk_kanban">
+            <field name="name">nh.activity.workload.kiosk.kanban</field>
+            <field name="model">nh.activity.workload</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="proximity_interval" edit="false" quick_create="false" create="false">
+                    <field name="proximity_interval"/>
+                    <field name="summary"/>
+                    <field name="state"/>
+                    <field name="user_id"/>
+                    <field name="user_ids"/>
+                    <field name="patient_id"/>
+                    <field name="initial"/>
+                    <field name="family_name"/>
+                    <field name="location_id"/>
+                    <field name="date_scheduled"/>
+                    <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div><b><field name="summary"/></b></div>
+                                <div><field name="initial"/> <field name="family_name"/></div>
+                                <div>
+                                    <t t-if="record.date_scheduled.raw_value and record.date_scheduled.raw_value lt (new Date())" t-set="red">oe_kanban_text_red</t>
+                                    <span t-attf-class="#{red || ''}"><i><field name="date_scheduled"/></i></span>
+                                </div>
+                                <t t-if="record.patient_other_id.raw_value != ''">
+                                    <div>Hospital Number: <field name="patient_other_id"/></div>
+                                </t>
+                                <t t-if="record.nhs_number.raw_value != ''">
+                                    <div>NHS Number: <field name="nhs_number"/></div>
+                                </t>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
                                     <field name="location_id"/> (<field name="ward_id"/>)
                                     <field name="user_id"/>
@@ -49,6 +102,8 @@
                    <field name="ward_id"/>
                    <filter string="NEWS Observations Only" name="observations_news"
                        domain="[('data_model','in',['nh.clinical.patient.observation.ews'])]"/>
+                   <filter string="Not NEWS" name="other_tasks"
+                       domain="[('data_model','not in',['nh.clinical.patient.observation.ews'])]"/>
                    <separator/>
                </search>
             </field>
@@ -69,7 +124,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_kiosk_workload">
-            <field name="name">Kiosk Workload</field>
+            <field name="name">Kiosk Workload NEWS</field>
             <field name="res_model">nh.activity.workload</field>
             <field name="view_mode">kanban</field>
 			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','completed']],['user_ids','in',uid]]</field>
@@ -79,8 +134,23 @@
         <record model="ir.actions.act_window.view" id="act_view_workload_kiosk">
             <field eval="0" name="sequence"/>
             <field name="view_mode">kanban</field>
-            <field name="view_id" ref="view_activity_workload_kanban"/>
+            <field name="view_id" ref="view_activity_workload_kiosk_kanban"/>
             <field name="act_window_id" ref="action_kiosk_workload"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_kiosk_workload2">
+            <field name="name">Kiosk Workload Other Tasks</field>
+            <field name="res_model">nh.activity.workload</field>
+            <field name="view_mode">kanban</field>
+			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','completed']],['user_ids','in',uid]]</field>
+            <field name="context">{'search_default_other_tasks':1}</field>
+            <field name="search_view_id" ref="view_activity_workload_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_workload_kiosk2">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_activity_workload_kiosk_kanban"/>
+            <field name="act_window_id" ref="action_kiosk_workload2"/>
         </record>
      </data>
 </openerp>
