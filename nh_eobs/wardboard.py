@@ -191,7 +191,7 @@ class nh_clinical_wardboard(orm.Model):
 
     def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
         res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)
-        if view_type == 'form':
+        if view_type == 'form' and res['fields'].get('o2target'):
             user_pool = self.pool['res.users']
             user_ids = user_pool.search(cr, user, [
                 ['groups_id.name', 'in', ['NH Clinical Doctor Group', 'NH Clinical Ward Manager Group']]
