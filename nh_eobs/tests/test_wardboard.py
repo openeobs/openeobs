@@ -53,6 +53,9 @@ class TestWardboard(SingleTransactionCase):
         cls.ward_id = cls.location_pool.create(cr, uid, {'name': 'Ward0', 'code': 'W0', 'usage': 'ward',
                                                          'parent_id': cls.hospital_id, 'type': 'poc',
                                                          'context_ids': [[4, cls.eobs_context_id]]})
+        cls.ward_id2 = cls.location_pool.create(cr, uid, {'name': 'Ward1', 'code': 'W1', 'usage': 'ward',
+                                                          'parent_id': cls.hospital_id, 'type': 'poc',
+                                                          'context_ids': [[4, cls.eobs_context_id]]})
         cls.beds = [cls.location_pool.create(cr, uid, {'name': 'Bed'+str(i), 'code': 'B'+str(i), 'usage': 'bed',
                                                        'parent_id': cls.ward_id, 'type': 'poc',
                                                        'context_ids': [[4, cls.eobs_context_id]]}) for i in range(3)]
@@ -70,6 +73,9 @@ class TestWardboard(SingleTransactionCase):
 
         cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
         cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
+        cls.api.discharge(cr, cls.adt_uid, 'HN001', {})
+        cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
+        cls.api.transfer(cr, cls.adt_uid, 'HN001', {'location': 'W1'})
         cls.api.admit(cr, cls.adt_uid, 'HN002', {'location': 'W0'})
 
         placement_id = cls.activity_pool.search(cr, uid, [['patient_id', '=', cls.patients[0]],
@@ -115,7 +121,7 @@ class TestWardboard(SingleTransactionCase):
                                                             ['location2_id', '=', self.beds[1]],
                                                             ['activity_id.state', '=', 'completed']]))
 
-    def test_02_swap_beds_method(self):
+    def test_02_swap_beds_open_wizard(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.wardboard_swap_beds(cr, self.wm_uid, [self.wb_id])
@@ -148,26 +154,31 @@ class TestWardboard(SingleTransactionCase):
         move = self.activity_pool.browse(cr, uid, move_ids[0])
         self.assertEqual(move.data_ref.location_id.id, self.beds[2])
 
-    # def test_04_placement_method(self):
-    #     cr, uid = self.cr, self.uid
-    #
-    #     res = self.wardboard_pool.wardboard_patient_placement(cr, self.wm_uid, [self.wb_id])
-    #     res_id = self.devses_start_pool.search(cr, uid, [], order="id desc")[0]
-    #     view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs',
-    #                                                    'view_wardboard_device_session_start_form')[1]
-    #     self.assertDictEqual(res, {
-    #         'name': 'Start Device Session: ,  ',
-    #         'type': 'ir.actions.act_window',
-    #         'res_model': 'wardboard.device.session.start',
-    #         'res_id': res_id,
-    #         'view_mode': 'form',
-    #         'view_type': 'form',
-    #         'target': 'new',
-    #         'context': None,
-    #         'view_id': view_id
-    #     })
+    def test_04_placement_open_wizard(self):
+        cr, uid = self.cr, self.uid
 
-    def test_04_device_session_start(self):
+        # Scenario 1: Movement wizard opener
+        res = self.wardboard_pool.wardboard_patient_placement(cr, self.wm_uid, [self.wb_id])
+        res_id = self.movement_pool.search(cr, uid, [], order="id desc")[0]
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_patient_placement_form')[1]
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
+        self.assertDictEqual(res, {
+            'name': 'Move Patient: %s' % wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'wardboard.patient.placement',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': None,
+            'view_id': view_id
+        })
+
+        # Scenario 2: Try to use it for a not placed patient
+        with self.assertRaises(except_orm):
+            self.wardboard_pool.wardboard_patient_placement(cr, self.wm_uid, [self.wb_id3])
+
+    def test_05_device_session_start(self):
         cr, uid = self.cr, self.uid
 
         devtype_id = self.devtype_pool.search(cr, uid, [])[0]
@@ -212,7 +223,7 @@ class TestWardboard(SingleTransactionCase):
             ['patient_id', '=', self.patients[0]], ['data_model', '=', 'nh.clinical.device.session'],
             ['state', '=', 'started']]))
 
-    def test_05_device_session_start_method(self):
+    def test_06_device_session_start_open_wizard(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.device_session_start(cr, self.wm_uid, [self.wb_id])
@@ -232,7 +243,7 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_06_device_session_complete(self):
+    def test_07_device_session_complete(self):
         cr, uid = self.cr, self.uid
 
         activity_id = self.activity_pool.search(cr, uid, [
@@ -256,7 +267,7 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_07_device_session_complete_method(self):
+    def test_08_device_session_complete_open_wizard(self):
         cr, uid = self.cr, self.uid
 
         activity_id = self.activity_pool.search(cr, uid, [
@@ -279,14 +290,14 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_08_get_logo(self):
+    def test_09_get_logo(self):
         cr, uid = self.cr, self.uid
 
         patient = self.patient_pool.browse(cr, uid, self.patients[0])
         res = self.wardboard_pool._get_logo(cr, uid, [self.wb_id], 'company_logo', None)
         self.assertEqual(res[self.wb_id], patient.partner_id.company_id.logo)
 
-    def test_09_fields_view_get(self):
+    def test_10_fields_view_get(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.fields_view_get(cr, self.nurse_uid, view_id=False, view_type='form')
@@ -295,8 +306,11 @@ class TestWardboard(SingleTransactionCase):
         self.assertFalse(res['fields']['o2target']['readonly'])
         res = self.wardboard_pool.fields_view_get(cr, self.wm_uid, view_id=False, view_type='tree')
         self.assertTrue(res)
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_chart_form')[1]
+        res = self.wardboard_pool.fields_view_get(cr, self.wm_uid, view_id=view_id, view_type='form')
+        self.assertTrue(res)
 
-    def test_10_get_started_device_session_ids(self):
+    def test_11_get_started_device_session_ids(self):
         cr, uid = self.cr, self.uid
 
         devtype_id = self.devtype_pool.search(cr, uid, [])[1]
@@ -314,7 +328,7 @@ class TestWardboard(SingleTransactionCase):
             ['patient_id', '=', self.patients[0]], ['activity_id.state', '=', 'started']])
         self.assertListEqual(res[self.wb_id], ids)
 
-    def test_11_get_terminated_device_session_ids(self):
+    def test_12_get_terminated_device_session_ids(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool._get_terminated_device_session_ids(cr, self.wm_uid, [self.wb_id],
@@ -323,7 +337,7 @@ class TestWardboard(SingleTransactionCase):
             ['patient_id', '=', self.patients[0]], ['activity_id.state', 'in', ['completed', 'cancelled']]])
         self.assertListEqual(res[self.wb_id], ids)
 
-    def test_12_get_data_ids_multi(self):
+    def test_13_get_data_ids_multi(self):
         cr, uid = self.cr, self.uid
 
         fields = ['spell_ids', 'move_ids', 'o2target_ids', 'uotarget_ids', 'weight_ids', 'blood_sugar_ids', 'mrsa_ids',
@@ -337,14 +351,220 @@ class TestWardboard(SingleTransactionCase):
                                               ['activity_id.state', '=', 'completed']])
         self.assertListEqual(res[self.wb_id]['move_ids'], ids)
 
-    def test_13_get_transferred_user_ids(self):
+    def test_14_get_transferred_user_ids(self):
         cr, uid = self.cr, self.uid
 
-    def test_14_get_transferred_user_ids_search(self):
+        # Scenario 1: Get result for transferred patient
+        res = self.wardboard_pool._get_transferred_user_ids(cr, self.wm_uid, [self.wb_id2],
+                                                            'transferred_user_ids', None)
+        self.assertSetEqual(set(res[self.wb_id2]), {self.wm_uid, self.dr_uid})
+
+        # Scenario 2: Get result for NOT transferred patient
+        res = self.wardboard_pool._get_transferred_user_ids(cr, self.wm_uid, [self.wb_id],
+                                                            'transferred_user_ids', None)
+        self.assertListEqual(res[self.wb_id], [])
+
+    def test_15_get_transferred_user_ids_search(self):
         cr, uid = self.cr, self.uid
 
-    def test_15_is_placed(self):
+        res = self.wardboard_pool._transferred_user_ids_search(
+            cr, uid, 'nh.clinical.wardboard', 'transferred_user_ids', [['transferred_user_ids', 'in', [self.wm_uid]]])
+        self.assertListEqual(res, [('id', 'in', [self.wb_id2])])
+
+    def test_16_is_placed(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool._is_placed(cr, self.wm_uid, [self.wb_id], 'is_placed', None)
         self.assertTrue(res[self.wb_id])
+
+    def test_17_prescribe_action(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool.wardboard_prescribe(cr, self.wm_uid, [self.wb_id])
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_prescribe_form')[1]
+        self.assertDictEqual(res, {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': self.wb_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'current',
+            'context': None,
+            'view_id': view_id
+        })
+
+    def test_18_news_chart_action(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool.wardboard_chart(cr, self.wm_uid, [self.wb_id])
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_chart_form')[1]
+        self.assertDictEqual(res, {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': self.wb_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': None,
+            'view_id': view_id
+        })
+
+    def test_19_weight_chart_action(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool.wardboard_weight_chart(cr, self.wm_uid, [self.wb_id], {})
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_weight_chart_form')[1]
+        self.assertDictEqual(res, {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': self.wb_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': {'height': wardboard.height},
+            'view_id': view_id
+        })
+
+    def test_20_blood_sugar_chart_action(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool.wardboard_bs_chart(cr, self.wm_uid, [self.wb_id])
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_bs_chart_form')[1]
+        self.assertDictEqual(res, {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': self.wb_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': None,
+            'view_id': view_id
+        })
+
+    def test_21_news_list_action(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool.wardboard_ews(cr, self.wm_uid, [self.wb_id])
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
+        self.assertDictEqual(res, {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.patient.observation.ews',
+            'view_mode': 'tree',
+            'view_type': 'tree',
+            'target': 'new',
+            'domain': [('patient_id', '=', wardboard.patient_id.id), ('state', '=', 'completed')],
+            'context': None
+        })
+
+    def test_22_placement_action(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool.wardboard_place(cr, self.wm_uid, [self.wb_id3], {})
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id3)
+        placement_id = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[2]], ['state', '=', 'scheduled'],
+            ['data_model', '=', 'nh.clinical.patient.placement']])[0]
+        res_id = self.activity_pool.browse(cr, uid, placement_id).data_ref.id
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_clinical', 'view_patient_placement_complete')[1]
+        self.assertDictEqual(res, {
+            'name': wardboard.full_name + ' Placement',
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.patient.placement',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'context': {'active_id': placement_id},
+            'view_id': view_id
+        })
+
+    def test_23_write(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: Write MRSA parameter
+        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'mrsa': 'no'}))
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
+            ['data_model', '=', 'nh.clinical.patient.mrsa']])
+        self.assertTrue(activity_ids)
+
+        # Scenario 2: Write Diabetes parameter
+        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'diabetes': 'no'}))
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
+            ['data_model', '=', 'nh.clinical.patient.diabetes']])
+        self.assertTrue(activity_ids)
+
+        # Scenario 3: Write PBP Monitoring parameter
+        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'pbp_monitoring': 'no'}))
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
+            ['data_model', '=', 'nh.clinical.patient.pbp_monitoring']])
+        self.assertTrue(activity_ids)
+
+        # Scenario 4: Write Weight Monitoring parameter
+        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'weight_monitoring': 'no'}))
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
+            ['data_model', '=', 'nh.clinical.patient.weight_monitoring']])
+        self.assertTrue(activity_ids)
+
+        # Scenario 5: Write O2 Target parameter
+        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'o2target': False}))
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
+            ['data_model', '=', 'nh.clinical.patient.o2target']])
+        self.assertTrue(activity_ids)
+
+        # Scenario 6: Write Palliative Care parameter
+        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'palliative_care': 'no'}))
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
+            ['data_model', '=', 'nh.clinical.patient.palliative_care']])
+        self.assertTrue(activity_ids)
+
+    def test_24_get_cr_groups(self):
+        cr, uid = self.cr, self.uid
+
+        res, fold = self.wardboard_pool._get_cr_groups(cr, self.wm_uid, [self.wb_id], [])
+        groups = [['NoScore', 'No Score Yet'], ['High', 'High Risk'], ['Medium', 'Medium Risk'], ['Low', 'Low Risk'],
+                  ['None', 'No Risk']]
+        self.assertListEqual(res, groups)
+        self.assertDictEqual(fold, {g[0]: False for g in groups})
+
+    def test_25_open_previous_spell_action(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: Trigger action to open previous spell
+        res = self.wardboard_pool.open_previous_spell(cr, self.wm_uid, [self.wb_id2])
+        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id2)
+        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_form_discharged')[1]
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.spell'], ['patient_id', '=', self.patients[1]],
+            ['sequence', '<', wardboard.spell_activity_id.sequence], ['state', '=', 'completed']
+        ], order='sequence desc')
+        res_id = self.activity_pool.browse(cr, uid, activity_ids[0]).data_ref.id
+        self.assertDictEqual(res, {
+            'name': 'Previous Spell',
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'current',
+            'context': None,
+            'view_id': view_id
+        })
+
+        # Scenario 2: Attempt to trigger action without previous spell
+        with self.assertRaises(except_orm):
+            self.wardboard_pool.open_previous_spell(cr, self.wm_uid, [self.wb_id])

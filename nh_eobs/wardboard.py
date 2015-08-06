@@ -550,8 +550,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_patient_placement_complete')], context=context)
-        if not model_data_ids:
-            pass # view doesnt exist
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
 
         res_activity_id = self.pool['nh.activity'].search(cr, uid, [
