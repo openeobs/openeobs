@@ -431,103 +431,6 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="view_wardboard_print_chart_form">
-            <field name="name">Wardboard Print Chart Form View</field>
-            <field name="model">nh.clinical.wardboard</field>
-            <field name="arch" type="xml">
-                <form string="Wardboard Print Form View" version="7.0" create="0">
-                    <sheet>
-                        <div class="oe_title">
-                            <label string="Name" for="full_name"/>
-                            <h1><field name="full_name" readonly="1"/></h1>
-                        </div>
-
-                        <group>
-                            <group string="Personal Information">
-                                <field name="middle_names" readonly="1"/>
-                                <field name="dob" readonly="1" widget="date"/>
-                                <field name="age" readonly="1"/>
-                                <field name="sex" readonly="1"/>
-
-                            </group>
-                            <group string="Hospital Information">
-                                <field name="location" readonly="1"/>
-                                <field name="location_id" readonly="1" invisible="1"/>
-                                <field name="hospital_number" readonly="1"/>
-                                <field name="nhs_number" readonly="1"/>
-                            </group>
-                            <group string="Early Warning Score">
-                                <field name="next_diff" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
-                                <field name="ews_score" readonly="1"/>
-                                <field name="ews_trend" readonly="1"/>
-                                <field name="o2target" readonly="1"/>
-                            </group>
-                        </group>
-                        <field name="ews_ids" widget="nh_ewschart"/>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-
-        <record model="ir.ui.view" id="view_wardboard_print_report_form">
-            <field name="name">Wardboard Print Report Form View</field>
-            <field name="model">nh.clinical.wardboard</field>
-            <field name="arch" type="xml">
-                <form string="Wardboard Print Report Form View" version="7.0" create="0">
-                    <sheet>
-                        <div class="oe_title">
-                            <label string="Name" for="full_name"/>
-                            <h1><field name="full_name" readonly="1"/></h1>
-                        </div>
-                        <div class="oe_company_logo">
-                            <field name="company_logo" readonly="1" widget="image" width="300"/>
-                        </div>
-
-                        <group>
-                            <group string="Personal Information">
-                                <field name="middle_names" readonly="1"/>
-                                <field name="dob" readonly="1" widget="date"/>
-                                <field name="age" readonly="1"/>
-                                <field name="sex" readonly="1"/>
-
-                            </group>
-                            <group string="Hospital Information">
-                                <field name="location" readonly="1"/>
-                                <field name="location_id" readonly="1" invisible="1"/>
-                                <field name="hospital_number" readonly="1"/>
-                                <field name="nhs_number" readonly="1"/>
-                            </group>
-                            <group string="Early Warning Score">
-                                <field name="next_diff" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
-                                <field name="ews_score" readonly="1"/>
-                                <field name="ews_trend" readonly="1"/>
-                                <field name="o2target" readonly="1"/>
-                            </group>
-                            <group string="Admission">
-                                <field name="spell_date_started" readonly="1"/>
-                                <field name="spell_code" readonly="1"/>
-                            </group>
-                        </group>
-                        <field name="ews_ids" widget="nh_ewschart" nolabel="1"/>
-                        <group string="EWS List">
-                            <field name="ews_list_ids" nolabel="1" readonly="1"/>
-                        </group>
-                        <group string="Device Sessions History">
-                            <field name="terminated_device_session_ids" readonly="1" nolabel="1">
-                                <tree>
-                                    <field name="device_id"/>
-                                    <field name="date_started"/>
-                                    <field name="date_terminated"/>
-                                    <field name="state"/>
-                                </tree>
-                            </field>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
         <!-- Wardboard Kanban View -->
         <record model="ir.ui.view" id="view_wardboard_kanban">
             <field name="name">nh.clinical.wardboard.kanban</field>
@@ -628,7 +531,7 @@
                 <form string="Wardboard Discharged Patients Form View" version="7.0" create="0" delete="0">
                     <header>
                         <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
-                        <button name="print_report" string="Print Report" type="object"/>
+                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button name="wardboard_chart" string="NEWS Chart" type="object"/>
                         <button name="wardboard_ews" string="NEWS List" type="object"/>
                         <button name="wardboard_weight_chart" string="Weight Chart" type="object"/>
