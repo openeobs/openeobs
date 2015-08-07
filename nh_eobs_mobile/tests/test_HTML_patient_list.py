@@ -1,7 +1,6 @@
 __author__ = 'lorenzo'
 import logging
 from lxml import etree
-from openerp.addons.nh_eobs_mobile.controllers.urls import URLS
 from openerp.addons.nh_eobs_mobile.tests.common_HTML_rendering import MobileHTMLRenderingCase
 
 
@@ -9,63 +8,65 @@ _logger = logging.getLogger(__name__)
 
 
 class TestPatientListHTML(MobileHTMLRenderingCase):
-    """
-    Test case collecting all the tests relating to the RENDERING of the 'patient list' page.
+    """Test case collecting all the tests relating to the RENDERING of the 'patient list' page.
     Compare the actual rendered HTML pages against fixtures (i.e. 'fake' HTML files) specially built.
     """
     template_id = 'nh_eobs_mobile.patient_task_list'
-    patients_fixtures = [
-        {
-            'url': '/mobile/patient/1',
-            'color': 'level-not-set',
-            'deadline_time': '04:00 hours',
-            'full_name': 'Wren, Colin',
-            'ews_score': 'False',
-            'ews_trend': 'False',
-            'location': 'Bed 1',
-            'parent_location': 'Ward A'
-        },
-        {
-            'url': '/mobile/patient/2',
-            'color': 'level-none',
-            'deadline_time': 'overdue: 23:00 hours',
-            'full_name': 'Ortiz, Joel',
-            'ews_score': 0,
-            'ews_trend': 'same',
-            'location': 'Bed 2',
-            'parent_location': 'Ward A'
-        },
-        {
-            'url': '/mobile/patient/3',
-            'color': 'level-one',
-            'deadline_time': 'overdue: 1 day 02:00 hours',
-            'full_name': 'Earp, Will',
-            'ews_score': 2,
-            'ews_trend': 'up',
-            'location': 'Bed 3',
-            'parent_location': 'Ward A'
-        },
-        {
-            'url': '/mobile/patient/4',
-            'color': 'level-two',
-            'deadline_time': '1 day 02:00 hours',
-            'full_name': 'Lenz, Gregor',
-            'ews_score': 5,
-            'ews_trend': 'down',
-            'location': 'Bed 4',
-            'parent_location': 'Ward A'
-        },
-        {
-            'url': '/mobile/patient/5',
-            'color': 'level-three',
-            'deadline_time': '00:00 hours',
-            'full_name': 'Pascucci, Lorenzo',
-            'ews_score': 8,
-            'ews_trend': 'same',
-            'location': 'Bed 5',
-            'parent_location': 'Ward A'
-        }
-    ]
+
+    def setUp(self):
+        super(TestPatientListHTML, self).setUp()
+        self.patients_fixtures = [
+            {
+                'url': '/mobile/patient/1',
+                'color': 'level-not-set',
+                'deadline_time': '04:00 hours',
+                'full_name': 'Wren, Colin',
+                'ews_score': 'False',
+                'ews_trend': 'False',
+                'location': 'Bed 1',
+                'parent_location': 'Ward A'
+            },
+            {
+                'url': '/mobile/patient/2',
+                'color': 'level-none',
+                'deadline_time': 'overdue: 23:00 hours',
+                'full_name': 'Ortiz, Joel',
+                'ews_score': 0,
+                'ews_trend': 'same',
+                'location': 'Bed 2',
+                'parent_location': 'Ward A'
+            },
+            {
+                'url': '/mobile/patient/3',
+                'color': 'level-one',
+                'deadline_time': 'overdue: 1 day 02:00 hours',
+                'full_name': 'Earp, Will',
+                'ews_score': 2,
+                'ews_trend': 'up',
+                'location': 'Bed 3',
+                'parent_location': 'Ward A'
+            },
+            {
+                'url': '/mobile/patient/4',
+                'color': 'level-two',
+                'deadline_time': '1 day 02:00 hours',
+                'full_name': 'Lenz, Gregor',
+                'ews_score': 5,
+                'ews_trend': 'down',
+                'location': 'Bed 4',
+                'parent_location': 'Ward A'
+            },
+            {
+                'url': '/mobile/patient/5',
+                'color': 'level-three',
+                'deadline_time': '00:00 hours',
+                'full_name': 'Pascucci, Lorenzo',
+                'ews_score': 8,
+                'ews_trend': 'same',
+                'location': 'Bed 5',
+                'parent_location': 'Ward A'
+            }
+        ]
 
     def test_patient_list_page_with_no_data(self):
         """Test the 'patient list' page without any information in it."""
@@ -87,7 +88,7 @@ class TestPatientListHTML(MobileHTMLRenderingCase):
             'followed_items': [],
             'section': 'patient',
             'username': 'nadine',
-            'urls': URLS
+            'urls': self.controller_urls
         }
 
         # Test the template rendering.
@@ -129,7 +130,7 @@ class TestPatientListHTML(MobileHTMLRenderingCase):
             'followed_items': [],
             'section': 'patient',
             'username': 'nadine',
-            'urls': URLS
+            'urls': self.controller_urls
         }
 
         # Test the template rendering.
@@ -178,7 +179,7 @@ class TestPatientListHTML(MobileHTMLRenderingCase):
             'followed_items': [],
             'section': 'patient',
             'username': 'nadine',
-            'urls': URLS
+            'urls': self.controller_urls
         }
 
         # Test the template rendering.
@@ -238,7 +239,7 @@ class TestPatientListHTML(MobileHTMLRenderingCase):
             'followed_items': followed_patients,
             'section': 'patient',
             'username': 'nadine',
-            'urls': URLS
+            'urls': self.controller_urls
         }
 
         # Test the template rendering.
