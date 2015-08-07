@@ -443,16 +443,14 @@ openerp.nh_eobs = function (instance) {
                     resp_rate_graph.options.measurement = '/min';
                     resp_rate_graph.axes.y.min = 0;
                     resp_rate_graph.axes.y.max = 40;
-                    resp_rate_graph.options.normal.min = 9;
+                    resp_rate_graph.options.normal.min = 12;
                     resp_rate_graph.options.normal.max = 20;
                     resp_rate_graph.style.dimensions.height = 250;
                     resp_rate_graph.style.data_style = 'linear';
                     resp_rate_graph.style.label_width = 60;
                     resp_rate_graph.drawables.background.data =  [
-                        {"class": "red",s: 0, e: 8},
-                        {"class": "amber",s: 8,e: 9},
-                        {"class": "green",s: 9,e: 11},
-                        {"class": "green",s: 20, e: 21},
+                        {"class": "red",s: 0, e: 9},
+                        {"class": "green",s: 9,e: 12},
                         {"class": "amber",s: 21,e: 25},
                         {"class": "red",s: 25,e: 60}
                     ];
