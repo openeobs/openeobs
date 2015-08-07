@@ -368,7 +368,7 @@
                                 <h3 class="obs">Take observation</h3>
                             </t>
                         </a>
-                        <ul id="obsMenu" class="menu hidden">
+                        <ul t-if="len(obs_list) > 0" id="obsMenu" class="menu hidden">
                             <t t-foreach="obs_list" t-as="ob">
                                 <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>
                             </t>
