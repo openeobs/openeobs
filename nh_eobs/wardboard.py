@@ -455,8 +455,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_prescribe_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -475,8 +473,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -495,8 +491,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_weight_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
 
         context.update({'height': wardboard.height})
@@ -517,8 +511,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_bs_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -578,8 +570,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_print_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         context.update({'printing': 'true'})
         return {
