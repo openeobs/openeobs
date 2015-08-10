@@ -276,14 +276,15 @@
                             <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
-                   <t t-if="item['name']=='bristol_type'">
-                       <p><button data-type="image" t-att-data-url="urls['bristol_stools_chart']" data-title="Bristol Stools Chart" class="button exclude">Bristol Type Reference</button></p>
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                   <t t-if="reference">
+                       <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
                    </t>
                    <span class="errors"><t t-esc="item['errors']"/></span>
                    <span class="help"><t t-esc="item['info']"/></span>
                </div>
            </div>
-       </template>
+        </template>
 
         <template name="Input box" t-name="nh_eobs_mobile.observation_data_input">
             <div t-att-class="'block obsField valHide' if 'initially_hidden' in item and item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
@@ -301,6 +302,10 @@
                     </t>  -->
                 </div>
                 <div class="input-body">
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                    </t>
                     <span class="errors"><t t-esc="item['errors']"/></span>
                     <span class="help"><t t-esc="item['info']"/></span>
                 </div>
@@ -321,6 +326,14 @@
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
                     </t>  -->
+                </div>
+                <div class="input-body">
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                    </t>
+                    <span class="errors"><t t-esc="item['errors']"/></span>
+                    <span class="help"><t t-esc="item['info']"/></span>
                 </div>
                 <!--<div class="input-body">-->
                     <!--<span class="errors">-->
