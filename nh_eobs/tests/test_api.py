@@ -1,10 +1,5 @@
 from openerp.tests.common import SingleTransactionCase
-from datetime import datetime as dt, timedelta as td
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-
-from faker import Faker
-
-fake = Faker()
+from openerp.osv.orm import except_orm
 
 
 class TestAPI(SingleTransactionCase):
@@ -14,615 +9,520 @@ class TestAPI(SingleTransactionCase):
         super(TestAPI, cls).setUpClass()
         cr, uid = cls.cr, cls.uid
         
-        cls.users_pool = cls.registry('res.users')
+        cls.user_pool = cls.registry('res.users')
         cls.groups_pool = cls.registry('res.groups')
         cls.partner_pool = cls.registry('res.partner')
         cls.activity_pool = cls.registry('nh.activity')
         cls.patient_pool = cls.registry('nh.clinical.patient')
+        cls.spell_pool = cls.registry('nh.clinical.spell')
         cls.location_pool = cls.registry('nh.clinical.location')
+        cls.context_pool = cls.registry('nh.clinical.context')
+        cls.api = cls.registry('nh.clinical.api')
         cls.pos_pool = cls.registry('nh.clinical.pos')
-        cls.extapi = cls.registry('nh.eobs.api')
+        cls.eobs_api = cls.registry('nh.eobs.api')
         cls.apidemo = cls.registry('nh.clinical.api.demo')
         cls.follow_pool = cls.registry('nh.clinical.patient.follow')
         cls.unfollow_pool = cls.registry('nh.clinical.patient.unfollow')
+        cls.creason_pool = cls.registry('nh.cancel.reason')
 
-        cls.apidemo.build_unit_test_env(cr, uid, bed_count=4, context='eobs')
+        cls.eobs_context_id = cls.context_pool.search(cr, uid, [['name', '=', 'eobs']])[0]
+        cls.admin_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Admin Group']])[0]
+        cls.hca_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical HCA Group']])[0]
+        cls.nurse_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Nurse Group']])[0]
+        cls.wm_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Ward Manager Group']])[0]
+        cls.dr_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Doctor Group']])[0]
 
-        cls.wu_id = cls.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
-        cls.wt_id = cls.location_pool.search(cr, uid, [('code', '=', 'T')])[0]
-        cls.pos_id = cls.location_pool.read(cr, uid, cls.wu_id, ['pos_id'])['pos_id'][0]
-        cls.pos_location_id = cls.pos_pool.read(cr, uid, cls.pos_id, ['location_id'])['location_id'][0]
+        cls.hospital_id = cls.location_pool.create(cr, uid, {'name': 'Test Hospital', 'code': 'TESTHOSP',
+                                                             'usage': 'hospital'})
+        cls.pos_id = cls.pos_pool.create(cr, uid, {'name': 'Test POS', 'location_id': cls.hospital_id})
 
-        cls.wmu_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMU')])[0]
-        cls.wmt_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMT')])[0]
-        cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
-        cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
-        cls.hu_id = cls.users_pool.search(cr, uid, [('login', '=', 'HU')])[0]
-        cls.ht_id = cls.users_pool.search(cr, uid, [('login', '=', 'HT')])[0]
-        cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
+        cls.adt_uid = cls.user_pool.create(cr, uid, {'name': 'Admin 0', 'login': 'user_000', 'pos_id': cls.pos_id,
+                                                     'password': 'user_000', 'groups_id': [[4, cls.admin_group_id]]})
+        cls.ward_id = cls.location_pool.create(cr, uid, {'name': 'Ward0', 'code': 'W0', 'usage': 'ward',
+                                                         'parent_id': cls.hospital_id, 'type': 'poc',
+                                                         'context_ids': [[4, cls.eobs_context_id]]})
+        cls.ward_id2 = cls.location_pool.create(cr, uid, {'name': 'Ward1', 'code': 'W1', 'usage': 'ward',
+                                                          'parent_id': cls.hospital_id, 'type': 'poc',
+                                                          'context_ids': [[4, cls.eobs_context_id]]})
+        cls.beds = [cls.location_pool.create(cr, uid, {'name': 'Bed'+str(i), 'code': 'B'+str(i), 'usage': 'bed',
+                                                       'parent_id': cls.ward_id, 'type': 'poc',
+                                                       'context_ids': [[4, cls.eobs_context_id]]}) for i in range(3)]
+        cls.hca_uid = cls.user_pool.create(cr, uid, {'name': 'HCA0', 'login': 'hca0', 'password': 'hca0',
+                                                     'groups_id': [[4, cls.hca_group_id]], 'location_ids': [[5]]})
+        cls.nurse_uid = cls.user_pool.create(cr, uid, {'name': 'NURSE0', 'login': 'n0', 'password': 'n0',
+                                                       'groups_id': [[4, cls.nurse_group_id]],
+                                                       'location_ids': [[4, cls.beds[0]]]})
+        cls.wm_uid = cls.user_pool.create(cr, uid, {'name': 'WM0', 'login': 'wm0', 'password': 'wm0',
+                                                    'groups_id': [[4, cls.wm_group_id]],
+                                                    'location_ids': [[4, cls.ward_id]]})
+        cls.dr_uid = cls.user_pool.create(cr, uid, {'name': 'DR0', 'login': 'dr0', 'password': 'dr0',
+                                                    'groups_id': [[4, cls.dr_group_id]],
+                                                    'location_ids': [[4, cls.ward_id]]})
+        cls.patients = [cls.patient_pool.create(cr, uid, {'other_identifier': 'HN00'+str(i)}) for i in range(3)]
 
-    def test_01_check_activity_access(self):
+        cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
+        cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
+
+        placement_id = cls.activity_pool.search(cr, uid, [['patient_id', '=', cls.patients[0]],
+                                                          ['data_model', '=', 'nh.clinical.patient.placement'],
+                                                          ['state', '=', 'scheduled']])[0]
+        cls.activity_pool.submit(cr, uid, placement_id, {'location_id': cls.beds[0]})
+        cls.activity_pool.complete(cr, uid, placement_id)
+
+        # cls.apidemo.build_unit_test_env(cr, uid, bed_count=4, context='eobs')
+        #
+        # cls.wu_id = cls.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
+        # cls.wt_id = cls.location_pool.search(cr, uid, [('code', '=', 'T')])[0]
+        # cls.pos_id = cls.location_pool.read(cr, uid, cls.wu_id, ['pos_id'])['pos_id'][0]
+        # cls.pos_location_id = cls.pos_pool.read(cr, uid, cls.pos_id, ['location_id'])['location_id'][0]
+        #
+        # cls.wmu_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMU')])[0]
+        # cls.wmt_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMT')])[0]
+        # cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
+        # cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
+        # cls.hu_id = cls.users_pool.search(cr, uid, [('login', '=', 'HU')])[0]
+        # cls.ht_id = cls.users_pool.search(cr, uid, [('login', '=', 'HT')])[0]
+        # cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
+
+    def test_01_check_activity_id(self):
         cr, uid = self.cr, self.uid
 
-        u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
-        t_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wt_id), ('location_id.usage', '=', 'bed')])
+        # Scenario 1: activity_id exists
+        activity_ids = self.activity_pool.search(cr, uid, [])
+        self.assertTrue(self.eobs_api._check_activity_id(cr, uid, activity_ids[0]))
 
-        for u_act_id in u_activity_ids:
-            self.assertTrue(self.extapi.check_activity_access(cr, self.nu_id, u_act_id), msg='Nurse U should have access to Ward U Activities')
-            self.assertFalse(self.extapi.check_activity_access(cr, self.nt_id, u_act_id), msg='Nurse T should not have access to Ward U Activities')
+        # Scenario 2: activity_id does not exist
+        with self.assertRaises(except_orm):
+            self.eobs_api._check_activity_id(cr, uid, -1)
 
-        for t_act_id in t_activity_ids:
-            self.assertTrue(self.extapi.check_activity_access(cr, self.nt_id, t_act_id), msg='Nurse T should have access to Ward T Activities')
-            self.assertFalse(self.extapi.check_activity_access(cr, self.nu_id, t_act_id), msg='Nurse U should not have access to Ward T Activities')
-
-    def test_02_get_activities(self):
+    def test_02_check_activity_access(self):
         cr, uid = self.cr, self.uid
 
-        u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
-        t_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wt_id), ('location_id.usage', '=', 'bed')])
+        # Scenario 1: user is responsible for the activity
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'scheduled'],
+            ['data_model', '=', 'nh.clinical.patient.observation.ews']])
+        self.assertTrue(self.eobs_api.check_activity_access(cr, self.nurse_uid, activity_ids[0]))
 
-        u_api_activities = self.extapi.get_activities(cr, self.nu_id, [])
-        t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
+        # Scenario 2: user is not responsible for the activity
+        self.assertFalse(self.eobs_api.check_activity_access(cr, self.hca_uid, activity_ids[0]))
 
-        for a in u_api_activities:
-            self.assertTrue(a['id'] in u_activity_ids, msg='Get activities returned an activity the Nurse is not responsible for')
-        for a in t_api_activities:
-            self.assertTrue(a['id'] in t_activity_ids, msg='Get activities returned an activity the Nurse is not responsible for')
+        # Scenario 3: the activity has been assigned to a specific user
+        self.activity_pool.write(cr, uid, activity_ids[0], {'user_id': self.hca_uid})
+        self.assertFalse(self.eobs_api.check_activity_access(cr, self.nurse_uid, activity_ids[0]))
+        self.activity_pool.write(cr, uid, activity_ids[0], {'user_id': False})
 
-        patient_id = u_api_activities[0]['patient_id']
-        follow_activity_id = self.follow_pool.create_activity(cr, uid, {'user_id': self.nt_id}, {'patient_ids': [[4, patient_id]]})
-        self.activity_pool.complete(cr, uid, follow_activity_id)
-        t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
-        self.assertTrue(patient_id in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
-
-        unfollow_activity_id = self.unfollow_pool.create_activity(cr, uid, {}, {'patient_ids': [[4, patient_id]]})
-        self.activity_pool.complete(cr, uid, unfollow_activity_id)
-        t_api_activities = self.extapi.get_activities(cr, self.nt_id, [])
-        self.assertTrue(patient_id not in [a['patient_id'] for a in t_api_activities], msg="Get activities not returning followed patient activities")
-
-    def test_03_cancel_activity(self):
+    def test_03_create_activity(self):
         cr, uid = self.cr, self.uid
 
-        u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
+        activity_id = self.eobs_api._create_activity(cr, self.nurse_uid, 'nh.clinical.patient.move', {}, {})
+        self.assertTrue(activity_id)
 
-        self.extapi.cancel(cr, self.nu_id, u_activity_ids[0], None)
-        state = self.activity_pool.read(cr, uid, u_activity_ids[0], ['state'])['state']
-        self.assertTrue(state == 'cancelled', msg='Activity state did not change to cancelled after cancel')
-
-    def test_04_assign_unassign_activity(self):
+    def test_04_get_activities_for_spell(self):
         cr, uid = self.cr, self.uid
 
-        u_activity_ids = self.activity_pool.search(cr, uid, [('state', 'not in', ['completed', 'cancelled']), ('location_id', 'child_of', self.wu_id), ('location_id.usage', '=', 'bed')])
+        # Scenario 1: get activities
+        spell_id = self.spell_pool.get_by_patient_id(cr, uid, self.patients[0])
+        activities_data = self.eobs_api.get_activities_for_spell(cr, self.wm_uid, spell_id, False)
+        self.assertEqual(len(activities_data), 1)
+        self.assertEqual(activities_data[0]['data_model'], 'nh.clinical.patient.observation.ews')
+        self.activity_pool.submit(cr, self.nurse_uid, activities_data[0]['id'], {
+            'respiration_rate': 35,
+            'indirect_oxymetry_spo2': 99,
+            'body_temperature': 37.5,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 65,
+            'avpu_text': 'A',
+            'oxygen_administration_flag': False
+        })
+        self.activity_pool.complete(cr, self.nurse_uid, activities_data[0]['id'])
 
-        self.extapi.assign(cr, self.nu_id, u_activity_ids[0], None)
-        user_id = self.activity_pool.read(cr, uid, u_activity_ids[0], ['user_id'])['user_id'][0]
-        self.assertTrue(user_id == self.nu_id, msg='Activity user_id does not match the nurse id after assign')
-        self.extapi.unassign(cr, self.nu_id, u_activity_ids[0])
-        user_id = self.activity_pool.read(cr, uid, u_activity_ids[0], ['user_id'])['user_id']
-        self.assertFalse(user_id, msg='Activity user_id is not None after unassign')
+        # Scenario 2: get specific observations data
+        activities_data = self.eobs_api.get_activities_for_spell(cr, self.wm_uid, spell_id, 'ews')
+        self.assertEqual(len(activities_data), 1)
 
-    def test_05_get_patients(self):
+        # Scenario 3: try to get data for an spell that doesn't exist
+        with self.assertRaises(except_orm):
+            self.eobs_api.get_activities_for_spell(cr, self.wm_uid, -1, 'ews')
+
+    def test_05_get_activities(self):
         cr, uid = self.cr, self.uid
 
-        u_patient_ids = self.patient_pool.search(cr, uid, [('current_location_id', 'child_of', self.wu_id), ('current_location_id.usage', '=', 'bed')])
-        t_patient_ids = self.patient_pool.search(cr, uid, [('current_location_id', 'child_of', self.wt_id), ('current_location_id.usage', '=', 'bed')])
+        # Scenario 1: get specific activities data
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
+            ['data_model', '=', 'nh.clinical.patient.observation.ews']])
+        data = self.eobs_api.get_activities(cr, self.nurse_uid, activity_ids)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['ews_score'], '3')
+        self.assertEqual(data[0]['id'], activity_ids[0])
 
-        u_api_patients = self.extapi.get_patients(cr, self.nu_id, [])
-        t_api_patients = self.extapi.get_patients(cr, self.nt_id, [])
+        # Scenario 2: get responsibility activities
+        data = self.eobs_api.get_activities(cr, self.nurse_uid, [])
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]['summary'], 'Urgently inform medical team')
+        self.assertEqual(data[1]['summary'], 'NEWS Observation')
 
-        for a in u_api_patients:
-            self.assertTrue(a['id'] in u_patient_ids, msg='Get patients returned a patient the Nurse is not responsible for')
-        for a in t_api_patients:
-            self.assertTrue(a['id'] in t_patient_ids, msg='Get patients returned a patient the Nurse is not responsible for')
+        # Scenario 3: get activities returns no data
+        data = self.eobs_api.get_activities(cr, self.nurse_uid, [-1])
+        self.assertFalse(data)
 
-    def test_06_patient_update(self):
+    def test_06_submit(self):
         cr, uid = self.cr, self.uid
 
-        patient_ids = self.patient_pool.search(cr, uid, [('current_location_id', 'child_of', self.pos_location_id)])
-        pnhs = {}
-        for pid in patient_ids:
-            pnhs[pid] = 'NHS'+str(pid)
-            phn = self.patient_pool.read(cr, uid, pid, ['other_identifier'])['other_identifier']
-            self.extapi.update(cr, self.adt_id, phn, {'patient_identifier': pnhs[pid]})
-
-        for pid in patient_ids:
-            check_nhs = self.patient_pool.read(cr, uid, pid, ['patient_identifier'])['patient_identifier']
-            self.assertTrue(check_nhs == pnhs[pid], msg='NHS number does not match after patient update')
-
-    def test_07_patient_register(self):
-        cr, uid = self.cr, self.uid
-        
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS001',
-            'family_name': "Al'Thor",
-            'given_name': 'Rand',
-            'dob': dob,
-            'gender': 'M',
-            'sex': 'M'
+        data = {
+            'respiration_rate': 11,
+            'indirect_oxymetry_spo2': 99,
+            'body_temperature': 37.5,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 65,
+            'avpu_text': 'A',
+            'oxygen_administration_flag': False
         }
-        
-        self.extapi.register(cr, self.adt_id, 'TESTP0001', patient_data)
-        
-        check_patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0001')])
-        self.assertTrue(check_patient_id)
-        check_patient = self.patient_pool.read(cr, uid, check_patient_id[0], [])
-        self.assertTrue(check_patient['patient_identifier'] == patient_data['patient_identifier'], msg='NHS number does not match after patient register')
-        self.assertTrue(check_patient['family_name'] == patient_data['family_name'], msg='Family name does not match after patient register')
-        self.assertTrue(check_patient['given_name'] == patient_data['given_name'], msg='Name does not match after patient register')
-        self.assertTrue(check_patient['dob'] == patient_data['dob'], msg='Date of birth does not match after patient register')
-        self.assertTrue(check_patient['gender'] == patient_data['gender'], msg='Gender does not match after patient register')
-        self.assertTrue(check_patient['sex'] == patient_data['sex'], msg='Sex does not match after patient register')
 
-    def test_08_patient_admit_update_and_cancel(self):
+        # Scenario 1: submit data for an activity
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', '=', 'scheduled'],
+            ['data_model', '=', 'nh.clinical.patient.observation.ews']])
+        self.assertTrue(self.eobs_api.submit(cr, self.nurse_uid, activity_ids[0], data))
+
+        # Scenario 2: attempt submission without responsibility
+        with self.assertRaises(except_orm):
+            self.eobs_api.submit(cr, self.hca_uid, activity_ids[0], data)
+
+    def test_07_assign(self):
         cr, uid = self.cr, self.uid
 
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS002',
-            'family_name': 'Aybara',
-            'given_name': 'Perrin',
-            'dob': dob,
-            'gender': 'M',
-            'sex': 'M'
+        # Scenario 1: attempt to assign without responsibility
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', 'not in', ['completed', 'cancelled']],
+            ['data_model', '=', 'nh.clinical.notification.medical_team']])
+        with self.assertRaises(except_orm):
+            self.eobs_api.assign(cr, self.hca_uid, activity_ids[0], False)
+
+        # Scenario 2: attempt to assign to a non existing user
+        with self.assertRaises(except_orm):
+            self.eobs_api.assign(cr, self.nurse_uid, activity_ids[0], {'user_id': -1})
+
+        # Scenario 3: assign the activity
+        self.eobs_api.assign(cr, self.nurse_uid, activity_ids[0], {'user_id': self.hca_uid})
+        activity = self.activity_pool.browse(cr, uid, activity_ids[0])
+        self.assertEqual(activity.user_id.id, self.hca_uid)
+
+    def test_08_follow_invite(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: attempt to send an invite for a patient you are not responsible for
+        with self.assertRaises(except_orm):
+            self.eobs_api.follow_invite(cr, self.nurse_uid, [self.patients[1]], self.hca_uid)
+
+        # Scenario 2: invite another user to follow a patient
+        self.assertTrue(self.eobs_api.follow_invite(cr, self.nurse_uid, [self.patients[0]], self.hca_uid))
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.patient.follow'], ['user_id', '=', self.hca_uid], ['state', '=', 'new']])
+        self.assertTrue(activity_ids)
+
+    def test_09_get_invited_users(self):
+        cr, uid = self.cr, self.uid
+
+        patients = self.eobs_api.get_patients(cr, self.nurse_uid, [])
+        self.assertTrue(self.eobs_api.get_invited_users(cr, self.nurse_uid, patients))
+        self.assertEqual(len(patients[0]['invited_users']), 1)
+        self.assertEqual(patients[0]['invited_users'][0]['id'], self.hca_uid)
+        self.assertEqual(patients[0]['invited_users'][0]['name'], 'HCA0')
+
+    def test_10_get_assigned_activities(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: get specific type activities
+        res = self.eobs_api.get_assigned_activities(cr, self.hca_uid, 'nh.clinical.notification.medical_team')
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]['message'], 'You have a notification')
+
+        # Scenario 2: get all assigned activities
+        res = self.eobs_api.get_assigned_activities(cr, self.hca_uid)
+        self.assertEqual(len(res), 2)
+
+    def test_11_get_patient_followers(self):
+        cr, uid = self.cr, self.uid
+
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.patient.follow'], ['user_id', '=', self.hca_uid], ['state', '=', 'new']])
+        self.activity_pool.complete(cr, self.hca_uid, activity_ids[0])
+        patients = self.eobs_api.get_patients(cr, self.nurse_uid, [])
+        self.assertTrue(self.eobs_api.get_patient_followers(cr, self.nurse_uid, patients))
+        self.assertEqual(len(patients[0]['followers']), 1)
+        self.assertEqual(patients[0]['followers'][0]['id'], self.hca_uid)
+        self.assertEqual(patients[0]['followers'][0]['name'], 'HCA0')
+
+    def test_12_remove_followers(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: attempt to remove followers for a patient you are not responsible for
+        with self.assertRaises(except_orm):
+            self.eobs_api.remove_followers(cr, self.nurse_uid, [self.patients[1]])
+
+        # Scenario 2: remove patient followers
+        self.assertTrue(self.eobs_api.remove_followers(cr, self.nurse_uid, [self.patients[0]]))
+
+    def test_13_unassign(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: attempt to unassign without being assigned to the activity
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', 'not in', ['completed', 'cancelled']],
+            ['data_model', '=', 'nh.clinical.notification.medical_team']])
+        with self.assertRaises(except_orm):
+            self.eobs_api.unassign(cr, self.nurse_uid, activity_ids[0])
+
+        # Scenario 2: unassign hca activities
+        self.assertTrue(self.eobs_api.unassign_my_activities(cr, self.hca_uid))
+        activity = self.activity_pool.browse(cr, uid, activity_ids[0])
+        self.assertFalse(activity.user_id)
+
+    def test_14_complete(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: attempt to complete without responsibility
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', 'not in', ['completed', 'cancelled']],
+            ['data_model', '=', 'nh.clinical.notification.medical_team']])
+        with self.assertRaises(except_orm):
+            self.eobs_api.complete(cr, self.hca_uid, activity_ids[0], {})
+
+        # Scenario 2: complete an activity
+        self.assertTrue(self.eobs_api.complete(cr, self.nurse_uid, activity_ids[0], {}))
+
+    def test_15_get_cancel_reasons(self):
+        cr, uid = self.cr, self.uid
+
+        reason_ids = list()
+        reason_ids.append(self.creason_pool.create(cr, uid, {'name': 'test_reason_01', 'system': False}))
+        reason_ids.append(self.creason_pool.create(cr, uid, {'name': 'test_reason_02', 'system': True}))
+
+        reasons = self.eobs_api.get_cancel_reasons(cr, uid)
+        self.assertTrue(reasons)
+        reason_returned = False
+        for r in reasons:
+            if r['id'] in reason_ids:
+                self.assertEqual(r['name'], 'test_reason_01')
+                reason_returned = True
+        self.assertTrue(reason_returned)
+
+    def test_16_get_form_description(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.get_form_description(cr, self.nurse_uid, self.patients[0],
+                                                           'nh.clinical.patient.observation.ews'))
+
+    def test_17_is_cancellable(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.is_cancellable(cr, self.nurse_uid, 'nh.clinical.notification.medical_team'))
+        self.assertFalse(self.eobs_api.is_cancellable(cr, self.nurse_uid, 'nh.clinical.patient.observation.ews'))
+
+    def test_18_get_activity_score(self):
+        cr, uid = self.cr, self.uid
+
+        data = {
+            'respiration_rate': 35,
+            'indirect_oxymetry_spo2': 99,
+            'body_temperature': 37.5,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 65,
+            'avpu_text': 'A',
+            'oxygen_administration_flag': False
         }
 
-        self.extapi.register(cr, self.adt_id, 'TESTP0002', patient_data)
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0002')])[0]
+        self.assertFalse(self.eobs_api.get_activity_score(cr, self.nurse_uid,
+                                                          'nh.clinical.notification.medical_team', {}))
+        self.assertDictEqual(self.eobs_api.get_activity_score(cr, self.nurse_uid,
+                                                          'nh.clinical.patient.observation.ews', data), {
+            'score': 3, 'clinical_risk': 'Medium', 'three_in_one': True
+        })
 
-        doctors_data = [
+    def test_19_get_active_observations(self):
+        cr, uid = self.cr, self.uid
+
+        active_observations = [
             {
-                'type': 'c',
-                'code': 'c01',
-                'title': 'dr',
-                'family_name': 'Damodred',
-                'given_name': 'Moiraine'
+                'type': 'ews',
+                'name': 'National Early Warning Score (NEWS)'
             },
             {
-                'type': 'r',
-                'code': 'r01',
-                'title': 'dr',
-                'family_name': "Al'Vere",
-                'given_name': 'Egwene'
+                'type': 'height',
+                'name': 'Height'
+            },
+            {
+                'type': 'weight',
+                'name': 'Weight'
+            },
+            {
+                'type': 'blood_product',
+                'name': 'Blood Product'
+            },
+            {
+                'type': 'blood_sugar',
+                'name': 'Blood Sugar'
+            },
+            {
+                'type': 'stools',
+                'name': 'Bristol Stool Scale'
+            },
+            {
+                'type': 'gcs',
+                'name': 'Glasglow Coma Scale (GCS)'
+            },
+            {
+                'type': 'pbp',
+                'name': 'Postural Blood Pressure'
             }
         ]
-        doa = dt.now().strftime(dtf)
-        admit_data = {
-            'location': 'U',
-            'start_date': doa,
-            'doctors': doctors_data
-        }
 
-        self.extapi.admit(cr, self.adt_id, 'TESTP0002', admit_data)
+        self.assertListEqual(self.eobs_api.get_active_observations(cr, self.nurse_uid, self.patients[0]),
+                             active_observations)
+        self.assertFalse(self.eobs_api.get_active_observations(cr, self.nurse_uid, self.patients[2]))
 
-        # check there is an open spell for that patient with start_date doa
-        spell_activity_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.spell'), ('patient_id', '=', patient_id)])
-        self.assertTrue(spell_activity_id, msg='No spell found after admission')
-        spell = self.activity_pool.browse(cr, uid, spell_activity_id[0])
-        self.assertTrue(spell.data_ref.start_date == doa, msg='Date of admission does not match')
-        # check there is an open placement activity with suggested location ward U for this patient
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after admission')
-        placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
-        self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wu_id, msg='Placement activity does not have the correct location after admission')
-        # check there are doctors matching the doctors_data info and they are related to the patient spell
-        for rdoctor in spell.data_ref.ref_doctor_ids:
-            self.assertTrue(rdoctor.title.name == 'dr', msg='Doctor title does not match')
-            self.assertTrue(rdoctor.code == 'r01', msg='Doctor code does not match')
-            self.assertTrue(rdoctor.name == "Al'Vere, Egwene", msg='Doctor name does not match')
-        for cdoctor in spell.data_ref.con_doctor_ids:
-            self.assertTrue(cdoctor.title.name == 'dr', msg='Doctor title does not match')
-            self.assertTrue(cdoctor.code == 'c01', msg='Doctor code does not match')
-            self.assertTrue(cdoctor.name == "Damodred, Moiraine", msg='Doctor name does not match')
-
-        update_data = {
-            'location': 'T',
-            'start_date': doa,
-            'doctors': False
-        }
-
-        self.extapi.admit_update(cr, self.adt_id, 'TESTP0002', update_data)
-
-        # check there is an open spell for that patient with start_date doa
-        spell_activity_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.spell'), ('patient_id', '=', patient_id)])
-        self.assertTrue(spell_activity_id, msg='No spell found after admission update')
-        spell = self.activity_pool.browse(cr, uid, spell_activity_id[0])
-        self.assertTrue(spell.data_ref.start_date == doa, msg='Date of admission does not match')
-        # check there is an open placement activity with suggested location ward T for this patient
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after admission update')
-        placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
-        self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wt_id, msg='Placement activity does not have the correct location after admission update')
-        # check doctor info in the spell matches the admission update
-        self.assertFalse(spell.data_ref.con_doctor_ids, msg='Consultant doctors not updated after admission update')
-        self.assertFalse(spell.data_ref.ref_doctor_ids, msg='Referring doctors not updated after admission update')
-
-        self.extapi.cancel_admit(cr, self.adt_id, 'TESTP0002')
-
-        # check the spell was cancelled and there are no open activities related to it
-        spell_state = self.activity_pool.read(cr, uid, spell_activity_id[0], ['state'])['state']
-        self.assertTrue(spell_state == 'cancelled', msg='Patient spell was not cancelled after admission cancel')
-        self.assertFalse(
-            self.activity_pool.search(cr, uid, [('parent_id', '=', spell_activity_id[0]), ('state', 'not in', ['completed', 'cancelled'])]),
-            msg='Activities related to the cancelled spell remain open after admission cancel')
-
-    def test_09_patient_discharge_and_cancel(self):
+    def test_20_get_patient_info(self):
         cr, uid = self.cr, self.uid
 
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS003',
-            'family_name': "Machera",
-            'given_name': 'Elyas',
-            'dob': dob,
-            'gender': 'M',
-            'sex': 'M'
-        }
+        res = self.eobs_api.get_patient_info(cr, self.nurse_uid, 'HN000')
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]['other_identifier'], 'HN000')
+        self.assertEqual(len(res[0]['activities']), 2)
 
-        self.extapi.register(cr, self.adt_id, 'TESTP0003', patient_data)
-
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0003')])
-        self.assertTrue(patient_id)
-        doa = dt.now().strftime(dtf)
-        admit_data = {
-            'location': 'U',
-            'start_date': doa,
-            'doctors': False
-        }
-
-        self.extapi.admit(cr, self.adt_id, 'TESTP0003', admit_data)
-
-        dod = dt.now().strftime(dtf)
-        self.extapi.discharge(cr, self.adt_id, 'TESTP0003', {'discharge_date': dod})
-
-        # check there is a completed spell for that patient with discharge date dod
-        spell_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.spell'),
-            ('patient_id', '=', patient_id[0]),
-            ('state', '=', 'completed')])
-        self.assertTrue(spell_activity_id, msg='No completed spell found after discharge')
-        spell = self.activity_pool.browse(cr, uid, spell_activity_id[0])
-        self.assertTrue(spell.date_terminated == dod, msg='Date of discharge does not match')
-
-        self.extapi.cancel_discharge(cr, self.adt_id, 'TESTP0003')
-
-        # check the spell is back open
-        spell = self.activity_pool.browse(cr, uid, spell_activity_id[0])
-        self.assertTrue(spell.state not in ['completed', 'cancelled'], msg='Spell was not reopened after cancel discharge')
-        # check there is an open placement activity with suggested location ward U for this patient
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id[0]),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after cancel discharge')
-        placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
-        self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wu_id, msg='Placement activity does not have the correct location after cancel discharge')
-
-    def test_10_patient_transfer_and_cancel(self):
+    def test_21_get_patients(self):
         cr, uid = self.cr, self.uid
 
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS004',
-            'family_name': 'Trakand',
-            'given_name': 'Morgase',
-            'dob': dob,
-            'gender': 'F',
-            'sex': 'F'
-        }
+        # Scenario 1: get specific patient data
+        res = self.eobs_api.get_patients(cr, self.nurse_uid, [self.patients[1]])
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]['other_identifier'], 'HN001')
 
-        self.extapi.register(cr, self.adt_id, 'TESTP0004', patient_data)
+        # Scenario 2: get responsibility patients
+        res = self.eobs_api.get_patients(cr, self.nurse_uid, [])
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]['other_identifier'], 'HN000')
 
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0004')])[0]
-        self.assertTrue(patient_id)
-        doa = dt.now().strftime(dtf)
-        admit_data = {
-            'location': 'T',
-            'start_date': doa,
-            'doctors': False
-        }
+        # Scenario 3: get patients without having responsibility
+        res = self.eobs_api.get_patients(cr, self.hca_uid, [])
+        self.assertFalse(res)
 
-        self.extapi.admit(cr, self.adt_id, 'TESTP0004', admit_data)
-
-        self.extapi.transfer(cr, self.adt_id, 'TESTP0004', {'location': 'U'})
-        # check there is an open spell for that patient
-        spell_activity_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.spell'),
-                                                                ('patient_id', '=', patient_id)])
-        self.assertTrue(spell_activity_id, msg='No spell found after transfer')
-        # check there is an open placement activity with suggested location ward U for this patient
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after transfer')
-        placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
-        self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wu_id, msg='Placement activity does not have the correct location after transfer')
-
-        self.extapi.cancel_transfer(cr, self.adt_id, 'TESTP0004')
-        # check there is an open spell for that patient
-        spell_activity_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.spell'), ('patient_id', '=', patient_id)])
-        self.assertTrue(spell_activity_id, msg='No spell found after cancel transfer')
-        # check there is an open placement activity with suggested location ward T for this patient
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after cancel transfer')
-        placement_activity = self.activity_pool.browse(cr, uid, placement_activity_id[0])
-        self.assertTrue(placement_activity.data_ref.suggested_location_id.id == self.wt_id, msg='Placement activity does not have the correct location after cancel transfer')
-
-    def test_11_patient_merge(self):
+    def test_22_check_patient_responsibility(self):
         cr, uid = self.cr, self.uid
 
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS005',
-            'family_name': "al'Meara",
-            'given_name': 'Nynaeve',
-            'dob': dob,
-            'gender': 'F',
-            'sex': 'F'
-        }
-        patient2_data = {
-            'family_name': 'Merrilin',
-            'given_name': 'Thomdril',
-            'gender': 'M',
-            'sex': 'M'
-        }
+        self.assertTrue(self.eobs_api.check_patient_responsibility(cr, self.nurse_uid, self.patients[0]))
+        self.assertFalse(self.eobs_api.check_patient_responsibility(cr, self.nurse_uid, self.patients[1]))
 
-        self.extapi.register(cr, self.adt_id, 'TESTP0005', patient_data)
-        self.extapi.register(cr, self.adt_id, 'TESTP0006', patient2_data)
-
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0005')])
-        patient2_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0006')])
-        self.assertTrue(patient_id)
-        self.assertTrue(patient2_id)
-        doa = dt.now().strftime(dtf)
-        admit_data = {
-            'location': 'T',
-            'start_date': doa,
-            'doctors': False
-        }
-
-        self.extapi.admit(cr, self.adt_id, 'TESTP0005', admit_data)
-
-        spell_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.spell'),
-            ('patient_id', '=', patient_id[0])])
-        other_activity_ids = self.activity_pool.search(cr, uid, [('patient_id', '=', patient_id[0])])
-        spell2_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.spell'),
-            ('patient_id', '=', patient2_id[0])])
-        self.assertFalse(spell2_activity_id, msg='Spell found for patient not admitted')
-        self.extapi.merge(cr, self.adt_id, 'TESTP0006', {'from_identifier': 'TESTP0005'})
-
-        spell2_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.spell'),
-            ('patient_id', '=', patient2_id[0])])
-        self.assertTrue(spell2_activity_id, msg='Spell not found for patient after patient merge')
-        self.assertTrue(spell2_activity_id[0] == spell_activity_id[0], msg='Spell id does not match after patient merge')
-        for activity in self.activity_pool.browse(cr, uid, other_activity_ids):
-            self.assertTrue(activity.patient_id.id == patient2_id[0], msg='Patient not updated on activities after merge')
-        patient2 = self.patient_pool.browse(cr, uid, patient2_id[0])
-        self.assertTrue(patient2.family_name == 'Merrilin', msg='Patient family name does not match after merge')
-        self.assertTrue(patient2.given_name == 'Thomdril', msg='Patient given name does not match after merge')
-        self.assertTrue(patient2.gender == 'M', msg='Patient gender does not match after merge')
-        self.assertTrue(patient2.sex == 'M', msg='Patient sex does not match after merge')
-        self.assertTrue(patient2.patient_identifier == 'TESTNHS005', msg='Patient NHS number does not match after merge')
-        self.assertTrue(patient2.other_identifier == 'TESTP0006', msg='Patient hospital number does not match after merge')
-        self.assertTrue(patient2.dob == dob, msg='Patient date of birth does not match after merge')
-        patient = self.patient_pool.browse(cr, uid, patient_id[0])
-        self.assertFalse(patient.active, msg='First patient remains active after merge')
-
-    def test_12_submit_complete_activity_and_get_activities_for_patient_or_spell(self):
+    def test_23_get_activities_for_patient(self):
         cr, uid = self.cr, self.uid
 
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS007',
-            'family_name': 'Mandragoran',
-            'given_name': 'Lan',
-            'dob': dob,
-            'gender': 'M',
-            'sex': 'M'
-        }
+        # Scenario 1: get activities
+        res = self.eobs_api.get_activities_for_patient(cr, self.wm_uid, self.patients[0], False)
+        self.assertEqual(len(res), 2)
 
-        self.extapi.register(cr, self.adt_id, 'TESTP0007', patient_data)
+        # Scenario 2: get specific observations data
+        res = self.eobs_api.get_activities_for_patient(cr, self.wm_uid, self.patients[0], 'ews')
+        self.assertEqual(len(res), 1)
 
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0007')])
-        self.assertTrue(patient_id)
-        doa = dt.now().strftime(dtf)
-        admit_data = {
-            'location': 'U',
-            'start_date': doa,
-            'doctors': False
-        }
+        res = self.eobs_api.get_activities_for_patient(cr, self.wm_uid, self.patients[0], 'weight')
+        self.assertEqual(len(res), 0)
 
-        self.extapi.admit(cr, self.adt_id, 'TESTP0007', admit_data)
-
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id[0]),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after admission')
-        bed_ids = self.location_pool.search(cr, uid, [('usage', '=', 'bed'), ('id', 'child_of', self.wu_id), ('is_available', '=', True)])
-        self.assertTrue(bed_ids, msg='No available beds in ward U after admission')
-        self.extapi.complete(cr, self.wmu_id, placement_activity_id[0], {'location_id': bed_ids[0]})
-
-        ews_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
-            ('patient_id', '=', patient_id[0]),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(ews_activity_id, msg='No observation found after placement')
-        ews_data = {
-            'respiration_rate': 40,
-            'indirect_oxymetry_spo2': 99,
-            'oxygen_administration_flag': False,
-            'body_temperature': 37.0,
-            'blood_pressure_systolic': 120,
-            'blood_pressure_diastolic': 80,
-            'pulse_rate': 55,
-            'avpu_text': 'A'
-        }
-        self.extapi.complete(cr, self.nu_id, ews_activity_id[0], ews_data)
-        
-        ews_activities = self.extapi.get_activities_for_patient(cr, uid, patient_id[0], 'ews')
-        self.assertTrue(ews_activities, msg='No EWS found after ews activity submit/complete')
-        self.assertTrue(ews_activities[0]['respiration_rate'] == ews_data['respiration_rate'], msg='respiration rate does not match')
-        self.assertTrue(ews_activities[0]['indirect_oxymetry_spo2'] == ews_data['indirect_oxymetry_spo2'], msg='O2 saturation does not match')
-        self.assertTrue(ews_activities[0]['oxygen_administration_flag'] == ews_data['oxygen_administration_flag'], msg='oxygen flag does not match')
-        self.assertTrue(ews_activities[0]['body_temperature'] == ews_data['body_temperature'], msg='body temperature does not match')
-        self.assertTrue(ews_activities[0]['blood_pressure_systolic'] == ews_data['blood_pressure_systolic'], msg='systolic does not match')
-        self.assertTrue(ews_activities[0]['blood_pressure_diastolic'] == ews_data['blood_pressure_diastolic'], msg='diastolic rate does not match')
-        self.assertTrue(ews_activities[0]['pulse_rate'] == ews_data['pulse_rate'], msg='pulse rate does not match')
-        self.assertTrue(ews_activities[0]['avpu_text'] == ews_data['avpu_text'], msg='avpu does not match')
-
-    def test_13_create_activity_for_patient(self):
+    def test_24_get_activity_type(self):
         cr, uid = self.cr, self.uid
 
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS008',
-            'family_name': 'Trakand',
-            'given_name': 'Elayne',
-            'dob': dob,
-            'gender': 'F',
-            'sex': 'F'
-        }
+        # Scenario 1: get activity type
+        self.assertEqual(self.eobs_api._get_activity_type(cr, uid, 'ews'), 'nh.clinical.patient.observation.ews')
 
-        self.extapi.register(cr, self.adt_id, 'TESTP0008', patient_data)
+        # Scenario 2: get ambiguous activity type
+        self.assertIn(self.eobs_api._get_activity_type(cr, uid, 'weight'),
+                      ['nh.clinical.patient.observation.weight', 'nh.clinical.patient.weight_monitoring'])
 
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0008')])
-        self.assertTrue(patient_id)
-        doa = dt.now().strftime(dtf)
-        admit_data = {
-            'location': 'T',
-            'start_date': doa,
-            'doctors': False
-        }
+        # Scenario 3: get observation activity type
+        self.assertEqual(self.eobs_api._get_activity_type(cr, uid, 'weight', observation=True),
+                         'nh.clinical.patient.observation.weight')
 
-        self.extapi.admit(cr, self.adt_id, 'TESTP0008', admit_data)
+        # Scenario 4: attempt to get activity type that does not exist
+        with self.assertRaises(except_orm):
+            self.eobs_api._get_activity_type(cr, uid, 'test.non.existant.type')
 
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id[0]),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after admission')
-        bed_ids = self.location_pool.search(cr, uid, [('usage', '=', 'bed'), ('id', 'child_of', self.wt_id), ('is_available', '=', True)])
-        self.assertTrue(bed_ids, msg='No available beds in ward T after admission')
-        self.extapi.complete(cr, self.wmt_id, placement_activity_id[0], {'location_id': bed_ids[0]})
-
-        ews_data = {
-            'respiration_rate': 40,
-            'indirect_oxymetry_spo2': 99,
-            'oxygen_administration_flag': False,
-            'body_temperature': 37.0,
-            'blood_pressure_systolic': 120,
-            'blood_pressure_diastolic': 80,
-            'pulse_rate': 55,
-            'avpu_text': 'A'
-        }
-
-        # FIXME: Should the completing user be nu_id (which was originally there but fails) or nt_id?
-        ews_id = self.extapi.create_activity_for_patient(cr, self.nt_id, patient_id[0], 'ews')
-        self.extapi.complete(cr, self.nt_id, ews_id, ews_data)
-
-        ews_activities = self.extapi.get_activities_for_patient(cr, uid, patient_id[0], 'ews')
-        self.assertTrue(ews_activities, msg='No EWS found after ews activity submit/complete')
-        self.assertTrue(ews_activities[0]['respiration_rate'] == ews_data['respiration_rate'], msg='respiration rate does not match')
-        self.assertTrue(ews_activities[0]['indirect_oxymetry_spo2'] == ews_data['indirect_oxymetry_spo2'], msg='O2 saturation does not match')
-        self.assertTrue(ews_activities[0]['oxygen_administration_flag'] == ews_data['oxygen_administration_flag'], msg='oxygen flag does not match')
-        self.assertTrue(ews_activities[0]['body_temperature'] == ews_data['body_temperature'], msg='body temperature does not match')
-        self.assertTrue(ews_activities[0]['blood_pressure_systolic'] == ews_data['blood_pressure_systolic'], msg='systolic does not match')
-        self.assertTrue(ews_activities[0]['blood_pressure_diastolic'] == ews_data['blood_pressure_diastolic'], msg='diastolic rate does not match')
-        self.assertTrue(ews_activities[0]['pulse_rate'] == ews_data['pulse_rate'], msg='pulse rate does not match')
-        self.assertTrue(ews_activities[0]['avpu_text'] == ews_data['avpu_text'], msg='avpu does not match')
-
-    def test_14_start_and_stop_following(self):
+    def test_25_create_activity_for_patient(self):
         cr, uid = self.cr, self.uid
 
-        dob = (dt.now()+td(days=-7300)).strftime(dtf)
-        patient_data = {
-            'patient_identifier': 'TESTNHS009',
-            'family_name': 'Cauthon',
-            'given_name': 'Matrim',
-            'dob': dob,
-            'gender': 'M',
-            'sex': 'M'
-        }
+        # Scenario 1: attempt to create an activity with an invalid type
+        with self.assertRaises(except_orm):
+            self.eobs_api.create_activity_for_patient(cr, self.nurse_uid, self.patients[0], '')
 
-        self.extapi.register(cr, self.adt_id, 'TESTP0009', patient_data)
+        # Scenario 2: attempt to create an activity without proper access rights
+        group_id = self.groups_pool.create(cr, uid, {'name': 'Test Group'})
+        user_id = self.user_pool.create(cr, uid, {'name': 'TU01', 'login': 'tu01', 'password': 'tu01',
+                                                  'groups_id': [[6, 0, [group_id]]]})
+        with self.assertRaises(except_orm):
+            self.eobs_api.create_activity_for_patient(cr, user_id, self.patients[0], 'ews')
 
-        patient_id = self.patient_pool.search(cr, uid, [('other_identifier', '=', 'TESTP0009')])
-        self.assertTrue(patient_id)
-        patient_id = patient_id[0]
-        doa = dt.now().strftime(dtf)
-        admit_data = {
-            'location': 'T',
-            'start_date': doa,
-            'doctors': False
-        }
+        # Scenario 3: attempt to create an activity that already exists
+        activity_ids = self.activity_pool.search(cr, uid, [
+            ['patient_id', '=', self.patients[0]], ['state', 'not in', ['completed', 'cancelled']],
+            ['data_model', '=', 'nh.clinical.patient.observation.ews']])
+        ews_id = self.eobs_api.create_activity_for_patient(cr, self.nurse_uid, self.patients[0], 'ews')
+        self.assertEqual(activity_ids[0], ews_id)
 
-        self.extapi.admit(cr, self.adt_id, 'TESTP0009', admit_data)
+        # Scenario 4: create a new activity
+        self.assertTrue(self.eobs_api.create_activity_for_patient(cr, self.nurse_uid, self.patients[0], 'weight'))
 
-        placement_activity_id = self.activity_pool.search(cr, uid, [
-            ('data_model', '=', 'nh.clinical.patient.placement'),
-            ('patient_id', '=', patient_id),
-            ('state', 'not in', ['completed', 'cancelled'])])
-        self.assertTrue(placement_activity_id, msg='No placement found after admission')
-        bed_ids = self.location_pool.search(cr, uid, [('usage', '=', 'bed'), ('id', 'child_of', self.wt_id), ('is_available', '=', True)])
-        self.assertTrue(bed_ids, msg='No available beds in ward T after admission')
-        self.extapi.complete(cr, self.wmt_id, placement_activity_id[0], {'location_id': bed_ids[0]})
-
-        self.assertTrue(self.extapi.follow_invite(cr, self.nt_id, [patient_id], self.nu_id), msg="Error calling follow_invite")
-        follow_id = self.follow_pool.search(cr, uid, [
-            ['activity_id.state', 'not in', ['completed', 'cancelled']],
-            ['patient_ids', 'in', [patient_id]],
-            ['activity_id.user_id', '=', self.nu_id]])
-        self.assertTrue(follow_id, msg="Cannot find the Follow patient activity")
-        patients = self.extapi.get_patients(cr, self.nt_id, [])
-        self.extapi.get_invited_users(cr, uid, patients)
-        self.assertTrue(all([self.nu_id in [u['id'] for u in p['invited_users']] if p['id'] == patient_id else True for p in patients]), msg="Get invited users: The invited user was not found within the result")
-        follow = self.follow_pool.browse(cr, uid, follow_id[0])
-        assigned_activities = self.extapi.get_assigned_activities(cr, self.nu_id, activity_type='nh.clinical.patient.follow')
-        self.assertTrue(follow.activity_id.id in [aa['id'] for aa in assigned_activities], msg="Get assigned activities not returning the follow activity just created.")
-        self.activity_pool.complete(cr, self.nu_id, follow.activity_id.id)
-        check_patient = self.patient_pool.browse(cr, uid, patient_id)
-        self.assertTrue(self.nu_id in [user.id for user in check_patient.follower_ids], msg="The user should be a follower after completing patient follow")
-
-        followed_patients = self.extapi.get_followed_patients(cr, self.nu_id)
-        self.assertTrue(followed_patients, msg="Get followed patients: No results while following a patient")
-        self.assertTrue(any([patient['id'] == patient_id for patient in followed_patients]), msg="Get followed patients: Followed patient not found within the result")
-        self.extapi.get_patient_followers(cr, uid, followed_patients)
-        self.assertTrue(all([self.nu_id in [f['id'] for f in patient['followers']] for patient in followed_patients]), msg="Get patient followers: The user following was not found within the result")
-
-        self.assertTrue(self.extapi.remove_followers(cr, self.nt_id, [patient_id]), msg="Error calling remove_followers")
-        check_patient = self.patient_pool.browse(cr, uid, patient_id)
-        self.assertTrue(self.nu_id not in [user.id for user in check_patient.follower_ids], msg="The user should not be a follower after calling remove followers")
-        
-    def test_15_get_share_users(self):
+    def test_26_register(self):
         cr, uid = self.cr, self.uid
 
-        # Scenario 1: Get HCAs list of users.
-        hca_result = self.extapi.get_share_users(cr, self.hu_id)
-        self.assertFalse(hca_result, msg="HCA share users: Non expected user returned")
+        self.assertTrue(self.eobs_api.register(cr, self.adt_uid, 'HN009', {'family_name': 'test26',
+                                                                           'given_name': '26test'}))
 
-        # Scenario 2: Get Nurse list of users.
-        nurse_result = self.extapi.get_share_users(cr, self.nu_id)
-        self.assertTrue(self.nt_id not in [u['id'] for u in nurse_result], msg="Nurse share users: Non expected user returned")
-        self.assertTrue(self.ht_id not in [u['id'] for u in nurse_result], msg="Nurse share users: Non expected user returned")
-        self.assertTrue(self.hu_id in [u['id'] for u in nurse_result], msg="Nurse share users: User missing from result")
+    def test_27_update(self):
+        cr, uid = self.cr, self.uid
 
-        # Scenario 3: Get Ward Manager list of users.
-        wm_result = self.extapi.get_share_users(cr, self.wmu_id)
-        self.assertTrue(self.wmt_id not in [u['id'] for u in wm_result], msg="Ward Manager share users: Non expected user returned")
-        self.assertTrue(self.nu_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
-        self.assertTrue(self.nt_id not in [u['id'] for u in wm_result], msg="Ward Manager share users: Non expected user returned")
-        self.assertTrue(self.ht_id not in [u['id'] for u in wm_result], msg="Ward Manager share users: Non expected user returned")
-        self.assertTrue(self.hu_id in [u['id'] for u in wm_result], msg="Ward Manager share users: User missing from result")
+        self.assertTrue(self.eobs_api.update(cr, self.adt_uid, 'HN009', {'family_name': 'test26',
+                                                                         'given_name': '26test',
+                                                                         'patient_identifier': 'NHS009'}))
+
+    def test_28_admit(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.admit(cr, self.adt_uid, 'HN009', {'location': 'W0'}))
+
+    def test_29_admit_update(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.admit_update(cr, self.adt_uid, 'HN009', {'location': 'W1'}))
+
+    def test_30_cancel_admit(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.cancel_admit(cr, self.adt_uid, 'HN009'))
+
+    def test_31_transfer(self):
+        cr, uid = self.cr, self.uid
+
+        self.eobs_api.admit(cr, self.adt_uid, 'HN009', {'location': 'W0'})
+        self.assertTrue(self.eobs_api.transfer(cr, self.adt_uid, 'HN009', {'location': 'W1'}))
+
+    def test_32_cancel_transfer(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.cancel_transfer(cr, self.adt_uid, 'HN009'))
+
+    def test_33_discharge(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.discharge(cr, self.adt_uid, 'HN009', {}))
+
+    def test_34_cancel_discharge(self):
+        cr, uid = self.cr, self.uid
+
+        self.assertTrue(self.eobs_api.cancel_discharge(cr, self.adt_uid, 'HN009'))
+
+    def test_35_merge(self):
+        cr, uid = self.cr, self.uid
+        self.eobs_api.register(cr, self.adt_uid, 'HN010', {'family_name': 'test35'})
+        self.assertTrue(self.eobs_api.merge(cr, self.adt_uid, 'HN010', {'from_identifier': 'HN009'}))
