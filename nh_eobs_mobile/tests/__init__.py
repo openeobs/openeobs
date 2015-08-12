@@ -15,6 +15,7 @@
 
 #import test_mobile_controller_routes
 #import test_mobile_controller_methods
+import test_mobile_single_task_method
 #import test_routes
 
 # PhantomJS tests
@@ -27,7 +28,7 @@
 #import test_nfc_model
 
 # Controller HTML rendering tests
-import test_HTML_login
+#import test_HTML_login
 #import test_HTML_stand_in_list
 #import test_HTML_patient_detail
 #import test_HTML_patient_list

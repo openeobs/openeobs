@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-s
-import openerp, re, json, urls, jinja2, bisect, os
+import openerp, re, json, urls, jinja2, bisect, os, logging
 from openerp import http
 from openerp.http import Root, Response
 from openerp.modules.module import get_module_path
@@ -7,7 +7,10 @@ from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from openerp.osv import fields
+from openerp.osv import fields, orm
+
+
+_logger = logging.getLogger(__name__)
 
 URL_PREFIX = '/mobile/'
 URLS = urls.URLS
@@ -451,17 +454,15 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['patient-id'] = int(patient['id']) if patient and 'id' in patient and patient['id'] else False
         form['source'] = "task"
         form['start'] = datetime.now().strftime('%s')
-        if task.get('user_id') and task['user_id'][0] != uid:
-            return request.render('nh_eobs_mobile.error', qcontext={'error_string': 'Task is taken by another user',
-                                                                     'section': 'task',
-                                                                     'username': request.session['login'],
-                                                                     'notification_count': len(follow_activities),
-                                                                     'urls': URLS})
+        api_reg.unassign_my_activities(cr, uid)
         try:
             api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
-        except Exception:
-            #return 'unable to take task'
-            a = 0
+        except orm.except_orm as e:
+            exception_message = 'Opening the task (id: {task_id}) ' \
+                                'and trying to assign it to the current user (id: {user_id}) ' \
+                                'raises this exception: {exception}'.format(task_id=task_id, user_id=uid, exception=e)
+            _logger.debug(exception_message)
+            return utils.redirect(URLS['task_list'], 303)
 
         if 'notification' in task['data_model'] or 'placement' in task['data_model']:
             # load notification foo
