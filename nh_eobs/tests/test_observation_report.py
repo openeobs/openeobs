@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import logging
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.addons.nh_eobs.report.print_observation_report import ObservationReport as obs_report
+import copy
 
 _logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class TestObservationReport(TransactionCase):
         'date_terminated': '1988-01-12 06:00:01',
         'create_date': '1988-01-12 06:00:00',
         'write_date': '1988-01-12 06:00:00',
-        'score': 1,
+        'score': '1',
         'clinical_risk': 'Medium'
     }
 
@@ -31,18 +32,139 @@ class TestObservationReport(TransactionCase):
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
         'id': 1,
-        'data_ref': 'EWS,1'
-    }
-
-    triggered_ews_data = {
-        'data_model': 'nh.clinical.patient.observation.ews'
+        'data_ref': 'EWS,1',
+        'terminate_uid': [1, 'Test'],
     }
 
     height_data = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
         'id': 1,
-        'data_ref': 'HEIGHT,1'
+        'data_ref': 'HEIGHT,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    weight_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'WEIGHT,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    pain_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'PAIN,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    blood_product_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'BLOODPRODUCT,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    stools_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'STOOLS,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    pbp_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'PBP,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    gcs_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'GCS,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    blood_sugar_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'BLOODSUGAR,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    o2target_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'O2TARGET,1',
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    mrsa_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'MRSA,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    diabetes_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'DIABETES,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    palliative_care_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'PALLIATIVECARE,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    post_surgery_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'POSTSURGERY,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    critical_care_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'CRITICALCARE,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    move_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'MOVE,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
+    triggered_ews_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_model': 'nh.clinical.patient.notification.test',
+        'summary': 'Test Policy Notification',
+        'notes': 'Test Notes',
+        'user_id': [1, 'Test User']
     }
 
     height_values = {
@@ -52,13 +174,6 @@ class TestObservationReport(TransactionCase):
         'height': 1.2
     }
 
-    weight_data = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'data_ref': 'WEIGHT,1'
-    }
-
     weight_values = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -66,19 +181,148 @@ class TestObservationReport(TransactionCase):
         'weight': 1.2
     }
 
-    pain_data  = {}
-    blood_product_data = {}
-    stools_data = {}
-    pbp_data = {}
-    gcs_data = {}
-    blood_sugar_data = {}
-    o2target_data = {}
-    mrsa_data = {}
-    diabetes_data = {}
-    palliative_care_data = {}
-    post_surgery_data = {}
-    critical_care_data = {}
-    move_data = {}
+    pain_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'rest_score': 1,
+        'movement_score': 9
+    }
+
+    blood_product_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'vol': 1,
+        'product': 'rbc'
+    }
+
+    stools_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'bowel_open': False,
+        'nausea': False,
+        'vomiting': False,
+        'quantity': 'large',
+        'colour': 'yellow',
+        'bristol_type': '7',
+        'offensive': True,
+        'strain': False,
+        'laxatives': False,
+        'samples': 'micro',
+        'rectal_exam': True,
+    }
+
+    pbp_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'systolic_sitting': 120,
+        'systolic_standing': 80,
+        'diastolic_sitting': 120,
+        'diastolic_standing': 80,
+        'result': False
+    }
+
+    gcs_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'eyes': 'C',
+        'verbal': 'T',
+        'motor': '6',
+        'score': 1
+    }
+
+    blood_sugar_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'blood_sugar': 1.2
+    }
+
+    o2target_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'level_id': [1, 'Test Level'],
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    mrsa_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'mrsa': True,
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    diabetes_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'diabetes': True,
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    palliative_care_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'status': True,
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    post_surgery_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'status': True,
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    critical_care_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'status': True,
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    device_session_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'device_type_id': [1, 'Test Device'],
+        'device_category_id': [1, 'Test Device Category'],
+        'location': 'Test Location',
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test'],
+        'planned': True,
+        'removal_reason': 'Test Reason'
+    }
+
+    move_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'location_id': [1, 'Test Location']
+    }
+
+    location_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'name': 'Test Location',
+        'parent_id': [2, 'Test Location Parent']
+    }
 
     def setUp(self):
         super(TestObservationReport, self).setUp()
@@ -111,6 +355,19 @@ class TestObservationReport(TransactionCase):
         self.o2level_pool = self.registry('nh.clinical.o2level')
         self.o2target_pool = self.registry('nh.clinical.patient.o2target')
         self.spell_pool = self.registry('nh.clinical.spell')
+        self.pain_pool = self.registry('nh.clinical.patient.observation.pain')
+        self.blood_product_pool = self.registry('nh.clinical.patient.observation.blood_product')
+        self.stools_pool = self.registry('nh.clinical.patient.observation.stools')
+        self.pbp_pool = self.registry('nh.clinical.patient.observation.pbp')
+        self.gcs_pool = self.registry('nh.clinical.patient.observation.gcs')
+        self.blood_sugar_pool = self.registry('nh.clinical.patient.observation.blood_sugar')
+        self.mrsa_pool = self.registry('nh.clinical.patient.mrsa')
+        self.diabetes_pool = self.registry('nh.clinical.patient.diabetes')
+        self.palliative_care_pool = self.registry('nh.clinical.patient.palliative_care')
+        self.post_surgery_pool = self.registry('nh.clinical.patient.post_surgery')
+        self.critical_care_pool = self.registry('nh.clinical.patient.critical_care')
+        self.move_pool = self.registry('nh.clinical.patient.move')
+        self.device_session_pool = self.registry('nh.clinical.device.session')
 
         def spell_pool_mock_spell(*args, **kwargs):
             return [{
@@ -142,7 +399,7 @@ class TestObservationReport(TransactionCase):
                     creator_id = search_filter[0][2]
                     ids = [
                         None,
-                        [17]
+                        [18]
                     ]
                     return ids[creator_id]
                 else:
@@ -164,7 +421,8 @@ class TestObservationReport(TransactionCase):
                 'nh.clinical.patient.palliative_care': [13],
                 'nh.clinical.patient.post_surgery': [14],
                 'nh.clinical.patient.critical_care': [15],
-                'nh.clinical.patient.move': [16]
+                'nh.clinical.patient.move': [16],
+                'nh.clinical.patient.o2target': [17]
             }
             return models.get(model)
 
@@ -190,21 +448,67 @@ class TestObservationReport(TransactionCase):
                 self.post_surgery_data,
                 self.critical_care_data,
                 self.move_data,
+                self.o2target_data,
                 self.triggered_ews_data
             ]
-            return [resps[id]]
+            return [copy.deepcopy(resps[id])]
 
         def ews_pool_mock_read(*args, **kwargs):
-            return self.ews_values
+            return copy.deepcopy(self.ews_values)
 
         def o2target_pool_mock_get_last(*args, **kwargs):
             return []
 
         def height_pool_mock_read(*args, **kwargs):
-            return self.height_values
+            return copy.deepcopy(self.height_values)
 
         def weight_pool_mock_read(*args, **kwargs):
-            return self.weight_values
+            return copy.deepcopy(self.weight_values)
+
+        def pain_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.pain_values)
+
+        def blood_product_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.blood_product_values)
+
+        def stools_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.stools_values)
+
+        def pbp_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.pbp_values)
+
+        def gcs_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.gcs_values)
+
+        def blood_sugar_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.blood_sugar_values)
+
+        def o2target_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.o2target_values)
+
+        def mrsa_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.mrsa_values)
+
+        def diabetes_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.diabetes_values)
+
+        def palliative_care_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.palliative_care_values)
+
+        def post_surgery_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.post_surgery_values)
+
+        def critical_care_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.critical_care_values)
+
+        def device_session_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.device_session_values)
+
+        def move_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.move_values)
+
+        def location_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.location_values)
 
         self.spell_pool._patch_method('read', spell_pool_mock_spell)
         self.patient_pool._patch_method('read', patient_pool_mock_patient)
@@ -214,6 +518,21 @@ class TestObservationReport(TransactionCase):
         self.o2target_pool._patch_method('get_last', o2target_pool_mock_get_last)
         self.height_pool._patch_method('read', height_pool_mock_read)
         self.weight_pool._patch_method('read', weight_pool_mock_read)
+        self.pain_pool._patch_method('read', pain_pool_mock_read)
+        self.blood_product_pool._patch_method('read', blood_product_pool_mock_read)
+        self.stools_pool._patch_method('read', stools_pool_mock_read)
+        self.pbp_pool._patch_method('read', pbp_pool_mock_read)
+        self.gcs_pool._patch_method('read', gcs_pool_mock_read)
+        self.blood_sugar_pool._patch_method('read', blood_sugar_pool_mock_read)
+        self.o2target_pool._patch_method('read', o2target_pool_mock_read)
+        self.mrsa_pool._patch_method('read', mrsa_pool_mock_read)
+        self.diabetes_pool._patch_method('read', diabetes_pool_mock_read)
+        self.palliative_care_pool._patch_method('read', palliative_care_pool_mock_read)
+        self.post_surgery_pool._patch_method('read', post_surgery_pool_mock_read)
+        self.critical_care_pool._patch_method('read', critical_care_pool_mock_read)
+        self.move_pool._patch_method('read', move_pool_mock_read)
+        self.device_session_pool._patch_method('read', device_session_pool_mock_read)
+        self.location_pool._patch_method('read', location_pool_mock_read)
         self.spell_id = 1
 
         self.start_time = datetime.strftime(datetime.now() + timedelta(days=5), dtf)
@@ -228,69 +547,84 @@ class TestObservationReport(TransactionCase):
         self.o2target_pool._revert_method('get_last')
         self.height_pool._revert_method('read')
         self.weight_pool._revert_method('read')
+        self.pain_pool._revert_method('read')
+        self.blood_product_pool._revert_method('read')
+        self.stools_pool._revert_method('read')
+        self.pbp_pool._revert_method('read')
+        self.gcs_pool._revert_method('read')
+        self.blood_sugar_pool._revert_method('read')
+        self.o2target_pool._revert_method('read')
+        self.mrsa_pool._revert_method('read')
+        self.diabetes_pool._revert_method('read')
+        self.palliative_care_pool._revert_method('read')
+        self.post_surgery_pool._revert_method('read')
+        self.critical_care_pool._revert_method('read')
+        self.move_pool._revert_method('read')
+        self.device_session_pool._revert_method('read')
+        self.location_pool._revert_method('read')
 
-    # def test_01_observation_report_with_spell_without_start_time_without_end_time(self):
-    #     report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-    #     report_test = test_reports.try_report(cr, uid, report_model, [], data={
-    #         'spell_id': self.spell_id,
-    #         'start_time': None,
-    #         'end_time': None
-    #     })
-    #     self.assertEqual(report_test, True, 'Unable to print Observation Report')
-    #
-    # def test_02_observation_report_with_spell_with_start_time_without_end_time(self):
-    #     report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-    #     report_test = test_reports.try_report(cr, uid, report_model, [], data={
-    #         'spell_id': self.spell_id,
-    #         'start_time': self.start_time,
-    #         'end_time': None
-    #     })
-    #     self.assertEqual(report_test, True, 'Unable to print Observation Report')
-    #
-    # def test_03_observation_report_with_spell_with_start_time_with_end_time(self):
-    #     report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-    #     report_test = test_reports.try_report(cr, uid, report_model, [], data={
-    #         'spell_id': self.spell_id,
-    #         'start_time': self.start_time,
-    #         'end_time': self.end_time
-    #     })
-    #     self.assertEqual(report_test, True, 'Unable to print Observation Report')
-    #
-    # def test_04_observation_report_with_spell_without_start_time_with_end_time(self):
-    #     report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-    #     report_test = test_reports.try_report(cr, uid, report_model, [], data={
-    #         'spell_id': self.spell_id,
-    #         'start_time': None,
-    #         'end_time': self.end_time
-    #     })
-    #     self.assertEqual(report_test, True, 'Unable to print Observation Report')
-    #
-    # def test_05_observation_report_without_spell_without_start_time_with_end_time(self):
-    #     with self.assertRaises(ValueError):
-    #         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-    #         report_test = test_reports.try_report(cr, uid, report_model, [], data={
-    #             'spell_id': None,
-    #             'start_time': None,
-    #             'end_time': self.end_time
-    #         })
-    #
-    # def test_06_observation_report_without_spell_without_start_time_without_end_time(self):
-    #     with self.assertRaises(ValueError):
-    #         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-    #         report_test = test_reports.try_report(cr, uid, report_model, [], data={
-    #             'spell_id': None,
-    #             'start_time': None,
-    #             'end_time': None
-    #         })
-    #
-    # def test_07_observation_report_without_spell_with_start_time_without_end_time(self):
-    #     with self.assertRaises(ValueError):
-    #         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-    #         report_test = test_reports.try_report(cr, uid, report_model, [], data={
-    #             'spell_id': None,
-    #             'start_time': self.start_time,
-    #             'end_time': None
-    #         })
+    def test_01_observation_report_with_spell_without_start_time_without_end_time(self):
+        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+        report_test = test_reports.try_report(cr, uid, report_model, [], data={
+            'spell_id': self.spell_id,
+            'start_time': None,
+            'end_time': None
+        })
+        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+
+    def test_02_observation_report_with_spell_with_start_time_without_end_time(self):
+        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+        report_test = test_reports.try_report(cr, uid, report_model, [], data={
+            'spell_id': self.spell_id,
+            'start_time': self.start_time,
+            'end_time': None
+        })
+        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+
+    def test_03_observation_report_with_spell_with_start_time_with_end_time(self):
+        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+        report_test = test_reports.try_report(cr, uid, report_model, [], data={
+            'spell_id': self.spell_id,
+            'start_time': self.start_time,
+            'end_time': self.end_time
+        })
+        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+
+    def test_04_observation_report_with_spell_without_start_time_with_end_time(self):
+        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+        report_test = test_reports.try_report(cr, uid, report_model, [], data={
+            'spell_id': self.spell_id,
+            'start_time': None,
+            'end_time': self.end_time
+        })
+        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+
+    def test_05_observation_report_without_spell_without_start_time_with_end_time(self):
+        with self.assertRaises(ValueError):
+            report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+            report_test = test_reports.try_report(cr, uid, report_model, [], data={
+                'spell_id': None,
+                'start_time': None,
+                'end_time': self.end_time
+            })
+
+    def test_06_observation_report_without_spell_without_start_time_without_end_time(self):
+        with self.assertRaises(ValueError):
+            report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+            report_test = test_reports.try_report(cr, uid, report_model, [], data={
+                'spell_id': None,
+                'start_time': None,
+                'end_time': None
+            })
+
+    def test_07_observation_report_without_spell_with_start_time_without_end_time(self):
+        with self.assertRaises(ValueError):
+            report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+            report_test = test_reports.try_report(cr, uid, report_model, [], data={
+                'spell_id': None,
+                'start_time': self.start_time,
+                'end_time': None
+            })
 
     def test_08_observation_report_with_spell_with_start_time_with_end_time_with_ews_only(self):
         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
