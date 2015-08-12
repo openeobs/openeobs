@@ -217,7 +217,7 @@ class nh_eobs_api(orm.AbstractModel):
         res = []
         for aid in activity_ids:
             activity = activity_pool.browse(cr, uid, aid, context=context)
-            if activity_type == 'nh.clinical.patient.follow':
+            if activity.data_model == 'nh.clinical.patient.follow':
                 data = {
                     'id': aid,
                     'user': activity.create_uid.name,
