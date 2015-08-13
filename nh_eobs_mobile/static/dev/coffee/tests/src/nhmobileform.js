@@ -394,6 +394,18 @@ NHMobileForm = (function(superClass) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
         return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
       } else {
+        action_buttons = (function() {
+          var k, len2, ref1, ref2, results;
+          ref1 = self.form.elements;
+          results = [];
+          for (k = 0, len2 = ref1.length; k < len2; k++) {
+            element = ref1[k];
+            if ((ref2 = element.getAttribute('type')) === 'submit' || ref2 === 'reset') {
+              results.push(element);
+            }
+          }
+          return results;
+        })();
         for (k = 0, len2 = action_buttons.length; k < len2; k++) {
           button = action_buttons[k];
           button.removeAttribute('disabled');

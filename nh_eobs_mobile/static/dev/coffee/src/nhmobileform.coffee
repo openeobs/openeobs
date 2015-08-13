@@ -289,6 +289,8 @@ class NHMobileForm extends NHMobile
         new window.NH.NHModal('cancel_success', 'Task successfully cancelled',
           '', [btn], 0, self.form)
       else
+        action_buttons = (element for element in self.form.elements \
+          when element.getAttribute('type') in ['submit', 'reset'])
         for button in action_buttons
           button.removeAttribute('disabled')
         btn = '<a href="#" data-action="close" '+
