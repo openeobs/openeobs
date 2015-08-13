@@ -1604,3 +1604,11 @@ text.title {
 #popup_iframe iframe{
     border: 0 solid black;
 }
+
+input[type="submit"][disabled]{
+  background-color: #be285d !important;
+}
+
+input[type="reset"][disabled]{
+  background-color: #3674a5 !important;
+}
