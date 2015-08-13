@@ -182,6 +182,10 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements when not element.value)
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
+      action_buttons = (element for element in @form.elements \
+        when element.getAttribute('type') in ['submit', 'reset'])
+      for button in action_buttons
+        button.setAttribute('disabled', 'disabled')
       @submit_observation(@, form_elements, @form.getAttribute('ajax-action'),
         @form.getAttribute('ajax-args'))
     else if invalid_elements.length>0
@@ -193,6 +197,10 @@ class NHMobileForm extends NHMobile
         msg, [btn], 0, @.form)
     else
       # display the partial obs dialog
+      action_buttons = (element for element in @form.elements \
+        when element.getAttribute('type') in ['submit', 'reset'])
+      for button in action_buttons
+        button.setAttribute('disabled', 'disabled')
       @display_partial_reasons(@)
 
   show_reference: (event) =>
@@ -229,7 +237,7 @@ class NHMobileForm extends NHMobile
         else '<a href="#" data-target="partial_reasons" '+
         'data-action="partial_submit" '+
         'data-ajax-action="json_patient_form_action">Confirm</a>'
-      can_btn = '<a href="#" data-action="close" '+
+      can_btn = '<a href="#" data-action="renable" '+
         'data-target="partial_reasons">Cancel</a>'
       msg = '<p class="block">Please state reason for '+
         'submitting partial observation</p>'
@@ -241,10 +249,6 @@ class NHMobileForm extends NHMobile
     serialised_string = (el.name+'='+el.value for el in elements).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
     # Disable the action buttons
-    action_buttons = (element for element in @form.elements \
-      when element.getAttribute('type') in ['submit', 'reset'])
-    for button in action_buttons
-      button.setAttribute('disabled', 'disabled')
     Promise.when(@call_resource(url, serialised_string)).then (server_data) ->
       data = server_data[0][0]
       body = document.getElementsByTagName('body')[0]

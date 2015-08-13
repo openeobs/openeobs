@@ -641,7 +641,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var btn, element, empty_elements, form_elements, invalid_elements, msg;
+    var action_buttons, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     event.preventDefault();
     this.reset_form_timeout(this);
     form_elements = (function() {
@@ -679,12 +679,44 @@ NHMobileForm = (function(superClass) {
       return results;
     })();
     if (invalid_elements.length < 1 && empty_elements.length < 1) {
+      action_buttons = (function() {
+        var i, len, ref, ref1, results;
+        ref = this.form.elements;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          element = ref[i];
+          if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+            results.push(element);
+          }
+        }
+        return results;
+      }).call(this);
+      for (i = 0, len = action_buttons.length; i < len; i++) {
+        button = action_buttons[i];
+        button.setAttribute('disabled', 'disabled');
+      }
       return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
     } else if (invalid_elements.length > 0) {
       msg = '<p class="block">The form contains errors, please correct ' + 'the errors and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
     } else {
+      action_buttons = (function() {
+        var j, len1, ref, ref1, results;
+        ref = this.form.elements;
+        results = [];
+        for (j = 0, len1 = ref.length; j < len1; j++) {
+          element = ref[j];
+          if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+            results.push(element);
+          }
+        }
+        return results;
+      }).call(this);
+      for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+        button = action_buttons[j];
+        button.setAttribute('disabled', 'disabled');
+      }
       return this.display_partial_reasons(this);
     }
   };
@@ -724,14 +756,14 @@ NHMobileForm = (function(superClass) {
       }
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
-      can_btn = '<a href="#" data-action="close" ' + 'data-target="partial_reasons">Cancel</a>';
+      can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
       msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
       return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
 
   NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args) {
-    var action_buttons, button, el, element, i, len, serialised_string, url;
+    var el, serialised_string, url;
     serialised_string = ((function() {
       var i, len, results;
       results = [];
@@ -742,24 +774,8 @@ NHMobileForm = (function(superClass) {
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
-    action_buttons = (function() {
-      var i, len, ref, ref1, results;
-      ref = this.form.elements;
-      results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        element = ref[i];
-        if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
-          results.push(element);
-        }
-      }
-      return results;
-    }).call(this);
-    for (i = 0, len = action_buttons.length; i < len; i++) {
-      button = action_buttons[i];
-      button.setAttribute('disabled', 'disabled');
-    }
     return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
-      var act_btn, body, btn, buttons, can_btn, cls, data, j, k, len1, len2, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
       data = server_data[0][0];
       body = document.getElementsByTagName('body')[0];
       if (data && data.status === 3) {
@@ -781,8 +797,8 @@ NHMobileForm = (function(superClass) {
         } else if (data.related_tasks.length > 1) {
           tasks = '';
           ref = data.related_tasks;
-          for (j = 0, len1 = ref.length; j < len1; j++) {
-            task = ref[j];
+          for (i = 0, len = ref.length; i < len; i++) {
+            task = ref[i];
             st_url = self.urls['single_task'](task.id).url;
             tasks += '<li><a href="' + st_url + '">' + task.summary + '</a></li>';
           }
@@ -797,12 +813,24 @@ NHMobileForm = (function(superClass) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
         return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
       } else {
-        for (k = 0, len2 = action_buttons.length; k < len2; k++) {
-          button = action_buttons[k];
+        action_buttons = (function() {
+          var j, len1, ref1, ref2, results;
+          ref1 = self.form.elements;
+          results = [];
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            element = ref1[j];
+            if ((ref2 = element.getAttribute('type')) === 'submit' || ref2 === 'reset') {
+              results.push(element);
+            }
+          }
+          return results;
+        })();
+        for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+          button = action_buttons[j];
           button.removeAttribute('disabled');
         }
         btn = '<a href="#" data-action="close" ' + 'data-target="submit_error">Cancel</a>';
-        return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', [btn], 0, self.form);
+        return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', [btn], 0, body);
       }
     });
   };

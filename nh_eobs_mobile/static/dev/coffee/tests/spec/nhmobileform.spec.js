@@ -457,12 +457,78 @@ describe('NHMobileForm - EventListeners', function(){
     });
 
 
-    it('On partial obs do some foo', function(){
-       expect(false).toBe(true);
+    it('Disables submit button on submitting partial observation', function(){
+        spyOn(window.NHMobileForm.prototype, "display_partial_reasons").and.callThrough();
+        spyOn(window.NHMobileForm.prototype, "submit_observation");
+        spyOn(window.NHMobileForm.prototype, 'process_request').and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(partial_reasons_data);
+            return promise;
+        });
+        var mobile_form = new window.NHMobileForm();
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(window.NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
+        expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
+        expect(window.NHMobileForm.prototype.process_request).toHaveBeenCalled();
+        var partial_reasons = document.getElementById('partial_reasons');
+        expect(partial_reasons).not.toBe(null);
+        var reason_list = partial_reasons.getElementsByTagName('select')[0];
+        var reason_list_reasons = reason_list.getElementsByTagName('option');
+        expect(reason_list_reasons.length).toBe(2);
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
     });
 
-    it('on non multi stage obs it does foo', function(){
-        expect(false).toBe(true);
+    it('Re-enables submit button on closing submit partial observation dialog', function(){
+       spyOn(window.NHMobileForm.prototype, "display_partial_reasons").and.callThrough();
+        spyOn(window.NHMobileForm.prototype, "submit_observation");
+        spyOn(window.NHMobileForm.prototype, 'process_request').and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(partial_reasons_data);
+            return promise;
+        });
+        var mobile_form = new window.NHMobileForm();
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(window.NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
+        expect(window.NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
+        expect(window.NHMobileForm.prototype.process_request).toHaveBeenCalled();
+        var partial_reasons = document.getElementById('partial_reasons');
+        expect(partial_reasons).not.toBe(null);
+        var reason_list = partial_reasons.getElementsByTagName('select')[0];
+        var reason_list_reasons = reason_list.getElementsByTagName('option');
+        expect(reason_list_reasons.length).toBe(2);
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        var close_button = partial_reasons.getElementsByTagName('a')[0];
+        var close_event = document.createEvent('CustomEvent');
+        close_event.initCustomEvent('click', false, true, false);
+        close_button.dispatchEvent(close_event);
+        expect(test_input.getAttribute('disabled')).toBe(null);
+    });
+
+    it('Keeps the submit button disabled after submitting single step obs', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(obs_submitted_no_triggered_tasks);
+            return promise;
+        });;
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+
     });
 
     it('sets up the form timeout', function() {
