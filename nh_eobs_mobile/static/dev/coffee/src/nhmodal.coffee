@@ -18,6 +18,8 @@ class NHModal
     cover.setAttribute('class', 'cover')
     cover.setAttribute('id', 'cover')
     cover.setAttribute('data-action', 'close')
+    if @id is 'submit_observation'
+      cover.setAttribute('data-action', 'renable')
     cover.setAttribute('data-target', @id)
     cover.style.height = (body.clientHeight)+'px'
     cover.addEventListener('click', self.handle_button_events)
@@ -126,6 +128,18 @@ class NHModal
     switch event.srcElement.getAttribute('data-action')
       when 'close'
         event.preventDefault()
+        dialog_id = document.getElementById(data_target)
+        cover = document.getElementById('cover')
+        document.getElementsByTagName('body')[0].removeChild(cover)
+        dialog_id.parentNode.removeChild(dialog_id)
+      when 'renable'
+        event.preventDefault()
+        forms = document.getElementsByTagName('form')
+        for form in forms
+          action_buttons = (element for element in form.elements \
+            when element.getAttribute('type') in ['submit', 'reset'])
+          for button in action_buttons
+            button.removeAttribute('disabled')
         dialog_id = document.getElementById(data_target)
         cover = document.getElementById('cover')
         document.getElementsByTagName('body')[0].removeChild(cover)

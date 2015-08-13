@@ -328,7 +328,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args) {
-    var el, serialised_string, url;
+    var action_buttons, button, el, element, i, len, serialised_string, url;
     serialised_string = ((function() {
       var i, len, results;
       results = [];
@@ -339,12 +339,28 @@ NHMobileForm = (function(superClass) {
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
+    action_buttons = (function() {
+      var i, len, ref, ref1, results;
+      ref = this.form.elements;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        element = ref[i];
+        if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+          results.push(element);
+        }
+      }
+      return results;
+    }).call(this);
+    for (i = 0, len = action_buttons.length; i < len; i++) {
+      button = action_buttons[i];
+      button.setAttribute('disabled', 'disabled');
+    }
     return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
-      var act_btn, body, btn, buttons, can_btn, cls, data, i, len, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
+      var act_btn, body, btn, buttons, can_btn, cls, data, j, k, len1, len2, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
       data = server_data[0][0];
       body = document.getElementsByTagName('body')[0];
       if (data && data.status === 3) {
-        can_btn = '<a href="#" data-action="close" ' + 'data-target="submit_observation">Cancel</a>';
+        can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
         act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>';
         new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
@@ -362,8 +378,8 @@ NHMobileForm = (function(superClass) {
         } else if (data.related_tasks.length > 1) {
           tasks = '';
           ref = data.related_tasks;
-          for (i = 0, len = ref.length; i < len; i++) {
-            task = ref[i];
+          for (j = 0, len1 = ref.length; j < len1; j++) {
+            task = ref[j];
             st_url = self.urls['single_task'](task.id).url;
             tasks += '<li><a href="' + st_url + '">' + task.summary + '</a></li>';
           }
@@ -378,8 +394,12 @@ NHMobileForm = (function(superClass) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
         return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
       } else {
+        for (k = 0, len2 = action_buttons.length; k < len2; k++) {
+          button = action_buttons[k];
+          button.removeAttribute('disabled');
+        }
         btn = '<a href="#" data-action="close" ' + 'data-target="submit_error">Cancel</a>';
-        return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', [btn], 0, self.form);
+        return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', [btn], 0, body);
       }
     });
   };

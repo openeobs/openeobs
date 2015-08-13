@@ -240,11 +240,16 @@ class NHMobileForm extends NHMobile
     # turn form data in to serialised string and ping off to server
     serialised_string = (el.name+'='+el.value for el in elements).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
+    # Disable the action buttons
+    action_buttons = (element for element in @form.elements \
+      when element.getAttribute('type') in ['submit', 'reset'])
+    for button in action_buttons
+      button.setAttribute('disabled', 'disabled')
     Promise.when(@call_resource(url, serialised_string)).then (server_data) ->
       data = server_data[0][0]
       body = document.getElementsByTagName('body')[0]
       if data and data.status is 3
-        can_btn = '<a href="#" data-action="close" '+
+        can_btn = '<a href="#" data-action="renable" '+
           'data-target="submit_observation">Cancel</a>'
         act_btn = '<a href="#" data-target="submit_observation" '+
           'data-action="submit" data-ajax-action="'+
@@ -284,11 +289,12 @@ class NHMobileForm extends NHMobile
         new window.NH.NHModal('cancel_success', 'Task successfully cancelled',
           '', [btn], 0, self.form)
       else
+        for button in action_buttons
+          button.removeAttribute('disabled')
         btn = '<a href="#" data-action="close" '+
           'data-target="submit_error">Cancel</a>'
         new window.NH.NHModal('submit_error', 'Error submitting observation',
-          'Server returned an error',
-          [btn], 0, self.form)
+          'Server returned an error', [btn], 0, body)
 
   handle_timeout: (self, id) ->
     can_id = self.urls['json_cancel_take_task'](id)

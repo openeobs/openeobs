@@ -303,6 +303,26 @@ describe('NHMobileForm - EventListeners', function(){
         expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
     });
 
+    it('Disables the submit button on the submit button being pressed', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(obs_submitted_score_confirmation);
+            return promise;
+        });;
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+    });
+
     it('submit full is triggered and score confirmation popup is shown', function(){
         spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
         spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
@@ -322,6 +342,67 @@ describe('NHMobileForm - EventListeners', function(){
         expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
         var sub_ob = document.getElementById('submit_observation');
         expect(sub_ob).not.toBe(null);
+    });
+
+    it('Re-enables submit button on submit full and pressing close button on score popup', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(obs_submitted_score_confirmation);
+            return promise;
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        var sub_ob = document.getElementById('submit_observation');
+        expect(sub_ob).not.toBe(null);
+        var sub_ob_options = sub_ob.getElementsByClassName('options')[0];
+        var sub_sub = sub_ob_options.getElementsByTagName('a')[0];
+        expect(sub_sub.getAttribute('data-action')).toBe('renable');
+        var sub_event = document.createEvent('CustomEvent');
+        sub_event.initCustomEvent('click', false, true, false);
+        sub_sub.dispatchEvent(sub_event);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe(null);
+    });
+
+    it('Re-enables submit button on submit full and pressing background of score popup', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(obs_submitted_score_confirmation);
+            return promise;
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        var sub_ob = document.getElementById('submit_observation');
+        expect(sub_ob).not.toBe(null);
+        var cover = document.getElementsByClassName('cover')[0]
+        expect(cover.getAttribute('data-action')).toBe('renable');
+        var sub_event = document.createEvent('CustomEvent');
+        sub_event.initCustomEvent('click', false, true, false);
+        cover.dispatchEvent(sub_event);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe(null);
     });
 
     it('submit full is triggered, score confirm popup shown and submit button pressed', function(){
@@ -352,6 +433,155 @@ describe('NHMobileForm - EventListeners', function(){
         sub_sub.dispatchEvent(sub_event);
         expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
         expect(NHMobileForm.prototype.process_post_score_submit).toHaveBeenCalled();
+    });
+
+    it('Submit button still disabled on submit full , score confirm popup submit button pressed', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, 'process_post_score_submit').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(obs_submitted_score_confirmation);
+            return promise;
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        var sub_ob = document.getElementById('submit_observation');
+        expect(sub_ob).not.toBe(null);
+        var sub_ob_options = sub_ob.getElementsByClassName('options')[0];
+        var sub_sub = sub_ob_options.getElementsByTagName('a')[1];
+        var sub_event = document.createEvent('CustomEvent');
+        sub_event.initCustomEvent('click', false, true, false);
+        sub_sub.dispatchEvent(sub_event);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        expect(NHMobileForm.prototype.process_post_score_submit).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+    });
+
+    it('Submit button still disabled on submit full, score confirm popup submit button pressed and popup background pressed', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, 'process_post_score_submit').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var times = NHMobileForm.prototype.process_request.calls.count();
+            var promise = new Promise();
+            if(times == 1){
+                promise.complete(obs_submitted_score_confirmation);
+            }else{
+                promise.complete(obs_submitted_no_triggered_tasks);
+            }
+            return promise;
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        var sub_ob = document.getElementById('submit_observation');
+        expect(sub_ob).not.toBe(null);
+        var sub_ob_options = sub_ob.getElementsByClassName('options')[0];
+        var sub_sub = sub_ob_options.getElementsByTagName('a')[1];
+        var sub_event = document.createEvent('CustomEvent');
+        sub_event.initCustomEvent('click', false, true, false);
+        sub_sub.dispatchEvent(sub_event);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        expect(NHMobileForm.prototype.process_post_score_submit).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        var cover = document.getElementById('cover');
+        var cover_event = document.createEvent('CustomEvent');
+        cover_event.initCustomEvent('click', false, true, false);
+        cover.dispatchEvent(cover_event);
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+    });
+
+    it('Submit button re-enabled on server returning error from get score', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, 'process_post_score_submit').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var promise = new Promise();
+            promise.complete(false);
+            return promise;
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe(null);
+        var sub_ob = document.getElementById('submit_error');
+        expect(sub_ob).not.toBe(null);
+    });
+
+    it('Submit button re-enabled on server returning error', function(){
+        spyOn(NHMobileForm.prototype, "submit_observation").and.callThrough();
+        spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+        spyOn(NHMobileForm.prototype, 'process_post_score_submit').and.callThrough();
+        spyOn(NHMobileForm.prototype, "process_request").and.callFake(function(){
+            var times = NHMobileForm.prototype.process_request.calls.count();
+            var promise = new Promise();
+            if(times == 1){
+                promise.complete(obs_submitted_score_confirmation);
+            }else{
+                promise.complete(false);
+            }
+            return promise;
+        });
+        var mobile_form = new NHMobileForm();
+        var rr_el = document.getElementById('respiration_rate');
+        rr_el.value = 18;
+        var supp_el = document.getElementById('oxygen_administration_flag');
+        supp_el.value  = 'False';
+        var test_input = document.getElementById('submitButton');
+        var change_event = document.createEvent('CustomEvent');
+        change_event.initCustomEvent('click', false, true, false);
+        test_input.dispatchEvent(change_event);
+        expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+        expect(test_input.getAttribute('disabled')).toBe('disabled');
+        var sub_ob = document.getElementById('submit_observation');
+        expect(sub_ob).not.toBe(null);
+        var sub_ob_options = sub_ob.getElementsByClassName('options')[0];
+        var sub_sub = sub_ob_options.getElementsByTagName('a')[1];
+        var sub_event = document.createEvent('CustomEvent');
+        sub_event.initCustomEvent('click', false, true, false);
+        sub_sub.dispatchEvent(sub_event);
+        expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+        expect(NHMobileForm.prototype.process_post_score_submit).toHaveBeenCalled();
+        expect(NHMobileForm.prototype.process_request.calls.count()).toBe(2);
+        var err_dia = document.getElementsByClassName('dialog');
+        expect(err_dia).not.toBe(null);
+        var meh = document.getElementsByTagName('input');
+        expect(test_input.getAttribute('disabled')).toBe(null);
+    });
+
+    it('On partial obs do some foo', function(){
+       expect(false).toBe(true);
+    });
+
+    it('on non multi stage obs it does foo', function(){
+        expect(false).toBe(true);
     });
 
     it('sets up the form timeout', function() {

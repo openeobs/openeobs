@@ -16,6 +16,9 @@ NHModal = (function() {
     cover.setAttribute('class', 'cover');
     cover.setAttribute('id', 'cover');
     cover.setAttribute('data-action', 'close');
+    if (this.id === 'submit_observation') {
+      cover.setAttribute('data-action', 'renable');
+    }
     cover.setAttribute('data-target', this.id);
     cover.style.height = body.clientHeight + 'px';
     cover.addEventListener('click', self.handle_button_events);
@@ -118,12 +121,39 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, assign_detail, assign_event, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, invite, nurses, reject_detail, reject_event, submit_detail, submit_event;
+    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, element, form, forms, i, invite, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event;
     data_target = event.srcElement.getAttribute('data-target');
     data_action = event.srcElement.getAttribute('data-ajax-action');
     switch (event.srcElement.getAttribute('data-action')) {
       case 'close':
         event.preventDefault();
+        dialog_id = document.getElementById(data_target);
+        cover = document.getElementById('cover');
+        document.getElementsByTagName('body')[0].removeChild(cover);
+        dialog_id.parentNode.removeChild(dialog_id);
+        break;
+      case 'renable':
+        event.preventDefault();
+        forms = document.getElementsByTagName('form');
+        for (i = 0, len = forms.length; i < len; i++) {
+          form = forms[i];
+          action_buttons = (function() {
+            var j, len1, ref, ref1, results;
+            ref = form.elements;
+            results = [];
+            for (j = 0, len1 = ref.length; j < len1; j++) {
+              element = ref[j];
+              if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+                results.push(element);
+              }
+            }
+            return results;
+          })();
+          for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+            button = action_buttons[j];
+            button.removeAttribute('disabled');
+          }
+        }
         dialog_id = document.getElementById(data_target);
         cover = document.getElementById('cover');
         document.getElementsByTagName('body')[0].removeChild(cover);
@@ -160,11 +190,11 @@ NHModal = (function() {
         dialog = document.getElementById(data_target);
         dialog_form = dialog.getElementsByTagName('form')[0];
         nurses = (function() {
-          var i, len, ref, results;
+          var k, len2, ref, results;
           ref = dialog_form.elements;
           results = [];
-          for (i = 0, len = ref.length; i < len; i++) {
-            el = ref[i];
+          for (k = 0, len2 = ref.length; k < len2; k++) {
+            el = ref[k];
             if (el.checked) {
               results.push(el.value);
             }
