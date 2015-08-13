@@ -13,7 +13,7 @@ describe('NHMobileBarcode', function(){
     		{
     			'display_name': 'NEWS Observation',
     			'id': 1,
-                'time': 'Ov                                                                                                                                                                                                                                                                                                                                             erdue: 00:10 hours'
+                'time': 'Overdue: 00:10 hours'
     		},
     		{
     			'display_name': 'Inform Medical Team',
