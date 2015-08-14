@@ -479,6 +479,7 @@ openerp.nh_eobs = function (instance) {
                     temp_graph.options.measurement = '°C';
                     temp_graph.axes.y.min = 25;
                     temp_graph.axes.y.max = 45;
+                    temp_graph.style.axis.step = 1;
                     temp_graph.options.normal.min = 36.1;
                     temp_graph.options.normal.max = 38.1;
                     temp_graph.style.dimensions.height = 200;
