@@ -379,6 +379,8 @@ openerp.nh_eobs = function (instance) {
         },
         render_chart: function(){
             this.model = new instance.web.Model('nh.eobs.api');
+            this.o2targetModel = new instance.web.Model('nh.clinical.patient.o2target');
+            this.o2levelModel = new instance.web.Model('nh.clinical.o2level');
             this.wardboard_model = new instance.web.Model('nh.clinical.wardboard');
             var vid = this.view.dataset.context.active_id;
         	var self = this;
@@ -389,6 +391,15 @@ openerp.nh_eobs = function (instance) {
             if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
                 printing = true;
             }
+            this.o2targetModel.call('get_last', [this.view.datarecord.id]).done(function(o2targetRecords){
+                var o2levelid = o2targetRecords
+                if(o2levelid){
+                    self.o2levelModel.call('read', [o2levelid], {context: self.view.dataset.context}).done(function (o2levelRecords) {
+                        var name = o2levelRecords.name;
+                        $('.modal-dialog .paged_form_view_header').append('<li><strong class="target-right">spO2 Target Range: </strong><span>' + name + '</span></li>')
+                    });
+                }
+            });
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[this.view.dataset.index],'ews'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
