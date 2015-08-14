@@ -109,3 +109,8 @@ svg .data path {
 #controls #range label input{
     float: right;
 }
+
+.y-minor-tick{
+    stroke: none !important;
+    opacity: 0;
+}

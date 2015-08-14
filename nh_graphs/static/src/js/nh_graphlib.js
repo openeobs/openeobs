@@ -814,6 +814,13 @@ NHGraph = (function(superClass) {
       self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max]);
     }
     self.redraw(self.parent_obj);
+    self.axes.y.obj.selectAll('.tick line').filter(function(d) {
+      if (self.style.axis.step < 1) {
+        if (!(d % 1 === 0)) {
+          return d;
+        }
+      }
+    }).attr('class', 'y-minor-tick');
   };
 
   NHGraph.prototype.resize_graph = function(self, event) {
@@ -870,12 +877,12 @@ NHGraph = (function(superClass) {
     this.obj.attr('height', this.style.dimensions.height);
     this.obj.append("defs").append("clipPath").attr("class", "clip").attr('id', this.options.keys.join('-') + '-clip').append("rect").attr("width", this.style.dimensions.width).attr("height", this.style.dimensions.height).attr("y", top_offset).attr("x", left_offset);
     this.axes.y.scale = nh_graphs.scale.linear().domain([this.axes.y.min, this.axes.y.max]).range([top_offset + this.style.dimensions.height, top_offset]);
+    self = this;
     this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
     if (!this.style.axis.y.hide) {
       this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
       this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
     }
-    self = this;
     if (self.options.keys.length > 1) {
       values = [];
       ref = self.parent_obj.parent_obj.data.raw;

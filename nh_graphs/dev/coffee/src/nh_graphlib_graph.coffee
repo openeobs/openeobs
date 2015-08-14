@@ -166,13 +166,14 @@ class NHGraph extends NHGraphLib
       d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
       d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
       self.axes.y.scale.domain([(if d0 > 0 then d0 else 0), d1])
-#      self.axes.y.axis.ticks( \
-#        (self.axes.y.ranged_extent[1] - self.axes.y.ranged_extent[0]) \
-#        .toFixed(self.style.axis.step))
     else
       self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
-#      self.axes.y.axis.ticks()
     self.redraw(self.parent_obj)
+    self.axes.y.obj.selectAll('.tick line').filter((d) ->
+      if self.style.axis.step < 1
+        if not (d % 1 is 0)
+          return d
+    ).attr('class', 'y-minor-tick')
     return
 
   # Handle window resize event
@@ -253,7 +254,7 @@ class NHGraph extends NHGraphLib
     @.axes.y.scale = nh_graphs.scale.linear()
     .domain([@.axes.y.min, @.axes.y.max])
     .range([top_offset+@style.dimensions.height, top_offset])
-
+    self = @
     @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
     .tickFormat(if @.style.axis.step > 0 then \
       nh_graphs.format(",." + @.style.axis.step + "f") else \
@@ -262,7 +263,7 @@ class NHGraph extends NHGraphLib
       @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
       .call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
-    self = @
+
     if self.options.keys.length>1
       values = []
       for ob in self.parent_obj.parent_obj.data.raw
