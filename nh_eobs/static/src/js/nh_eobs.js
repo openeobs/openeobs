@@ -1112,7 +1112,7 @@ openerp.nh_eobs = function (instance) {
                     self.dataset.ids = active_ids_to_send;
                     self.dataset.records = active_records_to_send;
 
-                    var title_to_use = 'Patient Chart'
+                    //var title_to_use = 'Observation Chart'
                     if(self.dataset.model == 'nh.clinical.allocating.user'){
                         title_to_use = 'User Allocation';
                     }
@@ -1124,7 +1124,7 @@ openerp.nh_eobs = function (instance) {
                             action.res_id,
                             action.context,
                             {
-                                title: _t(title_to_use),
+                                title: action.display_name,
                                 view_id: action.view_id[0],
                                 readonly: true,
                                 active_id: record_id,
