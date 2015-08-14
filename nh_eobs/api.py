@@ -13,7 +13,7 @@ class nh_eobs_api(orm.AbstractModel):
     _active_observations = [
         {
             'type': 'ews',
-            'name': 'National Early Warning Score (NEWS)'
+            'name': 'NEWS'
         },
         {
             'type': 'height',
@@ -37,7 +37,7 @@ class nh_eobs_api(orm.AbstractModel):
         },
         {
             'type': 'gcs',
-            'name': 'Glasglow Coma Scale (GCS)'
+            'name': 'Glasgow Coma Scale (GCS)'
         },
         {
             'type': 'pbp',
