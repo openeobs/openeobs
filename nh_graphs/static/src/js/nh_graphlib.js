@@ -805,8 +805,11 @@ NHGraph = (function(superClass) {
   };
 
   NHGraph.prototype.rangify_graph = function(self, event) {
+    var d0, d1;
     if (event.srcElement.checked) {
-      self.axes.y.scale.domain([self.axes.y.ranged_extent[0] - self.style.range_padding, self.axes.y.ranged_extent[1] + self.style.range_padding]);
+      d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
+      d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
+      self.axes.y.scale.domain([(d0 > 0 ? d0 : 0), d1]);
     } else {
       self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max]);
     }
