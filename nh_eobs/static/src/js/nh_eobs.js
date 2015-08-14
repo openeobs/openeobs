@@ -443,16 +443,14 @@ openerp.nh_eobs = function (instance) {
                     resp_rate_graph.options.measurement = '/min';
                     resp_rate_graph.axes.y.min = 0;
                     resp_rate_graph.axes.y.max = 40;
-                    resp_rate_graph.options.normal.min = 9;
+                    resp_rate_graph.options.normal.min = 12;
                     resp_rate_graph.options.normal.max = 20;
                     resp_rate_graph.style.dimensions.height = 250;
                     resp_rate_graph.style.data_style = 'linear';
                     resp_rate_graph.style.label_width = 60;
                     resp_rate_graph.drawables.background.data =  [
-                        {"class": "red",s: 0, e: 8},
-                        {"class": "amber",s: 8,e: 9},
-                        {"class": "green",s: 9,e: 11},
-                        {"class": "green",s: 20, e: 21},
+                        {"class": "red",s: 0, e: 9},
+                        {"class": "green",s: 9,e: 12},
                         {"class": "amber",s: 21,e: 25},
                         {"class": "red",s: 25,e: 60}
                     ];
@@ -481,6 +479,7 @@ openerp.nh_eobs = function (instance) {
                     temp_graph.options.measurement = '°C';
                     temp_graph.axes.y.min = 25;
                     temp_graph.axes.y.max = 45;
+                    temp_graph.style.axis.step = 1;
                     temp_graph.options.normal.min = 36.1;
                     temp_graph.options.normal.max = 38.1;
                     temp_graph.style.dimensions.height = 200;
@@ -1113,7 +1112,7 @@ openerp.nh_eobs = function (instance) {
                     self.dataset.ids = active_ids_to_send;
                     self.dataset.records = active_records_to_send;
 
-                    var title_to_use = 'Patient Chart'
+                    //var title_to_use = 'Observation Chart'
                     if(self.dataset.model == 'nh.clinical.allocating.user'){
                         title_to_use = 'User Allocation';
                     }
@@ -1125,7 +1124,7 @@ openerp.nh_eobs = function (instance) {
                             action.res_id,
                             action.context,
                             {
-                                title: _t(title_to_use),
+                                title: action.display_name,
                                 view_id: action.view_id[0],
                                 readonly: true,
                                 active_id: record_id,

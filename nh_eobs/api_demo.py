@@ -25,7 +25,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return data
 
-    def demo_loader(self, cr, uid, config_file, return_file='users.json'):
+    def demo_loader(self, cr, uid, config_file, return_file):
         """
         Creates the demo environment using the parameters specified in the
         JSON configuration file.
@@ -42,14 +42,15 @@ class nh_clinical_api_demo(orm.AbstractModel):
                             "HCA": 3,
                 }
             }
-        :return: True (and a JSON file is created with all user logins)
+        :param return_file: a JSON file that will contain user credentials.
+        :return: True
         """
         config = self._file_loader(cr, uid, config_file)
         locations = self.generate_locations(cr, uid, wards=config['wards'],
                                             beds=config['beds'],
                                             hospital=True)
         ward_ids = map(lambda key: locations[key][0], locations)
-        user_ids = self._load_users(cr, uid, ward_ids, config['users'])
+        user_ids = self._load_users(cr, uid, locations, config['users'])
         adt_uid = user_ids[0]['adt'][0]
         patient_ids = self._load_patients(cr, adt_uid, config['wards'],
                                           config['patients'])
@@ -58,6 +59,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                                                          patient_ids,
                                                          config['days'])
         self._load_place_patients(cr, adt_uid, ward_ids, admitted_patient_ids)
+
         if return_file:
             directory_name = os.path.dirname(os.path.abspath(config_file))
             logins = self._get_users_login(cr, uid)
@@ -68,23 +70,26 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
     def _get_users_login(self, cr, uid):
         """
-        :return: a list of usernames for all users.
+        :return: a list of user names for all users.
         """
         user_pool = self.pool['res.users']
         users = user_pool.read_group(cr, uid, [], ['login'], ['login'])
         return [user['login'] for user in users]
 
-    def _load_users(self, cr, uid, ward_ids, users):
+    def _load_users(self, cr, uid, locations, users):
         """
         Creates users for each ward.
-        :param ward_ids: list of ward ids
+        :param locations: a dictionary of location ids per ward
+            (see return value for self.generate_locations)
         :param users: dictionary containing the number of users for each ward.
         :return: list of dictionaries for user ids:
             [{'adt': [1], 'nurse': [2, 3]..}, {'adt': [1], 'nurse':[4, 5]}..]
         """
-        return map(
-            lambda x: self.generate_users(cr, uid, x, data=users), ward_ids
-        )
+        result = []
+        for k in locations:
+            result.append(self.generate_users(cr, uid, locations[k], data=users))
+
+        return result
 
     def _load_patients(self, cr, uid, wards, patients):
         """
@@ -186,11 +191,12 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return identifiers
 
-    def generate_users(self, cr, uid, location_id, data=dict()):
+    def generate_users(self, cr, uid, location_ids, data=dict()):
         """
         Generates a ward manager, nurse, HCA, junior doctor, consultant,
-        registrar, receptionist, admin and ADT user.
-        :param location_id: the id of the location the users will be assigned to.
+        registrar, receptionist, admin and ADT user. Nurses and HCAs are
+        assigned to all beds in ward.
+        :param location_ids: ['ward_id', 'bed_id_1', 'bed_id_2'...]
         :return: Dictionary { 'adt' : [id], 'nurse': [id, id], ... }
         """
         identifiers = dict()
@@ -207,7 +213,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
             ('receptionist', 'NH Clinical Receptionist Group'),
             ('admin', 'NH Clinical Admin Group')
         ]
-        pos_id = location_pool.read(cr, uid, [location_id], ['pos_id'])[0]['pos_id'][0]
+        pos_id = location_pool.read(cr, uid, [location_ids[0]], ['pos_id'])[0]['pos_id'][0]
 
         # create adt user if non exists
         adt_group_id = group_pool.search(cr, uid, [
@@ -233,16 +239,21 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 number_of_users = 1
 
             for x in range(number_of_users):
-                user_login = user_type + '_' + str(x+1) + '_' + str(location_id)
+                user_login = user_type + '_' + str(x+1) + '_' + str(location_ids[0])
                 assign_groups = [user[1], 'Employee']
+
                 if user_type in ('ward_manager', 'admin'):
                     assign_groups.append('Contact Creation')
+                if user_type in ('nurse', 'hca'):
+                    locations = location_ids[1:]
+                else:
+                    locations = [location_ids[0]]
 
                 group_id = group_pool.search(cr, uid, [['name', 'in', assign_groups]])
                 user_id = user_pool.create(cr, uid, {
                     'name': fake.name(), 'login': user_login,
                     'password': user_login, 'groups_id': [[6, False, group_id]],
-                    'pos_id': pos_id, 'location_ids': [[6, False, [location_id]]]})
+                    'pos_id': pos_id, 'location_ids': [[6, False, locations]]})
 
                 if user_type in identifiers:
                     identifiers[user_type].append(user_id)

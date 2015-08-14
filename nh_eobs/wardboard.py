@@ -188,13 +188,15 @@ class nh_clinical_wardboard(orm.Model):
                                 ['None', 'No Risk']]
     _boolean_selection = [('yes', 'Yes'),
                           ('no', 'No')]
-    
-    
+
     def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
-        user_pool = self.pool['res.users']
-        user_ids = user_pool.search(cr, user, [['groups_id.name', 'in', ['NH Clinical Doctor Group']]], context=context)
-        self._columns['o2target'].readonly = not (user in user_ids)
-        res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)    
+        res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)
+        if view_type == 'form' and res['fields'].get('o2target'):
+            user_pool = self.pool['res.users']
+            user_ids = user_pool.search(cr, user, [
+                ['groups_id.name', 'in', ['NH Clinical Doctor Group', 'NH Clinical Ward Manager Group']]
+            ], context=context)
+            res['fields']['o2target']['readonly'] = not (user in user_ids)
         return res
 
     def _get_started_device_session_ids(self, cr, uid, ids, field_name, arg, context=None):
@@ -263,6 +265,7 @@ class nh_clinical_wardboard(orm.Model):
         'time_since_admission': fields.text('Time since Admission'),
         'move_date': fields.datetime('Time since Last Movement'),
         'spell_date_terminated': fields.datetime('Spell Discharge Date'),
+        'recently_discharged': fields.boolean('Recently Discharged'),
         'spell_state': fields.char('Spell State', size=50),
         'pos_id': fields.many2one('nh.clinical.pos', 'POS'),
         'spell_code': fields.text('Spell Code'),
@@ -355,6 +358,30 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': view_id
         }
 
+    def open_previous_spell(self, cr, uid, ids, context=None):
+        activity_pool = self.pool['nh.activity']
+        wb = self.browse(cr, uid, ids[0], context=context)
+        activity_ids = activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.spell'], ['patient_id', '=', wb.patient_id.id],
+            ['sequence', '<', wb.spell_activity_id.sequence], ['state', '=', 'completed']
+        ], order='sequence desc', context=context)
+        if not activity_ids:
+            raise osv.except_osv('No previous spell!', 'This is the oldest spell available for this patient.')
+        spell_id = activity_pool.browse(cr, uid, activity_ids[0], context=context).data_ref.id
+        view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs',
+                                                                  'view_wardboard_form_discharged')[1]
+        return {
+            'name': 'Previous Spell',
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'res_id': spell_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'current',
+            'context': context,
+            'view_id': view_id
+        }
+
     def wardboard_swap_beds(self, cr, uid, ids, context=None):
         swap_beds_pool = self.pool['wardboard.swap_beds']
         wb = self.browse(cr, uid, ids[0])
@@ -375,7 +402,6 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': view_id
         }
 
-    
     def wardboard_patient_placement(self, cr, uid, ids, context=None):
         wardboard = self.browse(cr, uid, ids[0], context=context)
         # assumed that patient's placement is completed
@@ -429,8 +455,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_prescribe_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -449,8 +473,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -469,8 +491,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_weight_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
 
         context.update({'height': wardboard.height})
@@ -491,8 +511,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_bs_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -524,8 +542,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_patient_placement_complete')], context=context)
-        if not model_data_ids:
-            pass # view doesnt exist
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
 
         res_activity_id = self.pool['nh.activity'].search(cr, uid, [
@@ -548,68 +564,6 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': int(view_id),
             'context': context
         }
-
-    def print_chart(self, cr, uid, ids, context=None):
-        wardboard = self.browse(cr, uid, ids[0], context=context)
-
-        model_data_pool = self.pool['ir.model.data']
-        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_print_chart_form')], context=context)
-        if not model_data_ids:
-            pass
-        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
-        context.update({'printing': 'true'})
-        return {
-            'name': wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.wardboard',
-            'res_id': ids[0],
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'inline',
-            'context': context,
-            'view_id': int(view_id)
-        }
-
-    def print_report(self, cr, uid, ids, context=None):
-        _logger.info('Calling Wardboard PrintReport')
-        wardboard = self.browse(cr, uid, ids[0], context=context)
-        users = self.pool['res.users']
-        config = self.pool['ir.config_parameter']
-        base_url = config.read(cr, uid, config.search(cr, uid, [('key', '=', 'web.base.url')]),['value'])[0]['value']
-        user = users.read(cr, uid, uid, ['name'])['name']
-        # get spell id
-        spell_id = wardboard.id
-        # Format URL for report
-        url = '{base_url}{endpoint}{spell_id}/'.format(base_url=base_url,
-                                                       endpoint=visit_report.endpoint,
-                                                       spell_id=spell_id)
-        # Create filename
-        fname = '/tmp/open_eobs/{spell_id}.pdf'.format(spell_id=spell_id)
-        # Create options dict
-        data_fname = '{hospital_number}_report.pdf'.format(hospital_number=wardboard.hospital_number)
-        name = 'Patient Report for {patient_name}'.format(patient_name=wardboard.full_name)
-        description = 'Patient Report for {patient_name}'.format(patient_name=wardboard.full_name)
-        options = {
-            'url': url,
-            'fname': fname,
-            'res_model': 'nh.clinical.spell',
-            'res_id': spell_id,
-            'datas_fname': data_fname,
-            'name': name,
-            'description': description,
-            'database': cr.dbname
-        }
-
-        # Call the print function
-        phantomjs = self.pool['phantomjs.pdf']
-        _logger.info('Calling Wardboard phantomjs_print')
-        attach_id_and_returned_context = phantomjs.phantomjs_print(cr, uid, options, context=context)
-
-        if not isinstance(attach_id_and_returned_context, str):
-            return attach_id_and_returned_context
-        else:
-            _logger.warn(attach_id_and_returned_context)
-        return False
 
     def write(self, cr, uid, ids, vals, context=None):
         activity_pool = self.pool['nh.activity']
@@ -740,7 +694,8 @@ wb_activity_data as(
             activity.state,
             array_agg(split_part(activity.data_ref, ',', 2)::int order by split_part(activity.data_ref, ',', 2)::int desc) as ids
         from nh_clinical_spell spell
-        inner join nh_activity activity on activity.patient_id = spell.patient_id
+        inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
+        inner join nh_activity activity on activity.parent_id = spell_activity.id
         group by spell_id, spell.patient_id, activity.data_model, activity.state
 ); 
 
@@ -945,7 +900,11 @@ nh_clinical_wardboard as(
         end as critical_care,
         param.uotarget_vol,
         param.uotarget_unit,
-        consulting_doctors.names as consultant_names
+        consulting_doctors.names as consultant_names,
+        case
+            when spell_activity.date_terminated > now() - interval '1d' and spell_activity.state = 'completed' then true
+            else false
+        end as recently_discharged
         
     from nh_clinical_spell spell
     inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
@@ -958,7 +917,6 @@ nh_clinical_wardboard as(
     left join placement plc on spell.id = plc.spell_id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
     left join param on param.spell_id = spell.id
-    where spell_activity.date_terminated > now() - interval '1d' or spell_activity.state = 'started'
     order by location.name
 );
 """)
