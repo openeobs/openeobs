@@ -75,6 +75,7 @@ class NHGraph extends NHGraphLib
         left: 0
       },
       axis: {
+        step: 0,
         x: {
           hide: false,
           size: null
@@ -250,6 +251,9 @@ class NHGraph extends NHGraphLib
     .range([top_offset+@style.dimensions.height, top_offset])
 
     @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
+    .tickFormat(if @.style.axis.step > 0 then \
+      nh_graphs.format(",." + @.style.axis.step + "f") else \
+      nh_graphs.format("d")).tickSubdivide(@.style.axis.step)
     if not @.style.axis.y.hide
       @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
       .call(@.axes.y.axis)
