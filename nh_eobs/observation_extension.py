@@ -1,4 +1,5 @@
 from openerp.osv import orm, osv
+from openerp.sql_db import TestCursor
 import logging
 import threading
 from datetime import datetime as dt
@@ -44,8 +45,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['ews0', 'ews1', 'ews2'], context], kwargs=None)
-        thr.start()
+        if not isinstance(cr, TestCursor):
+            thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['ews0', 'ews1', 'ews2'], context], kwargs=None)
+            thr.start()
         return res
 
 
