@@ -396,7 +396,7 @@ openerp.nh_eobs = function (instance) {
                 if(o2levelid){
                     self.o2levelModel.call('read', [o2levelid], {context: self.view.dataset.context}).done(function (o2levelRecords) {
                         var name = o2levelRecords.name;
-                        $('.modal-dialog .paged_form_view_header').append('<li><strong class="target-right">spO2 Target Range: </strong><span>' + name + '</span></li>')
+                        $('.modal-dialog .paged_form_view_header').append('<li><strong class="target-right">Patient O2 Saturation Target Range: </strong><span>' + name + '%</span></li>')
                     });
                 }
             });
