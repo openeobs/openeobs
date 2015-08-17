@@ -9,7 +9,7 @@
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_clinical', 'nh_ews', 'nh_gcs', 'nh_pbp', 'nh_stools', 'nh_graphs',
-                'phantomjs_pdf', 'nh_shift_management', 'nh_eobs_reports'],
+                'phantomjs_pdf', 'nh_shift_management'],
     'data': ['eobs_data.xml',
              'observation_report.xml',
              'wizard/cancel_notifications_view.xml',
