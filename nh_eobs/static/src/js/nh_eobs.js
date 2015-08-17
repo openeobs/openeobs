@@ -391,12 +391,13 @@ openerp.nh_eobs = function (instance) {
             if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
                 printing = true;
             }
+            $('.modal-dialog .paged_form_view_header #o2_target_header').remove();
             this.o2targetModel.call('get_last', [this.view.datarecord.id]).done(function(o2targetRecords){
                 var o2levelid = o2targetRecords
                 if(o2levelid){
                     self.o2levelModel.call('read', [o2levelid], {context: self.view.dataset.context}).done(function (o2levelRecords) {
                         var name = o2levelRecords.name;
-                        $('.modal-dialog .paged_form_view_header').append('<li><strong class="target-right">Patient O2 Saturation Target Range: </strong><span>' + name + '%</span></li>')
+                        $('.modal-dialog .paged_form_view_header').append('<li id="o2_target_header"><strong class="target-right">Patient O2 Saturation Target Range: </strong><span>' + name + '%</span></li>')
                     });
                 }
             });
@@ -549,6 +550,7 @@ openerp.nh_eobs = function (instance) {
                     score_graph.options.keys = ['score'];
                     score_graph.style.dimensions.height = 200;
                     score_graph.style.data_style = 'stepped';
+                    score_graph.style.padding.bottom = 10;
                     score_graph.axes.y.min = 0;
                     score_graph.axes.y.max = 22;
                     score_graph.drawables.background.data =  [
