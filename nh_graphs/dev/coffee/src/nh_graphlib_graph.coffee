@@ -248,7 +248,7 @@ class NHGraph extends NHGraphLib
     @.obj.append("defs").append("clipPath").attr("class", "clip")
     .attr('id', @.options.keys.join('-')+'-clip').append("rect")
     .attr("width",  @.style.dimensions.width)
-    .attr("height", @.style.dimensions.height)
+    .attr("height", @.style.dimensions.height + 3)
     .attr("y", top_offset).attr("x", left_offset)
 
     @.axes.y.scale = nh_graphs.scale.linear()
