@@ -5,6 +5,7 @@
             <field name="model">nh.clinical.observation_report_wizard</field>
             <field name="arch" type="xml">
                 <form string="Print Observation Report Wizard" class= "oe_form_configuration" version="7.0">
+                    <h4>Leave fields blank to print report for entire admission.</h4>
                     <group>
                         <field name="start_time"/>
                         <field name="end_time"/>
