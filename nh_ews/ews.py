@@ -90,10 +90,36 @@ class nh_clinical_patient_observation_ews(orm.Model):
             _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res
 
+    def _get_o2_display(self, cr, uid, ids, field_names, arg, context=None):
+        res = {}
+        for ews in self.browse(cr, uid, ids, context=context):
+            if not ews.oxygen_administration_flag:
+                res[ews.id] = 'No'
+            else:
+                display = ''
+                if ews.flow_rate:
+                    display += str(ews.flow_rate) + ' l/m '
+                elif ews.concentration:
+                    display += str(ews.concentration) + '% '
+                if ews.device_id:
+                    display += ews.device_id.name
+                res[ews.id] = display
+        return res
+
+    def _get_bp_display(self, cr, uid, ids, field_names, arg, context=None):
+        res = {}
+        for ews in self.browse(cr, uid, ids, context=context):
+            if not ews.blood_pressure_systolic:
+                res[ews.id] = '- / -'
+            else:
+                res[ews.id] = str(ews.blood_pressure_systolic)+' / '+str(ews.blood_pressure_diastolic)
+        return res
+
     def _data2ews_ids(self, cr, uid, ids, context=None):
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
         ews_ids = ews_pool.search(cr, uid, [('activity_id', 'in', ids)], context=context)
         return ews_ids
+
     _avpu_values = [['A', 'Alert'], ['V', 'Voice'], ['P', 'Pain'], ['U', 'Unresponsive']]
     _columns = {
         #'duration': fields.integer('Duration'),
@@ -126,7 +152,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
         'order_by': fields.related('activity_id', 'date_terminated', type='datetime', string='Date Terminated', store={
             'nh.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, ['activity_id'], 10),
             'nh.activity.data': (_data2ews_ids, ['date_terminated'], 20)
-        })
+        }),
+        'o2_display': fields.function(_get_o2_display, type='char', size=300, string='Supplemental O2'),
+        'bp_display': fields.function(_get_bp_display, type='char', size=10, string='Blood Pressure')
     }
 
     _form_description = [
