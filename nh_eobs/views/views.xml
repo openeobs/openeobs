@@ -27,6 +27,12 @@
             </div>
         </template>
 
+        <template inherit_id="web.login" id="login" name="eobs login">
+            <xpath expr="//label[@for='login']" position="replace">
+                <label for="login" class="control-label">Username</label>
+            </xpath>
+        </template>
+
         <template id="assets_backend" name="eobs assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
                 <link rel="stylesheet" href="/nh_eobs/static/src/css/nh_eobs.css"/>

@@ -46,7 +46,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_chart">
-            <field name="name">Chart</field>
+            <field name="name">Observation Chart</field>
             <field name="target">new</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
@@ -55,7 +55,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_ews">
-            <field name="name">Table</field>
+            <field name="name">Observation List</field>
             <field name="target">new</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>

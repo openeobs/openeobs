@@ -1,227 +1,355 @@
-from openerp.tests.common import TransactionCase
-# from datetime import datetime as dt
-# from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+from openerp.tests.common import SingleTransactionCase
+from openerp.osv.orm import except_orm
+from datetime import datetime as dt
 
 
-class TestClinicalPatientObservationEwsRefresh(TransactionCase):
-    pass
+class TestObservationExtension(SingleTransactionCase):
 
-    # def setUp(self):
-        # super(TestClinicalPatientObservationEwsRefresh, self).setUp()
-        # cr, uid = self.cr, self.uid
-        #
-        # self.users_pool = self.registry('res.users')
-        # self.activity_pool = self.registry('nh.activity')
-        # self.location_pool = self.registry('nh.clinical.location')
-        # self.pos_pool = self.registry('nh.clinical.pos')
-        # self.spell_pool = self.registry('nh.clinical.spell')
-        # self.apidemo = self.registry('nh.clinical.api.demo')
-        # self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
-        # self.activity_pool = self.registry('nh.activity')
-        # self.context_pool = self.registry('nh.clinical.context')
-        # self.placement_pool = self.registry('nh.clinical.patient.placement')
-        # self.mrsa_pool = self.registry('nh.clinical.patient.mrsa')
-        # self.diabetes_pool = self.registry('nh.clinical.patient.diabetes')
-        # self.patient_ids = self.apidemo.build_unit_test_env1(cr, uid, bed_count=4, patient_count=4)
-        # self.wu_id = self.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
-        # self.pos_id = self.location_pool.read(cr, uid, self.wu_id, ['pos_id'])['pos_id'][0]
-        # self.patient_id = self.patient_ids[0]
-        # self.patient_id2 = self.patient_ids[1]
-        #
-        # spell_data = {
-        #     'patient_id': self.patient_id,
-        #     'pos_id': self.pos_id,
-        #     'code': '1234',
-        #     'start_date': dt.now().strftime(dtf)}
-        # spell2_data = {
-        #     'patient_id': self.patient_id2,
-        #     'pos_id': self.pos_id,
-        #     'code': 'abcd',
-        #     'start_date': dt.now().strftime(dtf)}
-        #
-        # spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell_data)
-        # self.activity_pool.start(cr, uid, spell_activity_id)
-        # self.spell_id = spell_activity_id
-        # spell_activity_id = self.spell_pool.create_activity(cr, uid, {}, spell2_data)
-        # self.activity_pool.start(cr, uid, spell_activity_id)
-        # self.spell2_id = spell_activity_id
-        # self.ews_data = {
-        #     'respiration_rate': 40,
-        #     'indirect_oxymetry_spo2': 99,
-        #     'oxygen_administration_flag': False,
-        #     'body_temperature': 37.0,
-        #     'blood_pressure_systolic': 120,
-        #     'blood_pressure_diastolic': 80,
-        #     'pulse_rate': 55
-        # }
-        # self.ews_data_2 = {
-        #     'respiration_rate': 59,
-        #     'indirect_oxymetry_spo2': 100,
-        #     'oxygen_administration_flag': False,
-        #     'body_temperature': 44.9,
-        #     'blood_pressure_systolic': 300,
-        #     'blood_pressure_diastolic': 280,
-        #     'pulse_rate': 250,
-        #     'avpu_text': 'U'
-        # }
+    @classmethod
+    def setUpClass(cls):
+        super(TestObservationExtension, cls).setUpClass()
+        cr, uid = cls.cr, cls.uid
 
-    # def test_complete_refreshes_ews0_ews1_ews2(self):
-    #     cr, uid = self.cr, self.uid
-    #
-        # first observation
-        # ews_activity_id = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id},
-        #                                                 {'patient_id': self.patient_id})
-        # self.ews_pool.submit(cr, uid, ews_activity_id, self.ews_data)
-        # result = self.ews_pool.complete(cr, uid, ews_activity_id)
-        # self.assertEquals(result, True)
-        #
-        # cr.execute("""SELECT * FROM ews0""")
-        # rows = cr.fetchall()
-        # activity.patient_id
-        # self.assertEquals(self.patient_id, rows[0][0])
-        # activity.state
-        # self.assertEquals('scheduled', rows[0][2])
-        # ews.score
-        # self.assertEquals(0, rows[0][5])
-        # ews.frequency
-        # self.assertEquals(60, rows[0][6])
-        # ews.clinical_risk
-        # self.assertEquals('None', rows[0][7])
+        cls.user_pool = cls.registry('res.users')
+        cls.groups_pool = cls.registry('res.groups')
+        cls.partner_pool = cls.registry('res.partner')
+        cls.activity_pool = cls.registry('nh.activity')
+        cls.patient_pool = cls.registry('nh.clinical.patient')
+        cls.spell_pool = cls.registry('nh.clinical.spell')
+        cls.location_pool = cls.registry('nh.clinical.location')
+        cls.context_pool = cls.registry('nh.clinical.context')
+        cls.api = cls.registry('nh.clinical.api')
+        cls.pos_pool = cls.registry('nh.clinical.pos')
+        cls.eobs_api = cls.registry('nh.eobs.api')
+        cls.apidemo = cls.registry('nh.clinical.api.demo')
+        cls.follow_pool = cls.registry('nh.clinical.patient.follow')
+        cls.unfollow_pool = cls.registry('nh.clinical.patient.unfollow')
+        cls.creason_pool = cls.registry('nh.cancel.reason')
 
-        # cr.execute("""SELECT * FROM ews1""")
-        # rows = cr.fetchall()
-        # activity.patient_id
-        # self.assertEquals(self.patient_id, rows[0][0])
-        # activity.state
-        # self.assertEquals('completed', rows[0][2])
-        # ews.score
-        # self.assertEquals(3, rows[0][5])
-        # ews.frequency
-        # self.assertEquals(15, rows[0][6])
-        # ews.clinical_risk
-        # self.assertEquals('Medium', rows[0][7])
-        # activity_rank
-        # self.assertEquals(1, rows[0][10])
+        cls.placement_pool = cls.registry('nh.clinical.patient.placement')
+        cls.ews_pool = cls.registry('nh.clinical.patient.observation.ews')
+        cls.mrsa_pool = cls.registry('nh.clinical.patient.mrsa')
+        cls.diabetes_pool = cls.registry('nh.clinical.patient.diabetes')
+        cls.pcare_pool = cls.registry('nh.clinical.patient.palliative_care')
+        cls.psurgery_pool = cls.registry('nh.clinical.patient.post_surgery')
+        cls.ccare_pool = cls.registry('nh.clinical.patient.critical_care')
+        cls.wmonitoring_pool = cls.registry('nh.clinical.patient.weight_monitoring')
+        cls.uotarget_pool = cls.registry('nh.clinical.patient.uotarget')
+        cls.height_pool = cls.registry('nh.clinical.patient.observation.height')
+        cls.pbpm_pool = cls.registry('nh.clinical.patient.pbp_monitoring')
+        cls.o2target_pool = cls.registry('nh.clinical.patient.o2target')
+        cls.o2level_pool = cls.registry('nh.clinical.o2level')
 
-        # cr.execute("""SELECT * FROM ews2""")
-        # self.assertEquals([], cr.fetchall())
+        cls.eobs_context_id = cls.context_pool.search(cr, uid, [['name', '=', 'eobs']])[0]
+        cls.admin_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Admin Group']])[0]
+        cls.nurse_group_id = cls.groups_pool.search(cr, uid, [['name', '=', 'NH Clinical Nurse Group']])[0]
 
-        # second observation
-        # triggered_ews_id = self.activity_pool.search(cr, uid, [
-        #     ['creator_id', '=', ews_activity_id],
-        #     ['data_model', '=', 'nh.clinical.patient.observation.ews']])
-        # self.ews_pool.submit(cr, uid, triggered_ews_id[0], self.ews_data_2)
-        # result = self.ews_pool.complete(cr, uid, triggered_ews_id[0])
-        # self.assertEquals(result, True)
-        #
-        # cr.execute("""SELECT * FROM ews1""")
-        # rows = cr.fetchall()
-        # activity.patient_id
-        # self.assertEquals(self.patient_id, rows[0][0])
-        # activity.state
-        # self.assertEquals('completed', rows[0][2])
-        # ews.score
-        # self.assertEquals(14, rows[0][5])
-        # ews.frequency
-        # self.assertEquals(60, rows[0][6])
-        # ews.clinical_risk
-        # self.assertEquals('High', rows[0][7])
-        # activity_rank
-        # self.assertEquals(1, rows[0][10])
+        cls.hospital_id = cls.location_pool.create(cr, uid, {'name': 'Test Hospital', 'code': 'TESTHOSP',
+                                                             'usage': 'hospital'})
+        cls.pos_id = cls.pos_pool.create(cr, uid, {'name': 'Test POS', 'location_id': cls.hospital_id})
 
-    # def test_complete_refreshes_nh_clinical_wardboard_is_updated(self):
-    #     cr, uid = self.cr, self.uid
+        cls.adt_uid = cls.user_pool.create(cr, uid, {'name': 'Admin 0', 'login': 'user_000', 'pos_id': cls.pos_id,
+                                                     'password': 'user_000', 'groups_id': [[4, cls.admin_group_id]]})
+        cls.ward_id = cls.location_pool.create(cr, uid, {'name': 'Ward0', 'code': 'W0', 'usage': 'ward',
+                                                         'parent_id': cls.hospital_id, 'type': 'poc',
+                                                         'context_ids': [[4, cls.eobs_context_id]]})
+        cls.beds = [cls.location_pool.create(cr, uid, {'name': 'Bed'+str(i), 'code': 'B'+str(i), 'usage': 'bed',
+                                                       'parent_id': cls.ward_id, 'type': 'poc',
+                                                       'context_ids': [[4, cls.eobs_context_id]]}) for i in range(3)]
+        cls.nurse_uid = cls.user_pool.create(cr, uid, {'name': 'NURSE0', 'login': 'n0', 'password': 'n0',
+                                                       'groups_id': [[4, cls.nurse_group_id]],
+                                                       'location_ids': [[4, cls.beds[0]]]})
+        cls.patients = [cls.patient_pool.create(cr, uid, {'other_identifier': 'HN00'+str(i)}) for i in range(3)]
 
-        # first observation
-        # ews_activity_id = self.ews_pool.create_activity(cr, uid, {'parent_id': self.spell_id},
-        #                                                 {'patient_id': self.patient_id})
-        # self.ews_pool.submit(cr, uid, ews_activity_id, self.ews_data)
-        # self.ews_pool.complete(cr, uid, ews_activity_id)
+        cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
+        cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
 
-        # second observation
-        # triggered_ews_id = self.activity_pool.search(cr, uid, [
-        #     ['creator_id', '=', ews_activity_id],
-        #     ['data_model', '=', 'nh.clinical.patient.observation.ews']])
-        # self.ews_pool.submit(cr, uid, triggered_ews_id[0], self.ews_data_2)
-        # self.ews_pool.complete(cr, uid, triggered_ews_id[0])
-        #
-        # cr.execute("""SELECT * FROM ews1""")
-        # ews1_rows = cr.fetchall()
-        #
-        # cr.execute("""SELECT * FROM nh_clinical_wardboard""")
-        # wb_rows = cr.fetchall()
-        #
-        # test for correct patient
-        # self.assertEquals(True, self.patient_id in (row[1] for row in wb_rows))
-        # row = [row for row in wb_rows if row[1] == self.patient_id][0]
-        # spell_code
-        # self.assertEquals('1234', row[6])
-        # ews_score (should be equal to ews1.score)
-        # ews1_score = str(ews1_rows[0][5])
-        # self.assertEquals(row[23], ews1_score)
-        # ews_trend_string
-        # self.assertEquals(row[25], 'up')
-        # clinical_risk (should be equal to ews1.clinical_risk)
-        # ews1_clinical_risk = ews1_rows[0][7]
-        # self.assertEquals(row[26], ews1_clinical_risk)
+    def test_01_placement_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
 
-    # def test_create_refreshes_ward_locations(self):
-    #     cr, uid = self.cr, self.uid
-    #
-    #     cr.execute("""SELECT * FROM ward_locations""")
-    #     rows = cr.fetchall()
-    #
-    #     context_id = self.context_pool.search(cr, uid, [['name', '=', 'eobs']])
-    #     create new location and refresh materialized view
-        # bed_id = self.location_pool.create(cr, uid, {
-        #             'name': 'test_bed', 'parent_id': self.wu_id,
-        #             'usage': 'bed', 'context_ids': [[6, False, context_id]]})
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
 
-        # location_ids = (row[0] for row in rows)
-        # self.assertEquals(False, bed_id in location_ids)
-        #
-        # cr.execute("""SELECT * FROM ward_locations""")
-        # rows = cr.fetchall()
-        # location_ids = (row[0] for row in rows)
-        # self.assertEquals(True, bed_id in location_ids)
+        self.placement_pool._patch_method('refresh_views', do_refresh_views)
 
-    # def test_complete_refreshes_placement(self):
-    #     cr, uid = self.cr, self.uid
-    #
-    #     activity_ids = self.activity_pool.search(cr, uid, [
-    #         ('data_model', '=', 'nh.clinical.spell'),
-    #         ('patient_id', '=', self.patient_id)])
-    #     place_id = self.placement_pool.create_activity(cr, uid, {'parent_id': activity_ids[0],
-    #                                                              'patient_id': self.patient_id})
-    #     bed_id = self.location_pool.search(cr, uid, [
-    #                  ['parent_id', '=', self.wu_id], ['is_available', '=', True], ['usage', '=', 'bed']])
-    #     self.placement_pool.submit(cr, uid, place_id, {'location_id': bed_id[0], 'patient_id': self.patient_id,
-    #                                                 'suggested_location_id': self.wu_id})
-    #     self.placement_pool.complete(cr, uid, place_id)
-    #
-    #     cr.execute("""SELECT * FROM placement """)
-    #     rows = cr.fetchall()
-    #     self.assertEquals(len(rows), 1)
-    #     self.assertEquals('completed', rows[0][2])
-    #     self.assertEquals(rows[0][0], self.patient_id)
-    #
-    # def test_complete_refreshes_param(self):
-    #     cr, uid = self.cr, self.uid
+        placement_id = self.activity_pool.search(cr, uid, [['patient_id', '=', self.patients[0]],
+                                                           ['data_model', '=', 'nh.clinical.patient.placement'],
+                                                           ['state', '=', 'scheduled']])[0]
+        self.activity_pool.submit(cr, uid, placement_id, {'location_id': self.beds[0]})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, placement_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.placement_pool._revert_method('refresh_views')
 
-        # first observation
-        # mrsa_activity_id = self.mrsa_pool.create_activity(cr, uid, {'parent_id': self.spell_id},
-        #                                                 {'patient_id': self.patient_id})
-        # self.mrsa_pool.submit(cr, uid, mrsa_activity_id, {'mrsa': True})
-        # self.mrsa_pool.complete(cr, uid, mrsa_activity_id)
-        # cr.execute("""SELECT * FROM param""")
-        # rows = cr.fetchall()
-        # self.assertEquals(rows[0][3], True)
+    def test_02_ews_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
 
-        # second observation
-        # diabetes_activity_id = self.diabetes_pool.create_activity(cr, uid, {'parent_id': self.spell_id},
-        #                                                 {'patient_id': self.patient_id})
-        # self.diabetes_pool.submit(cr, uid, diabetes_activity_id, {'diabetes': False})
-        # self.activity_pool.complete(cr, uid, diabetes_activity_id)
-        # cr.execute("""SELECT * FROM param""")
-        # rows = cr.fetchall()
-        # self.assertEquals(rows[0][2], False)
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.ews_pool._patch_method('refresh_views', do_refresh_views)
+
+        ews_id = self.activity_pool.search(cr, uid, [['patient_id', '=', self.patients[0]],
+                                                     ['data_model', '=', self.ews_pool._name],
+                                                     ['state', '=', 'scheduled']])[0]
+        self.activity_pool.submit(cr, uid, ews_id, {
+            'respiration_rate': 35,
+            'indirect_oxymetry_spo2': 99,
+            'body_temperature': 37.5,
+            'blood_pressure_systolic': 120,
+            'blood_pressure_diastolic': 80,
+            'pulse_rate': 65,
+            'avpu_text': 'A',
+            'oxygen_administration_flag': False
+        })
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, ews_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.ews_pool._revert_method('refresh_views')
+
+    def test_03_mrsa_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.mrsa_pool._patch_method('refresh_views', do_refresh_views)
+
+        mrsa_id = self.mrsa_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'mrsa': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, mrsa_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.mrsa_pool._revert_method('refresh_views')
+
+    def test_04_diabetes_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.diabetes_pool._patch_method('refresh_views', do_refresh_views)
+
+        diabetes_id = self.diabetes_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'diabetes': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, diabetes_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.diabetes_pool._revert_method('refresh_views')
+
+    def test_05_palliative_care_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.pcare_pool._patch_method('refresh_views', do_refresh_views)
+
+        pcare_id = self.pcare_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'status': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, pcare_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.pcare_pool._revert_method('refresh_views')
+
+    def test_06_post_surgery_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.psurgery_pool._patch_method('refresh_views', do_refresh_views)
+
+        psurgery_id = self.psurgery_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'status': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, psurgery_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.psurgery_pool._revert_method('refresh_views')
+
+    def test_07_critical_care_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.ccare_pool._patch_method('refresh_views', do_refresh_views)
+
+        ccare_id = self.ccare_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'status': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, ccare_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.ccare_pool._revert_method('refresh_views')
+
+    def test_08_weight_monitoring_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.wmonitoring_pool._patch_method('refresh_views', do_refresh_views)
+
+        wm_id = self.wmonitoring_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0],
+                                                                    'weight_monitoring': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, wm_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.wmonitoring_pool._revert_method('refresh_views')
+
+    def test_09_urine_output_target_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.uotarget_pool._patch_method('refresh_views', do_refresh_views)
+
+        uot_id = self.uotarget_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0],
+                                                                  'volume': 500, 'unit': 1})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, uot_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.uotarget_pool._revert_method('refresh_views')
+
+    def test_10_height_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.height_pool._patch_method('refresh_views', do_refresh_views)
+
+        height_id = self.height_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'height': 1.7})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, height_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.height_pool._revert_method('refresh_views')
+
+    def test_11_pbp_monitoring_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.pbpm_pool._patch_method('refresh_views', do_refresh_views)
+
+        pbpm_id = self.pbpm_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'pbp_monitoring': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, pbpm_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.pbpm_pool._revert_method('refresh_views')
+
+    def test_12_o2_target_complete_refreshes_views_threading(self):
+        cr, uid = self.cr, self.uid
+
+        def do_refresh_views(self, cr, uid, views, context=None):
+            s = dt.now()
+            t = 0
+            while t < 3000:
+                d = dt.now() - s
+                t = int(d.total_seconds() * 1000)
+            return do_refresh_views.origin(self, cr, uid, views, context)
+
+        self.o2target_pool._patch_method('refresh_views', do_refresh_views)
+
+        o2target_id = self.o2target_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0],
+                                                                       'level_id': False})
+        start = dt.now()
+        self.assertTrue(self.activity_pool.complete(cr, uid, o2target_id))
+        delta = dt.now() - start
+        timer = int(delta.total_seconds() * 1000)
+        self.assertLess(timer, 3000)
+        self.o2target_pool._revert_method('refresh_views')
+
+    def test_13_refresh_materialized_views_decorator(self):
+        cr, uid = self.cr, self.uid
+
+        # Scenario 1: send a int as views parameter
+        with self.assertRaises(except_orm):
+            self.height_pool.refresh_views(cr, uid, 0)
+
+        # Scenario 2: send a int inside the views list parameter
+        with self.assertRaises(except_orm):
+            self.height_pool.refresh_views(cr, uid, [0])
+
+        # Scenario 3: refresh materialized views normally
+        height_id = self.height_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'height': 1.75})
+        self.assertTrue(self.activity_pool.complete(cr, uid, height_id))
+        s = dt.now()
+        t = 0
+        while t < 3000:
+            d = dt.now() - s
+            t = int(d.total_seconds() * 1000)

@@ -223,19 +223,3 @@ class nh_clinical_patient_o2target(orm.Model):
         thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
         thr.start()
         return res
-
-
-class nh_clinical_o2level(orm.Model):
-
-    _name = 'nh.clinical.o2level'
-    _inherit = 'nh.clinical.o2level'
-
-    @refresh_materialized_views
-    def refresh_views(self, cr, uid, views, context=None):
-        return True
-
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_o2level, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
-        return res
