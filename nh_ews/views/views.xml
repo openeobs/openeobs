@@ -11,12 +11,11 @@
                     <field name="score"/>
                     <field name="pulse_rate"/>
                     <field name="body_temperature"/>
-                    <field name="blood_pressure_systolic"/>
-                    <field name="blood_pressure_diastolic"/>
+                    <field name="bp_display"/>
                     <field name="respiration_rate"/>
                     <field name="indirect_oxymetry_spo2"/>
-                    <field name="oxygen_administration_flag"/>
                     <field name="avpu_text"/>
+                    <field name="o2_display"/>
                 </tree>
             </field>
         </record>
