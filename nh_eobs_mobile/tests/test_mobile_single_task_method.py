@@ -109,8 +109,6 @@ class TestMobileControllerTaskMethods(tests.common.HttpCase):
         self.assertEqual(len(mocked_method_calling_list), 2)
 
     def test_01_method_get_task_catches_right_exception(self):
-        self.assertEqual(1+2, 3)
-
         # Try to retrieve an activity with no user related to it (skip the test if cannot find any)
         activity_registry = self.registry['nh.activity']
         task_id_list = activity_registry.search(self.cr, self.uid, [], limit=1)
