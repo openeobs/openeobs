@@ -56,6 +56,13 @@
                   action="nh_clinical.action_nhc_userboard"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
+        <menuitem name="Staff Management v2"
+                  id="menu_nhui_left_user_management_v2"
+                  sequence="7"
+                  parent="menu_nhui_left_ward"
+                  action="nh_clinical.action_nhc_user_management_wm"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
+
         <menuitem name="User Allocation"
                   id="menu_nhui_left_user_management2"
                   sequence="6"
