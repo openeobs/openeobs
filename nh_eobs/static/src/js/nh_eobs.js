@@ -411,7 +411,7 @@ openerp.nh_eobs = function (instance) {
 
                     obs.forEach(function(d){
                         if(d.body_temperature){
-                            d.body_temperature = d.body_temperature.toFixed(1);
+                            d.body_temperature = parseFloat(d.body_temperature.toFixed(1));
                         }
 
 
@@ -498,6 +498,7 @@ openerp.nh_eobs = function (instance) {
                     temp_graph.style.axis.x.hide = true;
                     temp_graph.style.data_style = 'linear';
                     temp_graph.style.label_width = 60;
+                    temp_graph.style.range_padding = 1;
                     temp_graph.drawables.background.data =  [
                         {"class": "red",s: 0, e: 35},
                         {"class": "amber",s: 35,e: 35.1},

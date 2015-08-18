@@ -5,9 +5,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from openerp import SUPERUSER_ID
-import openerp.addons.nh_eobs_reports.controllers.visit_report as visit_report
-
-
 
 class wardboard_swap_beds(orm.TransientModel):
     _name = 'wardboard.swap_beds'

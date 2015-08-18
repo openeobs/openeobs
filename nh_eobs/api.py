@@ -87,18 +87,23 @@ class nh_eobs_api(orm.AbstractModel):
         if not spell_pool.search(cr, uid, [['id', '=', spell_id]], context=context):
             raise osv.except_osv('Error!', 'Spell ID provided does not exist')
         spell = spell_pool.browse(cr, uid, spell_id, context=None)
-        start_date = dt.now()-td(days=30) if not start_date else start_date
-        end_date = dt.now() if not end_date else end_date
         model_pool = self.pool[self._get_activity_type(cr, uid, activity_type, observation=True, context=context)] \
             if activity_type else self.pool['nh.activity']
         domain = [
             ('activity_id.parent_id', '=', spell.activity_id.id),
             ('patient_id', '=', spell.patient_id.id),
-            ('activity_id.state', '=', 'completed'),
-            ('date_terminated', '>=', start_date.strftime(DTF)),
-            ('date_terminated', '<=', end_date.strftime(DTF))] if activity_type \
+            ('activity_id.state', '=', 'completed')] if activity_type \
             else [('parent_id', '=', spell.activity_id.id),
                   ('patient_id', '=', spell.patient_id.id), ('state', 'not in', ['completed', 'cancelled'])]
+        if activity_type:
+            if start_date:
+                if not isinstance(start_date, dt):
+                    raise osv.except_osv("Value Error!", "Datetime object expected, %s received." % type(start_date))
+                domain.append(('date_terminated', '>=', start_date.strftime(DTF)))
+            if end_date:
+                if not isinstance(end_date, dt):
+                    raise osv.except_osv("Value Error!", "Datetime object expected, %s received." % type(end_date))
+                domain.append(('date_terminated', '<=', end_date.strftime(DTF)))
         ids = model_pool.search(cr, uid, domain, context=context)
         return model_pool.read(cr, uid, ids, [], context=context)
 
@@ -696,6 +701,7 @@ class nh_eobs_api(orm.AbstractModel):
             raise osv.except_osv(_('Error!'), 'Activity type not valid')
         model_name = self._get_activity_type(cr, uid, activity_type, observation=True, context=context)
         user_pool = self.pool['res.users']
+        spell_pool = self.pool['nh.clinical.spell']
         access_pool = self.pool['ir.model.access']
         activity_pool = self.pool['nh.activity']
         user = user_pool.browse(cr, SUPERUSER_ID, uid, context=context)
@@ -703,8 +709,13 @@ class nh_eobs_api(orm.AbstractModel):
         rules_ids = access_pool.search(cr, SUPERUSER_ID, [('model_id', '=', model_name), ('group_id', 'in', groups)], context=context)
         if not rules_ids:
             raise osv.except_osv(_('Error!'), 'Access denied, there are no access rules for these activity type - user groups')
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id, context=context)
+        if not spell_id:
+            raise osv.except_osv('Error!', 'Cannot create a new activity without an open spell!')
+        spell_activity_id = spell_pool.browse(cr, uid, spell_id, context=context).activity_id.id
         activity_ids = activity_pool.search(cr, SUPERUSER_ID,
-                                            [('patient_id', '=', patient_id),
+                                            [('parent_id', '=', spell_activity_id),
+                                             ('patient_id', '=', patient_id),
                                              ('state', 'not in', ['completed', 'cancelled']),
                                              ('data_model', '=', model_name)], context=context)
         if activity_ids:
