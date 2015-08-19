@@ -22,8 +22,8 @@
                                 <div><b><field name="summary"/></b></div>
                                 <div><field name="patient_id"/> - <field name="patient_other_id"/></div>
                                 <div>
-                                    <t t-if="record.date_scheduled.raw_value and record.date_scheduled.raw_value lt (new Date())" t-set="red">oe_kanban_text_red</t>
-                                    <span t-attf-class="#{red || ''}"><i><field name="date_scheduled"/></i></span>
+                                    <t t-if="record.date_scheduled.raw_value &amp;&amp; record.date_scheduled.raw_value &lt; (new Date())" t-set="red">oe_kanban_text_red</t>
+                                    <span t-attf-class="#{red || ''}"><i><t t-esc="record.date_scheduled.raw_value.format('d/m/Y H:m')"/></i></span>
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
                                     <field name="location_id"/> (<field name="ward_id"/>)
