@@ -7,7 +7,7 @@
             <field name="model">nh.clinical.patient.observation.ews</field>
             <field name="arch" type="xml">
                 <tree string="Early Warning Scores" class="nhc_obs_list">
-                    <field name="date_terminated"/>
+                    <field name="date_terminated" widget="nhc_datetime"/>
                     <field name="score"/>
                     <field name="pulse_rate"/>
                     <field name="body_temperature"/>
