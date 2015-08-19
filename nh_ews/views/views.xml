@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-
         <record model="ir.ui.view" id="view_tree_observation_ews">
             <field name="name">Tree View Observation EWS</field>
             <field name="model">nh.clinical.patient.observation.ews</field>
             <field name="arch" type="xml">
                 <tree string="Early Warning Scores" class="nhc_obs_list">
-                    <field name="date_terminated"/>
-                    <field name="score"/>
+                    <field name="date_terminated" widget="nhc_datetime"/>
+                    <field name="score_display"/>
                     <field name="pulse_rate"/>
                     <field name="body_temperature"/>
                     <field name="bp_display"/>
@@ -19,6 +18,5 @@
                 </tree>
             </field>
         </record>
-
     </data>
 </openerp>
