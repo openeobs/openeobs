@@ -90,6 +90,16 @@ class nh_clinical_patient_observation_ews(orm.Model):
             _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
         return res
 
+    def _get_score_display(self, cr, uid, ids, field_names, arg, context=None):
+        res = {}
+        for ews in self.browse(cr, uid, ids, context=context):
+            if ews.is_partial:
+                display = ''
+            else:
+                display = str(ews.score)
+            res[ews.id] = display
+        return res
+
     def _get_o2_display(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for ews in self.browse(cr, uid, ids, context=context):
@@ -154,7 +164,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'nh.activity.data': (_data2ews_ids, ['date_terminated'], 20)
         }),
         'o2_display': fields.function(_get_o2_display, type='char', size=300, string='Supplemental O2'),
-        'bp_display': fields.function(_get_bp_display, type='char', size=10, string='Blood Pressure')
+        'bp_display': fields.function(_get_bp_display, type='char', size=10, string='Blood Pressure'),
+        'score_display': fields.function(_get_score_display, type='char', size=2, string='Score')
     }
 
     _form_description = [
