@@ -8,6 +8,7 @@ base_group_access_admin_userboard,admin:access_admin_userboard,nh_clinical.model
 base_group_access_doctor_activities,admin:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_base,1,0,0,0
 base_group_access_kamishibai,admin:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_base,1,0,0,0
 base_group_access_spellboard,admin:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_base,1,0,0,0
+base_group_access_ward_dashboard,admin:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_base,1,0,0,0
 ,,,,,,,
 admin_access_wardboard,admin:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_admin,1,1,1,0
 admin_access_workload,admin:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_admin,1,1,1,0
@@ -18,6 +19,7 @@ admin_access_admin_userboard,admin:access_admin_userboard,nh_clinical.model_nh_c
 admin_access_doctor_activities,admin:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_admin,1,1,1,0
 admin_access_kamishibai,admin:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_admin,1,1,1,0
 admin_access_spellboard,admin:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_admin,1,1,1,0
+admin_access_ward_dashboard,admin:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_admin,1,1,1,0
 ,,,,,,,
 dev_access_wardboard,dev:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_dev,1,1,1,1
 dev_access_workload,dev:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_dev,1,1,1,1
@@ -28,6 +30,7 @@ dev_access_admin_userboard,dev:access_admin_userboard,nh_clinical.model_nh_clini
 dev_access_doctor_activities,dev:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_dev,1,1,1,1
 dev_access_kamishibai,dev:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_dev,1,1,1,1
 dev_access_spellboard,dev:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_dev,1,1,1,1
+dev_access_ward_dashboard,dev:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_dev,1,1,1,0
 ,,,,,,,
 wm_access_wardboard,manager:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_workload,manager:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_ward_manager,1,1,1,0
@@ -38,6 +41,7 @@ wm_access_admin_userboard,manager:access_admin_userboard,nh_clinical.model_nh_cl
 wm_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_kamishibai,manager:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_ward_manager,0,0,0,0
+wm_access_ward_dashboard,manager:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 ,,,,,,,
 senior_manager_access_wardboard,senior_manager:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_senior_manager,1,1,1,0
 senior_manager_access_workload,senior_manager:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_senior_manager,1,1,1,0
@@ -48,6 +52,7 @@ senior_manager_access_admin_userboard,senior_manager:access_admin_userboard,nh_c
 senior_manager_access_doctor_activities,senior_manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_senior_manager,1,1,1,0
 senior_manager_access_kamishibai,senior_manager:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_senior_manager,1,1,1,0
 senior_manager_access_spellboard,senior_manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_senior_manager,0,0,0,0
+senior_manager_access_ward_dashboard,senior_manager:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_senior_manager,1,1,1,0
 ,,,,,,,
 adt_access_wardboard,manager:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_workload,manager:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_adt,1,1,1,0
@@ -58,6 +63,7 @@ adt_access_admin_userboard,manager:access_admin_userboard,nh_clinical.model_nh_c
 adt_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_kamishibai,manager:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_adt,1,1,1,0
+adt_access_ward_dashboard,adt:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_adt,1,1,1,0
 ,,,,,,,
 kiosk_access_wardboard,kiosk:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_kiosk,1,0,0,0
 kiosk_access_workload,kiosk:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_kiosk,1,0,0,0
@@ -68,6 +74,7 @@ kiosk_access_admin_userboard,kiosk:access_admin_userboard,nh_clinical.model_nh_c
 kiosk_access_doctor_activities,kiosk:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_kiosk,1,0,0,0
 kiosk_access_kamishibai,kiosk:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_kiosk,1,0,0,0
 kiosk_access_spellboard,kiosk:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_kiosk,1,0,0,0
+kiosk_access_ward_dashboard,kiosk:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_kiosk,1,0,0,0
 ,,,,,,,
 hca_access_wardboard,hca:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_hca,1,0,0,0
 hca_access_workload,hca:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_hca,0,0,0,0
@@ -78,6 +85,7 @@ hca_access_admin_userboard,hca:access_admin_userboard,nh_clinical.model_nh_clini
 hca_access_doctor_activities,hca:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_hca,0,0,0,0
 hca_access_kamishibai,hca:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_hca,1,0,0,0
 hca_access_spellboard,hca:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_hca,0,0,0,0
+hca_access_ward_dashboard,hca:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_hca,1,1,1,0
 ,,,,,,,
 nurse_access_wardboard,nurse:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_nurse,1,1,1,0
 nurse_access_workload,nurse:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_nurse,0,0,0,0
@@ -88,6 +96,7 @@ nurse_access_admin_userboard,nurse:access_admin_userboard,nh_clinical.model_nh_c
 nurse_access_doctor_activities,nurse:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_nurse,0,0,0,0
 nurse_access_kamishibai,nurse:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_nurse,1,1,1,0
 nurse_access_spellboard,nurse:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_nurse,0,0,0,0
+nurse_access_ward_dashboard,nurse:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_nurse,1,1,1,0
 ,,,,,,,
 doctor_access_wardboard,doctor:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_doctor,1,1,1,0
 doctor_access_workload,doctor:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_doctor,0,0,0,0
@@ -98,3 +107,4 @@ doctor_access_admin_userboard,doctor:access_admin_userboard,nh_clinical.model_nh
 doctor_access_doctor_activities,doctor:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_doctor,0,0,0,0
 doctor_access_kamishibai,doctor:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_doctor,1,1,1,0
 doctor_access_spellboard,doctor:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_doctor,0,0,0,0
+doctor_access_ward_dashboard,doctor:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_doctor,1,1,1,0

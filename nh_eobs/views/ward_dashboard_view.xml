@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Ward Dashboard Kanban View -->
+       <record model="ir.ui.view" id="view_eobs_ward_dashboard_kanban">
+            <field name="name">nh.eobs.ward.dashboard.kanban</field>
+            <field name="model">nh.eobs.ward.dashboard</field>
+            <field name="arch" type="xml">
+                <kanban edit="false" quick_create="false" create="false">
+                    <field name="location_id"/>
+                    <field name="name"/>
+                    <field name="related_hcas"/>
+                    <field name="related_nurses"/>
+                    <field name="waiting_patients"/>
+                    <field name="patients_in_bed"/>
+                    <field name="assigned_wm_ids"/>
+                    <field name="assigned_doctor_ids"/>
+                    <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_color_7">
+                            <div class="oe_kanban_content">
+                                <div style="margin-top:5px;"><h3><b><field name="name"/></b></h3></div>
+                                <div style="margin-top:5px;">Managers:</div>
+                                <div style="margin-top:5px;"><field name="assigned_wm_ids" widget="many2many"/></div>
+                                <div style="margin-top:5px;">Doctors:</div>
+                                <div style="margin-top:5px;"><field name="assigned_doctor_ids" widget="many2many"/></div>
+                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
+                                    HCAs: <span><field name="related_hcas"/></span>
+                                    Nurses: <span><field name="related_nurses"/></span>
+                                </div>
+                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
+                                    Patients waiting: <span><field name="waiting_patients"/></span>
+                                </div>
+                                <div class="oe_kanban_footer_left" style="margin-top:5px;">
+                                    Patients in bed: <span><field name="child_patients"/></span>
+                                </div>
+                            </div>
+                            <div class="oe_clear"></div>
+                        </div>
+                    </t>
+                    </templates>
+                </kanban>
+            </field>
+         </record>
+
+        <record id="view_eobs_ward_dashboard_form" model="ir.ui.view">
+            <field name="name">nh.eobs.ward.dashboard.form</field>
+            <field name="model">nh.eobs.ward.dashboard</field>
+            <field name="arch" type="xml">
+                <form string="Ward Form" version="7.0" create="0" edit="0">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group name="parent" col="4">
+                                <field name="parent_id" string="Upper point of care"/>
+                                <field name="code" readonly="1"/>
+                                <field name="type" readonly="1"/>
+                                <field name="usage" readonly="1"/>
+                                <field name="assigned_hca_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','bed')]}"/>
+                                <field name="assigned_nurse_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','bed')]}"/>
+                                <field name="assigned_wm_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','ward')]}"/>
+                                <field name="assigned_doctor_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','ward')]}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Lower level">
+                                <field name="child_ids">
+                                    <tree version="7.0" editable="1" create="0">
+                                        <field name="name" readonly="1"/>
+                                        <field name="assigned_hca_ids" widget="many2many_tags"/>
+                                        <field name="assigned_nurse_ids" widget="many2many_tags"/>
+                                        <field name="patient_ids" widget="many2many_tags" readonly="1"/>
+                                        <field name="nurse_follower_ids" widget="many2many_tags"/>
+                                        <field name="hca_follower_ids" widget="many2many_tags"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_show_ward_dashboard" model="ir.actions.act_window">
+            <field name="name">Ward Dashboard</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">nh.eobs.ward.dashboard</field>
+            <field name="domain">[('user_ids','in',uid)]</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="view_id" ref="view_eobs_ward_dashboard_kanban"/>
+        </record>
+        <!--<record model="ir.actions.act_window.view" id="act_view_location_kanban">-->
+            <!--<field eval="1" name="sequence"/>-->
+            <!--<field name="view_mode">kanban</field>-->
+            <!--<field name="view_id" ref="poc_management_kanban_view"/>-->
+            <!--<field name="act_window_id" ref="action_show_poc_management"/>-->
+        <!--</record>-->
+        <!--<record model="ir.actions.act_window.view" id="act_view_location_form">-->
+            <!--<field eval="2" name="sequence"/>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="poc_management_form_view"/>-->
+            <!--<field name="act_window_id" ref="action_show_poc_management"/>-->
+        <!--</record>-->
+     </data>
+</openerp>

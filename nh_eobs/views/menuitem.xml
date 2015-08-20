@@ -49,6 +49,13 @@
                   action="action_show_poc_management"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
+        <menuitem name="Ward Dashboard SQL"
+                  id="menu_nhui_left_ward_dashboard"
+                  sequence="99"
+                  parent="menu_nhui_left_ward"
+                  action="action_show_ward_dashboard"
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
+
         <menuitem name="Staff Management"
                   id="menu_nhui_left_user_management_v2"
                   sequence="4"
