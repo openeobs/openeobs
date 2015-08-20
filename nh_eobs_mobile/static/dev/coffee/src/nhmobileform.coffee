@@ -1,5 +1,6 @@
 # NHMobileForm contains utilities for working with the nh_eobs_mobile
 # observation form
+### istanbul ignore next ###
 class NHMobileForm extends NHMobile
 
   constructor: () ->
@@ -396,7 +397,7 @@ class NHMobileForm extends NHMobile
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute('ajax-args'))
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window?.NH.NHMobileForm = NHMobileForm

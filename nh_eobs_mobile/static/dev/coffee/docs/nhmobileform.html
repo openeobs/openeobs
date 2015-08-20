@@ -287,7 +287,11 @@ in the input’s data-onchange attribute and does the appropriate action</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-property">@submit_observation</span>(@, form_elements, <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-action'</span>),
+            <div class="content"><div class='highlight'><pre>      action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> <span class="hljs-property">@form</span>.elements \
+        <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+      <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+        button.setAttribute(<span class="hljs-string">'disabled'</span>, <span class="hljs-string">'disabled'</span>)
+      <span class="hljs-property">@submit_observation</span>(@, form_elements, <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-action'</span>),
         <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-args'</span>))
     <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> invalid_elements.length&gt;<span class="hljs-number">0</span>
       msg = <span class="hljs-string">'&lt;p class="block"&gt;The form contains errors, please correct '</span>+
@@ -311,7 +315,11 @@ in the input’s data-onchange attribute and does the appropriate action</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-property">@display_partial_reasons</span>(@)
+            <div class="content"><div class='highlight'><pre>      action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> <span class="hljs-property">@form</span>.elements \
+        <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+      <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+        button.setAttribute(<span class="hljs-string">'disabled'</span>, <span class="hljs-string">'disabled'</span>)
+      <span class="hljs-property">@display_partial_reasons</span>(@)
 
   <span class="hljs-attribute">show_reference</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
     event.preventDefault()
@@ -347,7 +355,7 @@ in the input’s data-onchange attribute and does the appropriate action</p>
         <span class="hljs-keyword">else</span> <span class="hljs-string">'&lt;a href="#" data-target="partial_reasons" '</span>+
         <span class="hljs-string">'data-action="partial_submit" '</span>+
         <span class="hljs-string">'data-ajax-action="json_patient_form_action"&gt;Confirm&lt;/a&gt;'</span>
-      can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
+      can_btn = <span class="hljs-string">'&lt;a href="#" data-action="renable" '</span>+
         <span class="hljs-string">'data-target="partial_reasons"&gt;Cancel&lt;/a&gt;'</span>
       msg = <span class="hljs-string">'&lt;p class="block"&gt;Please state reason for '</span>+
         <span class="hljs-string">'submitting partial observation&lt;/p&gt;'</span>
@@ -370,12 +378,26 @@ in the input’s data-onchange attribute and does the appropriate action</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    serialised_string = (el.name+<span class="hljs-string">'='</span>+el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> elements).join(<span class="hljs-string">"&amp;"</span>)
-    url = @.urls[endpoint].apply(<span class="hljs-keyword">this</span>, args.split(<span class="hljs-string">','</span>))
-    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(url, serialised_string)).<span class="hljs-keyword">then</span> (server_data) -&gt;
+    url = @.urls[endpoint].apply(<span class="hljs-keyword">this</span>, args.split(<span class="hljs-string">','</span>))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Disable the action buttons</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(url, serialised_string)).<span class="hljs-keyword">then</span> (server_data) -&gt;
       data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
       body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
       <span class="hljs-keyword">if</span> data <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">3</span>
-        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
+        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="renable" '</span>+
           <span class="hljs-string">'data-target="submit_observation"&gt;Cancel&lt;/a&gt;'</span>
         act_btn = <span class="hljs-string">'&lt;a href="#" data-target="submit_observation" '</span>+
           <span class="hljs-string">'data-action="submit" data-ajax-action="'</span>+
@@ -415,11 +437,14 @@ in the input’s data-onchange attribute and does the appropriate action</p>
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_success'</span>, <span class="hljs-string">'Task successfully cancelled'</span>,
           <span class="hljs-string">''</span>, [btn], <span class="hljs-number">0</span>, self.form)
       <span class="hljs-keyword">else</span>
+        action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements \
+          <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+        <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+          button.removeAttribute(<span class="hljs-string">'disabled'</span>)
         btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
           <span class="hljs-string">'data-target="submit_error"&gt;Cancel&lt;/a&gt;'</span>
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_error'</span>, <span class="hljs-string">'Error submitting observation'</span>,
-          <span class="hljs-string">'Server returned an error'</span>,
-          [btn], <span class="hljs-number">0</span>, self.form)
+          <span class="hljs-string">'Server returned an error'</span>, [btn], <span class="hljs-number">0</span>, body)
 
   <span class="hljs-attribute">handle_timeout</span>: <span class="hljs-function"><span class="hljs-params">(self, id)</span> -&gt;</span>
     can_id = self.urls[<span class="hljs-string">'json_cancel_take_task'</span>](id)
@@ -515,7 +540,6 @@ in the input’s data-onchange attribute and does the appropriate action</p>
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute(<span class="hljs-string">'ajax-args'</span>))
-
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
 <span class="hljs-built_in">window</span>?.NH.NHMobileForm = NHMobileForm</pre></div></div>

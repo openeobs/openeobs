@@ -77,6 +77,8 @@ Params:</p>
     cover.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'close'</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@id</span> <span class="hljs-keyword">is</span> <span class="hljs-string">'submit_observation'</span>
+      cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'renable'</span>)
     cover.setAttribute(<span class="hljs-string">'data-target'</span>, <span class="hljs-property">@id</span>)
     cover.style.height = (body.clientHeight)+<span class="hljs-string">'px'</span>
     cover.addEventListener(<span class="hljs-string">'click'</span>, self.handle_button_events)</pre></div></div>
@@ -349,6 +351,18 @@ Currently offers</p>
         cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
         <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
         dialog_id.parentNode.removeChild(dialog_id)
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'renable'</span>
+        event.preventDefault()
+        forms = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)
+        <span class="hljs-keyword">for</span> form <span class="hljs-keyword">in</span> forms
+          action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form.elements \
+            <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+          <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+            button.removeAttribute(<span class="hljs-string">'disabled'</span>)
+        dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
+        cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+        <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+        dialog_id.parentNode.removeChild(dialog_id)
       <span class="hljs-keyword">when</span> <span class="hljs-string">'submit'</span>
         event.preventDefault()
         submit_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
@@ -413,7 +427,6 @@ Currently offers</p>
           reject_detail)
         <span class="hljs-built_in">document</span>.dispatchEvent reject_event
     <span class="hljs-keyword">return</span>
-
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
 <span class="hljs-built_in">window</span>?.NH.NHModal = NHModal</pre></div></div>

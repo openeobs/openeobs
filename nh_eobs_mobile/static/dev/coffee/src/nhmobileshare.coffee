@@ -1,6 +1,6 @@
 # NHMobileShare
 # Allows users to share patients with other users when they are not on ward
-
+### istanbul ignore next ###
 class NHMobileShare extends NHMobile
 
   # on initalisation we need to:
@@ -203,7 +203,7 @@ class NHMobileShare extends NHMobile
       when not el.classList.contains('exclude'))
     return true
 
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window?.NH.NHMobileShare = NHMobileShare

@@ -58,7 +58,8 @@ the nh_eobs_mobile patient view, namely getting data
     table_view.style.display = <span class="hljs-string">'none'</span>
 
     obs = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'obs'</span>)
-    obs[<span class="hljs-number">0</span>].addEventListener(<span class="hljs-string">'click'</span>, @.show_obs_menu)
+    <span class="hljs-keyword">if</span> obs <span class="hljs-keyword">and</span> obs.length &gt; <span class="hljs-number">0</span>
+      obs[<span class="hljs-number">0</span>].addEventListener(<span class="hljs-string">'click'</span>, @.show_obs_menu)
 
     tabs_el = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'tabs'</span>)
     tabs = tabs_el[<span class="hljs-number">0</span>].getElementsByTagName(<span class="hljs-string">'a'</span>)
@@ -101,12 +102,18 @@ the nh_eobs_mobile patient view, namely getting data
       resp_rate_graph.options.label = <span class="hljs-string">'RR'</span>
       resp_rate_graph.options.measurement = <span class="hljs-string">'/min'</span>
       resp_rate_graph.axes.y.min = <span class="hljs-number">0</span>
-      resp_rate_graph.axes.y.max = <span class="hljs-number">60</span>
+      resp_rate_graph.axes.y.max = <span class="hljs-number">40</span>
       resp_rate_graph.options.normal.min = <span class="hljs-number">12</span>
       resp_rate_graph.options.normal.max = <span class="hljs-number">20</span>
       resp_rate_graph.style.dimensions.height = <span class="hljs-number">250</span>
       resp_rate_graph.style.data_style = <span class="hljs-string">'linear'</span>
       resp_rate_graph.style.label_width = <span class="hljs-number">60</span>
+      resp_rate_graph.drawables.background.data =  [
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">0</span>, <span class="hljs-attribute">e</span>: <span class="hljs-number">9</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"green"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">9</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">12</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"amber"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">21</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">25</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">25</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">60</span>}
+      ]
 
       oxy_graph = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHGraph()
       oxy_graph.options.keys = [<span class="hljs-string">'indirect_oxymetry_spo2'</span>]
@@ -120,32 +127,52 @@ the nh_eobs_mobile patient view, namely getting data
       oxy_graph.style.axis.x.hide = <span class="hljs-literal">true</span>
       oxy_graph.style.data_style = <span class="hljs-string">'linear'</span>
       oxy_graph.style.label_width = <span class="hljs-number">60</span>
+      oxy_graph.drawables.background.data = [
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">0</span>, <span class="hljs-attribute">e</span>: <span class="hljs-number">92</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"amber"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">92</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">94</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"green"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">94</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">96</span>},
+      ]
 
       temp_graph = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHGraph()
       temp_graph.options.keys = [<span class="hljs-string">'body_temperature'</span>]
       temp_graph.options.label = <span class="hljs-string">'Temp'</span>
       temp_graph.options.measurement = <span class="hljs-string">'°C'</span>
-      temp_graph.axes.y.min = <span class="hljs-number">15</span>
-      temp_graph.axes.y.max = <span class="hljs-number">50</span>
-      temp_graph.options.normal.min = <span class="hljs-number">35</span>
-      temp_graph.options.normal.max = <span class="hljs-number">37.1</span>
+      temp_graph.axes.y.min = <span class="hljs-number">25</span>
+      temp_graph.axes.y.max = <span class="hljs-number">45</span>
+      temp_graph.options.normal.min = <span class="hljs-number">36.1</span>
+      temp_graph.options.normal.max = <span class="hljs-number">38.1</span>
       temp_graph.style.dimensions.height = <span class="hljs-number">200</span>
       temp_graph.style.axis.x.hide = <span class="hljs-literal">true</span>
       temp_graph.style.data_style = <span class="hljs-string">'linear'</span>
       temp_graph.style.label_width = <span class="hljs-number">60</span>
+      temp_graph.drawables.background.data =  [
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">0</span>, <span class="hljs-attribute">e</span>: <span class="hljs-number">35</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"amber"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">35</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">35.1</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"green"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">35.1</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">36.0</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"green"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">38.1</span>, <span class="hljs-attribute">e</span>: <span class="hljs-number">39.1</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"amber"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">39.1</span>,<span class="hljs-attribute">e</span>:<span class="hljs-number">50</span>},
+      ]
 
       pulse_graph = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHGraph()
       pulse_graph.options.keys = [<span class="hljs-string">'pulse_rate'</span>]
       pulse_graph.options.label = <span class="hljs-string">'HR'</span>
       pulse_graph.options.measurement = <span class="hljs-string">'/min'</span>
-      pulse_graph.axes.y.min = <span class="hljs-number">30</span>
+      pulse_graph.axes.y.min = <span class="hljs-number">25</span>
       pulse_graph.axes.y.max = <span class="hljs-number">200</span>
       pulse_graph.options.normal.min = <span class="hljs-number">50</span>
-      pulse_graph.options.normal.max = <span class="hljs-number">100</span>
+      pulse_graph.options.normal.max = <span class="hljs-number">91</span>
       pulse_graph.style.dimensions.height = <span class="hljs-number">200</span>
       pulse_graph.style.axis.x.hide = <span class="hljs-literal">true</span>
       pulse_graph.style.data_style = <span class="hljs-string">'linear'</span>
       pulse_graph.style.label_width = <span class="hljs-number">60</span>
+      pulse_graph.drawables.background.data =  [
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">0</span>, <span class="hljs-attribute">e</span>: <span class="hljs-number">40</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"amber"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">40</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">41</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"green"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">41</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">50</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"green"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">91</span>, <span class="hljs-attribute">e</span>: <span class="hljs-number">111</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"amber"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">111</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">131</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">131</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">200</span>}
+      ]
 
       bp_graph = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHGraph()
       bp_graph.options.keys = [<span class="hljs-string">'blood_pressure_systolic'</span>,
@@ -160,6 +187,12 @@ the nh_eobs_mobile patient view, namely getting data
       bp_graph.style.axis.x.hide = <span class="hljs-literal">true</span>
       bp_graph.style.data_style = <span class="hljs-string">'range'</span>
       bp_graph.style.label_width = <span class="hljs-number">60</span>
+      bp_graph.drawables.background.data = [
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">0</span>, <span class="hljs-attribute">e</span>:<span class="hljs-number">91</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"amber"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">91</span>, <span class="hljs-attribute">e</span>: <span class="hljs-number">101</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"green"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">101</span>,<span class="hljs-attribute">e</span>: <span class="hljs-number">111</span>},
+        {<span class="hljs-string">"class"</span>: <span class="hljs-string">"red"</span>,<span class="hljs-attribute">s</span>: <span class="hljs-number">220</span>, <span class="hljs-attribute">e</span>:<span class="hljs-number">260</span>}
+      ]
 
       score_graph = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHGraph()
       score_graph.options.keys = [<span class="hljs-string">'score'</span>]
@@ -177,7 +210,8 @@ the nh_eobs_mobile patient view, namely getting data
 
       tabular_obs = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHTable()
       tabular_obs.keys = [{<span class="hljs-attribute">key</span>:<span class="hljs-string">'avpu_text'</span>, <span class="hljs-attribute">title</span>: <span class="hljs-string">'AVPU'</span>},
-        {<span class="hljs-attribute">key</span>:<span class="hljs-string">'oxygen_administration_flag'</span>, <span class="hljs-attribute">title</span>: <span class="hljs-string">'On Supplemental O2'</span>}]
+        {<span class="hljs-attribute">key</span>:<span class="hljs-string">'oxygen_administration_device'</span>, <span class="hljs-attribute">title</span>: <span class="hljs-string">'On Supplemental O2'</span>},
+        {<span class="hljs-attribute">key</span>: <span class="hljs-string">'inspired_oxygen'</span>, <span class="hljs-attribute">title</span>: <span class="hljs-string">'Inspired Oxygen'</span>}]
       tabular_obs.title = <span class="hljs-string">'Tabular values'</span>
       focus = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHFocus()
       context = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHContext()
@@ -200,6 +234,10 @@ the nh_eobs_mobile patient view, namely getting data
       svg.options.controls.rangify = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'rangify'</span>)
       svg.table.element = <span class="hljs-string">'#table'</span>
       svg.table.keys = [
+        {
+          <span class="hljs-attribute">title</span>: <span class="hljs-string">'NEWS Score'</span>,
+          <span class="hljs-attribute">keys</span>: [<span class="hljs-string">'score'</span>]
+        }
         {
           <span class="hljs-attribute">title</span>: <span class="hljs-string">'Respiration Rate'</span>,
           <span class="hljs-attribute">keys</span>: [<span class="hljs-string">'respiration_rate'</span>]
@@ -267,6 +305,43 @@ the nh_eobs_mobile patient view, namely getting data
         },
       ]
 
+      <span class="hljs-keyword">for</span> ob <span class="hljs-keyword">in</span> obs
+        ob.oxygen_administration_device = <span class="hljs-string">'No'</span>
+        <span class="hljs-keyword">if</span> ob.oxygen_administration_flag
+          ob.oxygen_administration_device = <span class="hljs-string">'Yes'</span>
+
+        fr = ob.flow_rate <span class="hljs-keyword">and</span> ob.flow_rate &gt; -<span class="hljs-number">1</span>
+        c = ob.concentration <span class="hljs-keyword">and</span> ob.concentration &gt; -<span class="hljs-number">1</span>
+        f = ob.oxygen_administration_flag
+
+        <span class="hljs-keyword">if</span> fr <span class="hljs-keyword">or</span> c <span class="hljs-keyword">or</span> f
+          ob.inspired_oxygen = <span class="hljs-string">""</span>
+          <span class="hljs-keyword">if</span> ob.device_id
+            ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;Device:&lt;/strong&gt; "</span> +
+              ob.device_id[<span class="hljs-number">1</span>] + <span class="hljs-string">"&lt;br&gt;"</span>
+
+          <span class="hljs-keyword">if</span> fr
+            ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;Flow:&lt;/strong&gt; "</span> +
+              ob.flow_rate + <span class="hljs-string">"l/hr&lt;br&gt;"</span>
+
+          <span class="hljs-keyword">if</span> c
+            ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;Concentration:&lt;/strong&gt; "</span> +
+              ob.concentration + <span class="hljs-string">"%&lt;br&gt;"</span>
+
+          <span class="hljs-keyword">if</span> ob.cpap_peep <span class="hljs-keyword">and</span> ob.cpap_peep &gt; -<span class="hljs-number">1</span>
+            ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;CPAP PEEP:&lt;/strong&gt; "</span> +
+              ob.cpap_peep + <span class="hljs-string">"&lt;br&gt;"</span>
+          <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ob.niv_backup <span class="hljs-keyword">and</span> ob.niv_backup &gt; -<span class="hljs-number">1</span>
+            ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;NIV Backup Rate:&lt;/strong&gt; "</span> +
+              ob.niv_backup + <span class="hljs-string">"&lt;br&gt;"</span>
+            ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;NIV EPAP:&lt;/strong&gt; "</span> +
+              ob.niv_epap + <span class="hljs-string">"&lt;br&gt;"</span>
+            ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;NIV IPAP&lt;/strong&gt;: "</span> +
+              ob.niv_ipap + <span class="hljs-string">"&lt;br&gt;"</span>
+
+          <span class="hljs-keyword">if</span> ob.indirect_oxymetry_spo2
+            ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + <span class="hljs-string">"%"</span>
+
       svg.data.raw = obs
       svg.init()
       svg.draw()
@@ -278,7 +353,6 @@ the nh_eobs_mobile patient view, namely getting data
       controls.style.display = <span class="hljs-string">'none'</span>
       chart.innerHTML = <span class="hljs-string">'&lt;h2&gt;No observation data available for patient&lt;/h2&gt;'</span>
       graph_tabs[<span class="hljs-number">0</span>].style.display = <span class="hljs-string">'none'</span>
-
 
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH

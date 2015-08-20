@@ -1,6 +1,6 @@
 # NHMobileBarcode
 # Handles barcode scanning on MioCare devices
-
+### istanbul ignore next ###
 class NHMobileBarcode extends NHMobile
 
   # on initalisation we need to:
@@ -92,7 +92,7 @@ class NHMobileBarcode extends NHMobile
         activities_string += '</ul>'
       content = '<dl>'+patient_details+'</dl><h3>Tasks</h3>'+activities_string
       dialog.innerHTML = content
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window?.NH.NHMobileBarcode = NHMobileBarcode

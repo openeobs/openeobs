@@ -1,7 +1,7 @@
 # NHMobileShareInvite
 # Allows user to accept invitations to follow another user's patients via a
 # notification in patient list
-
+### istanbul ignore next ###
 class NHMobileShareInvite extends NHMobile
 
   # On initialisation
@@ -151,7 +151,7 @@ class NHMobileShareInvite extends NHMobile
           '<p class="block">There was an error rejecting the invite to follow,'+
             ' Please try again</p>',
           btns, 0, body)
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window?.NH.NHMobileShareInvite = NHMobileShareInvite

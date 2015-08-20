@@ -69,9 +69,13 @@ hacky fix to normalise this</p>
     date = <span class="hljs-keyword">new</span> Date(date_string)
     <span class="hljs-keyword">if</span> isNaN(date.getTime())
       date = <span class="hljs-keyword">new</span> Date(date_string.replace(<span class="hljs-string">' '</span>, <span class="hljs-string">'T'</span>))
+    <span class="hljs-keyword">if</span> isNaN(date.getTime())
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">"Invalid date format"</span>)
     <span class="hljs-keyword">return</span> date
 
   <span class="hljs-attribute">date_to_string</span>: <span class="hljs-function"><span class="hljs-params">(date)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> isNaN(date.getTime())
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">"Invalid date format"</span>)
     <span class="hljs-keyword">return</span> date.getFullYear() + <span class="hljs-string">"-"</span> +  <span class="hljs-property">@leading_zero</span>(date.getMonth() + <span class="hljs-number">1</span>) +
       <span class="hljs-string">"-"</span> + <span class="hljs-property">@leading_zero</span>(date.getDate()) + <span class="hljs-string">" "</span> +
       <span class="hljs-property">@leading_zero</span>(date.getHours()) +
@@ -92,6 +96,8 @@ hacky fix to normalise this</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">date_to_dob_string</span>: <span class="hljs-function"><span class="hljs-params">(date)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> isNaN(date.getTime())
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">"Invalid date format"</span>)
     <span class="hljs-keyword">return</span> date.getFullYear() + <span class="hljs-string">"-"</span> +
       <span class="hljs-property">@leading_zero</span>(date.getMonth() + <span class="hljs-number">1</span>) +
       <span class="hljs-string">"-"</span> + <span class="hljs-property">@leading_zero</span>(date.getDate())</pre></div></div>
@@ -130,7 +136,6 @@ with leading zero</p>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">leading_zero</span>: <span class="hljs-function"><span class="hljs-params">(date_element)</span> -&gt;</span>
     <span class="hljs-keyword">return</span> (<span class="hljs-string">"0"</span> + date_element).slice(-<span class="hljs-number">2</span>)
-
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
 <span class="hljs-built_in">window</span>.NH.NHLib = NHLib</pre></div></div>

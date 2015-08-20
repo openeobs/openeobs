@@ -2,6 +2,7 @@
 #---------------------
 # ClassList Polyfill for IE9 by Devon Govett -
 # https://gist.github.com/devongovett/1381839
+### istanbul ignore next ###
 if not ('classList' in document.documentElement) and
     Object.defineProperty and typeof HTMLElement isnt
     'undefined'
@@ -205,7 +206,7 @@ class NHMobile extends NHLib
       event.handled = true
 
 
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window?.NH.NHMobile = NHMobile

@@ -101,6 +101,9 @@ NHMobileBarcode = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }

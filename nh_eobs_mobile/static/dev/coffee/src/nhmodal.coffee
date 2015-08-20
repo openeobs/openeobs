@@ -1,4 +1,5 @@
 # NHModal creates a modal popup and handles events triggered via modal buttons
+### istanbul ignore next ###
 class NHModal
 
   # creates a dialog, adds it to the DOM and resizes to fit in window
@@ -208,7 +209,7 @@ class NHModal
           reject_detail)
         document.dispatchEvent reject_event
     return
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window?.NH.NHModal = NHModal

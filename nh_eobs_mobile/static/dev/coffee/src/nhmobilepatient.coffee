@@ -1,6 +1,7 @@
 # NHMobilePatient contains utilities for working with
 # the nh_eobs_mobile patient view, namely getting data
 #  and passing it to graph lib
+### istanbul ignore next ###
 class NHMobilePatient extends NHMobile
 
   constructor: () ->
@@ -310,7 +311,7 @@ class NHMobilePatient extends NHMobile
       graph_tabs[0].style.display = 'none'
 
 
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window?.NH.NHMobilePatient = NHMobilePatient

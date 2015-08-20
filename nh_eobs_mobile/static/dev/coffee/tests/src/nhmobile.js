@@ -226,6 +226,9 @@ NHMobile = (function(superClass) {
 
 })(NHLib);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }

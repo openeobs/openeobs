@@ -242,6 +242,9 @@ NHModal = (function() {
 
 })();
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
