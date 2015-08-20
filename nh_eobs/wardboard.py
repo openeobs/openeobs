@@ -630,6 +630,7 @@ drop materialized view if exists ews2 cascade;
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
 drop materialized view if exists placement cascade;
+drop view if exists wb_activity_ranked cascade;
 
 
 create or replace view
