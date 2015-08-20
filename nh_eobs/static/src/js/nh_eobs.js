@@ -380,6 +380,8 @@ openerp.nh_eobs = function (instance) {
         },
         render_chart: function(){
             this.model = new instance.web.Model('nh.eobs.api');
+            this.o2targetModel = new instance.web.Model('nh.clinical.patient.o2target');
+            this.o2levelModel = new instance.web.Model('nh.clinical.o2level');
             this.wardboard_model = new instance.web.Model('nh.clinical.wardboard');
             var vid = this.view.dataset.context.active_id;
         	var self = this;
@@ -390,6 +392,16 @@ openerp.nh_eobs = function (instance) {
             if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
                 printing = true;
             }
+            $('.modal-dialog .paged_form_view_header #o2_target_header').remove();
+            this.o2targetModel.call('get_last', [this.view.datarecord.id]).done(function(o2targetRecords){
+                var o2levelid = o2targetRecords
+                if(o2levelid){
+                    self.o2levelModel.call('read', [o2levelid], {context: self.view.dataset.context}).done(function (o2levelRecords) {
+                        var name = o2levelRecords.name;
+                        $('.modal-dialog .paged_form_view_header').append('<li id="o2_target_header"><strong class="target-right">Patient O2 Saturation Target Range: </strong><span>' + name + '%</span></li>')
+                    });
+                }
+            });
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[this.view.dataset.index],'ews'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
@@ -400,7 +412,7 @@ openerp.nh_eobs = function (instance) {
 
                     obs.forEach(function(d){
                         if(d.body_temperature){
-                            d.body_temperature = d.body_temperature.toFixed(1);
+                            d.body_temperature = parseFloat(d.body_temperature.toFixed(1));
                         }
 
 
@@ -417,7 +429,7 @@ openerp.nh_eobs = function (instance) {
                                 d.inspired_oxygen += "Device: " + d.device_id[1] + "<br>";
                             }
                             if(d.flow_rate && d.flow_rate > -1){
-                                d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
+                                d.inspired_oxygen += "Flow: " + d.flow_rate + " l/m<br>";
                             }
                             if(d.concentration && d.concentration > -1){
                                 d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
@@ -444,16 +456,14 @@ openerp.nh_eobs = function (instance) {
                     resp_rate_graph.options.measurement = '/min';
                     resp_rate_graph.axes.y.min = 0;
                     resp_rate_graph.axes.y.max = 40;
-                    resp_rate_graph.options.normal.min = 9;
+                    resp_rate_graph.options.normal.min = 12;
                     resp_rate_graph.options.normal.max = 20;
                     resp_rate_graph.style.dimensions.height = 250;
                     resp_rate_graph.style.data_style = 'linear';
                     resp_rate_graph.style.label_width = 60;
                     resp_rate_graph.drawables.background.data =  [
-                        {"class": "red",s: 0, e: 8},
-                        {"class": "amber",s: 8,e: 9},
-                        {"class": "green",s: 9,e: 11},
-                        {"class": "green",s: 20, e: 21},
+                        {"class": "red",s: 0, e: 9},
+                        {"class": "green",s: 9,e: 12},
                         {"class": "amber",s: 21,e: 25},
                         {"class": "red",s: 25,e: 60}
                     ];
@@ -482,12 +492,14 @@ openerp.nh_eobs = function (instance) {
                     temp_graph.options.measurement = '°C';
                     temp_graph.axes.y.min = 25;
                     temp_graph.axes.y.max = 45;
+                    temp_graph.style.axis.step = 1;
                     temp_graph.options.normal.min = 36.1;
                     temp_graph.options.normal.max = 38.1;
                     temp_graph.style.dimensions.height = 200;
                     temp_graph.style.axis.x.hide = true;
                     temp_graph.style.data_style = 'linear';
                     temp_graph.style.label_width = 60;
+                    temp_graph.style.range_padding = 1;
                     temp_graph.drawables.background.data =  [
                         {"class": "red",s: 0, e: 35},
                         {"class": "amber",s: 35,e: 35.1},
@@ -540,6 +552,7 @@ openerp.nh_eobs = function (instance) {
                     score_graph.options.keys = ['score'];
                     score_graph.style.dimensions.height = 200;
                     score_graph.style.data_style = 'stepped';
+                    score_graph.style.padding.bottom = 10;
                     score_graph.axes.y.min = 0;
                     score_graph.axes.y.max = 22;
                     score_graph.drawables.background.data =  [
@@ -1122,7 +1135,7 @@ openerp.nh_eobs = function (instance) {
                     self.dataset.ids = active_ids_to_send;
                     self.dataset.records = active_records_to_send;
 
-                    var title_to_use = 'Patient Chart'
+                    //var title_to_use = 'Observation Chart'
                     if(self.dataset.model == 'nh.clinical.allocating.user'){
                         title_to_use = 'User Allocation';
                     }
@@ -1134,7 +1147,7 @@ openerp.nh_eobs = function (instance) {
                             action.res_id,
                             action.context,
                             {
-                                title: _t(title_to_use),
+                                title: action.display_name,
                                 view_id: action.view_id[0],
                                 readonly: true,
                                 active_id: record_id,

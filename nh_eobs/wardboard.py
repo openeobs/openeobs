@@ -5,9 +5,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from openerp import SUPERUSER_ID
-import openerp.addons.nh_eobs_reports.controllers.visit_report as visit_report
-
-
 
 class wardboard_swap_beds(orm.TransientModel):
     _name = 'wardboard.swap_beds'
@@ -191,7 +188,7 @@ class nh_clinical_wardboard(orm.Model):
 
     def fields_view_get(self, cr, user, view_id=None, view_type='form', context=None, toolbar=False, submenu=False):
         res = super(nh_clinical_wardboard, self).fields_view_get(cr, user, view_id, view_type, context, toolbar, submenu)
-        if view_type == 'form':
+        if view_type == 'form' and res['fields'].get('o2target'):
             user_pool = self.pool['res.users']
             user_ids = user_pool.search(cr, user, [
                 ['groups_id.name', 'in', ['NH Clinical Doctor Group', 'NH Clinical Ward Manager Group']]
@@ -456,8 +453,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_prescribe_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -476,8 +471,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -496,8 +489,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_weight_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
 
         context.update({'height': wardboard.height})
@@ -518,8 +509,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_bs_chart_form')], context=context)
-        if not model_data_ids:
-            pass
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
         return {
             'name': wardboard.full_name,
@@ -551,8 +540,6 @@ class nh_clinical_wardboard(orm.Model):
 
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_patient_placement_complete')], context=context)
-        if not model_data_ids:
-            pass # view doesnt exist
         view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
 
         res_activity_id = self.pool['nh.activity'].search(cr, uid, [
@@ -575,68 +562,6 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': int(view_id),
             'context': context
         }
-
-    def print_chart(self, cr, uid, ids, context=None):
-        wardboard = self.browse(cr, uid, ids[0], context=context)
-
-        model_data_pool = self.pool['ir.model.data']
-        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_wardboard_print_chart_form')], context=context)
-        if not model_data_ids:
-            pass
-        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
-        context.update({'printing': 'true'})
-        return {
-            'name': wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.wardboard',
-            'res_id': ids[0],
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'inline',
-            'context': context,
-            'view_id': int(view_id)
-        }
-
-    def print_report(self, cr, uid, ids, context=None):
-        _logger.info('Calling Wardboard PrintReport')
-        wardboard = self.browse(cr, uid, ids[0], context=context)
-        users = self.pool['res.users']
-        config = self.pool['ir.config_parameter']
-        base_url = config.read(cr, uid, config.search(cr, uid, [('key', '=', 'web.base.url')]),['value'])[0]['value']
-        user = users.read(cr, uid, uid, ['name'])['name']
-        # get spell id
-        spell_id = wardboard.id
-        # Format URL for report
-        url = '{base_url}{endpoint}{spell_id}/'.format(base_url=base_url,
-                                                       endpoint=visit_report.endpoint,
-                                                       spell_id=spell_id)
-        # Create filename
-        fname = '/tmp/open_eobs/{spell_id}.pdf'.format(spell_id=spell_id)
-        # Create options dict
-        data_fname = '{hospital_number}_report.pdf'.format(hospital_number=wardboard.hospital_number)
-        name = 'Patient Report for {patient_name}'.format(patient_name=wardboard.full_name)
-        description = 'Patient Report for {patient_name}'.format(patient_name=wardboard.full_name)
-        options = {
-            'url': url,
-            'fname': fname,
-            'res_model': 'nh.clinical.spell',
-            'res_id': spell_id,
-            'datas_fname': data_fname,
-            'name': name,
-            'description': description,
-            'database': cr.dbname
-        }
-
-        # Call the print function
-        phantomjs = self.pool['phantomjs.pdf']
-        _logger.info('Calling Wardboard phantomjs_print')
-        attach_id_and_returned_context = phantomjs.phantomjs_print(cr, uid, options, context=context)
-
-        if not isinstance(attach_id_and_returned_context, str):
-            return attach_id_and_returned_context
-        else:
-            _logger.warn(attach_id_and_returned_context)
-        return False
 
     def write(self, cr, uid, ids, vals, context=None):
         activity_pool = self.pool['nh.activity']

@@ -19,6 +19,10 @@ class ObservationReport(models.AbstractModel):
 
     @staticmethod
     def create_search_filter(spell_activity_id, model, start_date, end_date):
+        if not spell_activity_id:
+            raise ValueError('No spell activity id supplied')
+        if not model:
+            raise ValueError('No model supplied')
         filter = []
         if model in ['nh.clinical.patient.o2target', 'nh.clinical.patient.move']:
             filter = [['parent_id', '=', spell_activity_id], ['data_model', '=', model]]
