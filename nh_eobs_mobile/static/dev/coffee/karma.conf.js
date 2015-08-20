@@ -3,6 +3,9 @@ module.exports = function(config) {
         basePath: '',
 
         files: [
+            'tests/src/*js',
+            'tests/lib/test_routes.js',
+            'tests/spec/*.spec.js'
         ],
 
         exclude: [
