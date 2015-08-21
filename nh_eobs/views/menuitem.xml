@@ -161,11 +161,18 @@
             sequence="20"
           	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
 
-        <menuitem name="Kiosk Workload"
+        <menuitem name="Kiosk Workload NEWS"
           	id="menu_left_sub_workload_kiosk"
           	parent="menu_nhui_left_patient"
           	action="action_kiosk_workload"
             sequence="21"
+          	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
+
+        <menuitem name="Kiosk Workload Other Tasks"
+          	id="menu_left_sub_workload_kiosk2"
+          	parent="menu_nhui_left_patient"
+          	action="action_kiosk_workload2"
+            sequence="22"
           	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
 
         <menuitem name="Patients by Ward"
