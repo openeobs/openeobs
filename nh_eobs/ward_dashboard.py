@@ -43,6 +43,7 @@ class nh_eobs_ward_dashboard(orm.Model):
         'location_id': fields.many2one('nh.clinical.location', 'Location', required=1, ondelete='restrict'),
         'waiting_patients': fields.integer('Waiting Patients'),
         'patients_in_bed': fields.integer('Patients in Bed'),
+        'free_beds': fields.integer('Free Beds'),
         'related_hcas': fields.integer('HCAs'),
         'related_nurses': fields.integer('Nurses'),
         'kanban_color': fields.integer('Kanban Color'),
@@ -60,7 +61,7 @@ class nh_eobs_ward_dashboard(orm.Model):
         cr.execute("""
         drop view if exists %s;
         drop view if exists loc_waiting_patients;
-        drop view if exists loc_patients_in_bed;
+        drop view if exists loc_availability;
         drop view if exists loc_users;
         drop view if exists child_loc_users;
         drop view if exists loc_patients_by_risk;
@@ -99,14 +100,16 @@ class nh_eobs_ward_dashboard(orm.Model):
             left join loc_patients_by_risk nos on nos.location_id = location.id and nos.clinical_risk = 'NoScore'
         );
 
-        create or replace view loc_patients_in_bed as (
+        create or replace view loc_availability as (
             select
                 wl.ward_id as location_id,
-                count(spell.id) as patients_in_bed
-            from nh_clinical_spell spell
-            inner join nh_activity activity on activity.id = spell.activity_id and activity.state = 'started'
-            inner join nh_clinical_location location on location.id = spell.location_id and location.usage = 'bed'
+                count(spell.id) as patients_in_bed,
+                count(location.id) - count(spell.id) as free_beds
+            from nh_clinical_location location
             inner join ward_locations wl on wl.id = location.id
+            left join nh_clinical_spell spell on spell.location_id = location.id
+            left join nh_activity activity on activity.id = spell.activity_id and activity.state = 'started'
+            where location.usage = 'bed'
             group by wl.ward_id
         );
 
@@ -163,7 +166,8 @@ class nh_eobs_ward_dashboard(orm.Model):
                 location.id as id,
                 location.id as location_id,
                 lwp.waiting_patients,
-                lpbed.patients_in_bed,
+                avail.patients_in_bed,
+                avail.free_beds,
                 clu1.related_users as related_hcas,
                 clu2.related_users as related_nurses,
                 rpc.high_risk_patients,
@@ -179,7 +183,7 @@ class nh_eobs_ward_dashboard(orm.Model):
                 end as kanban_color
             from nh_clinical_location location
             left join loc_waiting_patients lwp on lwp.location_id = location.id
-            left join loc_patients_in_bed lpbed on lpbed.location_id = location.id
+            left join loc_availability avail on avail.location_id = location.id
             left join child_loc_users clu1 on clu1.location_id = location.id and clu1.group_name = 'NH Clinical HCA Group'
             left join child_loc_users clu2 on clu2.location_id = location.id and clu2.group_name = 'NH Clinical Nurse Group'
             left join loc_risk_patients_count rpc on rpc.location_id = location.id

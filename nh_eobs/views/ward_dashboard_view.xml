@@ -32,6 +32,7 @@
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
                                     Patients waiting: <span><field name="waiting_patients"/></span>
                                     In bed: <span><field name="patients_in_bed"/></span>
+                                    Free beds: <span><field name="free_beds"/></span>
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
                                     High <span><field name="high_risk_patients"/></span>
