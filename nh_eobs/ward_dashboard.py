@@ -10,12 +10,6 @@ class nh_eobs_ward_dashboard(orm.Model):
     _auto = False
     _table = "nh_eobs_ward_dashboard"
 
-    _clinical_risk_selection = [['NoScore', 'No Score Yet'],
-                                ['High', 'High Risk'],
-                                ['Medium', 'Medium Risk'],
-                                ['Low', 'Low Risk'],
-                                ['None', 'No Risk']]
-
     def _get_wm_ids(self, cr, uid, ids, field_name, arg, context=None):
         res = {}.fromkeys(ids, False)
         sql = """select location_id, user_ids
@@ -36,15 +30,30 @@ class nh_eobs_ward_dashboard(orm.Model):
         res.update({r['location_id']: r['user_ids'] for r in cr.dictfetchall()})
         return res
 
+    def _get_bed_ids(self, cr, uid, ids, fiel_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select location_id, bed_ids
+                 from ward_beds
+                 where location_id in (%s)""" % ", ".join([str(location_id) for location_id in ids])
+        cr.execute(sql)
+        res.update({r['location_id']: r['bed_ids'] for r in cr.dictfetchall()})
+        return res
+
     _columns = {
         'location_id': fields.many2one('nh.clinical.location', 'Location', required=1, ondelete='restrict'),
         'waiting_patients': fields.integer('Waiting Patients'),
         'patients_in_bed': fields.integer('Patients in Bed'),
         'related_hcas': fields.integer('HCAs'),
         'related_nurses': fields.integer('Nurses'),
-        'highest_risk': fields.selection(_clinical_risk_selection, "Highest Risk"),
+        'kanban_color': fields.integer('Kanban Color'),
         'assigned_wm_ids': fields.function(_get_wm_ids, type='many2many', relation='res.users', string='Ward Managers'),
-        'assigned_doctor_ids': fields.function(_get_dr_ids, type='many2many', relation='res.users', string='Doctors')
+        'assigned_doctor_ids': fields.function(_get_dr_ids, type='many2many', relation='res.users', string='Doctors'),
+        'bed_ids': fields.function(_get_bed_ids, type='many2many', relation='nh.eobs.bed.dashboard', string='Beds'),
+        'high_risk_patients': fields.integer('High Risk Patients'),
+        'med_risk_patients': fields.integer('Medium Risk Patients'),
+        'low_risk_patients': fields.integer('Low Risk Patients'),
+        'no_risk_patients': fields.integer('No Risk Patients'),
+        'noscore_patients': fields.integer('No Score Patients')
     }
 
     def init(self, cr):
@@ -55,18 +64,39 @@ class nh_eobs_ward_dashboard(orm.Model):
         drop view if exists loc_users;
         drop view if exists child_loc_users;
         drop view if exists loc_patients_by_risk;
+        drop view if exists loc_risk_patients_count;
+        drop view if exists ward_beds;
 
         create or replace view loc_patients_by_risk as (
             select
                 wl.ward_id as location_id,
-                e1.clinical_risk,
+                case
+                    when e1.clinical_risk is null then 'NoScore'
+                    else e1.clinical_risk
+                end as clinical_risk,
                 count(spell.id) as patients
             from nh_clinical_spell spell
             inner join nh_activity activity on activity.id = spell.activity_id and activity.state = 'started'
             inner join nh_clinical_location location on location.id = spell.location_id and location.usage = 'bed'
             inner join ward_locations wl on wl.id = location.id
-            inner join ews1 e1 on e1.spell_activity_id = activity.id
+            left join ews1 e1 on e1.spell_activity_id = activity.id
             group by wl.ward_id, e1.clinical_risk
+        );
+
+        create or replace view loc_risk_patients_count as (
+            select
+                location.id as location_id,
+                high.patients as high_risk_patients,
+                med.patients as med_risk_patients,
+                low.patients as low_risk_patients,
+                no.patients as no_risk_patients,
+                nos.patients as noscore_patients
+            from nh_clinical_location location
+            left join loc_patients_by_risk high on high.location_id = location.id and high.clinical_risk = 'High'
+            left join loc_patients_by_risk med on med.location_id = location.id and med.clinical_risk = 'Medium'
+            left join loc_patients_by_risk low on low.location_id = location.id and low.clinical_risk = 'Low'
+            left join loc_patients_by_risk no on no.location_id = location.id and no.clinical_risk = 'None'
+            left join loc_patients_by_risk nos on nos.location_id = location.id and nos.clinical_risk = 'NoScore'
         );
 
         create or replace view loc_patients_in_bed as (
@@ -118,6 +148,16 @@ class nh_eobs_ward_dashboard(orm.Model):
             group by wl.ward_id, groups.name
         );
 
+        create or replace view ward_beds as (
+            select
+                wl.ward_id as location_id,
+                array_agg(distinct location.id) as bed_ids
+            from nh_clinical_location location
+            inner join ward_locations wl on wl.id = location.id
+            where location.usage = 'bed'
+            group by wl.ward_id
+        );
+
         create or replace view %s as (
             select
                 location.id as id,
@@ -125,12 +165,132 @@ class nh_eobs_ward_dashboard(orm.Model):
                 lwp.waiting_patients,
                 lpbed.patients_in_bed,
                 clu1.related_users as related_hcas,
-                clu2.related_users as related_nurses
+                clu2.related_users as related_nurses,
+                rpc.high_risk_patients,
+                rpc.med_risk_patients,
+                rpc.low_risk_patients,
+                rpc.no_risk_patients,
+                rpc.noscore_patients,
+                case
+                    when rpc.high_risk_patients > 0 then 2
+                    when rpc.med_risk_patients >0 then 3
+                    when rpc.low_risk_patients >0 then 4
+                    else 7
+                end as kanban_color
             from nh_clinical_location location
             left join loc_waiting_patients lwp on lwp.location_id = location.id
             left join loc_patients_in_bed lpbed on lpbed.location_id = location.id
             left join child_loc_users clu1 on clu1.location_id = location.id and clu1.group_name = 'NH Clinical HCA Group'
             left join child_loc_users clu2 on clu2.location_id = location.id and clu2.group_name = 'NH Clinical Nurse Group'
+            left join loc_risk_patients_count rpc on rpc.location_id = location.id
             where location.usage = 'ward'
+        )
+        """ % (self._table, self._table))
+
+
+class nh_eobs_bed_dashboard(orm.Model):
+    _name = "nh.eobs.bed.dashboard"
+    _inherits = {'nh.clinical.location': 'location_id'}
+    _description = "Bed Dashboard"
+    _auto = False
+    _table = "nh_eobs_bed_dashboard"
+
+    def _get_hca_ids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select location_id, user_ids
+                 from loc_users
+                 where group_name = 'NH Clinical HCA Group'
+                        and location_id in (%s)""" % ", ".join([str(location_id) for location_id in ids])
+        cr.execute(sql)
+        res.update({r['location_id']: r['user_ids'] for r in cr.dictfetchall()})
+        return res
+
+    def _get_nurse_ids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select location_id, user_ids
+                 from loc_users
+                 where group_name = 'NH Clinical Nurse Group'
+                        and location_id in (%s)""" % ", ".join([str(location_id) for location_id in ids])
+        cr.execute(sql)
+        res.update({r['location_id']: r['user_ids'] for r in cr.dictfetchall()})
+        return res
+
+    def _get_patient_ids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select location_id, patient_ids
+                 from loc_patients
+                 where location_id in (%s)""" % ", ".join([str(location_id) for location_id in ids])
+        cr.execute(sql)
+        res.update({r['location_id']: r['patient_ids'] for r in cr.dictfetchall()})
+        return res
+
+    def _get_nurse_follower_ids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select location_id, follower_ids
+                 from loc_followers
+                 where group_name = 'NH Clinical Nurse Group'
+                        and location_id in (%s)""" % ", ".join([str(location_id) for location_id in ids])
+        cr.execute(sql)
+        res.update({r['location_id']: r['follower_ids'] for r in cr.dictfetchall()})
+        return res
+
+    def _get_hca_follower_ids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select location_id, follower_ids
+                 from loc_followers
+                 where group_name = 'NH Clinical HCA Group'
+                        and location_id in (%s)""" % ", ".join([str(location_id) for location_id in ids])
+        cr.execute(sql)
+        res.update({r['location_id']: r['follower_ids'] for r in cr.dictfetchall()})
+        return res
+
+    _columns = {
+        'location_id': fields.many2one('nh.clinical.location', 'Location', required=1, ondelete='restrict'),
+        'assigned_hca_ids': fields.function(_get_hca_ids, type='many2many', relation='res.users', string='HCAs'),
+        'assigned_nurse_ids': fields.function(_get_nurse_ids, type='many2many', relation='res.users', string='Nurses'),
+        'patient_ids': fields.function(_get_patient_ids, type='many2many', relation='nh.clinical.patient', string="Patients"),
+        'nurse_follower_ids': fields.function(_get_nurse_follower_ids, type='many2many', relation='res.users', string="Nurse Stand-Ins"),
+        'hca_follower_ids': fields.function(_get_hca_follower_ids, type='many2many', relation='res.users', string="HCA Stand-Ins"),
+    }
+
+    def init(self, cr):
+        cr.execute("""
+        drop view if exists loc_patients;
+        drop view if exists loc_followers;
+        drop view if exists %s;
+
+        create or replace view loc_patients as (
+            select
+                location.id as location_id,
+                array_agg(distinct patient.id) as patient_ids
+            from nh_clinical_spell spell
+            inner join nh_activity activity on activity.id = spell.activity_id and activity.state = 'started'
+            inner join nh_clinical_patient patient on patient.id = spell.patient_id
+            left join nh_clinical_location location on location.id = spell.location_id
+            group by location.id
+        );
+
+        create or replace view loc_followers as (
+            select
+                location.id as location_id,
+                groups.name as group_name,
+                array_agg(distinct users.id) as follower_ids
+            from nh_clinical_spell spell
+            inner join nh_activity activity on activity.id = spell.activity_id and activity.state = 'started'
+            inner join nh_clinical_patient patient on patient.id = spell.patient_id
+            left join nh_clinical_location location on location.id = spell.location_id
+            left join user_patient_rel uprel on uprel.patient_id = patient.id
+            left join res_users users on users.id = uprel.user_id
+            left join res_groups_users_rel gurel on gurel.uid = users.id
+            left join res_groups groups on groups.id = gurel.gid
+            group by location.id, groups.name
+        );
+
+        create or replace view %s as (
+            select
+                location.id as id,
+                location.id as location_id
+            from nh_clinical_location location
+            where location.usage = 'bed'
         )
         """ % (self._table, self._table))

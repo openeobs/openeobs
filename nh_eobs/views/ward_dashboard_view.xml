@@ -15,9 +15,10 @@
                     <field name="patients_in_bed"/>
                     <field name="assigned_wm_ids"/>
                     <field name="assigned_doctor_ids"/>
+                    <field name="kanban_color"/>
                     <templates>
-                    <t t-name="kanban-box">
-                        <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_color_7">
+                    <t t-name="kanban-box" colors="red:highest_risk=='High'; orange:highest_risk=='Medium'; green:highest_risk=='Low'">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_color_#{kanban_getcolor(record.kanban_color.raw_value)}">
                             <div class="oe_kanban_content">
                                 <div style="margin-top:5px;"><h3><b><field name="name"/></b></h3></div>
                                 <div style="margin-top:5px;">Managers:</div>
@@ -30,9 +31,14 @@
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
                                     Patients waiting: <span><field name="waiting_patients"/></span>
+                                    In bed: <span><field name="patients_in_bed"/></span>
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
-                                    Patients in bed: <span><field name="child_patients"/></span>
+                                    High <span><field name="high_risk_patients"/></span>
+                                    Medium <span><field name="med_risk_patients"/></span>
+                                    Low <span><field name="low_risk_patients"/></span>
+                                    No Risk <span><field name="no_risk_patients"/></span>
+                                    No Score <span><field name="noscore_patients"/></span>
                                 </div>
                             </div>
                             <div class="oe_clear"></div>
@@ -61,15 +67,13 @@
                                 <field name="code" readonly="1"/>
                                 <field name="type" readonly="1"/>
                                 <field name="usage" readonly="1"/>
-                                <field name="assigned_hca_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','bed')]}"/>
-                                <field name="assigned_nurse_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','bed')]}"/>
                                 <field name="assigned_wm_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','ward')]}"/>
                                 <field name="assigned_doctor_ids" widget="many2many_tags" attrs="{'invisible': [('usage','!=','ward')]}"/>
                             </group>
                         </group>
                         <notebook>
-                            <page string="Lower level">
-                                <field name="child_ids">
+                            <page string="Beds">
+                                <field name="bed_ids">
                                     <tree version="7.0" editable="1" create="0">
                                         <field name="name" readonly="1"/>
                                         <field name="assigned_hca_ids" widget="many2many_tags"/>
@@ -95,17 +99,5 @@
             <field name="view_mode">kanban,form</field>
             <field name="view_id" ref="view_eobs_ward_dashboard_kanban"/>
         </record>
-        <!--<record model="ir.actions.act_window.view" id="act_view_location_kanban">-->
-            <!--<field eval="1" name="sequence"/>-->
-            <!--<field name="view_mode">kanban</field>-->
-            <!--<field name="view_id" ref="poc_management_kanban_view"/>-->
-            <!--<field name="act_window_id" ref="action_show_poc_management"/>-->
-        <!--</record>-->
-        <!--<record model="ir.actions.act_window.view" id="act_view_location_form">-->
-            <!--<field eval="2" name="sequence"/>-->
-            <!--<field name="view_mode">form</field>-->
-            <!--<field name="view_id" ref="poc_management_form_view"/>-->
-            <!--<field name="act_window_id" ref="action_show_poc_management"/>-->
-        <!--</record>-->
      </data>
 </openerp>
