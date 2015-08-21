@@ -50,7 +50,7 @@ if not ('classList' in document.documentElement) and
 
 # Promise
 #---------
-# Promise class for Async comms with server, wrap requests in `when` function
+# Promise class for Async comes with server, wrap requests in `when` function
 # you can then use `then` to handle the response
 class Promise
   @when: (tasks...) ->

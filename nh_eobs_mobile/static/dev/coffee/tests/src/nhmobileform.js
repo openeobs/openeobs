@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHMobileForm,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -436,6 +438,8 @@ NHMobileForm = (function(superClass) {
     var can_id;
     can_id = self.urls['json_cancel_take_task'](id);
     return Promise.when(self.call_resource(can_id)).then(function(server_data) {
+
+      /* Should be checking server data */
       var btn, msg;
       msg = '<p class="block">Please pick the task again from the task list ' + 'if you wish to complete it</p>';
       btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>';

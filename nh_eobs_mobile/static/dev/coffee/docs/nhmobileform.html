@@ -448,8 +448,22 @@ in the input’s data-onchange attribute and does the appropriate action</p>
 
   <span class="hljs-attribute">handle_timeout</span>: <span class="hljs-function"><span class="hljs-params">(self, id)</span> -&gt;</span>
     can_id = self.urls[<span class="hljs-string">'json_cancel_take_task'</span>](id)
-    Promise.<span class="hljs-keyword">when</span>(self.call_resource(can_id)).<span class="hljs-keyword">then</span> (server_data) -&gt;
-      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please pick the task again from the task list '</span>+
+    Promise.<span class="hljs-keyword">when</span>(self.call_resource(can_id)).<span class="hljs-keyword">then</span> (server_data) -&gt;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <h2 id="should-be-checking-server-data">Should be checking server data</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please pick the task again from the task list '</span>+
         <span class="hljs-string">'if you wish to complete it&lt;/p&gt;'</span>
       btn = <span class="hljs-string">'&lt;a href="'</span>+self.urls[<span class="hljs-string">'task_list'</span>]().url+
         <span class="hljs-string">'" data-action="confirm"&gt;Go to My Tasks&lt;/a&gt;'</span>

@@ -306,6 +306,7 @@ class NHMobileForm extends NHMobile
   handle_timeout: (self, id) ->
     can_id = self.urls['json_cancel_take_task'](id)
     Promise.when(self.call_resource(can_id)).then (server_data) ->
+      ### Should be checking server data ###
       msg = '<p class="block">Please pick the task again from the task list '+
         'if you wish to complete it</p>'
       btn = '<a href="'+self.urls['task_list']().url+

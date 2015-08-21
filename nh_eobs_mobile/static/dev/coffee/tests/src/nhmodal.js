@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHModal;
 
 NHModal = (function() {
