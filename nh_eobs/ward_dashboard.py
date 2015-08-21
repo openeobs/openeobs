@@ -109,7 +109,7 @@ class nh_eobs_ward_dashboard(orm.Model):
             inner join ward_locations wl on wl.id = location.id
             left join nh_clinical_spell spell on spell.location_id = location.id
             left join nh_activity activity on activity.id = spell.activity_id and activity.state = 'started'
-            where location.usage = 'bed'
+            where location.usage = 'bed' and location.active = true
             group by wl.ward_id
         );
 
