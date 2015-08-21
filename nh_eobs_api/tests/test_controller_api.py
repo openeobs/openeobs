@@ -1,11 +1,12 @@
 __author__ = 'lorenzo'
+
 import json
 import logging
 import openerp.tests
 import requests
 
 from datetime import datetime
-#from random import choice as random_choice
+from random import choice as random_choice
 from unittest import skip
 
 from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
@@ -23,21 +24,23 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     json_response_structure_keys = ['status', 'title', 'description', 'data']
 
     def _get_user_belonging_to_group(self, group_name):
-        """Get the 'login' name of a user belonging to a specific group.
+        """Get the 'id' and the 'login' name of a user belonging to a specific group.
 
         :param group_name: A string with the name of the group from which retrieve a user (belonging to it)
-        :return: A string with the 'login' of the user belonging to the group passed as argument (or None if there isn't any user belonging to that group)
+        :return: A dictionary with 2 key-value couples:
+            - 'login': the login name of the retrieved user (belonging to the group passed as argument)
+            - 'id': the id of the retrieved user (belonging to the group passed as argument)
+        :return: None if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
-        #users_login_list = users_pool.search_read(self.cr, self.uid,
-        #                                          domain=[('groups_id.name', '=', group_name)],
-        #                                          fields=['login'])
-        #login_name = random_choice(users_login_list).get('login')
-        login_name = 'nadine'
-        login_uid = users_pool.search(self.cr, self.uid, [['login', '=', login_name]])
-        if login_uid:
-            self.auth_uid = login_uid[0]
-        return login_name
+        users_login_list = users_pool.search_read(self.cr, self.uid,
+                                                  domain=[('groups_id.name', '=', group_name)],
+                                                  fields=['login', 'id'])
+        try:
+            user_data = random_choice(users_login_list)
+        except IndexError:
+            user_data = None
+        return user_data
 
     def _get_authenticated_response(self, user_name):
         """Get a Response object with an authenticated session within its cookies.
@@ -74,6 +77,30 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(json.loads(returned_data), json.loads(json_data))
         return True
 
+    def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
+        """Patch a list of methods related to an Odoo's model.
+
+        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param methods_patching: A list of two-values tuples, each containing:
+            - the method to be patched (string)
+            - the function that will substitute the method to be patched (the actual name of the function)
+        :return: True (if no errors were raised during the patching)
+        """
+        for method_to_patch, substituting_function in methods_patching:
+            odoo_model._patch_method(method_to_patch, substituting_function)
+        return True
+
+    def _revert_bulk_patch_odoo_model_method(self, odoo_model, methods_to_be_reverted):
+        """Revert the Odoo's patching of a list of methods.
+
+        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param methods_to_be_reverted: A list of model's 'original' methods to be reactivated back (string)
+        :return: True (if no errors were raised during the patching)
+        """
+        for m in methods_to_be_reverted:
+            odoo_model._revert_method(m)
+        return True
+
     def setUp(self):
         """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls."""
         super(TestOdooRouteDecoratorIntegration, self).setUp()
@@ -82,10 +109,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             self.fail('Cannot retrieve a valid session to be used for the tests!')
 
         # Authenticate as a 'nurse' user and check the login was successful
-        login_name = self._get_user_belonging_to_group('NH Clinical Nurse Group')
-        self.assertNotEqual(login_name, False,
+        user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        self.login_name = user_data.get('login')
+        self.user_id = user_data.get('id')
+        self.assertNotEqual(self.login_name, False,
                             "Cannot find any 'nurse' user for authentication before running the test!")
-        self.auth_resp = self._get_authenticated_response(login_name)
+        self.auth_resp = self._get_authenticated_response(self.login_name)
         self.assertEqual(self.auth_resp.status_code, 200)
 
     # Test Observation based routes
@@ -229,11 +258,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         users_pool = self.registry['res.users']
         users_login_list = users_pool.search_read(self.cr, self.uid,
                                                   domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
-                                                          ('id', 'not in', [self.uid, self.auth_uid])],
+                                                          ('id', 'not in', [self.uid, self.user_id])],
                                                   fields=['login', 'display_name'])[:3]
         # get list of patients to share
         api_pool = self.registry('nh.eobs.api')
-        patient_list = api_pool.get_patients(self.cr, self.auth_uid, [])[:3]
+        patient_list = api_pool.get_patients(self.cr, self.user_id, [])[:3]
         patient_ids = [p['id'] for p in patient_list]
         # check if the route under test is actually present in the Route Manager
         route_under_test = route_manager.get_route('json_share_patients')
@@ -274,12 +303,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         users_pool = self.registry['res.users']
         users_login_list = users_pool.search_read(self.cr, self.uid,
                                                   domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
-                                                          ('id', 'not in', [self.uid, self.auth_uid])],
+                                                          ('id', 'not in', [self.uid, self.user_id])],
                                                   fields=['login'])[:3]
-        patient_list = api_pool.get_patients(self.cr, self.auth_uid, [])[:3]
+        patient_list = api_pool.get_patients(self.cr, self.user_id, [])[:3]
         patient_ids = [p['id'] for p in patient_list]
         for user_id in users_login_list:
-            api_pool.follow_invite(self.cr, self.auth_uid, patient_ids, user_id['id'])
+            api_pool.follow_invite(self.cr, self.user_id, patient_ids, user_id['id'])
 
         # check if the route under test is actually present in the Route Manager
         route_under_test = route_manager.get_route('json_claim_patients')
@@ -321,61 +350,109 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         # Check the returned JSON data against the expected ones
-        expected_json = self.registry('nh.eobs.api').get_share_users(self.cr, self.auth_uid)
+        expected_json = self.registry('nh.eobs.api').get_share_users(self.cr, self.user_id)
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Colleagues on shift',
                                  'Choose colleagues for stand-in',
                                  expected_json)
 
-    @skip('Test currently not working due to inability to create concurrent sessions')
     def test_08_route_invite_user(self):
-        """ Test patients you're invited to follow route, should return a list
-        of patients that you've been invited to follow and their activities
-        :return:
-        """
-        pass
-    #     cr, uid = self.cr, self.uid
-    #     # Set up the invited user list
-    #     api_pool = self.registry('nh.eobs.api')
-    #     users_pool = self.registry['res.users']
-    #
-    #     other_login = users_pool.search_read(cr, uid,
-    #                                          domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
-    #                                                  ('id', 'not in', [uid, self.auth_uid])],
-    #                                          fields=['login'])[0]
-    #
-    #     resp_all_pool = self.registry['nh.clinical.user.responsibility.allocation']
-    #     activity_pool = self.registry['nh.activity']
-    #     location_pool = self.registry['nh.clinical.location']
-    #     demo_patient_list = api_pool.get_patients(cr, self.auth_uid, [])[:3]
-    #     location_ids = location_pool.search(cr, uid, [['name', 'in', [l['location'] for l in demo_patient_list]]])
-    #     resp_act = resp_all_pool.create_activity(cr, uid, {}, {
-    #         'responsible_user_id': other_login['id'],
-    #         'location_ids': [[6, 0, location_ids]]
-    #     })
-    #     activity_pool.complete(cr, uid, resp_act)
-    #     patient_list = api_pool.get_patients(cr, other_login['id'], [])[:3]
-    #     patient_ids = [p['id'] for p in patient_list]
-    #     follow_act_id = api_pool.follow_invite(cr, other_login['id'], patient_ids, self.auth_uid)
-    #
-    #     # check if the route under test is actually present in the Route Manager
-    #     route_under_test = route_manager.get_route('json_invite_patients')
-    #     self.assertIsInstance(route_under_test, Route)
-    #
-    #     # Access the route
-    #     url = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/invite/' + str(follow_act_id)
-    #     test_resp = requests.get(url, cookies=self.auth_resp.cookies)
-    #     self.assertEqual(test_resp.status_code, 200)
-    #     self.assertEqual(test_resp.headers['content-type'], 'application/json')
-    #
-    #     # actual test
-    #     expected_json = patient_list
-    #     self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-    #                              'Patients shared with you',
-    #                              'These patients have been shared for you to follow',
-    #                              [])
-    #
-    #     return api_pool.remove_followers(cr, other_login['id'], patient_ids)
+        """Test patients you're invited to follow route, should return a list of patients and their activities."""
+        route_under_test = route_manager.get_route('json_invite_patients')
+        self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/invite/2001'
+
+        # Mock Odoo's models' methods
+        def mock_get_assigned_activities(*args, **kwargs):
+            """Return a list of dictionaries (one for each assigned activity)."""
+            assigned_activities_list = [
+                {
+                    'id': 2001,
+                    'user': 'Nurse Nadine',
+                    'count': 3,
+                    'patient_ids': [1, 2, 3],
+                    'message': 'You have been invited to follow 3 patients from Nurse Nadine'
+                }
+            ]
+            return assigned_activities_list
+
+        def mock_get_patients(*args, **kwargs):
+            patients_list = [
+                {
+                    'clinical_risk': 'None',
+                    'dob': '1980-12-25 08:00:00',
+                    'ews_score': '0',
+                    'ews_trend': 'down',
+                    'frequency': 720,
+                    'full_name': 'Campbell, Bruce',
+                    'gender': 'M',
+                    'id': 2,
+                    'location': 'Bed 3',
+                    'next_ews_time': '04:00 hours',
+                    'other_identifier': '1234567',
+                    'parent_location': 'Ward E',
+                    'patient_identifier': '908 475 1234',
+                    'sex': 'M'
+                },
+                {
+                    'clinical_risk': 'Low',
+                    'dob': '1980-08-31 18:00:00',
+                    'ews_score': '2',
+                    'ews_trend': 'down',
+                    'frequency': 240,
+                    'full_name': 'Franklin, Donna',
+                    'gender': 'F',
+                    'id': 1,
+                    'location': 'Bed 2',
+                    'next_ews_time': 'overdue: 02:00 hours',
+                    'other_identifier': '4867593',
+                    'parent_location': 'Ward E',
+                    'patient_identifier': '494 333 0012',
+                    'sex': 'F'
+                },
+                {
+                    'clinical_risk': 'Medium',
+                    'dob': '1980-04-25 12:00:00',
+                    'ews_score': '5',
+                    'ews_trend': 'up',
+                    'frequency': 60,
+                    'full_name': 'Hasselhoff, David',
+                    'gender': 'M',
+                    'id': 3,
+                    'location': 'Bed 1',
+                    'next_ews_time': '01:00 hours',
+                    'other_identifier': '3958684',
+                    'parent_location': 'Ward E',
+                    'patient_identifier': '112 009 007',
+                    'sex': 'M'
+                }
+            ]
+            return patients_list
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', mock_get_assigned_activities),
+            ('get_patients', mock_get_patients),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+
+        # Access the url under test
+        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # Test that the response is correct
+        expected_json = mock_get_patients()
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Patients shared with you',
+                                 'These patients have been shared for you to follow',
+                                 expected_json)
 
     @skip('Test not implemented due issue with test 06')
     def test_09_route_accept_user(self):
@@ -401,7 +478,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        task = api_pool.get_activities(self.cr, self.auth_uid, [])[0]
+        task = api_pool.get_activities(self.cr, self.user_id, [])[0]
 
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_take_task')
@@ -421,7 +498,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'You can now perform this task',
                                  expected_json)
         try:
-            api_pool.unassign(self.cr, self.auth_uid, task['id'])
+            api_pool.unassign(self.cr, self.user_id, task['id'])
         except Exception:
             test_logger.info('test_11 seems to have been unable to unassign task, potential nh.eobs.api issue?')
 
@@ -491,7 +568,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        task = api_pool.get_activities(self.cr, self.auth_uid, [])[0]
+        task = api_pool.get_activities(self.cr, self.user_id, [])[0]
 
         # Take a task
         route_under_test = route_manager.get_route('json_take_task')
@@ -531,7 +608,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        task = api_pool.get_activities(self.cr, self.auth_uid, [])[0]
+        task = api_pool.get_activities(self.cr, self.user_id, [])[0]
 
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_cancel_take_task')
@@ -592,7 +669,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        tasks = api_pool.get_activities(self.cr, self.auth_uid, [])
+        tasks = api_pool.get_activities(self.cr, self.user_id, [])
         task = [t for t in tasks if t['summary'] == 'NEWS Observation'][0]
 
         # test demo for ews observation
@@ -638,7 +715,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         api_pool = self.registry('nh.eobs.api')
         activity_api = self.registry('nh.activity')
-        tasks = api_pool.get_activities(self.cr, self.auth_uid, [])
+        tasks = api_pool.get_activities(self.cr, self.user_id, [])
         task = [t for t in tasks if t['summary'] in ['Assess Patient', 'Urgently inform medical team', 'Immediately inform medical team']][0]
 
         # Check if the route under test is actually present into the Route Manager
@@ -656,10 +733,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        triggered_ids = activity_api.search(self.cr, self.auth_uid, [['creator_id', '=', task['id']]])
-        triggered_tasks = activity_api.read(self.cr, self.auth_uid, triggered_ids, [])
+        triggered_ids = activity_api.search(self.cr, self.user_id, [['creator_id', '=', task['id']]])
+        triggered_tasks = activity_api.read(self.cr, self.user_id, triggered_ids, [])
 
-        triggered_tasks = [v for v in triggered_tasks if 'ews' not in v['data_model'] and api_pool.check_activity_access(self.cr, self.auth_uid, v['id'])]
+        triggered_tasks = [v for v in triggered_tasks if 'ews' not in v['data_model'] and api_pool.check_activity_access(self.cr, self.user_id, v['id'])]
 
         expected_json = {
             'related_tasks': triggered_tasks
@@ -677,7 +754,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         api_pool = self.registry('nh.eobs.api')
         activity_api = self.registry('nh.activity')
-        tasks = api_pool.get_activities(self.cr, self.auth_uid, [])
+        tasks = api_pool.get_activities(self.cr, self.user_id, [])
         task = [t for t in tasks if t['summary'] in ['Assess Patient', 'Urgently inform medical team', 'Immediately inform medical team']][0]
         #
         # Check if the route under test is actually present into the Route Manager
@@ -719,7 +796,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        expected_json = api_pool.get_cancel_reasons(self.cr, self.auth_uid)
+        expected_json = api_pool.get_cancel_reasons(self.cr, self.user_id)
         # Check the returned JSON data against the expected ones
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Reason for cancelling task?',
@@ -734,7 +811,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
 
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_patient_info')
@@ -786,7 +863,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
 
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_patient_barcode')
@@ -797,7 +874,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        patient_info = api_pool.get_patient_info(self.cr, self.auth_uid, [patient['other_identifier']])[0]
+        patient_info = api_pool.get_patient_info(self.cr, self.user_id, [patient['other_identifier']])[0]
         # Check the returned JSON data against the expected ones
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  '{0}'.format(patient['full_name']),
@@ -810,7 +887,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
 
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_patient_barcode')
@@ -836,7 +913,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
 
         # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('ajax_get_patient_obs')
@@ -847,11 +924,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        ews = api_pool.get_activities_for_patient(self.cr, self.auth_uid, patient_id=int(patient['id']), activity_type='ews')
+        ews = api_pool.get_activities_for_patient(self.cr, self.user_id, patient_id=int(patient['id']), activity_type='ews')
         for ew in ews:
             for e in ew:
                 if e in ['date_terminated', 'create_date', 'write_date', 'date_started']:
-                    ew[e] = fields.datetime.context_timestamp(self.cr, self.auth_uid, datetime.strptime(ew[e], DTF)).strftime(DTF)
+                    ew[e] = fields.datetime.context_timestamp(self.cr, self.user_id, datetime.strptime(ew[e], DTF)).strftime(DTF)
 
         expected_json = {
             'obs': ews,
@@ -869,7 +946,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :return:
         """
         api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
+        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
 
         # test demo for ews observation
         # supplying specific data which result in an EWS total score less than 4 (according to the default EWS policy)
