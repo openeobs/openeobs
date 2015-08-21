@@ -448,7 +448,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         else:
             patient = False
         form = dict()
-        form['action'] = URLS['task_form_action']+'{0}'.format(task_id)
+        form['action'] = URLS['task_form_action']+'{0}'.format(task_id)  # TODO: check if this is still actually used!
         form['type'] = task['data_model']
         form['task-id'] = int(task_id)
         form['patient-id'] = int(patient['id']) if patient and 'id' in patient and patient['id'] else False
@@ -554,6 +554,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                      'username': request.session['login'],
                                                                      'urls': URLS})
 
+    # TODO: eventually remove this method, it's no more used: it has been replaced by method 'process_ajax_form()'
+    # This method is still a valid fallback in case Javascript is disabled on the client side, but
+    # due to our current dependency from Javascript, that is a very improbable scenario.
     @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="user")
     def process_form(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context

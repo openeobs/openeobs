@@ -9,6 +9,7 @@ from random import choice as random_choice
 from openerp import tests
 from openerp.addons.nh_eobs_mobile.controllers.urls import routes, URLS
 from openerp.http import HttpRequest
+from openerp.osv.orm import except_orm
 from openerp.tests import DB as DB_NAME
 from openerp.tools import config
 
@@ -101,17 +102,23 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         return auth_response
 
     def _get_user_belonging_to_group(self, group_name):
-        """Get the 'login' name of a user belonging to a specific group.
+        """Get the 'id' and the 'login' name of a user belonging to a specific group.
 
         :param group_name: A string with the name of the group from which retrieve a user (belonging to it)
-        :return: A string with the 'login' of the user belonging to the group passed as argument (or None if there isn't any user belonging to that group)
+        :return: A dictionary with 2 key-value couples:
+            - 'login': the login name of the retrieved user (belonging to the group passed as argument)
+            - 'id': the id of the retrieved user (belonging to the group passed as argument)
+        :return: None if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
         users_login_list = users_pool.search_read(self.cr, self.uid,
                                                   domain=[('groups_id.name', '=', group_name)],
-                                                  fields=['login'])
-        login_name = random_choice(users_login_list).get('login')
-        return login_name
+                                                  fields=['login', 'id'])
+        try:
+            user_data = random_choice(users_login_list)
+        except IndexError:
+            user_data = None
+        return user_data
 
     def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
         """Patch a list of methods related to an Odoo's model.
@@ -143,7 +150,9 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         if 'session_id' not in self.session_resp.cookies:
             self.fail('Cannot retrieve a valid session to be used for the tests!')
 
-        self.login_name = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        self.login_name = user_data.get('login')
+        self.user_id = user_data.get('id')
         self.assertNotEqual(self.login_name, False,
                             "Cannot find any 'nurse' user for authentication before running the test!")
         self.auth_resp = self._get_authenticated_response(self.login_name)
@@ -226,19 +235,21 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             - 'NH Clinical HCA Group'
         """
         # Authenticate as a 'doctor' user (that is, a user NOT belonging to any 'share group')
-        login_name = self._get_user_belonging_to_group('NH Clinical Doctor Group')
-        auth_resp = self._get_authenticated_response(login_name)
-        self.assertEqual(self.auth_resp.status_code, 200, "Cannot authenticate as 'doctor' user for running this test!")
+        doctor_data = self._get_user_belonging_to_group('NH Clinical Doctor Group')
+        doctor_login_name = doctor_data.get('login')
+        doctor_auth_resp = self._get_authenticated_response(doctor_login_name)
+        self.assertEqual(doctor_auth_resp.status_code, 200, "Cannot authenticate as 'doctor' user for running this test!")
+        self.assertIn('class="tasklist"', doctor_auth_resp.content, "Cannot authenticate as 'doctor' user for running this test!")
 
         colleagues_list_route = [r for r in routes if r['name'] == 'json_colleagues_list']
         self.assertEqual(len(colleagues_list_route), 1,
                          "Endpoint to the 'json_colleagues_list' route not unique. Cannot run the test!")
         colleagues_list_url = self._build_url(colleagues_list_route[0]['endpoint'], None, mobile=True)
 
-        test_resp = requests.get(colleagues_list_url, cookies=auth_resp.cookies)
+        test_resp = requests.get(colleagues_list_url, cookies=doctor_auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
 
-    def test_method_get_patients(self):
+    def test_method_get_patients_list(self):
         get_patients_route = [r for r in routes if r['name'] == 'patient_list']
         self.assertEqual(len(get_patients_route), 1,
                          "Endpoint to the 'patient_list' route not unique. Cannot run the test!")
@@ -374,7 +385,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             }
         )
 
-    def test_method_get_tasks(self):
+    def test_method_get_tasks_list(self):
         get_tasks_route = [r for r in routes if r['name'] == 'task_list']
         self.assertEqual(len(get_tasks_route), 1,
                          "Endpoint to the 'task_list' route not unique. Cannot run the test!")
@@ -470,7 +481,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             }
         )
 
-    def test_method_get_patient(self):
+    def test_method_get_single_patient_data(self):
         get_patient_route = [r for r in routes if r['name'] == 'single_patient']
         self.assertEqual(len(get_patient_route), 1,
                          "Endpoint to the 'single_patient' route not unique. Cannot run the test!")
@@ -552,7 +563,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
 
-        # Test the 'render' method was called with the rightly processed arguments
+        # Test the render() method was called with the rightly processed arguments
         mocked_method.assert_called_once_with(
             'nh_eobs_mobile.patient',
             qcontext={
@@ -592,3 +603,936 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                 'username': self.login_name
             }
         )
+
+    def test_method_get_share_patients(self):
+        get_share_patients_route = [r for r in routes if r['name'] == 'share_patient_list']
+        self.assertEqual(len(get_share_patients_route), 1,
+                         "Endpoint to the 'share_patient_list' route not unique. Cannot run the test!")
+        get_share_patients_url = self._build_url(get_share_patients_route[0]['endpoint'], None, mobile=True)
+
+        # Odoo-patch models' methods to make them returning test data
+        def mock_unassign_my_activities(*args, **kwargs):
+            return True
+
+        def mock_get_patients(*args, **kwargs):
+            """Return a list of dictionaries (one for each patient)."""
+            patients_list = [
+                {
+                    'clinical_risk': 'None',
+                    'dob': '1980-12-25 08:00:00',
+                    'ews_score': '0',
+                    'ews_trend': 'down',
+                    'frequency': 720,
+                    'full_name': 'Campbell, Bruce',
+                    'gender': 'M',
+                    'id': 2,
+                    'location': 'Bed 3',
+                    'next_ews_time': 'overdue: 12:00 hours',
+                    'other_identifier': '1234567',
+                    'parent_location': 'Ward E',
+                    'patient_identifier': '908 475 1234',
+                    'sex': 'M'
+                }
+            ]
+            return patients_list
+
+        def mock_get_patient_followers(*args, **kwargs):
+            for p in args[3]:
+                p['followers'] = [
+                    {
+                        'id': 3,
+                        'name': 'Nurse Nathaniel'
+                    }
+                ]
+            return True
+
+        def mock_get_invited_users(*args, **kwargs):
+            for p in args[3]:
+                p['invited_users'] = [
+                    {
+                        'id': 19,
+                        'name': 'Nurse Natalia'
+                    }
+                ]
+            return True
+
+        def mock_get_assigned_activities(*args, **kwargs):
+            """Return a list of dictionaries (one for each assigned activity)."""
+            assigned_activities_list = [
+                {
+                    'id': 1,
+                    'user': 'Nurse Nadine',
+                    'count': 2,
+                    'patient_ids': [47, 49],
+                    'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+                }
+            ]
+            return assigned_activities_list
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('unassign_my_activities', mock_unassign_my_activities),
+            ('get_patients', mock_get_patients),
+            ('get_patient_followers', mock_get_patient_followers),
+            ('get_invited_users', mock_get_invited_users),
+            ('get_assigned_activities', mock_get_assigned_activities),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+
+        # Setup and use a mocked version of the render() method
+        def mock_httprequest_render(*args, **kwargs):
+            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+
+        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+            test_resp = requests.get(get_share_patients_url, cookies=self.auth_resp.cookies)
+
+        # Just the first element of every tuple is needed for reverting the patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+
+        # Stop Odoo's patchers
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+
+        # Test the render() method was called with the rightly processed arguments
+        mocked_method.assert_called_once_with(
+            'nh_eobs_mobile.share_patients_list',
+            qcontext={
+                'items': [
+                    {
+                        'clinical_risk': 'None',
+                        'dob': '1980-12-25 08:00:00',
+                        'ews_score': '0',
+                        'ews_trend': 'down',
+                        'frequency': 720,
+                        'full_name': 'Campbell, Bruce',
+                        'gender': 'M',
+                        'id': 2,
+                        'location': 'Bed 3',
+                        'next_ews_time': 'overdue: 12:00 hours',
+                        'other_identifier': '1234567',
+                        'parent_location': 'Ward E',
+                        'patient_identifier': '908 475 1234',
+                        'sex': 'M',
+                        'url': '/mobile/patient/2',
+                        'color': 'level-none',
+                        'trend_icon': 'icon-down-arrow',
+                        'deadline_time': 'overdue: 12:00 hours',
+                        'summary': False,
+                        'followers': 'Nurse Nathaniel',
+                        'follower_ids': [3],
+                        'invited_users': 'Nurse Natalia'
+                    }
+                ],
+                'section': 'patient',
+                'username': self.login_name,
+                'share_list': True,
+                'notification_count': 1,
+                'urls': URLS,
+                'user_id': self.user_id
+            }
+        )
+
+
+class TestGetSingleTaskMethod(tests.common.HttpCase):
+
+    def _build_url(self, route_endpoint, route_arguments, mobile=True):
+        """Build a URL from the endpoint and the arguments provided.
+
+        :param route_endpoint: A string with the endpoint of a specific route, without arguments
+        :param route_arguments: A string with the arguments for a specific route's endpoint
+        :param mobile: A boolean to select between the 'web' or 'mobile' version of the URL (default: True)
+        :return: A string with a full URL, ready to be reached via browser or requests
+        """
+        if mobile:
+            base_url = BASE_MOBILE_URL
+        else:
+            base_url = BASE_URL
+        return '{0}{1}{2}'.format(base_url, route_endpoint, (route_arguments if route_arguments else ''))
+
+    def _get_authenticated_response(self, user_name):
+        """Get a Response object with an authenticated session within its cookies.
+
+        :param user_name: A string with the username of the user to be authenticated as
+        :return: A Response object
+        """
+        auth_response = requests.post(BASE_MOBILE_URL + 'login',
+                                      {'username': user_name,
+                                       'password': user_name,
+                                       'database': DB_NAME},
+                                      cookies=self.session_resp.cookies)
+        return auth_response
+
+    def _get_user_belonging_to_group(self, group_name):
+        """Get the 'id' and the 'login' name of a user belonging to a specific group.
+
+        :param group_name: A string with the name of the group from which retrieve a user (belonging to it)
+        :return: A dictionary with 2 key-value couples:
+            - 'login': the login name of the retrieved user (belonging to the group passed as argument)
+            - 'id': the id of the retrieved user (belonging to the group passed as argument)
+        :return: None if there isn't any user belonging to that group
+        """
+        users_pool = self.registry['res.users']
+        users_login_list = users_pool.search_read(self.cr, self.uid,
+                                                  domain=[('groups_id.name', '=', group_name)],
+                                                  fields=['login', 'id'])
+        try:
+            user_data = random_choice(users_login_list)
+        except IndexError:
+            user_data = None
+        return user_data
+
+    def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
+        """Patch a list of methods related to an Odoo's model.
+
+        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param methods_patching: A list of two-values tuples, each containing:
+            - the method to be patched (string)
+            - the function that will substitute the method to be patched (the actual name of the function)
+        :return: True (if no errors were raised during the patching)
+        """
+        for method_to_patch, substituting_function in methods_patching:
+            odoo_model._patch_method(method_to_patch, substituting_function)
+        return True
+
+    def _revert_bulk_patch_odoo_model_method(self, odoo_model, methods_to_be_reverted):
+        """Revert the Odoo's patching of a list of methods.
+
+        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param methods_to_be_reverted: A list of model's 'original' methods to be reactivated back (string)
+        :return: True (if no errors were raised during the patching)
+        """
+        for m in methods_to_be_reverted:
+            odoo_model._revert_method(m)
+        return True
+
+    # Odoo-patch models' methods to make them returning test data
+    @staticmethod
+    def mock_get_assigned_activities(*args, **kwargs):
+        """Return a list of dictionaries (one for each assigned activity)."""
+        assigned_activities_list = [
+            {
+                'id': 1,
+                'user': 'Nurse Nadine',
+                'count': 2,
+                'patient_ids': [47, 49],
+                'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+            }
+        ]
+        return assigned_activities_list
+
+    @staticmethod
+    def mock_nh_activity_read(*args, **kwargs):
+        task_data = {
+            'id': 1942,
+            'data_model': 'nh.clinical.patient.observation.ews',
+            'patient_id': (2, 'Campbell, Bruce'),
+            'summary': 'NEWS Observation',
+            'user_id': False
+        }
+        return task_data
+
+    @staticmethod
+    def mock_get_patients(*args, **kwargs):
+        """Return a list of dictionaries (one for each patient)."""
+        patients_list = [
+            {
+                'clinical_risk': 'None',
+                'dob': '1980-12-25 08:00:00',
+                'ews_score': '0',
+                'ews_trend': 'down',
+                'frequency': 720,
+                'full_name': 'Campbell, Bruce',
+                'gender': 'M',
+                'id': 2,
+                'location': 'Bed 3',
+                'next_ews_time': 'overdue: 12:00 hours',
+                'other_identifier': '1234567',
+                'parent_location': 'Ward E',
+                'patient_identifier': '908 475 1234',
+                'sex': 'M'
+            }
+        ]
+        return patients_list
+
+    @staticmethod
+    def mock_unassign_my_activities(*args, **kwargs):
+        return True
+
+    @staticmethod
+    def mock_nh_eobs_api_assign(*args, **kwargs):
+        return True
+
+    @staticmethod
+    def mock_nh_eobs_api_get_form_description(*args, **kwargs):
+        form_description = [
+            {
+                'name': 'meta',
+                'type': 'meta',
+                'score': True
+            },
+            {
+                'name': 'test_integer',
+                'type': 'integer',
+                'label': 'Test Integer',
+                'min': 1,
+                'max': 59,
+                'initially_hidden': False
+            },
+            {
+                'name': 'test_float',
+                'type': 'float',
+                'label': 'Test Float',
+                'min': 1,
+                'max': 35.9,
+                'digits': [2, 1],
+                'initially_hidden': False
+            },
+            {
+                'name': 'test_text',
+                'type': 'text',
+                'label': 'Test Text',
+                'initially_hidden': False
+            },
+            {
+                'name': 'test_select',
+                'type': 'selection',
+                'label': 'Test Select',
+                'selection_type': 'text',
+                'selection': [
+                    ['an', 'An'],
+                    ['option', 'Option'],
+                    ['from', 'From'],
+                    ['the', 'The'],
+                    ['list', 'List']
+                ],
+                'initially_hidden': False
+            }
+        ]
+        return form_description
+
+    def setUp(self):
+        super(TestGetSingleTaskMethod, self).setUp()
+        self.session_resp = requests.post(BASE_URL + 'web', {'db': DB_NAME})
+        if 'session_id' not in self.session_resp.cookies:
+            self.fail('Cannot retrieve a valid session to be used for the tests!')
+
+        user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        self.login_name = user_data.get('login')
+        self.assertNotEqual(self.login_name, False,
+                            "Cannot find any 'nurse' user for authentication before running the test!")
+        self.auth_resp = self._get_authenticated_response(self.login_name)
+
+        # Check the right page was reached successfully
+        self.assertEqual(self.auth_resp.status_code, 200)
+
+        task_list_route = [r for r in routes if r['name'] == 'task_list']
+        self.assertEqual(len(task_list_route), 1,
+                         "During the setUp() method, the authentication failed. Cannot run the tests!")
+        self.task_list_url = self._build_url(task_list_route[0]['endpoint'], None)
+        self.assertIn(self.task_list_url, self.auth_resp.url)
+
+        get_task_route = [r for r in routes if r['name'] == 'single_task']
+        self.assertEqual(len(get_task_route), 1,
+                         "Endpoint to the 'single_task' route not unique. Cannot run the test!")
+        self.get_task_url = self._build_url(get_task_route[0]['endpoint'], '1942', mobile=True)
+
+    def test_method_get_single_task_of_type_observation(self):
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
+            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
+            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+            ('get_form_description', TestGetSingleTaskMethod.mock_nh_eobs_api_get_form_description),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+
+        # Setup and use a mocked version of the render() method
+        def mock_httprequest_render(*args, **kwargs):
+            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+
+        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+            # Mock the 'datetime' class to force it to return a constant value.
+            # N.B. the 'datetime' class MUST BE the one imported from the code under test, otherwise the mocking process won't work
+            # datetime.now() and datetime.strftime() are the methods actually used in the code under test, hence they must be mocked.
+            with mock.patch('openerp.addons.nh_eobs_mobile.controllers.main.datetime') as patched_datetime:
+                patched_now_method = patched_datetime.now.return_value
+                patched_now_method.strftime.return_value = '1400000000'
+
+                test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+
+        # Just the first element of every tuple is needed for reverting the patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+
+        # Stop Odoo's patchers
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+        self.registry['nh.activity']._revert_method('read')
+
+        # Test the render() method was called with the rightly processed arguments
+        expected_form = {
+            'action': '/mobile/task/submit/1942',
+            'type': 'ews',
+            'task-id': 1942,
+            'patient-id': 2,
+            'source': 'task',
+            'start': '1400000000',
+            'obs_needs_score': True
+        }
+        expected_inputs = [
+            {
+                'name': 'test_integer',
+                'type': 'number',
+                'label': 'Test Integer',
+                'min': '1',
+                'max': 59,
+                'step': 1,
+                'initially_hidden': False,
+                'number': True,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_float',
+                'type': 'number',
+                'label': 'Test Float',
+                'min': '1',
+                'max': 35.9,
+                'step': 0.1,
+                'digits': [2, 1],
+                'initially_hidden': False,
+                'number': True,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_text',
+                'type': 'text',
+                'label': 'Test Text',
+                'initially_hidden': False,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_select',
+                'type': 'selection',
+                'label': 'Test Select',
+                'selection_type': 'text',
+                'selection': [
+                    ['an', 'An'],
+                    ['option', 'Option'],
+                    ['from', 'From'],
+                    ['the', 'The'],
+                    ['list', 'List']
+                ],
+                'initially_hidden': False,
+                'info': '',
+                'errors': '',
+                'selection_options': [
+                    {
+                        'value': 'an',
+                        'label': 'An'
+                    },
+                    {
+                        'value': 'option',
+                        'label': 'Option'
+                    },
+                    {
+                        'value': 'from',
+                        'label': 'From'
+                    },
+                    {
+                        'value': 'the',
+                        'label': 'The'
+                    },
+                    {
+                        'value': 'list',
+                        'label': 'List'
+                    }
+                ]
+            }
+        ]
+        mocked_method.assert_called_once_with(
+            'nh_eobs_mobile.observation_entry',
+            qcontext={
+                'inputs': expected_inputs,
+                'name': 'NEWS Observation',
+                'patient': {
+                    'id': 2,
+                    'name': 'Campbell, Bruce',
+                    'url': '/mobile/patient/2'
+                },
+                'form': expected_form,
+                'section': 'task',
+                'username': self.login_name,
+                'notification_count': 1,
+                'urls': URLS
+            }
+        )
+
+    def test_method_get_single_task_of_type_placement(self):
+        def mock_nh_activity_read(*args, **kwargs):
+            task_data = {
+                'id': 1942,
+                'data_model': 'nh.clinical.patient.placement',
+                'patient_id': (2, 'Campbell, Bruce'),
+                'summary': 'Assess Patient',
+                'user_id': False
+            }
+            return task_data
+
+        def mock_nh_eobs_api_get_form_description(*args, **kwargs):
+            form_description = [
+                {
+                    'name': 'test_integer',
+                    'type': 'integer',
+                    'label': 'Test Integer',
+                    'min': 1,
+                    'max': 59,
+                    'initially_hidden': False
+                },
+                {
+                    'name': 'test_float',
+                    'type': 'float',
+                    'label': 'Test Float',
+                    'min': 1,
+                    'max': 35.9,
+                    'digits': [2, 1],
+                    'initially_hidden': False
+                },
+                {
+                    'name': 'test_text',
+                    'type': 'text',
+                    'label': 'Test Text',
+                    'initially_hidden': False
+                },
+                {
+                    'name': 'test_select',
+                    'type': 'selection',
+                    'label': 'Test Select',
+                    'selection_type': 'text',
+                    'selection': [
+                        ['an', 'An'],
+                        ['option', 'Option'],
+                        ['from', 'From'],
+                        ['the', 'The'],
+                        ['list', 'List']
+                    ],
+                    'initially_hidden': False
+                }
+            ]
+            return form_description
+
+        def mock_nh_eobs_api_is_cancellable(*args, **kwargs):
+            return False
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
+            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
+            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+            ('get_form_description', mock_nh_eobs_api_get_form_description),
+            ('is_cancellable', mock_nh_eobs_api_is_cancellable),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+
+        # Setup and use a mocked version of the render() method
+        def mock_httprequest_render(*args, **kwargs):
+            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+
+        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+            # Mock the 'datetime' class to force it to return a constant value.
+            # N.B. the 'datetime' class MUST BE the one imported from the code under test, otherwise the mocking process won't work
+            # datetime.now() and datetime.strftime() are the methods actually used in the code under test, hence they must be mocked.
+            with mock.patch('openerp.addons.nh_eobs_mobile.controllers.main.datetime') as patched_datetime:
+                patched_now_method = patched_datetime.now.return_value
+                patched_now_method.strftime.return_value = '1400000000'
+
+                test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+
+        # Just the first element of every tuple is needed for reverting the patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+
+        # Stop Odoo's patchers
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+        self.registry['nh.activity']._revert_method('read')
+
+        # Test the render() method was called with the rightly processed arguments
+        expected_form = {
+            'action': '/mobile/tasks/confirm_clinical/1942',
+            'type': 'placement',
+            'task-id': 1942,
+            'patient-id': 2,
+            'source': 'task',
+            'start': '1400000000',
+            'confirm_url': '/mobile/tasks/confirm_clinical/1942'
+        }
+        expected_inputs = [
+            {
+                'name': 'test_integer',
+                'type': 'number',
+                'label': 'Test Integer',
+                'min': '1',
+                'max': 59,
+                'step': 1,
+                'initially_hidden': False,
+                'number': True,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_float',
+                'type': 'number',
+                'label': 'Test Float',
+                'min': '1',
+                'max': 35.9,
+                'step': 0.1,
+                'digits': [2, 1],
+                'initially_hidden': False,
+                'number': True,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_text',
+                'type': 'text',
+                'label': 'Test Text',
+                'initially_hidden': False,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_select',
+                'type': 'selection',
+                'label': 'Test Select',
+                'selection_type': 'text',
+                'selection': [
+                    ['an', 'An'],
+                    ['option', 'Option'],
+                    ['from', 'From'],
+                    ['the', 'The'],
+                    ['list', 'List']
+                ],
+                'initially_hidden': False,
+                'info': '',
+                'errors': '',
+                'selection_options': [
+                    {
+                        'value': 'an',
+                        'label': 'An'
+                    },
+                    {
+                        'value': 'option',
+                        'label': 'Option'
+                    },
+                    {
+                        'value': 'from',
+                        'label': 'From'
+                    },
+                    {
+                        'value': 'the',
+                        'label': 'The'
+                    },
+                    {
+                        'value': 'list',
+                        'label': 'List'
+                    }
+                ]
+            }
+        ]
+        mocked_method.assert_called_once_with(
+            'nh_eobs_mobile.notification_confirm_cancel',
+            qcontext={
+                'name': 'Assess Patient',
+                'inputs': expected_inputs,
+                'cancellable': False,
+                'patient': {
+                    'id': 2,
+                    'name': 'Campbell, Bruce',
+                    'url': '/mobile/patient/2'
+                },
+                'form': expected_form,
+                'section': 'task',
+                'username': self.login_name,
+                'notification_count': 1,
+                'urls': URLS
+            }
+        )
+
+    def test_method_get_single_task_of_type_notification_cancellable(self):
+        def mock_nh_activity_read(*args, **kwargs):
+            task_data = {
+                'id': 1942,
+                'data_model': 'nh.clinical.notification.medical_team',
+                'patient_id': (2, 'Campbell, Bruce'),
+                'summary': 'Inform Medical Team?',
+                'user_id': False
+            }
+            return task_data
+
+        def mock_nh_eobs_api_get_form_description(*args, **kwargs):
+            form_description = [
+                {
+                    'name': 'test_integer',
+                    'type': 'integer',
+                    'label': 'Test Integer',
+                    'min': 1,
+                    'max': 59,
+                    'initially_hidden': False
+                },
+                {
+                    'name': 'test_float',
+                    'type': 'float',
+                    'label': 'Test Float',
+                    'min': 1,
+                    'max': 35.9,
+                    'digits': [2, 1],
+                    'initially_hidden': False
+                },
+                {
+                    'name': 'test_text',
+                    'type': 'text',
+                    'label': 'Test Text',
+                    'initially_hidden': False
+                },
+                {
+                    'name': 'test_select',
+                    'type': 'selection',
+                    'label': 'Test Select',
+                    'selection_type': 'text',
+                    'selection': [
+                        ['an', 'An'],
+                        ['option', 'Option'],
+                        ['from', 'From'],
+                        ['the', 'The'],
+                        ['list', 'List']
+                    ],
+                    'initially_hidden': False
+                }
+            ]
+            return form_description
+
+        def mock_nh_eobs_api_is_cancellable(*args, **kwargs):
+            return True
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
+            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
+            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+            ('get_form_description', mock_nh_eobs_api_get_form_description),
+            ('is_cancellable', mock_nh_eobs_api_is_cancellable),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+
+        # Setup and use a mocked version of the render() method
+        def mock_httprequest_render(*args, **kwargs):
+            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+
+        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+            # Mock the 'datetime' class to force it to return a constant value.
+            # N.B. the 'datetime' class MUST BE the one imported from the code under test, otherwise the mocking process won't work
+            # datetime.now() and datetime.strftime() are the methods actually used in the code under test, hence they must be mocked.
+            with mock.patch('openerp.addons.nh_eobs_mobile.controllers.main.datetime') as patched_datetime:
+                patched_now_method = patched_datetime.now.return_value
+                patched_now_method.strftime.return_value = '1400000000'
+
+                test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+
+        # Just the first element of every tuple is needed for reverting the patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+
+        # Stop Odoo's patchers
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+        self.registry['nh.activity']._revert_method('read')
+
+        # Test the render() method was called with the rightly processed arguments
+        expected_form = {
+            'action': '/mobile/tasks/confirm_clinical/1942',
+            'type': 'medical_team',
+            'task-id': 1942,
+            'patient-id': 2,
+            'source': 'task',
+            'start': '1400000000',
+            'confirm_url': '/mobile/tasks/confirm_clinical/1942',
+            'cancel_url': '/mobile/tasks/cancel_clinical/1942'
+        }
+        expected_inputs = [
+            {
+                'name': 'test_integer',
+                'type': 'number',
+                'label': 'Test Integer',
+                'min': '1',
+                'max': 59,
+                'step': 1,
+                'initially_hidden': False,
+                'number': True,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_float',
+                'type': 'number',
+                'label': 'Test Float',
+                'min': '1',
+                'max': 35.9,
+                'step': 0.1,
+                'digits': [2, 1],
+                'initially_hidden': False,
+                'number': True,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_text',
+                'type': 'text',
+                'label': 'Test Text',
+                'initially_hidden': False,
+                'info': '',
+                'errors': ''
+            },
+            {
+                'name': 'test_select',
+                'type': 'selection',
+                'label': 'Test Select',
+                'selection_type': 'text',
+                'selection': [
+                    ['an', 'An'],
+                    ['option', 'Option'],
+                    ['from', 'From'],
+                    ['the', 'The'],
+                    ['list', 'List']
+                ],
+                'initially_hidden': False,
+                'info': '',
+                'errors': '',
+                'selection_options': [
+                    {
+                        'value': 'an',
+                        'label': 'An'
+                    },
+                    {
+                        'value': 'option',
+                        'label': 'Option'
+                    },
+                    {
+                        'value': 'from',
+                        'label': 'From'
+                    },
+                    {
+                        'value': 'the',
+                        'label': 'The'
+                    },
+                    {
+                        'value': 'list',
+                        'label': 'List'
+                    }
+                ]
+            }
+        ]
+        mocked_method.assert_called_once_with(
+            'nh_eobs_mobile.notification_confirm_cancel',
+            qcontext={
+                'name': 'Inform Medical Team?',
+                'inputs': expected_inputs,
+                'cancellable': True,
+                'patient': {
+                    'id': 2,
+                    'name': 'Campbell, Bruce',
+                    'url': '/mobile/patient/2'
+                },
+                'form': expected_form,
+                'section': 'task',
+                'username': self.login_name,
+                'notification_count': 1,
+                'urls': URLS
+            }
+        )
+
+    def test_method_get_single_task_of_not_valid_type(self):
+        # Override the class' static method to make it return an invalid observation type
+        def mock_nh_activity_read(*args, **kwargs):
+            task_data = {
+                'id': 1942,
+                'data_model': 'nh.clinical.fake_task_type',
+                'patient_id': (2, 'Campbell, Bruce'),
+                'summary': 'NEWS Observation',
+                'user_id': False
+            }
+            return task_data
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
+            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
+            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+
+        # Setup and use a mocked version of the render() method
+        def mock_httprequest_render(*args, **kwargs):
+            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+
+        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+
+        # Just the first element of every tuple is needed for reverting the patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+
+        # Stop Odoo's patchers
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+        self.registry['nh.activity']._revert_method('read')
+
+        # Test the render() method was called with the rightly processed arguments
+        mocked_method.assert_called_once_with(
+            'nh_eobs_mobile.error',
+            qcontext={
+                'error_string': 'Task is neither a notification nor an observation',
+                'section': 'task',
+                'username': self.login_name,
+                'urls': URLS
+            }
+        )
+
+    def test_method_get_single_task_manages_exception_while_assigning_task(self):
+        # Override the class' static method to make it raise an exception
+        def mock_nh_eobs_api_assign(*args, **kwargs):
+            raise except_orm('Expected exception!', 'Expected exception raised during the test.')
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
+            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
+            ('assign', mock_nh_eobs_api_assign),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+
+        try:
+            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+        except except_orm:
+            self.fail('Method under test raised an exception it is supposed to manage!')
+        finally:
+            # Just the first element of every tuple is needed for reverting the patchers
+            methods_to_revert = [m[0] for m in methods_patching_list]
+
+            # Stop Odoo's patchers
+            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self.registry['nh.activity']._revert_method('read')
+
+        self.assertEqual(len(test_resp.history), 1, 'Method under test did not redirect after the exception.')
+        self.assertEqual(test_resp.history[0].status_code, 303,
+                         'HTTP code during the redirection was not the expected one.')
+        self.assertIn(self.task_list_url, test_resp.url, 'Method under test did not redirect to the expected page.')
