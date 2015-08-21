@@ -896,12 +896,14 @@ openerp.nh_eobs = function (instance) {
                 $(".oe_searchview").show();
             }
             if (this.options.action.name == 'Ward Dashboard'){
-                ward_dashboard_refresh = window.setInterval(function(){
-                    var button =  $("a:contains('Ward Dashboard SQL')");
-                    if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('active') && $(".oe_view_manager_view_kanban").css('display') != 'none'){
-                        button.click();
-                    }
-                }, 60000);
+                if (typeof(ward_dashboard_refresh) == 'undefined') {
+                    ward_dashboard_refresh = window.setInterval(function () {
+                        var button = $("a:contains('Ward Dashboard SQL')");
+                        if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('active') && $(".oe_view_manager_view_kanban").css('display') != 'none') {
+                            button.click();
+                        }
+                    }, 60000);
+                }
             }
             else {
                 if (typeof(ward_dashboard_refresh) != 'undefined'){
