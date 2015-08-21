@@ -5,9 +5,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 from openerp import SUPERUSER_ID
-import openerp.addons.nh_eobs_reports.controllers.visit_report as visit_report
-
-
 
 class wardboard_swap_beds(orm.TransientModel):
     _name = 'wardboard.swap_beds'
@@ -274,6 +271,7 @@ class nh_clinical_wardboard(orm.Model):
         'middle_names': fields.text("Middle Names"),
         'family_name': fields.text("Family Name"),
         'location': fields.text("Location"),
+        'initial': fields.text("Patient Name Initial"),
         'clinical_risk': fields.selection(_clinical_risk_selection, "Clinical Risk"),
         'ward_id': fields.many2one('nh.clinical.location', 'Ward'),
         'location_id': fields.many2one('nh.clinical.location', "Location"),
@@ -633,6 +631,7 @@ drop materialized view if exists ews2 cascade;
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
 drop materialized view if exists placement cascade;
+drop view if exists wb_activity_ranked cascade;
 
 
 create or replace view
@@ -850,6 +849,10 @@ nh_clinical_wardboard as(
         patient.family_name,
         patient.given_name,
         patient.middle_names,
+        case
+            when patient.given_name is null then ''
+            else upper(substring(patient.given_name from 1 for 1))
+        end as initial,
         coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
         location.name as location,
         location.id as location_id,

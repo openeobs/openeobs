@@ -50,10 +50,10 @@
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="Staff Management"
-                  id="menu_nhui_left_user_management"
+                  id="menu_nhui_left_user_management_v2"
                   sequence="4"
                   parent="menu_nhui_left_ward"
-                  action="nh_clinical.action_nhc_userboard"
+                  action="nh_clinical.action_nhc_user_management_wm"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="User Allocation"
@@ -129,9 +129,9 @@
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
         <menuitem name="Open eObs Users"
-                  id="menu_nhui_left_users"
+                  id="menu_nhui_left_users_v2"
                   parent="menu_nhui_admin_left_users"
-                  action="nh_clinical.action_nhc_admin_userboard"
+                  action="nh_clinical.action_nhc_user_management_admin"
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
         <!--<menuitem name="Shift Management"-->
@@ -161,11 +161,18 @@
             sequence="20"
           	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
 
-        <menuitem name="Kiosk Workload"
+        <menuitem name="Kiosk Workload NEWS"
           	id="menu_left_sub_workload_kiosk"
           	parent="menu_nhui_left_patient"
           	action="action_kiosk_workload"
             sequence="21"
+          	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
+
+        <menuitem name="Kiosk Workload Other Tasks"
+          	id="menu_left_sub_workload_kiosk2"
+          	parent="menu_nhui_left_patient"
+          	action="action_kiosk_workload2"
+            sequence="22"
           	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
 
         <menuitem name="Patients by Ward"

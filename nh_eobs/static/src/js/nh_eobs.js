@@ -13,6 +13,7 @@ openerp.nh_eobs = function (instance) {
     var wardboard_groups_opened = false;
     var kiosk_mode = false;
     var kiosk_t;
+    var kiosk_button;
     var ranged_chart = null;
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
@@ -379,6 +380,8 @@ openerp.nh_eobs = function (instance) {
         },
         render_chart: function(){
             this.model = new instance.web.Model('nh.eobs.api');
+            this.o2targetModel = new instance.web.Model('nh.clinical.patient.o2target');
+            this.o2levelModel = new instance.web.Model('nh.clinical.o2level');
             this.wardboard_model = new instance.web.Model('nh.clinical.wardboard');
             var vid = this.view.dataset.context.active_id;
         	var self = this;
@@ -389,6 +392,16 @@ openerp.nh_eobs = function (instance) {
             if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
                 printing = true;
             }
+            $('.modal-dialog .paged_form_view_header #o2_target_header').remove();
+            this.o2targetModel.call('get_last', [this.view.datarecord.id]).done(function(o2targetRecords){
+                var o2levelid = o2targetRecords
+                if(o2levelid){
+                    self.o2levelModel.call('read', [o2levelid], {context: self.view.dataset.context}).done(function (o2levelRecords) {
+                        var name = o2levelRecords.name;
+                        $('.modal-dialog .paged_form_view_header').append('<li id="o2_target_header"><strong class="target-right">Patient O2 Saturation Target Range: </strong><span>' + name + '%</span></li>')
+                    });
+                }
+            });
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[this.view.dataset.index],'ews'], {context: this.view.dataset.context}).done(function(records){
                 var svg = new window.NH.NHGraphLib('#chart');
@@ -399,7 +412,7 @@ openerp.nh_eobs = function (instance) {
 
                     obs.forEach(function(d){
                         if(d.body_temperature){
-                            d.body_temperature = d.body_temperature.toFixed(1);
+                            d.body_temperature = parseFloat(d.body_temperature.toFixed(1));
                         }
 
 
@@ -416,7 +429,7 @@ openerp.nh_eobs = function (instance) {
                                 d.inspired_oxygen += "Device: " + d.device_id[1] + "<br>";
                             }
                             if(d.flow_rate && d.flow_rate > -1){
-                                d.inspired_oxygen += "Flow: " + d.flow_rate + "l/hr<br>";
+                                d.inspired_oxygen += "Flow: " + d.flow_rate + " l/m<br>";
                             }
                             if(d.concentration && d.concentration > -1){
                                 d.inspired_oxygen += "Concentration: " + d.concentration + "%<br>";
@@ -486,6 +499,7 @@ openerp.nh_eobs = function (instance) {
                     temp_graph.style.axis.x.hide = true;
                     temp_graph.style.data_style = 'linear';
                     temp_graph.style.label_width = 60;
+                    temp_graph.style.range_padding = 1;
                     temp_graph.drawables.background.data =  [
                         {"class": "red",s: 0, e: 35},
                         {"class": "amber",s: 35,e: 35.1},
@@ -538,6 +552,7 @@ openerp.nh_eobs = function (instance) {
                     score_graph.options.keys = ['score'];
                     score_graph.style.dimensions.height = 200;
                     score_graph.style.data_style = 'stepped';
+                    score_graph.style.padding.bottom = 10;
                     score_graph.axes.y.min = 0;
                     score_graph.axes.y.max = 22;
                     score_graph.drawables.background.data =  [
@@ -858,7 +873,7 @@ openerp.nh_eobs = function (instance) {
             	
             }    		
     		this._super();
-    		if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload"){
+    		if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload NEWS" || this.options.action.name == "Kiosk Workload Other Tasks"){
                 $(".oe_leftbar").attr("style", "");
                 $(".oe_leftbar").addClass("nh_eobs_hide");
                 $(".oe_searchview").hide();
@@ -867,9 +882,17 @@ openerp.nh_eobs = function (instance) {
                     clearInterval(kiosk_t);
                 }
                 kiosk_t = window.setInterval(function(){
-                    var button =  $('li:not(.active) .oe_menu_leaf');
+                    if (typeof(kiosk_button) == 'undefined'){
+                        kiosk_button =  $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
+                    } else if (kiosk_button.text().indexOf('Kiosk Patients Board') > 0){
+                        kiosk_button =  $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
+                    } else if (kiosk_button.text().indexOf('Kiosk Workload NEWS') > 0){
+                        kiosk_button =  $('li:contains(Kiosk Workload Other Tasks) .oe_menu_leaf');
+                    } else {
+                        kiosk_button =  $('li:contains(Kiosk Patients Board) .oe_menu_leaf');
+                    }
                     if (kiosk_mode){
-                        button.click();
+                        kiosk_button.click();
                     }
                 }, 15000);
             }

@@ -1,5 +1,7 @@
 from openerp.tests.common import SingleTransactionCase
 from openerp.osv.orm import except_orm
+from datetime import datetime as dt, timedelta as td
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestAPI(SingleTransactionCase):
@@ -130,6 +132,22 @@ class TestAPI(SingleTransactionCase):
         activities_data = self.eobs_api.get_activities_for_spell(cr, self.wm_uid, spell_id, 'ews')
         self.assertEqual(len(activities_data), 1)
 
+        # Scenario 3: get specific observations data within a time frame
+        start = dt.now() + td(hours=1)
+        end = dt.now() + td(hours=2)
+        activities_data = self.eobs_api.get_activities_for_spell(cr, self.wm_uid, spell_id, 'ews', start, end)
+        self.assertEqual(len(activities_data), 0)
+
+        # Scenario 3: get specific observations data within a time frame, incorrect start date
+        start = 'start'
+        with self.assertRaises(except_orm):
+            self.eobs_api.get_activities_for_spell(cr, self.wm_uid, spell_id, 'ews', start)
+
+        # Scenario 3: get specific observations data within a time frame, incorrect end date
+        end = 'end'
+        with self.assertRaises(except_orm):
+            self.eobs_api.get_activities_for_spell(cr, self.wm_uid, spell_id, 'ews', None, end)
+
         # Scenario 3: try to get data for an spell that doesn't exist
         with self.assertRaises(except_orm):
             self.eobs_api.get_activities_for_spell(cr, self.wm_uid, -1, 'ews')
@@ -143,7 +161,6 @@ class TestAPI(SingleTransactionCase):
             ['data_model', '=', 'nh.clinical.patient.observation.ews']])
         data = self.eobs_api.get_activities(cr, self.nurse_uid, activity_ids)
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]['ews_score'], '3')
         self.assertEqual(data[0]['id'], activity_ids[0])
 
         # Scenario 2: get responsibility activities
@@ -353,7 +370,7 @@ class TestAPI(SingleTransactionCase):
         active_observations = [
             {
                 'type': 'ews',
-                'name': 'National Early Warning Score (NEWS)'
+                'name': 'NEWS'
             },
             {
                 'type': 'height',
@@ -377,7 +394,7 @@ class TestAPI(SingleTransactionCase):
             },
             {
                 'type': 'gcs',
-                'name': 'Glasglow Coma Scale (GCS)'
+                'name': 'Glasgow Coma Scale (GCS)'
             },
             {
                 'type': 'pbp',
@@ -473,7 +490,11 @@ class TestAPI(SingleTransactionCase):
         ews_id = self.eobs_api.create_activity_for_patient(cr, self.nurse_uid, self.patients[0], 'ews')
         self.assertEqual(activity_ids[0], ews_id)
 
-        # Scenario 4: create a new activity
+        # Scenario 4: attempt to create a new activity for a not admitted patient
+        with self.assertRaises(except_orm):
+            self.eobs_api.create_activity_for_patient(cr, self.nurse_uid, self.patients[2], 'weight')
+
+        # Scenario 5: create a new activity
         self.assertTrue(self.eobs_api.create_activity_for_patient(cr, self.nurse_uid, self.patients[0], 'weight'))
 
     def test_27_register(self):

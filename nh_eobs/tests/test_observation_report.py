@@ -431,7 +431,7 @@ class TestObservationReport(TransactionCase):
             if not id:
                 raise ValueError('No IDs passed')
             resps = [
-                {},
+                False,
                 self.ews_data,
                 self.height_data,
                 self.weight_data,
@@ -447,11 +447,11 @@ class TestObservationReport(TransactionCase):
                 self.palliative_care_data,
                 self.post_surgery_data,
                 self.critical_care_data,
-                self.move_data,
+                self.move_data if self.move_data else False,
                 self.o2target_data,
                 self.triggered_ews_data
             ]
-            return [copy.deepcopy(resps[id])]
+            return [copy.deepcopy(resps[id])] if resps[id] else []
 
         def ews_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.ews_values)
@@ -582,6 +582,13 @@ class TestObservationReport(TransactionCase):
         self.assertEqual(report_test, True, 'Unable to print Observation Report')
 
     def test_03_observation_report_with_spell_with_start_time_with_end_time(self):
+        # Special case - no triggered actions or transfer history to hit branches
+        old_triggered_ews_data = copy.deepcopy(self.triggered_ews_data)
+        self.triggered_ews_data = {
+            'data_model': 'nh.clinical.patient.observation.ews',
+        }
+        old_move_data = copy.deepcopy(self.move_data)
+        self.move_data = False
         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
         report_test = test_reports.try_report(cr, uid, report_model, [], data={
             'spell_id': self.spell_id,
@@ -589,6 +596,8 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time
         })
         self.assertEqual(report_test, True, 'Unable to print Observation Report')
+        self.triggered_ews_data = old_triggered_ews_data
+        self.move_data = old_move_data
 
     def test_04_observation_report_with_spell_without_start_time_with_end_time(self):
         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
