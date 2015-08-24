@@ -11,6 +11,11 @@ gulp.task('compile', function(){
 	gulp.src(['src/*.coffee'])
 	.pipe(coffeelint())
 	.pipe(coffeelint.reporter())
+	.pipe(deleteLines({
+		'filters': [
+			/### istanbul/i
+		]
+	}))
 	.pipe(coffee({bare: true}))
 	.pipe(concat('nhlib.js'))
 	.pipe(gulp.dest('../../src/js'))

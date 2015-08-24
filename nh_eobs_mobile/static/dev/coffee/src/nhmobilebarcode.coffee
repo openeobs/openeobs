@@ -53,35 +53,10 @@ class NHMobileBarcode extends NHMobile
     # hosp_num = hosp_num.split(',')[1]
     url = self.urls.json_patient_barcode(input.value.split(',')[1])
     url_meth = url.method
+
     Promise.when(self.process_request(url_meth, url.url)).then (server_data) ->
       data = server_data[0][0]
-      patient_details = ''
-      if data.full_name
-        patient_details += "<dt>Name:</dt><dd>" + data.full_name + "</dd>"
-      if data.gender
-        patient_details += '<dt>Gender:</dt><dd>' + data.gender + '</dd>'
-      if data.dob
-        patientDOB = self.date_from_string(data.dob)
-        patient_details += "<dt>DOB:</dt><dd>" +
-          self.date_to_dob_string(patientDOB) + "</dd>"
-      if data.location
-        patient_details += "<dt>Location:</dt><dd>" + data.location
-      if data.parent_location
-        patient_details += ',' + data.parent_location + '</dd>'
-      else
-        patient_details += '</dd>'
-      if data.ews_score
-        patient_details += '<dt class="twoline">Latest Score:</dt>' +
-          '<dd class="twoline">' + data.ews_score + '</dd>'
-      if data.ews_trend
-        patient_details += '<dt>NEWS Trend:</dt><dd>'+data.ews_trend+'</dd>'
-      if data.other_identifier
-        patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier +
-          "</dd>"
-      if data.patient_identifier
-        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier+
-          "</dd>"
-      activties_string = ""
+      activities_string = ""
       if data.activities.length > 0
         activities_string = '<ul class="menu">'
         for activity in data.activities
@@ -90,9 +65,12 @@ class NHMobileBarcode extends NHMobile
             activity.display_name+'<span class="aside">'+
             activity.time+'</span></a></li>'
         activities_string += '</ul>'
-      content = '<dl>'+patient_details+'</dl><h3>Tasks</h3>'+activities_string
+      content = self.render_patient_info(data, false, self) +
+        '<h3>Tasks</h3>'+activities_string
       dialog.innerHTML = content
-### istanbul ignore else ###
+
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+### istanbul ignore else ###
 window?.NH.NHMobileBarcode = NHMobileBarcode

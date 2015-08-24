@@ -3,50 +3,50 @@
 # ClassList Polyfill for IE9 by Devon Govett -
 # https://gist.github.com/devongovett/1381839
 ### istanbul ignore next ###
-if not ('classList' in document.documentElement) and
-    Object.defineProperty and typeof HTMLElement isnt
-    'undefined'
-  Object.defineProperty(HTMLElement.prototype, 'classList', {
-    get: () ->
-      self = @
-      # Currently using JS but need to make proper CoffeeScript
-      `function update(fn) {
-        return function(value) {
-          var classes = self.className.split(/\s+/);
-          var index = classes.indexOf(value);
-
-          fn(classes, index, value);
-          self.className = classes.join(" ");
-        }
-      }`
-
-      ret = {
-        add: update((classes, index, value) ->
-          ~index || classes.push(value)
-          return
-        ),
-        remove: update((classes, index) ->
-          ~index && classes.splice(index, 1)
-          return
-        ),
-        toggle: update((classes, index, value) ->
-          if ~index then classes.splice(index, 1) else classes.push(value)
-          return
-        ),
-        contains: (value) ->
-          return !!~self.className.split(/\s+/).indexOf(value)
-        ,
-        item: (i) ->
-          return self.className.split(/\s+/)[i] || null
-      }
-
-      Object.defineProperty(ret, 'length', {
-        get: () ->
-          return self.className.split(/\s+/).length
-      })
-
-      return ret
-  })
+#if not ('classList' in document.documentElement) and
+#    Object.defineProperty and typeof HTMLElement isnt
+#    'undefined'
+#  Object.defineProperty(HTMLElement.prototype, 'classList', {
+#    get: () ->
+#      self = @
+#      # Currently using JS but need to make proper CoffeeScript
+#      `function update(fn) {
+#        return function(value) {
+#          var classes = self.className.split(/\s+/);
+#          var index = classes.indexOf(value);
+#
+#          fn(classes, index, value);
+#          self.className = classes.join(" ");
+#        }
+#      }`
+#
+#      ret = {
+#        add: update((classes, index, value) ->
+#          ~index || classes.push(value)
+#          return
+#        ),
+#        remove: update((classes, index) ->
+#          ~index && classes.splice(index, 1)
+#          return
+#        ),
+#        toggle: update((classes, index, value) ->
+#          if ~index then classes.splice(index, 1) else classes.push(value)
+#          return
+#        ),
+#        contains: (value) ->
+#          return !!~self.className.split(/\s+/).indexOf(value)
+#        ,
+#        item: (i) ->
+#          return self.className.split(/\s+/)[i] || null
+#      }
+#
+#      Object.defineProperty(ret, 'length', {
+#        get: () ->
+#          return self.className.split(/\s+/).length
+#      })
+#
+#      return ret
+#  })
 
 # Promise
 #---------
@@ -63,6 +63,7 @@ class Promise
         task.then(() ->
           args[task_id] = Array.prototype.slice.call(arguments)
           num_uncompleted--
+          ### istanbul ignore else ###
           promise.complete.apply(promise, args) if num_uncompleted == 0
         )
       )(task_id)
@@ -135,6 +136,46 @@ class NHMobile extends NHLib
   call_resource: (url_object, data) =>
     @process_request(url_object.method, url_object.url, data)
 
+  # Takes a patient object from server and renders patient information into
+  # template
+  render_patient_info: (patient, nameless, self) ->
+    patient_info = ''
+    if not nameless
+      ### istanbul ignore else ###
+      if patient.full_name
+        patient_info += '<dt>Name:</dt><dd>' + patient.full_name + '</dd>'
+      ### istanbul ignore else ###
+      if patient.gender
+        patient_info += '<dt>Gender:</dt><dd>' + patient.gender + '</dd>'
+    ### istanbul ignore else ###
+    if patient.dob
+      patientDOB = self.date_from_string(patient.dob)
+      patient_info += '<dt>DOB:</dt><dd>' +
+        self.date_to_dob_string(patientDOB) + '</dd>'
+    ### istanbul ignore else ###
+    if patient.location
+      patient_info += '<dt>Location:</dt><dd>' + patient.location
+    if patient.parent_location
+      patient_info += ',' + patient.parent_location + '</dd>'
+    else
+      patient_info += '</dd>'
+    ### istanbul ignore else ###
+    if patient.ews_score
+      patient_info += '<dt class="twoline">Latest Score:</dt>' +
+        '<dd class="twoline">' + patient.ews_score + '</dd>'
+    ### istanbul ignore else ###
+    if patient.ews_trend
+      patient_info += '<dt>NEWS Trend:</dt><dd>' + patient.ews_trend + '</dd>'
+    ### istanbul ignore else ###
+    if patient.other_identifier
+      patient_info += '<dt>Hospital ID:</dt><dd>' + patient.other_identifier +
+        '</dd>'
+    ### istanbul ignore else ###
+    if patient.patient_identifier
+      patient_info += '<dt>NHS Number:</dt><dd>' + patient.patient_identifier+
+        '</dd>'
+    return '<dl>' + patient_info + '</dl>'
+
   # Takes a patient ID, calls the server and then creates a NHModal from the
   # data
   get_patient_info: (patient_id, self) =>
@@ -143,31 +184,14 @@ class NHMobile extends NHLib
       data = server_data[0][0]
       patient_name = ''
       patient_details = ''
+      ### istanbul ignore else ###
       if data.full_name
         patient_name += ' ' + data.full_name
+      ### istanbul ignore else ###
       if data.gender
         patient_name += '<span class="alignright">' + data.gender + '</span>'
-      if data.dob
-        patientDOB = self.date_from_string(data.dob)
-        patient_details += '<dt>DOB:</dt><dd>' +
-          self.date_to_dob_string(patientDOB) + '</dd>'
-      if data.location
-        patient_details += '<dt>Location:</dt><dd>' + data.location
-      if data.parent_location
-        patient_details += ',' + data.parent_location + '</dd>'
-      else
-        patient_details += '</dd>'
-      if data.ews_score
-        patient_details += '<dt class="twoline">Latest Score:</dt>' +
-          '<dd class="twoline">' + data.ews_score + '</dd>'
-      if data.other_identifier
-        patient_details += '<dt>Hospital ID:</dt><dd>' + data.other_identifier +
-          '</dd>'
-      if data.patient_identifier
-        patient_details += '<dt>NHS Number:</dt><dd>' + data.patient_identifier+
-          '</dd>'
-      patient_details = '<dl>'+patient_details+'</dl><p><a href="'+
-        self.urls['single_patient'](patient_id).url+
+      patient_details = self.render_patient_info(data, true, self) +
+        '<p><a href="' + self.urls['single_patient'](patient_id).url+
         '" id="patient_obs_fullscreen" class="button patient_obs">'+
         'View Patient Observation Data</a></p>'
       cancel = '<a href="#" data-target="patient_info" ' +
@@ -183,6 +207,7 @@ class NHMobile extends NHLib
   # triggered by the fullscreen button made by the patient information modal
   fullscreen_patient_info: (event) ->
     event.preventDefault()
+    ### istanbul ignore else ###
     if not event.handled
       container = document.createElement('div')
       container.setAttribute('class', 'full-modal')
@@ -206,8 +231,9 @@ class NHMobile extends NHLib
       event.handled = true
 
 
-### istanbul ignore else ###
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+### istanbul ignore else ###
 window?.NH.NHMobile = NHMobile
 
