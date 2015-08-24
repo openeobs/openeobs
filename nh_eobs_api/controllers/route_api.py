@@ -57,7 +57,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         kw_copy = json.loads(request.httprequest.data) if request.httprequest.data else {}
         user_ids = [int(id) for id in kw_copy['user_ids'].split(',')]
         patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
-        users = user_api.read(cr, uid, user_ids, context=context)
+        users = user_api.read(cr, uid, user_ids, ['display_name'], context=context)
         for user_id in user_ids:
             api.follow_invite(cr, uid, patient_ids, user_id, context=context)
         response_data = {
