@@ -101,6 +101,75 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             odoo_model._revert_method(m)
         return True
 
+    # Mock Odoo's models' methods
+    @staticmethod
+    def mock_get_assigned_activities(*args, **kwargs):
+        """Return a list of dictionaries (one for each assigned activity)."""
+        assigned_activities_list = [
+            {
+                'id': 2001,
+                'user': 'Nurse Nadine',
+                'count': 3,
+                'patient_ids': [1, 2, 3],
+                'message': 'You have been invited to follow 3 patients from Nurse Nadine'
+            }
+        ]
+        return assigned_activities_list
+
+    @staticmethod
+    def mock_get_patients(*args, **kwargs):
+        patients_list = [
+            {
+                'clinical_risk': 'None',
+                'dob': '1980-12-25 08:00:00',
+                'ews_score': '0',
+                'ews_trend': 'down',
+                'frequency': 720,
+                'full_name': 'Campbell, Bruce',
+                'gender': 'M',
+                'id': 2,
+                'location': 'Bed 3',
+                'next_ews_time': '04:00 hours',
+                'other_identifier': '1234567',
+                'parent_location': 'Ward E',
+                'patient_identifier': '908 475 1234',
+                'sex': 'M'
+            },
+            {
+                'clinical_risk': 'Low',
+                'dob': '1980-08-31 18:00:00',
+                'ews_score': '2',
+                'ews_trend': 'down',
+                'frequency': 240,
+                'full_name': 'Franklin, Donna',
+                'gender': 'F',
+                'id': 1,
+                'location': 'Bed 2',
+                'next_ews_time': 'overdue: 02:00 hours',
+                'other_identifier': '4867593',
+                'parent_location': 'Ward E',
+                'patient_identifier': '494 333 0012',
+                'sex': 'F'
+            },
+            {
+                'clinical_risk': 'Medium',
+                'dob': '1980-04-25 12:00:00',
+                'ews_score': '5',
+                'ews_trend': 'up',
+                'frequency': 60,
+                'full_name': 'Hasselhoff, David',
+                'gender': 'M',
+                'id': 3,
+                'location': 'Bed 1',
+                'next_ews_time': '01:00 hours',
+                'other_identifier': '3958684',
+                'parent_location': 'Ward E',
+                'patient_identifier': '112 009 007',
+                'sex': 'M'
+            }
+        ]
+        return patients_list
+
     def setUp(self):
         """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls."""
         super(TestOdooRouteDecoratorIntegration, self).setUp()
@@ -249,24 +318,39 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     # Test Stand-in routes
     def test_05_route_share_patients(self):
-        """ Test the share patients route, a post request with user_ids and
-        patient_ids should return a list of users who you've invited to
-        follow your patients
-        :return:
-        """
-        # get list of users to share with
-        users_pool = self.registry['res.users']
-        users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
-                                                          ('id', 'not in', [self.uid, self.user_id])],
-                                                  fields=['login', 'display_name'])[:3]
-        # get list of patients to share
-        api_pool = self.registry('nh.eobs.api')
-        patient_list = api_pool.get_patients(self.cr, self.user_id, [])[:3]
-        patient_ids = [p['id'] for p in patient_list]
+        """Test that the 'json_share_patients' route returns a list of users who you've invited to follow your patients."""
         # check if the route under test is actually present in the Route Manager
         route_under_test = route_manager.get_route('json_share_patients')
         self.assertIsInstance(route_under_test, Route)
+
+        def mock_res_users_read(*args, **kwargs):
+            users_list = [
+                {
+                    'id': 33,
+                    'login': 'john',
+                    'display_name': 'John Smith'
+                },
+                {
+                    'id': 34,
+                    'login': 'jane',
+                    'display_name': 'Jane Doe'
+                },
+                {
+                    'id': 35,
+                    'login': 'joe',
+                    'display_name': 'Joe Average'
+                },
+            ]
+            return users_list
+
+        def mock_nh_eobs_api_follow_invite(*args, **kwargs):
+            return 2001
+
+        # Get list of users to share with
+        users_login_list = mock_res_users_read()
+
+        # Get a list of patients to share
+        patient_list = TestOdooRouteDecoratorIntegration.mock_get_patients()
 
         # Create demo data
         demo_data = {
@@ -274,24 +358,31 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'user_ids': ','.join([str(u['id']) for u in users_login_list])
         }
 
+        # Start Odoo's patchers
+        self.registry('nh.eobs.api')._patch_method('follow_invite', mock_nh_eobs_api_follow_invite)
+        self.registry('res.users')._patch_method('read', mock_res_users_read)
+
         # Access the route
         test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
                                   data=json.dumps(demo_data),
                                   cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        self.registry('nh.eobs.api')._revert_method('follow_invite')
+        self.registry('res.users')._revert_method('read')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        # actual test
+        # Actual test
         expected_json = {
             'reason': 'An invite has been sent to follow the selected patients.',
-            'shared_with': [user['display_name'] for user in users_login_list]
+            'shared_with': ['John Smith', 'Jane Doe', 'Joe Average']
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Invitation sent',
                                  'An invite has been sent to follow the selected patients',
                                  expected_json)
-
-        return api_pool.remove_followers(self.cr, self.auth_uid, patient_ids)
 
     def test_06_route_claim_patients(self):
         """ Test the claim patients route, a post request with patient_ids
@@ -362,78 +453,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertIsInstance(route_under_test, Route)
         url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/invite/2001'
 
-        # Mock Odoo's models' methods
-        def mock_get_assigned_activities(*args, **kwargs):
-            """Return a list of dictionaries (one for each assigned activity)."""
-            assigned_activities_list = [
-                {
-                    'id': 2001,
-                    'user': 'Nurse Nadine',
-                    'count': 3,
-                    'patient_ids': [1, 2, 3],
-                    'message': 'You have been invited to follow 3 patients from Nurse Nadine'
-                }
-            ]
-            return assigned_activities_list
-
-        def mock_get_patients(*args, **kwargs):
-            patients_list = [
-                {
-                    'clinical_risk': 'None',
-                    'dob': '1980-12-25 08:00:00',
-                    'ews_score': '0',
-                    'ews_trend': 'down',
-                    'frequency': 720,
-                    'full_name': 'Campbell, Bruce',
-                    'gender': 'M',
-                    'id': 2,
-                    'location': 'Bed 3',
-                    'next_ews_time': '04:00 hours',
-                    'other_identifier': '1234567',
-                    'parent_location': 'Ward E',
-                    'patient_identifier': '908 475 1234',
-                    'sex': 'M'
-                },
-                {
-                    'clinical_risk': 'Low',
-                    'dob': '1980-08-31 18:00:00',
-                    'ews_score': '2',
-                    'ews_trend': 'down',
-                    'frequency': 240,
-                    'full_name': 'Franklin, Donna',
-                    'gender': 'F',
-                    'id': 1,
-                    'location': 'Bed 2',
-                    'next_ews_time': 'overdue: 02:00 hours',
-                    'other_identifier': '4867593',
-                    'parent_location': 'Ward E',
-                    'patient_identifier': '494 333 0012',
-                    'sex': 'F'
-                },
-                {
-                    'clinical_risk': 'Medium',
-                    'dob': '1980-04-25 12:00:00',
-                    'ews_score': '5',
-                    'ews_trend': 'up',
-                    'frequency': 60,
-                    'full_name': 'Hasselhoff, David',
-                    'gender': 'M',
-                    'id': 3,
-                    'location': 'Bed 1',
-                    'next_ews_time': '01:00 hours',
-                    'other_identifier': '3958684',
-                    'parent_location': 'Ward E',
-                    'patient_identifier': '112 009 007',
-                    'sex': 'M'
-                }
-            ]
-            return patients_list
-
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', mock_get_assigned_activities),
-            ('get_patients', mock_get_patients),
+            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('get_patients', TestOdooRouteDecoratorIntegration.mock_get_patients),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
@@ -448,7 +472,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         # Test that the response is correct
-        expected_json = mock_get_patients()
+        expected_json = TestOdooRouteDecoratorIntegration.mock_get_patients()
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Patients shared with you',
                                  'These patients have been shared for you to follow',
