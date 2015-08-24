@@ -116,9 +116,10 @@ NHMobile = (function(superClass) {
       var btn, msg, ref, successResultCodes;
       if (req.readyState === 4) {
         successResultCodes = [200, 304];
+
+        /* istanbul ignore if */
         if (ref = req.status, indexOf.call(successResultCodes, ref) >= 0) {
           data = eval('[' + req.responseText + ']');
-          console.log('data: ', data);
           return promise.complete(data);
         } else {
           btn = '<a href="#" data-action="close" ' + 'data-target="data_error">Ok</a>';

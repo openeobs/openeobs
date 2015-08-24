@@ -218,7 +218,6 @@ Params:
         successResultCodes = [<span class="hljs-number">200</span>, <span class="hljs-number">304</span>]
         <span class="hljs-keyword">if</span> req.status <span class="hljs-keyword">in</span> successResultCodes
           data = eval(<span class="hljs-string">'['</span>+req.responseText+<span class="hljs-string">']'</span>)
-          <span class="hljs-built_in">console</span>.log <span class="hljs-string">'data: '</span>, data
           promise.complete data
         <span class="hljs-keyword">else</span>
           btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span> +

@@ -88,7 +88,6 @@ describe("NHMobile AJAX - Invalid URL / server error", function(){
             resp_val = data;
             done();
         }, function(fail){
-            console.log('promise failed');
             done();
         });
 

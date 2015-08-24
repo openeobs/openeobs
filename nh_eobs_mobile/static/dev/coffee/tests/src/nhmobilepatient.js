@@ -279,7 +279,7 @@ NHMobilePatient = (function(superClass) {
       svg.table.keys = [
         {
           title: 'NEWS Score',
-          keys: ['score']
+          keys: ['score_display']
         }, {
           title: 'Respiration Rate',
           keys: ['respiration_rate']

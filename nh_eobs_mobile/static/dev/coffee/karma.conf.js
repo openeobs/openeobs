@@ -11,7 +11,7 @@ module.exports = function(config) {
         exclude: [
         ],
 
-        reporters: ['html', 'coverage'],
+        reporters: ['nyan', 'html', 'coverage'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
@@ -20,12 +20,13 @@ module.exports = function(config) {
         autoWatch: false,
         singleRun: true,
 
-        frameworks: ['jasmine'],
+        frameworks: ['jasmine-ajax', 'jasmine'],
 
         browsers: ['PhantomJS'],
 
         plugins: [
             'karma-jasmine',
+            'karma-jasmine-ajax',
             'karma-junit-reporter',
             'karma-phantomjs-launcher',
             'karma-coverage',

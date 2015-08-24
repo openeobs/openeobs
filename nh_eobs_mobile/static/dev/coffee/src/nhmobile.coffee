@@ -103,9 +103,9 @@ class NHMobile extends NHLib
     req.addEventListener 'readystatechange', ->
       if req.readyState is 4
         successResultCodes = [200, 304]
+        ### istanbul ignore if ###
         if req.status in successResultCodes
           data = eval('['+req.responseText+']')
-          console.log 'data: ', data
           promise.complete data
         else
           btn = '<a href="#" data-action="close" ' +
