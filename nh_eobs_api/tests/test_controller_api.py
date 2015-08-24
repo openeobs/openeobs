@@ -191,6 +191,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         ]
         return users_list
 
+    @staticmethod
+    def mock_nh_eobs_api_complete(*args, **kwargs):
+        return True
+
     def setUp(self):
         """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls."""
         super(TestOdooRouteDecoratorIntegration, self).setUp()
@@ -506,13 +510,47 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'These patients have been shared for you to follow',
                                  expected_json)
 
-    @skip('Test not implemented due issue with test 06')
     def test_09_route_accept_user(self):
-        """ Test accept invitation to follow patient route, should return an id
-        of an activity and a true status
-        :return:
+        """Test the route for accepting invitation to follow patient.
+
+        The method under test should return the id of an activity and a 'true' status.
         """
-        pass
+        route_under_test = route_manager.get_route('json_accept_patients')
+        self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/accept/2001'
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('complete', TestOdooRouteDecoratorIntegration.mock_nh_eobs_api_complete),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+
+        # Access the url under test
+        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # Test that the response is correct
+        expected_json = {
+            'id': 2001,
+            'user': 'Nurse Nadine',
+            'count': 3,
+            'patient_ids': [1, 2, 3],
+            'message': 'You have been invited to follow 3 patients from Nurse Nadine',
+            'status': True
+            }
+
+        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
+                                 'Successfully accepted stand-in invite',
+                                 'You are now following these patient(s)',
+                                 expected_json)
 
     @skip('Test not implemented due issue with test 06')
     def test_10_route_reject_user(self):
