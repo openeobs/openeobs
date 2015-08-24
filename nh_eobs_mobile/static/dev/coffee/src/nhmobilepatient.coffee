@@ -192,7 +192,7 @@ class NHMobilePatient extends NHMobile
       svg.table.keys = [
         {
           title: 'NEWS Score',
-          keys: ['score']
+          keys: ['score_display']
         }
         {
           title: 'Respiration Rate',

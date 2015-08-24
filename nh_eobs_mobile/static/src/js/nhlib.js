@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHLib,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -13,6 +15,8 @@ NHLib = (function() {
   NHLib.prototype.date_from_string = function(date_string) {
     var date;
     date = new Date(date_string);
+
+    /* istanbul ignore else */
     if (isNaN(date.getTime())) {
       date = new Date(date_string.replace(' ', 'T'));
     }
@@ -48,12 +52,17 @@ NHLib = (function() {
 
 })();
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
 
 window.NH.NHLib = NHLib;
 
+
+/* istanbul ignore next */
 var NHMobile, Promise,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
   slice = [].slice,
@@ -282,6 +291,9 @@ NHMobile = (function(superClass) {
 
 })(NHLib);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
@@ -290,6 +302,8 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobile = NHMobile;
 }
 
+
+/* istanbul ignore next */
 var NHMobileBarcode,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -393,6 +407,9 @@ NHMobileBarcode = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
@@ -401,6 +418,8 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileBarcode = NHMobileBarcode;
 }
 
+
+/* istanbul ignore next */
 var NHMobileForm,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -839,6 +858,8 @@ NHMobileForm = (function(superClass) {
     var can_id;
     can_id = self.urls['json_cancel_take_task'](id);
     return Promise.when(self.call_resource(can_id)).then(function(server_data) {
+
+      /* Should be checking server data */
       var btn, msg;
       msg = '<p class="block">Please pick the task again from the task list ' + 'if you wish to complete it</p>';
       btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>';
@@ -975,6 +996,9 @@ NHMobileForm = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
@@ -983,6 +1007,8 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileForm = NHMobileForm;
 }
 
+
+/* istanbul ignore next */
 var NHMobilePatient,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1262,7 +1288,7 @@ NHMobilePatient = (function(superClass) {
       svg.table.keys = [
         {
           title: 'NEWS Score',
-          keys: ['score']
+          keys: ['score_display']
         }, {
           title: 'Respiration Rate',
           keys: ['respiration_rate']
@@ -1365,6 +1391,9 @@ NHMobilePatient = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
@@ -1373,6 +1402,8 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobilePatient = NHMobilePatient;
 }
 
+
+/* istanbul ignore next */
 var NHMobileShare,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -1663,6 +1694,9 @@ NHMobileShare = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
@@ -1671,6 +1705,8 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShare = NHMobileShare;
 }
 
+
+/* istanbul ignore next */
 var NHMobileShareInvite,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -1839,6 +1875,9 @@ NHMobileShareInvite = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore else */
+
 if (!window.NH) {
   window.NH = {};
 }
@@ -1847,6 +1886,8 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShareInvite = NHMobileShareInvite;
 }
 
+
+/* istanbul ignore next */
 var NHModal;
 
 NHModal = (function() {
@@ -2090,6 +2131,9 @@ NHModal = (function() {
   return NHModal;
 
 })();
+
+
+/* istanbul ignore else */
 
 if (!window.NH) {
   window.NH = {};
