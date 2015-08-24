@@ -59,14 +59,14 @@ class nh_eobs_ward_dashboard(orm.Model):
 
     def init(self, cr):
         cr.execute("""
-        drop view if exists %s;
-        drop view if exists loc_waiting_patients;
-        drop view if exists loc_availability;
-        drop view if exists loc_users;
-        drop view if exists child_loc_users;
-        drop view if exists loc_patients_by_risk;
-        drop view if exists loc_risk_patients_count;
-        drop view if exists ward_beds;
+        drop view if exists %s cascade;
+        drop view if exists loc_waiting_patients cascade;
+        drop view if exists loc_availability cascade;
+        drop view if exists loc_users cascade;
+        drop view if exists child_loc_users cascade;
+        drop view if exists loc_patients_by_risk cascade;
+        drop view if exists loc_risk_patients_count cascade;
+        drop view if exists ward_beds cascade;
 
         create or replace view loc_patients_by_risk as (
             select
