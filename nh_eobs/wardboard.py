@@ -222,7 +222,15 @@ class nh_clinical_wardboard(orm.Model):
                     from last_movement_users
                     where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
         cr.execute(sql)
-        res.update({r['spell_id']: r['user_ids'] + r['ward_user_ids'] for r in cr.dictfetchall()})
+        for r in cr.dictfetchall():
+            if r['user_ids'][0] and r['ward_user_ids'][0]:
+                res.update({r['spell_id']: r['user_ids'] + r['ward_user_ids']})
+            elif r['user_ids'][0]:
+                res.update({r['spell_id']: r['user_ids']})
+            elif r['ward_user_ids'][0]:
+                res.update({r['spell_id']: r['ward_user_ids']})
+            else:
+                res.update({r['spell_id']: False})
         return res
 
     def _get_data_ids_multi(self, cr, uid, ids, field_names, arg, context=None):
@@ -850,8 +858,8 @@ param as(
 create or replace view last_movement_users as(
     select
         spell.id as spell_id,
-        array_agg(users.id) as user_ids,
-        array_agg(users2.id) as ward_user_ids
+        array_agg(distinct users.id) as user_ids,
+        array_agg(distinct users2.id) as ward_user_ids
     from nh_clinical_spell spell
     inner join wb_activity_ranked activity on activity.id = spell.activity_id and activity.rank = 1
     inner join wb_activity_ranked move on move.parent_id = activity.id and move.rank = 1 and move.state = 'completed' and move.data_model = 'nh.clinical.patient.move'

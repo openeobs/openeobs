@@ -568,3 +568,20 @@ class TestWardboard(SingleTransactionCase):
         # Scenario 2: Attempt to trigger action without previous spell
         with self.assertRaises(except_orm):
             self.wardboard_pool.open_previous_spell(cr, self.wm_uid, [self.wb_id])
+
+    def test_26_get_recently_discharged_uids(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool._get_recently_discharged_uids(cr, self.wm_uid, [self.wb_id, self.wb_id2, self.wb_id3],
+                                                                'recently_discharged_uids', None)
+        self.assertListEqual(res[self.wb_id], [self.wm_uid, self.dr_uid])
+        self.assertListEqual(res[self.wb_id2], [self.wm_uid, self.dr_uid])
+        self.assertFalse(res[self.wb_id3])
+
+    def test_27_recently_discharged_uids_search(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.wardboard_pool._recently_discharged_uids_search(
+            cr, uid, 'nh.clinical.wardboard', 'recently_discharged_uids',
+            [['recently_discharged_uids', 'in', [self.wm_uid]]])
+        self.assertListEqual(res, [('id', 'in', [self.wb_id, self.wb_id2-1, self.wb_id2])])
