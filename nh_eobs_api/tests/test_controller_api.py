@@ -170,6 +170,27 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         ]
         return patients_list
 
+    @staticmethod
+    def mock_res_users_read(*args, **kwargs):
+        users_list = [
+            {
+                'id': 33,
+                'login': 'john',
+                'display_name': 'John Smith'
+            },
+            {
+                'id': 34,
+                'login': 'jane',
+                'display_name': 'Jane Doe'
+            },
+            {
+                'id': 35,
+                'login': 'joe',
+                'display_name': 'Joe Average'
+            },
+        ]
+        return users_list
+
     def setUp(self):
         """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls."""
         super(TestOdooRouteDecoratorIntegration, self).setUp()
@@ -319,35 +340,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     # Test Stand-in routes
     def test_05_route_share_patients(self):
         """Test that the 'json_share_patients' route returns a list of users who you've invited to follow your patients."""
-        # check if the route under test is actually present in the Route Manager
         route_under_test = route_manager.get_route('json_share_patients')
         self.assertIsInstance(route_under_test, Route)
-
-        def mock_res_users_read(*args, **kwargs):
-            users_list = [
-                {
-                    'id': 33,
-                    'login': 'john',
-                    'display_name': 'John Smith'
-                },
-                {
-                    'id': 34,
-                    'login': 'jane',
-                    'display_name': 'Jane Doe'
-                },
-                {
-                    'id': 35,
-                    'login': 'joe',
-                    'display_name': 'Joe Average'
-                },
-            ]
-            return users_list
 
         def mock_nh_eobs_api_follow_invite(*args, **kwargs):
             return 2001
 
         # Get list of users to share with
-        users_login_list = mock_res_users_read()
+        users_login_list = TestOdooRouteDecoratorIntegration.mock_res_users_read()
 
         # Get a list of patients to share
         patient_list = TestOdooRouteDecoratorIntegration.mock_get_patients()
@@ -359,8 +359,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
 
         # Start Odoo's patchers
-        self.registry('nh.eobs.api')._patch_method('follow_invite', mock_nh_eobs_api_follow_invite)
-        self.registry('res.users')._patch_method('read', mock_res_users_read)
+        api_pool = self.registry('nh.eobs.api')
+        users_pool = self.registry('res.users')
+
+        api_pool._patch_method('follow_invite', mock_nh_eobs_api_follow_invite)
+        users_pool._patch_method('read', TestOdooRouteDecoratorIntegration.mock_res_users_read)
 
         # Access the route
         test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
@@ -368,8 +371,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                   cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
-        self.registry('nh.eobs.api')._revert_method('follow_invite')
-        self.registry('res.users')._revert_method('read')
+        api_pool._revert_method('follow_invite')
+        users_pool._revert_method('read')
 
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
@@ -385,39 +388,40 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_06_route_claim_patients(self):
-        """ Test the claim patients route, a post request with patient_ids
-        should return a confirmation that you've taken those patients back
-        :return:
-        """
-        api_pool = self.registry('nh.eobs.api')
-        # set up the list of patients to claim
-        users_pool = self.registry['res.users']
-        users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', 'NH Clinical Nurse Group'),
-                                                          ('id', 'not in', [self.uid, self.user_id])],
-                                                  fields=['login'])[:3]
-        patient_list = api_pool.get_patients(self.cr, self.user_id, [])[:3]
-        patient_ids = [p['id'] for p in patient_list]
-        for user_id in users_login_list:
-            api_pool.follow_invite(self.cr, self.user_id, patient_ids, user_id['id'])
+        """Test the 'json_claim_patients' route.
 
-        # check if the route under test is actually present in the Route Manager
+        Sending a POST request with a list of patients' ids should return a confirmation that you've taken those patients back.
+        """
         route_under_test = route_manager.get_route('json_claim_patients')
         self.assertIsInstance(route_under_test, Route)
+
+        def mock_nh_eobs_api_remove_followers(*args, **kwargs):
+            return True
+
+        # Set up the list of patients to claim back
+        patient_list = TestOdooRouteDecoratorIntegration.mock_get_patients()
 
         # Create demo data
         demo_data = {
             'patient_ids': ','.join([str(p['id']) for p in patient_list])
         }
 
+        # Start Odoo's patchers
+        api_pool = self.registry('nh.eobs.api')
+        api_pool._patch_method('remove_followers', mock_nh_eobs_api_remove_followers)
+
         # Access the route
         test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
                                   data=json.dumps(demo_data),
                                   cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        api_pool._revert_method('remove_followers')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        # actual test
+        # Actual test
         expected_json = {
             'reason': 'Followers removed successfully.'
         }
@@ -427,21 +431,45 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_07_route_colleagues_list(self):
-        """ Test the colleagues list route, should return a list of colleagues
-        you can invite to follow your patients
-        :return:
-        """
-        # Check if the route under test is actually present into the Route Manager
+        """Test that the 'json_colleagues_list' route returns a list of colleagues you can invite to follow your patients."""
         route_under_test = route_manager.get_route('json_colleagues_list')
         self.assertIsInstance(route_under_test, Route)
 
+        def mock_get_share_users(*args, **kwargs):
+            share_users_list = [
+                {
+                    'id': 33,
+                    'patients': 12,
+                    'name': 'John Smith'
+                },
+                {
+                    'id': 34,
+                    'patients': 2,
+                    'name': 'Jane Doe'
+                },
+                {
+                    'id': 35,
+                    'patients': 9,
+                    'name': 'Joe Average'
+                }
+            ]
+            return share_users_list
+
+        # Start Odoo's patchers
+        api_pool = self.registry('nh.eobs.api')
+        api_pool._patch_method('get_share_users', mock_get_share_users)
+
         # Access the route
         test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        api_pool._revert_method('get_share_users')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         # Check the returned JSON data against the expected ones
-        expected_json = self.registry('nh.eobs.api').get_share_users(self.cr, self.user_id)
+        expected_json = mock_get_share_users()
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Colleagues on shift',
                                  'Choose colleagues for stand-in',
