@@ -862,7 +862,7 @@ create or replace view last_movement_users as(
     left join res_users users on users.id = ulrel.user_id
     left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
     left join res_users users2 on users2.id = ulrel2.user_id
-    group by spell.id, location.name
+    group by spell.id
 );
 
 create or replace view
