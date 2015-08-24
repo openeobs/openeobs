@@ -152,9 +152,10 @@ hosp_num = hosp_num.split(‘,’)[1]</p>
             
             <div class="content"><div class='highlight'><pre>    url = self.urls.json_patient_barcode(input.value.split(<span class="hljs-string">','</span>)[<span class="hljs-number">1</span>])
     url_meth = url.method
+
     Promise.<span class="hljs-keyword">when</span>(self.process_request(url_meth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
       data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
-      activties_string = <span class="hljs-string">""</span>
+      activities_string = <span class="hljs-string">""</span>
       <span class="hljs-keyword">if</span> data.activities.length &gt; <span class="hljs-number">0</span>
         activities_string = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>
         <span class="hljs-keyword">for</span> activity <span class="hljs-keyword">in</span> data.activities

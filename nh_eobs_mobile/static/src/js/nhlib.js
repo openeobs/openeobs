@@ -185,6 +185,9 @@ NHMobile = (function(superClass) {
     if (patient.ews_score) {
       patient_info += '<dt class="twoline">Latest Score:</dt>' + '<dd class="twoline">' + patient.ews_score + '</dd>';
     }
+    if (patient.ews_trend) {
+      patient_info += '<dt>NEWS Trend:</dt><dd>' + patient.ews_trend + '</dd>';
+    }
     if (patient.other_identifier) {
       patient_info += '<dt>Hospital ID:</dt><dd>' + patient.other_identifier + '</dd>';
     }
@@ -240,6 +243,16 @@ NHMobile = (function(superClass) {
       container.appendChild(options);
       page = document.createElement('iframe');
       page.setAttribute('src', event.srcElement.getAttribute('href'));
+      page.onload = function() {
+        var contents, header, iframe, modal, obs;
+        modal = document.getElementsByClassName('full-modal')[0];
+        iframe = modal.getElementsByTagName('iframe')[0];
+        contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+        header = contents.getElementsByClassName('header')[0];
+        header.parentNode.removeChild(header);
+        obs = contents.getElementsByClassName('obs')[0];
+        return obs.parentNode.removeChild(obs);
+      };
       container.appendChild(page);
       document.getElementsByTagName('body')[0].appendChild(container);
       return event.handled = true;
@@ -309,40 +322,9 @@ NHMobileBarcode = (function(superClass) {
     url = self.urls.json_patient_barcode(input.value.split(',')[1]);
     url_meth = url.method;
     return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
-      var activities_string, activity, activties_string, content, data, i, len, patientDOB, patient_details, ref;
+      var activities_string, activity, content, data, i, len, ref;
       data = server_data[0][0];
-      patient_details = '';
-      if (data.full_name) {
-        patient_details += "<dt>Name:</dt><dd>" + data.full_name + "</dd>";
-      }
-      if (data.gender) {
-        patient_details += '<dt>Gender:</dt><dd>' + data.gender + '</dd>';
-      }
-      if (data.dob) {
-        patientDOB = self.date_from_string(data.dob);
-        patient_details += "<dt>DOB:</dt><dd>" + self.date_to_dob_string(patientDOB) + "</dd>";
-      }
-      if (data.location) {
-        patient_details += "<dt>Location:</dt><dd>" + data.location;
-      }
-      if (data.parent_location) {
-        patient_details += ',' + data.parent_location + '</dd>';
-      } else {
-        patient_details += '</dd>';
-      }
-      if (data.ews_score) {
-        patient_details += '<dt class="twoline">Latest Score:</dt>' + '<dd class="twoline">' + data.ews_score + '</dd>';
-      }
-      if (data.ews_trend) {
-        patient_details += '<dt>NEWS Trend:</dt><dd>' + data.ews_trend + '</dd>';
-      }
-      if (data.other_identifier) {
-        patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier + "</dd>";
-      }
-      if (data.patient_identifier) {
-        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier + "</dd>";
-      }
-      activties_string = "";
+      activities_string = "";
       if (data.activities.length > 0) {
         activities_string = '<ul class="menu">';
         ref = data.activities;
@@ -352,7 +334,7 @@ NHMobileBarcode = (function(superClass) {
         }
         activities_string += '</ul>';
       }
-      content = '<dl>' + patient_details + '</dl><h3>Tasks</h3>' + activities_string;
+      content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
       return dialog.innerHTML = content;
     });
   };

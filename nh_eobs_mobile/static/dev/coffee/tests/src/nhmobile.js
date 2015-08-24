@@ -215,6 +215,16 @@ NHMobile = (function(superClass) {
       container.appendChild(options);
       page = document.createElement('iframe');
       page.setAttribute('src', event.srcElement.getAttribute('href'));
+      page.onload = function() {
+        var contents, header, iframe, modal, obs;
+        modal = document.getElementsByClassName('full-modal')[0];
+        iframe = modal.getElementsByTagName('iframe')[0];
+        contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+        header = contents.getElementsByClassName('header')[0];
+        header.parentNode.removeChild(header);
+        obs = contents.getElementsByClassName('obs')[0];
+        return obs.parentNode.removeChild(obs);
+      };
       container.appendChild(page);
       document.getElementsByTagName('body')[0].appendChild(container);
       return event.handled = true;

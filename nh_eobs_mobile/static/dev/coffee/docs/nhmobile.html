@@ -371,6 +371,15 @@ triggered by the fullscreen button made by the patient information modal</p>
       container.appendChild(options)
       page = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'iframe'</span>)
       page.setAttribute(<span class="hljs-string">'src'</span>, event.srcElement.getAttribute(<span class="hljs-string">'href'</span>))
+      page.onload = <span class="hljs-function">-&gt;</span>
+        modal = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>]
+        iframe = modal.getElementsByTagName(<span class="hljs-string">'iframe'</span>)[<span class="hljs-number">0</span>]
+        contents = <span class="hljs-keyword">if</span> iframe.contentDocument <span class="hljs-keyword">then</span> iframe.contentDocument <span class="hljs-keyword">else</span>
+          iframe.contentWindow.<span class="hljs-built_in">document</span>
+        header = contents.getElementsByClassName(<span class="hljs-string">'header'</span>)[<span class="hljs-number">0</span>]
+        header.parentNode.removeChild(header)
+        obs = contents.getElementsByClassName(<span class="hljs-string">'obs'</span>)[<span class="hljs-number">0</span>]
+        obs.parentNode.removeChild(obs)
       container.appendChild(page)
       <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].appendChild(container)
       event.handled = <span class="hljs-literal">true</span>

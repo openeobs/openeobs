@@ -127,6 +127,25 @@ describe('Patient Information Functionality', function(){
             full_screen_modals = document.getElementsByClassName('full-modal');
             expect(full_screen_modals.length).toBe(0);
         });
+
+        it('User should not be able to see the floating menu options when in the fullscreen modal view', function(){
+            var full_obs_button = document.getElementById('patient_obs_fullscreen');
+            expect(full_obs_button).not.toBe(null);
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            full_obs_button.dispatchEvent(click_event);
+            //expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
+            var full_screen_modals = document.getElementsByClassName('full-modal');
+            expect(full_screen_modals.length).toBe(1);
+            var modal = full_screen_modals[0];
+            var iframe = modal.getElementsByTagName('iframe')[0];
+            var contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+            var headers = contents.getElementsByClassName('header');
+            expect(headers.length).toBe(0);
+            var obs = contents.getElementsByClassName('obs');
+            expect(obs.length).toBe(0);
+
+        });
     });
 
     describe('Getting patient information by scanning a barcode on patient\'s wristband', function(){

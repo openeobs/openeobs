@@ -226,6 +226,15 @@ class NHMobile extends NHLib
       container.appendChild(options)
       page = document.createElement('iframe')
       page.setAttribute('src', event.srcElement.getAttribute('href'))
+      page.onload = ->
+        modal = document.getElementsByClassName('full-modal')[0]
+        iframe = modal.getElementsByTagName('iframe')[0]
+        contents = if iframe.contentDocument then iframe.contentDocument else
+          iframe.contentWindow.document
+        header = contents.getElementsByClassName('header')[0]
+        header.parentNode.removeChild(header)
+        obs = contents.getElementsByClassName('obs')[0]
+        obs.parentNode.removeChild(obs)
       container.appendChild(page)
       document.getElementsByTagName('body')[0].appendChild(container)
       event.handled = true
