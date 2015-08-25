@@ -126,7 +126,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         api.complete(cr, uid, int(activity_id), {}, context=context)
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully accepted stand-in invite',
-                                                   description='You are now following these patient(s)',
+                                                   description='You are following these patient(s)',
                                                    data=res)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
