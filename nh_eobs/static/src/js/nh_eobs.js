@@ -13,6 +13,7 @@ openerp.nh_eobs = function (instance) {
     var wardboard_groups_opened = false;
     var kiosk_mode = false;
     var kiosk_t;
+    var kiosk_button;
     var ranged_chart = null;
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
@@ -872,7 +873,7 @@ openerp.nh_eobs = function (instance) {
             	
             }    		
     		this._super();
-    		if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload"){
+    		if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload NEWS" || this.options.action.name == "Kiosk Workload Other Tasks"){
                 $(".oe_leftbar").attr("style", "");
                 $(".oe_leftbar").addClass("nh_eobs_hide");
                 $(".oe_searchview").hide();
@@ -881,9 +882,17 @@ openerp.nh_eobs = function (instance) {
                     clearInterval(kiosk_t);
                 }
                 kiosk_t = window.setInterval(function(){
-                    var button =  $('li:not(.active) .oe_menu_leaf');
+                    if (typeof(kiosk_button) == 'undefined'){
+                        kiosk_button =  $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
+                    } else if (kiosk_button.text().indexOf('Kiosk Patients Board') > 0){
+                        kiosk_button =  $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
+                    } else if (kiosk_button.text().indexOf('Kiosk Workload NEWS') > 0){
+                        kiosk_button =  $('li:contains(Kiosk Workload Other Tasks) .oe_menu_leaf');
+                    } else {
+                        kiosk_button =  $('li:contains(Kiosk Patients Board) .oe_menu_leaf');
+                    }
                     if (kiosk_mode){
-                        button.click();
+                        kiosk_button.click();
                     }
                 }, 15000);
             }
