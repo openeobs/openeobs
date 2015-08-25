@@ -219,18 +219,10 @@ class nh_clinical_wardboard(orm.Model):
     def _get_recently_discharged_uids(self, cr, uid, ids, field_name, arg, context=None):
         res = {}.fromkeys(ids, False)
         sql = """select spell_id, user_ids, ward_user_ids
-                    from last_movement_users
+                    from last_discharge_users
                     where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
         cr.execute(sql)
-        for r in cr.dictfetchall():
-            if r['user_ids'][0] and r['ward_user_ids'][0]:
-                res.update({r['spell_id']: r['user_ids'] + r['ward_user_ids']})
-            elif r['user_ids'][0]:
-                res.update({r['spell_id']: r['user_ids']})
-            elif r['ward_user_ids'][0]:
-                res.update({r['spell_id']: r['ward_user_ids']})
-            else:
-                res.update({r['spell_id']: False})
+        res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
         return res
 
     def _get_data_ids_multi(self, cr, uid, ids, field_names, arg, context=None):
@@ -246,10 +238,12 @@ class nh_clinical_wardboard(orm.Model):
         return res
 
     def _get_transferred_user_ids(self, cr, uid, ids, field_names, arg, context=None):
-        res = {}
-        for wb_id in ids:
-            user_ids = self.pool['nh.clinical.spell'].read(cr, uid, wb_id, ['transferred_user_ids'], context=context)['transferred_user_ids']
-            res[wb_id] = user_ids
+        res = {}.fromkeys(ids, False)
+        sql = """select spell_id, user_ids, ward_user_ids
+                    from last_transfer_users
+                    where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
+        cr.execute(sql)
+        res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
         return res
 
     def _transferred_user_ids_search(self, cr, uid, obj, name, args, domain=None, context=None):
@@ -658,6 +652,8 @@ drop materialized view if exists param cascade;
 drop materialized view if exists placement cascade;
 drop view if exists wb_activity_ranked cascade;
 drop view if exists last_movement_users cascade;
+drop view if exists last_transfer_users cascade;
+drop view if exists last_discharge_users cascade;
 
 create or replace view
 -- activity per spell, data_model, state
@@ -870,6 +866,45 @@ create or replace view last_movement_users as(
     left join res_users users on users.id = ulrel.user_id
     left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
     left join res_users users2 on users2.id = ulrel2.user_id
+    where now() at time zone 'UTC' - move.date_terminated < interval '1d'
+    group by spell.id
+);
+
+create or replace view last_discharge_users as(
+    select
+        spell.id as spell_id,
+        array_agg(distinct users.id) as user_ids,
+        array_agg(distinct users2.id) as ward_user_ids
+    from nh_clinical_spell spell
+    inner join wb_activity_ranked activity on activity.id = spell.activity_id and activity.rank = 1
+    inner join wb_activity_ranked discharge on discharge.parent_id = activity.id and discharge.rank = 1 and discharge.state = 'completed' and discharge.data_model = 'nh.clinical.patient.discharge'
+    inner join nh_clinical_patient_discharge discharge_data on discharge_data.activity_id = discharge.id
+    inner join nh_clinical_location location on location.id = discharge_data.location_id
+    inner join ward_locations wl on wl.id = location.id
+    left join user_location_rel ulrel on ulrel.location_id = location.id
+    left join res_users users on users.id = ulrel.user_id
+    left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
+    left join res_users users2 on users2.id = ulrel2.user_id
+    where now() at time zone 'UTC' - discharge.date_terminated < interval '1d'
+    group by spell.id
+);
+
+create or replace view last_transfer_users as(
+    select
+        spell.id as spell_id,
+        array_agg(distinct users.id) as user_ids,
+        array_agg(distinct users2.id) as ward_user_ids
+    from nh_clinical_spell spell
+    inner join wb_activity_ranked activity on activity.id = spell.activity_id and activity.rank = 1
+    inner join wb_activity_ranked transfer on transfer.parent_id = activity.id and transfer.rank = 1 and transfer.state = 'completed' and transfer.data_model = 'nh.clinical.patient.transfer'
+    inner join nh_clinical_patient_transfer transfer_data on transfer_data.activity_id = transfer.id
+    inner join nh_clinical_location location on location.id = transfer_data.origin_loc_id
+    inner join ward_locations wl on wl.id = location.id
+    left join user_location_rel ulrel on ulrel.location_id = location.id
+    left join res_users users on users.id = ulrel.user_id
+    left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
+    left join res_users users2 on users2.id = ulrel2.user_id
+    where now() at time zone 'UTC' - transfer.date_terminated < interval '1d' and activity.state = 'started'
     group by spell.id
 );
 

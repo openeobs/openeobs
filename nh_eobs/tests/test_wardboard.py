@@ -73,6 +73,8 @@ class TestWardboard(SingleTransactionCase):
 
         cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
         cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
+        cls.wb_disc_id = cls.wardboard_pool.search(cr, uid, [['spell_state', '=', 'started'],
+                                                             ['patient_id', '=', cls.patients[1]]])[0]
         cls.api.discharge(cr, cls.adt_uid, 'HN001', {})
         cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
         cls.api.transfer(cr, cls.adt_uid, 'HN001', {'location': 'W1'})
@@ -362,7 +364,7 @@ class TestWardboard(SingleTransactionCase):
         # Scenario 2: Get result for NOT transferred patient
         res = self.wardboard_pool._get_transferred_user_ids(cr, self.wm_uid, [self.wb_id],
                                                             'transferred_user_ids', None)
-        self.assertListEqual(res[self.wb_id], [])
+        self.assertFalse(res[self.wb_id])
 
     def test_15_get_transferred_user_ids_search(self):
         cr, uid = self.cr, self.uid
@@ -572,10 +574,9 @@ class TestWardboard(SingleTransactionCase):
     def test_26_get_recently_discharged_uids(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool._get_recently_discharged_uids(cr, self.wm_uid, [self.wb_id, self.wb_id2, self.wb_id3],
+        res = self.wardboard_pool._get_recently_discharged_uids(cr, self.wm_uid, [self.wb_disc_id, self.wb_id3],
                                                                 'recently_discharged_uids', None)
-        self.assertListEqual(res[self.wb_id], [self.wm_uid, self.dr_uid])
-        self.assertListEqual(res[self.wb_id2], [self.wm_uid, self.dr_uid])
+        self.assertListEqual(res[self.wb_disc_id], [self.wm_uid, self.dr_uid])
         self.assertFalse(res[self.wb_id3])
 
     def test_27_recently_discharged_uids_search(self):
@@ -584,4 +585,4 @@ class TestWardboard(SingleTransactionCase):
         res = self.wardboard_pool._recently_discharged_uids_search(
             cr, uid, 'nh.clinical.wardboard', 'recently_discharged_uids',
             [['recently_discharged_uids', 'in', [self.wm_uid]]])
-        self.assertListEqual(res, [('id', 'in', [self.wb_id, self.wb_id2-1, self.wb_id2])])
+        self.assertListEqual(res, [('id', 'in', [self.wb_disc_id])])
