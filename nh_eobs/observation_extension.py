@@ -1,5 +1,4 @@
 from openerp.osv import orm, osv
-from openerp.sql_db import TestCursor
 import logging
 import threading
 from datetime import datetime as dt
@@ -21,10 +20,12 @@ def refresh_materialized_views(f):
         sql = ''
         for v in views:
             sql += 'refresh materialized view '+v+';\n'
-        with Environment.manage():
-            with registry(cr.dbname).cursor() as new_cr:
-                new_cr.execute(sql)
-                new_cr.commit()
+        cr.execute(sql)
+        # with Environment.manage():
+        #     with registry(cr.dbname).cursor() as new_cr:
+        #         _logger.debug('Executing SQL...')
+        #         new_cr.execute(sql)
+        #         new_cr.commit()
         end = dt.now()
         delta = end-start
         milliseconds = int(delta.total_seconds() * 1000)
@@ -45,9 +46,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context=context)
-        if not isinstance(cr, TestCursor):
-            thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['ews0', 'ews1', 'ews2'], context], kwargs=None)
-            thr.start()
+        self.refresh_views(cr, uid, ['ews0', 'ews1', 'ews2'], context=context)
+        # thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['ews0', 'ews1', 'ews2'], context], kwargs=None)
+        # thr.start()
         return res
 
 
@@ -62,8 +63,9 @@ class nh_clinical_patient_placement(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_placement, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['placement'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['placement'], context=context)
+        # thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['placement'], context], kwargs=None)
+        # thr.start()
         return res
 
 
@@ -78,8 +80,9 @@ class nh_clinical_patient_mrsa(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_mrsa, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
+        # thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
+        # thr.start()
         return res
 
 
@@ -94,8 +97,7 @@ class nh_clinical_patient_diabetes(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_diabetes, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -110,8 +112,7 @@ class nh_clinical_patient_palliative_care(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_palliative_care, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -126,8 +127,7 @@ class nh_clinical_patient_post_surgery(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_post_surgery, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -142,8 +142,7 @@ class nh_clinical_patient_critical_care(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_critical_care, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -158,8 +157,7 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_weight_monitoring, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -174,8 +172,7 @@ class nh_clinical_patient_urine_output_target(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_urine_output_target, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -190,8 +187,7 @@ class nh_clinical_patient_observation_height(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_observation_height, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -206,8 +202,7 @@ class nh_clinical_patient_pbp_monitoring(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_pbp_monitoring, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
 
 
@@ -222,6 +217,5 @@ class nh_clinical_patient_o2target(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_o2target, self).complete(cr, uid, activity_id, context=context)
-        thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['param'], context], kwargs=None)
-        thr.start()
+        self.refresh_views(cr, uid, ['param'], context=context)
         return res
