@@ -26,6 +26,7 @@ describe('Patient Information Functionality', function(){
         if (mobile == null) {
             mobile = new NHMobile();
         }
+        mobile.urls.base_url = 'http://localhost:9876/mobile/';
     });
 
     it('Has a function for getting patient information from the server using a patient id', function(){
@@ -144,7 +145,6 @@ describe('Patient Information Functionality', function(){
             expect(headers.length).toBe(0);
             var obs = contents.getElementsByClassName('obs');
             expect(obs.length).toBe(0);
-
         });
     });
 
@@ -344,7 +344,7 @@ describe('Patient Information Functionality', function(){
                 var modal = modals[i];
                 modal.parentNode.removeChild(modal);
             }
-            var covers = document.getElementsByClassName('dialog');
+            var covers = document.getElementsByClassName('cover');
             for(var i = 0; i < covers.length; i++){
                 var cover = covers[i];
                 cover.parentNode.removeChild(cover);
@@ -353,6 +353,7 @@ describe('Patient Information Functionality', function(){
     });
 
     afterEach(function () {
+        mobile.urls.base_url = 'http://localhost:8069/mobile/';
         if (mobile != null) {
             mobile = null;
         }

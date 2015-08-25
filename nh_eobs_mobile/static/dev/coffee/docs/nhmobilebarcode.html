@@ -117,7 +117,8 @@ ready</li>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">barcode_scanned</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
     event.preventDefault()
-    input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target</pre></div></div>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+      input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target</pre></div></div>
             
         </li>
         
@@ -132,9 +133,9 @@ ready</li>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    dialog = input.parentNode.parentNode
-    <span class="hljs-keyword">if</span> input.value <span class="hljs-keyword">is</span> <span class="hljs-string">''</span>
-      <span class="hljs-keyword">return</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>      dialog = input.parentNode.parentNode
+      <span class="hljs-keyword">if</span> input.value <span class="hljs-keyword">is</span> <span class="hljs-string">''</span>
+        <span class="hljs-keyword">return</span></pre></div></div>
             
         </li>
         
@@ -150,23 +151,25 @@ hosp_num = hosp_num.split(‘,’)[1]</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    url = self.urls.json_patient_barcode(input.value.split(<span class="hljs-string">','</span>)[<span class="hljs-number">1</span>])
-    url_meth = url.method
+            <div class="content"><div class='highlight'><pre>      url = self.urls.json_patient_barcode(input.value.split(<span class="hljs-string">','</span>)[<span class="hljs-number">1</span>])
+      url_meth = url.method
 
-    Promise.<span class="hljs-keyword">when</span>(self.process_request(url_meth, url.url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
-      data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
-      activities_string = <span class="hljs-string">""</span>
-      <span class="hljs-keyword">if</span> data.activities.length &gt; <span class="hljs-number">0</span>
-        activities_string = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>
-        <span class="hljs-keyword">for</span> activity <span class="hljs-keyword">in</span> data.activities
-          activities_string += <span class="hljs-string">'&lt;li class="rightContent"&gt;&lt;a href="'</span>+
-            self.urls.single_task(activity.id).url+<span class="hljs-string">'"&gt;'</span>+
-            activity.display_name+<span class="hljs-string">'&lt;span class="aside"&gt;'</span>+
-            activity.time+<span class="hljs-string">'&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;'</span>
-        activities_string += <span class="hljs-string">'&lt;/ul&gt;'</span>
-      content = self.render_patient_info(data, <span class="hljs-literal">false</span>, self) +
-        <span class="hljs-string">'&lt;h3&gt;Tasks&lt;/h3&gt;'</span>+activities_string
-      dialog.innerHTML = content
+      Promise.<span class="hljs-keyword">when</span>(self.process_request(url_meth, url.url))
+      .<span class="hljs-keyword">then</span> (server_data) -&gt;
+        data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+        activities_string = <span class="hljs-string">""</span>
+        <span class="hljs-keyword">if</span> data.activities.length &gt; <span class="hljs-number">0</span>
+          activities_string = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>
+          <span class="hljs-keyword">for</span> activity <span class="hljs-keyword">in</span> data.activities
+            activities_string += <span class="hljs-string">'&lt;li class="rightContent"&gt;&lt;a href="'</span>+
+              self.urls.single_task(activity.id).url+<span class="hljs-string">'"&gt;'</span>+
+              activity.display_name+<span class="hljs-string">'&lt;span class="aside"&gt;'</span>+
+              activity.time+<span class="hljs-string">'&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;'</span>
+          activities_string += <span class="hljs-string">'&lt;/ul&gt;'</span>
+        content = self.render_patient_info(data, <span class="hljs-literal">false</span>, self) +
+          <span class="hljs-string">'&lt;h3&gt;Tasks&lt;/h3&gt;'</span>+activities_string
+        dialog.innerHTML = content
+        event.handled = <span class="hljs-literal">true</span>
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}

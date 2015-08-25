@@ -44,30 +44,33 @@ class NHMobileBarcode extends NHMobile
   # - on receiving data change the modal content
   barcode_scanned: (self, event) ->
     event.preventDefault()
-    input = if event.srcElement then event.srcElement else event.target
-    # hosp_num = input.value
-    dialog = input.parentNode.parentNode
-    if input.value is ''
-      return
-    # process hosp_num from wristband
-    # hosp_num = hosp_num.split(',')[1]
-    url = self.urls.json_patient_barcode(input.value.split(',')[1])
-    url_meth = url.method
+    if not event.handled
+      input = if event.srcElement then event.srcElement else event.target
+      # hosp_num = input.value
+      dialog = input.parentNode.parentNode
+      if input.value is ''
+        return
+      # process hosp_num from wristband
+      # hosp_num = hosp_num.split(',')[1]
+      url = self.urls.json_patient_barcode(input.value.split(',')[1])
+      url_meth = url.method
 
-    Promise.when(self.process_request(url_meth, url.url)).then (server_data) ->
-      data = server_data[0][0]
-      activities_string = ""
-      if data.activities.length > 0
-        activities_string = '<ul class="menu">'
-        for activity in data.activities
-          activities_string += '<li class="rightContent"><a href="'+
-            self.urls.single_task(activity.id).url+'">'+
-            activity.display_name+'<span class="aside">'+
-            activity.time+'</span></a></li>'
-        activities_string += '</ul>'
-      content = self.render_patient_info(data, false, self) +
-        '<h3>Tasks</h3>'+activities_string
-      dialog.innerHTML = content
+      Promise.when(self.process_request(url_meth, url.url))
+      .then (server_data) ->
+        data = server_data[0][0]
+        activities_string = ""
+        if data.activities.length > 0
+          activities_string = '<ul class="menu">'
+          for activity in data.activities
+            activities_string += '<li class="rightContent"><a href="'+
+              self.urls.single_task(activity.id).url+'">'+
+              activity.display_name+'<span class="aside">'+
+              activity.time+'</span></a></li>'
+          activities_string += '</ul>'
+        content = self.render_patient_info(data, false, self) +
+          '<h3>Tasks</h3>'+activities_string
+        dialog.innerHTML = content
+        event.handled = true
 
 ### istanbul ignore if ###
 if !window.NH

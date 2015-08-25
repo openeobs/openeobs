@@ -8,8 +8,10 @@ module.exports = function(config) {
             'tests/spec/*.spec.js'
         ],
 
-        exclude: [
-        ],
+        exclude: [],
+
+        hostname: 'localhost',
+        port: 9876,
 
         reporters: ['nyan', 'html', 'coverage'],
 

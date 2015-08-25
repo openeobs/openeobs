@@ -43,29 +43,32 @@ NHMobileBarcode = (function(superClass) {
   NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
     var dialog, input, url, url_meth;
     event.preventDefault();
-    input = event.srcElement ? event.srcElement : event.target;
-    dialog = input.parentNode.parentNode;
-    if (input.value === '') {
-      return;
-    }
-    url = self.urls.json_patient_barcode(input.value.split(',')[1]);
-    url_meth = url.method;
-    return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
-      var activities_string, activity, content, data, i, len, ref;
-      data = server_data[0][0];
-      activities_string = "";
-      if (data.activities.length > 0) {
-        activities_string = '<ul class="menu">';
-        ref = data.activities;
-        for (i = 0, len = ref.length; i < len; i++) {
-          activity = ref[i];
-          activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
-        }
-        activities_string += '</ul>';
+    if (!event.handled) {
+      input = event.srcElement ? event.srcElement : event.target;
+      dialog = input.parentNode.parentNode;
+      if (input.value === '') {
+        return;
       }
-      content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
-      return dialog.innerHTML = content;
-    });
+      url = self.urls.json_patient_barcode(input.value.split(',')[1]);
+      url_meth = url.method;
+      return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
+        var activities_string, activity, content, data, i, len, ref;
+        data = server_data[0][0];
+        activities_string = "";
+        if (data.activities.length > 0) {
+          activities_string = '<ul class="menu">';
+          ref = data.activities;
+          for (i = 0, len = ref.length; i < len; i++) {
+            activity = ref[i];
+            activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
+          }
+          activities_string += '</ul>';
+        }
+        content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
+        dialog.innerHTML = content;
+        return event.handled = true;
+      });
+    }
   };
 
   return NHMobileBarcode;

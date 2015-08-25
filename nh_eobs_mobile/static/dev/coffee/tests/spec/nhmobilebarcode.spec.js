@@ -90,16 +90,25 @@ describe('NHMobileBarcode', function(){
         }
     });
 
-    it('Creates a click event listener on scan button', function(){
-    	spyOn(NHMobileBarcode.prototype, 'trigger_button_click');
-    	var trigger_button = test_area.getElementsByClassName('scan')[0];
-    	// fire a click event at the scan button
-    	var click_event = document.createEvent('CustomEvent');
-        click_event.initCustomEvent('click', false, true, false);
-        trigger_button.dispatchEvent(click_event);
-    	// test is fires the appropriate function
-    	expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
-    });
+
+
+
+
+    //it('Creates a click event listener on scan button', function(){
+    //	spyOn(NHMobileBarcode.prototype, 'trigger_button_click');
+    //	var trigger_button = test_area.getElementsByClassName('scan')[0];
+    //	// fire a click event at the scan button
+    //	var click_event = document.createEvent('CustomEvent');
+    //    click_event.initCustomEvent('click', false, true, false);
+    //    trigger_button.dispatchEvent(click_event);
+    //	// test is fires the appropriate function
+    //	expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+    //});
+
+
+
+
+
 
     //it('On pressing the scan button a modal is shown with input box and input box is focused', function(){
     //	spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();

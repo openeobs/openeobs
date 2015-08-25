@@ -226,6 +226,7 @@ class NHMobile extends NHLib
       container.appendChild(options)
       page = document.createElement('iframe')
       page.setAttribute('src', event.srcElement.getAttribute('href'))
+      ### istanbul ignore next ###
       page.onload = ->
         modal = document.getElementsByClassName('full-modal')[0]
         iframe = modal.getElementsByTagName('iframe')[0]

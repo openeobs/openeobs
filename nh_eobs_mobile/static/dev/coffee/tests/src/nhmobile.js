@@ -215,6 +215,8 @@ NHMobile = (function(superClass) {
       container.appendChild(options);
       page = document.createElement('iframe');
       page.setAttribute('src', event.srcElement.getAttribute('href'));
+
+      /* istanbul ignore next */
       page.onload = function() {
         var contents, header, iframe, modal, obs;
         modal = document.getElementsByClassName('full-modal')[0];
