@@ -43,15 +43,8 @@
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="Ward Dashboard"
-                  id="menu_nhui_left_poc_management"
-                  sequence="5"
-                  parent="menu_nhui_left_ward"
-                  action="action_show_poc_management"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
-
-        <menuitem name="Ward Dashboard SQL"
                   id="menu_nhui_left_ward_dashboard"
-                  sequence="99"
+                  sequence="5"
                   parent="menu_nhui_left_ward"
                   action="action_show_ward_dashboard"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
