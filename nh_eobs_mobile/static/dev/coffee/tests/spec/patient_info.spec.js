@@ -45,6 +45,10 @@ describe('Patient Information Functionality', function(){
        expect(typeof(NHMobileBarcode.prototype.barcode_scanned)).toBe('function');
     });
 
+    it('Has a function for drawing a patient observation chart', function(){
+       expect(typeof(NHMobilePatient.prototype.draw_graph)).toBe('function');
+    });
+
     describe('Getting patient information by sending patient ID to server', function(){
         it('Calls the server for patient information and displays in modal', function(){
             spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
@@ -348,6 +352,266 @@ describe('Patient Information Functionality', function(){
             for(var i = 0; i < covers.length; i++){
                 var cover = covers[i];
                 cover.parentNode.removeChild(cover);
+            }
+        });
+    });
+
+    describe('Displaying the patient\'s observation in a chart', function(){
+        var nhpatient, NHGraphLib, NHGraph, NHTable, NHFocus, NHContext;
+        beforeEach(function(){
+            var test = document.getElementById('test');
+            test.innerHTML = '<a href="#" id="obsMenu">Obs</a>' +
+                '<ul class="two-col tabs">' +
+                '<li><a href="#graph-content" class="selected">Graph</a></li>' +
+                '<li><a href="#table-content">Table</a></li>' +
+                '</ul>' +
+                '<div id="graph-content" data-id="1">' +
+                '<div id="controls">' +
+                '<div id="start">' +
+                '<h4>Start date</h4>' +
+                '<label for="start_date">' +
+                'Date: <input type="date" name="start_date" id="start_date"/>' +
+                '</label>' +
+                '<label for="start_time">' +
+                'Time: <input type="time" name="start_time" id="start_time"/>' +
+                '</label>' +
+                '</div>' +
+                '<div id="end">' +
+                '<h4>End date</h4>' +
+                '<label for="end_date">' +
+                'Date: <input type="date" name="end_date" id="end_date"/>' +
+                '</label>' +
+                '<label for="end_time">' +
+                'Time: <input type="time" name="end_time" id="end_time"/>' +
+                '</label>' +
+                '</div>' +
+                '<div id="range">' +
+                '<label for="rangify">' +
+                '<h4>Ranged values</h4> <input type="checkbox" name="rangify" id="rangify"/>' +
+                '</label>' +
+                '</div>' +
+                '</div>' +
+                '<div id="chart"></div>' +
+                '</div>' +
+                '<div id="table-content"></div>';
+
+            NHGraphLib = (function(){
+                function NHGraphLib(element){
+                    this.context = null;
+                    this.focus = null;
+                    this.table = {
+                        keys: [],
+                        element: ''
+                    };
+                    this.data = {
+                        raw: []
+                    };
+                    this.options = {
+                        controls: {
+                            rangify: null,
+                            date: {
+                                start: null,
+                                end: null
+                            },
+                            time: {
+                                start: null,
+                                end: null
+                            }
+                        }
+                    };
+                }
+                NHGraphLib.prototype.draw = function(){};
+                NHGraphLib.prototype.init = function(){
+                    // Do some foo in here to return the created object?
+                };
+                return NHGraphLib;
+            })();
+            if(!window.NH){
+                window.NH = {};
+            }
+            window.NH.NHGraphLib = NHGraphLib;
+            NHGraph = (function(){
+                function NHGraph(){
+                    this.options = {
+                        keys: [],
+                        label: '',
+                        measurement: '',
+                        normal: {
+                            min: 0,
+                            max: 0
+                        }
+                    };
+                    this.axes = {
+                        y: {
+                            min: 0,
+                            max: 40
+                        }
+                    };
+                    this.style = {
+                        dimensions: {
+                            height: 0
+                        },
+                        data_style: '',
+                        label_width: 0,
+                        axis:{
+                            x: {
+                                hide: false
+                            }
+                        }
+                    };
+                    this.drawables = {
+                        background: {
+                            data: []
+                        }
+                    }
+                }
+                return NHGraph;
+            })();
+            window.NH.NHGraph = NHGraph;
+            NHFocus = (function(){
+                function NHFocus(){
+                    this.graphs = [];
+                    this.tables = [];
+                    this.title = '';
+                    this.style = {
+                        padding: {
+                            right: 0
+                        }
+                    }
+                }
+                return NHFocus;
+            })();
+            window.NH.NHFocus = NHFocus;
+            NHContext = (function(){
+                function NHContext(){
+                    this.graph = null;
+                    this.title = '';
+                }
+                return NHContext;
+            })();
+            window.NH.NHContext = NHContext;
+            NHTable = (function(){
+                function NHTable(){
+                    this.title = '';
+                    this.keys = [];
+                }
+                return NHTable;
+            })();
+            window.NH.NHTable = NHTable;
+        });
+
+        it('On receiving no data from the server removes the tabs, controls and shows a message to say so', function(){
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                promise.complete([{'obs': []}]);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var chart = document.getElementById('chart');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+        });
+
+        it('On receiving data from the server creates NHGraph and NHTable objects to draw into the chart element', function(){
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                promise.complete([{'obs': [{
+                    'respiration_rate': 18,
+                    'indirect_oxymetry_spo2': 99,
+                    'body_temperature': 37.5,
+                    'pulse_rate': 80,
+                    'blood_pressure_systolic': 120,
+                    'blood_pressure_diastolic': 80,
+                    'score': 0,
+                    'avpu_text': 'A',
+                    'oxygen_administration_flag': false,
+                    'flow_rate': false,
+                    'concentration': false,
+                    'device_id': false,
+                    'cpap_peep': false,
+                    'niv_backup': false,
+                    'niv_ipap': false,
+                    'niv_epap': false
+                },
+                {
+                    'respiration_rate': 18,
+                    'indirect_oxymetry_spo2': 99,
+                    'body_temperature': 37.5,
+                    'pulse_rate': 80,
+                    'blood_pressure_systolic': 120,
+                    'blood_pressure_diastolic': 80,
+                    'score': 0,
+                    'avpu_text': 'A',
+                    'oxygen_administration_flag': true,
+                    'flow_rate': 0.5,
+                    'concentration': false,
+                    'device_id': [1, 'Test CPAP Device'],
+                    'cpap_peep': 2,
+                    'niv_backup': false,
+                    'niv_ipap': false,
+                    'niv_epap': false
+                },
+                {
+                    'respiration_rate': 18,
+                    'indirect_oxymetry_spo2': 99,
+                    'body_temperature': 37.5,
+                    'pulse_rate': 80,
+                    'blood_pressure_systolic': 120,
+                    'blood_pressure_diastolic': 80,
+                    'score': 0,
+                    'avpu_text': 'A',
+                    'oxygen_administration_flag': true,
+                    'flow_rate': false,
+                    'concentration': 2,
+                    'device_id': [1, 'Test NIV Device'],
+                    'cpap_peep': false,
+                    'niv_backup': 1,
+                    'niv_ipap': 2,
+                    'niv_epap': 3
+                }
+                ]}]);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
+            var graphlib_constructor = spyOn(window.NH, 'NHGraphLib').and.callFake(function(args){
+                return new NHGraphLib(args);
+            });
+            var graph_constructor = spyOn(window.NH, 'NHGraph').and.callFake(function(){
+                return new NHGraph();
+            });
+            var table_constructor = spyOn(window.NH, 'NHTable').and.callFake(function(){
+                return new NHTable();
+            });
+            var focus_constructor = spyOn(window.NH, 'NHFocus').and.callFake(function(){
+                return new NHFocus();
+            });
+            var context_constructor = spyOn(window.NH, 'NHContext').and.callFake(function(){
+                return new NHContext();
+            });
+            spyOn(NHGraphLib.prototype, 'init');
+            spyOn(NHGraphLib.prototype, 'draw');
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+            expect(graphlib_constructor).toHaveBeenCalledWith('#chart');
+            expect(graph_constructor.calls.count()).toBe(6);
+            expect(table_constructor.calls.count()).toBe(1);
+            expect(focus_constructor.calls.count()).toBe(1);
+            expect(context_constructor.calls.count()).toBe(1);
+            expect(NHGraphLib.prototype.init).toHaveBeenCalled();
+            expect(NHGraphLib.prototype.draw).toHaveBeenCalled();
+        });
+
+
+        afterEach(function(){
+            var test = document.getElementById('test');
+            test.innerHTML = '';
+            if(nhpatient != null){
+                nhpatient = null;
             }
         });
     });

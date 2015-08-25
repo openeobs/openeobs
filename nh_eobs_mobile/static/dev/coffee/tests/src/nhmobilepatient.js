@@ -343,15 +343,23 @@ NHMobilePatient = (function(superClass) {
         f = ob.oxygen_administration_flag;
         if (fr || c || f) {
           ob.inspired_oxygen = "";
+
+          /* istanbul ignore else */
           if (ob.device_id) {
             ob.inspired_oxygen += "<strong>Device:</strong> " + ob.device_id[1] + "<br>";
           }
+
+          /* istanbul ignore else */
           if (fr) {
             ob.inspired_oxygen += "<strong>Flow:</strong> " + ob.flow_rate + "l/hr<br>";
           }
+
+          /* istanbul ignore else */
           if (c) {
             ob.inspired_oxygen += "<strong>Concentration:</strong> " + ob.concentration + "%<br>";
           }
+
+          /* istanbul ignore else */
           if (ob.cpap_peep && ob.cpap_peep > -1) {
             ob.inspired_oxygen += "<strong>CPAP PEEP:</strong> " + ob.cpap_peep + "<br>";
           } else if (ob.niv_backup && ob.niv_backup > -1) {
@@ -359,6 +367,8 @@ NHMobilePatient = (function(superClass) {
             ob.inspired_oxygen += "<strong>NIV EPAP:</strong> " + ob.niv_epap + "<br>";
             ob.inspired_oxygen += "<strong>NIV IPAP</strong>: " + ob.niv_ipap + "<br>";
           }
+
+          /* istanbul ignore else */
           if (ob.indirect_oxymetry_spo2) {
             ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + "%";
           }
@@ -383,11 +393,14 @@ NHMobilePatient = (function(superClass) {
 })(NHMobile);
 
 
-/* istanbul ignore else */
+/* istanbul ignore if */
 
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobilePatient = NHMobilePatient;

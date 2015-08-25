@@ -272,18 +272,20 @@ class NHMobilePatient extends NHMobile
 
         if fr or c or f
           ob.inspired_oxygen = ""
+          ### istanbul ignore else ###
           if ob.device_id
             ob.inspired_oxygen += "<strong>Device:</strong> " +
               ob.device_id[1] + "<br>"
-
+          ### istanbul ignore else ###
           if fr
             ob.inspired_oxygen += "<strong>Flow:</strong> " +
               ob.flow_rate + "l/hr<br>"
-
+          ### istanbul ignore else ###
           if c
             ob.inspired_oxygen += "<strong>Concentration:</strong> " +
               ob.concentration + "%<br>"
 
+          ### istanbul ignore else ###
           if ob.cpap_peep and ob.cpap_peep > -1
             ob.inspired_oxygen += "<strong>CPAP PEEP:</strong> " +
               ob.cpap_peep + "<br>"
@@ -294,7 +296,7 @@ class NHMobilePatient extends NHMobile
               ob.niv_epap + "<br>"
             ob.inspired_oxygen += "<strong>NIV IPAP</strong>: " +
               ob.niv_ipap + "<br>"
-
+          ### istanbul ignore else ###
           if ob.indirect_oxymetry_spo2
             ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + "%"
 
@@ -311,7 +313,8 @@ class NHMobilePatient extends NHMobile
       graph_tabs[0].style.display = 'none'
 
 
-### istanbul ignore else ###
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+### istanbul ignore else ###
 window?.NH.NHMobilePatient = NHMobilePatient
