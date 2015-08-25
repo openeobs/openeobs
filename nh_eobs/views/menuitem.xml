@@ -26,7 +26,7 @@
                   sequence="0"
                   parent="menu_nhui_left_ward"
                   action="action_nhc_cancel_notifications"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="Active Points of Care"
                   id="menu_nhui_left_active_poc"
@@ -50,10 +50,10 @@
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="Staff Management"
-                  id="menu_nhui_left_user_management"
+                  id="menu_nhui_left_user_management_v2"
                   sequence="4"
                   parent="menu_nhui_left_ward"
-                  action="nh_clinical.action_nhc_userboard"
+                  action="nh_clinical.action_nhc_user_management_wm"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="User Allocation"
@@ -129,9 +129,9 @@
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
         <menuitem name="Open eObs Users"
-                  id="menu_nhui_left_users"
+                  id="menu_nhui_left_users_v2"
                   parent="menu_nhui_admin_left_users"
-                  action="nh_clinical.action_nhc_admin_userboard"
+                  action="nh_clinical.action_nhc_user_management_admin"
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
         <!--<menuitem name="Shift Management"-->
@@ -148,11 +148,11 @@
     	<!-- WARDBOARD -->
 
         <menuitem name="Patients Board"
-          	id="menu_left_sub_wardboard" 
+          	id="menu_left_patients_board"
           	parent="menu_nhui_left_patient"
           	action="action_wardboard"
             sequence="1"
-          	groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+          	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Kiosk Patients Board"
           	id="menu_left_sub_wardboard_kiosk"
@@ -189,13 +189,6 @@
             sequence="4"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <!--<menuitem name="Kamishibai Board"-->
-          	<!--id="menu_left_kamishibai_board"-->
-          	<!--parent="menu_nhui_left_patient"-->
-          	<!--action="action_kamishibai"-->
-            <!--sequence="5"-->
-          	<!--groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>-->
-
         <menuitem name="Doctor Tasks"
           	id="menu_left_doctor_activities"
           	parent="menu_nhui_left_patient"
@@ -208,14 +201,14 @@
           	parent="menu_nhui_left_patient"
           	action="action_show_overdue"
             sequence="7"
-          	groups="nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+          	groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Activity Workload" 
-        	id="menu_left_sub_activity_workload"
+        	id="menu_left_activity_workload"
             sequence="3"
         	parent="menu_nhui_left_ward"
             action="act_activity_workload_kanban" 
-            groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+            groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <!-- HIDE MENUS WE DON'T WANT TO SHOW -->
         <!--<record model="ir.ui.menu" id="base.menu_main_pm">-->
