@@ -6,8 +6,9 @@ import openerp, json
 from datetime import datetime
 from openerp import http
 from openerp.http import request
-from openerp.osv import fields
+from openerp.osv import fields, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from openerp.tools.translate import _
 from werkzeug import exceptions
 
 from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
@@ -123,11 +124,19 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 res = a
                 res['status'] = True
                 break
-        api.complete(cr, uid, int(activity_id), {}, context=context)
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully accepted stand-in invite',
                                                    description='You are following these patient(s)',
                                                    data=res)
+        try:
+            api.complete(cr, uid, int(activity_id), {}, context=context)
+        except osv.except_osv:
+            res = {'reason': 'Unable to complete the activity.'}
+            response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
+                                                       title='Unable to accept stand-in invite',
+                                                       description='An error occurred when trying to accept the stand-in invite',
+                                                       data=res)
+
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
     @http.route(**route_manager.expose_route('json_reject_patients'))
@@ -142,11 +151,19 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 res = a
                 res['status'] = True
                 break
-        api.cancel(cr, uid, int(activity_id), {}, context=context)
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully rejected stand-in invite',
                                                    description='You are not following these patient(s)',
                                                    data=res)
+        try:
+            api.cancel(cr, uid, int(activity_id), {}, context=context)
+        except osv.except_osv:
+            res = {'reason': 'Unable to cancel the activity.'}
+            response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
+                                                       title='Unable to reject stand-in invite',
+                                                       description='An error occurred when trying to reject the stand-in invite',
+                                                       data=res)
+
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
     @http.route(**route_manager.expose_route('json_take_task'))

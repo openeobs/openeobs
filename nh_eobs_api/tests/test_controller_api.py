@@ -12,7 +12,7 @@ from unittest import skip
 from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from openerp.tests import DB as DB_NAME
-from openerp.osv import fields
+from openerp.osv import fields, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
@@ -556,6 +556,41 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'You are following these patient(s)',
                                  expected_json)
 
+    def test_09_bis_accept_user_route_manages_exception_while_completing_activity(self):
+        """Test if the route for accepting invitation to follow patient manages exceptions."""
+        route_under_test = route_manager.get_route('json_accept_patients')
+        self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/accept/2001'
+
+        def mock_nh_eobs_api_complete(*args, **kwargs):
+            raise osv.except_osv('Error!', 'Error raised during the test while trying to complete the activity.')
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('complete', mock_nh_eobs_api_complete),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+
+        # Access the url under test
+        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # Test that the response is correct
+        expected_json = {'reason': 'Unable to complete the activity.'}
+
+        self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+                                 'Unable to accept stand-in invite',
+                                 'An error occurred when trying to accept the stand-in invite',
+                                 expected_json)
+
     def test_10_route_reject_user(self):
         """Test the route for rejecting invitation to follow patient.
 
@@ -596,6 +631,41 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully rejected stand-in invite',
                                  'You are not following these patient(s)',
+                                 expected_json)
+
+    def test_10_bis_reject_user_route_manages_exception_while_cancelling_activity(self):
+        """Test if the route for rejecting invitation to follow patient manages exceptions."""
+        route_under_test = route_manager.get_route('json_reject_patients')
+        self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/reject/2001'
+
+        def mock_nh_eobs_api_cancel(*args, **kwargs):
+            raise osv.except_osv('Error!', 'Error raised during the test while trying to cancel the activity.')
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('cancel', mock_nh_eobs_api_cancel),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+
+        # Access the url under test
+        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        methods_to_revert = [m[0] for m in methods_patching_list]
+        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+
+        # Test that the response is correct
+        expected_json = {'reason': 'Unable to cancel the activity.'}
+
+        self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+                                 'Unable to reject stand-in invite',
+                                 'An error occurred when trying to reject the stand-in invite',
                                  expected_json)
 
     # Test Task routes
