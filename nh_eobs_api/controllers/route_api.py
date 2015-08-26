@@ -174,7 +174,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         activity_reg = request.registry['nh.activity']
         api_reg = request.registry['nh.eobs.api']
         task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
-        if task and task.get('user_id') and task['user_id'] != uid:
+        if task and task.get('user_id') and task['user_id'][0] != uid:
             response_data = {'reason': 'Task assigned to another user.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_FAIL,
                                                        title='Unable to take task',
@@ -206,7 +206,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         activity_reg = request.registry['nh.activity']
         api_reg = request.registry['nh.eobs.api']
         task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
-        if task.get('user_id') and task['user_id'][0] != uid:
+        if task and task.get('user_id') and task['user_id'][0] != uid:
             response_data = {'reason': "Can't cancel other user's task."}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_FAIL,
                                                        title='Unable to release task',
@@ -216,14 +216,14 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         else:
             try:
                 api_reg.unassign(cr, uid, task_id, context=context)
-            except Exception:
+            except osv.except_osv:
                 response_data = {'reason': 'Unable to unassign task.'}
                 response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
                                                            title='Unable to release task',
                                                            description='An error occurred when trying to release the task back into the task pool',
                                                            data=response_data)
                 return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
-            response_data = {'reason': 'Task was successfully unassigned from you'}
+            response_data = {'reason': 'Task was successfully unassigned from you.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                        title='Successfully released task',
                                                        description='The task has now been released back into the task pool',
