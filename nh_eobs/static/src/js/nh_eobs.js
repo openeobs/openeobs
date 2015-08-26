@@ -4,7 +4,7 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing3, timing4, timing5;
+    var timing, timing2, timing3, timing4, timing5, ward_dashboard_refresh;
     var refresh_placement = false;
     var refresh_active_poc = false;
     var wardboard_refreshed = false;
@@ -903,6 +903,21 @@ openerp.nh_eobs = function (instance) {
                 }
                 $(".oe_leftbar").addClass("nh_eobs_show");
                 $(".oe_searchview").show();
+            }
+            if (this.options.action.name == 'Ward Dashboard'){
+                if (typeof(ward_dashboard_refresh) == 'undefined') {
+                    ward_dashboard_refresh = window.setInterval(function () {
+                        var button = $("a:contains('Ward Dashboard SQL')");
+                        if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('active') && $(".oe_view_manager_view_kanban").css('display') != 'none') {
+                            button.click();
+                        }
+                    }, 60000);
+                }
+            }
+            else {
+                if (typeof(ward_dashboard_refresh) != 'undefined'){
+                    clearInterval(ward_dashboard_refresh);
+                }
             }
     	}
     });
