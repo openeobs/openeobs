@@ -22,6 +22,7 @@
              'views/views.xml',
              'views/kamishibai_view.xml',
              'views/spell_management_views.xml',
+             'views/ward_dashboard_view.xml',
              'views/menuitem.xml',
              'views/observation_report.xml',
              'security/ir.model.access.csv'],
