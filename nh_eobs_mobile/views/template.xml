@@ -190,7 +190,7 @@
                      </h2>
                      <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
                          <h3>Confirm action taken?</h3>
-                         <p>Press the button below to confirm that you can completed the task <t t-esc="name"/></p>
+                         <p>Press the button below to confirm that you have completed the task <t t-esc="name"/></p>
                          <t t-if="len(inputs) > 0">
                             <div t-foreach="inputs" t-as="item">
                                 <t t-if="item['type']=='selection'">
