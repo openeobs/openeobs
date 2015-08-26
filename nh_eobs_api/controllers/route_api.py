@@ -174,7 +174,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         activity_reg = request.registry['nh.activity']
         api_reg = request.registry['nh.eobs.api']
         task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
-        if task and task.get('user_id') and task['user_id'][0] != uid:
+        if task and task.get('user_id') and task['user_id'] != uid:
             response_data = {'reason': 'Task assigned to another user.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_FAIL,
                                                        title='Unable to take task',
@@ -184,18 +184,18 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         else:
             try:
                 api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
-            except Exception:
+            except osv.except_osv:
                 response_data = {'reason': 'Unable to assign to user.'}
                 response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
                                                            title='Unable to take task',
                                                            description='An error occurred when trying to take the task',
                                                            data=response_data)
                 return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
-            response_data = {'reason': 'Task was free to take'}
+            response_data = {'reason': 'Task was free to take.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                           title='Task successfully taken',
-                                           description='You can now perform this task',
-                                           data=response_data)
+                                                       title='Task successfully taken',
+                                                       description='You can now perform this task',
+                                                       data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
     @http.route(**route_manager.expose_route('json_cancel_take_task'))

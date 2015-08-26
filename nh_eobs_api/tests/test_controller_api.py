@@ -192,12 +192,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return users_list
 
     @staticmethod
-    def mock_nh_eobs_api_complete(*args, **kwargs):
+    def mock_method_returning_true(*args, **kwargs):
         return True
 
     @staticmethod
-    def mock_nh_eobs_api_cancel(*args, **kwargs):
-        return True
+    def mock_method_returning_osv_exception(*args, **kwargs):
+        raise osv.except_osv('Expected exception!', 'Expected exception raised during the test.')
 
     def setUp(self):
         """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls."""
@@ -527,7 +527,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
             ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('complete', TestOdooRouteDecoratorIntegration.mock_nh_eobs_api_complete),
+            ('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_true),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
@@ -562,14 +562,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertIsInstance(route_under_test, Route)
         url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/accept/2001'
 
-        def mock_nh_eobs_api_complete(*args, **kwargs):
-            raise osv.except_osv('Error!', 'Error raised during the test while trying to complete the activity.')
-
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
             ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('complete', mock_nh_eobs_api_complete),
+            ('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
@@ -604,7 +601,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
             ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('cancel', TestOdooRouteDecoratorIntegration.mock_nh_eobs_api_cancel),
+            ('cancel', TestOdooRouteDecoratorIntegration.mock_method_returning_true),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
@@ -639,14 +636,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertIsInstance(route_under_test, Route)
         url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/reject/2001'
 
-        def mock_nh_eobs_api_cancel(*args, **kwargs):
-            raise osv.except_osv('Error!', 'Error raised during the test while trying to cancel the activity.')
-
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
             ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('cancel', mock_nh_eobs_api_cancel),
+            ('cancel', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
@@ -670,58 +664,81 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     # Test Task routes
 
-    def test_11_route_take_task(self):
-        """ Test the take task route, Depending on the eligibility to take the
-        task should return a status or an error
-        :return:
-        """
-        api_pool = self.registry('nh.eobs.api')
-        task = api_pool.get_activities(self.cr, self.user_id, [])[0]
+    def test_11_take_task_route(self):
+        """Test the 'json_take_task' route, supplying it correct data.
 
-        # Check if the route under test is actually present into the Route Manager
+        The method under test should return a successful message.
+        """
         route_under_test = route_manager.get_route('json_take_task')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/1002'
+        auth_user_id = self.user_id
+
+        def mock_nh_activity_read(*args, **kwargs):
+            task_detail = {
+                'id': 1002,
+                'user_id': auth_user_id
+            }
+            return task_detail
+
+        # Start Odoo's patchers
+        activity_pool = self.registry('nh.activity')
+        api_pool = self.registry('nh.eobs.api')
+        activity_pool._patch_method('read', mock_nh_activity_read)
+        api_pool._patch_method('assign', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        activity_pool._revert_method('read')
+        api_pool._revert_method('assign')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         expected_json = {
-            'reason': 'Task was free to take'
+            'reason': 'Task was free to take.'
         }
         # Check the returned JSON data against the expected ones
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Task successfully taken',
                                  'You can now perform this task',
                                  expected_json)
-        try:
-            api_pool.unassign(self.cr, self.user_id, task['id'])
-        except Exception:
-            test_logger.info('test_11 seems to have been unable to unassign task, potential nh.eobs.api issue?')
 
-    def test_12_route_take_task_different_user_group(self):
-        """ Test the take task route with a task id from a different user group
-        should return an error message
-        :return:
+    def test_12_take_task_route_with_exception_while_assigning_task(self):
+        """Test the 'json_take_task' route, when an exception is raised while assigning the task.
+
+        The method under test should return an error message.
         """
-        # self.assertEqual(False, True, 'Test currently not working due to needing to be able to assign task to different user to then unassign with user')
-        api_pool = self.registry('nh.eobs.api')
-        users_pool = self.registry['res.users']
-        other_name = 'winifred'
-        other_uid = users_pool.search(self.cr, self.uid, [['login', '=', other_name]])[0]
-        task = api_pool.get_activities(self.cr, other_uid, [])[0]
-
-        # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_take_task')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/1002'
+        auth_user_id = self.user_id
 
-        # Access the route second time
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        def mock_nh_activity_read(*args, **kwargs):
+            task_detail = {
+                'id': 1002,
+                'user_id': auth_user_id
+            }
+            return task_detail
+
+        # Start Odoo's patchers
+        activity_pool = self.registry('nh.activity')
+        api_pool = self.registry('nh.eobs.api')
+        activity_pool._patch_method('read', mock_nh_activity_read)
+        api_pool._patch_method('assign', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception)
+
+        # Access the route
+        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        activity_pool._revert_method('read')
+        api_pool._revert_method('assign')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        # check the output for error
         expected_json = {
             'reason': "Unable to assign to user."
         }
@@ -730,34 +747,42 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'An error occurred when trying to take the task',
                                  expected_json)
 
-    def test_13_route_take_task_different_user_assigned(self):
-        """ Test the take task route with a task id with a different user
-        already assigned, should return a fail message
-        :return:
-        """
-        # self.assertEqual(False, True, 'Test currently not working due to needing to be able to assign task to different user to then assign with user')
-        api_pool = self.registry('nh.eobs.api')
-        users_pool = self.registry['res.users']
-        other_name = 'winifred'
-        other_uid = users_pool.search(self.cr, self.uid, [['login', '=', other_name]])[0]
-        task = api_pool.get_activities(self.cr, other_uid, [])[0]
+    def test_13_take_task_route_when_task_already_assigned_to_different_user(self):
+        """Test the 'json_take_task' route, when the task is already assigned to a different user.
 
-        # Check if the route under test is actually present into the Route Manager
+        The method under test should return a fail message.
+        """
         route_under_test = route_manager.get_route('json_take_task')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/1002'
+        different_user_id = int(self.user_id) + 1
 
-        # Access the route second time
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/' + str(task['id']), cookies=self.auth_resp.cookies)
+        def mock_nh_activity_read(*args, **kwargs):
+            task_detail = {
+                'id': 1002,
+                'user_id': different_user_id
+            }
+            return task_detail
+
+        # Start Odoo's patchers
+        activity_pool = self.registry('nh.activity')
+        activity_pool._patch_method('read', mock_nh_activity_read)
+
+        # Access the route
+        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        activity_pool._revert_method('read')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        # check the output for error
         expected_json = {
-            'reason': "Unable to assign to user."
+            'reason': "Task assigned to another user."
         }
-        self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
+        self.check_response_json(test_resp, ResponseJSON.STATUS_FAIL,
                                  'Unable to take task',
-                                 'An error occurred when trying to take the task',
+                                 'This task is already assigned to another user',
                                  expected_json)
 
     def test_14_route_cancel_take_task(self):
@@ -775,7 +800,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
         expected_json = {
-            'reason': 'Task was free to take'
+            'reason': 'Task was free to take.'
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Task successfully taken',
