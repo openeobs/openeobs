@@ -4,7 +4,7 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing3, timing4, timing5;
+    var timing, timing2, timing3, timing4, timing5, ward_dashboard_refresh;
     var refresh_placement = false;
     var refresh_active_poc = false;
     var wardboard_refreshed = false;
@@ -13,6 +13,7 @@ openerp.nh_eobs = function (instance) {
     var wardboard_groups_opened = false;
     var kiosk_mode = false;
     var kiosk_t;
+    var kiosk_button;
     var ranged_chart = null;
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
@@ -872,7 +873,7 @@ openerp.nh_eobs = function (instance) {
             	
             }    		
     		this._super();
-    		if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload"){
+    		if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload NEWS" || this.options.action.name == "Kiosk Workload Other Tasks"){
                 $(".oe_leftbar").attr("style", "");
                 $(".oe_leftbar").addClass("nh_eobs_hide");
                 $(".oe_searchview").hide();
@@ -881,9 +882,17 @@ openerp.nh_eobs = function (instance) {
                     clearInterval(kiosk_t);
                 }
                 kiosk_t = window.setInterval(function(){
-                    var button =  $('li:not(.active) .oe_menu_leaf');
+                    if (typeof(kiosk_button) == 'undefined'){
+                        kiosk_button =  $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
+                    } else if (kiosk_button.text().indexOf('Kiosk Patients Board') > 0){
+                        kiosk_button =  $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
+                    } else if (kiosk_button.text().indexOf('Kiosk Workload NEWS') > 0){
+                        kiosk_button =  $('li:contains(Kiosk Workload Other Tasks) .oe_menu_leaf');
+                    } else {
+                        kiosk_button =  $('li:contains(Kiosk Patients Board) .oe_menu_leaf');
+                    }
                     if (kiosk_mode){
-                        button.click();
+                        kiosk_button.click();
                     }
                 }, 15000);
             }
@@ -894,6 +903,21 @@ openerp.nh_eobs = function (instance) {
                 }
                 $(".oe_leftbar").addClass("nh_eobs_show");
                 $(".oe_searchview").show();
+            }
+            if (this.options.action.name == 'Ward Dashboard'){
+                if (typeof(ward_dashboard_refresh) == 'undefined') {
+                    ward_dashboard_refresh = window.setInterval(function () {
+                        var button = $("a:contains('Ward Dashboard SQL')");
+                        if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('active') && $(".oe_view_manager_view_kanban").css('display') != 'none') {
+                            button.click();
+                        }
+                    }, 60000);
+                }
+            }
+            else {
+                if (typeof(ward_dashboard_refresh) != 'undefined'){
+                    clearInterval(ward_dashboard_refresh);
+                }
             }
     	}
     });

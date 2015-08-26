@@ -26,6 +26,9 @@ class nh_clinical_workload(orm.Model):
         'date_scheduled': fields.datetime('Scheduled Date'),
         'data_model': fields.text('Data Model'),
         'patient_other_id': fields.text('Hospital Number'),
+        'nhs_number': fields.text('NHS Number'),
+        'initial': fields.text('Patient Name Initial'),
+        'family_name': fields.text('Patient Family Name'),
         'ward_id': fields.many2one('nh.clinical.location', 'Parent Location')
     }
 
@@ -45,6 +48,12 @@ class nh_clinical_workload(orm.Model):
                             coalesce(activity.date_scheduled, activity.date_deadline) as date_scheduled,
                             activity.data_model as data_model,
                             patient.other_identifier as patient_other_id,
+                            patient.patient_identifier as nhs_number,
+                            patient.family_name as family_name,
+                            case
+                                when patient.given_name is null then ''
+                                else upper(substring(patient.given_name from 1 for 1))
+                            end as initial,
                             ward.id as ward_id
                         from nh_activity activity
                         inner join nh_clinical_patient patient on activity.patient_id = patient.id
@@ -70,7 +79,10 @@ class nh_clinical_workload(orm.Model):
                             date_scheduled,
                             data_model,
                             patient_other_id,
-                            ward_id
+                            nhs_number,
+                            ward_id,
+                            family_name,
+                            initial
                         from activity
                 )
         """ % (self._table, self._table))
