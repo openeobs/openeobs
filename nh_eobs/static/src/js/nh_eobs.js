@@ -1108,7 +1108,7 @@ openerp.nh_eobs = function (instance) {
                     var active_ids_to_send = [];
                     var active_records_to_send = [];
                     if (dataset.model === 'nh.clinical.wardboard') {
-                        if (typeof(self.records._proxies) == 'object') {
+                        if (self.records.length == 0 && typeof(self.records._proxies) == 'object') {
                             for (key in self.records._proxies) {
                                 if (self.records._proxies.hasOwnProperty(key)) {
                                     for (var i = 0; i < self.records._proxies[key].records.length; i++) {
@@ -1119,9 +1119,15 @@ openerp.nh_eobs = function (instance) {
                                     //active_ids_to_send = self.records._proxies[key].records;
                                 }
                             }
+                        } else if (self.records.length > 0) {
+                            for (var i = 0; i < self.records.length; i++) {
+                                var rec = self.records.records[i];
+                                active_ids_to_send.push(rec.attributes.id);
+                                active_records_to_send.push(rec.attributes);
+                            }
                         } else {
                             if (record_id) {
-                                active_ids_to_send = [record_id]
+                                active_ids_to_send.push(record_id)
                             }
                         }
                     } else {
@@ -1201,7 +1207,7 @@ openerp.nh_eobs = function (instance) {
             } else if (action_data.type=="action") {
 
                 var active_ids_to_send = []
-                    if(typeof(self.records._proxies) == 'object'){
+                    if(self.records.length == 0 && typeof(self.records._proxies) == 'object'){
                         for(key in self.records._proxies){
                             if(self.records._proxies.hasOwnProperty(key)){
                                 for(var i = 0; i < self.records._proxies[key].records.length; i++){
@@ -1211,9 +1217,17 @@ openerp.nh_eobs = function (instance) {
                                 //active_ids_to_send = self.records._proxies[key].records;
                             }
                         }
-                    }else{
+                        if(active_ids_to_send.length< 1){
+                            active_ids_to_send.push(record_id)
+                        }
+                    } else if (self.records.length > 0) {
+                            for (var i = 0; i < self.records.length; i++) {
+                                var rec = self.records.records[i];
+                                active_ids_to_send.push(rec.attributes.id);
+                            }
+                    } else {
                         if(record_id){
-                            active_ids_to_send = [record_id]
+                            active_ids_to_send.push(record_id)
                         }
                     }
 
@@ -1280,7 +1294,7 @@ openerp.nh_eobs = function (instance) {
         },
         setup_form_view: function() {
             var self = this;
-            if (this.options.active_index) {
+            if (this.options.active_index > 0) {
                 //this.dataset.ids = [this.row_id];
                 this.dataset.index = this.options.active_index;
             } else {
