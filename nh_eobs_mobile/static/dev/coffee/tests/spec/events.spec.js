@@ -1,6 +1,27 @@
 /**
  * Created by colinwren on 25/08/15.
  */
+
+function cleanUp(){
+    var modals = document.getElementsByClassName('dialog');
+    var full_modals = document.getElementsByClassName('full-modal');
+    var covers = document.getElementsByClassName('cover');
+    for(var i = 0; i < modals.length; i++){
+        var modal = modals[i];
+        modal.parentNode.removeChild(modal);
+    }
+    for(var i = 0; i < covers.length; i++){
+        var cover = covers[i];
+        cover.parentNode.removeChild(cover);
+    }
+    for(var i = 0; i < full_modals.length; i++){
+        var full_modal = full_modals[i];
+        full_modal.parentNode.removeChild(full_modal);
+    }
+    var test = document.getElementById('test');
+    test.innerHTML = '';
+}
+
 describe("Event Handling", function(){
     beforeEach(function(){
         var body_el = document.getElementsByTagName('body')[0];
@@ -13,16 +34,7 @@ describe("Event Handling", function(){
         test_area.style.height = '500px';
         test_area.innerHTML = '';
         body_el.appendChild(test_area);
-        var modals = document.getElementsByClassName('modal');
-        var covers = document.getElementsByClassName('cover');
-        for(var i = 0; i < modals.length; i++){
-            var modal = modals[i];
-            modal.parentNode.removeChild(modal);
-        }
-        for(var i = 0; i < covers.length; i++){
-            var cover = covers[i];
-            cover.parentNode.removeChild(cover);
-        }
+        cleanUp();
     });
     afterEach(function(){
         var test = document.getElementById('test');
@@ -99,16 +111,7 @@ describe("Event Handling", function(){
         describe('Patient Information', function(){
             var mobile;
             afterEach(function(){
-                var modals = document.getElementsByClassName('modal');
-                var covers = document.getElementsByClassName('cover');
-                for(var i = 0; i < modals.length; i++){
-                    var modal = modals[i];
-                    modal.parentNode.removeChild(modal);
-                }
-                for(var i = 0; i < covers.length; i++){
-                    var cover = covers[i];
-                    cover.parentNode.removeChild(cover);
-                }
+                cleanUp();
             });
 
             beforeEach(function(){
@@ -174,12 +177,55 @@ describe("Event Handling", function(){
         });
 
         describe('Barcode Scanning', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileBarcode.prototype, 'trigger_button_click');
+                var test_button = document.getElementById('test_button');
+                mobile = new NHMobileBarcode(test_button);
+            });
+
             it('Has a function for displaying the barcode scanning dialog when the scan button is pressed', function(){
                expect(typeof(NHMobileBarcode.prototype.trigger_button_click)).toBe('function');
+            });
+
+            it('Captures and handles the button click for the barcode scanner', function(){
+                var test_button = document.getElementById('test_button');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.trigger_button_click.calls.count()).toBe(1);
             });
         });
 
         describe('Form', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit');
+                spyOn(NHMobileForm.prototype, 'cancel_notification');
+                spyOn(NHMobileForm.prototype, 'trigger_actions');
+                spyOn(NHMobileForm.prototype, 'show_reference');
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit">' +
+                        '<input type="reset" value="Test Reset" id="reset">' +
+                        '<input type="radio" value="test_radio" id="radio">' +
+                        '<button id="reference">Test Button</button>' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
             it('Has a function for sending form data to a server when the submit button is pressed', function(){
                expect(typeof(NHMobileForm.prototype.submit)).toBe('function');
             });
@@ -199,15 +245,111 @@ describe("Event Handling", function(){
             it('Has a function for showing patient information when pressing the patient name on a form', function(){
                expect(typeof(NHMobileForm.prototype.get_patient_info)).toBe('function');
             });
+
+            it('Captures and handles form submission button click', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_button = document.getElementById('submit');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles form reset button click', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('reset', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_button = document.getElementById('reset');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileForm.prototype.cancel_notification).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.cancel_notification.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles form radio input click', function(){
+                var test_button = document.getElementById('radio');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.trigger_actions.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles form reference button click', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_button = document.getElementById('reference');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileForm.prototype.show_reference).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.show_reference.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles patient name click', function(){
+                var test_button_parent = document.getElementById('patientName');
+                var test_button = test_button_parent.getElementsByTagName('a')[0];
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileForm.prototype.get_patient_info).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.get_patient_info.calls.count()).toBe(1);
+            });
         });
 
         describe('Patient Chart', function(){
-             it('Has a function for showing the observation menu when pressing the adhoc observation button', function(){
+
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobilePatient.prototype, 'show_obs_menu');
+                spyOn(NHMobilePatient.prototype, 'handle_tabs');
+                var test = document.getElementById('test');
+                test.innerHTML = '<a class="obs">Test</a><ul id="obsMenu"><li><a>Test Observation</a></li></ul>' +
+                    '<ul class="tabs"><li><a class="tab">One</a></li><li><a class="tab">Two</a></li></ul><div id="table-content"></div><div id="graph-content" data-id="3"></div>';
+                mobile = new NHMobilePatient();
+            });
+
+            it('Has a function for showing the observation menu when pressing the adhoc observation button', function(){
                expect(typeof(NHMobilePatient.prototype.show_obs_menu)).toBe('function');
             });
 
             it('Has a function for handling the tabbing behaviour when pressing the tabs', function(){
                expect(typeof(NHMobilePatient.prototype.handle_tabs)).toBe('function');
+            });
+
+            it('Captures and handles Take Observation menu button click', function(){
+                var test_button = document.getElementsByClassName('obs')[0];
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobilePatient.prototype.show_obs_menu).toHaveBeenCalled();
+                expect(NHMobilePatient.prototype.show_obs_menu.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles tab click', function(){
+                var test_buttons = document.getElementsByClassName('tab');
+                var click_event1 = document.createEvent('CustomEvent');
+                click_event1.initCustomEvent('click', false, true, false);
+                test_buttons[0].dispatchEvent(click_event1);
+                expect(NHMobilePatient.prototype.handle_tabs).toHaveBeenCalled();
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_buttons[1].dispatchEvent(click_event);
+                expect(NHMobilePatient.prototype.handle_tabs.calls.count()).toBe(2);
             });
         });
 

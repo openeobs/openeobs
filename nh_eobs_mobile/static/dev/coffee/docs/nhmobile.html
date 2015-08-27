@@ -365,8 +365,11 @@ triggered by the fullscreen button made by the patient information modal</p>
       options_close.setAttribute(<span class="hljs-string">'href'</span>, <span class="hljs-string">'#'</span>)
       options_close.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'closeFullModal'</span>)
       options_close.innerText = <span class="hljs-string">'Close popup'</span>
-      options_close.addEventListener(<span class="hljs-string">'click'</span>,
-        self.close_fullscreen_patient_info)
+      options_close.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+          self.close_fullscreen_patient_info(event)
+          event.handled = <span class="hljs-literal">true</span>
+      )
       options.appendChild(options_close)
       container.appendChild(options)
       page = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'iframe'</span>)
