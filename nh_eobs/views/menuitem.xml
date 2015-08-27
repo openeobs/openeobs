@@ -1,216 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <menuitem name="Open eObs" id="menu_eobs_top_root" groups="nh_clinical.group_nhc_base,base.user_root"/>
+        <menuitem name="Open eObs Kiosk" sequence="5" id="menu_eobs_kiosk_top_root" groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Kiosk Patient Management"
+                  sequence="1"
+                  id="menu_eobs_kiosk_category_patient_management"
+                  parent="menu_eobs_kiosk_top_root"
+                  groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Kiosk Patients Board"
+          	id="menu_eobs_wardboard_kiosk"
+          	parent="menu_eobs_kiosk_category_patient_management"
+          	action="action_kiosk_patients_board"
+            sequence="0"
+          	groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Kiosk Workload NEWS"
+          	id="menu_eobs_workload_kiosk"
+          	parent="menu_eobs_kiosk_category_patient_management"
+          	action="action_kiosk_workload"
+            sequence="1"
+          	groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Kiosk Workload Other Tasks"
+          	id="menu_eobs_workload_kiosk2"
+          	parent="menu_eobs_kiosk_category_patient_management"
+          	action="action_kiosk_workload2"
+            sequence="2"
+          	groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Open eObs" sequence="10" id="menu_eobs_top_root"
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+
         <menuitem name="Patient Management"
                   sequence="1"
                   id="menu_eobs_category_patient_management"
                   parent="menu_eobs_top_root"
-                  groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Patients without bed"
-                  id="menu_nhui_left_placement"
-                  sequence="5"
-                  parent="menu_eobs_category_patient_management"
-                  action="action_show_placements"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Ward Management"
-                  sequence="3"
-                  id="menu_nhui_left_ward"
-                  parent="menu_eobs_top_root"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
-
-        <menuitem name="Cancel Notifications"
-                  id="menu_nhui_left_cancel_notifications"
-                  sequence="0"
-                  parent="menu_nhui_left_ward"
-                  action="action_nhc_cancel_notifications"
-                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Active Points of Care"
-                  id="menu_nhui_left_active_poc"
-                  sequence="1"
-                  parent="menu_nhui_left_ward"
-                  action="action_show_active_locations"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Inactive Points of Care"
-                  id="menu_nhui_left_inactive_poc"
-                  sequence="2"
-                  parent="menu_nhui_left_ward"
-                  action="action_show_inactive_locations"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Ward Dashboard"
-                  id="menu_nhui_left_ward_dashboard"
-                  sequence="5"
-                  parent="menu_nhui_left_ward"
-                  action="action_show_ward_dashboard"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Staff Management"
-                  id="menu_nhui_left_user_management_v2"
-                  sequence="4"
-                  parent="menu_nhui_left_ward"
-                  action="nh_clinical.action_nhc_user_management_wm"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="User Allocation"
-                  id="menu_nhui_left_user_management2"
-                  sequence="6"
-                  parent="menu_nhui_left_ward"
-                  action="nh_clinical.action_nhc_user_allocation"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Open eObs Users"
-                  id="menu_eobs_admin_users"
-                  parent="menu_nhui_left_ward"
-                  action="nh_clinical.action_nhc_user_management_admin"
-                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
-
-        <menuitem name="Administration" id="menu_nhui_admin_top_root" groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Data Management"
-                  sequence="1"
-                  id="menu_nhui_admin_left_data"
-                  parent="menu_nhui_admin_top_root"
-                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
-
-        <menuitem name="Patients"
-                  sequence="0"
-                  id="menu_nhui_left_patients"
-                  parent="menu_nhui_admin_left_data"
-                  action="action_show_patients"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Spells"
-                  sequence="1"
-                  id="menu_nhui_left_spells"
-                  parent="menu_nhui_admin_left_data"
-                  action="action_show_spells"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Doctors"
-                  sequence="2"
-                  id="menu_nhui_left_doctors"
-                  parent="menu_nhui_admin_left_data"
-                  action="nh_clinical.action_show_doctors"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Manage O2 Targets"
-                  sequence="2"
-                  id="menu_nhui_left_o2_targets"
-                  parent="menu_nhui_admin_left_data"
-                  action="action_show_o2_targets"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Devices Management"
-                  sequence="2"
-                  id="menu_nhui_admin_left_devices"
-                  parent="menu_nhui_admin_top_root"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Devices"
-                  id="menu_nhui_left_devices"
-                  parent="menu_nhui_admin_left_devices"
-                  action="action_show_devices"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Device Types"
-                  id="menu_nhui_left_device_types"
-                  parent="menu_nhui_admin_left_devices"
-                  action="action_show_device_types"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Device Categories"
-                  id="menu_nhui_left_device_categories"
-                  parent="menu_nhui_admin_left_devices"
-                  action="action_show_device_categories"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="User Management"
-                  id="menu_nhui_admin_left_users"
-                  parent="menu_nhui_admin_top_root"
-                  groups="nh_clinical.group_nhc_dev"/>
-
-        <menuitem name="Open eObs Users"
-                  id="menu_nhui_left_users_v2"
-                  parent="menu_nhui_admin_left_users"
-                  action="nh_clinical.action_nhc_user_management_admin"
-                  groups="nh_clinical.group_nhc_dev"/>
-        
-    	<!-- WARDBOARD -->
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Patients Board"
-          	id="menu_left_patients_board"
+          	id="menu_eobs_patients_board"
           	parent="menu_eobs_category_patient_management"
           	action="action_wardboard"
             sequence="1"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Kiosk Patients Board"
-          	id="menu_left_sub_wardboard_kiosk"
-          	parent="menu_eobs_category_patient_management"
-          	action="action_kiosk_patients_board"
-            sequence="20"
-          	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
-
-        <menuitem name="Kiosk Workload NEWS"
-          	id="menu_left_sub_workload_kiosk"
-          	parent="menu_eobs_category_patient_management"
-          	action="action_kiosk_workload"
-            sequence="21"
-          	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
-
-        <menuitem name="Kiosk Workload Other Tasks"
-          	id="menu_left_sub_workload_kiosk2"
-          	parent="menu_eobs_category_patient_management"
-          	action="action_kiosk_workload2"
-            sequence="22"
-          	groups="nh_clinical.group_nhc_kiosk,base.user_root"/>
-
         <menuitem name="Patients by Ward"
-          	id="menu_left_patients_by_ward"
+          	id="menu_eobs_patients_by_ward"
           	parent="menu_eobs_category_patient_management"
           	action="action_patients_by_ward"
             sequence="2"
           	groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Recently Discharged"
-          	id="menu_left_discharged_patients"
+          	id="menu_eobs_discharged_patients"
           	parent="menu_eobs_category_patient_management"
           	action="action_wardboard_discharged"
             sequence="3"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Recently Transferred"
-          	id="menu_left_transferred_patients"
+          	id="menu_eobs_transferred_patients"
           	parent="menu_eobs_category_patient_management"
           	action="action_wardboard_transferred"
             sequence="4"
           	groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
+        <menuitem name="Patients without bed"
+                  id="menu_eobs_placements"
+                  sequence="5"
+                  parent="menu_eobs_category_patient_management"
+                  action="action_show_placements"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
         <menuitem name="Doctor Tasks"
-          	id="menu_left_doctor_activities"
+          	id="menu_eobs_doctor_activities"
           	parent="menu_eobs_category_patient_management"
           	action="action_show_doctor_activities"
             sequence="6"
           	groups="nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Overdue Tasks"
-          	id="menu_left_overdue"
+          	id="menu_eobs_overdue_activities"
           	parent="menu_eobs_category_patient_management"
           	action="action_show_overdue"
             sequence="7"
           	groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Activity Workload" 
-        	id="menu_left_activity_workload"
+        <menuitem name="Ward Management"
+                  sequence="3"
+                  id="menu_eobs_category_ward_management"
+                  parent="menu_eobs_top_root"
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
+
+        <menuitem name="Active Points of Care"
+                  id="menu_eobs_active_poc"
+                  sequence="1"
+                  parent="menu_eobs_category_ward_management"
+                  action="action_show_active_locations"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Inactive Points of Care"
+                  id="menu_eobs_inactive_poc"
+                  sequence="2"
+                  parent="menu_eobs_category_ward_management"
+                  action="action_show_inactive_locations"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Activity Workload"
+        	id="menu_eobs_activity_workload"
             sequence="3"
-        	parent="menu_nhui_left_ward"
-            action="act_activity_workload_kanban" 
+        	parent="menu_eobs_category_ward_management"
+            action="act_activity_workload_kanban"
             groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Staff Management"
+                  id="menu_eobs_user_management"
+                  sequence="4"
+                  parent="menu_eobs_category_ward_management"
+                  action="nh_clinical.action_nhc_user_management_wm"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Ward Dashboard"
+                  id="menu_eobs_ward_dashboard"
+                  sequence="5"
+                  parent="menu_eobs_category_ward_management"
+                  action="action_show_ward_dashboard"
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Locations"
+                  id="menu_eobs_locations"
+                  sequence="6"
+                  parent="menu_eobs_category_ward_management"
+                  action="action_show_locations"
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="User Allocation"
+                  id="menu_eobs_user_management_v2"
+                  sequence="7"
+                  parent="menu_eobs_category_ward_management"
+                  action="nh_clinical.action_nhc_user_allocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Open eObs Users"
+                  id="menu_eobs_admin_user_management"
+                  sequence="8"
+                  parent="menu_eobs_category_ward_management"
+                  action="nh_clinical.action_nhc_user_management_admin"
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+
+        <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Data Management"
+                  sequence="1"
+                  id="menu_eobs_category_data_management"
+                  parent="menu_eobs_admin_top_root"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Patients"
+                  sequence="0"
+                  id="menu_eobs_patients"
+                  parent="menu_eobs_category_data_management"
+                  action="action_show_patients"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Spells"
+                  sequence="1"
+                  id="menu_eobs_spells"
+                  parent="menu_eobs_category_data_management"
+                  action="action_show_spells"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Doctors"
+                  sequence="2"
+                  id="menu_eobs_doctors"
+                  parent="menu_eobs_category_data_management"
+                  action="nh_clinical.action_show_doctors"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Manage O2 Targets"
+                  sequence="3"
+                  id="menu_eobs_o2_targets"
+                  parent="menu_eobs_category_data_management"
+                  action="action_show_o2_targets"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Cancel Notifications"
+                  id="menu_eobs_cancel_notifications"
+                  sequence="4"
+                  parent="menu_eobs_category_data_management"
+                  action="action_nhc_cancel_notifications"
+                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Devices Management"
+                  sequence="2"
+                  id="menu_eobs_category_device_management"
+                  parent="menu_eobs_admin_top_root"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Devices"
+                  id="menu_eobs_devices"
+                  parent="menu_eobs_category_device_management"
+                  action="action_show_devices"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Device Types"
+                  id="menu_eobs_device_types"
+                  parent="menu_eobs_category_device_management"
+                  action="action_show_device_types"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Device Categories"
+                  id="menu_eobs_device_categories"
+                  parent="menu_eobs_category_device_management"
+                  action="action_show_device_categories"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="User Management"
+                  id="menu_eobs_category_user_management"
+                  parent="menu_eobs_admin_top_root"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Open eObs Users"
+                  id="menu_eobs_dev_user_management"
+                  parent="menu_eobs_category_user_management"
+                  action="nh_clinical.action_nhc_user_management_admin"
+                  groups="nh_clinical.group_nhc_dev"/>
+
 
         <!-- HIDE MENUS WE DON'T WANT TO SHOW -->
         <!--<record model="ir.ui.menu" id="base.menu_main_pm">-->
