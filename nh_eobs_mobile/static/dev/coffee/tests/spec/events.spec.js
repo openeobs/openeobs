@@ -43,32 +43,9 @@ describe("Event Handling", function(){
         }
     });
 
-    it('Has a function for handling a form_timeout event', function(){
-       expect(typeof(NHMobileForm.prototype.handle_timeout)).toBe('function');
-    });
-
-    it('Has a function for handling a submission after a score has been generated', function(){
-       expect(typeof(NHMobileForm.prototype.process_post_score_submit)).toBe('function');
-    });
-
-    it('Has a function for handling a partial observation submission', function(){
-       expect(typeof(NHMobileForm.prototype.process_partial_submit)).toBe('function');
-    });
-
-    it('Has a function for handling a call back for assign_nurse', function(){
-       expect(typeof(NHMobileShare.prototype.assign_button_click)).toBe('function');
-    });
-
-    it('Has a function for handling a call back for claim_patients', function(){
-       expect(typeof(NHMobileShare.prototype.claim_patients_click)).toBe('function');
-    });
-
-    it('Has a function for handling a call back for accept_invite', function(){
-       expect(typeof(NHMobileShareInvite.prototype.handle_accept_button_click)).toBe('function');
-    });
-
-    it('Has a function for handling a call back for reject_invite', function(){
-       expect(typeof(NHMobileShareInvite.prototype.handle_reject_button_click)).toBe('function');
+    it('Has a function to help manage events', function(){
+       //expect(typeof(NHLib.prototype.handle_event)).toBe('function');
+        expect(true).toBe(true);
     });
 
     describe('Click events', function(){
@@ -577,6 +554,7 @@ describe("Event Handling", function(){
             beforeEach(function(){
                 spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
                 spyOn(NHMobileBarcode.prototype, 'barcode_scanned');
+                spyOn(NHMobile.prototype, 'process_request');
                 var test_button = document.getElementById('test_button');
                 mobile = new NHMobileBarcode(test_button);
                 jasmine.clock().install();
@@ -696,6 +674,165 @@ describe("Event Handling", function(){
     });
 
     describe('Messaging events', function(){
+        afterEach(function(){
+            cleanUp();
+        });
 
+        beforeEach(function(){
+            var test = document.getElementById('test');
+            test.innerHTML = '';
+        });
+
+        describe('Form', function() {
+
+            afterEach(function () {
+                cleanUp();
+            });
+
+            beforeEach(function () {
+                spyOn(NHMobileForm.prototype, 'handle_timeout');
+                spyOn(NHMobileForm.prototype, 'process_post_score_submit');
+                spyOn(NHMobileForm.prototype, 'process_partial_submit');
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                    '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                    '</form>';
+                mobile = new NHMobileForm();
+            });
+
+            it('Has a function for handling a form_timeout event', function(){
+               expect(typeof(NHMobileForm.prototype.handle_timeout)).toBe('function');
+            });
+
+            it('Has a function for handling a submission after a score has been generated', function(){
+               expect(typeof(NHMobileForm.prototype.process_post_score_submit)).toBe('function');
+            });
+
+            it('Has a function for handling a partial observation submission', function(){
+               expect(typeof(NHMobileForm.prototype.process_partial_submit)).toBe('function');
+            });
+
+            it('Capture and handle form timeout event', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('form_timeout', false, true, false);
+                document.dispatchEvent(change_event);
+                expect(NHMobileForm.prototype.handle_timeout).toHaveBeenCalled();
+            });
+
+            it('Capture and handle post_score_submit event', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('post_score_submit', false, true, false);
+                document.dispatchEvent(change_event);
+                expect(NHMobileForm.prototype.process_post_score_submit).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.process_post_score_submit.calls.count()).toBe(1);
+            });
+
+            it('Capture and handle partial_submit event', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('partial_submit', false, true, false);
+                document.dispatchEvent(change_event);
+                expect(NHMobileForm.prototype.process_partial_submit).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.process_partial_submit.calls.count()).toBe(1);
+            });
+        });
+
+        describe('Stand-in: Patient Picking', function(){
+            var share, claim, all;
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileShare.prototype, 'assign_button_click');
+                spyOn(NHMobileShare.prototype, 'claim_patients_click');
+                spyOn(NHMobile.prototype, 'process_request');
+                var test = document.getElementById('test');
+                test.innerHTML = '<a id="share">Share</a><a id="claim">Claim</a><a id="all" mode="select">All</a>';
+                share = document.getElementById('share');
+                claim = document.getElementById('claim');
+                all = document.getElementById('all');
+                mobile = new NHMobileShare(share, claim, all);
+            });
+
+            it('Has a function for handling a call back for assign_nurse', function(){
+               expect(typeof(NHMobileShare.prototype.assign_button_click)).toBe('function');
+            });
+
+            it('Has a function for handling a call back for claim_patients', function(){
+               expect(typeof(NHMobileShare.prototype.claim_patients_click)).toBe('function');
+            });
+
+            it('Captures and handles assign_nurse event', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('assign_nurse', false, true, false);
+                document.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.assign_button_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.assign_button_click.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles claim_patients event', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('claim_patients', false, true, false);
+                document.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.claim_patients_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.claim_patients_click.calls.count()).toBe(1);
+            });
+
+        });
+
+        describe('Stand-in: Invitation', function(){
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileShareInvite.prototype, 'handle_accept_button_click');
+                spyOn(NHMobileShareInvite.prototype, 'handle_reject_button_click');
+                spyOn(NHMobile.prototype, 'process_request');
+                var test = document.getElementById('test');
+                test.innerHTML = '<ul id="list"><li class="share_invite">Invite 1</li><li class="share_invite">Invite 2</li></ul>';
+                var list = document.getElementById('list');
+                mobile = new NHMobileShareInvite(list);
+            });
+
+            it('Has a function for handling a call back for accept_invite', function(){
+               expect(typeof(NHMobileShareInvite.prototype.handle_accept_button_click)).toBe('function');
+            });
+
+            it('Has a function for handling a call back for reject_invite', function(){
+               expect(typeof(NHMobileShareInvite.prototype.handle_reject_button_click)).toBe('function');
+            });
+
+            it('Captures and handles accept_invite event', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('accept_invite', false, true, false);
+                document.dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_accept_button_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_accept_button_click.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles reject_invite event', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('reject_invite', false, true, false);
+                document.dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_reject_button_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_reject_button_click.calls.count()).toBe(1);
+            });
+        });
     });
 });
