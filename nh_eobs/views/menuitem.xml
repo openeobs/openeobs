@@ -172,15 +172,22 @@
                   action="action_show_spells"
                   groups="nh_clinical.group_nhc_dev"/>
 
-        <menuitem name="Doctors"
+        <menuitem name="Locations"
+                  id="menu_eobs_dev_locations"
                   sequence="2"
+                  parent="menu_eobs_category_data_management"
+                  action="action_show_locations_dev"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Doctors"
+                  sequence="3"
                   id="menu_eobs_doctors"
                   parent="menu_eobs_category_data_management"
                   action="nh_clinical.action_show_doctors"
                   groups="nh_clinical.group_nhc_dev"/>
 
         <menuitem name="Manage O2 Targets"
-                  sequence="3"
+                  sequence="4"
                   id="menu_eobs_o2_targets"
                   parent="menu_eobs_category_data_management"
                   action="action_show_o2_targets"
@@ -188,7 +195,7 @@
 
         <menuitem name="Cancel Notifications"
                   id="menu_eobs_cancel_notifications"
-                  sequence="4"
+                  sequence="5"
                   parent="menu_eobs_category_data_management"
                   action="action_nhc_cancel_notifications"
                   groups="nh_clinical.group_nhc_dev,base.user_root"/>

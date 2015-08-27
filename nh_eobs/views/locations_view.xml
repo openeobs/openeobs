@@ -24,7 +24,7 @@
             <field name="name">nh.eobs.location.form</field>
             <field name="model">nh.clinical.location</field>
             <field name="arch" type="xml">
-                <form string="Location Form" version="7.0" create="1" edit="1" delete="0">
+                <form string="Location Form" version="7.0" create="0" edit="0" delete="0">
                     <sheet>
                         <div class="oe_title">
                             <label for="name" class="oe_edit_only"/>
@@ -65,7 +65,7 @@
             <field name="name">nh.eobs.location.tree</field>
             <field name="model">nh.clinical.location</field>
             <field name="arch" type="xml">
-                <tree string="Location Tree" version="7.0" create="1" edit="1" delete="0">
+                <tree string="Location Tree" version="7.0" create="0" edit="0" delete="0">
                     <field name="name"/>
                     <field name="parent_id"/>
                     <field name="code"/>
@@ -97,6 +97,85 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_eobs_location_form"/>
             <field name="act_window_id" ref="action_show_locations"/>
+        </record>
+
+        <record id="view_eobs_dev_location_form" model="ir.ui.view">
+            <field name="name">nh.eobs.location.form</field>
+            <field name="model">nh.clinical.location</field>
+            <field name="arch" type="xml">
+                <form string="Location Form" version="7.0" create="1" edit="1" delete="1">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group name="parent" col="4">
+                                <field name="parent_id" string="Upper point of care"/>
+                                <field name="code"/>
+                                <field name="type"/>
+                                <field name="usage"/>
+                                <field name="pos_id" string="Point of Service"/>
+                                <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Child Locations">
+                                <field name="child_ids">
+                                    <tree version="7.0" editable="1" create="1" delete="0">
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="type"/>
+                                        <field name="usage"/>
+                                        <field name="pos_id" string="Point of Service"/>
+                                        <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_eobs_dev_location_tree" model="ir.ui.view">
+            <field name="name">nh.eobs.location.tree</field>
+            <field name="model">nh.clinical.location</field>
+            <field name="arch" type="xml">
+                <tree string="Location Tree" version="7.0" create="1" edit="1" delete="1">
+                    <field name="name"/>
+                    <field name="parent_id"/>
+                    <field name="code"/>
+                    <field name="type"/>
+                    <field name="usage"/>
+                    <field name="pos_id" string="Point of Service"/>
+                    <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_locations_dev">
+            <field name="name">Locations</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">nh.clinical.location</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_eobs_location_search"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_view_dev_location_tree">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_eobs_dev_location_tree"/>
+            <field name="act_window_id" ref="action_show_locations_dev"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_dev_location_form">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_eobs_dev_location_form"/>
+            <field name="act_window_id" ref="action_show_locations_dev"/>
         </record>
     </data>
 </openerp>
