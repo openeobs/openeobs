@@ -46,6 +46,7 @@ class nh_eobs_ward_dashboard(orm.Model):
         'free_beds': fields.integer('Free Beds'),
         'related_hcas': fields.integer('HCAs'),
         'related_nurses': fields.integer('Nurses'),
+        'related_doctors': fields.integer('Doctors'),
         'kanban_color': fields.integer('Kanban Color'),
         'assigned_wm_ids': fields.function(_get_wm_ids, type='many2many', relation='res.users', string='Ward Managers'),
         'assigned_doctor_ids': fields.function(_get_dr_ids, type='many2many', relation='res.users', string='Doctors'),
@@ -56,6 +57,22 @@ class nh_eobs_ward_dashboard(orm.Model):
         'no_risk_patients': fields.integer('No Risk Patients'),
         'noscore_patients': fields.integer('No Score Patients')
     }
+
+    def patient_board(self, cr, uid, ids, context=None):
+        wdb = self.browse(cr, uid, ids[0], context=context)
+        context.update({'search_default_clinical_risk': 1, 'search_default_high_risk': 0,
+                        'search_default_ward_id': wdb.id})
+
+        return {
+            'name': 'Patients Board',
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'view_type': 'form',
+            'view_mode': 'kanban,form,tree',
+            'domain': [('spell_state', '=', 'started'), ('location_id.usage', '=', 'bed')],
+            'target': 'current',
+            'context': context
+        }
 
     def init(self, cr):
         cr.execute("""
@@ -170,6 +187,7 @@ class nh_eobs_ward_dashboard(orm.Model):
                 avail.free_beds,
                 clu1.related_users as related_hcas,
                 clu2.related_users as related_nurses,
+                clu3.related_users as related_doctors,
                 rpc.high_risk_patients,
                 rpc.med_risk_patients,
                 rpc.low_risk_patients,
@@ -186,6 +204,7 @@ class nh_eobs_ward_dashboard(orm.Model):
             left join loc_availability avail on avail.location_id = location.id
             left join child_loc_users clu1 on clu1.location_id = location.id and clu1.group_name = 'NH Clinical HCA Group'
             left join child_loc_users clu2 on clu2.location_id = location.id and clu2.group_name = 'NH Clinical Nurse Group'
+            left join child_loc_users clu3 on clu3.location_id = location.id and clu3.group_name = 'NH Clinical Doctor Group'
             left join loc_risk_patients_count rpc on rpc.location_id = location.id
             where location.usage = 'ward'
         )

@@ -157,6 +157,7 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="arch" type="xml">
                 <search string="Wardboard Search View">
+                    <field name="ward_id"/>
                     <field name="ews_trend" />
                     <field name="full_name"/>
                     <field name="hospital_number"/>
