@@ -503,6 +503,67 @@
             </field>
         </record>
 
+        <!-- Kiosk Patient Board Kanban View -->
+        <record model="ir.ui.view" id="view_kiosk_wardboard_kanban">
+            <field name="name">nh.clinical.kiosk.wardboard.kanban</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <kanban edit="false" quick_create="false" create="false">
+                    <field name="initial" />
+                    <field name="family_name" />
+                    <field name="placed" />
+                    <field name="location" />
+                    <field name="location_full_name"/>
+                    <field name="next_diff" />
+                    <field name="frequency" />
+                    <field name="ews_score_string"/>
+                    <field name="ews_trend_string"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user">
+                                    <span class="oe_e">í</span>
+                                    <ul class="oe_dropdown_menu">
+                                        <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
+                                        <li><a name="wardboard_ews" type="object">NEWS List</a></li>
+                                    </ul>
+                                </div>
+                                <div class="oe_kanban_content">
+                                    <div><field name="location_full_name"/></div>
+                                    <div><b><field name="initial"/> <field name="family_name"/></b>
+                                    </div>
+                                    <div>Score: <field name="ews_score_string"/>
+                                        <t t-if="record.ews_trend_string.raw_value === 'up'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-up.png" t-att-alt="up"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'down'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-down.png" t-att-alt="down"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'same'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-same.png" t-att-alt="same"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'one'">
+                                            n/a
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'none'">
+                                            n/a
+                                        </t>
+                                    </div>
+                                    <li>Time to next observation:<field name="next_diff"/></li>
+                                    <t t-if="record.hospital_number.raw_value != ''">
+                                        <div>Hospital Number: <field name="hospital_number"/></div>
+                                    </t>
+                                    <t t-if="record.nhs_number.raw_value != ''">
+                                        <div>NHS Number: <field name="nhs_number"/></div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
         <!--RECENTLY DISCHARGED PATIENTS VIEW-->
         <record model="ir.ui.view" id="view_wardboard_tree_discharged">
             <field name="name">Wardboard Discharged Patients Tree View</field>
@@ -765,7 +826,8 @@
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('spell_state','=','completed'),('recently_discharged','=',True)]</field>
+            <field name="domain">[('spell_state','=','completed'),('recently_discharged','=',True),
+                ('recently_discharged_uids','in',uid)]</field>
             <field name="context">{'search_default_clinical_risk':0,'search_default_group_by_ward':0}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
@@ -814,11 +876,10 @@
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
 
-
         <record model="ir.actions.act_window.view" id="act_view_wardboard_kiosk">
             <field eval="0" name="sequence"/>
             <field name="view_mode">kanban</field>
-            <field name="view_id" ref="view_wardboard_kanban"/>
+            <field name="view_id" ref="view_kiosk_wardboard_kanban"/>
             <field name="act_window_id" ref="action_kiosk_patients_board"/>
         </record>
 
