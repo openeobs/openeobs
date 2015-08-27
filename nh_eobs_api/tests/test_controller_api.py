@@ -908,13 +908,13 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         and other activities to carry out
         :return:
         """
-        api_pool = self.registry('nh.eobs.api')
-        tasks = api_pool.get_activities(self.cr, self.user_id, [])
-        task = [t for t in tasks if t['summary'] == 'NEWS Observation'][0]
+        route_under_test = route_manager.get_route('json_task_form_action')
+        self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/submit_ajax/ews/1605'
 
-        # test demo for ews observation
-        # supplying specific data which result in an EWS total score less than 4 (according to the default EWS policy)
-        # this way, no related tasks are created
+        # Test demo for EWS observation.
+        # (Supplying specific data which result in an EWS total score less than 4 (according to the default EWS policy).
+        # This way, no related tasks are created - does not really matter, due to mocking every Odoo's models calling).
         demo_data = {
             'respiration_rate': 18,
             'indirect_oxymetry_spo2': 100,
@@ -924,23 +924,71 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'blood_pressure_diastolic': 80,
             'pulse_rate': 80,
             'avpu_text': 'A',
-            'taskId': task['id'],
+            'taskId': 1605,
             'startTimestamp': 0
         }
 
-        # Check if the route under test is actually present into the Route Manager
-        route_under_test = route_manager.get_route('json_task_form_action')
-        self.assertIsInstance(route_under_test, Route)
+        def mock_method_returning_converter_function(*args, **kwargs):
+            """The converter function just returns the same data dictionary sent via POST request to the route."""
+            def converter(*args, **kwargs):
+                return demo_data
+            return converter
+
+        def mock_method_returning_list_of_ids(*args, **kwargs):
+            return [123, 456, 789]
+
+        def mock_method_returning_list_of_activities(*args, **kwargs):
+            activities_list = [
+                {
+                    'id': 123,
+                    'data_model': 'nh.clinical.patient.observation.ews',
+                    'state': 'new'
+                },
+                {
+                    'id': 456,
+                    'data_model': 'nh.clinical.notification.frequency',
+                    'state': 'scheduled'
+                },
+                {
+                    'id': 789,
+                    'data_model': 'nh.clinical.notification.assessment',
+                    'state': 'completed'
+                },
+            ]
+            return activities_list
+
+        # Start Odoo's patchers
+        activity_pool = self.registry('nh.activity')
+        api_pool = self.registry('nh.eobs.api')
+        ir_fields_converter = self.registry('ir.fields.converter')
+
+        activity_pool._patch_method('search', mock_method_returning_list_of_ids)
+        activity_pool._patch_method('read', mock_method_returning_list_of_activities)
+        api_pool._patch_method('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        api_pool._patch_method('check_activity_access', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        ir_fields_converter._patch_method('for_model', mock_method_returning_converter_function)
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/submit_ajax/ews/' + str(task['id']),
-                                  data=json.dumps(demo_data),
-                                  cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test, data=json.dumps(demo_data), cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        activity_pool._revert_method('search')
+        activity_pool._revert_method('read')
+        api_pool._revert_method('complete')
+        api_pool._revert_method('check_activity_access')
+        ir_fields_converter._revert_method('for_model')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         expected_json = {
-            'related_tasks': []
+            'related_tasks': [
+                {
+                    'id': 456,
+                    'data_model': 'nh.clinical.notification.frequency',
+                    'state': 'scheduled'
+                }
+            ]
         }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,

@@ -242,24 +242,24 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
         kw_copy = json.loads(request.httprequest.data)
         test = {}
-        data_timestamp = kw_copy.get('startTimestamp', False)
-        data_task_id = kw_copy.get('taskId', False)
-        data_device_id = kw_copy.get('device_id', False)
+        data_timestamp = kw_copy.get('startTimestamp', None)
+        data_task_id = kw_copy.get('taskId', None)
+        data_device_id = kw_copy.get('device_id', None)
 
-        if data_timestamp:
+        if data_timestamp is not None:
             del kw_copy['startTimestamp']
-        if data_task_id:
+        if data_task_id is not None:
             del kw_copy['taskId']
-        if data_device_id:
+        if data_device_id is not None:
             del kw_copy['device_id']
         for key, value in kw_copy.items():
             if not value:
                 del kw_copy[key]
 
         converted_data = converter(kw_copy, test)
-        if data_timestamp:
+        if data_timestamp is not None:
             converted_data['date_started'] = datetime.fromtimestamp(int(data_timestamp)).strftime(DTF)
-        if data_device_id:
+        if data_device_id is not None:
             converted_data['device_id'] = data_device_id
 
         result = api.complete(cr, uid, int(task_id), converted_data, context)
