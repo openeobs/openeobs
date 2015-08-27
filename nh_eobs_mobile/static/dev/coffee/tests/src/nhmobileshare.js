@@ -30,6 +30,8 @@ NHMobileShare = (function(superClass) {
     this.all_button.addEventListener('click', function(event) {
       var button, button_mode;
       event.preventDefault();
+
+      /* istanbul ignore else */
       if (!event.handled) {
         button = event.srcElement ? event.srcElement : event.target;
         button_mode = button.getAttribute('mode');
@@ -291,11 +293,14 @@ NHMobileShare = (function(superClass) {
 })(NHMobile);
 
 
-/* istanbul ignore else */
+/* istanbul ignore if */
 
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShare = NHMobileShare;

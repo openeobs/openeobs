@@ -13,6 +13,7 @@ class NHMobileShareInvite extends NHMobile
     invite_list = patient_list.getElementsByClassName('share_invite')
     for invite in invite_list
       invite.addEventListener 'click', (event) ->
+        ### istanbul ignore else ###
         if not event.handled
           btn = if event.srcElement then event.srcElement else event.target
           activity_id = btn.getAttribute('data-invite-id')

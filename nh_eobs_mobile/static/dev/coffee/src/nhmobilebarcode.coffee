@@ -24,6 +24,7 @@ class NHMobileBarcode extends NHMobile
       input, [cancel], 0 ,document.getElementsByTagName('body')[0])
     self.input = document.getElementsByClassName('barcode_scan')[0]
     self.input.addEventListener 'keydown', (event) ->
+      ### istanbul ignore else ###
       if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
         event.preventDefault()
         setTimeout( ->
@@ -31,6 +32,7 @@ class NHMobileBarcode extends NHMobile
         , 1000)
 
     self.input.addEventListener 'keypress', (event) ->
+      ### istanbul ignore else ###
       if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
         event.preventDefault()
         self.barcode_scanned(self, event)
@@ -44,6 +46,7 @@ class NHMobileBarcode extends NHMobile
   # - on receiving data change the modal content
   barcode_scanned: (self, event) ->
     event.preventDefault()
+    ### istanbul ignore else ###
     if not event.handled
       input = if event.srcElement then event.srcElement else event.target
       # hosp_num = input.value

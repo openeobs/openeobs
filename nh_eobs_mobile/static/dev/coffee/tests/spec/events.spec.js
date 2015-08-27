@@ -43,10 +43,6 @@ describe("Event Handling", function(){
         }
     });
 
-    it('Has a function for sending the scanned patient ID to the server on the MioCare sending the finish key', function(){
-        expect(typeof(NHMobileBarcode.prototype.barcode_scanned)).toBe('function');
-    });
-
     it('Has a function for validating form input when a number input is changed', function(){
        expect(typeof(NHMobileForm.prototype.validate)).toBe('function');
     });
@@ -353,7 +349,26 @@ describe("Event Handling", function(){
             });
         });
 
-        describe('Stand-in', function(){
+        describe('Stand-in: Patient Picking', function(){
+            var share, claim, all;
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileShare.prototype, 'share_button_click');
+                spyOn(NHMobileShare.prototype, 'claim_button_click');
+                spyOn(NHMobileShare.prototype, 'assign_button_click');
+                spyOn(NHMobileShare.prototype, 'select_all_patients');
+                spyOn(NHMobileShare.prototype, 'unselect_all_patients');
+                var test = document.getElementById('test');
+                test.innerHTML = '<a id="share">Share</a><a id="claim">Claim</a><a id="all" mode="select">All</a>';
+                share = document.getElementById('share');
+                claim = document.getElementById('claim');
+                all = document.getElementById('all');
+                mobile = new NHMobileShare(share, claim, all);
+            });
+
             it('Has a function for handling a click on the share button', function(){
                expect(typeof(NHMobileShare.prototype.share_button_click)).toBe('function');
             });
@@ -362,18 +377,114 @@ describe("Event Handling", function(){
                expect(typeof(NHMobileShare.prototype.claim_button_click)).toBe('function');
             });
 
-            it('Has a function for handling a click on the invite', function(){
-               expect(typeof(NHMobileShare.prototype.assign_button_click)).toBe('function');
+            //it('Has a function for handling a click on the invite', function(){
+            //   expect(typeof(NHMobileShare.prototype.assign_button_click)).toBe('function');
+            //});
+
+            it('Captures and handles share button click', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                share.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.share_button_click.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles claim button click', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                claim.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles all button clicks', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                all.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.select_all_patients.calls.count()).toBe(1);
+                var click_event1 = document.createEvent('CustomEvent');
+                click_event1.initCustomEvent('click', false, true, false);
+                all.dispatchEvent(click_event1);
+                expect(NHMobileShare.prototype.unselect_all_patients).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.unselect_all_patients.calls.count()).toBe(1);
+                var click_event2 = document.createEvent('CustomEvent');
+                click_event2.initCustomEvent('click', false, true, false);
+                all.dispatchEvent(click_event2);
+                expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.select_all_patients.calls.count()).toBe(2);
+            });
+        });
+
+        describe('Stand-in: Invitation', function(){
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileShareInvite.prototype, 'handle_invite_click');
+                var test = document.getElementById('test');
+                test.innerHTML = '<ul id="list"><li class="share_invite">Invite 1</li><li class="share_invite">Invite 2</li></ul>';
+                var list = document.getElementById('list');
+                mobile = new NHMobileShareInvite(list);
+            });
+
+            it('Has a function for handling a click on an invite', function(){
+               expect(typeof(NHMobileShareInvite.prototype.handle_invite_click)).toBe('function');
+            });
+
+            it('Captures and handles all button clicks', function(){
+                var invites = document.getElementsByClassName('share_invite');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                invites[0].dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(1);
+                var click_event1 = document.createEvent('CustomEvent');
+                click_event1.initCustomEvent('click', false, true, false);
+                invites[1].dispatchEvent(click_event1);
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(2);
             });
         });
 
         describe('Modal', function(){
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHModal.prototype, 'handle_button_events');
+                var body = document.getElementsByTagName('body')[0]
+                mobile = new NHModal('test', 'Test', '<p>Test</p>', [
+                    '<a data-action="close" id="close">Close</a>'
+                ], 0, body);
+            });
+
             it('Has a function for handling a click on a modal cover', function(){
                expect(typeof(NHModal.prototype.handle_button_events)).toBe('function');
             });
 
             it('Has a function for handling a click on a modal option button', function(){
                expect(typeof(NHModal.prototype.handle_button_events)).toBe('function');
+            });
+
+            it('Captures and handles cover click', function(){
+                var cover = document.getElementsByClassName('cover')[0];
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                cover.dispatchEvent(click_event);
+                expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+                expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles cover click', function(){
+                var close = document.getElementById('close');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                close.dispatchEvent(click_event);
+                expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+                expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
             });
         });
     });
@@ -383,6 +494,156 @@ describe("Event Handling", function(){
     });
 
     describe('Key events', function(){
+        beforeEach(function(){
+            var test = document.getElementById('test');
+            test.innerHTML = '<a id="test_button">Test</a><textarea id="test_textarea"></textarea>';
+        });
+
+        afterEach(function(){
+            var test = document.getElementById('test');
+            test.innerHTML = '';
+        });
+
+        it('HTMLElement has onkeydown property', function(){
+            var test_textarea = document.getElementById('test_textarea');
+            expect(typeof(test_textarea.onkeydown)).toBe('object');
+        });
+
+        it('HTMLElement has onkeypress property', function(){
+            var test_textarea = document.getElementById('test_textarea');
+            expect(typeof(test_textarea.onkeypress)).toBe('object');
+        });
+
+        it('HTMLElement has addEventListener property', function(){
+            var test_textarea = document.getElementById('test_textarea');
+            expect(typeof(test_textarea.addEventListener)).toBe('function');
+        });
+
+        describe('Barcode Scanning', function(){
+            var mobile;
+            afterEach(function(){
+                jasmine.clock().uninstall();
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
+                spyOn(NHMobileBarcode.prototype, 'barcode_scanned');
+                var test_button = document.getElementById('test_button');
+                mobile = new NHMobileBarcode(test_button);
+                jasmine.clock().install();
+            });
+
+            it('Has a function for sending the scanned patient ID to the server on the MioCare sending the finish key', function(){
+                expect(typeof(NHMobileBarcode.prototype.barcode_scanned)).toBe('function');
+            });
+
+            it('Captures and handles the keypress event for keyCode 0 for the barcode scanner', function(){
+                var test_button = document.getElementById('test_button');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.trigger_button_click.calls.count()).toBe(1);
+                var test_textarea = document.getElementsByClassName('barcode_scan')[0];
+                test_textarea.value = 'this is a test';
+                var key_event = document.createEvent('CustomEvent');
+                key_event.initCustomEvent('keypress', false, true, false);
+                key_event.keyCode = 0;
+                test_textarea.dispatchEvent(key_event);
+                expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
+            });
+            
+            it('Captures and handles the keypress event for keyCode 13 for the barcode scanner', function(){
+                var test_button = document.getElementById('test_button');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.trigger_button_click.calls.count()).toBe(1);
+                var test_textarea = document.getElementsByClassName('barcode_scan')[0];
+                test_textarea.value = 'this is a test';
+                var key_event = document.createEvent('CustomEvent');
+                key_event.initCustomEvent('keypress', false, true, false);
+                key_event.keyCode = 13;
+                test_textarea.dispatchEvent(key_event);
+                expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
+            });
+            
+            it('Captures and handles the keypress event for keyCode 116 for the barcode scanner', function(){
+                var test_button = document.getElementById('test_button');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.trigger_button_click.calls.count()).toBe(1);
+                var test_textarea = document.getElementsByClassName('barcode_scan')[0];
+                test_textarea.value = 'this is a test';
+                var key_event = document.createEvent('CustomEvent');
+                key_event.initCustomEvent('keypress', false, true, false);
+                key_event.keyCode = 116;
+                test_textarea.dispatchEvent(key_event);
+                expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
+            });
+            
+            it('Captures and handles the keydown event for keyCode 0 for the barcode scanner', function(){
+                var test_button = document.getElementById('test_button');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.trigger_button_click.calls.count()).toBe(1);
+                var test_textarea = document.getElementsByClassName('barcode_scan')[0];
+                test_textarea.value = 'this is a test';
+                var key_event = document.createEvent('CustomEvent');
+                key_event.initCustomEvent('keydown', false, true, false);
+                key_event.keyCode = 0;
+                test_textarea.dispatchEvent(key_event);
+                jasmine.clock().tick(1500);
+                expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
+            });
+            
+            it('Captures and handles the keydown event for keyCode 13 for the barcode scanner', function(){
+                var test_button = document.getElementById('test_button');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.trigger_button_click.calls.count()).toBe(1);
+                var test_textarea = document.getElementsByClassName('barcode_scan')[0];
+                test_textarea.value = 'this is a test';
+                var key_event = document.createEvent('CustomEvent');
+                key_event.initCustomEvent('keydown', false, true, false);
+                key_event.keyCode = 13;
+                test_textarea.dispatchEvent(key_event);
+                jasmine.clock().tick(1500);
+                expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
+            });
+            
+            it('Captures and handles the keydown event for keyCode 116 for the barcode scanner', function(){
+                var test_button = document.getElementById('test_button');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.trigger_button_click.calls.count()).toBe(1);
+                var test_textarea = document.getElementsByClassName('barcode_scan')[0];
+                test_textarea.value = 'this is a test';
+                var key_event = document.createEvent('CustomEvent');
+                key_event.initCustomEvent('keydown', false, true, false);
+                key_event.keyCode = 116;
+                test_textarea.dispatchEvent(key_event);
+                jasmine.clock().tick(1500);
+                expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
+                expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
+            });
+        });
+
 
     });
 

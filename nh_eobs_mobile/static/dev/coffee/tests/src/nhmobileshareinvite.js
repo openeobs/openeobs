@@ -14,6 +14,8 @@ NHMobileShareInvite = (function(superClass) {
     for (j = 0, len = invite_list.length; j < len; j++) {
       invite = invite_list[j];
       invite.addEventListener('click', function(event) {
+
+        /* istanbul ignore else */
         var activity_id, btn;
         if (!event.handled) {
           btn = event.srcElement ? event.srcElement : event.target;

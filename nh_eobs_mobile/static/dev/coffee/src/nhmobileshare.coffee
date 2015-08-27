@@ -19,6 +19,7 @@ class NHMobileShare extends NHMobile
       self.claim_button_click(self)
     @all_button.addEventListener 'click', (event) ->
       event.preventDefault()
+      ### istanbul ignore else ###
       if not event.handled
         button = if event.srcElement then event.srcElement else event.target
         button_mode = button.getAttribute('mode')
@@ -203,7 +204,8 @@ class NHMobileShare extends NHMobile
       when not el.classList.contains('exclude'))
     return true
 
-### istanbul ignore else ###
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+### istanbul ignore else ###
 window?.NH.NHMobileShare = NHMobileShare

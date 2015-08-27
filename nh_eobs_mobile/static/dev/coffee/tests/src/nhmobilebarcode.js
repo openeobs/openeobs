@@ -24,6 +24,8 @@ NHMobileBarcode = (function(superClass) {
     new NHModal('patient_barcode', 'Scan patient wristband', input, [cancel], 0, document.getElementsByTagName('body')[0]);
     self.input = document.getElementsByClassName('barcode_scan')[0];
     self.input.addEventListener('keydown', function(event) {
+
+      /* istanbul ignore else */
       if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
         event.preventDefault();
         return setTimeout(function() {
@@ -32,6 +34,8 @@ NHMobileBarcode = (function(superClass) {
       }
     });
     self.input.addEventListener('keypress', function(event) {
+
+      /* istanbul ignore else */
       if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
         event.preventDefault();
         return self.barcode_scanned(self, event);
@@ -43,6 +47,8 @@ NHMobileBarcode = (function(superClass) {
   NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
     var dialog, input, url, url_meth;
     event.preventDefault();
+
+    /* istanbul ignore else */
     if (!event.handled) {
       input = event.srcElement ? event.srcElement : event.target;
       dialog = input.parentNode.parentNode;
