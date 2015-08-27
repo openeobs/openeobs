@@ -215,12 +215,14 @@ NHMobile = (function(superClass) {
       cancel = '<a href="#" data-target="patient_info" ' + 'data-action="close">Cancel</a>';
       new NHModal('patient_info', patient_name, patient_details, [cancel], 0, document.getElementsByTagName('body')[0]);
       fullscreen = document.getElementById('patient_obs_fullscreen');
-      return fullscreen.addEventListener('click', self.fullscreen_patient_info);
+      return fullscreen.addEventListener('click', function(event) {
+        return self.fullscreen_patient_info(event, self);
+      });
     });
     return true;
   };
 
-  NHMobile.prototype.fullscreen_patient_info = function(event) {
+  NHMobile.prototype.fullscreen_patient_info = function(event, self) {
     var container, options, options_close, page;
     event.preventDefault();
     if (!event.handled) {
@@ -231,14 +233,7 @@ NHMobile = (function(superClass) {
       options_close.setAttribute('href', '#');
       options_close.setAttribute('id', 'closeFullModal');
       options_close.innerText = 'Close popup';
-      options_close.addEventListener('click', function(event) {
-        var body;
-        if (!event.handled) {
-          body = document.getElementsByTagName('body')[0];
-          body.removeChild(document.getElementsByClassName('full-modal')[0]);
-          return event.handled = true;
-        }
-      });
+      options_close.addEventListener('click', self.close_fullscreen_patient_info);
       options.appendChild(options_close);
       container.appendChild(options);
       page = document.createElement('iframe');
@@ -255,6 +250,16 @@ NHMobile = (function(superClass) {
       };
       container.appendChild(page);
       document.getElementsByTagName('body')[0].appendChild(container);
+      return event.handled = true;
+    }
+  };
+
+  NHMobile.prototype.close_fullscreen_patient_info = function(event) {
+    var body;
+    event.preventDefault();
+    if (!event.handled) {
+      body = document.getElementsByTagName('body')[0];
+      body.removeChild(document.getElementsByClassName('full-modal')[0]);
       return event.handled = true;
     }
   };
@@ -314,29 +319,32 @@ NHMobileBarcode = (function(superClass) {
   NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
     var dialog, input, url, url_meth;
     event.preventDefault();
-    input = event.srcElement ? event.srcElement : event.target;
-    dialog = input.parentNode.parentNode;
-    if (input.value === '') {
-      return;
-    }
-    url = self.urls.json_patient_barcode(input.value.split(',')[1]);
-    url_meth = url.method;
-    return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
-      var activities_string, activity, content, data, i, len, ref;
-      data = server_data[0][0];
-      activities_string = "";
-      if (data.activities.length > 0) {
-        activities_string = '<ul class="menu">';
-        ref = data.activities;
-        for (i = 0, len = ref.length; i < len; i++) {
-          activity = ref[i];
-          activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
-        }
-        activities_string += '</ul>';
+    if (!event.handled) {
+      input = event.srcElement ? event.srcElement : event.target;
+      dialog = input.parentNode.parentNode;
+      if (input.value === '') {
+        return;
       }
-      content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
-      return dialog.innerHTML = content;
-    });
+      url = self.urls.json_patient_barcode(input.value.split(',')[1]);
+      url_meth = url.method;
+      return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
+        var activities_string, activity, content, data, i, len, ref;
+        data = server_data[0][0];
+        activities_string = "";
+        if (data.activities.length > 0) {
+          activities_string = '<ul class="menu">';
+          ref = data.activities;
+          for (i = 0, len = ref.length; i < len; i++) {
+            activity = ref[i];
+            activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
+          }
+          activities_string += '</ul>';
+        }
+        content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
+        dialog.innerHTML = content;
+        return event.handled = true;
+      });
+    }
   };
 
   return NHMobileBarcode;

@@ -319,11 +319,9 @@ the nh_eobs_mobile patient view, namely getting data
           <span class="hljs-keyword">if</span> ob.device_id
             ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;Device:&lt;/strong&gt; "</span> +
               ob.device_id[<span class="hljs-number">1</span>] + <span class="hljs-string">"&lt;br&gt;"</span>
-
           <span class="hljs-keyword">if</span> fr
             ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;Flow:&lt;/strong&gt; "</span> +
               ob.flow_rate + <span class="hljs-string">"l/hr&lt;br&gt;"</span>
-
           <span class="hljs-keyword">if</span> c
             ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;Concentration:&lt;/strong&gt; "</span> +
               ob.concentration + <span class="hljs-string">"%&lt;br&gt;"</span>
@@ -338,7 +336,6 @@ the nh_eobs_mobile patient view, namely getting data
               ob.niv_epap + <span class="hljs-string">"&lt;br&gt;"</span>
             ob.inspired_oxygen += <span class="hljs-string">"&lt;strong&gt;NIV IPAP&lt;/strong&gt;: "</span> +
               ob.niv_ipap + <span class="hljs-string">"&lt;br&gt;"</span>
-
           <span class="hljs-keyword">if</span> ob.indirect_oxymetry_spo2
             ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + <span class="hljs-string">"%"</span>
 

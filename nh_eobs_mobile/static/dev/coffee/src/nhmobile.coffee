@@ -199,13 +199,18 @@ class NHMobile extends NHLib
       new NHModal('patient_info', patient_name, patient_details,
         [cancel], 0, document.getElementsByTagName('body')[0])
       fullscreen = document.getElementById('patient_obs_fullscreen')
-      fullscreen.addEventListener('click', self.fullscreen_patient_info)
+      fullscreen.addEventListener('click', (event) ->
+        ### istanbul ignore else ###
+        if not event.handled
+          self.fullscreen_patient_info(event, self)
+          event.handled = true
+      )
     return true
 
 
   # Adds a full screen modal of the patient info screen over the current page
   # triggered by the fullscreen button made by the patient information modal
-  fullscreen_patient_info: (event) ->
+  fullscreen_patient_info: (event, self) ->
     event.preventDefault()
     ### istanbul ignore else ###
     if not event.handled
@@ -217,9 +222,9 @@ class NHMobile extends NHLib
       options_close.setAttribute('id', 'closeFullModal')
       options_close.innerText = 'Close popup'
       options_close.addEventListener('click', (event) ->
+        ### istanbul ignore else ###
         if not event.handled
-          body = document.getElementsByTagName('body')[0]
-          body.removeChild(document.getElementsByClassName('full-modal')[0])
+          self.close_fullscreen_patient_info(event)
           event.handled = true
       )
       options.appendChild(options_close)
@@ -232,12 +237,21 @@ class NHMobile extends NHLib
         iframe = modal.getElementsByTagName('iframe')[0]
         contents = if iframe.contentDocument then iframe.contentDocument else
           iframe.contentWindow.document
-        header = contents.getElementsByClassName('header')[0]
-        header.parentNode.removeChild(header)
-        obs = contents.getElementsByClassName('obs')[0]
-        obs.parentNode.removeChild(obs)
+        header = contents?.getElementsByClassName('header')?[0]
+        header?.parentNode.removeChild(header)
+        obs = contents?.getElementsByClassName('obs')?[0]
+        obs?.parentNode.removeChild(obs)
       container.appendChild(page)
       document.getElementsByTagName('body')[0].appendChild(container)
+      event.handled = true
+
+  # Closes an open fullscreen modal of the patient's information
+  close_fullscreen_patient_info: (event) ->
+    event.preventDefault()
+    ### istanbul ignore else ###
+    if not event.handled
+      body = document.getElementsByTagName('body')[0]
+      body.removeChild(document.getElementsByClassName('full-modal')[0])
       event.handled = true
 
 

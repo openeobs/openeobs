@@ -21,10 +21,20 @@ describe('Patient Information Functionality', function(){
         var test_area = document.createElement('div');
         test_area.setAttribute('id', 'test');
         test_area.style.height = '500px';
-        test_area.innerHTML = test_dom;
+        test_area.innerHTML = '';
         body_el.appendChild(test_area);
         if (mobile == null) {
             mobile = new NHMobile();
+        }
+        var dialogs = document.getElementsByClassName('dialog');
+        for(var i = 0; i < dialogs.length; i++){
+            var dialog = dialogs[i];
+            dialog.parentNode.removeChild(dialog);
+        }
+        var covers = document.getElementsByClassName('cover');
+        for(var i = 0; i < covers.length; i++){
+            var cover = covers[i];
+            cover.parentNode.removeChild(cover);
         }
         mobile.urls.base_url = 'http://localhost:9876/mobile/';
     });
@@ -86,13 +96,20 @@ describe('Patient Information Functionality', function(){
 
     describe('Displaying the patient\'s chart in a full screen modal', function(){
         beforeEach(function(){
+            spyOn(NHMobile.prototype, 'fullscreen_patient_info').and.callThrough();
+            spyOn(NHMobile.prototype, 'close_fullscreen_patient_info').and.callThrough();
+            NHMobile.prototype.fullscreen_patient_info.calls.reset();
+            NHMobile.prototype.close_fullscreen_patient_info.calls.reset();
+            if(mobile != null){
+                mobile = null;
+            }
+            mobile = new NHMobile();
             spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
                 var promise = new Promise();
                 promise.complete(patient_info_data);
                 return promise;
             });
             mobile.get_patient_info(3, mobile);
-            //spyOn(NHMobile.prototype, 'fullscreen_patient_info').and.callThrough();
         });
         afterEach(function(){
             var full_screen_modals = document.getElementsByClassName('full-modal');
@@ -111,7 +128,7 @@ describe('Patient Information Functionality', function(){
             var click_event = document.createEvent('CustomEvent');
             click_event.initCustomEvent('click', false, true, false);
             full_obs_button.dispatchEvent(click_event);
-            //expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
+            expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
             var full_screen_modals = document.getElementsByClassName('full-modal');
             expect(full_screen_modals.length).toBe(1);
         });
@@ -122,13 +139,15 @@ describe('Patient Information Functionality', function(){
             var click_event = document.createEvent('CustomEvent');
             click_event.initCustomEvent('click', false, true, false);
             full_obs_button.dispatchEvent(click_event);
-            //expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
+            expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
             var full_screen_modals = document.getElementsByClassName('full-modal');
             expect(full_screen_modals.length).toBe(1);
-            var close_full_obs = document.getElementById('closeFullModal');
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            close_full_obs.dispatchEvent(click_event);
+            var full_screen_modal = full_screen_modals[0];
+            var close_full_obs = full_screen_modal.getElementsByTagName('a')[0];
+            var close_click_event = document.createEvent('CustomEvent');
+            close_click_event.initCustomEvent('click', false, true, false);
+            close_full_obs.dispatchEvent(close_click_event);
+            expect(NHMobile.prototype.close_fullscreen_patient_info).toHaveBeenCalled();
             full_screen_modals = document.getElementsByClassName('full-modal');
             expect(full_screen_modals.length).toBe(0);
         });
@@ -139,7 +158,7 @@ describe('Patient Information Functionality', function(){
             var click_event = document.createEvent('CustomEvent');
             click_event.initCustomEvent('click', false, true, false);
             full_obs_button.dispatchEvent(click_event);
-            //expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
+            expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
             var full_screen_modals = document.getElementsByClassName('full-modal');
             expect(full_screen_modals.length).toBe(1);
             var modal = full_screen_modals[0];
@@ -168,8 +187,6 @@ describe('Patient Information Functionality', function(){
                 '<li><a href="/mobile/patients/" id="patientNavItem">My Patients</a></li>'+
                 '</ul></div>'
             trigger_button = test_area.getElementsByClassName('scan')[0];
-            //input = test_area.getElementsByClassName('barcode_input')[0];
-            //input_block = test_area.getElementsByClassName('barcode_block')[0];
             barcode = new NHMobileBarcode(trigger_button);
             patient_info_data[0] = {
                 'full_name': 'Test Patient',
