@@ -43,18 +43,6 @@ describe("Event Handling", function(){
         }
     });
 
-    it('Has a function for validating form input when a number input is changed', function(){
-       expect(typeof(NHMobileForm.prototype.validate)).toBe('function');
-    });
-
-    it('Has a function for triggering actions on other inputs when a number input is changed', function(){
-       expect(typeof(NHMobileForm.prototype.trigger_actions)).toBe('function');
-    });
-
-    it('Has a function for triggering actions on other inputs when a select box is changed', function(){
-       expect(typeof(NHMobileForm.prototype.trigger_actions)).toBe('function');
-    });
-
     it('Has a function for handling a form_timeout event', function(){
        expect(typeof(NHMobileForm.prototype.handle_timeout)).toBe('function');
     });
@@ -490,7 +478,67 @@ describe("Event Handling", function(){
     });
 
     describe('Change events', function(){
+        afterEach(function(){
+            cleanUp();
+        });
 
+        beforeEach(function(){
+            var test = document.getElementById('test');
+            test.innerHTML = '';
+        });
+
+        describe('Form', function(){
+
+            afterEach(function(){
+                cleanUp();
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'validate');
+                spyOn(NHMobileForm.prototype, 'trigger_actions');
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                    '<input type="number" id="number">' +
+                    '<select id="select"><option value="">Please Select</option><option value="test">Test</option></select>' +
+                    '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                    '</form>';
+                mobile = new NHMobileForm();
+            });
+
+            it('Has a function for validating form input when a number input is changed', function(){
+               expect(typeof(NHMobileForm.prototype.validate)).toBe('function');
+            });
+
+            it('Has a function for triggering actions on other inputs when a number input is changed', function(){
+               expect(typeof(NHMobileForm.prototype.trigger_actions)).toBe('function');
+            });
+
+            it('Has a function for triggering actions on other inputs when a select box is changed', function(){
+               expect(typeof(NHMobileForm.prototype.trigger_actions)).toBe('function');
+            });
+
+            it('Captures and handles the change event when a number input it changed', function(){
+                var test_input = document.getElementById('number');
+                test_input.value = 666;
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('change', false, true, false);
+                test_input.dispatchEvent(change_event);
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.validate.calls.count()).toBe(1);
+                expect(NHMobileForm.prototype.trigger_actions.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles the change event when a number input it changed', function(){
+                var test_input = document.getElementById('select');
+                test_input.value = 'test';
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('change', false, true, false);
+                test_input.dispatchEvent(change_event);
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.trigger_actions.calls.count()).toBe(1);
+            });
+        });
     });
 
     describe('Key events', function(){
