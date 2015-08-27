@@ -153,7 +153,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
         company_pool = self.pool['res.company']
         context_pool = self.pool['nh.clinical.context']
 
-        context_id = context_pool.search(cr, uid, [['name', '=', 'eobs']])
+        context_id = context_pool.search(cr, uid, [['name', 'in', ['eobs', 'etakelist']]])
 
         if hospital:
             hospital_id = location_pool.create(cr, uid, {'name': fake.company()})
