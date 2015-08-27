@@ -165,6 +165,7 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertEqual(ward.free_beds, 0, msg='Incorrect free_beds field')
         self.assertEqual(ward.related_hcas, 1, msg='Incorrect related_hcas field')
         self.assertEqual(ward.related_nurses, 1, msg='Incorrect related_nurses field')
+        self.assertEqual(ward.related_doctors, 1, msg='Incorrect related_doctors field')
         self.assertEqual(ward.kanban_color, 7, msg='Incorrect kanban_color field')
         self.assertEqual(ward.high_risk_patients, 0, msg='Incorrect high_risk_patients field')
         self.assertEqual(ward.med_risk_patients, 0, msg='Incorrect med_risk_patients field')
