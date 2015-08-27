@@ -487,7 +487,7 @@ class NHGraph extends NHGraphLib
           .on('mouseover', (d) ->
             string_to_use = ''
             for key in self.options.keys
-              string_to_use += key + ': ' + d[key] + '<br>'
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
             self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
           )
           .on('mouseout', (d) ->
@@ -518,7 +518,7 @@ class NHGraph extends NHGraphLib
           }).on('mouseover', (d) ->
             string_to_use = ''
             for key in self.options.keys
-              string_to_use += key + ': ' + d[key] + '<br>'
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
             self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
           )
           .on('mouseout', (d) ->
@@ -549,7 +549,7 @@ class NHGraph extends NHGraphLib
           }).on('mouseover', (d) ->
             string_to_use = ''
             for key in self.options.keys
-              string_to_use += key + ': ' + d[key] + '<br>'
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
             self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
           )
           .on('mouseout', (d) ->

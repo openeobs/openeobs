@@ -1061,7 +1061,7 @@ NHGraph = (function(superClass) {
             ref1 = self.options.keys;
             for (k = 0, len1 = ref1.length; k < len1; k++) {
               key = ref1[k];
-              string_to_use += key + ': ' + d[key] + '<br>';
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
           }).on('mouseout', function(d) {
@@ -1088,7 +1088,7 @@ NHGraph = (function(superClass) {
             ref1 = self.options.keys;
             for (k = 0, len1 = ref1.length; k < len1; k++) {
               key = ref1[k];
-              string_to_use += key + ': ' + d[key] + '<br>';
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
           }).on('mouseout', function(d) {
@@ -1117,7 +1117,7 @@ NHGraph = (function(superClass) {
             ref1 = self.options.keys;
             for (k = 0, len1 = ref1.length; k < len1; k++) {
               key = ref1[k];
-              string_to_use += key + ': ' + d[key] + '<br>';
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
           }).on('mouseout', function(d) {
