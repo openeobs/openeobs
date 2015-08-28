@@ -4,8 +4,14 @@ module.exports = function(config) {
 
         files: [
             'tests/src/*js',
+            'tests/lib/helpers.js',
             'tests/lib/test_routes.js',
-            'tests/spec/*.spec.js'
+            'tests/spec/conversion.spec.js',
+		    'tests/spec/network.spec.js',
+		    'tests/spec/patient_info.spec.js',
+		    'tests/spec/utility.spec.js',
+            'tests/spec/standin.spec.js',
+		    'tests/spec/events.spec.js'
         ],
 
         exclude: [],

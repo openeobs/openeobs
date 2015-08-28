@@ -27,7 +27,7 @@ gulp.task('test', function(){
 	.pipe(coffeelint.reporter())
 	.pipe(coffee({bare: true}))
 	.pipe(gulp.dest('tests/src'))
-	gulp.src(['tests/src/*.js', 'tests/lib/test_routes.js', 'tests/spec/*.js'])
+	gulp.src(['tests/src/*.js', 'tests/lib/helpers.js','tests/lib/test_routes.js', 'tests/spec/*.js'])
 	.pipe(karma({
 		configFile: 'karma.conf.js',
 		action: 'run'
@@ -40,7 +40,15 @@ gulp.task('test_reports', function(){
 	.pipe(coffeelint.reporter())
 	.pipe(coffee({bare: true}))
 	.pipe(gulp.dest('tests/src'))
-	gulp.src(['tests/src/*.js', 'tests/lib/test_routes.js', 'tests/spec/*.js'])
+	gulp.src(['tests/src/*.js',
+		'tests/lib/helpers.js',
+		'tests/lib/test_routes.js',
+		'tests/spec/conversion.spec.js',
+		'tests/spec/network.spec.js',
+		'tests/spec/patient_info.spec.js',
+		'tests/spec/utility.spec.js',
+		'tests/spec/events.spec.js',
+		'tests/spec/standin.spec.js'])
 	.pipe(karma({
 		configFile: 'karma.conf.js',
 		action: 'run'
