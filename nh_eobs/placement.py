@@ -22,7 +22,7 @@ class nh_clinical_placement(orm.Model):
     def init(self, cr):
 
         cr.execute("""
-                drop view if exists %s;
+                drop view if exists %s cascade;
                 create or replace view %s as (
                     select
                         activity.id as id,
