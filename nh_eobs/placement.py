@@ -15,7 +15,8 @@ class nh_clinical_placement(orm.Model):
         'location_id': fields.many2one('nh.clinical.location', 'Ward'),
         'pos_id': fields.many2one('nh.clinical.pos', 'POS'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
-        'hospital_number': fields.text('Hospital Number')
+        'hospital_number': fields.text('Hospital Number'),
+        'nhs_number': fields.text('NHS Number')
     }
 
     def init(self, cr):
@@ -29,7 +30,8 @@ class nh_clinical_placement(orm.Model):
                         activity.location_id as location_id,
                         activity.patient_id as patient_id,
                         activity.pos_id as pos_id,
-                        patient.other_identifier as hospital_number
+                        patient.other_identifier as hospital_number,
+                        patient.patient_identifier as nhs_number
                     from nh_activity activity
                     inner join nh_clinical_patient patient on activity.patient_id = patient.id
                     where activity.data_model = 'nh.clinical.patient.placement' and activity.state not in ('completed','cancelled')
