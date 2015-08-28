@@ -88,7 +88,7 @@
                                     </tree>
                                 </field>
                             </page>
-                            <page string="Patients Waiting" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
+                            <page string="Patients Waiting">
                                 <field name="waiting_patient_ids">
                                     <tree version="7.0" editable="0" create="0">
                                         <field name="name" readonly="1"/>
