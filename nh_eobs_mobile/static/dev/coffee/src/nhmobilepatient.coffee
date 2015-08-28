@@ -14,6 +14,7 @@ class NHMobilePatient extends NHMobile
     table_view.style.display = 'none'
 
     obs = document.getElementsByClassName('obs')
+    ### istanbul ignore else ###
     if obs and obs.length > 0
       obs[0].addEventListener('click', @.show_obs_menu)
 
@@ -36,16 +37,18 @@ class NHMobilePatient extends NHMobile
     document.getElementById('graph-content').style.display = 'none'
     document.getElementById('table-content').style.display = 'none'
     event.srcElement.classList.add('selected')
-    $(event.srcElement.getAttribute('href')).show()
+    tab_target = event.srcElement.getAttribute('href').replace('#', '')
+    document.getElementById(tab_target).style.display = 'block';
 
   show_obs_menu: (event) ->
     event.preventDefault()
     obs_menu = document.getElementById('obsMenu')
-    new window.NH.NHModal('obs_menu',
-      'Pick an observation for ',
-      '<ul class="menu">'+obs_menu.innerHTML+'</ul>',
+    body = document.getElementsByTagName('body')[0]
+    menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>'
+    new NHModal('obs_menu',
+      'Pick an observation for ', menu,
       ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'],
-      0, document.getElementsByTagName('body')[0])
+      0, body)
 
 
   draw_graph: (self, server_data) ->

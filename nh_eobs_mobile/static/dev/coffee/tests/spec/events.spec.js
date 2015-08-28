@@ -278,9 +278,47 @@ describe("Event Handling", function(){
             beforeEach(function(){
                 spyOn(NHMobilePatient.prototype, 'show_obs_menu');
                 spyOn(NHMobilePatient.prototype, 'handle_tabs');
+                spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+                   var promise = new Promise();
+                    promise.complete([{'obs': []}]);
+                    return promise;
+                });
                 var test = document.getElementById('test');
-                test.innerHTML = '<a class="obs">Test</a><ul id="obsMenu"><li><a>Test Observation</a></li></ul>' +
-                    '<ul class="tabs"><li><a class="tab">One</a></li><li><a class="tab">Two</a></li></ul><div id="table-content"></div><div id="graph-content" data-id="3"></div>';
+                test.innerHTML = '<a href="#" class="obs">Obs</a>' +
+                    '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
+                '<ul class="two-col tabs">' +
+                '<li><a href="#graph-content" class="selected tab">Graph</a></li>' +
+                '<li><a href="#table-content" class="tab">Table</a></li>' +
+                '</ul>' +
+                '<div id="graph-content" data-id="1">' +
+                '<div id="controls">' +
+                '<div id="start">' +
+                '<h4>Start date</h4>' +
+                '<label for="start_date">' +
+                'Date: <input type="date" name="start_date" id="start_date"/>' +
+                '</label>' +
+                '<label for="start_time">' +
+                'Time: <input type="time" name="start_time" id="start_time"/>' +
+                '</label>' +
+                '</div>' +
+                '<div id="end">' +
+                '<h4>End date</h4>' +
+                '<label for="end_date">' +
+                'Date: <input type="date" name="end_date" id="end_date"/>' +
+                '</label>' +
+                '<label for="end_time">' +
+                'Time: <input type="time" name="end_time" id="end_time"/>' +
+                '</label>' +
+                '</div>' +
+                '<div id="range">' +
+                '<label for="rangify">' +
+                '<h4>Ranged values</h4> <input type="checkbox" name="rangify" id="rangify"/>' +
+                '</label>' +
+                '</div>' +
+                '</div>' +
+                '<div id="chart"></div>' +
+                '</div>' +
+                '<div id="table-content"></div>';
                 mobile = new NHMobilePatient();
             });
 
@@ -420,8 +458,8 @@ describe("Event Handling", function(){
 
             beforeEach(function(){
                 spyOn(NHModal.prototype, 'handle_button_events');
-                var body = document.getElementsByTagName('body')[0]
-                mobile = new NHModal('test', 'Test', '<p>Test</p>', [
+                var body = document.getElementsByTagName('body')[0];
+                new NHModal('test', 'Test', '<p>Test</p>', [
                     '<a data-action="close" id="close">Close</a>'
                 ], 0, body);
             });
@@ -580,7 +618,7 @@ describe("Event Handling", function(){
                 expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
                 expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
             });
-            
+
             it('Captures and handles the keypress event for keyCode 13 for the barcode scanner', function(){
                 var test_button = document.getElementById('test_button');
                 var click_event = document.createEvent('CustomEvent');
@@ -597,7 +635,7 @@ describe("Event Handling", function(){
                 expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
                 expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
             });
-            
+
             it('Captures and handles the keypress event for keyCode 116 for the barcode scanner', function(){
                 var test_button = document.getElementById('test_button');
                 var click_event = document.createEvent('CustomEvent');
@@ -614,7 +652,7 @@ describe("Event Handling", function(){
                 expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
                 expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
             });
-            
+
             it('Captures and handles the keydown event for keyCode 0 for the barcode scanner', function(){
                 var test_button = document.getElementById('test_button');
                 var click_event = document.createEvent('CustomEvent');
@@ -632,7 +670,7 @@ describe("Event Handling", function(){
                 expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
                 expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
             });
-            
+
             it('Captures and handles the keydown event for keyCode 13 for the barcode scanner', function(){
                 var test_button = document.getElementById('test_button');
                 var click_event = document.createEvent('CustomEvent');
@@ -650,7 +688,7 @@ describe("Event Handling", function(){
                 expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
                 expect(NHMobileBarcode.prototype.barcode_scanned.calls.count()).toBe(1);
             });
-            
+
             it('Captures and handles the keydown event for keyCode 116 for the barcode scanner', function(){
                 var test_button = document.getElementById('test_button');
                 var click_event = document.createEvent('CustomEvent');

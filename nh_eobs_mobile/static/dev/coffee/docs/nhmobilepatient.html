@@ -80,16 +80,18 @@ the nh_eobs_mobile patient view, namely getting data
     <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'graph-content'</span>).style.display = <span class="hljs-string">'none'</span>
     <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'table-content'</span>).style.display = <span class="hljs-string">'none'</span>
     event.srcElement.classList.add(<span class="hljs-string">'selected'</span>)
-    $(event.srcElement.getAttribute(<span class="hljs-string">'href'</span>)).show()
+    tab_target = event.srcElement.getAttribute(<span class="hljs-string">'href'</span>).replace(<span class="hljs-string">'#'</span>, <span class="hljs-string">''</span>)
+    <span class="hljs-built_in">document</span>.getElementById(tab_target).style.display = <span class="hljs-string">'block'</span>;
 
   <span class="hljs-attribute">show_obs_menu</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
     event.preventDefault()
     obs_menu = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'obsMenu'</span>)
-    <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'obs_menu'</span>,
-      <span class="hljs-string">'Pick an observation for '</span>,
-      <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>+obs_menu.innerHTML+<span class="hljs-string">'&lt;/ul&gt;'</span>,
+    body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+    menu = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span> + obs_menu.innerHTML + <span class="hljs-string">'&lt;/ul&gt;'</span>
+    <span class="hljs-keyword">new</span> NHModal(<span class="hljs-string">'obs_menu'</span>,
+      <span class="hljs-string">'Pick an observation for '</span>, menu,
       [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="obs_menu"&gt;Cancel&lt;/a&gt;'</span>],
-      <span class="hljs-number">0</span>, <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
+      <span class="hljs-number">0</span>, body)
 
 
   <span class="hljs-attribute">draw_graph</span>: <span class="hljs-function"><span class="hljs-params">(self, server_data)</span> -&gt;</span>

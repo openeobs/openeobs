@@ -16,6 +16,8 @@ NHMobilePatient = (function(superClass) {
     table_view = document.getElementById('table-content');
     table_view.style.display = 'none';
     obs = document.getElementsByClassName('obs');
+
+    /* istanbul ignore else */
     if (obs && obs.length > 0) {
       obs[0].addEventListener('click', this.show_obs_menu);
     }
@@ -32,7 +34,7 @@ NHMobilePatient = (function(superClass) {
   }
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
-    var i, len, tab, tabs;
+    var i, len, tab, tab_target, tabs;
     event.preventDefault();
     tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
     for (i = 0, len = tabs.length; i < len; i++) {
@@ -42,14 +44,17 @@ NHMobilePatient = (function(superClass) {
     document.getElementById('graph-content').style.display = 'none';
     document.getElementById('table-content').style.display = 'none';
     event.srcElement.classList.add('selected');
-    return $(event.srcElement.getAttribute('href')).show();
+    tab_target = event.srcElement.getAttribute('href').replace('#', '');
+    return document.getElementById(tab_target).style.display = 'block';
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var obs_menu;
+    var body, menu, obs_menu;
     event.preventDefault();
     obs_menu = document.getElementById('obsMenu');
-    return new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul class="menu">' + obs_menu.innerHTML + '</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
+    body = document.getElementsByTagName('body')[0];
+    menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
+    return new NHModal('obs_menu', 'Pick an observation for ', menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
   };
 
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {

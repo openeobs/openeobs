@@ -377,10 +377,11 @@ describe('Patient Information Functionality', function(){
         var nhpatient, NHGraphLib, NHGraph, NHTable, NHFocus, NHContext;
         beforeEach(function(){
             var test = document.getElementById('test');
-            test.innerHTML = '<a href="#" id="obsMenu">Obs</a>' +
+            test.innerHTML = '<a href="#" class="obs">Obs</a>' +
+                    '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
                 '<ul class="two-col tabs">' +
-                '<li><a href="#graph-content" class="selected">Graph</a></li>' +
-                '<li><a href="#table-content">Table</a></li>' +
+                '<li><a href="#graph-content" class="selected tab">Graph</a></li>' +
+                '<li><a href="#table-content" class="tab">Table</a></li>' +
                 '</ul>' +
                 '<div id="graph-content" data-id="1">' +
                 '<div id="controls">' +
@@ -623,8 +624,59 @@ describe('Patient Information Functionality', function(){
             expect(NHGraphLib.prototype.draw).toHaveBeenCalled();
         });
 
+        it('Changes the displayed content when I press a tab', function(){
+            spyOn(NHMobilePatient.prototype, 'handle_tabs').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+                var promise = new Promise();
+                promise.complete([{'obs': []}]);
+                return promise;
+            });
+            nhpatient = new NHMobilePatient();
+            var test_buttons = document.getElementsByClassName('tab');
+            expect(test_buttons[0].classList.contains('selected')).toBe(true);
+            expect(test_buttons[1].classList.contains('selected')).toBe(false);
+            var click_event1 = document.createEvent('CustomEvent');
+            click_event1.initCustomEvent('click', false, true, false);
+            test_buttons[1].dispatchEvent(click_event1);
+            expect(NHMobilePatient.prototype.handle_tabs).toHaveBeenCalled();
+            expect(test_buttons[0].classList.contains('selected')).toBe(false);
+            expect(test_buttons[1].classList.contains('selected')).toBe(true);
+            expect(document.getElementById('graph-content').style.display).toBe('none');
+            expect(document.getElementById('table-content').style.display).toBe('block');
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            test_buttons[0].dispatchEvent(click_event);
+            expect(NHMobilePatient.prototype.handle_tabs.calls.count()).toBe(2);
+            expect(test_buttons[0].classList.contains('selected')).toBe(true);
+            expect(test_buttons[1].classList.contains('selected')).toBe(false);
+            expect(document.getElementById('graph-content').style.display).toBe('block');
+            expect(document.getElementById('table-content').style.display).toBe('none');
+        });
+
+        it('Show the obs list in a modal when I press the obs menu button', function(){
+            spyOn(NHMobilePatient.prototype, 'show_obs_menu').and.callThrough();
+            spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+                var promise = new Promise();
+                promise.complete([{'obs': []}]);
+                return promise;
+            });
+            nhpatient = new NHMobilePatient();
+            var test_button = document.getElementsByClassName('obs')[0];
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            test_button.dispatchEvent(click_event);
+            var body = document.getElementsByTagName('body')[0];
+            expect(NHMobilePatient.prototype.show_obs_menu).toHaveBeenCalled();
+            expect(NHMobilePatient.prototype.show_obs_menu.calls.count()).toBe(1);
+            expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('obs_menu');
+            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Pick an observation for ');
+            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<ul class="menu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>');
+        });
 
         afterEach(function(){
+            cleanUp();
             var test = document.getElementById('test');
             test.innerHTML = '';
             if(nhpatient != null){
