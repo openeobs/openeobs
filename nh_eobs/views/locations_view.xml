@@ -71,6 +71,7 @@
                     <field name="code"/>
                     <field name="type"/>
                     <field name="usage"/>
+                    <field name="is_available"/>
                     <field name="pos_id" string="Point of Service"/>
                     <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
                 </tree>
@@ -148,6 +149,7 @@
                     <field name="name"/>
                     <field name="parent_id"/>
                     <field name="code"/>
+                    <field name="is_available"/>
                     <field name="type"/>
                     <field name="usage"/>
                     <field name="pos_id" string="Point of Service"/>
