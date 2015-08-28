@@ -29,7 +29,7 @@ class TestWardDashboard(SingleTransactionCase):
         cls.bed_pool = cls.registry('nh.eobs.bed.dashboard')
 
         cls.eobs_context_id = cls.context_pool.search(cr, uid, [['name', '=', 'eobs']])[0]
-        cls.admin_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'NHC Administrator']])[0]
+        cls.admin_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'System Administrator']])[0]
         cls.hca_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'HCA']])[0]
         cls.nurse_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'Nurse']])[0]
         cls.wm_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'Ward Manager']])[0]
