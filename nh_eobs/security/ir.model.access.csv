@@ -45,7 +45,7 @@ wm_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_d
 wm_access_kamishibai,manager:access_kamishibai,model_nh_clinical_kamishibai,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_ward_manager,0,0,0,0
 wm_access_ward_dashboard,manager:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
-wm_access_bed_dashboard,manager:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_bed_manager,1,1,1,0
+wm_access_bed_dashboard,manager:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 ,,,,,,,
 senior_manager_access_wardboard,senior_manager:access_wardboard,model_nh_clinical_wardboard,nh_clinical.group_nhc_senior_manager,1,0,0,0
 senior_manager_access_workload,senior_manager:access_workload,model_nh_activity_workload,nh_clinical.group_nhc_senior_manager,1,0,0,0
