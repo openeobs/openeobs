@@ -188,3 +188,17 @@ class TestWardDashboard(SingleTransactionCase):
             'context': {'search_default_clinical_risk': 1, 'search_default_high_risk': 0,
                         'search_default_ward_id': self.ward_id}
         })
+
+    def test_11_get_waiting_patient_ids(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.ward_pool._get_waiting_patient_ids(cr, uid, [self.ward_id], 'waiting_patient_ids', {})
+        self.assertTrue(isinstance(res, dict))
+        self.assertFalse(res[self.ward_id])
+
+        patient_id = self.patient_pool.create(cr, uid, {'other_identifier': 'HN003'})
+        self.api.admit(cr, self.adt_uid, 'HN003', {'location': 'W0'})
+
+        res = self.ward_pool._get_waiting_patient_ids(cr, uid, [self.ward_id], 'waiting_patient_ids', {})
+        self.assertTrue(isinstance(res, dict))
+        self.assertListEqual(res[self.ward_id], [patient_id])

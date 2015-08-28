@@ -39,6 +39,15 @@ class nh_eobs_ward_dashboard(orm.Model):
         res.update({r['location_id']: r['bed_ids'] for r in cr.dictfetchall()})
         return res
 
+    def _get_waiting_patient_ids(self, cr, uid, ids, fiel_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select location_id, patients_waiting_ids
+                 from loc_waiting_patients
+                 where location_id in (%s)""" % ", ".join([str(location_id) for location_id in ids])
+        cr.execute(sql)
+        res.update({r['location_id']: r['patients_waiting_ids'] for r in cr.dictfetchall()})
+        return res
+
     _columns = {
         'location_id': fields.many2one('nh.clinical.location', 'Location', required=1, ondelete='restrict'),
         'waiting_patients': fields.integer('Waiting Patients'),
@@ -51,6 +60,8 @@ class nh_eobs_ward_dashboard(orm.Model):
         'assigned_wm_ids': fields.function(_get_wm_ids, type='many2many', relation='res.users', string='Ward Managers'),
         'assigned_doctor_ids': fields.function(_get_dr_ids, type='many2many', relation='res.users', string='Doctors'),
         'bed_ids': fields.function(_get_bed_ids, type='many2many', relation='nh.eobs.bed.dashboard', string='Beds'),
+        'waiting_patient_ids': fields.function(_get_waiting_patient_ids, type='many2many',
+                                               relation='nh.clinical.patient', string='Waiting Patients'),
         'high_risk_patients': fields.integer('High Risk Patients'),
         'med_risk_patients': fields.integer('Medium Risk Patients'),
         'low_risk_patients': fields.integer('Low Risk Patients'),
@@ -132,12 +143,14 @@ class nh_eobs_ward_dashboard(orm.Model):
 
         create or replace view loc_waiting_patients as (
             select
-                location.id as location_id,
-                count(placement.id) as waiting_patients
-            from nh_clinical_patient_placement placement
-            inner join nh_activity activity on activity.id = placement.activity_id and activity.state = 'scheduled'
-            inner join nh_clinical_location location on location.id = placement.suggested_location_id
-            group by location.id
+                placement.location_id as location_id,
+                count(distinct placement.patient_id) as waiting_patients,
+                array_agg(distinct placement.patient_id) as patients_waiting_ids
+            from nh_clinical_placement placement
+            inner join nh_activity activity on activity.id = placement.id
+            inner join nh_activity spell_activity on spell_activity.id = activity.parent_id
+            where spell_activity.state = 'started'
+            group by placement.location_id
         );
 
         create or replace view loc_users as (
