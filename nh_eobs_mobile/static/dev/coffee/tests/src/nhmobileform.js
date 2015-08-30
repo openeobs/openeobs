@@ -60,18 +60,21 @@ NHMobileForm = (function(superClass) {
     document.addEventListener('form_timeout', function(event) {
       var task_id;
       task_id = self.form.getAttribute('task-id');
+
+      /* istanbul ignore else */
       if (task_id) {
         return self.handle_timeout(self, task_id);
       }
     });
     window.timeout_func = function() {
       var timeout;
-      timeout = new CustomEvent('form_timeout', {
+      timeout = document.createEvent('CustomEvent');
+      timeout.initCustomEvent('form_timeout', false, true, {
         'detail': 'form timed out'
       });
       return document.dispatchEvent(timeout);
     };
-    window.form_timeout = setTimeout(window.timeout_func, this.form_timeout);
+    window.form_timeout = setTimeout(window.timeout_func, self.form_timeout);
     document.addEventListener('post_score_submit', function(event) {
       if (!event.handled) {
         self.process_post_score_submit(self, event);

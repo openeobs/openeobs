@@ -40,12 +40,15 @@ class NHMobileForm extends NHMobile
     # a certain time
     document.addEventListener 'form_timeout', (event) ->
       task_id = self.form.getAttribute('task-id')
+      ### istanbul ignore else ###
       if task_id
         self.handle_timeout(self, task_id)
     window.timeout_func = () ->
-      timeout = new CustomEvent('form_timeout', {'detail': 'form timed out'})
+      timeout = document.createEvent('CustomEvent')
+      timeout.initCustomEvent('form_timeout', false, true,
+        {'detail': 'form timed out'})
       document.dispatchEvent(timeout)
-    window.form_timeout = setTimeout(window.timeout_func, @form_timeout)
+    window.form_timeout = setTimeout(window.timeout_func, self.form_timeout)
 
     document.addEventListener 'post_score_submit', (event) ->
       if not event.handled

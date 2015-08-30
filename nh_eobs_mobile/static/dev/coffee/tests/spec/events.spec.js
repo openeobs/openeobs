@@ -704,13 +704,16 @@ describe("Event Handling", function(){
         });
 
         describe('Form', function() {
-
+            var timeout_func_spy;
             afterEach(function () {
+                //jasmine.clock().uninstall();
                 cleanUp();
             });
 
             beforeEach(function () {
+                //jasmine.clock().install();
                 spyOn(NHMobileForm.prototype, 'handle_timeout');
+                timeout_func_spy = spyOn(window, 'timeout_func');
                 spyOn(NHMobileForm.prototype, 'process_post_score_submit');
                 spyOn(NHMobileForm.prototype, 'process_partial_submit');
                 var test = document.getElementById('test');
@@ -731,6 +734,12 @@ describe("Event Handling", function(){
             it('Has a function for handling a partial observation submission', function(){
                expect(typeof(NHMobileForm.prototype.process_partial_submit)).toBe('function');
             });
+
+            //it('On the user being on the form for longer than the task window it fires off an event', function(){
+            //    expect(timeout_func_spy).not.toHaveBeenCalled();
+            //    jasmine.clock().tick(240050);
+            //    expect(timeout_func_spy).toHaveBeenCalled();
+            //});
 
             it('Capture and handle form timeout event', function(){
                 var form = document.getElementById('obsForm');

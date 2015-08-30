@@ -48,6 +48,7 @@ gulp.task('test_reports', function(){
 		'tests/spec/patient_info.spec.js',
 		'tests/spec/utility.spec.js',
 		'tests/spec/events.spec.js',
+		'tests/spec/form.spec.js',
 		'tests/spec/standin.spec.js'])
 	.pipe(karma({
 		configFile: 'karma.conf.js',
