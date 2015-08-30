@@ -24,10 +24,6 @@ describe('Data Entry Functionality', function(){
     });
 
     describe('Form Interaction', function(){
-        beforeEach(function(){
-
-        });
-
         afterEach(function(){
            cleanUp();
         });
@@ -36,7 +32,7 @@ describe('Data Entry Functionality', function(){
            expect(typeof(NHMobileForm.prototype.trigger_actions)).toBe('function');
         });
 
-        it('Has functionality to show a reference image for a form input', function(){
+        it('Has functionality to show a reference image or iframe for a form input', function(){
            expect(typeof(NHMobileForm.prototype.show_reference)).toBe('function');
         });
 
@@ -55,6 +51,126 @@ describe('Data Entry Functionality', function(){
         it('Has functionality to enable inputs if a triggered action says we need to', function(){
            expect(typeof(NHMobileForm.prototype.enable_triggered_elements)).toBe('function');
         });
+
+        describe('Showing and Hiding elements based on triggered actions', function(){
+            var mobile;
+             beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit');
+                spyOn(NHMobileForm.prototype, 'handle_timeout');
+                spyOn(NHMobileForm.prototype, 'trigger_actions').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'hide_triggered_elements').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'show_triggered_elements').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                    var promise = new Promise();
+                    promise.complete([{}]);
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                    '<input type="submit" value="Test Submit" id="submit">' +
+                    '<input type="reset" value="Test Reset" id="reset">' +
+                    '<input type="radio" value="test_radio" id="radio">' +
+                    '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                    '</form>';
+                mobile = new NHMobileForm();
+            });
+
+            afterEach(function(){
+               cleanUp();
+            });
+        });
+
+        describe('Enabling and Disabling elements based on triggered actions', function(){
+            var mobile;
+             beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit');
+                spyOn(NHMobileForm.prototype, 'handle_timeout');
+                spyOn(NHMobileForm.prototype, 'trigger_actions').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'disable_triggered_elements').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'enable_triggered_elements').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                    var promise = new Promise();
+                    promise.complete([{}]);
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                    '<input type="submit" value="Test Submit" id="submit">' +
+                    '<input type="reset" value="Test Reset" id="reset">' +
+                    '<input type="radio" value="test_radio" id="radio">' +
+                    '<button id="image_reference" data-type="image" data-url="/" data-title="Test Reference Image">Test Button</button>' +
+                    '<button id="iframe_reference" data-type="iframe" data-url="/" data-title="Test Reference Iframe">Test Button</button>' +
+                    '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                    '</form>';
+                mobile = new NHMobileForm();
+            });
+
+            afterEach(function(){
+               cleanUp();
+            });
+        });
+
+        describe('Reference buttons', function(){
+            var mobile;
+             beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit');
+                spyOn(NHMobileForm.prototype, 'handle_timeout');
+                spyOn(NHMobileForm.prototype, 'show_reference').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                    var promise = new Promise();
+                    promise.complete([{}]);
+                    return promise;
+                });
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                    '<button id="image_reference" data-type="image" data-url="/" data-title="Test Reference Image">Test Button</button>' +
+                    '<button id="iframe_reference" data-type="iframe" data-url="/" data-title="Test Reference Iframe">Test Button</button>' +
+                    '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                    '</form>';
+                mobile = new NHMobileForm();
+            });
+
+            afterEach(function(){
+               cleanUp();
+            });
+
+            it('Shows a reference image in a modal on pressing the button', function(){
+               var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_button = document.getElementById('image_reference');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileForm.prototype.show_reference).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.show_reference.calls.count()).toBe(1);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('popup_image');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Test Reference Image');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<img src="/"/>');
+            });
+
+            it('Shows a reference iframe in a modal on pressing the button', function(){
+               var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_button = document.getElementById('iframe_reference');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHMobileForm.prototype.show_reference).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.show_reference.calls.count()).toBe(1);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('popup_iframe');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Test Reference Iframe');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<iframe src="/"></iframe>');
+            });
+        })
     });
 
     describe('Form Validation', function() {
