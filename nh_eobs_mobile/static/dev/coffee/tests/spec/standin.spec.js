@@ -29,10 +29,10 @@ describe('Stand in Functionality', function(){
 
         beforeEach(function(){
             spyOn(NHMobileShare.prototype, 'share_button_click').and.callThrough();
-            spyOn(NHMobileShare.prototype, 'claim_button_click');
+            spyOn(NHMobileShare.prototype, 'claim_button_click').and.callThrough();
             spyOn(NHMobileShare.prototype, 'assign_button_click');
-            spyOn(NHMobileShare.prototype, 'select_all_patients');
-            spyOn(NHMobileShare.prototype, 'unselect_all_patients');
+            spyOn(NHMobileShare.prototype, 'select_all_patients').and.callThrough();
+            spyOn(NHMobileShare.prototype, 'unselect_all_patients').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
 
             var test = document.getElementById('test');
@@ -43,7 +43,13 @@ describe('Stand in Functionality', function(){
                     '<div class="level-none block">' +
                     '<div class="task-meta"><div class="task-right"><p class="aside">6:66 hours</p></div>' +
                     '<div class="task-left"><strong>Test, Test</strong><br><em>Bed 1, Ward 1</em></div>' +
-                    '</div><div class="task-meta"><div class="taskInfo"><br><br></div></div></label></li></ul></form>' +
+                    '</div><div class="task-meta"><div class="taskInfo"><br><br></div></div></label></li>' +
+                    '<li><label><input type="checkbox" id="noshare_checkbox" name="patient_share_2" value="2" class="patient-share exclude">' +
+                    '<div class="level-none block">' +
+                    '<div class="task-meta"><div class="task-right"><p class="aside">6:66 hours</p></div>' +
+                    '<div class="task-left"><strong>Test, Test</strong><br><em>Bed 1, Ward 1</em></div>' +
+                    '</div><div class="task-meta"><div class="taskInfo"><br><br></div></div></label></li>' +
+                    '</ul></form>' +
                     '<a id="share">Share</a><a id="claim">Claim</a>';
             share = document.getElementById('share');
             claim = document.getElementById('claim');
@@ -91,34 +97,85 @@ describe('Stand in Functionality', function(){
                 expect(NHMobileShare.prototype.share_button_click).toHaveBeenCalled();
                 expect(NHMobileShare.prototype.share_button_click.calls.count()).toBe(1);
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
             });
         });
 
-        //it('Captures and handles claim button click', function(){
-        //    var click_event = document.createEvent('CustomEvent');
-        //    click_event.initCustomEvent('click', false, true, false);
-        //    claim.dispatchEvent(click_event);
-        //    expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
-        //    expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
-        //});
-        //
-        //it('Captures and handles all button clicks', function(){
-        //    var click_event = document.createEvent('CustomEvent');
-        //    click_event.initCustomEvent('click', false, true, false);
-        //    all.dispatchEvent(click_event);
-        //    expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
-        //    expect(NHMobileShare.prototype.select_all_patients.calls.count()).toBe(1);
-        //    var click_event1 = document.createEvent('CustomEvent');
-        //    click_event1.initCustomEvent('click', false, true, false);
-        //    all.dispatchEvent(click_event1);
-        //    expect(NHMobileShare.prototype.unselect_all_patients).toHaveBeenCalled();
-        //    expect(NHMobileShare.prototype.unselect_all_patients.calls.count()).toBe(1);
-        //    var click_event2 = document.createEvent('CustomEvent');
-        //    click_event2.initCustomEvent('click', false, true, false);
-        //    all.dispatchEvent(click_event2);
-        //    expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
-        //    expect(NHMobileShare.prototype.select_all_patients.calls.count()).toBe(2);
-        //});
+        describe('Selecting and pressing the claim button', function() {
+            beforeEach(function () {
+                standin = new NHMobileShare(share, claim, all);
+            });
+
+            it('Shows a modal asking if user wants to claim patients on click', function(){
+                 var checkbox = document.getElementById('share_checkbox');
+                checkbox.checked = true;
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                claim.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_patients')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Claim Patients?')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Claim patients shared with colleagues</p>');
+            });
+
+            it('Shows a modal to say we need to select patients when we don\'t select patients', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                claim.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
+            });
+        });
+
+        describe('Selecting and deselecting all patients using the select all button', function(){
+            var standin;
+            beforeEach(function () {
+                standin = new NHMobileShare(share, claim, all);
+            });
+
+             it('Has a function to handle the select all patients in the list', function(){
+               expect(typeof(NHMobileShare.prototype.select_all_patients)).toBe('function');
+            });
+
+            it('Has a function to handle the unselect all patients in the list', function(){
+               expect(typeof(NHMobileShare.prototype.unselect_all_patients)).toBe('function');
+            });
+
+
+            it('Captures and handles all button clicks', function(){
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                all.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.select_all_patients.calls.count()).toBe(1);
+                var checkbox = document.getElementById('share_checkbox');
+                var nocheckbox = document.getElementById('noshare_checkbox');
+                expect(checkbox.checked).toBe(true);
+                expect(nocheckbox.checked).toBe(false);
+                var click_event1 = document.createEvent('CustomEvent');
+                click_event1.initCustomEvent('click', false, true, false);
+                all.dispatchEvent(click_event1);
+                expect(NHMobileShare.prototype.unselect_all_patients).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.unselect_all_patients.calls.count()).toBe(1);
+                checkbox = document.getElementById('share_checkbox');
+                nocheckbox = document.getElementById('noshare_checkbox');
+                expect(checkbox.checked).toBe(false);
+                expect(nocheckbox.checked).toBe(false);
+                var click_event2 = document.createEvent('CustomEvent');
+                click_event2.initCustomEvent('click', false, true, false);
+                all.dispatchEvent(click_event2);
+                expect(NHMobileShare.prototype.select_all_patients).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.select_all_patients.calls.count()).toBe(2);
+                checkbox = document.getElementById('share_checkbox');
+                nocheckbox = document.getElementById('noshare_checkbox');
+                expect(checkbox.checked).toBe(true);
+                expect(nocheckbox.checked).toBe(false);
+            });
+        });
     });
 
     it('Has a function to handle the assign button click', function(){
@@ -129,11 +186,4 @@ describe('Stand in Functionality', function(){
        expect(typeof(NHMobileShare.prototype.claim_patients_click)).toBe('function');
     });
 
-    it('Has a function to handle the select all patients in the list', function(){
-       expect(typeof(NHMobileShare.prototype.select_all_patients)).toBe('function');
-    });
-
-    it('Has a function to handle the unselect all patients in the list', function(){
-       expect(typeof(NHMobileShare.prototype.unselect_all_patients)).toBe('function');
-    });
 });
