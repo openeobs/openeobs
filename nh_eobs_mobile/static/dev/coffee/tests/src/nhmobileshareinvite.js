@@ -171,11 +171,14 @@ NHMobileShareInvite = (function(superClass) {
 })(NHMobile);
 
 
-/* istanbul ignore else */
+/* istanbul ignore if */
 
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShareInvite = NHMobileShareInvite;

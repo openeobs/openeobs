@@ -20,6 +20,13 @@ describe('Stand in Functionality', function(){
        cleanUp();
     });
 
+    it('Has functionality for asking colleagues to stand in for you', function(){
+       expect(typeof(NHMobileShare.prototype)).toBe('object');
+    });
+
+    it('Has functionality for accepting or rejecting stand in requests', function(){
+       expect(typeof(NHMobileShareInvite.prototype)).toBe('object');
+    });
 
     describe('Stand-in: Patient Picking', function(){
         var share, claim, all, standin;
@@ -435,6 +442,79 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_error');
             });
+        });
+    });
+
+    describe('Stand-in: Invitation Acception or Rejection', function(){
+        afterEach(function(){
+            cleanUp();
+        });
+
+        beforeEach(function(){
+            spyOn(NHMobileShareInvite.prototype, 'handle_invite_click').and.callThrough();
+            spyOn(NHMobileShareInvite.prototype, 'handle_accept_button_click').and.callThrough();
+            spyOn(NHMobileShareInvite.prototype, 'handle_reject_button_click').and.callThrough();
+            spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+            var test = document.getElementById('test');
+            test.innerHTML = '<ul id="list"><li class="share_invite">Invite 1</li><li class="share_invite">Invite 2</li></ul>';
+        });
+
+        it('Has a function for handling a click on a invitation', function(){
+           expect(typeof(NHMobileShareInvite.prototype.handle_invite_click)).toBe('function');
+        });
+
+        it('Has a function for handling a click on the accept button', function(){
+           expect(typeof(NHMobileShareInvite.prototype.handle_accept_button_click)).toBe('function');
+        });
+
+        it('Has a function for handling a click on the reject button', function(){
+           expect(typeof(NHMobileShareInvite.prototype.handle_reject_button_click)).toBe('function');
+        });
+
+        describe('Clicking an invite', function(){
+
+           beforeEach(function(){
+               spyOn(NHMobileShareInvite.prototype, 'process_request').and.callFake(function(){
+                    var method = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[0];
+                    var url = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[1];
+                    var data = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[2];
+                    if(method == 'GET'){
+                        var promise = new Promise();
+                        promise.complete([[{'id': 1,
+                            'next_ews_time': '6:66 hours',
+                            'full_name': 'Test Patient',
+                            'ews_score': '1',
+                            'ews_trend': 'down',
+                            'location': 'Bed 1',
+                            'parent_location': 'Ward 1'
+                        }]]);
+                        return promise;
+                    }
+                });
+                var list = document.getElementById('list');
+                mobile = new NHMobileShareInvite(list);
+           });
+           it('Displays a modal with the information on the stand in request', function(){
+                var invites = document.getElementsByClassName('share_invite');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                invites[0].dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(1);
+                expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('accept_invite');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Accept invitation to follow patients?');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<ul class="tasklist"><li class="block"><a><div class="task-meta"><div class="task-right"><p class="aside">6:66 hours</p></div><div class="task-left"><strong>Test Patient</strong>(1 <i class="icon-down-arrow"></i> )<br><em>Bed 1, Ward 1</em></div></div></a></li></ul>');
+            });
+        });
+
+        describe('Accepting an invitation', function(){
+
+        });
+
+        describe('Rejecting an invitation', function(){
+
         });
     });
 });

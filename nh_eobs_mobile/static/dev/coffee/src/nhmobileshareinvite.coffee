@@ -152,7 +152,9 @@ class NHMobileShareInvite extends NHMobile
           '<p class="block">There was an error rejecting the invite to follow,'+
             ' Please try again</p>',
           btns, 0, body)
-### istanbul ignore else ###
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+
+### istanbul ignore else ###
 window?.NH.NHMobileShareInvite = NHMobileShareInvite
