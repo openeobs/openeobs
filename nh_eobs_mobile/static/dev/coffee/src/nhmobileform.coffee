@@ -140,6 +140,8 @@ class NHMobileForm extends NHMobile
       value = 'Default'
     if input.getAttribute('data-onchange')
       actions = eval(input.getAttribute('data-onchange'))
+      # TODO: needs a refactor if passing over a select value that is string
+      # this blows up
       for action in actions
         for condition in action['condition']
           if condition[0] not in ['True', 'False'] and
@@ -153,11 +155,13 @@ class NHMobileForm extends NHMobile
         mode = ' && '
         conditions = []
         for condition in action['condition']
+          ### istanbul ignore else ###
           if typeof condition is 'object'
             conditions.push(condition.join(' '))
           else
             mode = condition
         conditions = conditions.join(mode)
+        # TODO: doesn't work with comparative number inputs i.e. a > b
         if eval(conditions)
           if action['action'] is 'hide'
             for field in action['fields']

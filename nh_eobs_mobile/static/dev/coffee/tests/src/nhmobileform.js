@@ -201,6 +201,8 @@ NHMobileForm = (function(superClass) {
         ref5 = action['condition'];
         for (l = 0, len3 = ref5.length; l < len3; l++) {
           condition = ref5[l];
+
+          /* istanbul ignore else */
           if (typeof condition === 'object') {
             conditions.push(condition.join(' '));
           } else {
