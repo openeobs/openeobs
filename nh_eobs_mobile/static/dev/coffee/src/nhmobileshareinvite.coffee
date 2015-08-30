@@ -90,6 +90,7 @@ class NHMobileShareInvite extends NHMobile
         '>Cancel</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
+          ### istanbul ignore else ###
           cover?.parentNode.removeChild(cover)
         invite_modal = document.getElementById('accept_invite')
         invite_modal.parentNode.removeChild(invite_modal)
@@ -103,6 +104,7 @@ class NHMobileShareInvite extends NHMobile
         '>Cancel</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
+          ### istanbul ignore else ###
           cover?.parentNode.removeChild(cover)
         invite_modal = document.getElementById('accept_invite')
         invite_modal.parentNode.removeChild(invite_modal)
@@ -131,6 +133,7 @@ class NHMobileShareInvite extends NHMobile
         '>Cancel</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
+          ### istanbul ignore else ###
           cover?.parentNode.removeChild(cover)
         invite_modal = document.getElementById('accept_invite')
         invite_modal.parentNode.removeChild(invite_modal)
@@ -144,6 +147,7 @@ class NHMobileShareInvite extends NHMobile
         '>Cancel</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
+          ### istanbul ignore else ###
           cover?.parentNode.removeChild(cover)
         invite_modal = document.getElementById('accept_invite')
         invite_modal.parentNode.removeChild(invite_modal)

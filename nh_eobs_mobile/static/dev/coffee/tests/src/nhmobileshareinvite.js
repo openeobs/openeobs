@@ -94,6 +94,8 @@ NHMobileShareInvite = (function(superClass) {
         covers = document.getElementsByClassName('cover');
         for (j = 0, len = covers.length; j < len; j++) {
           cover = covers[j];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }
@@ -106,6 +108,8 @@ NHMobileShareInvite = (function(superClass) {
         covers = document.getElementsByClassName('cover');
         for (k = 0, len1 = covers.length; k < len1; k++) {
           cover = covers[k];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }
@@ -143,6 +147,8 @@ NHMobileShareInvite = (function(superClass) {
         covers = document.getElementsByClassName('cover');
         for (j = 0, len = covers.length; j < len; j++) {
           cover = covers[j];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }
@@ -155,6 +161,8 @@ NHMobileShareInvite = (function(superClass) {
         covers = document.getElementsByClassName('cover');
         for (k = 0, len1 = covers.length; k < len1; k++) {
           cover = covers[k];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }

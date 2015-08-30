@@ -456,7 +456,7 @@ describe('Stand in Functionality', function(){
             spyOn(NHMobileShareInvite.prototype, 'handle_reject_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
             var test = document.getElementById('test');
-            test.innerHTML = '<ul id="list"><li class="share_invite">Invite 1</li><li class="share_invite">Invite 2</li></ul>';
+            test.innerHTML = '<ul id="list"><li class="share_invite" data-invite-id="1" id="good_invite">Invite 1</li><li class="share_invite" data-invite-id="2" id="bad_invite">Invite 2</li></ul>';
         });
 
         it('Has a function for handling a click on a invitation', function(){
@@ -495,10 +495,10 @@ describe('Stand in Functionality', function(){
                 mobile = new NHMobileShareInvite(list);
            });
            it('Displays a modal with the information on the stand in request', function(){
-                var invites = document.getElementsByClassName('share_invite');
+                var invite = document.getElementById('good_invite');
                 var click_event = document.createEvent('CustomEvent');
                 click_event.initCustomEvent('click', false, true, false);
-                invites[0].dispatchEvent(click_event);
+                invite.dispatchEvent(click_event);
                 expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
                 expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(1);
                 expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
@@ -510,11 +510,195 @@ describe('Stand in Functionality', function(){
         });
 
         describe('Accepting an invitation', function(){
+            beforeEach(function(){
+               spyOn(NHMobileShareInvite.prototype, 'process_request').and.callFake(function(){
+                    var method = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[0];
+                    var url = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[1];
+                    var data = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[2];
+                    if(method == 'GET'){
+                        var promise = new Promise();
+                        promise.complete([[{'id': 1,
+                            'next_ews_time': '6:66 hours',
+                            'full_name': 'Test Patient',
+                            'ews_score': '1',
+                            'ews_trend': 'down',
+                            'location': 'Bed 1',
+                            'parent_location': 'Ward 1'
+                        }]]);
+                        return promise;
+                    }else{
+                        if(url == 'http://localhost:8069/mobile/staff/accept/1'){
+                            var promise = new Promise();
+                            promise.complete([{'status': 1,
+                            'count': 666,
+                            'user': 'Another User'
+                            }])
+                            return promise;
+                        }else{
+                            var promise = new Promise();
+                            promise.complete([{}]);
+                            return promise;
+                        }
+                    }
+                });
+                var list = document.getElementById('list');
+                mobile = new NHMobileShareInvite(list);
+           });
+           it('Removes invitation from list and informs user when successfully contacting server', function(){
+                // Click invite
+                var invite = document.getElementById('good_invite');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                invite.dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(1);
+                expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
 
+               // Get dialog & click button
+                var dialog = document.getElementById('accept_invite');
+                var options = dialog.getElementsByTagName('a');
+                var option = options[3]; // should be accept button
+                var accept_event = document.createEvent('CustomEvent');
+                accept_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(accept_event);
+
+               // Check it calls server
+               expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+               expect(NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[1]).toBe('http://localhost:8069/mobile/staff/accept/1');
+
+                invite = document.getElementById('good_invite');
+                expect(invite).toBe(null);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invite_success');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully accepted patients');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Now following 666 patients from Another User</p>');
+            });
+
+            it('Keeps invitation and informs user of error when issue on server', function(){
+                // Click invite
+                var invite = document.getElementById('bad_invite');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                invite.dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(1);
+                expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+               // Get dialog & click button
+                var dialog = document.getElementById('accept_invite');
+                var options = dialog.getElementsByTagName('a');
+                var option = options[3]; // should be accept button
+                var accept_event = document.createEvent('CustomEvent');
+                accept_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(accept_event);
+
+               // Check it calls server
+               expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+               expect(NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[1]).toBe('http://localhost:8069/mobile/staff/accept/2');
+
+                invite = document.getElementById('bad_invite');
+                expect(invite).not.toBe(null);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invite_error');
+            });
         });
 
         describe('Rejecting an invitation', function(){
+            beforeEach(function(){
+                spyOn(NHMobileShareInvite.prototype, 'process_request').and.callFake(function(){
+                    var method = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[0];
+                    var url = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[1];
+                    var data = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[2];
+                    if(method == 'GET'){
+                        var promise = new Promise();
+                        promise.complete([[{'id': 1,
+                            'next_ews_time': '6:66 hours',
+                            'full_name': 'Test Patient',
+                            'ews_score': '1',
+                            'ews_trend': 'down',
+                            'location': 'Bed 1',
+                            'parent_location': 'Ward 1'
+                        }]]);
+                        return promise;
+                    }else{
+                        if(url == 'http://localhost:8069/mobile/staff/reject/1'){
+                            var promise = new Promise();
+                            promise.complete([{'status': 1,
+                            'count': 666,
+                            'user': 'Another User'
+                            }])
+                            return promise;
+                        }else{
+                            var promise = new Promise();
+                            promise.complete([{}]);
+                            return promise;
+                        }
+                    }
+                });
+                var list = document.getElementById('list');
+                mobile = new NHMobileShareInvite(list);
+           });
+           it('Removes invitation from list and informs user when successfully contacting server', function(){
+                // Click invite
+                var invite = document.getElementById('good_invite');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                invite.dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(1);
+                expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
 
+               // Get dialog & click button
+                var dialog = document.getElementById('accept_invite');
+                var options = dialog.getElementsByTagName('a');
+                var option = options[2]; // should be reject button
+                var accept_event = document.createEvent('CustomEvent');
+                accept_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(accept_event);
+
+               // Check it calls server
+               expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+               expect(NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[1]).toBe('http://localhost:8069/mobile/staff/reject/1');
+
+                invite = document.getElementById('good_invite');
+                expect(invite).toBe(null);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('reject_success');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully rejected patients');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">The invitation to follow Another User\'s patients was rejected</p>');
+            });
+
+            it('Keeps invitation and informs user of error when issue on server', function(){
+                // Click invite
+                var invite = document.getElementById('bad_invite');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                invite.dispatchEvent(click_event);
+                expect(NHMobileShareInvite.prototype.handle_invite_click).toHaveBeenCalled();
+                expect(NHMobileShareInvite.prototype.handle_invite_click.calls.count()).toBe(1);
+                expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+               // Get dialog & click button
+                var dialog = document.getElementById('accept_invite');
+                var options = dialog.getElementsByTagName('a');
+                var option = options[2]; // should be reject button
+                var accept_event = document.createEvent('CustomEvent');
+                accept_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(accept_event);
+
+               // Check it calls server
+               expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
+               expect(NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[1]).toBe('http://localhost:8069/mobile/staff/reject/2');
+
+                invite = document.getElementById('bad_invite');
+                expect(invite).not.toBe(null);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('reject_error');
+            });
         });
     });
 });
