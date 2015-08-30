@@ -346,34 +346,95 @@ describe('Stand in Functionality', function(){
             });
         });
 
-        //describe('Claiming a patient', function() {
-        //    beforeEach(function () {
-        //        standin = new NHMobileShare(share, claim, all);
-        //    });
-        //
-        //    it('Shows a modal asking if user wants to claim patients on click', function(){
-        //         var checkbox = document.getElementById('share_checkbox');
-        //        checkbox.checked = true;
-        //        var click_event = document.createEvent('CustomEvent');
-        //        click_event.initCustomEvent('click', false, true, false);
-        //        claim.dispatchEvent(click_event);
-        //        expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
-        //        expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
-        //        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        //        expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_patients')
-        //        expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Claim Patients?')
-        //        expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Claim patients shared with colleagues</p>');
-        //    });
-        //
-        //    it('Shows a modal to say we need to select patients when we don\'t select patients', function(){
-        //        var click_event = document.createEvent('CustomEvent');
-        //        click_event.initCustomEvent('click', false, true, false);
-        //        claim.dispatchEvent(click_event);
-        //        expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
-        //        expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
-        //        expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
-        //        expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
-        //    });
-        //});
+        describe('Claiming a patient', function() {
+            beforeEach(function () {
+                spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(args){
+                   var method = NHMobileShare.prototype.process_request.calls.mostRecent().args[0];
+                   var data = NHMobileShare.prototype.process_request.calls.mostRecent().args[2];
+                   if(data == 'patient_ids=1,2'){
+                        var promise = new Promise();
+                        promise.complete([{'status': 1}]);
+                        return promise;
+                   }else {
+                        var promise = new Promise();
+                        promise.complete([{}]);
+                        return promise;
+                   }
+                });
+                standin = new NHMobileShare(share, claim, all);
+            });
+
+            it('On selecting patients and clicking claim it sends the patient ids to the server and tells the user the claim operation was successful', function(){
+                // checkboxes
+                var checkbox = document.getElementById('share_checkbox');
+                checkbox.checked = true;
+                var shared_checkbox = document.getElementById('shared_checkbox');
+                shared_checkbox.checked = true;
+
+                // click claim button
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                claim.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+                // get dialog and check user and assign
+                var dialog = document.getElementById('claim_patients');
+                var options = dialog.getElementsByTagName('a');
+                var option = options[0];
+                var claim_event = document.createEvent('CustomEvent');
+                claim_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(claim_event);
+                expect(NHMobileShare.prototype.claim_patients_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+
+                // do args to call & check all good
+                expect(NHMobileShare.prototype.process_request.calls.mostRecent().args[2]).toBe('patient_ids=1,2');
+                var clean_share = document.getElementById('clean_shared');
+                var dirty_share = document.getElementById('dirty_shared');
+                var no_share = document.getElementById('no_shared');
+                expect(clean_share.innerHTML).toBe('<br>');
+                expect(dirty_share.innerHTML).toBe('<br>');
+                expect(no_share.innerHTML).toBe('<br><br>');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_success');
+            });
+
+            it('On selecting patients and clicking claim it sends the patient ids to the server and on error informs the user', function(){
+                // checkboxes
+                var checkbox = document.getElementById('share_checkbox');
+                checkbox.checked = true;
+
+                // click claim button
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                claim.dispatchEvent(click_event);
+                expect(NHMobileShare.prototype.claim_button_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.claim_button_click.calls.count()).toBe(1);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+
+                // get dialog and check user and assign
+                var dialog = document.getElementById('claim_patients');
+                var options = dialog.getElementsByTagName('a');
+                var option = options[0];
+                var claim_event = document.createEvent('CustomEvent');
+                claim_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(claim_event);
+                expect(NHMobileShare.prototype.claim_patients_click).toHaveBeenCalled();
+                expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
+
+                // do args to call & check all good
+                expect(NHMobileShare.prototype.process_request.calls.mostRecent().args[2]).toBe('patient_ids=1');
+                var clean_share = document.getElementById('clean_shared');
+                var dirty_share = document.getElementById('dirty_shared');
+                var no_share = document.getElementById('no_shared');
+                expect(clean_share.innerHTML).toBe('<br><br>');
+                expect(dirty_share.innerHTML).toBe('Shared with: Existing Nurse');
+                expect(no_share.innerHTML).toBe('<br><br>');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_error');
+            });
+        });
     });
 });
