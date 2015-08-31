@@ -74,7 +74,7 @@ observation form</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> input <span class="hljs-keyword">in</span> <span class="hljs-property">@form</span>.elements
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> input <span class="hljs-keyword">in</span> self.form.elements
       <span class="hljs-keyword">do</span> () -&gt;
         <span class="hljs-keyword">switch</span> input.localName
           <span class="hljs-keyword">when</span> <span class="hljs-string">'input'</span>
@@ -581,13 +581,16 @@ this blows up</p>
       dialog_id.parentNode.removeChild(dialog_id)
 
   <span class="hljs-attribute">process_post_score_submit</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
-    form_elements = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span>
+    form  = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)?[<span class="hljs-number">0</span>]
+    form_elements = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form.elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span>
       element.classList.contains(<span class="hljs-string">'exclude'</span>))
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute(<span class="hljs-string">'ajax-args'</span>))
+
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
+
 <span class="hljs-built_in">window</span>?.NH.NHMobileForm = NHMobileForm</pre></div></div>
             
         </li>

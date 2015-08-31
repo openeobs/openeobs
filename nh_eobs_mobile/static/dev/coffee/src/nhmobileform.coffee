@@ -18,7 +18,7 @@ class NHMobileForm extends NHMobile
   setup_event_listeners: (self) ->
    
     # for each input in the form set up the event listeners
-    for input in @form.elements
+    for input in self.form.elements
       do () ->
         switch input.localName
           when 'input'
@@ -401,13 +401,17 @@ class NHMobileForm extends NHMobile
       dialog_id.parentNode.removeChild(dialog_id)
 
   process_post_score_submit: (self, event) ->
-    form_elements = (element for element in self.form.elements when not
+    form  = document.getElementsByTagName('form')?[0]
+    form_elements = (element for element in form.elements when not
       element.classList.contains('exclude'))
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute('ajax-args'))
-### istanbul ignore else ###
+
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+
+### istanbul ignore else ###
 window?.NH.NHMobileForm = NHMobileForm
 

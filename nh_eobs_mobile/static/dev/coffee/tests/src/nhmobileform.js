@@ -31,7 +31,7 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.setup_event_listeners = function(self) {
     var fn, i, input, len, ref;
-    ref = this.form.elements;
+    ref = self.form.elements;
     fn = function() {
       switch (input.localName) {
         case 'input':
@@ -560,13 +560,14 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_post_score_submit = function(self, event) {
-    var element, endpoint, form_elements;
+    var element, endpoint, form, form_elements, ref;
+    form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
     form_elements = (function() {
-      var i, len, ref, results;
-      ref = self.form.elements;
+      var i, len, ref1, results;
+      ref1 = form.elements;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        element = ref[i];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        element = ref1[i];
         if (!element.classList.contains('exclude')) {
           results.push(element);
         }
@@ -582,11 +583,14 @@ NHMobileForm = (function(superClass) {
 })(NHMobile);
 
 
-/* istanbul ignore else */
+/* istanbul ignore if */
 
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileForm = NHMobileForm;
