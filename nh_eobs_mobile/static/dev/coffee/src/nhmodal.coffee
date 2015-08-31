@@ -64,7 +64,6 @@ class NHModal
         when 1 then option_list.setAttribute('class', 'options one-col')
         when 2 then option_list.setAttribute('class', 'options two-col')
         when 3 then option_list.setAttribute('class', 'options three-col')
-        when 4 then option_list.setAttribute('class', 'options four-col')
       for button in buttons
         do (self) ->
           option_button = document.createElement('li')
@@ -209,7 +208,10 @@ class NHModal
           reject_detail)
         document.dispatchEvent reject_event
     return
-### istanbul ignore else ###
+
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+
+### istanbul ignore else ###
 window?.NH.NHModal = NHModal

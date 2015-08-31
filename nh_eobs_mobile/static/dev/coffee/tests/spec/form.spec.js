@@ -414,7 +414,110 @@ describe('Data Entry Functionality', function(){
         });
 
         describe('Trying to submit an invalid form', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
 
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'validate').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'submit_observation');
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
+                    var promise = new Promise();
+                    promise.complete([{}]);
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_valid_input">' +
+                        '<div class="input-header">' +
+                        '<label for="test_int">Valid input</label>' +
+                        '<input type="number" value="1" name="valid_input" id="valid_input" step="1" min="0" max="10">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="block obsField" id="parent_invalid_input">' +
+                        '<div class="input-header">' +
+                        '<label for="test_int">Invalid input</label>' +
+                        '<input type="number" name="invalid_input" id="invalid_input" step="1" min="10" max="100" value="1">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
+            it('Shows the user a popup to inform them of errors in the form when submitting a form with errors', function() {
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function () {
+                    event.preventDefault();
+                    return false;
+                });
+                var submit_button = document.getElementById('submit');
+                var invalid_input = document.getElementById('invalid_input');
+
+                // change event
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('change', false, true, false);
+                invalid_input.dispatchEvent(change_event);
+
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
+                //expect(submit_button.getAttribute('disabled')).toBe('disabled');
+
+                // check modal was called
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Form contains errors');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">The form contains errors, please correct the errors and resubmit</p>');
+
+                // choose an option and click the submit button
+                var dialog = document.getElementById('invalid_form');
+                var canbuttons = dialog.getElementsByTagName('a');
+                var canbutton = canbuttons[0]; // should be confirm button
+                var can_event = document.createEvent('CustomEvent');
+                can_event.initCustomEvent('click', false, true, false);
+                canbutton.dispatchEvent(can_event);
+
+                invalid_input.value = 90;
+
+                // change event
+                var change_event2 = document.createEvent('CustomEvent');
+                change_event2.initCustomEvent('change', false, true, false);
+                invalid_input.dispatchEvent(change_event2);
+
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+
+                // click event
+                var click_event2 = document.createEvent('CustomEvent');
+                click_event2.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event2);
+
+                // check that process_partial_submit has been called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+            });
         });
 
         describe('Submitting a partial form', function(){

@@ -63,9 +63,6 @@ NHModal = (function() {
           break;
         case 3:
           option_list.setAttribute('class', 'options three-col');
-          break;
-        case 4:
-          option_list.setAttribute('class', 'options four-col');
       }
       fn = function(self) {
         var option_button, ref;
@@ -245,11 +242,14 @@ NHModal = (function() {
 })();
 
 
-/* istanbul ignore else */
+/* istanbul ignore if */
 
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHModal = NHModal;
