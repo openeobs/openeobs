@@ -79,6 +79,7 @@ class NHMobileForm extends NHMobile
   # Validate the form - need to add basic validation messages to DOM so set
   # by server
   # inputs with a data-validation attribute already do this
+  # TODO: Currently only caters for number inputs
   validate: (event) =>
     event.preventDefault()
     @.reset_form_timeout(@)

@@ -333,9 +333,6 @@ describe('Data Entry Functionality', function(){
     });
 
     describe('Form Validation', function() {
-        beforeEach(function () {
-
-        });
 
         afterEach(function () {
             cleanUp();
@@ -351,6 +348,288 @@ describe('Data Entry Functionality', function(){
 
         it('Has functionality to add input errors so we can flag up invalid inputs', function(){
            expect(typeof(NHMobileForm.prototype.add_input_errors)).toBe('function');
+        });
+
+        describe('Validation on a number input', function(){
+             var mobile;
+             beforeEach(function(){
+                 spyOn(NHMobileForm.prototype, 'submit');
+                 spyOn(NHMobileForm.prototype, 'handle_timeout');
+                 spyOn(NHMobileForm.prototype, 'validate').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'reset_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'add_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                     var promise = new Promise();
+                     promise.complete([{}]);
+                     return promise;
+                 });
+
+                 var test = document.getElementById('test');
+                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                     '<div class="block obsField" id="parent_test_int">' +
+                     '<div class="input-header">' +
+                     '<label for="test_int">Test Integer</label>' +
+                     '<input type="number" name="test_int" id="test_int" min="10" max="20" step="1">' +
+                     '</div>' +
+                     '<div class="input-body">' +
+                     '<span class="errors"></span>' +
+                     '<span class="help"></span>' +
+                     '</div>' +
+                     '</div>' +
+                     '<div class="block obsField" id="parent_test_float">' +
+                     '<div class="input-header">' +
+                     '<label for="test_float">Test Float</label>' +
+                     '<input type="number" name="test_float" id="test_float" min="10" max="20" step="0.1">' +
+                     '</div>' +
+                     '<div class="input-body">' +
+                     '<span class="errors"></span>' +
+                     '<span class="help"></span>' +
+                     '</div>' +
+                     '</div>' +
+                     '<div class="block obsField" id="parent_test_attr">' +
+                     '<div class="input-header">' +
+                     '<label for="test_attr">Test Attribute</label>' +
+                     '<input type="number" name="test_attr" id="test_attr" min="10" max="20" step="1" data-validation="[{\'message\': {\'target\': \'target error\', \'value\': \'value error\'}, \'condition\': {\'operator\': \'<\', \'target\': \'test_attr\', \'value\': \'test_int\'}}]">' +
+                     '</div>' +
+                     '<div class="input-body">' +
+                     '<span class="errors"></span>' +
+                     '<span class="help"></span>' +
+                     '</div>' +
+                     '</div>' +
+                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                     '</form>';
+                 mobile = new NHMobileForm();
+             });
+
+            afterEach(function(){
+                cleanUp();
+            });
+
+            it('Informs the user when they set the input to a value lower than the min specified', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_int = document.getElementById('test_int');
+                var parent_int = test_int.parentNode.parentNode;
+                var test_float = document.getElementById('test_float');
+                var parent_float = test_float.parentNode.parentNode;
+                var int_errors = parent_int.getElementsByClassName('errors')[0];
+                var float_errors = parent_float.getElementsByClassName('errors')[0];
+
+                // set value
+                test_int.value = 0;
+                test_float.value = 0;
+
+                // change event - int
+                var int_event = document.createEvent('CustomEvent');
+                int_event.initCustomEvent('change', false, true, false);
+                test_int.dispatchEvent(int_event);
+
+                // verify calls - int
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - int
+                expect(parent_int.classList.contains('error')).toBe(true);
+                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too low</label>');
+
+                // change event - float
+                var float_event = document.createEvent('CustomEvent');
+                float_event.initCustomEvent('change', false, true, false);
+                test_float.dispatchEvent(float_event);
+
+                // verify calls - float
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - float
+                expect(parent_float.classList.contains('error')).toBe(true);
+                expect(float_errors.innerHTML).toBe('<label for="test_float" class="error">Input too low</label>');
+            });
+
+            it('Informs the user when they set the input to a value higher than the max specified', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_int = document.getElementById('test_int');
+                var parent_int = test_int.parentNode.parentNode;
+                var test_float = document.getElementById('test_float');
+                var parent_float = test_float.parentNode.parentNode;
+                var int_errors = parent_int.getElementsByClassName('errors')[0];
+                var float_errors = parent_float.getElementsByClassName('errors')[0];
+
+                // set value
+                test_int.value = 1337;
+                test_float.value = 1337;
+
+                // change event - int
+                var int_event = document.createEvent('CustomEvent');
+                int_event.initCustomEvent('change', false, true, false);
+                test_int.dispatchEvent(int_event);
+
+                // verify calls - int
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - int
+                expect(parent_int.classList.contains('error')).toBe(true);
+                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
+
+                // change event - float
+                var float_event = document.createEvent('CustomEvent');
+                float_event.initCustomEvent('change', false, true, false);
+                test_float.dispatchEvent(float_event);
+
+                // verify calls - float
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - float
+                expect(parent_float.classList.contains('error')).toBe(true);
+                expect(float_errors.innerHTML).toBe('<label for="test_float" class="error">Input too high</label>');
+            });
+
+            it('Informs the user when they set the input to a float value and the input is a integer', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_int = document.getElementById('test_int');
+                var parent_int = test_int.parentNode.parentNode;
+                var test_float = document.getElementById('test_float');
+                var parent_float = test_float.parentNode.parentNode;
+                var int_errors = parent_int.getElementsByClassName('errors')[0];
+                var float_errors = parent_float.getElementsByClassName('errors')[0];
+
+                // set value
+                test_int.value = 11.5;
+                test_float.value = 11.5;
+
+                // change event - int
+                var int_event = document.createEvent('CustomEvent');
+                int_event.initCustomEvent('change', false, true, false);
+                test_int.dispatchEvent(int_event);
+
+                // verify calls - int
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - int
+                expect(parent_int.classList.contains('error')).toBe(true);
+                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Must be whole number</label>');
+
+                // change event - float
+                var float_event = document.createEvent('CustomEvent');
+                float_event.initCustomEvent('change', false, true, false);
+                test_float.dispatchEvent(float_event);
+
+                // verify calls - float
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - float
+                expect(parent_float.classList.contains('error')).toBe(false);
+                expect(float_errors.innerHTML).toBe('');
+            });
+
+            it('Informs the user when they set the input to a value that does not meet the criteria of the data-validation attribute', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_int = document.getElementById('test_int');
+                var parent_int = test_int.parentNode.parentNode;
+                var test_attr = document.getElementById('test_attr');
+                var parent_attr = test_attr.parentNode.parentNode;
+                var int_errors = parent_int.getElementsByClassName('errors')[0];
+                var attr_errors = parent_attr.getElementsByClassName('errors')[0];
+
+                // set value
+                test_int.value = 11;
+                test_attr.value = 18;
+
+                // change event
+                var attr_event = document.createEvent('CustomEvent');
+                attr_event.initCustomEvent('change', false, true, false);
+                test_attr.dispatchEvent(attr_event);
+
+                // verify calls
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM
+                expect(parent_attr.classList.contains('error')).toBe(true);
+                expect(attr_errors.innerHTML).toBe('<label for="test_attr" class="error">target error</label>');
+                expect(parent_int.classList.contains('error')).toBe(true);
+                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">value error</label>');
+            });
+
+            it('Informs the user when they set the input to a value but the other input in data-validation is not set', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_int = document.getElementById('test_int');
+                var parent_int = test_int.parentNode.parentNode;
+                var test_attr = document.getElementById('test_attr');
+                var parent_attr = test_attr.parentNode.parentNode;
+                var int_errors = parent_int.getElementsByClassName('errors')[0];
+                var attr_errors = parent_attr.getElementsByClassName('errors')[0];
+
+                // set value
+                test_attr.value = 18;
+
+                // change event
+                var attr_event = document.createEvent('CustomEvent');
+                attr_event.initCustomEvent('change', false, true, false);
+                test_attr.dispatchEvent(attr_event);
+
+                // verify calls
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM
+                expect(parent_attr.classList.contains('error')).toBe(true);
+                expect(attr_errors.innerHTML).toBe('<label for="test_attr" class="error">target error</label>');
+                expect(parent_int.classList.contains('error')).toBe(true);
+                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Please enter a value</label>');
+
+                // Fix the issue
+                NHMobileForm.prototype.add_input_errors.calls.reset();
+                test_int.value = 19;
+
+                // change event
+                var fix_event = document.createEvent('CustomEvent');
+                fix_event.initCustomEvent('change', false, true, false);
+                test_attr.dispatchEvent(fix_event);
+
+                // verify calls
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).not.toHaveBeenCalled();
+
+                // verify DOM
+                expect(parent_attr.classList.contains('error')).toBe(false);
+                expect(attr_errors.innerHTML).toBe('');
+                expect(parent_int.classList.contains('error')).toBe(false);
+                expect(int_errors.innerHTML).toBe('');
+            });
+
         });
     });
 
