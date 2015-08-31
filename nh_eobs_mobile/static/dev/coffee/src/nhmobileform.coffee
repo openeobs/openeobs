@@ -391,6 +391,7 @@ class NHMobileForm extends NHMobile
       reason_to_use = reason
     if cancel_reason
       reason_to_use = cancel_reason
+    # TODO: Add an error catch if no value entered
     if reason_to_use
       form_elements.push(reason_to_use)
       self.submit_observation(self, form_elements, event.detail.action,

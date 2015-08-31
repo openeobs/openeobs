@@ -418,11 +418,175 @@ describe('Data Entry Functionality', function(){
         });
 
         describe('Submitting a partial form', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
 
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
+                    var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
+                    var promise = new Promise();
+                    if (url == 'http://localhost:8069/mobile/ews/partial_reasons/') {
+                        promise.complete([[[1,'Option 1'], [2, 'Option 2']]]);
+                    }else if(url == 'http://localhost:8069/mobile/task/submit_ajax/test/0'){
+                        promise.complete([{'status': 1, 'related_tasks': []}])
+                    }else{
+                        promise.complete([{}]);
+                    }
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '<input type="number" name="incomplete_input" id="incomplete_input">' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
+            it('Shows a list of partial observation reasons when submitting a form that is incomplete, on selecting a reason sends this to the server', function() {
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function () {
+                    event.preventDefault();
+                    return false;
+                });
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.process_request).toHaveBeenCalled();
+                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+
+                // check modal was called
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('partial_reasons');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Submit partial observation');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
+
+                // choose an option and click the submit button
+                var dialog = document.getElementById('partial_reasons');
+                var select = dialog.getElementsByTagName('select')[0];
+                select.value = 1;
+                var canbuttons = dialog.getElementsByTagName('a');
+                var conbutton = canbuttons[1]; // should be confirm button
+                var con_event = document.createEvent('CustomEvent');
+                con_event.initCustomEvent('click', false, true, false);
+                NHModal.prototype.create_dialog.calls.reset();
+                conbutton.dispatchEvent(con_event);
+
+                // check that process_partial_submit has been called
+                expect(NHMobileForm.prototype.process_partial_submit).toHaveBeenCalled();
+                //expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.process_request).toHaveBeenCalled();
+
+                // check that modal was called
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+
+            });
         });
 
         describe('Submitting a clinical cancellation', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
 
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'cancel_notification').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
+                    var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
+                    var promise = new Promise();
+                    if (url == 'http://localhost:8069/mobile/tasks/cancel_reasons/') {
+                        promise.complete([[{'id': 1, 'name': 'Option 1'}, {'id': 2, 'name': 'Option 2'}]]);
+                    }else if(url == 'http://localhost:8069/mobile/tasks/cancel_clinical/test'){
+                        promise.complete([{'status': 4}])
+                    }else{
+                        promise.complete([{}]);
+                    }
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<p class="obsConfirm">' +
+                        '<input type="reset" ajax-action="/mobile/tasks/cancel_clinical/1" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action">' +
+                        '</p>' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
+            it('Shows a list of cancel reasons on pressing the cancel button, then when pressing submit sends a partial observation to the server', function() {
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function () {
+                    event.preventDefault();
+                    return false;
+                });
+                var cancel_button = document.getElementById('cancelSubmit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                cancel_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.cancel_notification).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.process_request).toHaveBeenCalled();
+                //expect(cancel_button.getAttribute('disabled')).toBe('disabled');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('cancel_reasons');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Cancel task');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please state reason for cancelling task</p><select name="reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
+
+                // choose an option and click the submit button
+                var dialog = document.getElementById('cancel_reasons');
+                var select = dialog.getElementsByTagName('select')[0];
+                select.value = 1;
+                var canbuttons = dialog.getElementsByTagName('a');
+                var conbutton = canbuttons[1]; // should be confirm button
+                var con_event = document.createEvent('CustomEvent');
+                con_event.initCustomEvent('click', false, true, false);
+                NHModal.prototype.create_dialog.calls.reset();
+                conbutton.dispatchEvent(con_event);
+
+                // check that process_partial_submit has been called
+                expect(NHMobileForm.prototype.process_partial_submit).toHaveBeenCalled();
+                //expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.process_request).toHaveBeenCalled();
+
+                // check that modal was called
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('cancel_success');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Task successfully cancelled');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('');
+
+            });
         });
 
         describe('Submitting a form that requires a pre submit action', function(){
