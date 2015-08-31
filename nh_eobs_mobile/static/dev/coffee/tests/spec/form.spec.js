@@ -717,5 +717,163 @@ describe('Data Entry Functionality', function(){
         it('Has functionality to submit a form that has a score', function(){
            expect(typeof(NHMobileForm.prototype.process_post_score_submit)).toBe('function');
         });
+
+        describe('Trying to submit an invalid form', function(){
+
+        });
+
+        describe('Submitting a partial form', function(){
+
+        });
+
+        describe('Submitting a form that requires a pre submit action', function(){
+
+        });
+
+        describe('Submitting a normal form', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'cancel_notification').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                    var url= NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
+                    var promise = new Promise();
+                    if(url == 'http://localhost:8069/mobile/test/test/0'){
+                        promise.complete([{'status': 1, 'related_tasks': []}]);
+                    }else if(url == 'http://localhost:8069/mobile/test/test/1'){
+                        promise.complete([{'status': 1, 'related_tasks': [
+                            {'summary': 'Test Task', 'id': 1337}
+                        ]}]);
+                    }else if(url == 'http://localhost:8069/mobile/test/test/2'){
+                        promise.complete([{'status': 1, 'related_tasks': [
+                            {'summary': 'Test Task', 'id': 1337},
+                            {'summary': 'Test Task 2', 'id': 666}
+                        ]}]);
+                    }else{
+                         promise.complete([{}]);
+                    }
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit">' +
+                        '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1">' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
+            it('Sends data to the server on a valid form being submitted via submit button - No triggered tasks', function(){
+               var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+            });
+
+            it('Sends data to the server on a valid form being submitted via submit button - 1 Triggered task', function(){
+               var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                form.setAttribute('ajax-args', 'test,1');
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,1');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Action required')
+                //expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<ul class="menu"><li><a href="http://localhost:8069/mobile/task/1337">Test Task</a></li></ul>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Test Task</p>');
+            });
+
+            it('Sends data to the server on a valid form being submitted via submit button - 2 Triggered tasks', function(){
+               var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                form.setAttribute('ajax-args', 'test,2');
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,2');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Action required')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<ul class="menu"><li><a href="http://localhost:8069/mobile/task/1337">Test Task</a></li><li><a href="http://localhost:8069/mobile/task/666">Test Task 2</a></li></ul>');
+            });
+
+            it('Sends data to the server on a valid form being submitted via submit button - Server Error', function(){
+               var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                form.setAttribute('ajax-args', 'test,3');
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(submit_button.getAttribute('disabled')).toBe(null);
+                expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,3');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_error')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Error submitting observation')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('Server returned an error');
+            });
+        });
     });
 });
