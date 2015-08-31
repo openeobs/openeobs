@@ -26,6 +26,7 @@ describe("Event Handling", function(){
     });
 
     it('Has a function to help manage events', function(){
+        //TODO: Add this event handler
        //expect(typeof(NHLib.prototype.handle_event)).toBe('function');
         expect(true).toBe(true);
     });
@@ -158,6 +159,7 @@ describe("Event Handling", function(){
                 spyOn(NHMobileForm.prototype, 'trigger_actions');
                 spyOn(NHMobileForm.prototype, 'show_reference');
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit">' +
@@ -248,6 +250,19 @@ describe("Event Handling", function(){
                 test_button.dispatchEvent(click_event);
                 expect(NHMobileForm.prototype.get_patient_info).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.get_patient_info.calls.count()).toBe(1);
+            });
+
+            it('Shows an error message if the patient id is not present in form', function(){
+                var test_button_parent = document.getElementById('patientName');
+                var test_button = test_button_parent.getElementsByTagName('a')[0];
+                test_button.removeAttribute('patient-id');
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                test_button.dispatchEvent(click_event);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('patient_info_error');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Error getting patient information');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('');
             });
         });
 
