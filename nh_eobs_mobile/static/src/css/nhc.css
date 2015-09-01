@@ -758,10 +758,10 @@ a.patientInfo .obs {
   background-color: #ea3172;
   color: #ffffff;
   text-shadow: 0px 1px 0px #666666;
-  width: 95%;
+  width: 100%;
   display: inline-block;
-  padding-top: 1em;
-  padding-bottom: 0px;
+  /*padding-top: 1em;*/
+  /*padding-bottom: 0px;*/
   text-align: center;
 }
 #obsForm .obsSubmit {
