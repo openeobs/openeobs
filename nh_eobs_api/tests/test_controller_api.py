@@ -1069,26 +1069,27 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_19_route_cancel_notification(self):
-        """ Test the cancel submission for notifications, should return a status
-        and other activities to carry out
-        :return:
+        """Test the cancel submission for notifications.
+
+        The method under test should return a successful status without any other activities to carry out.
         """
-        api_pool = self.registry('nh.eobs.api')
-        activity_api = self.registry('nh.activity')
-        tasks = api_pool.get_activities(self.cr, self.user_id, [])
-        task = [t for t in tasks if t['summary'] in ['Assess Patient', 'Urgently inform medical team', 'Immediately inform medical team']][0]
-        #
-        # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('cancel_clinical_notification')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_clinical/5061'
 
-        # Access the route
         demo_data = {
             'reason': 1
         }
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_clinical/' + str(task['id']),
-                                  data=json.dumps(demo_data),
-                                  cookies=self.auth_resp.cookies)
+
+        # Start Odoo's patchers
+        api_pool = self.registry('nh.eobs.api')
+        api_pool._patch_method('cancel', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+
+        test_resp = requests.post(url_under_test, data=json.dumps(demo_data), cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        api_pool._revert_method('cancel')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 

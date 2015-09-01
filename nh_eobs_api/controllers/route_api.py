@@ -400,8 +400,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         kw_copy = json.loads(request.httprequest.data)
-        kw_copy['reason'] = int(kw_copy['reason'])
-        result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
+        kw_copy['reason'] = int(kw_copy['reason'])  # TODO: this seems not to be used anywhere; possibly remove it ?
+        result = api_pool.cancel(cr, uid, int(task_id), kw_copy)  # TODO: add a check if method 'complete' fails(?)
 
         response_data = {'related_tasks': []}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
