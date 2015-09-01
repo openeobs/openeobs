@@ -1303,45 +1303,70 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_25_route_patient_obs(self):
-        """ Test the route to get the observation data for a patient, should
-        return an array of dictionaries with the observations
-        :return:
-        """
-        api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
+        """Test the route to get the observation data for a patient.
 
-        # Check if the route under test is actually present into the Route Manager
+        The method under test should return an array of dictionaries with the observations.
+        """
         route_under_test = route_manager.get_route('ajax_get_patient_obs')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/ajax_obs/2'
+
+        def mock_get_activities_for_patient(*args, **kwargs):
+            activities_list = [
+                {
+                    'activity_id': (23, 'NEWS Observation'),
+                    'date_terminated': '2010-12-25 08:00:00',
+                },
+                {
+                    'activity_id': (24, 'NEWS Observation'),
+                    'create_date': '2011-02-15 18:00:30',
+                },
+                {
+                    'activity_id': (25, 'NEWS Observation'),
+                    'write_date': '2011-12-25 11:00:40',
+                    'date_started': '2007-12-02 08:13:03'
+                },
+                {
+                    'activity_id': (26, 'NEWS Observation'),
+                    'clinical_risk': 'Low'
+                }
+            ]
+            return activities_list
+
+        # Start Odoo's patchers
+        api_pool = self.registry('nh.eobs.api')
+        api_pool._patch_method('get_patients', TestOdooRouteDecoratorIntegration.mock_get_patients)
+        api_pool._patch_method('get_activities_for_patient', mock_get_activities_for_patient)
 
         # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/ajax_obs/' + str(patient['id']), cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        api_pool._revert_method('get_patients')
+        api_pool._revert_method('get_activities_for_patient')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        ews = api_pool.get_activities_for_patient(self.cr, self.user_id, patient_id=int(patient['id']), activity_type='ews')
-        for ew in ews:
-            for e in ew:
-                if e in ['date_terminated', 'create_date', 'write_date', 'date_started']:
-                    ew[e] = fields.datetime.context_timestamp(self.cr, self.user_id, datetime.strptime(ew[e], DTF)).strftime(DTF)
-
         expected_json = {
-            'obs': ews,
+            'obs': mock_get_activities_for_patient(),
             'obsType': 'ews'
         }
+
         # Check the returned JSON data against the expected ones
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-                                 '{0}'.format(patient['full_name']),
-                                 'Observations for {0}'.format(patient['full_name']),
+                                 'Campbell, Bruce',
+                                 'Observations for Campbell, Bruce',
                                  expected_json)
 
     def test_26_route_patient_form_action(self):
-        """ Test the route to submit an observation via the patient form, should
-        return a status and the ids of other activities to carry out
-        :return:
+        """Test the route to submit an observation via the patient form.
+
+        The method under test should return a successful message and a list of IDs of other activities to carry out.
         """
-        api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
+        route_under_test = route_manager.get_route('json_patient_form_action')
+        self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/submit_ajax/ews/2'
 
         # test demo for ews observation
         # supplying specific data which result in an EWS total score less than 4 (according to the default EWS policy)
@@ -1358,19 +1383,72 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'startTimestamp': 0
         }
 
-        # Check if the route under test is actually present into the Route Manager
-        route_under_test = route_manager.get_route('json_patient_form_action')
-        self.assertIsInstance(route_under_test, Route)
+        def mock_method_returning_converter_function(*args, **kwargs):
+            """The converter function just returns the same data dictionary sent via POST request to the route."""
+            def converter(*args, **kwargs):
+                return demo_data
+            return converter
+
+        def mock_method_returning_list_of_ids(*args, **kwargs):
+            return [123, 456, 789]
+
+        def mock_method_returning_list_of_activities(*args, **kwargs):
+            activities_list = [
+                {
+                    'id': 123,
+                    'data_model': 'nh.clinical.patient.observation.ews',
+                    'state': 'new'
+                },
+                {
+                    'id': 456,
+                    'data_model': 'nh.clinical.notification.frequency',
+                    'state': 'scheduled'
+                },
+                {
+                    'id': 789,
+                    'data_model': 'nh.clinical.notification.assessment',
+                    'state': 'completed'
+                },
+            ]
+            return activities_list
+
+        def mock_create_activity_for_patient(*args, **kwargs):
+            return 444
+
+        # Start Odoo's patchers
+        activity_pool = self.registry('nh.activity')
+        api_pool = self.registry('nh.eobs.api')
+        ir_fields_converter = self.registry('ir.fields.converter')
+
+        activity_pool._patch_method('search', mock_method_returning_list_of_ids)
+        activity_pool._patch_method('read', mock_method_returning_list_of_activities)
+        api_pool._patch_method('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        api_pool._patch_method('create_activity_for_patient', mock_create_activity_for_patient)
+        api_pool._patch_method('check_activity_access', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        ir_fields_converter._patch_method('for_model', mock_method_returning_converter_function)
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/submit_ajax/ews/' + str(patient['id']),
-                                  data=json.dumps(demo_data),
-                                  cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test, data=json.dumps(demo_data), cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        activity_pool._revert_method('search')
+        activity_pool._revert_method('read')
+        api_pool._revert_method('complete')
+        api_pool._revert_method('create_activity_for_patient')
+        api_pool._revert_method('check_activity_access')
+        ir_fields_converter._revert_method('for_model')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         expected_json = {
-            'related_tasks': []
+            'related_tasks': [
+                {
+                    'id': 456,
+                    'data_model': 'nh.clinical.notification.frequency',
+                    'state': 'scheduled'
+                }
+            ]
         }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
