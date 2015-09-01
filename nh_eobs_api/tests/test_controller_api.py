@@ -1103,23 +1103,49 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_20_route_task_cancellation_options(self):
-        """ Test the route to get the task cancellation options, should return
-        a list of task cancellation options
-        :return:
-        """
-        api_pool = self.registry('nh.eobs.api')
+        """Test the route to get the task cancellation options.
 
-        # Check if the route under test is actually present into the Route Manager
+        The method under test should return a list of task cancellation options.
+        """
         route_under_test = route_manager.get_route('ajax_task_cancellation_options')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url
 
-        # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url, cookies=self.auth_resp.cookies)
+        def mock_method_returning_cancel_reasons_list(*args, **kwargs):
+            cancel_reasons_list = [
+                {
+                    'name': 'Cancelled by Ward Manager',
+                    'system': True
+                },
+                {
+                    'name': 'Cancelled by System',
+                    'system': True
+                },
+                {
+                    'name': 'Already Done',
+                    'system': False
+                },
+                {
+                    'name': 'No need to do this task',
+                    'system': False
+                }
+            ]
+            return cancel_reasons_list
+
+        # Start Odoo's patchers
+        api_pool = self.registry('nh.eobs.api')
+        api_pool._patch_method('get_cancel_reasons', mock_method_returning_cancel_reasons_list)
+
+        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        api_pool._revert_method('get_cancel_reasons')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        expected_json = api_pool.get_cancel_reasons(self.cr, self.user_id)
-        # Check the returned JSON data against the expected ones
+        expected_json = mock_method_returning_cancel_reasons_list()
+
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Reason for cancelling task?',
                                  'Please select an option from the dropdown',
