@@ -1154,45 +1154,57 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     # Test Patient routes
 
     def test_21_route_patient_info(self):
-        """ Test the route to get patient information, should return a dict of
-        information on the patient
-        :return:
-        """
-        api_pool = self.registry('nh.eobs.api')
-        patient = api_pool.get_patients(self.cr, self.user_id, [])[0]
+        """Test the route to get patient information.
 
-        # Check if the route under test is actually present into the Route Manager
+        The method under test should return a dictionary with information on the patient.
+        """
         route_under_test = route_manager.get_route('json_patient_info')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/2'
 
-        # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/' + str(patient['id']), cookies=self.auth_resp.cookies)
+        # Start Odoo's patchers
+        api_pool = self.registry('nh.eobs.api')
+        api_pool._patch_method('get_patients', TestOdooRouteDecoratorIntegration.mock_get_patients)
+
+        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        api_pool._revert_method('get_patients')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
+        expected_json = TestOdooRouteDecoratorIntegration.mock_get_patients()[0]
+
         # Check the returned JSON data against the expected ones
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-                                 '{0}'.format(patient['full_name']),
-                                 'Information on {0}'.format(patient['full_name']),
-                                 patient)
+                                 'Campbell, Bruce',
+                                 'Information on Campbell, Bruce',
+                                 expected_json)
 
-    def test_22_route_patient_info_invalid_id(self):
-        """ Test the route to get patient information with an ID for a patient
-        not in the system, should return an error
-        :return:
+    def test_22_patient_info_route_with_not_existing_id(self):
+        """Test the route to get information about a patient not in the system.
+
+        To simulate a wrong ID number (i.e. not related to any patient),
+        the method that returns a list of patients is replaced with a mock object that returns an empty list.
+        The method under test should return an error message.
         """
-        api_pool = self.registry('nh.eobs.api')
-        patient_pool = self.registry('nh.clinical.patient')
-        patient = patient_pool.search(self.cr, self.uid, [])[-1]
-        patient = patient + 1
-        # patient = api_pool.get_patients(self.cr, self.auth_uid, [])[0]
-
-        # Check if the route under test is actually present into the Route Manager
         route_under_test = route_manager.get_route('json_patient_info')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/4'
 
-        # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/' + str(patient), cookies=self.auth_resp.cookies)
+        def mock_get_empty_patients_list(*args, **kwargs):
+            return []
+
+        # Start Odoo's patchers
+        api_pool = self.registry('nh.eobs.api')
+        api_pool._patch_method('get_patients', mock_get_empty_patients_list)
+
+        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        api_pool._revert_method('get_patients')
+
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
@@ -1202,7 +1214,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
                                  'Patient not found',
-                                 'Unable to get patient with id provided',
+                                 'Unable to get patient with ID provided',
                                  expected_json)
 
     def test_23_route_patient_barcode(self):

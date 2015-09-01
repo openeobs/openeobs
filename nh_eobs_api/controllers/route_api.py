@@ -345,7 +345,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             response_data = {'error': 'Patient not found.'}
             response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
                                                        title='Patient not found',
-                                                       description='Unable to get patient with id provided',
+                                                       description='Unable to get patient with ID provided',
                                                        data=response_data)
             return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
