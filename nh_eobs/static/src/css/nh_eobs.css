@@ -131,3 +131,7 @@
  .nh-user-allocation-form{
      padding: 1em 15px 6em 15px;
  }
+
+ .openerp .nh_oe_number_fix .oe_list_content td.oe_list_field_cell.oe_number{
+     text-align: left !important;
+ }
