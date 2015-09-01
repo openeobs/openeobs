@@ -382,7 +382,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             kw_copy['frequency'] = int(kw_copy['frequency'])
         if 'location_id' in kw_copy:
             kw_copy['location_id'] = int(kw_copy['location_id'])
-        result = api.complete(cr, uid, int(task_id), kw_copy)
+        result = api.complete(cr, uid, int(task_id), kw_copy)  # TODO: add a check if method 'complete' fails(?)
         triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
         triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
         triggered_tasks = [v for v in triggered_tasks if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
