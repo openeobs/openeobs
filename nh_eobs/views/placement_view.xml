@@ -9,6 +9,7 @@
                     <field name="location_id" />
                     <field name="patient_id" />
                     <field name="hospital_number" />
+                    <field name="nhs_number" />
                     <field name="pos_id" />
                 </tree>
             </field>

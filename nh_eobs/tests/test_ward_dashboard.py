@@ -29,7 +29,7 @@ class TestWardDashboard(SingleTransactionCase):
         cls.bed_pool = cls.registry('nh.eobs.bed.dashboard')
 
         cls.eobs_context_id = cls.context_pool.search(cr, uid, [['name', '=', 'eobs']])[0]
-        cls.admin_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'NHC Administrator']])[0]
+        cls.admin_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'System Administrator']])[0]
         cls.hca_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'HCA']])[0]
         cls.nurse_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'Nurse']])[0]
         cls.wm_role_id = cls.category_pool.search(cr, uid, [['name', '=', 'Ward Manager']])[0]
@@ -165,9 +165,40 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertEqual(ward.free_beds, 0, msg='Incorrect free_beds field')
         self.assertEqual(ward.related_hcas, 1, msg='Incorrect related_hcas field')
         self.assertEqual(ward.related_nurses, 1, msg='Incorrect related_nurses field')
+        self.assertEqual(ward.related_doctors, 1, msg='Incorrect related_doctors field')
         self.assertEqual(ward.kanban_color, 7, msg='Incorrect kanban_color field')
         self.assertEqual(ward.high_risk_patients, 0, msg='Incorrect high_risk_patients field')
         self.assertEqual(ward.med_risk_patients, 0, msg='Incorrect med_risk_patients field')
         self.assertEqual(ward.low_risk_patients, 0, msg='Incorrect low_risk_patients field')
         self.assertEqual(ward.no_risk_patients, 0, msg='Incorrect no_risk_patients field')
         self.assertEqual(ward.noscore_patients, 3, msg='Incorrect noscore_patients field')
+
+    def test_10_ward_dashboard_patient_board(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.ward_pool.patient_board(cr, self.wm_uid, [self.ward_id], {})
+        self.assertDictEqual(res, {
+            'name': 'Patients Board',
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.wardboard',
+            'view_type': 'form',
+            'view_mode': 'kanban,form,tree',
+            'domain': [('spell_state', '=', 'started'), ('location_id.usage', '=', 'bed')],
+            'target': 'current',
+            'context': {'search_default_clinical_risk': 1, 'search_default_high_risk': 0,
+                        'search_default_ward_id': self.ward_id}
+        })
+
+    def test_11_get_waiting_patient_ids(self):
+        cr, uid = self.cr, self.uid
+
+        res = self.ward_pool._get_waiting_patient_ids(cr, uid, [self.ward_id], 'waiting_patient_ids', {})
+        self.assertTrue(isinstance(res, dict))
+        self.assertFalse(res[self.ward_id])
+
+        patient_id = self.patient_pool.create(cr, uid, {'other_identifier': 'HN003'})
+        self.api.admit(cr, self.adt_uid, 'HN003', {'location': 'W0'})
+
+        res = self.ward_pool._get_waiting_patient_ids(cr, uid, [self.ward_id], 'waiting_patient_ids', {})
+        self.assertTrue(isinstance(res, dict))
+        self.assertListEqual(res[self.ward_id], [patient_id])

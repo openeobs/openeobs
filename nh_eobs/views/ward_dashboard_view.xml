@@ -20,14 +20,17 @@
                     <t t-name="kanban-box" colors="red:highest_risk=='High'; orange:highest_risk=='Medium'; green:highest_risk=='Low'">
                         <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_color_#{kanban_getcolor(record.kanban_color.raw_value)}">
                             <div class="oe_kanban_content">
-                                <div style="margin-top:5px;"><h3><b><field name="name"/></b></h3></div>
+                                <div style="margin-top:5px;">
+                                    <h3 style="width: 100%; display: inline-block;"><field name="name"/>
+                                        <button style="float: right; margin: 0; font-weight: normal;" name="patient_board" type="object" class="oe_highlight">Patients Board</button>
+                                    </h3>
+                                </div>
                                 <div style="margin-top:5px;">Managers:</div>
                                 <div style="margin-top:5px;"><field name="assigned_wm_ids" widget="many2many"/></div>
-                                <div style="margin-top:5px;">Doctors:</div>
-                                <div style="margin-top:5px;"><field name="assigned_doctor_ids" widget="many2many"/></div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
                                     HCAs: <span><field name="related_hcas"/></span>
                                     Nurses: <span><field name="related_nurses"/></span>
+                                    Doctors: <span><field name="related_doctors"/></span>
                                 </div>
                                 <div class="oe_kanban_footer_left" style="margin-top:5px;">
                                     Patients waiting: <span><field name="waiting_patients"/></span>
@@ -82,6 +85,15 @@
                                         <field name="patient_ids" widget="many2many_tags" readonly="1"/>
                                         <field name="nurse_follower_ids" widget="many2many_tags"/>
                                         <field name="hca_follower_ids" widget="many2many_tags"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Patients Waiting">
+                                <field name="waiting_patient_ids">
+                                    <tree version="7.0" editable="0" create="0">
+                                        <field name="name" readonly="1"/>
+                                        <field name="other_identifier" readonly="1"/>
+                                        <field name="patient_identifier" readonly="1"/>
                                     </tree>
                                 </field>
                             </page>
