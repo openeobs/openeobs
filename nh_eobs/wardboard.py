@@ -752,6 +752,7 @@ ews1 as(
                 activity.spell_id,
                 activity.state,
                 activity.date_scheduled,
+                activity.date_terminated,
                 ews.id,
                 ews.score,
                 ews.frequency,

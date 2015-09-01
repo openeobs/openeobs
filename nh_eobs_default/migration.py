@@ -17,7 +17,7 @@ class res_users(orm.Model):
         reg_cat_id = category_pool.search(cr, 1, [['name', '=', 'Registrar']])[0]
         con_cat_id = category_pool.search(cr, 1, [['name', '=', 'Consultant']])[0]
         rec_cat_id = category_pool.search(cr, 1, [['name', '=', 'Receptionist']])[0]
-        adm_cat_id = category_pool.search(cr, 1, [['name', '=', 'NHC Administrator']])[0]
+        adm_cat_id = category_pool.search(cr, 1, [['name', '=', 'System Administrator']])[0]
         kio_cat_id = category_pool.search(cr, 1, [['name', '=', 'Kiosk']])[0]
         roles = [hca_cat_id, nur_cat_id, wma_cat_id, sma_cat_id, doc_cat_id, sdr_cat_id, jdr_cat_id, reg_cat_id,
                  con_cat_id, rec_cat_id, adm_cat_id, kio_cat_id]
