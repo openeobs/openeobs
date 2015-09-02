@@ -652,6 +652,7 @@ drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
 drop materialized view if exists placement cascade;
 drop view if exists wb_activity_ranked cascade;
+drop view if exists wb_ews_ranked cascade;
 drop view if exists last_movement_users cascade;
 drop view if exists last_transfer_users cascade;
 drop view if exists last_discharge_users cascade;
@@ -666,6 +667,21 @@ wb_activity_ranked as(
             rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
         from nh_clinical_spell spell
         inner join nh_activity activity on activity.spell_activity_id = spell.activity_id
+);
+
+create or replace view
+-- ews per spell, data_model, state
+wb_ews_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews') sub_query
+    where rank < 3
 );
 
 create materialized view
@@ -738,9 +754,8 @@ ews0 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 1 and activity.state = 'scheduled'
 );
 
@@ -763,9 +778,8 @@ ews1 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 1 and activity.state = 'completed'
 );
 
@@ -787,9 +801,8 @@ ews2 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 2 and activity.state = 'completed'
 );
 
