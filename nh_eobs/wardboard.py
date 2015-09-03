@@ -342,7 +342,6 @@ class nh_clinical_wardboard(orm.Model):
         'ews_list_ids': fields.function(_get_data_ids_multi, multi='ews_list_ids', type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs List'),
         'transferred_user_ids': fields.function(_get_transferred_user_ids, type='many2many', relation='res.users', fnct_search=_transferred_user_ids_search, string='Recently Transferred Access'),
         'recently_discharged_uids': fields.function(_get_recently_discharged_uids, type='many2many', relation='res.users', fnct_search=_recently_discharged_uids_search, string='Recently Discharged Access'),
-        'placed': fields.boolean('Placed?')
     }
 
     _order = 'location asc'
@@ -978,7 +977,6 @@ nh_clinical_wardboard as(
         end as ews_trend_string,
         case when ews1.id is null then 'NoScore' else ews1.clinical_risk end as clinical_risk,
         ews1.score - ews2.score as ews_trend,
-        case when plc.id is null then 0 else 1 end as placed,
         param.height,
         param.o2target_level_id as o2target,
         case when param.mrsa then 'yes' else 'no' end as mrsa,
@@ -1010,7 +1008,6 @@ nh_clinical_wardboard as(
     left join ews2 on spell.id = ews2.spell_id
     left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
-    left join placement plc on spell.id = plc.spell_id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
     left join param on param.spell_id = spell.id
     order by location.name

@@ -52,23 +52,6 @@ class nh_clinical_patient_observation_ews(orm.Model):
         return res
 
 
-class nh_clinical_patient_placement(orm.Model):
-
-    _name = 'nh.clinical.patient.placement'
-    _inherit = 'nh.clinical.patient.placement'
-
-    @refresh_materialized_views
-    def refresh_views(self, cr, uid, views, context=None):
-        return True
-
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_placement, self).complete(cr, uid, activity_id, context=context)
-        self.refresh_views(cr, uid, ['placement'], context=context)
-        # thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['placement'], context], kwargs=None)
-        # thr.start()
-        return res
-
-
 class nh_clinical_patient_mrsa(orm.Model):
 
     _name = 'nh.clinical.patient.mrsa'
