@@ -1,9 +1,7 @@
 from openerp.osv import orm, osv
 import logging
-import threading
+from functools import wraps
 from datetime import datetime as dt
-from openerp.api import Environment
-from openerp import registry
 _logger = logging.getLogger(__name__)
 
 
@@ -32,7 +30,6 @@ def refresh_materialized_views(f):
         _logger.debug('Materialized views refreshed in %s milliseconds' % milliseconds)
         return f(*args, **kwargs)
     return wrapper
-
 
 
 class nh_clinical_patient_observation_ews(orm.Model):
