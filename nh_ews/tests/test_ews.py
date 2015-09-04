@@ -35,7 +35,7 @@ class TestEWS(common.SingleTransactionCase):
 
         cls.placement_pool = cls.registry('nh.clinical.patient.placement')
         cls.placement_pool._POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews', 'type': 'recurring'}]}
-        # cls.ews_pool = cls.registry('nh.clinical.patient.observation.ews')
+        cls.ews_pool = cls.registry('nh.clinical.patient.observation.ews')
 
         cls.apidemo = cls.registry('nh.clinical.api.demo')
 
