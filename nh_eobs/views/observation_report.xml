@@ -639,13 +639,15 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="device_session_history" t-as="device_session">
-                                        <t t-if="not device_session['values']['date_terminated']">
-                                            <tr class="main-entry">
-                                                <td class="col-xs-3"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
-                                                <td class="col-xs-3"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
-                                                <td class="col-xs-3"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
-                                                <td class="col-xs-3"><t t-esc="device_session['values']['date_started']"/></td>
-                                            </tr>
+                                        <t t-if="'values' in device_session and device_session['values']">
+                                            <t t-if="'date_terminated' in device_session['values'] and not device_session['values']['date_terminated']">
+                                                <tr class="main-entry">
+                                                    <td class="col-xs-3"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
+                                                    <td class="col-xs-3"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
+                                                    <td class="col-xs-3"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
+                                                    <td class="col-xs-3"><t t-esc="device_session['values']['date_started']"/></td>
+                                                </tr>
+                                            </t>
                                         </t>
                                     </t>
                                 </tbody>
@@ -671,16 +673,18 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="device_session_history" t-as="device_session">
-                                        <t t-if="device_session['values']['date_terminated']">
-                                            <tr class="main-entry">
-                                                <td class="col-xs-1"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
-                                                <td class="col-xs-1"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
-                                                <td class="col-xs-1"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
-                                                <td class="col-xs-1"><t t-esc="device_session['values']['date_started']"/></td>
-                                                <td class="col-xs-1"><t t-esc="device_session['values']['date_terminated']"/></td>
-                                                <td class="col-xs-1"><t t-if="device_session['values']['planned']"><t t-esc="device_session['values']['planned']"/></t></td>
-                                                <td class="col-xs-1"><t t-if="device_session['values']['removal_reason']"><t t-esc="device_session['values']['removal_reason']"/></t></td>
-                                            </tr>
+                                        <t t-if="'values' in device_session and device_session['values']">
+                                            <t t-if="'date_terminated' in device_session['values'] and device_session['values']['date_terminated']">
+                                                <tr class="main-entry">
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session['values']['date_started']"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session['values']['date_terminated']"/></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['planned']"><t t-esc="device_session['values']['planned']"/></t></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['removal_reason']"><t t-esc="device_session['values']['removal_reason']"/></t></td>
+                                                </tr>
+                                            </t>
                                         </t>
                                     </t>
                                 </tbody>
