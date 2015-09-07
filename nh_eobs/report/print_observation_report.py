@@ -249,13 +249,13 @@ class ObservationReport(models.AbstractModel):
             for observation in bristol_stools:
                 observation['values'] = bristol_stool_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['bowel_open'] = 'True' if observation['values']['bowel_open'] else 'False'
-                    observation['values']['vomiting'] = 'True' if observation['values']['vomiting'] else 'False'
-                    observation['values']['nausea'] = 'True' if observation['values']['nausea'] else 'False'
-                    observation['values']['strain'] = 'True' if observation['values']['strain'] else 'False'
-                    observation['values']['offensive'] = 'True' if observation['values']['offensive'] else 'False'
-                    observation['values']['laxatives'] = 'True' if observation['values']['laxatives'] else 'False'
-                    observation['values']['rectal_exam'] = 'True' if observation['values']['rectal_exam'] else 'False'
+                    observation['values']['bowel_open'] = 'Yes' if observation['values']['bowel_open'] else 'No'
+                    observation['values']['vomiting'] = 'Yes' if observation['values']['vomiting'] else 'No'
+                    observation['values']['nausea'] = 'Yes' if observation['values']['nausea'] else 'No'
+                    observation['values']['strain'] = 'Yes' if observation['values']['strain'] else 'No'
+                    observation['values']['offensive'] = 'Yes' if observation['values']['offensive'] else 'No'
+                    observation['values']['laxatives'] = 'Yes' if observation['values']['laxatives'] else 'No'
+                    observation['values']['rectal_exam'] = 'Yes' if observation['values']['rectal_exam'] else 'No'
                     observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
                     observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
 
@@ -317,7 +317,7 @@ class ObservationReport(models.AbstractModel):
             for mrsa in mrsa_history:
                 mrsa['values'] = mrsa_pool.read(cr, uid, int(mrsa['data_ref'].split(',')[1]), [])
                 if mrsa['values']:
-                    mrsa['values']['mrsa'] = 'True' if mrsa['values']['mrsa'] else 'False'
+                    mrsa['values']['mrsa'] = 'Yes' if mrsa['values']['mrsa'] else 'No'
                     mrsa['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_started'], dtf), pretty_date_format) if mrsa['values']['date_started'] else False
                     mrsa['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_terminated'], dtf), pretty_date_format) if mrsa['values']['date_terminated'] else False
             #
@@ -328,7 +328,7 @@ class ObservationReport(models.AbstractModel):
             for diabetes in diabetes_history:
                 diabetes['values'] = diabetes_pool.read(cr, uid, int(diabetes['data_ref'].split(',')[1]), [])
                 if diabetes['values']:
-                    diabetes['values']['diabetes'] = 'True' if diabetes['values']['diabetes'] else 'False'
+                    diabetes['values']['diabetes'] = 'Yes' if diabetes['values']['diabetes'] else 'No'
                     diabetes['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_started'], dtf), pretty_date_format) if diabetes['values']['date_started'] else False
                     diabetes['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_terminated'], dtf), pretty_date_format) if diabetes['values']['date_terminated'] else False
             #
@@ -339,7 +339,7 @@ class ObservationReport(models.AbstractModel):
             for palliative_care in palliative_care_history:
                 palliative_care['values'] = palliative_care_pool.read(cr, uid, int(palliative_care['data_ref'].split(',')[1]), [])
                 if palliative_care['values']:
-                    palliative_care['values']['palliative_care'] = 'True' if palliative_care['values']['status'] else 'False'
+                    palliative_care['values']['palliative_care'] = 'Yes' if palliative_care['values']['status'] else 'No'
                     palliative_care['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_started'], dtf), pretty_date_format) if palliative_care['values']['date_started'] else False
                     palliative_care['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_terminated'], dtf), pretty_date_format) if palliative_care['values']['date_terminated'] else False
             #
@@ -350,7 +350,7 @@ class ObservationReport(models.AbstractModel):
             for post_surgery in post_surgery_history:
                 post_surgery['values'] = post_surgery_pool.read(cr, uid, int(post_surgery['data_ref'].split(',')[1]), [])
                 if post_surgery['values']:
-                    post_surgery['values']['post_surgery'] = 'True' if post_surgery['values']['status'] else 'False'
+                    post_surgery['values']['post_surgery'] = 'Yes' if post_surgery['values']['status'] else 'No'
                     post_surgery['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(post_surgery['values']['date_started'], dtf), pretty_date_format) if post_surgery['values']['date_started'] else False
                     post_surgery['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(post_surgery['values']['date_terminated'], dtf), pretty_date_format) if post_surgery['values']['date_terminated'] else False
             #
@@ -361,7 +361,7 @@ class ObservationReport(models.AbstractModel):
             for critical_care in critical_care_history:
                 critical_care['values'] = critical_care_pool.read(cr, uid, int(critical_care['data_ref'].split(',')[1]), [])
                 if critical_care['values']:
-                    critical_care['values']['critical_care'] = 'True' if critical_care['values']['status'] else 'False'
+                    critical_care['values']['critical_care'] = 'Yes' if critical_care['values']['status'] else 'No'
                     critical_care['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(critical_care['values']['date_started'], dtf), pretty_date_format) if critical_care['values']['date_started'] else False
                     critical_care['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(critical_care['values']['date_terminated'], dtf), pretty_date_format) if critical_care['values']['date_terminated'] else False
             #
