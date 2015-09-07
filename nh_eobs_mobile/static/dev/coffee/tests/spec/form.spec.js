@@ -53,7 +53,13 @@ describe('Data Entry Functionality', function(){
                  spyOn(NHMobileForm.prototype, 'add_input_errors').and.callThrough();
                  spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                      var promise = new Promise();
-                     promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                      return promise;
                  });
 
@@ -334,7 +340,13 @@ describe('Data Entry Functionality', function(){
             spyOn(NHMobileForm.prototype, 'handle_timeout').and.callThrough();
             spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete([{}]);
+                 var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                 return promise;
             });
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
@@ -429,7 +441,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
                 var test = document.getElementById('test');
@@ -539,11 +557,31 @@ describe('Data Entry Functionality', function(){
                     var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if (url == 'http://localhost:8069/mobile/ews/partial_reasons/') {
-                        promise.complete([[[1,'Option 1'], [2, 'Option 2']]]);
+                        var partial_reasons = new NHMobileData({
+                            status: 'success',
+                            title: 'Reason for partial observation',
+                            description: 'Please select an option from the list',
+                            data: [[1,'Option 1'], [2, 'Option 2']]
+                        });
+                        promise.complete(partial_reasons);
                     }else if(url == 'http://localhost:8069/mobile/task/submit_ajax/test/0'){
-                        promise.complete([{'status': 1, 'related_tasks': []}])
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(obs_submit)
                     }else{
-                        promise.complete([{}]);
+                         var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     }
                     return promise;
                 });
@@ -626,11 +664,40 @@ describe('Data Entry Functionality', function(){
                     var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if (url == 'http://localhost:8069/mobile/tasks/cancel_reasons/') {
-                        promise.complete([[{'id': 1, 'name': 'Option 1'}, {'id': 2, 'name': 'Option 2'}]]);
+                        var cancel_reasons = new NHMobileData({
+                            status: 'success',
+                            title: 'Reason for cancelling task?',
+                            description: 'Please select an option from the dropdown',
+                            data: [
+                                {
+                                    id: 1,
+                                    name: 'Option 1'
+                                },
+                                {
+                                    id: 2,
+                                    name: 'Option 2'
+                                }
+                            ]
+                        })
+                        promise.complete(cancel_reasons);
                     }else if(url == 'http://localhost:8069/mobile/tasks/cancel_clinical/test'){
-                        promise.complete([{'status': 4}])
+                        var cancel_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Cancellation successful',
+                            description: 'The notification was successfully cancelled',
+                            data: {
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(cancel_submit)
                     }else{
-                        promise.complete([{}]);
+                         var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     }
                     return promise;
                 });
@@ -711,21 +778,50 @@ describe('Data Entry Functionality', function(){
                     var url= NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if(url == 'http://localhost:8069/mobile/test/test/0') {
-                        promise.complete([{'status': 3, 'modal_vals': {
-                            'next_action': 'json_task_form_action',
-                            'title': 'Submit TEST score of 0',
-                            'content': 'TEST observation scored 0 which means something'
-                        }, 'score': {'score': 0}}]);
+                        var calculate_score = new NHMobileData({
+                            status: 'success',
+                            title: 'Submit TEST of 0',
+                            description: 'TEST observation scored 0 which means something',
+                            data: {
+                                next_action: 'json_task_form_action',
+                                score: {
+                                    score: 0
+                                }
+                            }
+                        });
+                        promise.complete(calculate_score);
                     }else if(url == 'http://localhost:8069/mobile/task/submit_ajax/test/0'){
-                        promise.complete([{'status': 1, 'related_tasks': []}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else if(url == 'http://localhost:8069/mobile/test/test/1'){
-                        promise.complete([{'status': 3, 'modal_vals': {
-                            'next_action': 'json_task_form_action',
-                            'title': 'Submit TEST score of 0',
-                            'content': 'TEST observation scored 0 which means something'
-                        }, 'score': {'score': 0, 'clinical_risk': 'low'}}]);
+                        var calculate_score = new NHMobileData({
+                            status: 'success',
+                            title: 'Submit TEST of 0',
+                            description: 'TEST observation scored 0 which means something',
+                            data: {
+                                next_action: 'json_task_form_action',
+                                score: {
+                                    score: 0,
+                                    clinical_risk: 'low'
+                                }
+                            }
+                        });
+                        promise.complete(calculate_score);
                     }else{
-                        promise.complete([{}]);
+                         var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                        promise.complete(empty);
                     }
                     return promise;
                 });
@@ -881,18 +977,57 @@ describe('Data Entry Functionality', function(){
                     var url= NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if(url == 'http://localhost:8069/mobile/test/test/0'){
-                        promise.complete([{'status': 1, 'related_tasks': []}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else if(url == 'http://localhost:8069/mobile/test/test/1'){
-                        promise.complete([{'status': 1, 'related_tasks': [
-                            {'summary': 'Test Task', 'id': 1337}
-                        ]}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                related_tasks: [
+                                    {
+                                        summary: 'Test Task',
+                                        id: 1337
+                                    }
+                                ]
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else if(url == 'http://localhost:8069/mobile/test/test/2'){
-                        promise.complete([{'status': 1, 'related_tasks': [
-                            {'summary': 'Test Task', 'id': 1337},
-                            {'summary': 'Test Task 2', 'id': 666}
-                        ]}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                related_tasks: [
+                                    {
+                                        summary: 'Test Task',
+                                        id: 1337
+                                    },
+                                    {
+                                        summary: 'Test Task 2',
+                                        id: 666
+                                    }
+                                ]
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else{
-                         promise.complete([{}]);
+                          var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     }
                     return promise;
                 });
@@ -1050,7 +1185,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'show_triggered_elements').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
 
@@ -1146,7 +1287,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'validate');
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                    var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
                 var test = document.getElementById('test');
@@ -1228,7 +1375,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'show_reference').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
@@ -1291,7 +1444,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'trigger_actions').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
 

@@ -400,11 +400,25 @@ describe('Stand in Functionality', function(){
                    var data = NHMobileShare.prototype.process_request.calls.mostRecent().args[2];
                    if(data == 'patient_ids=1,2'){
                         var promise = new Promise();
-                        promise.complete([{'status': 1}]);
+                       var claim = new NHMobileData({
+                           status: 'success',
+                           title: 'Patient Claimed',
+                           description: 'Followers removed successfully',
+                           data: {
+                               reason: 'Followers removed successfully'
+                           }
+                       });
+                        promise.complete(claim);
                         return promise;
                    }else {
                         var promise = new Promise();
-                        promise.complete([{}]);
+                       var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                        promise.complete(empty);
                         return promise;
                    }
                 });
@@ -520,14 +534,23 @@ describe('Stand in Functionality', function(){
                     var data = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[2];
                     if(method == 'GET'){
                         var promise = new Promise();
-                        promise.complete([[{'id': 1,
-                            'next_ews_time': '6:66 hours',
-                            'full_name': 'Test Patient',
-                            'ews_score': '1',
-                            'ews_trend': 'down',
-                            'location': 'Bed 1',
-                            'parent_location': 'Ward 1'
-                        }]]);
+                        var follow_invite = new NHMobileData({
+                            status: 'success',
+                            title: 'Patients shared with you',
+                            description: 'These patients have been shared for you to follow',
+                            data: [
+                                    {
+                                        id: 1,
+                                        next_ews_time: '6:66 hours',
+                                        full_name: 'Test Patient',
+                                        ews_score: '1',
+                                        ews_trend: 'down',
+                                        location: 'Bed 1',
+                                        parent_location: 'Ward 1'
+                                }
+                            ]
+                        });
+                        promise.complete(follow_invite);
                         return promise;
                     }
                 });
@@ -557,26 +580,48 @@ describe('Stand in Functionality', function(){
                     var data = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[2];
                     if(method == 'GET'){
                         var promise = new Promise();
-                        promise.complete([[{'id': 1,
-                            'next_ews_time': '6:66 hours',
-                            'full_name': 'Test Patient',
-                            'ews_score': '1',
-                            'ews_trend': 'down',
-                            'location': 'Bed 1',
-                            'parent_location': 'Ward 1'
-                        }]]);
+                        var follow_invite = new NHMobileData({
+                            status: 'success',
+                            title: 'Patients shared with you',
+                            description: 'These patients have been shared for you to follow',
+                            data: [
+                                    {
+                                        id: 1,
+                                        next_ews_time: '6:66 hours',
+                                        full_name: 'Test Patient',
+                                        ews_score: '1',
+                                        ews_trend: 'down',
+                                        location: 'Bed 1',
+                                        parent_location: 'Ward 1'
+                                }
+                            ]
+                        });
+                        promise.complete(follow_invite);
                         return promise;
                     }else{
                         if(url == 'http://localhost:8069/mobile/staff/accept/1'){
                             var promise = new Promise();
-                            promise.complete([{'status': 1,
-                            'count': 666,
-                            'user': 'Another User'
-                            }])
+                            var accept_invite = new NHMobileData({
+                                status: 'success',
+                                title: 'Successfully accepted stand-in invite',
+                                description: 'You are following these patient(s)',
+                                data: {
+                                    status: true,
+                                    count: 666,
+                                    user: 'Another User'
+                                }
+                            })
+                            promise.complete(accept_invite);
                             return promise;
                         }else{
                             var promise = new Promise();
-                            promise.complete([{}]);
+                            var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                            promise.complete(empty);
                             return promise;
                         }
                     }
@@ -653,26 +698,48 @@ describe('Stand in Functionality', function(){
                     var data = NHMobileShareInvite.prototype.process_request.calls.mostRecent().args[2];
                     if(method == 'GET'){
                         var promise = new Promise();
-                        promise.complete([[{'id': 1,
-                            'next_ews_time': '6:66 hours',
-                            'full_name': 'Test Patient',
-                            'ews_score': '1',
-                            'ews_trend': 'down',
-                            'location': 'Bed 1',
-                            'parent_location': 'Ward 1'
-                        }]]);
+                        var follow_invite = new NHMobileData({
+                            status: 'success',
+                            title: 'Patients shared with you',
+                            description: 'These patients have been shared for you to follow',
+                            data: [
+                                    {
+                                        id: 1,
+                                        next_ews_time: '6:66 hours',
+                                        full_name: 'Test Patient',
+                                        ews_score: '1',
+                                        ews_trend: 'down',
+                                        location: 'Bed 1',
+                                        parent_location: 'Ward 1'
+                                }
+                            ]
+                        });
+                        promise.complete(follow_invite);
                         return promise;
                     }else{
                         if(url == 'http://localhost:8069/mobile/staff/reject/1'){
                             var promise = new Promise();
-                            promise.complete([{'status': 1,
-                            'count': 666,
-                            'user': 'Another User'
-                            }])
+                            var reject_invite = new NHMobileData({
+                                status: 'success',
+                                title: 'Successfully rejected stand-in invite',
+                                description: 'You are not following these patient(s)',
+                                data: {
+                                    status: true,
+                                    count: 666,
+                                    user: 'Another User'
+                                }
+                            })
+                            promise.complete(reject_invite)
                             return promise;
                         }else{
                             var promise = new Promise();
-                            promise.complete([{}]);
+                            var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                            promise.complete(empty);
                             return promise;
                         }
                     }
