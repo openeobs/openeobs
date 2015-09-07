@@ -86,8 +86,7 @@ describe('Patient Information Functionality', function(){
     describe('Rendering patient information using patient data from server', function(){
         var test_pat;
         beforeEach(function(){
-            var raw_test_pat = eval(patient_info_data);
-            test_pat = raw_test_pat[0];
+            test_pat = patient_info_data.data;
         });
         it('Renders name and gender in body if nameless flag set to false', function(){
             var test_pat_info = mobile.render_patient_info(test_pat, false, mobile)
@@ -178,7 +177,7 @@ describe('Patient Information Functionality', function(){
     });
 
     describe('Getting patient information by scanning a barcode on patient\'s wristband', function(){
-        var barcode, test_area;
+        var barcode, test_area, barcode_data;
         beforeEach(function(){
             test_area = document.getElementById('test');
             test_area.innerHTML = '<div class="header">' +
@@ -194,7 +193,7 @@ describe('Patient Information Functionality', function(){
                 '</ul></div>'
             trigger_button = test_area.getElementsByClassName('scan')[0];
             barcode = new NHMobileBarcode(trigger_button);
-            var barcode_data = new NHMobileData({
+            barcode_data = new NHMobileData({
                 status: 'success',
                 title: 'Test Patient',
                 description: 'Information on Test Patient',
@@ -203,7 +202,7 @@ describe('Patient Information Functionality', function(){
                     gender: 'M',
                     dob: '1988-01-12 00:00',
                     location: 'Bed 1',
-                    parent_location: 'Ward 1',
+                    //parent_location: 'Ward 1',
                     ews_score: 1,
                     ews_trend: 'up',
                     other_identifier: '012345678',
@@ -275,7 +274,6 @@ describe('Patient Information Functionality', function(){
             expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
         });
 
-        // TODO: Refactor test
         it('It receives patient\'s data, without parent_location but news trend, processes it and shows popup via keypress with keycode 116', function(){
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
@@ -336,7 +334,7 @@ describe('Patient Information Functionality', function(){
 
         // TODO: Refactor test
         it('It receives patient\'s data, without activities and render it', function(){
-            patient_info_data[0]["activities"] = [];
+            barcode_data.data.activities = [];
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
             spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
