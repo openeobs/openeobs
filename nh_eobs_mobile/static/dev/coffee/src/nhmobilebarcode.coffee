@@ -59,8 +59,9 @@ class NHMobileBarcode extends NHMobile
       url_meth = url.method
 
       Promise.when(self.process_request(url_meth, url.url))
-      .then (server_data) ->
-        data = server_data[0][0]
+      .then (raw_data) ->
+        server_data = raw_data[0]
+        data = server_data.data
         activities_string = ""
         if data.activities.length > 0
           activities_string = '<ul class="menu">'

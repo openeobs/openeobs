@@ -28,8 +28,11 @@ NHMobilePatient = (function(superClass) {
       tab.addEventListener('click', this.handle_tabs);
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(server_data) {
-      return self.draw_graph(self, server_data);
+    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
+      var data, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      return self.draw_graph(self, data);
     });
   }
 
@@ -60,7 +63,7 @@ NHMobilePatient = (function(superClass) {
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {
     var bp_graph, c, chart, context, controls, element_for_chart, f, focus, fr, graph_content, graph_tabs, i, len, ob, obs, oxy_graph, pulse_graph, resp_rate_graph, score_graph, svg, tabular_obs, temp_graph;
     element_for_chart = 'chart';
-    obs = server_data[0][0].obs.reverse();
+    obs = server_data.obs.reverse();
     if (obs.length > 0) {
       svg = new window.NH.NHGraphLib('#' + element_for_chart);
       resp_rate_graph = new window.NH.NHGraph();

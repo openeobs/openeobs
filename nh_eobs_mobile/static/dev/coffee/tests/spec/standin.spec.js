@@ -106,7 +106,7 @@ describe('Stand in Functionality', function(){
                 expect(NHMobileShare.prototype.process_request).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('assign_nurse')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Assign patient to colleague')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Colleagues on shift')
                 var modal_form = '<form id="nurse_list"><ul class="sharelist"><li><input type="checkbox" name="nurse_select_1" class="patient_share_nurse" value="1"/><label for="nurse_select_1">Test Nurse (Test Patient, Test Patient)</label></li></ul><p class="error"></p></form>';
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe(modal_form);
             });
@@ -462,6 +462,7 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_success');
             });
 
+            // TODO: Refactor
             it('On selecting patients and clicking claim it sends the patient ids to the server and on error informs the user', function(){
                 // checkboxes
                 var checkbox = document.getElementById('share_checkbox');
@@ -567,7 +568,7 @@ describe('Stand in Functionality', function(){
                 expect(NHMobileShareInvite.prototype.process_request).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('accept_invite');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Accept invitation to follow patients?');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Patients shared with you');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<ul class="tasklist"><li class="block"><a><div class="task-meta"><div class="task-right"><p class="aside">6:66 hours</p></div><div class="task-left"><strong>Test Patient</strong>(1 <i class="icon-down-arrow"></i> )<br><em>Bed 1, Ward 1</em></div></div></a></li></ul>');
             });
         });
@@ -604,7 +605,7 @@ describe('Stand in Functionality', function(){
                             var accept_invite = new NHMobileData({
                                 status: 'success',
                                 title: 'Successfully accepted stand-in invite',
-                                description: 'You are following these patient(s)',
+                                description: 'You are following these 666 patients from Another User',
                                 data: {
                                     status: true,
                                     count: 666,
@@ -656,10 +657,11 @@ describe('Stand in Functionality', function(){
                 expect(invite).toBe(null);
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invite_success');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully accepted patients');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully accepted stand-in invite');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Now following 666 patients from Another User</p>');
             });
 
+            // TODO: Refactor
             it('Keeps invitation and informs user of error when issue on server', function(){
                 // Click invite
                 var invite = document.getElementById('bad_invite');
@@ -722,7 +724,7 @@ describe('Stand in Functionality', function(){
                             var reject_invite = new NHMobileData({
                                 status: 'success',
                                 title: 'Successfully rejected stand-in invite',
-                                description: 'You are not following these patient(s)',
+                                description: 'The invitation to follow Another User\'s patients was rejected',
                                 data: {
                                     status: true,
                                     count: 666,
@@ -774,10 +776,11 @@ describe('Stand in Functionality', function(){
                 expect(invite).toBe(null);
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('reject_success');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully rejected patients');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully rejected stand-in invite');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">The invitation to follow Another User\'s patients was rejected</p>');
             });
 
+            // TODO: Refactor test
             it('Keeps invitation and informs user of error when issue on server', function(){
                 // Click invite
                 var invite = document.getElementById('bad_invite');

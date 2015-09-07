@@ -193,13 +193,11 @@ class NHMobile extends NHLib
   # data
   get_patient_info: (patient_id, self) =>
     patient_url = this.urls.json_patient_info(patient_id).url
-    Promise.when(@process_request('GET', patient_url)).then (server_data) ->
-      data = server_data[0][0]
-      patient_name = ''
+    Promise.when(@process_request('GET', patient_url)).then (raw_data) ->
+      server_data = raw_data[0]
+      data = server_data.data
+      patient_name = server_data.title
       patient_details = ''
-      ### istanbul ignore else ###
-      if data.full_name
-        patient_name += ' ' + data.full_name
       ### istanbul ignore else ###
       if data.gender
         patient_name += '<span class="alignright">' + data.gender + '</span>'

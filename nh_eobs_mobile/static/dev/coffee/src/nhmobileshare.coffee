@@ -54,14 +54,15 @@ class NHMobileShare extends NHMobile
     if patients.length > 0
       url = self.urls.json_colleagues_list()
       urlmeth = url.method
-      Promise.when(self.process_request(urlmeth, url.url)).then (server_data) ->
-        data = server_data[0][0]
+      Promise.when(self.process_request(urlmeth, url.url)).then (raw_data) ->
+        server_data = raw_data[0]
+        data = server_data.data
         nurse_list = '<form id="nurse_list"><ul class="sharelist">'
-        for nurse in data
+        for nurse in data.colleagues
           nurse_list += '<li><input type="checkbox" name="nurse_select_'+
-            nurse['id']+'" class="patient_share_nurse" value="'+
-            nurse['id']+'"/><label for="nurse_select_'+nurse['id']+'">'+
-            nurse['name']+' ('+nurse['patients']+')</label></li>'
+            nurse.id+'" class="patient_share_nurse" value="'+
+            nurse.id+'"/><label for="nurse_select_' + nurse.id + '">'+
+            nurse.name+' ('+nurse.patients+')</label></li>'
         nurse_list += '</ul><p class="error"></p></form>'
         assign_btn = '<a href="#" data-action="assign" '+
           'data-target="assign_nurse" data-ajax-action="json_assign_nurse">'+
@@ -69,7 +70,7 @@ class NHMobileShare extends NHMobile
         can_btn = '<a href="#" data-action="close" data-target="assign_nurse"'+
           '>Cancel</a>'
         btns = [assign_btn, can_btn]
-        new window.NH.NHModal('assign_nurse', 'Assign patient to colleague',
+        new window.NH.NHModal('assign_nurse', server_data.title,
           nurse_list, btns, 0, self.form)
     else
       msg = '<p class="block">Please select patients to hand'+
@@ -126,9 +127,10 @@ class NHMobileShare extends NHMobile
       nurse_ids = 'user_ids='+nurses
       patient_ids = 'patient_ids='+patients
       data_string = patient_ids + '&'+ nurse_ids
-      Promise.when(self.call_resource(url, data_string)).then (server_data) ->
-        data = server_data[0][0]
-        if data['status']
+      Promise.when(self.call_resource(url, data_string)).then (raw_data) ->
+        server_data = raw_data[0]
+        data = server_data.data
+        if server_data.status is 'success'
           pts = (el for el in form.elements when el.value in patients)
           for pt in pts
             pt.checked = false
@@ -136,19 +138,19 @@ class NHMobileShare extends NHMobile
             pt_el.parentNode.classList.add('shared')
             ti = pt_el.getElementsByClassName('taskInfo')[0]
             if ti.innerHTML.indexOf('Shared') < 0
-              ti.innerHTML = 'Shared with: ' + data['shared_with'].join(', ')
+              ti.innerHTML = 'Shared with: ' + data.shared_with.join(', ')
             else
-              ti.innerHTML += ', ' + data['shared_with'].join(', ')
+              ti.innerHTML += ', ' + data.shared_with.join(', ')
 
           cover = document.getElementById('cover')
           document.getElementsByTagName('body')[0].removeChild(cover)
           popup.parentNode.removeChild(popup)
           can_btn = '<a href="#" data-action="close" '+
             'data-target="share_success">Cancel</a>'
-          share_msg = '<p class="block">Successfully shared patients with '+
+          share_msg = '<p class="block">'+ server_data.desc +
             data['shared_with'].join(', ') + '</p>'
           btns = [can_btn]
-          new window.NH.NHModal('share_success', 'Patients Shared',
+          new window.NH.NHModal('share_success', server_data.title,
             share_msg, btns, 0, body)
         else
           error_message.innerHTML = 'Error assigning colleague(s),'+
@@ -161,14 +163,15 @@ class NHMobileShare extends NHMobile
       when el.checked and not el.classList.contains('exclude'))
     data_string = 'patient_ids=' + patients
     url = self.urls.json_claim_patients()
-    Promise.when(self.call_resource(url, data_string)).then (server_data) ->
-      data = server_data[0][0]
+    Promise.when(self.call_resource(url, data_string)).then (raw_data) ->
+      server_data = raw_data[0]
+      data = server_data.data
       popup = document.getElementById('claim_patients')
       cover = document.getElementById('cover')
       body = document.getElementsByTagName('body')[0]
       body.removeChild(cover)
       popup.parentNode.removeChild(popup)
-      if data['status']
+      if server_data.status is 'success'
         pts = (el for el in form.elements when el.value in patients)
         for pt in pts
           pt.checked = false
@@ -178,9 +181,9 @@ class NHMobileShare extends NHMobile
           ti.innerHTML = '<br>'
         can_btn = '<a href="#" data-action="close" '+
             'data-target="claim_success">Cancel</a>'
-        claim_msg = '<p class="block">Successfully claimed patients</p>'
+        claim_msg = '<p class="block">' + server_data.desc + '</p>'
         btns = [can_btn]
-        new window.NH.NHModal('claim_success', 'Patients Claimed',
+        new window.NH.NHModal('claim_success', server_data.title,
           claim_msg, btns, 0, body)
       else
         can_btn = '<a href="#" data-action="close" data-target="claim_error"'+

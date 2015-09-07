@@ -57,9 +57,10 @@ NHMobileBarcode = (function(superClass) {
       }
       url = self.urls.json_patient_barcode(input.value.split(',')[1]);
       url_meth = url.method;
-      return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
-        var activities_string, activity, content, data, i, len, ref;
-        data = server_data[0][0];
+      return Promise.when(self.process_request(url_meth, url.url)).then(function(raw_data) {
+        var activities_string, activity, content, data, i, len, ref, server_data;
+        server_data = raw_data[0];
+        data = server_data.data;
         activities_string = "";
         if (data.activities.length > 0) {
           activities_string = '<ul class="menu">';

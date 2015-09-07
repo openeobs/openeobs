@@ -26,8 +26,10 @@ class NHMobilePatient extends NHMobile
     data_id = document.getElementById('graph-content').getAttribute('data-id')
 
     Promise.when(@call_resource(@.urls['ajax_get_patient_obs'](data_id)))
-      .then (server_data) ->
-        self.draw_graph(self, server_data)
+      .then (raw_data) ->
+        server_data = raw_data[0]
+        data = server_data.data
+        self.draw_graph(self, data)
 
   handle_tabs: (event) ->
     event.preventDefault()
@@ -53,7 +55,7 @@ class NHMobilePatient extends NHMobile
 
   draw_graph: (self, server_data) ->
     element_for_chart = 'chart'
-    obs = server_data[0][0].obs.reverse()
+    obs = server_data.obs.reverse()
     if obs.length > 0
       svg = new window.NH.NHGraphLib('#'+element_for_chart)
       resp_rate_graph = new window.NH.NHGraph()

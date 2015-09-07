@@ -65,11 +65,10 @@ Promise = (function() {
 NHMobileData = (function() {
   function NHMobileData(raw_data) {
     var self;
-    this.raw_data = raw_data;
-    this.status = this.raw_data.status;
-    this.title = this.raw_data.title;
-    this.desc = this.raw_data.description;
-    this.data = this.raw_data.data;
+    this.status = raw_data.status;
+    this.title = raw_data.title;
+    this.desc = raw_data.description;
+    this.data = raw_data.data;
     self = this;
   }
 
@@ -182,16 +181,12 @@ NHMobile = (function(superClass) {
   NHMobile.prototype.get_patient_info = function(patient_id, self) {
     var patient_url;
     patient_url = this.urls.json_patient_info(patient_id).url;
-    Promise.when(this.process_request('GET', patient_url)).then(function(server_data) {
-      var cancel, data, fullscreen, patient_details, patient_name;
-      data = server_data[0][0];
-      patient_name = '';
+    Promise.when(this.process_request('GET', patient_url)).then(function(raw_data) {
+      var cancel, data, fullscreen, patient_details, patient_name, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      patient_name = server_data.title;
       patient_details = '';
-
-      /* istanbul ignore else */
-      if (data.full_name) {
-        patient_name += ' ' + data.full_name;
-      }
 
       /* istanbul ignore else */
       if (data.gender) {

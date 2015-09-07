@@ -348,12 +348,13 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.display_partial_reasons = function(self) {
     var form_type;
     form_type = self.form.getAttribute('data-source');
-    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(data) {
-      var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
+    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(rdata) {
+      var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
+      server_data = rdata[0];
+      data = server_data.data;
       options = '';
-      ref = data[0][0];
-      for (i = 0, len = ref.length; i < len; i++) {
-        option = ref[i];
+      for (i = 0, len = data.length; i < len; i++) {
+        option = data[i];
         option_val = option[0];
         option_name = option[1];
         options += '<option value="' + option_val + '">' + option_name + '</option>';
@@ -361,8 +362,8 @@ NHMobileForm = (function(superClass) {
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
-      msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
-      return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
+      msg = '<p class="block">' + server_data.desc + '</p>';
+      return new window.NH.NHModal('partial_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
 
@@ -378,20 +379,21 @@ NHMobileForm = (function(superClass) {
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
-    return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
-      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
-      data = server_data[0][0];
+    return Promise.when(this.call_resource(url, serialised_string)).then(function(raw_data) {
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
+      server_data = raw_data[0];
+      data = server_data.data;
       body = document.getElementsByTagName('body')[0];
-      if (data && data.status === 3) {
+      if (server_data.status === 'success' && data.status === 3) {
         can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
-        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>';
-        new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], [can_btn, act_btn], 0, body);
+        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.next_action + '">Submit</a>';
+        new window.NH.NHModal('submit_observation', server_data.title, server_data.desc, [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
-          cls = 'clinicalrisk-' + data.score['clinical_risk'].toLowerCase();
+          cls = 'clinicalrisk-' + data.score.clinical_risk.toLowerCase();
           return sub_ob.classList.add(cls);
         }
-      } else if (data && data.status === 1) {
+      } else if (server_data.status === 'success' && data.status === 1) {
         triggered_tasks = '';
         buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'];
         if (data.related_tasks.length === 1) {
@@ -411,11 +413,10 @@ NHMobileForm = (function(superClass) {
         pos = '<p>Observation was submitted</p>';
         os = 'Observation successfully submitted';
         task_list = triggered_tasks ? triggered_tasks : pos;
-        title = triggered_tasks ? 'Action required' : os;
-        return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, body);
-      } else if (data && data.status === 4) {
+        return new window.NH.NHModal('submit_success', server_data.title, task_list, buttons, 0, body);
+      } else if (server_data.status === 'success' && data.status === 4) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
-        return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
+        return new window.NH.NHModal('cancel_success', server_data.title, server_data.desc, [btn], 0, self.form);
       } else {
         action_buttons = (function() {
           var j, len1, ref1, ref2, results;
@@ -455,21 +456,22 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.cancel_notification = function(self) {
     var opts;
     opts = this.urls.ajax_task_cancellation_options();
-    return Promise.when(this.call_resource(opts)).then(function(data) {
-      var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
+    return Promise.when(this.call_resource(opts)).then(function(raw_data) {
+      var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
       options = '';
-      ref = data[0][0];
-      for (i = 0, len = ref.length; i < len; i++) {
-        option = ref[i];
+      for (i = 0, len = data.length; i < len; i++) {
+        option = data[i];
         option_val = option.id;
         option_name = option.name;
         options += '<option value="' + option_val + '">' + option_name + '</option>';
       }
       select = '<select name="reason">' + options + '</select>';
-      msg = '<p>Please state reason for cancelling task</p>';
+      msg = '<p>' + server_data.desc + '</p>';
       can_btn = '<a href="#" data-action="close" ' + 'data-target="cancel_reasons">Cancel</a>';
       con_btn = '<a href="#" data-target="cancel_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="cancel_clinical_notification">Confirm</a>';
-      return new window.NH.NHModal('cancel_reasons', 'Cancel task', msg + select, [can_btn, con_btn], 0, document.getElementsByTagName('form')[0]);
+      return new window.NH.NHModal('cancel_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, document.getElementsByTagName('form')[0]);
     });
   };
 

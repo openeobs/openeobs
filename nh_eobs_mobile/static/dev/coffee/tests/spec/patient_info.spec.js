@@ -77,11 +77,12 @@ describe('Patient Information Functionality', function(){
             expect(NHMobile.prototype.process_request).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_info');
-            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe(' Test Patient<span class="alignright">M</span>');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Test Patient<span class="alignright">M</span>');
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><p><a href="http://localhost:8069/mobile/patient/3" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>');
         });
     });
 
+    // TODO: REFACTOR THIS
     describe('Rendering patient information using patient data from server', function(){
         var test_pat;
         beforeEach(function(){
@@ -274,6 +275,7 @@ describe('Patient Information Functionality', function(){
             expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
         });
 
+        // TODO: Refactor test
         it('It receives patient\'s data, without parent_location but news trend, processes it and shows popup via keypress with keycode 116', function(){
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
@@ -332,6 +334,7 @@ describe('Patient Information Functionality', function(){
             expect(NHMobileBarcode.prototype.process_request).not.toHaveBeenCalled();
         });
 
+        // TODO: Refactor test
         it('It receives patient\'s data, without activities and render it', function(){
             patient_info_data[0]["activities"] = [];
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();

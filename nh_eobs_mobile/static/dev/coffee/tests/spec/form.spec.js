@@ -560,7 +560,7 @@ describe('Data Entry Functionality', function(){
                         var partial_reasons = new NHMobileData({
                             status: 'success',
                             title: 'Reason for partial observation',
-                            description: 'Please select an option from the list',
+                            description: 'Please state reason for submitting partial observation',
                             data: [[1,'Option 1'], [2, 'Option 2']]
                         });
                         promise.complete(partial_reasons);
@@ -570,6 +570,7 @@ describe('Data Entry Functionality', function(){
                             title: 'Successfully submitted observation',
                             description: 'Here are related tasks based on the observation',
                             data: {
+                                status: 1,
                                 related_tasks: []
                             }
                         })
@@ -617,7 +618,8 @@ describe('Data Entry Functionality', function(){
                 // check modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('partial_reasons');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Submit partial observation');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Reason for partial observation');
+                // failing due to data from server not being correct
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
 
                 // choose an option and click the submit button
@@ -639,7 +641,7 @@ describe('Data Entry Functionality', function(){
                 // check that modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
 
             });
@@ -667,7 +669,7 @@ describe('Data Entry Functionality', function(){
                         var cancel_reasons = new NHMobileData({
                             status: 'success',
                             title: 'Reason for cancelling task?',
-                            description: 'Please select an option from the dropdown',
+                            description: 'Please state reason for cancelling task',
                             data: [
                                 {
                                     id: 1,
@@ -686,6 +688,7 @@ describe('Data Entry Functionality', function(){
                             title: 'Cancellation successful',
                             description: 'The notification was successfully cancelled',
                             data: {
+                                status: 4,
                                 related_tasks: []
                             }
                         })
@@ -731,7 +734,7 @@ describe('Data Entry Functionality', function(){
                 //expect(cancel_button.getAttribute('disabled')).toBe('disabled');
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('cancel_reasons');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Cancel task');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Reason for cancelling task?');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please state reason for cancelling task</p><select name="reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
 
                 // choose an option and click the submit button
@@ -753,8 +756,8 @@ describe('Data Entry Functionality', function(){
                 // check that modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('cancel_success');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Task successfully cancelled');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Cancellation successful');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('The notification was successfully cancelled');
 
             });
         });
@@ -780,9 +783,10 @@ describe('Data Entry Functionality', function(){
                     if(url == 'http://localhost:8069/mobile/test/test/0') {
                         var calculate_score = new NHMobileData({
                             status: 'success',
-                            title: 'Submit TEST of 0',
+                            title: 'Submit TEST score of 0 for Test Patient?',
                             description: 'TEST observation scored 0 which means something',
                             data: {
+                                status: 3,
                                 next_action: 'json_task_form_action',
                                 score: {
                                     score: 0
@@ -796,6 +800,7 @@ describe('Data Entry Functionality', function(){
                             title: 'Successfully submitted observation',
                             description: 'Here are related tasks based on the observation',
                             data: {
+                                status: 1,
                                 related_tasks: []
                             }
                         })
@@ -803,9 +808,10 @@ describe('Data Entry Functionality', function(){
                     }else if(url == 'http://localhost:8069/mobile/test/test/1'){
                         var calculate_score = new NHMobileData({
                             status: 'success',
-                            title: 'Submit TEST of 0',
+                            title: 'Submit TEST score of 0 for Test Patient?',
                             description: 'TEST observation scored 0 which means something',
                             data: {
+                                status: 3,
                                 next_action: 'json_task_form_action',
                                 score: {
                                     score: 0,
@@ -881,7 +887,7 @@ describe('Data Entry Functionality', function(){
                 //expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
 
             });
@@ -982,6 +988,7 @@ describe('Data Entry Functionality', function(){
                             title: 'Successfully submitted observation',
                             description: 'Here are related tasks based on the observation',
                             data: {
+                                status: 1,
                                 related_tasks: []
                             }
                         })
@@ -989,9 +996,10 @@ describe('Data Entry Functionality', function(){
                     }else if(url == 'http://localhost:8069/mobile/test/test/1'){
                         var obs_submit = new NHMobileData({
                             status: 'success',
-                            title: 'Successfully submitted observation',
+                            title: 'Action required',
                             description: 'Here are related tasks based on the observation',
                             data: {
+                                status: 1,
                                 related_tasks: [
                                     {
                                         summary: 'Test Task',
@@ -1004,9 +1012,10 @@ describe('Data Entry Functionality', function(){
                     }else if(url == 'http://localhost:8069/mobile/test/test/2'){
                         var obs_submit = new NHMobileData({
                             status: 'success',
-                            title: 'Successfully submitted observation',
+                            title: 'Action required',
                             description: 'Here are related tasks based on the observation',
                             data: {
+                                status: 1,
                                 related_tasks: [
                                     {
                                         summary: 'Test Task',
@@ -1061,7 +1070,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
             });
 
