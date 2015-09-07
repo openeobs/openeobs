@@ -205,7 +205,6 @@ Params:</p>
         <span class="hljs-keyword">when</span> <span class="hljs-number">1</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options one-col'</span>)
         <span class="hljs-keyword">when</span> <span class="hljs-number">2</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options two-col'</span>)
         <span class="hljs-keyword">when</span> <span class="hljs-number">3</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options three-col'</span>)
-        <span class="hljs-keyword">when</span> <span class="hljs-number">4</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options four-col'</span>)
       <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> buttons
         <span class="hljs-keyword">do</span> (self) -&gt;
           option_button = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'li'</span>)
@@ -427,8 +426,10 @@ Currently offers</p>
           reject_detail)
         <span class="hljs-built_in">document</span>.dispatchEvent reject_event
     <span class="hljs-keyword">return</span>
+
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
+
 <span class="hljs-built_in">window</span>?.NH.NHModal = NHModal</pre></div></div>
             
         </li>

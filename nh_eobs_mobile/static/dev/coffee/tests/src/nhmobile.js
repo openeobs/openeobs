@@ -1,6 +1,6 @@
 
 /* istanbul ignore next */
-var NHMobile, Promise,
+var NHMobile, NHMobileData, Promise,
   slice = [].slice,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -59,6 +59,20 @@ Promise = (function() {
   };
 
   return Promise;
+
+})();
+
+NHMobileData = (function() {
+  function NHMobileData(status, title, description, data1) {
+    var self;
+    this.status = status;
+    this.title = title;
+    this.description = description;
+    this.data = data1;
+    self = this;
+  }
+
+  return NHMobileData;
 
 })();
 

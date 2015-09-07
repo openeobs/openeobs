@@ -570,8 +570,22 @@ this blows up</p>
     <span class="hljs-keyword">if</span> reason
       reason_to_use = reason
     <span class="hljs-keyword">if</span> cancel_reason
-      reason_to_use = cancel_reason
-    <span class="hljs-keyword">if</span> reason_to_use
+      reason_to_use = cancel_reason</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>TODO: Add an error catch if no value entered</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> reason_to_use
       form_elements.push(reason_to_use)
       self.submit_observation(self, form_elements, event.detail.action,
         self.form.getAttribute(<span class="hljs-string">'ajax-args'</span>))

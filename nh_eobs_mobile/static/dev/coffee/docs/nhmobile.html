@@ -159,7 +159,7 @@ you can then use <code>then</code> to handle the response</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <h2 id="nhmobile">NHMobile</h2>
+              <h2 id="nhmobiledata">NHMobileData</h2>
 
             </div>
             
@@ -172,6 +172,36 @@ you can then use <code>then</code> to handle the response</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
+              <p>A utility class to hold data from the server</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHMobileData</span></span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@status</span>, <span class="hljs-property">@title</span>, <span class="hljs-property">@description</span>, <span class="hljs-property">@data</span>)</span> -&gt;</span>
+    self = @</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <h2 id="nhmobile">NHMobile</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
               <p>contains utilities for working with the
 nh_eobs_mobile controllers as well as AJAX</p>
 
@@ -182,11 +212,11 @@ nh_eobs_mobile controllers as well as AJAX</p>
         </li>
         
         
-        <li id="section-7">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>Handles the XMLHTTPRequest and wraps it up in a Promise
 Params:
@@ -226,11 +256,11 @@ Params:
         </li>
         
         
-        <li id="section-8">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>frontend_routes is the routes file from nh_eobs_mobile</p>
 
@@ -244,11 +274,11 @@ Params:
         </li>
         
         
-        <li id="section-9">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Decodes frontend_routes URL object into a <code>process_request</code> call</p>
 
@@ -260,11 +290,11 @@ Params:
         </li>
         
         
-        <li id="section-10">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Takes a patient object from server and renders patient information into
 template</p>
@@ -304,11 +334,11 @@ template</p>
         </li>
         
         
-        <li id="section-11">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>Takes a patient ID, calls the server and then creates a NHModal from the
 data</p>
@@ -344,11 +374,11 @@ data</p>
         </li>
         
         
-        <li id="section-12">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Adds a full screen modal of the patient info screen over the current page
 triggered by the fullscreen button made by the patient information modal</p>
@@ -390,11 +420,11 @@ triggered by the fullscreen button made by the patient information modal</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Closes an open fullscreen modal of the patient’s information</p>
 

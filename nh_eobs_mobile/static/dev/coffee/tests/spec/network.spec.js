@@ -25,7 +25,7 @@ describe('Network Functionality', function(){
 
     describe('call_resource calls underlying process_request function', function(){
         var mobile;
-        var patient_info_data = [{
+        var patient_info_data = new NHMobileData('success', 'Test Patient', '', {
             'full_name': 'Test Patient',
             'gender': 'M',
             'dob': '1988-01-12 00:00',
@@ -34,7 +34,7 @@ describe('Network Functionality', function(){
             'ews_score': 1,
             'other_identifier': '012345678',
             'patient_identifier': 'NHS012345678'
-        }];
+        });
 
         beforeEach(function(){
             if (mobile == null) {

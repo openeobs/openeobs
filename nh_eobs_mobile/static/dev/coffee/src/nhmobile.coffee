@@ -87,6 +87,14 @@ class Promise
 
     @callbacks.push callback
 
+# NHMobileData
+#-------------
+# A utility class to hold data from the server
+class NHMobileData
+  constructor: (@status, @title, @description, @data) ->
+    self = @
+
+
 # NHMobile
 #----------
 # contains utilities for working with the
