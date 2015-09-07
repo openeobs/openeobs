@@ -466,7 +466,6 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_success');
             });
 
-            // TODO: Refactor
             it('On selecting patients and clicking claim it sends the patient ids to the server and on error informs the user', function(){
                 // checkboxes
                 var checkbox = document.getElementById('share_checkbox');
@@ -665,7 +664,6 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">You are now following 666 patients from Another User</p>');
             });
 
-            // TODO: Refactor
             it('Keeps invitation and informs user of error when issue on server', function(){
                 // Click invite
                 var invite = document.getElementById('bad_invite');
@@ -784,7 +782,6 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">The invitation to follow Another User\'s patients was rejected</p>');
             });
 
-            // TODO: Refactor test
             it('Keeps invitation and informs user of error when issue on server', function(){
                 // Click invite
                 var invite = document.getElementById('bad_invite');

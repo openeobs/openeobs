@@ -82,7 +82,6 @@ describe('Patient Information Functionality', function(){
         });
     });
 
-    // TODO: REFACTOR THIS
     describe('Rendering patient information using patient data from server', function(){
         var test_pat;
         beforeEach(function(){
@@ -332,7 +331,6 @@ describe('Patient Information Functionality', function(){
             expect(NHMobileBarcode.prototype.process_request).not.toHaveBeenCalled();
         });
 
-        // TODO: Refactor test
         it('It receives patient\'s data, without activities and render it', function(){
             barcode_data.data.activities = [];
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
