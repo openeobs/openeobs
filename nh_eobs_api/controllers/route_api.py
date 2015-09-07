@@ -124,6 +124,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 res = a
                 res['status'] = True
                 break
+        # TODO: Change description to say You are now following len(res) patients from USER
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully accepted stand-in invite',
                                                    description='You are following these patient(s)',
