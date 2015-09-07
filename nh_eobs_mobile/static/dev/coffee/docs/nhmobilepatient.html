@@ -69,8 +69,10 @@ the nh_eobs_mobile patient view, namely getting data
     data_id = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'graph-content'</span>).getAttribute(<span class="hljs-string">'data-id'</span>)
 
     Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(@.urls[<span class="hljs-string">'ajax_get_patient_obs'</span>](data_id)))
-      .<span class="hljs-keyword">then</span> (server_data) -&gt;
-        self.draw_graph(self, server_data)
+      .<span class="hljs-keyword">then</span> (raw_data) -&gt;
+        server_data = raw_data[<span class="hljs-number">0</span>]
+        data = server_data.data
+        self.draw_graph(self, data)
 
   <span class="hljs-attribute">handle_tabs</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
     event.preventDefault()
@@ -96,7 +98,7 @@ the nh_eobs_mobile patient view, namely getting data
 
   <span class="hljs-attribute">draw_graph</span>: <span class="hljs-function"><span class="hljs-params">(self, server_data)</span> -&gt;</span>
     element_for_chart = <span class="hljs-string">'chart'</span>
-    obs = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>].obs.reverse()
+    obs = server_data.obs.reverse()
     <span class="hljs-keyword">if</span> obs.length &gt; <span class="hljs-number">0</span>
       svg = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHGraphLib(<span class="hljs-string">'#'</span>+element_for_chart)
       resp_rate_graph = <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHGraph()

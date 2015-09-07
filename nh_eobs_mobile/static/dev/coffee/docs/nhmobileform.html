@@ -374,9 +374,11 @@ this blows up</p>
 
   <span class="hljs-attribute">display_partial_reasons</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> =&gt;</span>
     form_type = self.form.getAttribute(<span class="hljs-string">'data-source'</span>)
-    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(@.urls.json_partial_reasons())).<span class="hljs-keyword">then</span> (data) -&gt;
+    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(@.urls.json_partial_reasons())).<span class="hljs-keyword">then</span> (rdata) -&gt;
+      server_data = rdata[<span class="hljs-number">0</span>]
+      data = server_data.data
       options = <span class="hljs-string">''</span>
-      <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+      <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> data
         option_val = option[<span class="hljs-number">0</span>]
         option_name = option[<span class="hljs-number">1</span>]
         options += <span class="hljs-string">'&lt;option value="'</span>+option_val+<span class="hljs-string">'"&gt;'</span>+option_name+<span class="hljs-string">'&lt;/option&gt;'</span>
@@ -389,9 +391,8 @@ this blows up</p>
         <span class="hljs-string">'data-ajax-action="json_patient_form_action"&gt;Confirm&lt;/a&gt;'</span>
       can_btn = <span class="hljs-string">'&lt;a href="#" data-action="renable" '</span>+
         <span class="hljs-string">'data-target="partial_reasons"&gt;Cancel&lt;/a&gt;'</span>
-      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please state reason for '</span>+
-        <span class="hljs-string">'submitting partial observation&lt;/p&gt;'</span>
-      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'partial_reasons'</span>, <span class="hljs-string">'Submit partial observation'</span>,
+      msg = <span class="hljs-string">'&lt;p class="block"&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'partial_reasons'</span>, server_data.title,
         msg+select, [can_btn, con_btn], <span class="hljs-number">0</span>, self.form)
 
   <span class="hljs-attribute">submit_observation</span>: <span class="hljs-function"><span class="hljs-params">(self, elements, endpoint, args)</span> =&gt;</span></pre></div></div>
@@ -425,24 +426,25 @@ this blows up</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(url, serialised_string)).<span class="hljs-keyword">then</span> (server_data) -&gt;
-      data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+            <div class="content"><div class='highlight'><pre>    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(url, serialised_string)).<span class="hljs-keyword">then</span> (raw_data) -&gt;
+      server_data = raw_data[<span class="hljs-number">0</span>]
+      data = server_data.data
       body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
-      <span class="hljs-keyword">if</span> data <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">3</span>
+      <span class="hljs-keyword">if</span> server_data.status <span class="hljs-keyword">is</span> <span class="hljs-string">'success'</span> <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">3</span>
         can_btn = <span class="hljs-string">'&lt;a href="#" data-action="renable" '</span>+
           <span class="hljs-string">'data-target="submit_observation"&gt;Cancel&lt;/a&gt;'</span>
         act_btn = <span class="hljs-string">'&lt;a href="#" data-target="submit_observation" '</span>+
           <span class="hljs-string">'data-action="submit" data-ajax-action="'</span>+
-          data.modal_vals[<span class="hljs-string">'next_action'</span>]+<span class="hljs-string">'"&gt;Submit&lt;/a&gt;'</span>
+          data.next_action+<span class="hljs-string">'"&gt;Submit&lt;/a&gt;'</span>
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_observation'</span>,
-          data.modal_vals[<span class="hljs-string">'title'</span>] + <span class="hljs-string">' for '</span> + self.patient_name() + <span class="hljs-string">'?'</span>,
-          data.modal_vals[<span class="hljs-string">'content'</span>],
+          server_data.title,
+          server_data.desc,
           [can_btn, act_btn], <span class="hljs-number">0</span>, body)
         <span class="hljs-keyword">if</span> <span class="hljs-string">'clinical_risk'</span> <span class="hljs-keyword">of</span> data.score
           sub_ob = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'submit_observation'</span>)
-          cls = <span class="hljs-string">'clinicalrisk-'</span>+data.score[<span class="hljs-string">'clinical_risk'</span>].toLowerCase()
+          cls = <span class="hljs-string">'clinicalrisk-'</span>+data.score.clinical_risk.toLowerCase()
           sub_ob.classList.add(cls)
-      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> data <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> server_data.status <span class="hljs-keyword">is</span> <span class="hljs-string">'success'</span> <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">1</span>
         triggered_tasks = <span class="hljs-string">''</span>
         buttons = [<span class="hljs-string">'&lt;a href="'</span>+self.urls[<span class="hljs-string">'task_list'</span>]().url+
           <span class="hljs-string">'" data-action="confirm"&gt;Go to My Tasks&lt;/a&gt;'</span>]
@@ -459,15 +461,14 @@ this blows up</p>
         pos = <span class="hljs-string">'&lt;p&gt;Observation was submitted&lt;/p&gt;'</span>
         os = <span class="hljs-string">'Observation successfully submitted'</span>
         task_list = <span class="hljs-keyword">if</span> triggered_tasks <span class="hljs-keyword">then</span> triggered_tasks <span class="hljs-keyword">else</span> pos
-        title = <span class="hljs-keyword">if</span> triggered_tasks <span class="hljs-keyword">then</span> <span class="hljs-string">'Action required'</span> <span class="hljs-keyword">else</span> os
-        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_success'</span>, title ,
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_success'</span>, server_data.title ,
           task_list, buttons, <span class="hljs-number">0</span>, body)
-      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> data <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">4</span>
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> server_data.status <span class="hljs-keyword">is</span> <span class="hljs-string">'success'</span> <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">4</span>
         btn = <span class="hljs-string">'&lt;a href="'</span>+self.urls[<span class="hljs-string">'task_list'</span>]().url+
           <span class="hljs-string">'" data-action="confirm" data-target="cancel_success"&gt;'</span>+
           <span class="hljs-string">'Go to My Tasks&lt;/a&gt;'</span>
-        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_success'</span>, <span class="hljs-string">'Task successfully cancelled'</span>,
-          <span class="hljs-string">''</span>, [btn], <span class="hljs-number">0</span>, self.form)
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_success'</span>, server_data.title,
+          server_data.desc, [btn], <span class="hljs-number">0</span>, self.form)
       <span class="hljs-keyword">else</span>
         action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements \
           <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
@@ -504,20 +505,22 @@ this blows up</p>
 
   <span class="hljs-attribute">cancel_notification</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> =&gt;</span>
     opts = @.urls.ajax_task_cancellation_options()
-    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(opts)).<span class="hljs-keyword">then</span> (data) -&gt;
+    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(opts)).<span class="hljs-keyword">then</span> (raw_data) -&gt;
+      server_data = raw_data[<span class="hljs-number">0</span>]
+      data = server_data.data
       options = <span class="hljs-string">''</span>
-      <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+      <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> data
         option_val = option.id
         option_name = option.name
         options += <span class="hljs-string">'&lt;option value="'</span>+option_val+<span class="hljs-string">'"&gt;'</span>+option_name+<span class="hljs-string">'&lt;/option&gt;'</span>
       select = <span class="hljs-string">'&lt;select name="reason"&gt;'</span>+options+<span class="hljs-string">'&lt;/select&gt;'</span>
-      msg = <span class="hljs-string">'&lt;p&gt;Please state reason for cancelling task&lt;/p&gt;'</span>
+      msg = <span class="hljs-string">'&lt;p&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>
       can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
         <span class="hljs-string">'data-target="cancel_reasons"&gt;Cancel&lt;/a&gt;'</span>
       con_btn = <span class="hljs-string">'&lt;a href="#" data-target="cancel_reasons" '</span>+
         <span class="hljs-string">'data-action="partial_submit" '</span>+
         <span class="hljs-string">'data-ajax-action="cancel_clinical_notification"&gt;Confirm&lt;/a&gt;'</span>
-      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_reasons'</span>, <span class="hljs-string">'Cancel task'</span>, msg+select,
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_reasons'</span>, server_data.title, msg+select,
         [can_btn, con_btn], <span class="hljs-number">0</span>, <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)[<span class="hljs-number">0</span>])
 
   <span class="hljs-attribute">reset_form_timeout</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>

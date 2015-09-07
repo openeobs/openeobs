@@ -177,7 +177,11 @@ you can then use <code>then</code> to handle the response</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHMobileData</span></span>
-  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@status</span>, <span class="hljs-property">@title</span>, <span class="hljs-property">@description</span>, <span class="hljs-property">@data</span>)</span> -&gt;</span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(raw_data)</span> -&gt;</span>
+    <span class="hljs-property">@status</span> = raw_data.status
+    <span class="hljs-property">@title</span> = raw_data.title
+    <span class="hljs-property">@desc</span> = raw_data.description
+    <span class="hljs-property">@data</span> = raw_data.data
     self = @</pre></div></div>
             
         </li>
@@ -233,8 +237,9 @@ Params:
       <span class="hljs-keyword">if</span> req.readyState <span class="hljs-keyword">is</span> <span class="hljs-number">4</span>
         successResultCodes = [<span class="hljs-number">200</span>, <span class="hljs-number">304</span>]
         <span class="hljs-keyword">if</span> req.status <span class="hljs-keyword">in</span> successResultCodes
-          data = eval(<span class="hljs-string">'['</span>+req.responseText+<span class="hljs-string">']'</span>)
-          promise.complete data
+          data = JSON.parse(req.responseText)
+          mob_data = <span class="hljs-keyword">new</span> NHMobileData(data)
+          promise.complete mob_data
         <span class="hljs-keyword">else</span>
           btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span> +
             <span class="hljs-string">'data-target="data_error"&gt;Ok&lt;/a&gt;'</span>
@@ -347,12 +352,11 @@ data</p>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">get_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(patient_id, self)</span> =&gt;</span>
     patient_url = <span class="hljs-keyword">this</span>.urls.json_patient_info(patient_id).url
-    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@process_request</span>(<span class="hljs-string">'GET'</span>, patient_url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
-      data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
-      patient_name = <span class="hljs-string">''</span>
+    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@process_request</span>(<span class="hljs-string">'GET'</span>, patient_url)).<span class="hljs-keyword">then</span> (raw_data) -&gt;
+      server_data = raw_data[<span class="hljs-number">0</span>]
+      data = server_data.data
+      patient_name = server_data.title
       patient_details = <span class="hljs-string">''</span>
-      <span class="hljs-keyword">if</span> data.full_name
-        patient_name += <span class="hljs-string">' '</span> + data.full_name
       <span class="hljs-keyword">if</span> data.gender
         patient_name += <span class="hljs-string">'&lt;span class="alignright"&gt;'</span> + data.gender + <span class="hljs-string">'&lt;/span&gt;'</span>
       patient_details = self.render_patient_info(data, <span class="hljs-literal">true</span>, self) +

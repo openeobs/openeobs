@@ -148,7 +148,7 @@ class NHMobileShare extends NHMobile
           can_btn = '<a href="#" data-action="close" '+
             'data-target="share_success">Cancel</a>'
           share_msg = '<p class="block">'+ server_data.desc +
-            data['shared_with'].join(', ') + '</p>'
+            data.shared_with.join(', ') + '</p>'
           btns = [can_btn]
           new window.NH.NHModal('share_success', server_data.title,
             share_msg, btns, 0, body)

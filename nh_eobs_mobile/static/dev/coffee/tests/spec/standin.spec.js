@@ -259,9 +259,13 @@ describe('Stand in Functionality', function(){
                             title: 'Colleagues on shift',
                             description: 'Choose colleagues for stand-in',
                             data: {
-                                id: 1,
-                                name: 'Test Nurse',
-                                patients: 'Test Patient, Test Patient'
+                                colleagues: [
+                                    {
+                                        id: 1,
+                                        name: 'Test Nurse',
+                                        patients: 'Test Patient, Test Patient'
+                                    }
+                                ]
                             }
                         });
                         promise.complete(get_colleagues);
@@ -283,7 +287,7 @@ describe('Stand in Functionality', function(){
                        }else {
                             var promise = new Promise();
                            var empty = new NHMobileData({
-                               status: 'success',
+                               status: 'error',
                                title: '',
                                description: '',
                                data: {}
@@ -413,7 +417,7 @@ describe('Stand in Functionality', function(){
                    }else {
                         var promise = new Promise();
                        var empty = new NHMobileData({
-                               status: 'success',
+                               status: 'error',
                                title: '',
                                description: '',
                                data: {}
@@ -605,7 +609,7 @@ describe('Stand in Functionality', function(){
                             var accept_invite = new NHMobileData({
                                 status: 'success',
                                 title: 'Successfully accepted stand-in invite',
-                                description: 'You are following these 666 patients from Another User',
+                                description: 'You are now following 666 patients from Another User',
                                 data: {
                                     status: true,
                                     count: 666,
@@ -617,7 +621,7 @@ describe('Stand in Functionality', function(){
                         }else{
                             var promise = new Promise();
                             var empty = new NHMobileData({
-                               status: 'success',
+                               status: 'error',
                                title: '',
                                description: '',
                                data: {}
@@ -658,7 +662,7 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invite_success');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully accepted stand-in invite');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Now following 666 patients from Another User</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">You are now following 666 patients from Another User</p>');
             });
 
             // TODO: Refactor
@@ -736,7 +740,7 @@ describe('Stand in Functionality', function(){
                         }else{
                             var promise = new Promise();
                             var empty = new NHMobileData({
-                               status: 'success',
+                               status: 'error',
                                title: '',
                                description: '',
                                data: {}
