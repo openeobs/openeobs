@@ -74,7 +74,22 @@ describe('Stand in Functionality', function(){
             beforeEach(function(){
                spyOn(NHMobileShare.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([[{'id': 1, 'name': 'Test Nurse', 'patients': 'Test Patient, Test Patient'}]]);
+                   var colleagues = new NHMobileData({
+                           status: 'success',
+                           title: 'Colleagues on shift',
+                           description: 'Choose colleagues for stand-in',
+                           data: {
+                               colleagues: [
+                                   {
+                                       id: 1,
+                                       name: 'Test Nurse',
+                                       patients: 'Test Patient, Test Patient'
+                                   }
+                               ]
+                           }
+                       }
+                   );
+                    promise.complete(colleagues);
                     return promise;
                 });
                 standin = new NHMobileShare(share, claim, all);
@@ -239,16 +254,41 @@ describe('Stand in Functionality', function(){
                    var data = NHMobileShare.prototype.process_request.calls.mostRecent().args[2];
                    if(method == 'GET'){
                         var promise = new Promise();
-                        promise.complete([[{'id': 1, 'name': 'Test Nurse', 'patients': 'Test Patient, Test Patient'}]]);
+                        var get_colleagues = new NHMobileData({
+                            status: 'success',
+                            title: 'Colleagues on shift',
+                            description: 'Choose colleagues for stand-in',
+                            data: {
+                                id: 1,
+                                name: 'Test Nurse',
+                                patients: 'Test Patient, Test Patient'
+                            }
+                        });
+                        promise.complete(get_colleagues);
                         return promise;
                    }else{
                        if(data == 'patient_ids=1,2&user_ids=1'){
                             var promise = new Promise();
-                            promise.complete([{'status': 1, 'shared_with': ['Test Nurse', 'Another Nurse']}]);
+                           var post_standin = new NHMobileData({
+                                status: 'success',
+                                title: 'Invitation sent',
+                                description: 'An invite has been sent to follow the selected patients',
+                                data: {
+                                    reason: 'An invite has been sent to follow the selected patients',
+                                    shared_with: ['Test Nurse', 'Another Nurse']
+                                }
+                           });
+                            promise.complete(post_standin);
                             return promise;
                        }else {
                             var promise = new Promise();
-                            promise.complete([{}]);
+                           var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                            promise.complete(empty);
                             return promise;
                        }
                    }

@@ -91,7 +91,11 @@ class Promise
 #-------------
 # A utility class to hold data from the server
 class NHMobileData
-  constructor: (@status, @title, @description, @data) ->
+  constructor: (raw_data) ->
+    @status = raw_data.status
+    @title = raw_data.title
+    @desc = raw_data.description
+    @data = raw_data.data
     self = @
 
 
@@ -114,8 +118,9 @@ class NHMobile extends NHLib
         successResultCodes = [200, 304]
         ### istanbul ignore if ###
         if req.status in successResultCodes
-          data = eval('['+req.responseText+']')
-          promise.complete data
+          data = JSON.parse(req.responseText)
+          mob_data = new NHMobileData(data)
+          promise.complete mob_data
         else
           btn = '<a href="#" data-action="close" ' +
             'data-target="data_error">Ok</a>'

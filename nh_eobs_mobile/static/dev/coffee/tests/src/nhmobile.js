@@ -63,12 +63,13 @@ Promise = (function() {
 })();
 
 NHMobileData = (function() {
-  function NHMobileData(status, title, description, data1) {
+  function NHMobileData(raw_data) {
     var self;
-    this.status = status;
-    this.title = title;
-    this.description = description;
-    this.data = data1;
+    this.raw_data = raw_data;
+    this.status = this.raw_data.status;
+    this.title = this.raw_data.title;
+    this.desc = this.raw_data.description;
+    this.data = this.raw_data.data;
     self = this;
   }
 
@@ -84,14 +85,15 @@ NHMobile = (function(superClass) {
     promise = new Promise();
     req = new XMLHttpRequest();
     req.addEventListener('readystatechange', function() {
-      var btn, msg, ref, successResultCodes;
+      var btn, mob_data, msg, ref, successResultCodes;
       if (req.readyState === 4) {
         successResultCodes = [200, 304];
 
         /* istanbul ignore if */
         if (ref = req.status, indexOf.call(successResultCodes, ref) >= 0) {
-          data = eval('[' + req.responseText + ']');
-          return promise.complete(data);
+          data = JSON.parse(req.responseText);
+          mob_data = new NHMobileData(data);
+          return promise.complete(mob_data);
         } else {
           btn = '<a href="#" data-action="close" ' + 'data-target="data_error">Ok</a>';
           msg = '<div class="block">The server returned an error ' + 'while processing the request. Please check your ' + 'input and resubmit</div>';
