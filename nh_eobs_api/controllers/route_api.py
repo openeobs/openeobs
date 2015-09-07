@@ -325,7 +325,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Reason for partial observation',
-                                                   description='Please select an option from the list',
+                                                   description='Please state reason for submitting partial observation',
                                                    data=ews_pool._partial_reasons)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
@@ -417,7 +417,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Reason for cancelling task?',
-                                                   description='Please select an option from the dropdown',
+                                                   description='Please state reason for cancelling task',
                                                    data=api_pool.get_cancel_reasons(cr, uid, context=context))
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
