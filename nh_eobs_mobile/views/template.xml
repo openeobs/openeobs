@@ -204,7 +204,7 @@
 
                          <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
                          <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                         <div class="block obsSubmit">
+                         <div class="block obsSubmit" id="parent_submitButton">
                              <input type="submit" value="Confirm action" class="exclude" id="submitButton"/>
                          </div>
                          <t t-if="cancellable==True">
@@ -248,7 +248,7 @@
                             <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
                         </t>
                         <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                        <div class="block obsSubmit">
+                        <div class="block obsSubmit" id="parent_submitButton">
                             <input type="submit" value="Submit" class="exclude" id="submitButton"/>
                         </div>
                     </form>
@@ -273,7 +273,7 @@
 
                         <option value="">Please Select</option>
                         <t t-foreach="item['selection_options']" t-as="option">
-                            <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
+                            <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
                    <t t-if="item['name']=='bristol_type'">
