@@ -724,6 +724,18 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         kw_copy = kw.copy()
+
+        data_timestamp = kw_copy.get('startTimestamp', None)
+        data_task_id = kw_copy.get('taskId', None)
+
+        if data_timestamp is not None:
+            del kw_copy['startTimestamp']
+        if data_task_id is not None:
+            del kw_copy['taskId']
+        for key, value in kw_copy.items():
+            if not value:
+                del kw_copy[key]
+
         kw_copy['reason'] = int(kw_copy['reason'])
         result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
         return request.make_response(json.dumps({'status':1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})
