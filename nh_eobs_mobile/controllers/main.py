@@ -476,23 +476,23 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
                     form_input['type'] = 'number'
                     form_input['number'] = True
-                    form_input['info'] = ''
-                    form_input['errors'] = ''
+                    # form_input['info'] = ''
+                    # form_input['errors'] = ''
                     form_input['min'] = str(form_input['min'])
                     #if form_input['target']:
                     #    form_input['target'] = False
                 elif form_input['type'] == 'selection':
                     form_input['selection_options'] = []
-                    form_input['info'] = ''
-                    form_input['errors'] = ''
+                    # form_input['info'] = ''
+                    # form_input['errors'] = ''
                     for option in form_input['selection']:
                         opt = dict()
                         opt['value'] = '{0}'.format(option[0])
                         opt['label'] = option[1]
                         form_input['selection_options'].append(opt)
-                elif form_input['type'] == 'text':
-                    form_input['info'] = ''
-                    form_input['errors'] = ''
+                # elif form_input['type'] == 'text':
+                #    form_input['info'] = ''
+                #    form_input['errors'] = ''
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
             if 'notification' in task['data_model']:
