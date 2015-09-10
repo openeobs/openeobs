@@ -10,6 +10,7 @@ from openerp.osv import fields, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tools.translate import _
 from werkzeug import exceptions
+from openerp.modules.module import get_module_path
 
 from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
 
@@ -41,6 +42,7 @@ route_list = [
     Route('calculate_obs_score', '/observation/score/<observation>/', methods=['POST']),
 
     Route('json_partial_reasons', '/ews/partial_reasons/'),
+    Route('routes', '/routes/')
 ]
 
 # Add ALL the routes into the Route Manager
@@ -49,6 +51,13 @@ for r in route_list:
 
 
 class NH_API(openerp.addons.web.controllers.main.Home):
+
+    @http.route(**route_manager.expose_route('routes'))
+    def get_js_routes(self, *args, **kw):
+        name_of_template = 'routes_template.js'
+        path_to_template = get_module_path('nh_eobs_api') + '/views/'
+        routes = route_manager.get_javascript_routes(name_of_template, path_to_template)
+        return request.make_response(routes, headers={'Content-Type': 'application/javascript'})
 
     @http.route(**route_manager.expose_route('json_share_patients'))
     def share_patients(self, *args, **kw):
@@ -164,6 +173,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                                        title='Unable to reject stand-in invite',
                                                        description='An error occurred when trying to reject the stand-in invite',
                                                        data=res)
+
 
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
