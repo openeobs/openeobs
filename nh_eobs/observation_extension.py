@@ -1,9 +1,6 @@
 from openerp.osv import orm, osv
 import logging
-import threading
 from datetime import datetime as dt
-from openerp.api import Environment
-from openerp import registry
 _logger = logging.getLogger(__name__)
 
 
@@ -32,41 +29,6 @@ def refresh_materialized_views(f):
         _logger.debug('Materialized views refreshed in %s milliseconds' % milliseconds)
         return f(*args, **kwargs)
     return wrapper
-
-
-
-class nh_clinical_patient_observation_ews(orm.Model):
-
-    _name = 'nh.clinical.patient.observation.ews'
-    _inherit = 'nh.clinical.patient.observation.ews'
-
-    @refresh_materialized_views
-    def refresh_views(self, cr, uid, views, context=None):
-        return True
-
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_observation_ews, self).complete(cr, uid, activity_id, context=context)
-        self.refresh_views(cr, uid, ['ews0', 'ews1', 'ews2'], context=context)
-        # thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['ews0', 'ews1', 'ews2'], context], kwargs=None)
-        # thr.start()
-        return res
-
-
-class nh_clinical_patient_placement(orm.Model):
-
-    _name = 'nh.clinical.patient.placement'
-    _inherit = 'nh.clinical.patient.placement'
-
-    @refresh_materialized_views
-    def refresh_views(self, cr, uid, views, context=None):
-        return True
-
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_placement, self).complete(cr, uid, activity_id, context=context)
-        self.refresh_views(cr, uid, ['placement'], context=context)
-        # thr = threading.Thread(target=self.refresh_views, args=[cr, uid, ['placement'], context], kwargs=None)
-        # thr.start()
-        return res
 
 
 class nh_clinical_patient_mrsa(orm.Model):

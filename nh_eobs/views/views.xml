@@ -641,7 +641,7 @@
                     <field name="summary"/>
                     <field name="patient_id"/>
                     <field name="location"/>
-                    <field name="create_date"/>
+                    <field name="create_date" widget="nhc_datetime"/>
                 </tree>
             </field>
         </record>
