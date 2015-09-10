@@ -31,6 +31,9 @@ class NHMobileForm extends NHMobile
                   self.cancel_notification)
               when 'radio' then input.addEventListener('click',
                   self.trigger_actions)
+              when 'text'
+                input.addEventListener('change', self.validate)
+                input.addEventListener('change', self.trigger_actions)
           when 'select' then input.addEventListener('change',
             self.trigger_actions)
           when 'button' then input.addEventListener('click',
@@ -84,12 +87,14 @@ class NHMobileForm extends NHMobile
     event.preventDefault()
     @.reset_form_timeout(@)
     input = if event.srcElement then event.srcElement else event.target
+    input_type = input.getAttribute('type')
+    value = if input_type is 'number' then parseFloat(input.value) else
+      input.value
     @reset_input_errors(input)
-    value = parseFloat(input.value)
-    min = parseFloat(input.getAttribute('min'))
-    max = parseFloat(input.getAttribute('max'))
-    if typeof(value) isnt 'undefined' and not isNaN(value) and value isnt ''
-      if input.getAttribute('type') is 'number'
+    if typeof(value) isnt 'undefined' and value isnt ''
+      if input.getAttribute('type') is 'number' and not isNaN(value)
+        min = parseFloat(input.getAttribute('min'))
+        max = parseFloat(input.getAttribute('max'))
         if input.getAttribute('step') is '1' and value % 1 isnt 0
           @.add_input_errors(input, 'Must be whole number')
           return
@@ -124,6 +129,13 @@ class NHMobileForm extends NHMobile
               @.add_input_errors(target_input, criteria['message']['target'])
               @.add_input_errors(other_input, 'Please enter a value')
               continue
+      if input.getAttribute('type') is 'text'
+        if input.getAttribute('pattern')
+          regex_res = input.validity.patternMismatch
+          if regex_res
+            @.add_input_errors(input, 'Invalid value')
+            return
+
   
   # Certain inputs will affect other inputs, this function takes the JSON string
   # in the input's data-onchange attribute and does the appropriate action

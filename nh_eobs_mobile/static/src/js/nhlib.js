@@ -216,7 +216,10 @@ NHMobile = (function(superClass) {
       new NHModal('patient_info', patient_name, patient_details, [cancel], 0, document.getElementsByTagName('body')[0]);
       fullscreen = document.getElementById('patient_obs_fullscreen');
       return fullscreen.addEventListener('click', function(event) {
-        return self.fullscreen_patient_info(event, self);
+        if (!event.handled) {
+          self.fullscreen_patient_info(event, self);
+          return event.handled = true;
+        }
       });
     });
     return true;
@@ -233,20 +236,27 @@ NHMobile = (function(superClass) {
       options_close.setAttribute('href', '#');
       options_close.setAttribute('id', 'closeFullModal');
       options_close.innerText = 'Close popup';
-      options_close.addEventListener('click', self.close_fullscreen_patient_info);
+      options_close.addEventListener('click', function(event) {
+        if (!event.handled) {
+          self.close_fullscreen_patient_info(event);
+          return event.handled = true;
+        }
+      });
       options.appendChild(options_close);
       container.appendChild(options);
       page = document.createElement('iframe');
       page.setAttribute('src', event.srcElement.getAttribute('href'));
       page.onload = function() {
-        var contents, header, iframe, modal, obs;
+        var contents, header, iframe, modal, obs, ref, ref1;
         modal = document.getElementsByClassName('full-modal')[0];
         iframe = modal.getElementsByTagName('iframe')[0];
         contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
-        header = contents.getElementsByClassName('header')[0];
-        header.parentNode.removeChild(header);
-        obs = contents.getElementsByClassName('obs')[0];
-        return obs.parentNode.removeChild(obs);
+        header = contents != null ? (ref = contents.getElementsByClassName('header')) != null ? ref[0] : void 0 : void 0;
+        if (header != null) {
+          header.parentNode.removeChild(header);
+        }
+        obs = contents != null ? (ref1 = contents.getElementsByClassName('obs')) != null ? ref1[0] : void 0 : void 0;
+        return obs != null ? obs.parentNode.removeChild(obs) : void 0;
       };
       container.appendChild(page);
       document.getElementsByTagName('body')[0].appendChild(container);
@@ -390,7 +400,7 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.setup_event_listeners = function(self) {
     var fn, i, input, len, ref;
-    ref = this.form.elements;
+    ref = self.form.elements;
     fn = function() {
       switch (input.localName) {
         case 'input':
@@ -404,6 +414,9 @@ NHMobileForm = (function(superClass) {
               return input.addEventListener('click', self.cancel_notification);
             case 'radio':
               return input.addEventListener('click', self.trigger_actions);
+            case 'text':
+              input.addEventListener('change', self.validate);
+              return input.addEventListener('change', self.trigger_actions);
           }
           break;
         case 'select':
@@ -425,12 +438,13 @@ NHMobileForm = (function(superClass) {
     });
     window.timeout_func = function() {
       var timeout;
-      timeout = new CustomEvent('form_timeout', {
+      timeout = document.createEvent('CustomEvent');
+      timeout.initCustomEvent('form_timeout', false, true, {
         'detail': 'form timed out'
       });
       return document.dispatchEvent(timeout);
     };
-    window.form_timeout = setTimeout(window.timeout_func, this.form_timeout);
+    window.form_timeout = setTimeout(window.timeout_func, self.form_timeout);
     document.addEventListener('post_score_submit', function(event) {
       if (!event.handled) {
         self.process_post_score_submit(self, event);
@@ -458,16 +472,17 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var cond, crit_target, crit_val, criteria, criterias, i, input, len, max, min, operator, other_input, other_input_value, results, target_input, target_input_value, value;
+    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, max, min, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
+    input_type = input.getAttribute('type');
+    value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
-    value = parseFloat(input.value);
-    min = parseFloat(input.getAttribute('min'));
-    max = parseFloat(input.getAttribute('max'));
-    if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
-      if (input.getAttribute('type') === 'number') {
+    if (typeof value !== 'undefined' && value !== '') {
+      if (input.getAttribute('type') === 'number' && !isNaN(value)) {
+        min = parseFloat(input.getAttribute('min'));
+        max = parseFloat(input.getAttribute('max'));
         if (input.getAttribute('step') === '1' && value % 1 !== 0) {
           this.add_input_errors(input, 'Must be whole number');
           return;
@@ -482,7 +497,6 @@ NHMobileForm = (function(superClass) {
         }
         if (input.getAttribute('data-validation')) {
           criterias = eval(input.getAttribute('data-validation'));
-          results = [];
           for (i = 0, len = criterias.length; i < len; i++) {
             criteria = criterias[i];
             crit_target = criteria['condition']['target'];
@@ -510,7 +524,14 @@ NHMobileForm = (function(superClass) {
               continue;
             }
           }
-          return results;
+        }
+      }
+      if (input.getAttribute('type') === 'text') {
+        if (input.getAttribute('pattern')) {
+          regex_res = input.validity.patternMismatch;
+          if (regex_res) {
+            this.add_input_errors(input, 'Invalid value');
+          }
         }
       }
     }
@@ -914,13 +935,14 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_post_score_submit = function(self, event) {
-    var element, endpoint, form_elements;
+    var element, endpoint, form, form_elements, ref;
+    form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
     form_elements = (function() {
-      var i, len, ref, results;
-      ref = self.form.elements;
+      var i, len, ref1, results;
+      ref1 = form.elements;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        element = ref[i];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        element = ref1[i];
         if (!element.classList.contains('exclude')) {
           results.push(element);
         }
@@ -975,7 +997,7 @@ NHMobilePatient = (function(superClass) {
   }
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
-    var i, len, tab, tabs;
+    var i, len, tab, tab_target, tabs;
     event.preventDefault();
     tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
     for (i = 0, len = tabs.length; i < len; i++) {
@@ -985,14 +1007,17 @@ NHMobilePatient = (function(superClass) {
     document.getElementById('graph-content').style.display = 'none';
     document.getElementById('table-content').style.display = 'none';
     event.srcElement.classList.add('selected');
-    return $(event.srcElement.getAttribute('href')).show();
+    tab_target = event.srcElement.getAttribute('href').replace('#', '');
+    return document.getElementById(tab_target).style.display = 'block';
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var obs_menu;
+    var body, menu, obs_menu;
     event.preventDefault();
     obs_menu = document.getElementById('obsMenu');
-    return new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul class="menu">' + obs_menu.innerHTML + '</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
+    body = document.getElementsByTagName('body')[0];
+    menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
+    return new NHModal('obs_menu', 'Pick an observation for ', menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
   };
 
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {
@@ -1870,9 +1895,6 @@ NHModal = (function() {
           break;
         case 3:
           option_list.setAttribute('class', 'options three-col');
-          break;
-        case 4:
-          option_list.setAttribute('class', 'options four-col');
       }
       fn = function(self) {
         var option_button, ref;
