@@ -45,6 +45,9 @@ NHMobileForm = (function(superClass) {
               return input.addEventListener('click', self.cancel_notification);
             case 'radio':
               return input.addEventListener('click', self.trigger_actions);
+            case 'text':
+              input.addEventListener('change', self.validate);
+              return input.addEventListener('change', self.trigger_actions);
           }
           break;
         case 'select':
@@ -102,16 +105,17 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var cond, crit_target, crit_val, criteria, criterias, i, input, len, max, min, operator, other_input, other_input_value, results, target_input, target_input_value, value;
+    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, max, min, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
+    input_type = input.getAttribute('type');
+    value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
-    value = parseFloat(input.value);
-    min = parseFloat(input.getAttribute('min'));
-    max = parseFloat(input.getAttribute('max'));
-    if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
-      if (input.getAttribute('type') === 'number') {
+    if (typeof value !== 'undefined' && value !== '') {
+      if (input.getAttribute('type') === 'number' && !isNaN(value)) {
+        min = parseFloat(input.getAttribute('min'));
+        max = parseFloat(input.getAttribute('max'));
         if (input.getAttribute('step') === '1' && value % 1 !== 0) {
           this.add_input_errors(input, 'Must be whole number');
           return;
@@ -126,7 +130,6 @@ NHMobileForm = (function(superClass) {
         }
         if (input.getAttribute('data-validation')) {
           criterias = eval(input.getAttribute('data-validation'));
-          results = [];
           for (i = 0, len = criterias.length; i < len; i++) {
             criteria = criterias[i];
             crit_target = criteria['condition']['target'];
@@ -154,7 +157,14 @@ NHMobileForm = (function(superClass) {
               continue;
             }
           }
-          return results;
+        }
+      }
+      if (input.getAttribute('type') === 'text') {
+        if (input.getAttribute('pattern')) {
+          regex_res = input.validity.patternMismatch;
+          if (regex_res) {
+            this.add_input_errors(input, 'Invalid value');
+          }
         }
       }
     }
