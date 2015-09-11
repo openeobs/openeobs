@@ -35,11 +35,11 @@ var frontend_routes = {}; (function(_root){
     }
     {% for route in routes %}
         _nS('{{ route.name }}');
-        _root.{{ route.name }} = function({% if route.args_list %}{{ route.args_list }}{% endif %}) {
+        _root.{{ route.name }} = function({% if route.args %}{{ route.args | join(', ') }}{% endif %}) {
             return _wA({
-                method:"{{ route.method }}",
+                method:"{{ route.methods.0 }}",
                 {% if route.args %}
-                url:"{{ base_url }}{{ route.endpoint }}"
+                url:"{{ base_url }}{{ route.url }}"
                     {% for arg in route.args %}
                         {% if loop.index >= 2 %}
                            + '/'
@@ -49,7 +49,7 @@ var frontend_routes = {}; (function(_root){
                            })( "{{ arg }}", {{ arg }})
                     {% endfor %}
                 {% else %}
-                url:"{{ base_url }}{{ route.endpoint }}"
+                url:"{{ base_url }}{{ route.url }}"
                 {% endif %}
             })
         }
