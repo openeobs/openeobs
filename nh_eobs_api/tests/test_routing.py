@@ -193,6 +193,36 @@ class TestRoute(openerp.tests.TransactionCase):
         self.assertIn('obserVATion-very_Strange_Id', args)
         self.assertNotIn('<obserVATion-very-Strange_Id>', args)
 
+    def test_get_two_consecutive_args_from_url(self):
+        route = Route('test_route', '')
+        self.assertFalse(route.args)
+        url = '/api/v1/patient/submit_ajax/<observation_type>/<patient_id>/'
+        args = route.get_args(url)
+        self.assertEqual(len(args), 2)
+        self.assertIn('patient_id', args)
+        self.assertNotIn('<patient_id>', args)
+        self.assertIn('observation_type', args)
+        self.assertNotIn('<observation_type>', args)
+
+    def test_get_multiple_consecutive_args_from_url(self):
+        route = Route('test_route', '')
+        self.assertFalse(route.args)
+        url = '/api/v1/<multiple>/<consecutive_parameters>/<in_this>/<url>/test/'
+        args = route.get_args(url)
+        self.assertEqual(len(args), 4)
+
+        self.assertIn('multiple', args)
+        self.assertNotIn('<multiple>', args)
+
+        self.assertIn('consecutive_parameters', args)
+        self.assertNotIn('<consecutive_parameters>', args)
+
+        self.assertIn('in_this', args)
+        self.assertNotIn('<in_this>', args)
+
+        self.assertIn('url', args)
+        self.assertNotIn('<url>', args)
+
 
 class TestRouteManager(openerp.tests.TransactionCase):
 
