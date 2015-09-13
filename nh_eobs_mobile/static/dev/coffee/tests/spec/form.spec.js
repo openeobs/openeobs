@@ -325,6 +325,175 @@ describe('Data Entry Functionality', function(){
             });
 
         });
+
+        describe('Validation on a text input', function(){
+             var mobile;
+             beforeEach(function(){
+                 spyOn(NHMobileForm.prototype, 'submit');
+                 spyOn(NHMobileForm.prototype, 'handle_timeout');
+                 spyOn(NHMobileForm.prototype, 'validate').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'reset_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'add_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                     var promise = new Promise();
+                     promise.complete([{}]);
+                     return promise;
+                 });
+
+                 var test = document.getElementById('test');
+                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                     '<div class="block obsField" id="parent_test_text">' +
+                     '<div class="input-header">' +
+                     '<label for="test_text">Test Text</label>' +
+                     '<input type="text" name="test_text" id="test_text" pattern="^[0-9]{4,6}$">' +
+                     '</div>' +
+                     '<div class="input-body">' +
+                     '<span class="errors"></span>' +
+                     '<span class="help"></span>' +
+                     '</div>' +
+                     '</div>' +
+                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                     '</form>';
+                 mobile = new NHMobileForm();
+             });
+
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
+
+            it('Informs the user when they set the input to a value incorrect (too little)', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_text = document.getElementById('test_text');
+                var parent_text = test_text.parentNode.parentNode;
+                var text_errors = parent_text.getElementsByClassName('errors')[0];
+
+                // set incorrect value
+                test_text.value = '666';
+
+                // change event - incorrect
+                var three_event = document.createEvent('CustomEvent');
+                three_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(three_event);
+
+                // verify calls - incorrect
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - incorrect
+                expect(parent_text.classList.contains('error')).toBe(true);
+                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+
+                // set correct value
+                test_text.value = '1337';
+
+                // change event - correct
+                var four_event = document.createEvent('CustomEvent');
+                four_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(four_event);
+
+                // verify calls - correct
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+
+                // verify DOM - correct
+                expect(parent_text.classList.contains('error')).toBe(false);
+                expect(text_errors.innerHTML).toBe('');
+            });
+
+            it('Informs the user when they set the input to a value incorrect (too much)', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_text = document.getElementById('test_text');
+                var parent_text = test_text.parentNode.parentNode;
+                var text_errors = parent_text.getElementsByClassName('errors')[0];
+
+                // set incorrect value
+                test_text.value = '1337666';
+
+                // change event - incorrect
+                var seven_event = document.createEvent('CustomEvent');
+                seven_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(seven_event);
+
+                // verify calls - incorrect
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - incorrect
+                expect(parent_text.classList.contains('error')).toBe(true);
+                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+
+                // set correct value
+                test_text.value = '1337';
+
+                // change event - correct
+                var four_event = document.createEvent('CustomEvent');
+                four_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(four_event);
+
+                // verify calls - correct
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+
+                // verify DOM - correct
+                expect(parent_text.classList.contains('error')).toBe(false);
+                expect(text_errors.innerHTML).toBe('');
+            });
+
+            it('Informs the user when they set the input to a value incorrect (wrong type)', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_text = document.getElementById('test_text');
+                var parent_text = test_text.parentNode.parentNode;
+                var text_errors = parent_text.getElementsByClassName('errors')[0];
+
+                // set incorrect value
+                test_text.value = '1234a';
+
+                // change event - incorrect
+                var alpha_event = document.createEvent('CustomEvent');
+                alpha_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(alpha_event);
+
+                // verify calls - incorrect
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - incorrect
+                expect(parent_text.classList.contains('error')).toBe(true);
+                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+
+                // set correct value
+                test_text.value = '1337';
+
+                // change event - correct
+                var four_event = document.createEvent('CustomEvent');
+                four_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(four_event);
+
+                // verify calls - correct
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+
+                // verify DOM - correct
+                expect(parent_text.classList.contains('error')).toBe(false);
+                expect(text_errors.innerHTML).toBe('');
+            });
+        });
     });
 
     describe('Form Timeout', function() {
