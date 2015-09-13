@@ -45,6 +45,9 @@ NHMobileForm = (function(superClass) {
               return input.addEventListener('click', self.cancel_notification);
             case 'radio':
               return input.addEventListener('click', self.trigger_actions);
+            case 'text':
+              input.addEventListener('change', self.validate);
+              return input.addEventListener('change', self.trigger_actions);
           }
           break;
         case 'select':
@@ -102,16 +105,17 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var cond, crit_target, crit_val, criteria, criterias, i, input, len, max, min, operator, other_input, other_input_value, results, target_input, target_input_value, value;
+    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, max, min, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
+    input_type = input.getAttribute('type');
+    value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
-    value = parseFloat(input.value);
-    min = parseFloat(input.getAttribute('min'));
-    max = parseFloat(input.getAttribute('max'));
-    if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
-      if (input.getAttribute('type') === 'number') {
+    if (typeof value !== 'undefined' && value !== '') {
+      if (input.getAttribute('type') === 'number' && !isNaN(value)) {
+        min = parseFloat(input.getAttribute('min'));
+        max = parseFloat(input.getAttribute('max'));
         if (input.getAttribute('step') === '1' && value % 1 !== 0) {
           this.add_input_errors(input, 'Must be whole number');
           return;
@@ -126,7 +130,6 @@ NHMobileForm = (function(superClass) {
         }
         if (input.getAttribute('data-validation')) {
           criterias = eval(input.getAttribute('data-validation'));
-          results = [];
           for (i = 0, len = criterias.length; i < len; i++) {
             criteria = criterias[i];
             crit_target = criteria['condition']['target'];
@@ -154,7 +157,14 @@ NHMobileForm = (function(superClass) {
               continue;
             }
           }
-          return results;
+        }
+      }
+      if (input.getAttribute('type') === 'text') {
+        if (input.getAttribute('pattern')) {
+          regex_res = input.validity.patternMismatch;
+          if (regex_res) {
+            this.add_input_errors(input, 'Invalid value');
+          }
         }
       }
     }
@@ -245,9 +255,10 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     event.preventDefault();
     this.reset_form_timeout(this);
+    ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
       var i, len, ref, results;
       ref = this.form.elements;
@@ -300,8 +311,12 @@ NHMobileForm = (function(superClass) {
         button.setAttribute('disabled', 'disabled');
       }
       return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
+    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+      msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
+      btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
+      return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
     } else if (invalid_elements.length > 0) {
-      msg = '<p class="block">The form contains errors, please correct ' + 'the errors and resubmit</p>';
+      msg = '<p>The form contains errors, please correct ' + 'the errors and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
     } else {
@@ -361,7 +376,7 @@ NHMobileForm = (function(superClass) {
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
-      msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
+      msg = '<p>Please state reason for ' + 'submitting partial observation</p>';
       return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
@@ -446,7 +461,7 @@ NHMobileForm = (function(superClass) {
 
       /* Should be checking server data */
       var btn, msg;
-      msg = '<p class="block">Please pick the task again from the task list ' + 'if you wish to complete it</p>';
+      msg = '<p>Please pick the task again from the task list ' + 'if you wish to complete it</p>';
       btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>';
       return new window.NH.NHModal('form_timeout', 'Task window expired', msg, [btn], 0, document.getElementsByTagName('body')[0]);
     });

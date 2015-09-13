@@ -377,7 +377,7 @@ describe('Data Entry Functionality', function(){
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('form_timeout');
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Task window expired');
-            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Please pick the task again from the task list if you wish to complete it</p>');
+            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please pick the task again from the task list if you wish to complete it</p>');
         });
     });
 
@@ -490,7 +490,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Form contains errors');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">The form contains errors, please correct the errors and resubmit</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The form contains errors, please correct the errors and resubmit</p>');
 
                 // choose an option and click the submit button
                 var dialog = document.getElementById('invalid_form');
@@ -580,7 +580,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('partial_reasons');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Submit partial observation');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
 
                 // choose an option and click the submit button
                 var dialog = document.getElementById('partial_reasons');
