@@ -620,9 +620,10 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     event.preventDefault();
     this.reset_form_timeout(this);
+    ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
       var i, len, ref, results;
       ref = this.form.elements;
@@ -675,8 +676,12 @@ NHMobileForm = (function(superClass) {
         button.setAttribute('disabled', 'disabled');
       }
       return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
+    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+      msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
+      btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
+      return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
     } else if (invalid_elements.length > 0) {
-      msg = '<p class="block">The form contains errors, please correct ' + 'the errors and resubmit</p>';
+      msg = '<p>The form contains errors, please correct ' + 'the errors and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
     } else {
@@ -736,7 +741,7 @@ NHMobileForm = (function(superClass) {
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
-      msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
+      msg = '<p>Please state reason for ' + 'submitting partial observation</p>';
       return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
@@ -821,7 +826,7 @@ NHMobileForm = (function(superClass) {
 
       /* Should be checking server data */
       var btn, msg;
-      msg = '<p class="block">Please pick the task again from the task list ' + 'if you wish to complete it</p>';
+      msg = '<p>Please pick the task again from the task list ' + 'if you wish to complete it</p>';
       btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>';
       return new window.NH.NHModal('form_timeout', 'Task window expired', msg, [btn], 0, document.getElementsByTagName('body')[0]);
     });
@@ -1452,7 +1457,7 @@ NHMobileShare = (function(superClass) {
         return new window.NH.NHModal('assign_nurse', 'Assign patient to colleague', nurse_list, btns, 0, self.form);
       });
     } else {
-      msg = '<p class="block">Please select patients to hand' + ' to another staff member</p>';
+      msg = '<p>Please select patients to hand' + ' to another staff member</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       return new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -1476,11 +1481,11 @@ NHMobileShare = (function(superClass) {
     if (patients.length > 0) {
       assign_btn = '<a href="#" data-action="claim" ' + 'data-target="claim_patients" data-ajax-action="json_claim_patients">' + 'Claim</a>';
       can_btn = '<a href="#" data-action="close" data-target="claim_patients"' + '>Cancel</a>';
-      claim_msg = '<p class="block">Claim patients shared with colleagues</p>';
+      claim_msg = '<p>Claim patients shared with colleagues</p>';
       btns = [assign_btn, can_btn];
       new window.NH.NHModal('claim_patients', 'Claim Patients?', claim_msg, btns, 0, self.form);
     } else {
-      msg = '<p class="block">Please select patients to claim back</p>';
+      msg = '<p>Please select patients to claim back</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -1547,7 +1552,7 @@ NHMobileShare = (function(superClass) {
           document.getElementsByTagName('body')[0].removeChild(cover);
           popup.parentNode.removeChild(popup);
           can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
-          share_msg = '<p class="block">Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
+          share_msg = '<p>Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
           btns = [can_btn];
           return new window.NH.NHModal('share_success', 'Patients Shared', share_msg, btns, 0, body);
         } else {
@@ -1605,12 +1610,12 @@ NHMobileShare = (function(superClass) {
           ti.innerHTML = '<br>';
         }
         can_btn = '<a href="#" data-action="close" ' + 'data-target="claim_success">Cancel</a>';
-        claim_msg = '<p class="block">Successfully claimed patients</p>';
+        claim_msg = '<p>Successfully claimed patients</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_success', 'Patients Claimed', claim_msg, btns, 0, body);
       } else {
         can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Cancel</a>';
-        claim_msg = '<p class="block">There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
+        claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);
       }
@@ -1754,7 +1759,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', '<p class="block">Now following ' + data['count'] + ' patients from ' + data['user'] + '</p>', btns, 0, body);
+        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', '<p>Now following ' + data['count'] + ' patients from ' + data['user'] + '</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
@@ -1766,7 +1771,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_error', 'Error accepting patients', '<p class="block">There was an error accepting the invite to follow,' + 'Please try again</p>', btns, 0, body);
+        return new window.NH.NHModal('invite_error', 'Error accepting patients', '<p>There was an error accepting the invite to follow,' + 'Please try again</p>', btns, 0, body);
       }
     });
   };
@@ -1803,7 +1808,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', '<p class="block">The invitation to follow ' + data['user'] + '\'s ' + 'patients was rejected</p>', btns, 0, body);
+        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', '<p>The invitation to follow ' + data['user'] + '\'s ' + 'patients was rejected</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
@@ -1815,7 +1820,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_error', 'Error rejecting patients', '<p class="block">There was an error rejecting the invite to follow,' + ' Please try again</p>', btns, 0, body);
+        return new window.NH.NHModal('reject_error', 'Error rejecting patients', '<p>There was an error rejecting the invite to follow,' + ' Please try again</p>', btns, 0, body);
       }
     });
   };
