@@ -114,3 +114,14 @@ svg .data path {
     stroke: none !important;
     opacity: 0;
 }
+
+circle.empty_point {
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+}
+circle.point{
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
+}
