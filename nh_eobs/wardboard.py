@@ -656,7 +656,9 @@ drop view if exists last_discharge_users cascade;
 -- materialized views
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
-
+drop materialized view if exists height cascade;
+drop materialized view if exists weight cascade;
+drop materialized view if exists pbp cascade;
 
 create or replace view
 -- activity per spell, data_model, state
@@ -822,11 +824,8 @@ create materialized view
 param as(
         select
             activity.spell_id,
-            height.height,
             diabetes.diabetes,
             mrsa.mrsa,
-            pbpm.pbp_monitoring,
-            wm.weight_monitoring,
             pc.status,
             o2target_level.id as o2target_level_id,
             ps.status as post_surgery,
@@ -836,10 +835,7 @@ param as(
             uotarget.volume as uotarget_vol,
             uotarget.unit as uotarget_unit
         from wb_activity_latest activity
-        left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
-        left join nh_clinical_patient_pbp_monitoring pbpm on activity.ids && array[pbpm.activity_id]
-        left join nh_clinical_patient_weight_monitoring wm on activity.ids && array[wm.activity_id]
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
@@ -850,6 +846,33 @@ param as(
         left join nh_clinical_patient_critical_care cc on activity.ids && array[cc.activity_id]
         left join nh_activity ccactivity on ccactivity.id = cc.activity_id
         where activity.state = 'completed'
+);
+
+create materialized view
+height as(
+    select
+        activity.spell_id,
+        height.height
+    from wb_activity_latest activity
+    left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
+);
+
+create materialized view
+weight as(
+    select
+        activity.spell_id,
+        weight.weight_monitoring
+    from wb_activity_latest activity
+    left join nh_clinical_patient_weight_monitoring weight on activity.ids && array[weight.activity_id]
+);
+
+create materialized view
+pbp as(
+    select
+        activity.spell_id,
+        pbp.pbp_monitoring
+    from wb_activity_latest activity
+    left join nh_clinical_patient_pbp_monitoring pbp on activity.ids && array[pbp.activity_id]
 );
 
 create or replace view last_movement_users as(
@@ -964,12 +987,12 @@ nh_clinical_wardboard as(
         end as ews_trend_string,
         case when ews1.id is null then 'NoScore' else ews1.clinical_risk end as clinical_risk,
         ews1.score - ews2.score as ews_trend,
-        param.height,
+        height.height,
         param.o2target_level_id as o2target,
         case when param.mrsa then 'yes' else 'no' end as mrsa,
         case when param.diabetes then 'yes' else 'no' end as diabetes,
-        case when param.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
-        case when param.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
+        case when pbp.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
+        case when weight.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
         case when param.status then 'yes' else 'no' end as palliative_care,
         case
             when param.post_surgery and param.post_surgery_date > now() - interval '4h' then 'yes'
@@ -996,6 +1019,9 @@ nh_clinical_wardboard as(
     left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
+    left join height on height.spell_id = spell.id
+    left join weight on weight.spell_id = spell.id
+    left join pbp pbp on pbp.spell_id = spell.id
     left join param on param.spell_id = spell.id
     order by location.name
 );
