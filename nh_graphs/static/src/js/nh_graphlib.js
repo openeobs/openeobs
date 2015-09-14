@@ -1205,6 +1205,11 @@ NHGraph = (function(superClass) {
         }).attr('cy', function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
         });
+        self.drawables.data.selectAll('.empty_point').attr('cx', function(d) {
+          return self.axes.x.scale(self.date_from_string(d.date_terminated));
+        }).attr("cy", function(d) {
+          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
+        });
         break;
       case 'range':
         self.drawables.data.selectAll('.range.top').attr('x', function(d) {

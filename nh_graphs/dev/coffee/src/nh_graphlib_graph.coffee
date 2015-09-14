@@ -647,6 +647,11 @@ class NHGraph extends NHGraphLib
         ).attr('cy', (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
+        self.drawables.data.selectAll('.empty_point').attr('cx', (d) ->
+          return self.axes.x.scale(self.date_from_string(d.date_terminated))
+        ).attr("cy", (d) ->
+          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2)
+        )
       )
       # Redraw the range caps and extent with the new scales
       when 'range' then (
