@@ -644,9 +644,6 @@ class nh_clinical_wardboard(orm.Model):
     def init(self, cr):
         cr.execute("""
 
-drop view if exists ews0 cascade;
-drop view if exists ews1 cascade;
-drop view if exists ews2 cascade;
 drop view if exists wb_activity_ranked cascade;
 drop view if exists wb_ews_ranked cascade;
 drop view if exists last_movement_users cascade;
@@ -654,6 +651,9 @@ drop view if exists last_transfer_users cascade;
 drop view if exists last_discharge_users cascade;
 
 -- materialized views
+drop materialized view if exists ews0 cascade;
+drop materialized view if exists ews1 cascade;
+drop materialized view if exists ews2 cascade;
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
 drop materialized view if exists height cascade;
@@ -739,7 +739,7 @@ wb_activity_data as(
         group by spell_id, spell.patient_id, activity.data_model, activity.state
 );
 
-create or replace view
+create materialized view
 ews0 as(
             select
                 activity.parent_id as spell_activity_id,
@@ -762,7 +762,7 @@ ews0 as(
             where activity.rank = 1 and activity.state = 'scheduled'
 );
 
-create or replace view
+create materialized view
 ews1 as(
             select
                 activity.parent_id as spell_activity_id,
@@ -786,7 +786,7 @@ ews1 as(
             where activity.rank = 1 and activity.state = 'completed'
 );
 
-create or replace view
+create materialized view
 ews2 as(
             select
                 activity.parent_id as spell_activity_id,
