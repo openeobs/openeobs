@@ -326,7 +326,7 @@ svg .data path {
     background-color: blue;
 }
 
-circle.empty_point {
+circle.empty_point, rect.empty_point {
     fill: white;
     stroke: black;
     stroke-width: 1px;
