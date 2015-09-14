@@ -430,7 +430,7 @@ class NHGraph extends NHGraphLib
 
         self.drawables.data.selectAll(".empty_point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-          if d.none_values isnt "[]"
+          if d.none_values isnt "[]" and d[self.options.keys[0]] isnt false
             return d
           )
         )
@@ -439,13 +439,15 @@ class NHGraph extends NHGraphLib
           return self.axes.x.scale(self.date_from_string(d.date_terminated))
         )
         .attr("cy", (d) ->
-          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2)
+          return self.axes.y.scale(d[self.options.keys[0]])
         )
         .attr("r", 3)
         .attr("class", "empty_point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
-          self.show_popup('Partial observation',event.pageX,event.pageY)
+          self.show_popup('Partial observation: ' + d[self.options.keys[0]],
+            event.pageX,
+            event.pageY)
         )
         .on('mouseout', (d) ->
           self.hide_popup()
@@ -465,7 +467,7 @@ class NHGraph extends NHGraphLib
         if self.options.keys.length is 2
           self.drawables.data.selectAll(".range.top")
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-            if d[self.options.keys[0]]
+            if d.none_values is "[]" and d[self.options.keys[0]]
               return d
             )
           ).enter()
@@ -497,7 +499,7 @@ class NHGraph extends NHGraphLib
 
           self.drawables.data.selectAll(".range.bottom")
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-            if d[self.options.keys[1]]
+            if d.none_values is "[]" and d[self.options.keys[1]]
               return d
             )
           ).enter()
@@ -527,7 +529,9 @@ class NHGraph extends NHGraphLib
 
           self.drawables.data.selectAll(".range.extent")
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-            if d[self.options.keys[0]] and d[self.options.keys[1]]
+            top = d[self.options.keys[0]]
+            bottom = d[self.options.keys[1]]
+            if d.none_values is "[]" and top and bottom
               return d
             )
           ).enter()
@@ -548,6 +552,101 @@ class NHGraph extends NHGraphLib
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
           }).on('mouseover', (d) ->
             string_to_use = ''
+            for key in self.options.keys
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
+            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
+
+          self.drawables.data.selectAll(".range.top.empty_point")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            if d.none_values isnt "[]" and d[self.options.keys[0]] isnt false
+              return d
+            )
+          ).enter()
+          .append("rect")
+          .attr({
+            'y': (d) ->
+              return self.axes.y.scale(d[self.options.keys[0]])
+            ,
+            'x': (d) ->
+              return \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/2)+1
+            ,
+            'height': self.style.range.cap.height,
+            'width': self.style.range.cap.width,
+            'class': 'range top empty_point',
+            'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
+          })
+          .on('mouseover', (d) ->
+            string_to_use = 'Partial Observation:<br>'
+            for key in self.options.keys
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
+            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
+
+
+          self.drawables.data.selectAll(".range.bottom.empty_point")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            if d.none_values isnt "[]" and d[self.options.keys[1]] isnt false
+              return d
+            )
+          ).enter()
+          .append("rect")
+          .attr({
+            'y': (d) ->
+              return self.axes.y.scale(d[self.options.keys[1]])
+            ,
+            'x': (d) ->
+              return \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/2)+1
+            ,
+            'height': self.style.range.cap.height,
+            'width': self.style.range.cap.width,
+            'class': 'range bottom empty_point',
+            'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
+          }).on('mouseover', (d) ->
+            string_to_use = 'Partial Observation:<br>'
+            for key in self.options.keys
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
+            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
+
+          self.drawables.data.selectAll(".range.extent.empty_point")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            top = d[self.options.keys[0]]
+            bottom = d[self.options.keys[1]]
+            if d.none_values isnt "[]" and top isnt false and bottom isnt false
+              return d
+            )
+          ).enter()
+          .append("rect")
+          .attr({
+            'y': (d) ->
+              return self.axes.y.scale(d[self.options.keys[0]])
+            ,
+            'x': (d) ->
+              return self.axes.x.scale(self.date_from_string(d.date_terminated))
+            ,
+            'height': (d) ->
+              self.axes.y.scale(d[self.options.keys[1]]) -
+                self.axes.y.scale(d[self.options.keys[0]])
+            ,
+            'width': self.style.range.width,
+            'class': 'range extent empty_point',
+            'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
+          }).on('mouseover', (d) ->
+            string_to_use = 'Partial Observation<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
             self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
@@ -650,7 +749,7 @@ class NHGraph extends NHGraphLib
         self.drawables.data.selectAll('.empty_point').attr('cx', (d) ->
           return self.axes.x.scale(self.date_from_string(d.date_terminated))
         ).attr("cy", (d) ->
-          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2)
+          return self.axes.y.scale(d[self.options.keys[0]])
         )
       )
       # Redraw the range caps and extent with the new scales

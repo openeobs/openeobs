@@ -1026,22 +1026,22 @@ NHGraph = (function(superClass) {
           return self.hide_popup();
         });
         return self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          if (d.none_values !== "[]") {
+          if (d.none_values !== "[]" && d[self.options.keys[0]] !== false) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
-          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
+          return self.axes.y.scale(d[self.options.keys[0]]);
         }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
-          return self.show_popup('Partial observation', event.pageX, event.pageY);
+          return self.show_popup('Partial observation: ' + d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
         });
       case 'range':
         if (self.options.keys.length === 2) {
           self.drawables.data.selectAll(".range.top").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            if (d[self.options.keys[0]]) {
+            if (d.none_values === "[]" && d[self.options.keys[0]]) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1068,7 +1068,7 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.bottom").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            if (d[self.options.keys[1]]) {
+            if (d.none_values === "[]" && d[self.options.keys[1]]) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1094,8 +1094,11 @@ NHGraph = (function(superClass) {
           }).on('mouseout', function(d) {
             return self.hide_popup();
           });
-          return self.drawables.data.selectAll(".range.extent").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            if (d[self.options.keys[0]] && d[self.options.keys[1]]) {
+          self.drawables.data.selectAll(".range.extent").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+            var bottom, top;
+            top = d[self.options.keys[0]];
+            bottom = d[self.options.keys[1]];
+            if (d.none_values === "[]" && top && bottom) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1114,6 +1117,92 @@ NHGraph = (function(superClass) {
           }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
+            ref1 = self.options.keys;
+            for (k = 0, len1 = ref1.length; k < len1; k++) {
+              key = ref1[k];
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
+            }
+            return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
+          }).on('mouseout', function(d) {
+            return self.hide_popup();
+          });
+          self.drawables.data.selectAll(".range.top.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+            if (d.none_values !== "[]" && d[self.options.keys[0]] !== false) {
+              return d;
+            }
+          })).enter().append("rect").attr({
+            'y': function(d) {
+              return self.axes.y.scale(d[self.options.keys[0]]);
+            },
+            'x': function(d) {
+              return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
+            },
+            'height': self.style.range.cap.height,
+            'width': self.style.range.cap.width,
+            'class': 'range top empty_point',
+            'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
+          }).on('mouseover', function(d) {
+            var k, key, len1, ref1, string_to_use;
+            string_to_use = 'Partial Observation:<br>';
+            ref1 = self.options.keys;
+            for (k = 0, len1 = ref1.length; k < len1; k++) {
+              key = ref1[k];
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
+            }
+            return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
+          }).on('mouseout', function(d) {
+            return self.hide_popup();
+          });
+          self.drawables.data.selectAll(".range.bottom.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+            if (d.none_values !== "[]" && d[self.options.keys[1]] !== false) {
+              return d;
+            }
+          })).enter().append("rect").attr({
+            'y': function(d) {
+              return self.axes.y.scale(d[self.options.keys[1]]);
+            },
+            'x': function(d) {
+              return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
+            },
+            'height': self.style.range.cap.height,
+            'width': self.style.range.cap.width,
+            'class': 'range bottom empty_point',
+            'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
+          }).on('mouseover', function(d) {
+            var k, key, len1, ref1, string_to_use;
+            string_to_use = 'Partial Observation:<br>';
+            ref1 = self.options.keys;
+            for (k = 0, len1 = ref1.length; k < len1; k++) {
+              key = ref1[k];
+              string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
+            }
+            return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
+          }).on('mouseout', function(d) {
+            return self.hide_popup();
+          });
+          return self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+            var bottom, top;
+            top = d[self.options.keys[0]];
+            bottom = d[self.options.keys[1]];
+            if (d.none_values !== "[]" && top !== false && bottom !== false) {
+              return d;
+            }
+          })).enter().append("rect").attr({
+            'y': function(d) {
+              return self.axes.y.scale(d[self.options.keys[0]]);
+            },
+            'x': function(d) {
+              return self.axes.x.scale(self.date_from_string(d.date_terminated));
+            },
+            'height': function(d) {
+              return self.axes.y.scale(d[self.options.keys[1]]) - self.axes.y.scale(d[self.options.keys[0]]);
+            },
+            'width': self.style.range.width,
+            'class': 'range extent empty_point',
+            'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
+          }).on('mouseover', function(d) {
+            var k, key, len1, ref1, string_to_use;
+            string_to_use = 'Partial Observation<br>';
             ref1 = self.options.keys;
             for (k = 0, len1 = ref1.length; k < len1; k++) {
               key = ref1[k];
@@ -1208,7 +1297,7 @@ NHGraph = (function(superClass) {
         self.drawables.data.selectAll('.empty_point').attr('cx', function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
-          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
+          return self.axes.y.scale(d[self.options.keys[0]]);
         });
         break;
       case 'range':
