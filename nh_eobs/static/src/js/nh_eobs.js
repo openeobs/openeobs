@@ -1361,6 +1361,7 @@ openerp.nh_eobs = function (instance) {
                 return this.save().done(function(result) {
                     self.trigger("save", result);
                     self.reload();
+                    self.ViewManager.ActionManager.$el.parent().parent().find('.modal-header .close').click();
                 }).always(function(){
                    $(e.target).attr("disabled", false)
                 });
