@@ -87,6 +87,9 @@ observation form</p>
                   self.cancel_notification)
               <span class="hljs-keyword">when</span> <span class="hljs-string">'radio'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>,
                   self.trigger_actions)
+              <span class="hljs-keyword">when</span> <span class="hljs-string">'text'</span>
+                input.addEventListener(<span class="hljs-string">'change'</span>, self.validate)
+                input.addEventListener(<span class="hljs-string">'change'</span>, self.trigger_actions)
           <span class="hljs-keyword">when</span> <span class="hljs-string">'select'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'change'</span>,
             self.trigger_actions)
           <span class="hljs-keyword">when</span> <span class="hljs-string">'button'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>,
@@ -162,12 +165,14 @@ TODO: Currently only caters for number inputs</p>
     event.preventDefault()
     @.reset_form_timeout(@)
     input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+    input_type = input.getAttribute(<span class="hljs-string">'type'</span>)
+    value = <span class="hljs-keyword">if</span> input_type <span class="hljs-keyword">is</span> <span class="hljs-string">'number'</span> <span class="hljs-keyword">then</span> parseFloat(input.value) <span class="hljs-keyword">else</span>
+      input.value
     <span class="hljs-property">@reset_input_errors</span>(input)
-    value = parseFloat(input.value)
-    min = parseFloat(input.getAttribute(<span class="hljs-string">'min'</span>))
-    max = parseFloat(input.getAttribute(<span class="hljs-string">'max'</span>))
-    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span>(value) <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> isNaN(value) <span class="hljs-keyword">and</span> value <span class="hljs-keyword">isnt</span> <span class="hljs-string">''</span>
-      <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'number'</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span>(value) <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span> value <span class="hljs-keyword">isnt</span> <span class="hljs-string">''</span>
+      <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'number'</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> isNaN(value)
+        min = parseFloat(input.getAttribute(<span class="hljs-string">'min'</span>))
+        max = parseFloat(input.getAttribute(<span class="hljs-string">'max'</span>))
         <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'step'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'1'</span> <span class="hljs-keyword">and</span> value % <span class="hljs-number">1</span> <span class="hljs-keyword">isnt</span> <span class="hljs-number">0</span>
           @.add_input_errors(input, <span class="hljs-string">'Must be whole number'</span>)
           <span class="hljs-keyword">return</span>
@@ -201,7 +206,13 @@ TODO: Currently only caters for number inputs</p>
             <span class="hljs-keyword">else</span>
               @.add_input_errors(target_input, criteria[<span class="hljs-string">'message'</span>][<span class="hljs-string">'target'</span>])
               @.add_input_errors(other_input, <span class="hljs-string">'Please enter a value'</span>)
-              <span class="hljs-keyword">continue</span></pre></div></div>
+              <span class="hljs-keyword">continue</span>
+      <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'text'</span>
+        <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'pattern'</span>)
+          regex_res = input.validity.patternMismatch
+          <span class="hljs-keyword">if</span> regex_res
+            @.add_input_errors(input, <span class="hljs-string">'Invalid value'</span>)
+            <span class="hljs-keyword">return</span></pre></div></div>
             
         </li>
         
@@ -296,6 +307,7 @@ this blows up</p>
   <span class="hljs-attribute">submit</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
     event.preventDefault()
     @.reset_form_timeout(@)
+    ajax_act = <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-action'</span>)
     form_elements =
       (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> <span class="hljs-property">@form</span>.elements \
         <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> element.classList.contains(<span class="hljs-string">'exclude'</span>))
@@ -303,7 +315,8 @@ this blows up</p>
       (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form_elements \
         <span class="hljs-keyword">when</span> element.classList.contains(<span class="hljs-string">'error'</span>))
     empty_elements =
-      (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form_elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> element.value)
+      (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form_elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> element.value <span class="hljs-keyword">or</span> \
+      element.value <span class="hljs-keyword">is</span> <span class="hljs-string">''</span>)
     <span class="hljs-keyword">if</span> invalid_elements.length&lt;<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> empty_elements.length&lt;<span class="hljs-number">1</span></pre></div></div>
             
         </li>
@@ -325,8 +338,15 @@ this blows up</p>
         button.setAttribute(<span class="hljs-string">'disabled'</span>, <span class="hljs-string">'disabled'</span>)
       <span class="hljs-property">@submit_observation</span>(@, form_elements, <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-action'</span>),
         <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-args'</span>))
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> empty_elements.length&gt;<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> ajax_act.indexOf(<span class="hljs-string">'notification'</span>) &gt; <span class="hljs-number">0</span>
+      msg = <span class="hljs-string">'&lt;p&gt;The form contains empty fields, please enter '</span>+
+        <span class="hljs-string">'data into these fields and resubmit&lt;/p&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invalid_form'</span>, <span class="hljs-string">'Form contains empty fields'</span>,
+        msg, [btn], <span class="hljs-number">0</span>, @.form)
     <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> invalid_elements.length&gt;<span class="hljs-number">0</span>
-      msg = <span class="hljs-string">'&lt;p class="block"&gt;The form contains errors, please correct '</span>+
+      msg = <span class="hljs-string">'&lt;p&gt;The form contains errors, please correct '</span>+
         <span class="hljs-string">'the errors and resubmit&lt;/p&gt;'</span>
       btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
         <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
@@ -389,7 +409,7 @@ this blows up</p>
         <span class="hljs-string">'data-ajax-action="json_patient_form_action"&gt;Confirm&lt;/a&gt;'</span>
       can_btn = <span class="hljs-string">'&lt;a href="#" data-action="renable" '</span>+
         <span class="hljs-string">'data-target="partial_reasons"&gt;Cancel&lt;/a&gt;'</span>
-      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please state reason for '</span>+
+      msg = <span class="hljs-string">'&lt;p&gt;Please state reason for '</span>+
         <span class="hljs-string">'submitting partial observation&lt;/p&gt;'</span>
       <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'partial_reasons'</span>, <span class="hljs-string">'Submit partial observation'</span>,
         msg+select, [can_btn, con_btn], <span class="hljs-number">0</span>, self.form)
@@ -495,7 +515,7 @@ this blows up</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please pick the task again from the task list '</span>+
+            <div class="content"><div class='highlight'><pre>      msg = <span class="hljs-string">'&lt;p&gt;Please pick the task again from the task list '</span>+
         <span class="hljs-string">'if you wish to complete it&lt;/p&gt;'</span>
       btn = <span class="hljs-string">'&lt;a href="'</span>+self.urls[<span class="hljs-string">'task_list'</span>]().url+
         <span class="hljs-string">'" data-action="confirm"&gt;Go to My Tasks&lt;/a&gt;'</span>
@@ -570,8 +590,22 @@ this blows up</p>
     <span class="hljs-keyword">if</span> reason
       reason_to_use = reason
     <span class="hljs-keyword">if</span> cancel_reason
-      reason_to_use = cancel_reason
-    <span class="hljs-keyword">if</span> reason_to_use
+      reason_to_use = cancel_reason</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>TODO: Add an error catch if no value entered</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> reason_to_use
       form_elements.push(reason_to_use)
       self.submit_observation(self, form_elements, event.detail.action,
         self.form.getAttribute(<span class="hljs-string">'ajax-args'</span>))

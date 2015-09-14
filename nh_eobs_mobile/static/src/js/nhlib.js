@@ -652,7 +652,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         element = form_elements[i];
-        if (!element.value) {
+        if (!element.value || element.value === '') {
           results.push(element);
         }
       }

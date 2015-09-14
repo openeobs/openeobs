@@ -201,7 +201,8 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements \
         when element.classList.contains('error'))
     empty_elements =
-      (element for element in form_elements when not element.value)
+      (element for element in form_elements when not element.value or \
+      element.value is '')
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
       action_buttons = (element for element in @form.elements \

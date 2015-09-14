@@ -719,8 +719,26 @@ describe('Data Entry Functionality', function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_complete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="complete_input">Test Complete Input</label>' +
                         '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="block obsField" id="parent_incomplete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="incomplete_input">Test Incomplete Input</label>' +
                         '<input type="number" name="incomplete_input" id="incomplete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                         '</form>'
                 mobile = new NHMobileForm();
@@ -800,8 +818,26 @@ describe('Data Entry Functionality', function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test_notification" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parentcomplete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="complete_input">Test Complete Input</label>' +
                         '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="block obsField" id="parent_incomplete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="incomplete_input">Test incomplete_input</label>' +
                         '<input type="number" name="incomplete_input" id="incomplete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                         '</form>'
                 mobile = new NHMobileForm();
@@ -959,8 +995,17 @@ describe('Data Entry Functionality', function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_test_int">' +
+                        '<div class="input-header">' +
+                        '<label for="test_int">Test Integer</label>' +
                         '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1">' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
                         '</form>'
                 mobile = new NHMobileForm();
             });
@@ -1126,7 +1171,16 @@ describe('Data Entry Functionality', function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_test_int">' +
+                        '<div class="input-header">' +
+                        '<label for="test_int">Test Integer</label>' +
                         '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                         '</form>'
                 mobile = new NHMobileForm();

@@ -130,7 +130,7 @@ Allows users to share patients with other users when they are not on ward</p>
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'assign_nurse'</span>, <span class="hljs-string">'Assign patient to colleague'</span>,
           nurse_list, btns, <span class="hljs-number">0</span>, self.form)
     <span class="hljs-keyword">else</span>
-      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please select patients to hand'</span>+
+      msg = <span class="hljs-string">'&lt;p&gt;Please select patients to hand'</span>+
         <span class="hljs-string">' to another staff member&lt;/p&gt;'</span>
       btn = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
         <span class="hljs-string">'Cancel&lt;/a&gt;'</span>]
@@ -165,12 +165,12 @@ Allows users to share patients with other users when they are not on ward</p>
         <span class="hljs-string">'Claim&lt;/a&gt;'</span>
       can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_patients"'</span>+
         <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
-      claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;Claim patients shared with colleagues&lt;/p&gt;'</span>
+      claim_msg = <span class="hljs-string">'&lt;p&gt;Claim patients shared with colleagues&lt;/p&gt;'</span>
       btns = [assign_btn, can_btn]
       <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_patients'</span>, <span class="hljs-string">'Claim Patients?'</span>,
         claim_msg, btns, <span class="hljs-number">0</span>, self.form)
     <span class="hljs-keyword">else</span>
-      msg = <span class="hljs-string">'&lt;p class="block"&gt;Please select patients to claim back&lt;/p&gt;'</span>
+      msg = <span class="hljs-string">'&lt;p&gt;Please select patients to claim back&lt;/p&gt;'</span>
       btn = [<span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
         <span class="hljs-string">'Cancel&lt;/a&gt;'</span>]
       <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invalid_form'</span>, <span class="hljs-string">'No Patients selected'</span>,
@@ -231,7 +231,7 @@ Allows users to share patients with other users when they are not on ward</p>
           popup.parentNode.removeChild(popup)
           can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
             <span class="hljs-string">'data-target="share_success"&gt;Cancel&lt;/a&gt;'</span>
-          share_msg = <span class="hljs-string">'&lt;p class="block"&gt;Successfully shared patients with '</span>+
+          share_msg = <span class="hljs-string">'&lt;p&gt;Successfully shared patients with '</span>+
             data[<span class="hljs-string">'shared_with'</span>].join(<span class="hljs-string">', '</span>) + <span class="hljs-string">'&lt;/p&gt;'</span>
           btns = [can_btn]
           <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'share_success'</span>, <span class="hljs-string">'Patients Shared'</span>,
@@ -264,14 +264,14 @@ Allows users to share patients with other users when they are not on ward</p>
           ti.innerHTML = <span class="hljs-string">'&lt;br&gt;'</span>
         can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
             <span class="hljs-string">'data-target="claim_success"&gt;Cancel&lt;/a&gt;'</span>
-        claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;Successfully claimed patients&lt;/p&gt;'</span>
+        claim_msg = <span class="hljs-string">'&lt;p&gt;Successfully claimed patients&lt;/p&gt;'</span>
         btns = [can_btn]
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_success'</span>, <span class="hljs-string">'Patients Claimed'</span>,
           claim_msg, btns, <span class="hljs-number">0</span>, body)
       <span class="hljs-keyword">else</span>
         can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="claim_error"'</span>+
           <span class="hljs-string">'&gt;Cancel&lt;/a&gt;'</span>
-        claim_msg = <span class="hljs-string">'&lt;p class="block"&gt;There was an error claiming back your'</span>+
+        claim_msg = <span class="hljs-string">'&lt;p&gt;There was an error claiming back your'</span>+
           <span class="hljs-string">' patients, please contact your Ward Manager&lt;/p&gt;'</span>
         btns = [can_btn]
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'claim_error'</span>, <span class="hljs-string">'Error claiming patients'</span>,
