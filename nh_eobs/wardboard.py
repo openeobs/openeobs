@@ -644,17 +644,19 @@ class nh_clinical_wardboard(orm.Model):
     def init(self, cr):
         cr.execute("""
 
-drop materialized view if exists ews0 cascade;
-drop materialized view if exists ews1 cascade;
-drop materialized view if exists ews2 cascade;
-drop materialized view if exists ward_locations cascade;
-drop materialized view if exists param cascade;
-drop materialized view if exists placement cascade;
+drop view if exists ews0 cascade;
+drop view if exists ews1 cascade;
+drop view if exists ews2 cascade;
 drop view if exists wb_activity_ranked cascade;
 drop view if exists wb_ews_ranked cascade;
 drop view if exists last_movement_users cascade;
 drop view if exists last_transfer_users cascade;
 drop view if exists last_discharge_users cascade;
+
+-- materialized views
+drop materialized view if exists ward_locations cascade;
+drop materialized view if exists param cascade;
+
 
 create or replace view
 -- activity per spell, data_model, state
@@ -735,7 +737,7 @@ wb_activity_data as(
         group by spell_id, spell.patient_id, activity.data_model, activity.state
 );
 
-create materialized view
+create or replace view
 ews0 as(
             select
                 activity.parent_id as spell_activity_id,
@@ -758,7 +760,7 @@ ews0 as(
             where activity.rank = 1 and activity.state = 'scheduled'
 );
 
-create materialized view
+create or replace view
 ews1 as(
             select
                 activity.parent_id as spell_activity_id,
@@ -782,7 +784,7 @@ ews1 as(
             where activity.rank = 1 and activity.state = 'completed'
 );
 
-create materialized view
+create or replace view
 ews2 as(
             select
                 activity.parent_id as spell_activity_id,
@@ -803,21 +805,6 @@ ews2 as(
             from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
             where activity.rank = 2 and activity.state = 'completed'
-);
-
-create materialized view
-placement as(
-            select
-                activity.patient_id,
-                activity.spell_id,
-                activity.state,
-                activity.date_scheduled,
-                activity.id,
-                activity.rank
-            from wb_activity_ranked activity
-            inner join nh_clinical_patient_placement plc on activity.data_id = plc.id
-                and activity.data_model = 'nh.clinical.patient.placement'
-            where activity.state = 'completed'
 );
 
 create or replace view

@@ -1,4 +1,5 @@
 from openerp.osv import orm, fields, osv
+from openerp.addons.nh_observations.helpers import refresh_materialized_views
 import logging
 
 _logger = logging.getLogger(__name__)
