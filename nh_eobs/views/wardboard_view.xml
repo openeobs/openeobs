@@ -137,7 +137,7 @@
             <field name="name">Wardboard Device Session Complete</field>
             <field name="model">wardboard.device.session.complete</field>
             <field name="arch" type="xml">
-                <form string="Wardboard Device Session Compplete" version="7.0">
+                <form string="Wardboard Device Session Complete" version="7.0">
                     <label for="session_id" string="You are about to complete session: "/>
                     <field name="session_id" readonly="1"/>
                     <group>
