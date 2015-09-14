@@ -79,7 +79,7 @@
           	parent="menu_eobs_category_patient_management"
           	action="action_show_doctor_activities"
             sequence="6"
-          	groups="nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+          	groups="nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Overdue Tasks"
           	id="menu_eobs_overdue_activities"
@@ -99,7 +99,7 @@
                   sequence="1"
                   parent="menu_eobs_category_ward_management"
                   action="action_show_active_locations"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Inactive Points of Care"
                   id="menu_eobs_inactive_poc"
@@ -113,7 +113,7 @@
             sequence="3"
         	parent="menu_eobs_category_ward_management"
             action="act_activity_workload_kanban"
-            groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+            groups="nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Staff Management"
                   id="menu_eobs_user_management"
