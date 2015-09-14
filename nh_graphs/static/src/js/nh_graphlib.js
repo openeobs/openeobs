@@ -1484,7 +1484,17 @@ NHTable = (function(superClass) {
     }).enter().append('tr').selectAll('td').data(function(d) {
       return d;
     }).enter().append('td').html(function(d) {
-      return d.value;
+      var data, date_rotate;
+      data = d.value;
+      if (d.column === 'date_terminated') {
+        data = self.date_to_string(self.date_from_string(data), false);
+        date_rotate = data.split(' ');
+        if (date_rotate.length === 1) {
+          data = date_rotate[0];
+        }
+        data = date_rotate[1] + ' ' + date_rotate[0];
+      }
+      return data;
     });
   };
 
