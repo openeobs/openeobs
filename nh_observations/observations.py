@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
 from openerp.addons.nh_observations.parameters import frequencies
+from openerp.addons.nh_observations.helpers import refresh_materialized_views
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import SUPERUSER_ID
@@ -159,6 +160,12 @@ class nh_clinical_patient_observation_height(orm.Model):
         }
     ]
 
+    @refresh_materialized_views('height')
+    def complete(self, cr, uid, activity_id, context=None):
+        res = super(nh_clinical_patient_observation_height, self).complete(cr, uid, activity_id, context)
+        return res
+
+
 class nh_clinical_patient_observation_weight(orm.Model):
     _name = 'nh.clinical.patient.observation.weight'
     _inherit = ['nh.clinical.patient.observation']
@@ -258,6 +265,11 @@ class nh_clinical_patient_observation_blood_product(orm.Model):
         }
     ]
 
+    @refresh_materialized_views('param')
+    def complete(self, cr, uid, activity_id, context=None):
+        res = super(nh_clinical_patient_observation_blood_product, self).complete(cr, uid, activity_id, context)
+        return res
+
 
 class nh_clinical_patient_observation_blood_sugar(orm.Model):
     _name = 'nh.clinical.patient.observation.blood_sugar'
@@ -279,6 +291,11 @@ class nh_clinical_patient_observation_blood_sugar(orm.Model):
             'initially_hidden': False
         }
     ]
+
+    @refresh_materialized_views('param')
+    def complete(self, cr, uid, activity_id, context=None):
+        res = super(nh_clinical_patient_observation_blood_sugar, self).complete(cr, uid, activity_id, context)
+        return res
 
 
 class nh_clinical_patient_observation_pain(orm.Model):
@@ -309,6 +326,12 @@ class nh_clinical_patient_observation_pain(orm.Model):
             'initially_hidden': False
         }
     ]
+
+    @refresh_materialized_views('param')
+    def complete(self, cr, uid, activity_id, context=None):
+        res = super(nh_clinical_patient_observation_pain, self).complete(cr, uid, activity_id, context)
+        return res
+
 
 class nh_clinical_patient_observation_urine_output(orm.Model):
     _name = 'nh.clinical.patient.observation.urine_output'
@@ -341,6 +364,11 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
                 field['secondary_label'] = 'Target: {0} {1}'.format(uotarget[0], units[uotarget[1]])
         return fd
 
+    @refresh_materialized_views('param')
+    def complete(self, cr, uid, activity_id, context=None):
+        res = super(nh_clinical_patient_observation_urine_output, self).complete(cr, uid, activity_id, context)
+        return res
+
 
 class nh_clinical_patient_observation_bowels_open(orm.Model):
     _name = 'nh.clinical.patient.observation.bowels_open'
@@ -359,3 +387,8 @@ class nh_clinical_patient_observation_bowels_open(orm.Model):
             'initially_hidden': False
         }
     ]
+
+    @refresh_materialized_views('param')
+    def complete(self, cr, uid, activity_id, context=None):
+        res = super(nh_clinical_patient_observation_bowels_open, self).complete(cr, uid, activity_id, context)
+        return res
