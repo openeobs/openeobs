@@ -137,7 +137,7 @@
             <field name="name">Wardboard Device Session Complete</field>
             <field name="model">wardboard.device.session.complete</field>
             <field name="arch" type="xml">
-                <form string="Wardboard Device Session Compplete" version="7.0">
+                <form string="Wardboard Device Session Complete" version="7.0">
                     <label for="session_id" string="You are about to complete session: "/>
                     <field name="session_id" readonly="1"/>
                     <group>
@@ -439,7 +439,6 @@
             <field name="arch" type="xml">
                 <kanban edit="false" quick_create="false" create="false">
                     <field name="full_name" />
-                    <field name="placed" />
                     <field name="location" />
                     <field name="location_full_name"/>
                     <field name="sex"/>
@@ -457,9 +456,8 @@
                                     <ul class="oe_dropdown_menu">
                                         <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
                                         <li><a name="wardboard_ews" type="object">NEWS List</a></li>
-                                        <li><a name="wardboard_place" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('placed','=',True)]}">Patient Placement</a></li>
-                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': [('placed','=',False)]}">Move Patient</a></li>
-                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': [('placed','=',False)]}">Swap Beds</a></li>
+                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Move Patient</a></li>
+                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Swap Beds</a></li>
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_content">
@@ -512,7 +510,6 @@
                 <kanban edit="false" quick_create="false" create="false">
                     <field name="initial" />
                     <field name="family_name" />
-                    <field name="placed" />
                     <field name="location" />
                     <field name="location_full_name"/>
                     <field name="next_diff" />

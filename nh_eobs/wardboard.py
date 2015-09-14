@@ -342,7 +342,6 @@ class nh_clinical_wardboard(orm.Model):
         'ews_list_ids': fields.function(_get_data_ids_multi, multi='ews_list_ids', type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs List'),
         'transferred_user_ids': fields.function(_get_transferred_user_ids, type='many2many', relation='res.users', fnct_search=_transferred_user_ids_search, string='Recently Transferred Access'),
         'recently_discharged_uids': fields.function(_get_recently_discharged_uids, type='many2many', relation='res.users', fnct_search=_recently_discharged_uids_search, string='Recently Discharged Access'),
-        'placed': fields.boolean('Placed?')
     }
 
     _order = 'location asc'
@@ -652,6 +651,7 @@ drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
 drop materialized view if exists placement cascade;
 drop view if exists wb_activity_ranked cascade;
+drop view if exists wb_ews_ranked cascade;
 drop view if exists last_movement_users cascade;
 drop view if exists last_transfer_users cascade;
 drop view if exists last_discharge_users cascade;
@@ -666,6 +666,21 @@ wb_activity_ranked as(
             rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
         from nh_clinical_spell spell
         inner join nh_activity activity on activity.spell_activity_id = spell.activity_id
+);
+
+create or replace view
+-- ews per spell, data_model, state
+wb_ews_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews') sub_query
+    where rank < 3
 );
 
 create materialized view
@@ -738,9 +753,8 @@ ews0 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 1 and activity.state = 'scheduled'
 );
 
@@ -763,9 +777,8 @@ ews1 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 1 and activity.state = 'completed'
 );
 
@@ -787,9 +800,8 @@ ews2 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 2 and activity.state = 'completed'
 );
 
@@ -965,7 +977,6 @@ nh_clinical_wardboard as(
         end as ews_trend_string,
         case when ews1.id is null then 'NoScore' else ews1.clinical_risk end as clinical_risk,
         ews1.score - ews2.score as ews_trend,
-        case when plc.id is null then 0 else 1 end as placed,
         param.height,
         param.o2target_level_id as o2target,
         case when param.mrsa then 'yes' else 'no' end as mrsa,
@@ -997,7 +1008,6 @@ nh_clinical_wardboard as(
     left join ews2 on spell.id = ews2.spell_id
     left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
-    left join placement plc on spell.id = plc.spell_id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
     left join param on param.spell_id = spell.id
     order by location.name
