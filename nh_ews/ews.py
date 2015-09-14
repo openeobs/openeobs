@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_observations.helpers import refresh_materialized_views
 import logging
 import bisect
 from openerp import SUPERUSER_ID
@@ -434,7 +433,6 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
         return super(nh_clinical_patient_observation_ews, self).submit(cr, SUPERUSER_ID, activity_id, data_vals, context)
 
-    @refresh_materialized_views('ews0', 'ews1', 'ews2')
     def complete(self, cr, uid, activity_id, context=None):
         """
         Implementation of the default EWS policy
