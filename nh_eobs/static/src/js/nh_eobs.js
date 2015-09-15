@@ -1158,7 +1158,7 @@ openerp.nh_eobs = function (instance) {
 
                     //var title_to_use = 'Observation Chart'
                     if(self.dataset.model == 'nh.clinical.allocating.user'){
-                        title_to_use = 'User Allocation';
+                        title_to_use = 'Shift Management';
                     }
 
 

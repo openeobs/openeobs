@@ -137,7 +137,7 @@
             <field name="name">Wardboard Device Session Complete</field>
             <field name="model">wardboard.device.session.complete</field>
             <field name="arch" type="xml">
-                <form string="Wardboard Device Session Compplete" version="7.0">
+                <form string="Wardboard Device Session Complete" version="7.0">
                     <label for="session_id" string="You are about to complete session: "/>
                     <field name="session_id" readonly="1"/>
                     <group>
@@ -762,7 +762,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard" >
-            <field name="name">Patients Board</field>
+            <field name="name">Acuity Board</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban,tree,form</field>
@@ -791,7 +791,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_patients_by_ward">
-            <field name="name">Patients Board</field>
+            <field name="name">Acuity Board</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,kanban</field>
@@ -820,7 +820,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_discharged" >
-            <field name="name">Recently Discharged</field>
+            <field name="name">Discharged in the last 72 hours</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -843,7 +843,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_transferred">
-            <field name="name">Recently Transferred</field>
+            <field name="name">Transferred in the last 72 hours</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
