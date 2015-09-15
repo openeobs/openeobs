@@ -160,7 +160,7 @@ class nh_clinical_patient_observation_height(orm.Model):
         }
     ]
 
-    @refresh_materialized_views('height')
+    @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
         res = super(nh_clinical_patient_observation_height, self).complete(cr, uid, activity_id, context)
         return res
