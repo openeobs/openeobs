@@ -167,8 +167,8 @@
                         <filter name="low_risk" string="Low Risk" domain="[('clinical_risk','=','Low')]"/>
                         <filter name="medium_risk" string="Medium Risk" domain="[('clinical_risk','=','Medium')]"/>
                         <filter name="high_risk" string="High Risk" domain="[('clinical_risk','=','High')]"/>
-                        <filter name="ews_trend_down" string="Deteriorating Trend" domain="[('ews_trend','&lt;',0)]"/>
-                        <filter name="ews_trend_up" string="Improving Trend" domain="[('ews_trend','&gt;',0)]"/>
+                        <filter name="ews_trend_down" string="Deteriorating Trend" domain="[('ews_trend','&gt;',0)]"/>
+                        <filter name="ews_trend_up" string="Improving Trend" domain="[('ews_trend','&lt;',0)]"/>
                         <filter name="ews_trend_same" string="Unchanged Trend" domain="[('ews_trend','=',0)]"/>
                     </group>
                     <group expand="1" string="Group By...">
@@ -444,7 +444,8 @@
                     <field name="sex"/>
                     <field name="dob"/>
                     <field name="age" />
-                    <field name="next_diff" />
+                    <field name="date_scheduled"/>
+                    <!--<field name="next_diff" />-->
                     <field name="frequency" />
                     <field name="ews_score_string"/>
                     <field name="ews_trend_string"/>
@@ -487,7 +488,7 @@
                                             n/a
                                         </t>
                                     </div>
-                                    <li>Time to next observation:<field name="next_diff"/></li>
+                                    <li>Time to next observation: <field name="date_scheduled" widget="nh_time_to_next_obs"/></li>
                                     <t t-if="record.hospital_number.raw_value != ''">
                                         <div>Hospital Number: <field name="hospital_number"/></div>
                                     </t>
