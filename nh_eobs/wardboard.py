@@ -656,7 +656,6 @@ drop materialized view if exists ews1 cascade;
 drop materialized view if exists ews2 cascade;
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
-drop materialized view if exists height cascade;
 drop materialized view if exists weight cascade;
 drop materialized view if exists pbp cascade;
 
@@ -824,6 +823,7 @@ create materialized view
 param as(
         select
             activity.spell_id,
+            height.height,
             diabetes.diabetes,
             mrsa.mrsa,
             pc.status,
@@ -835,6 +835,7 @@ param as(
             uotarget.volume as uotarget_vol,
             uotarget.unit as uotarget_unit
         from wb_activity_latest activity
+        left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
@@ -846,15 +847,6 @@ param as(
         left join nh_clinical_patient_critical_care cc on activity.ids && array[cc.activity_id]
         left join nh_activity ccactivity on ccactivity.id = cc.activity_id
         where activity.state = 'completed'
-);
-
-create materialized view
-height as(
-    select
-        activity.spell_id,
-        height.height
-    from wb_activity_latest activity
-    left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
 );
 
 create materialized view
@@ -975,6 +967,7 @@ nh_clinical_wardboard as(
             when true then ews0.frequency || ' min(s)'
             else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'
         end as frequency,
+        ews0.date_scheduled,
         case when ews1.id is null then 'none' else ews1.score::text end as ews_score_string,    
         ews1.score as ews_score,
         case
@@ -987,7 +980,7 @@ nh_clinical_wardboard as(
         end as ews_trend_string,
         case when ews1.id is null then 'NoScore' else ews1.clinical_risk end as clinical_risk,
         ews1.score - ews2.score as ews_trend,
-        height.height,
+        param.height,
         param.o2target_level_id as o2target,
         case when param.mrsa then 'yes' else 'no' end as mrsa,
         case when param.diabetes then 'yes' else 'no' end as diabetes,
@@ -1019,7 +1012,6 @@ nh_clinical_wardboard as(
     left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
-    left join height on height.spell_id = spell.id
     left join weight on weight.spell_id = spell.id
     left join pbp pbp on pbp.spell_id = spell.id
     left join param on param.spell_id = spell.id
