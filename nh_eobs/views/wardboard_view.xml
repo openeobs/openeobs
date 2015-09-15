@@ -444,6 +444,7 @@
                     <field name="sex"/>
                     <field name="dob"/>
                     <field name="age" />
+                    <field name="date_scheduled" widget="nhc_datetime"/>
                     <field name="next_diff" />
                     <field name="frequency" />
                     <field name="ews_score_string"/>
@@ -487,7 +488,7 @@
                                             n/a
                                         </t>
                                     </div>
-                                    <li>Time to next observation:<field name="next_diff"/></li>
+                                    <li>Time to next observation: <field name="date_scheduled"/></li>
                                     <t t-if="record.hospital_number.raw_value != ''">
                                         <div>Hospital Number: <field name="hospital_number"/></div>
                                     </t>

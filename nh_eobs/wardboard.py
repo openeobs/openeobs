@@ -300,6 +300,7 @@ class nh_clinical_wardboard(orm.Model):
         'hospital_number': fields.text('Hospital Number'),
         'nhs_number': fields.text('NHS Number'),
         'age': fields.integer("Age"),
+        'date_scheduled': fields.datetime("Date Scheduled"),
         'next_diff': fields.text("Time to Next Obs"),
         'frequency': fields.text("Frequency"),
         'ews_score_string': fields.text("Latest Score"),
@@ -965,6 +966,7 @@ nh_clinical_wardboard as(
             when true then ews0.frequency || ' min(s)'
             else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'
         end as frequency,
+        ews0.date_scheduled,
         case when ews1.id is null then 'none' else ews1.score::text end as ews_score_string,    
         ews1.score as ews_score,
         case
