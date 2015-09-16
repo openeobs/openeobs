@@ -325,3 +325,14 @@ svg .data path {
 .nhfocus{
     background-color: blue;
 }
+
+circle.empty_point, rect.empty_point {
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+}
+circle.point{
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
+}
