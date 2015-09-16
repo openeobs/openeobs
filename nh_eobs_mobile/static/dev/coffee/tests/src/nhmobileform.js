@@ -255,9 +255,10 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     event.preventDefault();
     this.reset_form_timeout(this);
+    ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
       var i, len, ref, results;
       ref = this.form.elements;
@@ -286,7 +287,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         element = form_elements[i];
-        if (!element.value) {
+        if (!element.value || element.value === '') {
           results.push(element);
         }
       }
@@ -310,8 +311,12 @@ NHMobileForm = (function(superClass) {
         button.setAttribute('disabled', 'disabled');
       }
       return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
+    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+      msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
+      btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
+      return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
     } else if (invalid_elements.length > 0) {
-      msg = '<p class="block">The form contains errors, please correct ' + 'the errors and resubmit</p>';
+      msg = '<p>The form contains errors, please correct ' + 'the errors and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
     } else {
@@ -372,7 +377,7 @@ NHMobileForm = (function(superClass) {
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
-      msg = '<p class="block">' + server_data.desc + '</p>';
+      msg = '<p>' + server_data.desc + '</p>';
       return new window.NH.NHModal('partial_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
@@ -457,7 +462,7 @@ NHMobileForm = (function(superClass) {
 
       /* Should be checking server data */
       var btn, msg;
-      msg = '<p class="block">Please pick the task again from the task list ' + 'if you wish to complete it</p>';
+      msg = '<p>Please pick the task again from the task list ' + 'if you wish to complete it</p>';
       btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>';
       return new window.NH.NHModal('form_timeout', 'Task window expired', msg, [btn], 0, document.getElementsByTagName('body')[0]);
     });
