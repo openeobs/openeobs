@@ -27,7 +27,7 @@ class Route(object):
         :param url: A string with a "Werkzeug style" URL - example: 'api/v1/patients/<patient_id>/observation/<observation_id>/'
         :return: List of comma separated strings or the boolean value False (if no argument was fetched)
         """
-        args_fetched = re.findall(r'\/<[a-zA-Z]+(?:(?:_|-)[a-zA-Z]+)*>\/?', url)
+        args_fetched = re.findall(r'\/<[a-zA-Z]+(?:(?:_|-)[a-zA-Z]+)*>\/??', url)
         trim_regex = re.compile(r'>\/?')
         return [trim_regex.sub('', arg[2:]) for arg in args_fetched] or False
 
