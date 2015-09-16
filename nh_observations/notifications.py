@@ -75,7 +75,19 @@ class nh_clinical_notification_frequency(orm.Model):
             'type': 'selection',
             'selection': frequencies,
             'label': 'Observation frequency',
-            'initially_hidden': False
+            'initially_hidden': False,
+            'on_change': [
+                {
+                    'fields': ['submitButton'],
+                    'condition': [['frequency', '==', '']],
+                    'action': 'disable'
+                },
+                {
+                    'fields': ['submitButton'],
+                    'condition': [['frequency', '!=', '']],
+                    'action': 'enable'
+                }
+            ],
         }
     ]
 
