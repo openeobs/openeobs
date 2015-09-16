@@ -165,14 +165,22 @@ class nh_eobs_api(orm.AbstractModel):
             ews1.clinical_risk,
             case
                 when activity.date_scheduled is not null then activity.date_scheduled::text
-                when activity.date_deadline is not null then activity.date_deadline::text
+                when activity.create_date is not null then activity.create_date::text
                 else ''
             end as deadline,
             case
-                when activity.date_scheduled is not null and greatest(now() at time zone 'UTC',activity.date_scheduled) != activity.date_scheduled then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC',activity.date_scheduled)), 'HH24:MI') || ' hours'
-                when activity.date_scheduled is not null and greatest(now() at time zone 'UTC',activity.date_scheduled) = activity.date_scheduled then to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_scheduled) - least(now() at time zone 'UTC',activity.date_scheduled)), 'HH24:MI') || ' hours'
-                when activity.date_deadline is not null and greatest(now() at time zone 'UTC',activity.date_deadline) != activity.date_deadline then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_deadline) - least(now() at time zone 'UTC',activity.date_deadline)), 'HH24:MI') || ' hours'
-                when activity.date_deadline is not null and greatest(now() at time zone 'UTC',activity.date_deadline) = activity.date_deadline then to_char(justify_hours(greatest(now() at time zone 'UTC',activity.date_deadline) - least(now() at time zone 'UTC',activity.date_deadline)), 'HH24:MI') || ' hours'
+                when activity.date_scheduled is not null then
+                  case when greatest(now() at time zone 'UTC', activity.date_scheduled) != activity.date_scheduled then 'overdue: ' else '' end ||
+                  case when extract(days from (greatest(now() at time zone 'UTC', activity.date_scheduled) - least(now() at time zone 'UTC', activity.date_scheduled))) > 0
+                    then extract(days from (greatest(now() at time zone 'UTC', activity.date_scheduled) - least(now() at time zone 'UTC', activity.date_scheduled))) || ' day(s) '
+                    else '' end ||
+                  to_char(justify_hours(greatest(now() at time zone 'UTC', activity.date_scheduled) - least(now() at time zone 'UTC', activity.date_scheduled)), 'HH24:MI') || ' hours'
+                when activity.create_date is not null then
+                  case when greatest(now() at time zone 'UTC', activity.create_date) != activity.create_date then 'overdue: ' else '' end ||
+                  case when extract(days from (greatest(now() at time zone 'UTC', activity.create_date) - least(now() at time zone 'UTC', activity.create_date))) > 0
+                    then extract(days from (greatest(now() at time zone 'UTC', activity.create_date) - least(now() at time zone 'UTC', activity.create_date))) || ' day(s) '
+                    else '' end ||
+                  to_char(justify_hours(greatest(now() at time zone 'UTC', activity.create_date) - least(now() at time zone 'UTC', activity.create_date)), 'HH24:MI') || ' hours'                                
                 else to_char((interval '0s'), 'HH24:MI') || ' hours'
             end as deadline_time,
             coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
@@ -209,6 +217,10 @@ class nh_eobs_api(orm.AbstractModel):
             cr.execute(sql)
             activity_values = cr.dictfetchall()
         return activity_values
+
+    # case when extract(days from ews0.next_diff_interval) > 0
+    #         then  extract(days from ews0.next_diff_interval) || ' day(s) ' else ''
+    #     end || to_char(ews0.next_diff_interval, 'HH24:MI') next_diff,
 
     def get_assigned_activities(self, cr, uid, activity_type=None, context=None):
         """
@@ -415,8 +427,12 @@ class nh_eobs_api(orm.AbstractModel):
             end as patient_identifier,
             coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
             case
-                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
-                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) = ews0.date_scheduled then to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
+                when ews0.date_scheduled is not null then
+                  case when greatest(now() at time zone 'UTC', ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' else '' end ||
+                  case when extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) > 0
+                    then extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) || ' day(s) '
+                    else '' end ||
+                  to_char(justify_hours(greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled)), 'HH24:MI') || ' hours'
                 else to_char((interval '0s'), 'HH24:MI') || ' hours'
             end as next_ews_time,
             location.name as location,
@@ -474,8 +490,12 @@ class nh_eobs_api(orm.AbstractModel):
             end as patient_identifier,
             coalesce(patient.family_name, '') || ', ' || coalesce(patient.given_name, '') || ' ' || coalesce(patient.middle_names,'') as full_name,
             case
-                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' || to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
-                when ews0.date_scheduled is not null and greatest(now() at time zone 'UTC',ews0.date_scheduled) = ews0.date_scheduled then to_char(justify_hours(greatest(now() at time zone 'UTC',ews0.date_scheduled) - least(now() at time zone 'UTC',ews0.date_scheduled)), 'HH24:MI') || ' hours'
+                when ews0.date_scheduled is not null then
+                  case when greatest(now() at time zone 'UTC', ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' else '' end ||
+                  case when extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) > 0
+                    then extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) || ' day(s) '
+                    else '' end ||
+                  to_char(justify_hours(greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled)), 'HH24:MI') || ' hours'
                 else to_char((interval '0s'), 'HH24:MI') || ' hours'
             end as next_ews_time,
             location.name as location,
@@ -722,5 +742,3 @@ class nh_eobs_api(orm.AbstractModel):
         if activity_ids:
             return activity_ids[0]
         return self._create_activity(cr, SUPERUSER_ID, model_name, {}, {'patient_id': patient_id}, context=context)
-
-
