@@ -152,7 +152,8 @@ class nh_eobs_api(orm.AbstractModel):
             ('state', 'not in', ['completed', 'cancelled']),
             '|', ('date_scheduled', '<=', (dt.now()+td(minutes=60)).strftime(DTF)),
             ('date_deadline', '<=', (dt.now()+td(minutes=60)).strftime(DTF)),
-            ('user_ids', 'in', [uid])
+            ('user_ids', 'in', [uid]),
+            '|', ('user_id', '=', False), ('user_id', '=', uid)
         ]
         activity_pool = self.pool['nh.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
