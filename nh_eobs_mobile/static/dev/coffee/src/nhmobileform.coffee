@@ -193,6 +193,7 @@ class NHMobileForm extends NHMobile
   submit: (event) =>
     event.preventDefault()
     @.reset_form_timeout(@)
+    ajax_act = @form.getAttribute('ajax-action')
     form_elements =
       (element for element in @form.elements \
         when not element.classList.contains('exclude'))
@@ -200,7 +201,8 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements \
         when element.classList.contains('error'))
     empty_elements =
-      (element for element in form_elements when not element.value)
+      (element for element in form_elements when not element.value or \
+      element.value is '')
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
       action_buttons = (element for element in @form.elements \
@@ -209,8 +211,15 @@ class NHMobileForm extends NHMobile
         button.setAttribute('disabled', 'disabled')
       @submit_observation(@, form_elements, @form.getAttribute('ajax-action'),
         @form.getAttribute('ajax-args'))
+    else if empty_elements.length>0 and ajax_act.indexOf('notification') > 0
+      msg = '<p>The form contains empty fields, please enter '+
+        'data into these fields and resubmit</p>'
+      btn = '<a href="#" data-action="close" data-target="invalid_form">'+
+        'Cancel</a>'
+      new window.NH.NHModal('invalid_form', 'Form contains empty fields',
+        msg, [btn], 0, @.form)
     else if invalid_elements.length>0
-      msg = '<p class="block">The form contains errors, please correct '+
+      msg = '<p>The form contains errors, please correct '+
         'the errors and resubmit</p>'
       btn = '<a href="#" data-action="close" data-target="invalid_form">'+
         'Cancel</a>'
@@ -262,7 +271,7 @@ class NHMobileForm extends NHMobile
         'data-ajax-action="json_patient_form_action">Confirm</a>'
       can_btn = '<a href="#" data-action="renable" '+
         'data-target="partial_reasons">Cancel</a>'
-      msg = '<p class="block">' + server_data.desc + '</p>'
+      msg = '<p>' + server_data.desc + '</p>'
       new window.NH.NHModal('partial_reasons', server_data.title,
         msg+select, [can_btn, con_btn], 0, self.form)
 
@@ -328,7 +337,7 @@ class NHMobileForm extends NHMobile
     can_id = self.urls['json_cancel_take_task'](id)
     Promise.when(self.call_resource(can_id)).then (server_data) ->
       ### Should be checking server data ###
-      msg = '<p class="block">Please pick the task again from the task list '+
+      msg = '<p>Please pick the task again from the task list '+
         'if you wish to complete it</p>'
       btn = '<a href="'+self.urls['task_list']().url+
         '" data-action="confirm">Go to My Tasks</a>'

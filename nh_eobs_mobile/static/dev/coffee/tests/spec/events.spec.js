@@ -526,6 +526,7 @@ describe("Event Handling", function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                     '<input type="number" id="number">' +
+                    '<input type="text" id="text">' +
                     '<select id="select"><option value="">Please Select</option><option value="test">Test</option></select>' +
                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                     '</form>';
@@ -563,6 +564,18 @@ describe("Event Handling", function(){
                 change_event.initCustomEvent('change', false, true, false);
                 test_input.dispatchEvent(change_event);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.trigger_actions.calls.count()).toBe(1);
+            });
+
+            it('Captures and handles the change event when a text input it changed', function(){
+                var test_input = document.getElementById('text');
+                test_input.value = 'test input';
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('change', false, true, false);
+                test_input.dispatchEvent(change_event);
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.validate.calls.count()).toBe(1);
                 expect(NHMobileForm.prototype.trigger_actions.calls.count()).toBe(1);
             });
         });

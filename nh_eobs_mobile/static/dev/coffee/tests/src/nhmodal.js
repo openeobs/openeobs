@@ -108,7 +108,6 @@ NHModal = (function() {
       if (elh > window.innerHeight) {
         return window.innerHeight - dialog_height;
       }
-      return elh - dialog_height;
     };
     max_height = available_space(dialog, el);
     top_offset = el.offsetTop + margins.top;

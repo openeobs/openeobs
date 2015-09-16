@@ -138,7 +138,7 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('claim_patients')
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Claim Patients?')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Claim patients shared with colleagues</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Claim patients shared with colleagues</p>');
             });
 
             it('Shows a modal to say we need to select patients when we don\'t select patients', function(){
@@ -661,7 +661,7 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invite_success');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully accepted stand-in invite');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">You are now following 666 patients from Another User</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>You are now following 666 patients from Another User</p>');
             });
 
             it('Keeps invitation and informs user of error when issue on server', function(){
@@ -779,7 +779,7 @@ describe('Stand in Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('reject_success');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully rejected stand-in invite');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">The invitation to follow Another User\'s patients was rejected</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The invitation to follow Another User\'s patients was rejected</p>');
             });
 
             it('Keeps invitation and informs user of error when issue on server', function(){

@@ -331,6 +331,181 @@ describe('Data Entry Functionality', function(){
             });
 
         });
+
+        describe('Validation on a text input', function(){
+             var mobile;
+             beforeEach(function(){
+                 spyOn(NHMobileForm.prototype, 'submit');
+                 spyOn(NHMobileForm.prototype, 'handle_timeout');
+                 spyOn(NHMobileForm.prototype, 'validate').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'reset_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'add_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                     var promise = new Promise();
+                     var empty = new NHMobileData({
+                         status: 'success',
+                         title: '',
+                         description: '',
+                         data: {}
+                     })
+                     promise.complete(empty);
+                     return promise;
+                 });
+
+                 var test = document.getElementById('test');
+                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                     '<div class="block obsField" id="parent_test_text">' +
+                     '<div class="input-header">' +
+                     '<label for="test_text">Test Text</label>' +
+                     '<input type="text" name="test_text" id="test_text" pattern="^[0-9]{4,6}$">' +
+                     '</div>' +
+                     '<div class="input-body">' +
+                     '<span class="errors"></span>' +
+                     '<span class="help"></span>' +
+                     '</div>' +
+                     '</div>' +
+                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                     '</form>';
+                 mobile = new NHMobileForm();
+             });
+
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
+
+            it('Informs the user when they set the input to a value incorrect (too little)', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_text = document.getElementById('test_text');
+                var parent_text = test_text.parentNode.parentNode;
+                var text_errors = parent_text.getElementsByClassName('errors')[0];
+
+                // set incorrect value
+                test_text.value = '666';
+
+                // change event - incorrect
+                var three_event = document.createEvent('CustomEvent');
+                three_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(three_event);
+
+                // verify calls - incorrect
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - incorrect
+                expect(parent_text.classList.contains('error')).toBe(true);
+                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+
+                // set correct value
+                test_text.value = '1337';
+
+                // change event - correct
+                var four_event = document.createEvent('CustomEvent');
+                four_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(four_event);
+
+                // verify calls - correct
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+
+                // verify DOM - correct
+                expect(parent_text.classList.contains('error')).toBe(false);
+                expect(text_errors.innerHTML).toBe('');
+            });
+
+            it('Informs the user when they set the input to a value incorrect (too much)', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_text = document.getElementById('test_text');
+                var parent_text = test_text.parentNode.parentNode;
+                var text_errors = parent_text.getElementsByClassName('errors')[0];
+
+                // set incorrect value
+                test_text.value = '1337666';
+
+                // change event - incorrect
+                var seven_event = document.createEvent('CustomEvent');
+                seven_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(seven_event);
+
+                // verify calls - incorrect
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - incorrect
+                expect(parent_text.classList.contains('error')).toBe(true);
+                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+
+                // set correct value
+                test_text.value = '1337';
+
+                // change event - correct
+                var four_event = document.createEvent('CustomEvent');
+                four_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(four_event);
+
+                // verify calls - correct
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+
+                // verify DOM - correct
+                expect(parent_text.classList.contains('error')).toBe(false);
+                expect(text_errors.innerHTML).toBe('');
+            });
+
+            it('Informs the user when they set the input to a value incorrect (wrong type)', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_text = document.getElementById('test_text');
+                var parent_text = test_text.parentNode.parentNode;
+                var text_errors = parent_text.getElementsByClassName('errors')[0];
+
+                // set incorrect value
+                test_text.value = '1234a';
+
+                // change event - incorrect
+                var alpha_event = document.createEvent('CustomEvent');
+                alpha_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(alpha_event);
+
+                // verify calls - incorrect
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - incorrect
+                expect(parent_text.classList.contains('error')).toBe(true);
+                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+
+                // set correct value
+                test_text.value = '1337';
+
+                // change event - correct
+                var four_event = document.createEvent('CustomEvent');
+                four_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(four_event);
+
+                // verify calls - correct
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+
+                // verify DOM - correct
+                expect(parent_text.classList.contains('error')).toBe(false);
+                expect(text_errors.innerHTML).toBe('');
+            });
+        });
     });
 
     describe('Form Timeout', function() {
@@ -389,7 +564,7 @@ describe('Data Entry Functionality', function(){
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('form_timeout');
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Task window expired');
-            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Please pick the task again from the task list if you wish to complete it</p>');
+            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please pick the task again from the task list if you wish to complete it</p>');
         });
     });
 
@@ -508,7 +683,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Form contains errors');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">The form contains errors, please correct the errors and resubmit</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The form contains errors, please correct the errors and resubmit</p>');
 
                 // choose an option and click the submit button
                 var dialog = document.getElementById('invalid_form');
@@ -589,8 +764,26 @@ describe('Data Entry Functionality', function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_complete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="complete_input">Test Complete Input</label>' +
                         '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="block obsField" id="parent_incomplete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="incomplete_input">Test Incomplete Input</label>' +
                         '<input type="number" name="incomplete_input" id="incomplete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                         '</form>'
                 mobile = new NHMobileForm();
@@ -620,7 +813,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('partial_reasons');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Reason for partial observation');
                 // failing due to data from server not being correct
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p class="block">Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
 
                 // choose an option and click the submit button
                 var dialog = document.getElementById('partial_reasons');
@@ -644,6 +837,82 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
 
+            });
+        });
+
+        describe('Submitting a partial notification form', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
+                    var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
+                    var promise = new Promise();
+                    promise.complete([{}]);
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test_notification" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parentcomplete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="complete_input">Test Complete Input</label>' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="block obsField" id="parent_incomplete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="incomplete_input">Test incomplete_input</label>' +
+                        '<input type="number" name="incomplete_input" id="incomplete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
+            it('Shows a popup to say the form contains empty elements as notifications cannot have partial submissions', function() {
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function () {
+                    event.preventDefault();
+                    return false;
+                });
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.display_partial_reasons).not.toHaveBeenCalled();
+                expect(NHMobileForm.prototype.process_request).not.toHaveBeenCalled();
+                //expect(submit_button.getAttribute('disabled')).toBe('disabled');
+
+                // check modal was called
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Form contains empty fields');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The form contains empty fields, please enter data into these fields and resubmit</p>');
             });
         });
 
@@ -834,8 +1103,17 @@ describe('Data Entry Functionality', function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_test_int">' +
+                        '<div class="input-header">' +
+                        '<label for="test_int">Test Integer</label>' +
                         '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1">' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
                         '</form>'
                 mobile = new NHMobileForm();
             });
@@ -1043,7 +1321,16 @@ describe('Data Entry Functionality', function(){
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_test_int">' +
+                        '<div class="input-header">' +
+                        '<label for="test_int">Test Integer</label>' +
                         '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                         '</form>'
                 mobile = new NHMobileForm();

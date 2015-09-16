@@ -98,7 +98,7 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('invite_success',
           server_data.title,
-          '<p class="block">' + server_data.desc + '</p>',
+          '<p>' + server_data.desc + '</p>',
           btns, 0, body)
       else
         btns = ['<a href="#" data-action="close" data-target="invite_error"'+
@@ -111,7 +111,7 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('invite_error',
           'Error accepting patients',
-          '<p class="block">There was an error accepting the invite to follow,'+
+          '<p>There was an error accepting the invite to follow,'+
             'Please try again</p>',
           btns, 0, body)
 
@@ -141,7 +141,7 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('reject_success',
           server_data.title,
-          '<p class="block">' + server_data.desc + '</p>',
+          '<p>' + server_data.desc + '</p>',
           btns, 0, body)
       else
         btns = ['<a href="#" data-action="close" data-target="reject_success"'+
@@ -154,7 +154,7 @@ class NHMobileShareInvite extends NHMobile
         invite_modal.parentNode.removeChild(invite_modal)
         return new window.NH.NHModal('reject_error',
           'Error rejecting patients',
-          '<p class="block">There was an error rejecting the invite to follow,'+
+          '<p>There was an error rejecting the invite to follow,'+
             ' Please try again</p>',
           btns, 0, body)
 ### istanbul ignore if ###

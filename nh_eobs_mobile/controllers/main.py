@@ -499,10 +499,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form['type'] = re.match(r'nh\.clinical\.notification\.(.*)', task['data_model']).group(1)
             else:
                 form['type'] = 'placement'
-            if form['type'] == 'frequency':
-                freq_obj = [x for x in form_desc[0]['selection_options'] if x['value'] == str(patient_info['frequency'])]
-                if freq_obj:
-                    freq_obj[0]['default_value'] = True
             return request.render('nh_eobs_mobile.notification_confirm_cancel',
                                   qcontext={'name': task['summary'],
                                             'inputs': form_desc,
