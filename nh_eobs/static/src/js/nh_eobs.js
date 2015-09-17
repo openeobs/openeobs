@@ -107,7 +107,7 @@ openerp.nh_eobs = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (['Doctors','Spells','Hospital Wards','Device Categories','Patients Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
+                if (['Doctors','Spells','Hospital Wards','Device Categories','Acuity Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
                     options.selectable = false;
                 };
                 if ('Patients' != options.action.name){
@@ -117,12 +117,12 @@ openerp.nh_eobs = function (instance) {
                     clearInterval(timing5);
                 }
                 wardboard_groups_opened = false;
-                if (options.action.name == "Patients Board"){
+                if (options.action.name == "Acuity Board"){
                     if (typeof(timing) != 'undefined'){
                         clearInterval(timing);
                     }
                     timing = window.setInterval(function(){
-                        var button =  $("a:contains('Patients Board')");
+                        var button =  $("a:contains('Acuity Board')");
                         if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('oe_active') && $(".oe_view_manager_view_list").css('display') != 'none'){
                             wardboard_refreshed = true;
                             button.click();
