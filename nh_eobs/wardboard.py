@@ -300,6 +300,7 @@ class nh_clinical_wardboard(orm.Model):
         'hospital_number': fields.text('Hospital Number'),
         'nhs_number': fields.text('NHS Number'),
         'age': fields.integer("Age"),
+        'date_scheduled': fields.datetime("Date Scheduled"),
         'next_diff': fields.text("Time to Next Obs"),
         'frequency': fields.text("Frequency"),
         'ews_score_string': fields.text("Latest Score"),
