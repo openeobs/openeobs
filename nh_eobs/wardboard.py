@@ -300,6 +300,7 @@ class nh_clinical_wardboard(orm.Model):
         'hospital_number': fields.text('Hospital Number'),
         'nhs_number': fields.text('NHS Number'),
         'age': fields.integer("Age"),
+        'date_scheduled': fields.datetime("Date Scheduled"),
         'next_diff': fields.text("Time to Next Obs"),
         'frequency': fields.text("Frequency"),
         'ews_score_string': fields.text("Latest Score"),
@@ -644,17 +645,20 @@ class nh_clinical_wardboard(orm.Model):
     def init(self, cr):
         cr.execute("""
 
-drop materialized view if exists ews0 cascade;
-drop materialized view if exists ews1 cascade;
-drop materialized view if exists ews2 cascade;
-drop materialized view if exists ward_locations cascade;
-drop materialized view if exists param cascade;
-drop materialized view if exists placement cascade;
 drop view if exists wb_activity_ranked cascade;
 drop view if exists wb_ews_ranked cascade;
 drop view if exists last_movement_users cascade;
 drop view if exists last_transfer_users cascade;
 drop view if exists last_discharge_users cascade;
+
+-- materialized views
+drop materialized view if exists ews0 cascade;
+drop materialized view if exists ews1 cascade;
+drop materialized view if exists ews2 cascade;
+drop materialized view if exists ward_locations cascade;
+drop materialized view if exists param cascade;
+drop materialized view if exists weight cascade;
+drop materialized view if exists pbp cascade;
 
 create or replace view
 -- activity per spell, data_model, state
@@ -805,21 +809,6 @@ ews2 as(
             where activity.rank = 2 and activity.state = 'completed'
 );
 
-create materialized view
-placement as(
-            select
-                activity.patient_id,
-                activity.spell_id,
-                activity.state,
-                activity.date_scheduled,
-                activity.id,
-                activity.rank
-            from wb_activity_ranked activity
-            inner join nh_clinical_patient_placement plc on activity.data_id = plc.id
-                and activity.data_model = 'nh.clinical.patient.placement'
-            where activity.state = 'completed'
-);
-
 create or replace view
 consulting_doctors as(
             select
@@ -838,8 +827,6 @@ param as(
             height.height,
             diabetes.diabetes,
             mrsa.mrsa,
-            pbpm.pbp_monitoring,
-            wm.weight_monitoring,
             pc.status,
             o2target_level.id as o2target_level_id,
             ps.status as post_surgery,
@@ -851,8 +838,6 @@ param as(
         from wb_activity_latest activity
         left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
-        left join nh_clinical_patient_pbp_monitoring pbpm on activity.ids && array[pbpm.activity_id]
-        left join nh_clinical_patient_weight_monitoring wm on activity.ids && array[wm.activity_id]
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
@@ -863,6 +848,24 @@ param as(
         left join nh_clinical_patient_critical_care cc on activity.ids && array[cc.activity_id]
         left join nh_activity ccactivity on ccactivity.id = cc.activity_id
         where activity.state = 'completed'
+);
+
+create materialized view
+weight as(
+    select
+        activity.spell_id,
+        weight.weight_monitoring
+    from wb_activity_latest activity
+    left join nh_clinical_patient_weight_monitoring weight on activity.ids && array[weight.activity_id]
+);
+
+create materialized view
+pbp as(
+    select
+        activity.spell_id,
+        pbp.pbp_monitoring
+    from wb_activity_latest activity
+    left join nh_clinical_patient_pbp_monitoring pbp on activity.ids && array[pbp.activity_id]
 );
 
 create or replace view last_movement_users as(
@@ -965,6 +968,7 @@ nh_clinical_wardboard as(
             when true then ews0.frequency || ' min(s)'
             else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'
         end as frequency,
+        ews0.date_scheduled,
         case when ews1.id is null then 'none' else ews1.score::text end as ews_score_string,    
         ews1.score as ews_score,
         case
@@ -981,8 +985,8 @@ nh_clinical_wardboard as(
         param.o2target_level_id as o2target,
         case when param.mrsa then 'yes' else 'no' end as mrsa,
         case when param.diabetes then 'yes' else 'no' end as diabetes,
-        case when param.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
-        case when param.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
+        case when pbp.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
+        case when weight.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
         case when param.status then 'yes' else 'no' end as palliative_care,
         case
             when param.post_surgery and param.post_surgery_date > now() - interval '4h' then 'yes'
@@ -1009,6 +1013,8 @@ nh_clinical_wardboard as(
     left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
+    left join weight on weight.spell_id = spell.id
+    left join pbp pbp on pbp.spell_id = spell.id
     left join param on param.spell_id = spell.id
     order by location.name
 );
