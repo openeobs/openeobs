@@ -112,5 +112,17 @@
             <field name="view_mode">kanban,form</field>
             <field name="view_id" ref="view_eobs_ward_dashboard_kanban"/>
         </record>
+        <record model="ir.actions.act_window.view" id="act_ward_dashboard_kanban">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_eobs_ward_dashboard_kanban"/>
+            <field name="act_window_id" ref="action_show_ward_dashboard"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_ward_dashboard_form">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_eobs_ward_dashboard_form"/>
+            <field name="act_window_id" ref="action_show_ward_dashboard"/>
+        </record>
      </data>
 </openerp>

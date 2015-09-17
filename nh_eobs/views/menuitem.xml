@@ -123,7 +123,7 @@
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Ward Dashboard"
-                  id="menu_eobs_ward_dashboard"
+                  id="menu_eobs_ward_dashboard_"
                   sequence="5"
                   parent="menu_eobs_category_ward_management"
                   action="action_show_ward_dashboard"
