@@ -131,20 +131,20 @@ class TestRouteObjectInternalMethodSplitURL(openerp.tests.TransactionCase):
             split_url = self.route._split_url(url)
 
 
-class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
+class TestRouteObjectGetURLComponents(openerp.tests.TransactionCase):
 
     def setUp(self):
-        super(TestRouteObjectGetDecomposedURL, self).setUp()
+        super(TestRouteObjectGetURLComponents, self).setUp()
         self.route = Route('test_route', '')
 
-    def test_get_decomposed_url_with_no_argument(self):
+    def test_get_url_components_from_url_with_no_argument(self):
         url = '/api/v1/patients/'
 
         # Create a generator to check each different components of the URL in the assertions below
         name_check_generator = (t for t in ['api', 'v1', 'patients'])
 
         # Fetch the components list from the method under test
-        components_list = self.route.get_decomposed_url(url)
+        components_list = self.route._get_url_components(url)
 
         self.assertEqual(len(components_list), 3)
         for c in components_list:
@@ -155,7 +155,7 @@ class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
             self.assertEqual(c['type'], 'string')
             self.assertEqual(c['name'], name_check_generator.next())
 
-    def test_get_decomposed_url_with_single_argument(self):
+    def test_get_url_components_from_url_with_single_argument(self):
         url = '/api/v1/patients/<id>'
 
         # Create generators to check each different components of the URL in the assertions below
@@ -163,7 +163,7 @@ class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
         name_check_generator = (n for n in ['api', 'v1', 'patients', 'id'])
 
         # Fetch the components list from the method under test
-        components_list = self.route.get_decomposed_url(url)
+        components_list = self.route._get_url_components(url)
 
         self.assertEqual(len(components_list), 4)
         for c in components_list:
@@ -174,7 +174,7 @@ class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
             self.assertEqual(c['type'], type_check_generator.next())
             self.assertEqual(c['name'], name_check_generator.next())
 
-    def test_get_decomposed_url_with_multiple_arguments(self):
+    def test_get_url_components_from_url_with_multiple_arguments(self):
         url = '/api/<version_number>/location/<ward_code>/<bed_number>/'
 
         # Create generators to check each different components of the URL in the assertions below
@@ -182,7 +182,7 @@ class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
         name_check_generator = (n for n in ['api', 'version_number', 'location', 'ward_code', 'bed_number'])
 
         # Fetch the components list from the method under test
-        components_list = self.route.get_decomposed_url(url)
+        components_list = self.route._get_url_components(url)
 
         self.assertEqual(len(components_list), 5)
         for c in components_list:
@@ -193,7 +193,7 @@ class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
             self.assertEqual(c['type'], type_check_generator.next())
             self.assertEqual(c['name'], name_check_generator.next())
 
-    def test_get_decomposed_url_with_multiple_slashes(self):
+    def test_get_url_components_from_url_with_multiple_slashes(self):
         url = 'api///<version_number>/location/<ward_code>///<bed_number>//'
 
         # Create generators to check each different components of the URL in the assertions below
@@ -201,7 +201,7 @@ class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
         name_check_generator = (n for n in ['api', 'version_number', 'location', 'ward_code', 'bed_number'])
 
         # Fetch the components list from the method under test
-        components_list = self.route.get_decomposed_url(url)
+        components_list = self.route._get_url_components(url)
 
         self.assertEqual(len(components_list), 5)
         for c in components_list:
@@ -222,19 +222,19 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def test_get_args_from_url_with_no_arguments(self):
         url = '/api/v1/patients/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertNotIsInstance(args, list)
         self.assertEqual(args, False)
 
     def test_get_args_from_url_with_one_single_argument(self):
         url = '/api/v1/patients/<patient_id>/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 1)
         self.assertIn('patient_id', args)
 
     def test_get_args_from_url_with_multiple_arguments(self):
         url = '/api/v1/patients/<patient_id>/observation/<observation_id>/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('patient_id', args)
         self.assertNotIn('<patient_id>', args)
@@ -243,7 +243,7 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def test_get_args_from_url_with_two_consecutive_arguments(self):
         url = '/api/v1/patient/submit_ajax/<observation_type>/<patient_id>/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('patient_id', args)
         self.assertNotIn('<patient_id>', args)
@@ -252,7 +252,7 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def test_get_args_from_url_with_multiple_consecutive_arguments(self):
         url = '/api/v1/<multiple>/<consecutive_parameters>/<in_this>/<url>/test/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 4)
         self.assertIn('multiple', args)
         self.assertNotIn('<multiple>', args)
@@ -265,13 +265,13 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def test_get_args_from_url_with_wrong_written_arguments(self):
         url = '/api/v1/patients/<_id>/observation/<observation_id_>/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertNotIsInstance(args, list)
         self.assertEqual(args, False)
 
     def test_get_args_from_url_with_mix_cased_arguments(self):
         url = '/api/v1/patients/<paTieNT_ID>/observation/<obSERvatioN_iD>/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('paTieNT_ID', args)
         self.assertNotIn('<paTieNT_ID>', args)
@@ -280,13 +280,13 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def test_get_args_from_url_with_arguments_having_digits(self):
         url = '/api/v1/patients/<pa7ien7_id>/observation/<ob5ervation_id>/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertNotIsInstance(args, list)
         self.assertEqual(args, False)
 
     def test_get_args_from_url_with_arguments_having_underscores_and_hyphens(self):
         url = '/api/v1/patients/<patient_id>/observation/<observation-id>/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('patient_id', args)
         self.assertNotIn('<patient_id>', args)
@@ -295,13 +295,13 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def test_get_args_from_url_with_arguments_having_underscores_and_hyphens_but_no_chevrons(self):
         url = '/api/v1/patients/patient_id/observation/observation-id/'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertNotIsInstance(args, list)
         self.assertEqual(args, False)
 
     def test_get_args_from_url_with_no_trailing_slash(self):
         url = '/api/v1/patients/<patient_id>/observation/<observation_id>'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 2)
         self.assertIn('patient_id', args)
         self.assertNotIn('<patient_id>', args)
@@ -310,7 +310,7 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def test_get_args_from_url_with_every_possible_VALID_combination(self):
         url = '/api/v1/patients/<Patient_strange-ID>/observation/<obSERvation_typE>/<obserVATion-very_Strange_Id>'
-        args = self.route.get_args(url)
+        args = self.route._get_args(url)
         self.assertEqual(len(args), 3)
         self.assertIn('obSERvation_typE', args)
         self.assertNotIn('<obSERvation_typE>', args)
