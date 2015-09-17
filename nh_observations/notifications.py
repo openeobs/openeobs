@@ -2,6 +2,7 @@
 
 from openerp.osv import orm, fields, osv
 from openerp.addons.nh_observations.parameters import frequencies
+from openerp.addons.nh_observations.helpers import refresh_materialized_views
 import logging
 import copy
 _logger = logging.getLogger(__name__)
@@ -42,6 +43,7 @@ class nh_clinical_notification_frequency(orm.Model):
     }
     _notifications = [{'model': 'medical_team', 'groups': ['nurse']}]
 
+    @refresh_materialized_views('ews0', 'ews1', 'ews2')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         review_frequency = activity_pool.browse(cr, uid, activity_id, context=context)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_observations.helpers import refresh_materialized_views
 import logging
 import bisect
 from openerp import SUPERUSER_ID
+from openerp.addons.nh_observations.helpers import refresh_materialized_views
 import copy
 
 _logger = logging.getLogger(__name__)
