@@ -16,8 +16,12 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     _inherit = ['nh.activity.data']
     _required = [] # fields required for complete observation
     _num_fields = [] # numeric fields we want to be able to read as NULL instead of 0
-    _partial_reasons = [['not_in_bed', 'Patient not in bed'],
-                        ['asleep', 'Patient asleep']]
+    _partial_reasons = [
+        ['patient_away_from_bed', 'Patient away from  bed'],
+        ['patient_refused', 'Patient refused'],
+        ['emergency_situation', 'Emergency situation'],
+        ['doctors_request', 'Doctor\'s request']
+    ]
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):
         ids = isinstance(ids, (tuple, list)) and ids or [ids]

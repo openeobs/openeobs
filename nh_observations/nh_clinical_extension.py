@@ -55,6 +55,8 @@ class nh_clinical_api_extension(orm.AbstractModel):
                 deadline = (dt.now()+td(minutes=n.get('minutes_due'))).strftime(DTF) if n.get('minutes_due') \
                     else (dt.now()+td(minutes=5)).strftime(DTF)
                 a_values = {
+                    'user_id': uid if n.get('assign') else False,
+                    'assign_locked': n.get('assign'),
                     'parent_id': values.get('parent_id'),
                     'date_deadline': deadline,
                     'creator_id': values.get('creator_id'),
