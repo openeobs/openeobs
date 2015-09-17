@@ -165,8 +165,18 @@ class nh_clinical_patient_critical_care(orm.Model):
 
     @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_critical_care, self).complete(cr, uid, activity_id, context)
-        return res
+        activity_pool = self.pool['nh.activity']
+        ews_pool = self.pool['nh.clinical.patient.observation.ews']
+        api_pool = self.pool['nh.clinical.api']
+        activity = activity_pool.browse(cr, uid, activity_id, context=context)
+        if activity.data_ref.status:
+            current_case = ews_pool.get_last_case(cr, uid, activity.data_ref.patient_id.id, context=context)
+            current_freq = ews_pool._POLICY['frequencies'][current_case] if current_case else 0
+            if current_freq < self._ews_frequency:
+                api_pool.change_activity_frequency(cr, uid, activity.data_ref.patient_id.id,
+                                                   'nh.clinical.patient.observation.ews', self._ews_frequency,
+                                                   context=context)
+        return super(nh_clinical_patient_critical_care, self).complete(cr, uid, activity_id, context=context)
 
 
 class nh_clinical_patient_weight_monitoring(orm.Model):
