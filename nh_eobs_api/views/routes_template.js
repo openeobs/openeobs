@@ -38,19 +38,18 @@ var frontend_routes = {}; (function(_root){
         _root.{{ route.name }} = function({% if route.args %}{{ route.args | join(', ') }}{% endif %}) {
             return _wA({
                 method:"{{ route.methods.0 }}",
-                {% if route.args %}
-                url:"{{ base_url }}{{ route.url }}"
-                    {% for arg in route.args %}
-                        {% if loop.index >= 2 %}
-                           + '/'
-                        {% endif %}
-                        + (function(k,v) {
-                            return v
-                           })( "{{ arg }}", {{ arg }})
-                    {% endfor %}
-                {% else %}
-                url:"{{ base_url }}{{ route.url }}"
-                {% endif %}
+                url:"{{ base_url }}"
+                {% for comp in route.url_components %}
+                       + '/'
+                    {% if comp.type == 'string' %}
+                        + '{{ comp.name }}'
+                    {% endif %}
+                    {% if comp.type == 'func' %}
+                         + (function(k,v) {
+                        return v
+                       })( "{{ comp.name }}", {{ comp.name }})
+                    {% endif %}
+                {% endfor %}
             })
         }
     {% endfor %}
