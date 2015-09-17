@@ -88,6 +88,131 @@ class TestRouteObjectCreation(openerp.tests.TransactionCase):
             self.assertIn(m, route.methods)
 
 
+class TestRouteObjectInternalMethodSplitURL(openerp.tests.TransactionCase):
+
+    def setUp(self):
+        super(TestRouteObjectInternalMethodSplitURL, self).setUp()
+        self.route = Route('test_route', '')
+
+    def test_internal_method_split_url_with_no_trailing_slash(self):
+        url = '/api/v1/test/url'
+        split_url = self.route._split_url(url)
+        self.assertIsInstance(split_url, list)
+        self.assertEqual(len(split_url), 4)
+        self.assertIn('api', split_url)
+        self.assertIn('v1', split_url)
+        self.assertIn('test', split_url)
+        self.assertIn('url', split_url)
+
+    def test_internal_method_split_url_with_trailing_slash(self):
+        url = '/api/v1/url/'
+        split_url = self.route._split_url(url)
+        self.assertIsInstance(split_url, list)
+        self.assertEqual(len(split_url), 3)
+        self.assertIn('api', split_url)
+        self.assertIn('v1', split_url)
+        self.assertIn('url', split_url)
+
+    def test_internal_method_split_url_with_multiple_slashes(self):
+        url = '/api//v1/test///url///split'
+        split_url = self.route._split_url(url)
+        self.assertIsInstance(split_url, list)
+        self.assertEqual(len(split_url), 5)
+        self.assertIn('api', split_url)
+        self.assertIn('v1', split_url)
+        self.assertIn('test', split_url)
+        self.assertIn('url', split_url)
+        self.assertIn('split', split_url)
+
+    def test_internal_method_split_url_with_no_string_argument(self):
+        url = 56
+        self.assertIsInstance(url, int)
+        with self.assertRaises(ValueError):
+            split_url = self.route._split_url(url)
+
+
+class TestRouteObjectGetDecomposedURL(openerp.tests.TransactionCase):
+
+    def setUp(self):
+        super(TestRouteObjectGetDecomposedURL, self).setUp()
+        self.route = Route('test_route', '')
+
+    def test_get_decomposed_url_with_no_argument(self):
+        url = '/api/v1/patients/'
+
+        # Create a generator to check each different components of the URL in the assertions below
+        name_check_generator = (t for t in ['api', 'v1', 'patients'])
+
+        # Fetch the components list from the method under test
+        components_list = self.route.get_decomposed_url(url)
+
+        self.assertEqual(len(components_list), 3)
+        for c in components_list:
+            self.assertIsInstance(c, dict)
+            self.assertEqual(len(c), 2)
+            self.assertIn('type', c)
+            self.assertIn('name', c)
+            self.assertEqual(c['type'], 'string')
+            self.assertEqual(c['name'], name_check_generator.next())
+
+    def test_get_decomposed_url_with_single_argument(self):
+        url = '/api/v1/patients/<id>'
+
+        # Create generators to check each different components of the URL in the assertions below
+        type_check_generator = (t for t in ['string', 'string', 'string', 'func'])
+        name_check_generator = (n for n in ['api', 'v1', 'patients', 'id'])
+
+        # Fetch the components list from the method under test
+        components_list = self.route.get_decomposed_url(url)
+
+        self.assertEqual(len(components_list), 4)
+        for c in components_list:
+            self.assertIsInstance(c, dict)
+            self.assertEqual(len(c), 2)
+            self.assertIn('type', c)
+            self.assertIn('name', c)
+            self.assertEqual(c['type'], type_check_generator.next())
+            self.assertEqual(c['name'], name_check_generator.next())
+
+    def test_get_decomposed_url_with_multiple_arguments(self):
+        url = '/api/<version_number>/location/<ward_code>/<bed_number>/'
+
+        # Create generators to check each different components of the URL in the assertions below
+        type_check_generator = (t for t in ['string', 'func', 'string', 'func', 'func'])
+        name_check_generator = (n for n in ['api', 'version_number', 'location', 'ward_code', 'bed_number'])
+
+        # Fetch the components list from the method under test
+        components_list = self.route.get_decomposed_url(url)
+
+        self.assertEqual(len(components_list), 5)
+        for c in components_list:
+            self.assertIsInstance(c, dict)
+            self.assertEqual(len(c), 2)
+            self.assertIn('type', c)
+            self.assertIn('name', c)
+            self.assertEqual(c['type'], type_check_generator.next())
+            self.assertEqual(c['name'], name_check_generator.next())
+
+    def test_get_decomposed_url_with_multiple_slashes(self):
+        url = 'api///<version_number>/location/<ward_code>///<bed_number>//'
+
+        # Create generators to check each different components of the URL in the assertions below
+        type_check_generator = (t for t in ['string', 'func', 'string', 'func', 'func'])
+        name_check_generator = (n for n in ['api', 'version_number', 'location', 'ward_code', 'bed_number'])
+
+        # Fetch the components list from the method under test
+        components_list = self.route.get_decomposed_url(url)
+
+        self.assertEqual(len(components_list), 5)
+        for c in components_list:
+            self.assertIsInstance(c, dict)
+            self.assertEqual(len(c), 2)
+            self.assertIn('type', c)
+            self.assertIn('name', c)
+            self.assertEqual(c['type'], type_check_generator.next())
+            self.assertEqual(c['name'], name_check_generator.next())
+
+
 class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
 
     def setUp(self):
