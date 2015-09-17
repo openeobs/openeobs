@@ -17,10 +17,10 @@ class Route(object):
         self.headers = headers
         self.cors = cors  # TODO: is this really needed?
 
-        self.args = self.get_args(self.url)
-        self.url_components = self.get_decomposed_url(self.url)
+        self.args = self._get_args(self.url)
+        self.url_components = self._get_url_components(self.url)
 
-    def get_args(self, url):
+    def _get_args(self, url):
         """Fetch named arguments for a URL from that URL.
 
         Named arguments are the ones written as: <argument_name>
@@ -49,7 +49,7 @@ class Route(object):
         url_pieces_list = [p for p in split_url if not p == '']
         return url_pieces_list
 
-    def get_decomposed_url(self, url):
+    def _get_url_components(self, url):
         """Divide a URL into pieces and store them into a list of dictionaries, alongside some metadata.
 
         :param url: String containing a "Werkzeug style" URL - example: 'api/v1/patients/<patient_id>/observation/<observation_id>/'
