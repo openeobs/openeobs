@@ -232,20 +232,22 @@ class nh_eobs_api(orm.AbstractModel):
         if activity_type:
             domain.append(['data_model', '=', activity_type])
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
+        activities = activity_pool.browse(cr, uid, activity_ids, context=context)
+
         res = []
-        for aid in activity_ids:
-            activity = activity_pool.browse(cr, uid, aid, context=context)
+        for activity in activities:
             if activity.data_model == 'nh.clinical.patient.follow':
+                patient_ids = [patient.id for patient in activity.data_ref.patient_ids]
                 data = {
-                    'id': aid,
+                    'id': activity.id,
                     'user': activity.create_uid.name,
-                    'count': len(activity.data_ref.patient_ids),
-                    'patient_ids': [patient.id for patient in activity.data_ref.patient_ids]
+                    'count': len(patient_ids),
+                    'patient_ids': patient_ids
                 }
                 data['message'] = 'You have been invited to follow '+str(data['count'])+' patients from '+data['user']
             else:
                 data = {
-                    'id': aid,
+                    'id': activity.id,
                     'message': 'You have a notification'
                 }
             res.append(data)
