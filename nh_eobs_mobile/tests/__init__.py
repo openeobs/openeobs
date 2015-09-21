@@ -14,8 +14,8 @@
 # import json_endpoint_test
 
 #import test_mobile_controller_routes
-import test_mobile_controller_methods
-import test_mobile_single_task_method
+# import test_mobile_controller_methods
+# import test_mobile_single_task_method
 #import test_routes
 
 # PhantomJS tests
@@ -34,3 +34,6 @@ import test_mobile_single_task_method
 #import test_HTML_patient_list
 #import test_HTML_task_list
 #import test_HTML_task_detail
+
+# Performance tests
+import test_performance
