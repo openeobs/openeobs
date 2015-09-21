@@ -7,7 +7,7 @@ from openerp.tools import config
 
 class Route(object):
     """Class storing all the data for a single route."""
-    def __init__(self, name, url, request_type='http', auth='user', methods=['GET'], response_type='json', headers={}, cors=None):
+    def __init__(self, name, url, request_type='http', auth='user', methods=['GET'], response_type='json', headers={}, cors=None, url_prefix=None):
         self.name = name
         self.url = url
         self.request_type = request_type
@@ -16,6 +16,7 @@ class Route(object):
         self.response_type = response_type  # TODO: get this from the URL parameter? (ex: adding ?_format=json to the URL)
         self.headers = headers
         self.cors = cors  # TODO: is this really needed?
+        self.url_prefix = url_prefix
 
         self.args = self._get_args(self.url)
         self.url_components = self._get_url_components(self.url)
@@ -119,7 +120,7 @@ class RouteManager(object):
         :raise: KeyError (if no Route object matching the 'route_name' parameter is found)
         """
         route = self.ROUTES[route_name]
-        route_prefix = url_prefix or self.URL_PREFIX
+        route_prefix = url_prefix or route.url_prefix or self.URL_PREFIX
         if route:
             route_dict = {
                 'route': str(route_prefix) + route.url if route_prefix else route.url,
@@ -141,7 +142,7 @@ class RouteManager(object):
         :raise: KeyError (if no Route object matching the 'route_name' parameter is found)
         """
         route = self.ROUTES[route_name]
-        route_prefix = url_prefix or self.URL_PREFIX
+        route_prefix = url_prefix or route.url_prefix or self.URL_PREFIX
         if route:
             route_dict = {  # TODO: exclude 'falsy' parameters ?
                 'route': str(route_prefix) + route.url if route_prefix else route.url,

@@ -74,7 +74,7 @@ class TestRouteObjectCreation(openerp.tests.TransactionCase):
         test_methods = ['POST', 'HEAD', 'FOO', 'BAR']
         test_response_type = 'foobar'
         test_headers = {'Content-Type': 'text/html', 'Foo-Bar': 'not-even-exist'}
-        route = Route(self.route_name, self.route_url, response_type=test_response_type, headers=test_headers, methods=test_methods)
+        route = Route(self.route_name, self.route_url, response_type=test_response_type, headers=test_headers, methods=test_methods, url_prefix='/test')
         self.assertEqual(route.name, self.route_name)
         self.assertEqual(route.url, self.route_url)
         self.assertEqual(route.response_type, test_response_type)
@@ -482,6 +482,15 @@ class TestRouteManagerJavascriptGeneration(openerp.tests.HttpCase):
                                                                    additional_context={'route_name_list': route_name_list})
         self.phantom_js('/', javascript_code)  # the actual test and assertions are inside the injected Javascript code!
 
+    def test_get_javascript_routes_passing_two_url_prefixes(self):
+        diff_prefix_route = Route('prefix', '/prefix/', url_prefix='/test/url/')
+        self.route_manager.add_route(diff_prefix_route)
+        r_list = self.all_route_list
+        js_string = self.route_manager.get_javascript_routes(self.name_of_template, self.path_to_template, route_list=r_list)
+        # need to make sure url prefix is done properly
+        for r in r_list:
+            self.assertIn(r.name, js_string, 'Route object "{}" was not rendered in the template.'.format(r.name))
+
 
 class TestResponseJSON(openerp.tests.SingleTransactionCase):
 
@@ -580,8 +589,8 @@ class TestResponseJSON(openerp.tests.SingleTransactionCase):
 SERVER_PROTOCOL = "http"
 SERVER_ADDRESS = "localhost"
 SERVER_PORT = "{0}".format(config['xmlrpc_port'])
-MOBILE_URL_PREFIX = '/mobile'  # TODO: add a leading slash (DONE)
-BASE_URL = SERVER_PROTOCOL + '://' + SERVER_ADDRESS + ':' + SERVER_PORT  # TODO: remove the trailing slash (DONE)
+MOBILE_URL_PREFIX = '/mobile'
+BASE_URL = SERVER_PROTOCOL + '://' + SERVER_ADDRESS + ':' + SERVER_PORT
 BASE_MOBILE_URL = BASE_URL + MOBILE_URL_PREFIX
 
 # Create the RouteManager and the Route objects for the tests
@@ -597,7 +606,7 @@ single_arg_route_only_post = Route('single_arg_route_only_post', '/single/arg/<a
 custom_keywords_route = Route('custom_keywords_route', '/custom/keywords/route/', auth='none')
 
 expose_route_2 = Route('expose_route_2', '/expose/route2/', auth='none')
-
+diff_prefix_route = Route('prefix', '/prefix/', url_prefix='/test/url', auth='none')
 # Add the Route objects to the RouteManager (mandatory to them being considered by the routing workflow)
 route_manager_test.add_route(no_args_route)
 route_manager_test.add_route(no_args_route_auth_as_user)
@@ -609,6 +618,7 @@ route_manager_test.add_route(single_arg_route_only_post)
 route_manager_test.add_route(custom_keywords_route)
 
 route_manager_test.add_route(expose_route_2)
+route_manager_test.add_route(diff_prefix_route)
 
 
 class ControllerForTesting(http.Controller):
@@ -638,6 +648,14 @@ class ControllerForTesting(http.Controller):
     @http.route(foo='bar', spam='eggs', **route_manager_test.expose_route('custom_keywords_route', url_prefix=MOBILE_URL_PREFIX))
     def route_with_custom_keywords(self, *args, **kwargs):
         return http.request.make_response('Received from the @http.route decorator these keywords: {}'.format(http.request.endpoint.routing))
+
+    @http.route(**route_manager_test.expose_route('prefix'))
+    def route_with_prefix_on_route(self, *args, **kwargs):
+        return http.request.make_response('Received with url prefix defined on route not route manager')
+
+    @http.route(**route_manager_test.expose_route('prefix', url_prefix=MOBILE_URL_PREFIX))
+    def route_with_prefix_on_expose_route(self, *args, **kwargs):
+        return http.request.make_response('Received with url prefix defined on expose_route not route manager')
 
     # TODO: is this useful ???
     @http.route(**route_manager_test.expose_route2('expose_route_2', url_prefix=MOBILE_URL_PREFIX, additional_parameters={'baz': 'ham'}))
@@ -738,3 +756,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertIn('Expose route 2', test_resp.text)
         self.assertIn('baz', test_resp.text)
         self.assertIn('ham', test_resp.text)
+
+    def test_route_with_url_prefix_on_route(self):
+        test_resp = requests.get(BASE_URL + '/test/url/prefix/', cookies=self.session_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertIn('Received with url prefix defined on route not route manager', test_resp.text)
+        self.assertNotIn('URL Prefix did not work on route!', test_resp.text)
+
+    def test_route_with_url_prefix_on_expose_route(self):
+        test_resp = requests.get(BASE_MOBILE_URL + '/prefix/', cookies=self.session_resp.cookies)
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertIn('Received with url prefix defined on expose_route not route manager', test_resp.text)
+        self.assertNotIn('URL Prefix did not work expose_route!', test_resp.text)
