@@ -1006,9 +1006,15 @@ nh_clinical_wardboard as(
         end as nhs_number,
         extract(year from age(now(), patient.dob)) as age,
         ews0.next_diff_polarity ||
-        case when extract(days from ews0.next_diff_interval) > 0
-            then  extract(days from ews0.next_diff_interval) || ' day(s) ' else ''
-        end || to_char(ews0.next_diff_interval, 'HH24:MI') next_diff,
+        case
+            when ews0.date_scheduled is not null then
+              -- case when greatest(now() at time zone 'UTC', ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' else '' end ||
+              case when extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) > 0
+                then extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) || ' day(s) '
+                else '' end ||
+              to_char(justify_hours(greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled)), 'HH24:MI') || ' hours'
+            else to_char((interval '0s'), 'HH24:MI')
+        end as next_diff,
         case ews0.frequency < 60
             when true then ews0.frequency || ' min(s)'
             else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'

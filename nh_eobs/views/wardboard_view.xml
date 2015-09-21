@@ -445,7 +445,6 @@
                     <field name="dob"/>
                     <field name="age" />
                     <field name="date_scheduled"/>
-                    <!--<field name="next_diff" />-->
                     <field name="frequency" />
                     <field name="ews_score_string"/>
                     <field name="ews_trend_string"/>
@@ -488,7 +487,7 @@
                                             n/a
                                         </t>
                                     </div>
-                                    <li>Time to next observation: <field name="date_scheduled" widget="nh_time_to_next_obs"/></li>
+                                    <li>Time to next observation: <field name="next_diff"/></li>
                                     <t t-if="record.hospital_number.raw_value != ''">
                                         <div>Hospital Number: <field name="hospital_number"/></div>
                                     </t>
@@ -513,7 +512,7 @@
                     <field name="family_name" />
                     <field name="location" />
                     <field name="location_full_name"/>
-                    <field name="next_diff" />
+                    <field name="date_scheduled" />
                     <field name="frequency" />
                     <field name="ews_score_string"/>
                     <field name="ews_trend_string"/>
