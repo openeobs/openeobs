@@ -102,19 +102,12 @@ class nh_clinical_patient_post_surgery(orm.Model):
         api_pool = self.pool['nh.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         if activity.data_ref.status:
-            activity_ids = activity_pool.search(cr, uid, [['parent_id', '=', activity.parent_id.id],
-                                                          ['state', 'not in', ['completed', 'cancelled']],
-                                                          ['data_model', '=', 'nh.clinical.patient.observation.ews']
-                                                          ], context=context)
-            [activity_pool.cancel(cr, uid, aid, context=context) for aid in activity_ids]
-            ews_pool.create_activity(cr, SUPERUSER_ID, {
-                'creator_id': activity_id, 'parent_id': activity.parent_id.id
-            }, {
-                'patient_id': activity.data_ref.patient_id.id
-            })
-            api_pool.change_activity_frequency(cr, SUPERUSER_ID,
-                                               activity.data_ref.patient_id.id, ews_pool._name, self._ews_frequency,
-                                               context=context)
+            current_case = ews_pool.get_last_case(cr, uid, activity.data_ref.patient_id.id, context=context)
+            current_freq = ews_pool._POLICY['frequencies'][current_case] if isinstance(current_case, int) else 0
+            if current_freq > self._ews_frequency:
+                api_pool.change_activity_frequency(cr, uid, activity.data_ref.patient_id.id,
+                                                   'nh.clinical.patient.observation.ews', self._ews_frequency,
+                                                   context=context)
         return super(nh_clinical_patient_post_surgery, self).complete(cr, uid, activity_id, context=context)
 
     def current_status(self, cr, uid, patient_id, context=None):
@@ -171,8 +164,8 @@ class nh_clinical_patient_critical_care(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         if activity.data_ref.status:
             current_case = ews_pool.get_last_case(cr, uid, activity.data_ref.patient_id.id, context=context)
-            current_freq = ews_pool._POLICY['frequencies'][current_case] if current_case else 0
-            if current_freq < self._ews_frequency:
+            current_freq = ews_pool._POLICY['frequencies'][current_case] if isinstance(current_case, int) else 0
+            if current_freq > self._ews_frequency:
                 api_pool.change_activity_frequency(cr, uid, activity.data_ref.patient_id.id,
                                                    'nh.clinical.patient.observation.ews', self._ews_frequency,
                                                    context=context)
