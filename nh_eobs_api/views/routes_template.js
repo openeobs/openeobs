@@ -38,7 +38,7 @@ var frontend_routes = {}; (function(_root){
         _root.{{ route.name }} = function({% if route.args %}{{ route.args | join(', ') }}{% endif %}) {
             return _wA({
                 method:"{{ route.methods.0 }}",
-                url:"{{ base_url }}"
+                url:"{{ base_url }}{% if route.url_prefix %}{{ route.url_prefix }}{% else %}{{ base_prefix }}{% endif %}"
                 {% for comp in route.url_components %}
                        + '/'
                     {% if comp.type == 'string' %}

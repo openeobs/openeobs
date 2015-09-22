@@ -56,7 +56,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     def get_js_routes(self, *args, **kw):
         name_of_template = 'routes_template.js'
         path_to_template = get_module_path('nh_eobs_api') + '/views/'
-        routes = route_manager.get_javascript_routes(name_of_template, path_to_template, additional_context={'base_url': route_manager.BASE_URL_WITH_PREFIX})
+        routes = route_manager.get_javascript_routes(name_of_template, path_to_template, additional_context={'base_url': route_manager.BASE_URL, 'base_prefix': route_manager.URL_PREFIX})
         return request.make_response(routes, headers={'Content-Type': 'application/javascript'})
 
     @http.route(**route_manager.expose_route('json_share_patients'))
@@ -64,7 +64,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
         user_api = request.registry['res.users']
-        kw_copy = json.loads(request.httprequest.data) if request.httprequest.data else {}
+        kw_copy = kw.copy() if kw else {}
         user_ids = [int(id) for id in kw_copy['user_ids'].split(',')]
         patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
         users = user_api.read(cr, uid, user_ids, ['display_name'], context=context)
@@ -76,7 +76,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         }
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Invitation sent',
-                                                   description='An invite has been sent to follow the selected patients',
+                                                   description='An invite has been sent to follow the selected patients to: ',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
@@ -84,7 +84,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     def claim_patients(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
-        kw_copy = json.loads(request.httprequest.data) if request.httprequest.data else {}
+        kw_copy = kw.copy() if kw else {}
         patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
         api.remove_followers(cr, uid, patient_ids, context=context)
         response_data = {'reason': 'Followers removed successfully.'}
@@ -98,10 +98,11 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     def get_colleagues(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry['nh.eobs.api']
+        colleagues = api.get_share_users(cr, uid, context=context)
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Colleagues on shift',
                                                    description='Choose colleagues for stand-in',
-                                                   data=api.get_share_users(cr, uid, context=context))
+                                                   data={'colleagues': colleagues})
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
     @http.route(**route_manager.expose_route('json_invite_patients'))
@@ -248,10 +249,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
         activity_api = request.registry('nh.activity')
-        ews_pool = request.registry('nh.clinical.patient.observation.'+observation)
+        ob_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
-        converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
-        kw_copy = json.loads(request.httprequest.data)
+        converter = converter_pool.for_model(cr, uid, ob_pool, str, context=context)
+        kw_copy = kw.copy() if kw else {}
         test = {}
         data_timestamp = kw_copy.get('startTimestamp', None)
         data_task_id = kw_copy.get('taskId', None)
@@ -261,6 +262,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             del kw_copy['startTimestamp']
         if data_task_id is not None:
             del kw_copy['taskId']
+        if task_id is not None:
+            del kw_copy['task_id']
+        if observation is not None:
+            del kw_copy['observation']
         if data_device_id is not None:
             del kw_copy['device_id']
         for key, value in kw_copy.items():
@@ -277,10 +282,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
         triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
         triggered_tasks = [v for v in triggered_tasks if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
-
-        response_data = {'related_tasks': triggered_tasks}
+        partial = True if 'partial_reason' in kw_copy and kw_copy['partial_reason'] else False
+        response_data = {'related_tasks': triggered_tasks, 'status': 1}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='Successfully submitted observation',
+                                                   title='Successfully Submitted{0} {1}'.format(' Partial' if partial else '',ob_pool._description),
                                                    description='Here are related tasks based on the observation',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
@@ -294,13 +299,15 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         converter_pool = request.registry('ir.fields.converter')
         observation_pool = request.registry(model)
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
-        data = json.loads(request.httprequest.data) if request.httprequest.data else {}
+        data = kw.copy() if kw else {}
         test = {}
         section = 'task' if 'taskId' in data else 'patient'
         if 'startTimestamp' in data:
             del data['startTimestamp']
         if 'taskId' in data:
             del data['taskId']
+        if observation is not None:
+            del data['observation']
         if observation == 'ews':
             observation = 'news'
             for key, value in data.items():
@@ -313,7 +320,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             exceptions.abort(400)
         modal_vals = {}
         modal_vals['next_action'] = 'json_task_form_action' if section == 'task' else 'json_patient_form_action'
-        modal_vals['title'] = 'Submit {score_type} of {score}'.format(score_type=observation.upper(), score=score_dict.get('score', ''))
+        # TODO: Need to add patient name in somehow
+        modal_vals['title'] = 'Submit {score_type} score of {score}?'.format(score_type=observation.upper(), score=score_dict.get('score', ''))
         if 'clinical_risk' in score_dict:
             modal_vals['content'] = '<p><strong>Clinical risk: {risk}</strong></p><p>Please confirm you want to submit this score</p>'.format(risk=score_dict['clinical_risk'])
         else:
@@ -321,7 +329,9 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         response_data = {
             'score': score_dict,
-            'modal_vals': modal_vals
+            'modal_vals': modal_vals,
+            'status': 3,
+            'next_action': modal_vals['next_action']
         }
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title=modal_vals['title'],
@@ -386,7 +396,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
         activity_api = request.registry('nh.activity')
-        kw_copy = json.loads(request.httprequest.data)
+        kw_copy = kw.copy() if kw else {}
         if 'taskId' in kw_copy:
             del kw_copy['taskId']
         if 'frequency' in kw_copy:
@@ -398,7 +408,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
         triggered_tasks = [v for v in triggered_tasks if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
 
-        response_data = {'related_tasks': triggered_tasks}
+        response_data = {'related_tasks': triggered_tasks, 'status': 1}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Submission successful',
                                                    description='The notification was successfully submitted',
@@ -410,11 +420,11 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         task_id = kw.get('task_id')  # TODO: add a check if is None (?)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
-        kw_copy = json.loads(request.httprequest.data)
+        kw_copy = kw.copy() if kw else {}
         kw_copy['reason'] = int(kw_copy['reason'])  # TODO: this seems not to be used anywhere; possibly remove it ?
         result = api_pool.cancel(cr, uid, int(task_id), kw_copy)  # TODO: add a check if method 'complete' fails(?)
 
-        response_data = {'related_tasks': []}
+        response_data = {'related_tasks': [], 'status': 4}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Cancellation successful',
                                                    description='The notification was successfully cancelled',
@@ -464,7 +474,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         observation_pool = request.registry('nh.clinical.patient.observation.'+observation)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
-        kw_copy = json.loads(request.httprequest.data)
+        kw_copy = kw.copy() if kw else {}
         test = {}
         data_timestamp = kw_copy.get('startTimestamp', False)
         data_task_id = kw_copy.get('taskId', False)
@@ -474,6 +484,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             del kw_copy['startTimestamp']
         if data_task_id:
             del kw_copy['taskId']
+        if observation is not None:
+            del kw_copy['observation']
+        if patient_id is not None:
+            del kw_copy['patient_id']
         if data_device_id:
             del kw_copy['device_id']
         for key, value in kw_copy.items():
@@ -491,9 +505,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(new_activity)]])
         triggered_tasks = [v for v in activity_api.read(cr, uid, triggered_ids, []) if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
 
-        response_data = {'related_tasks': triggered_tasks}
+        partial = True if 'partial_reason' in kw_copy and kw_copy['partial_reason'] else False
+        response_data = {'related_tasks': triggered_tasks, 'status': 1}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                   title='Observation successfully submitted',
+                                                   title='Successfully Submitted{0} {1}'.format(' Partial' if partial else '', observation_pool._description),
                                                    description='Here are related tasks based on the observation',
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
