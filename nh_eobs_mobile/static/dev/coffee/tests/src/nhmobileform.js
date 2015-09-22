@@ -425,13 +425,13 @@ NHMobileForm = (function(superClass) {
           }
           triggered_tasks = '<ul class="menu">' + tasks + '</ul>';
         }
-        pos = '<p>Observation was submitted</p>';
+        pos = '<p>' + server_data.desc + '</p>';
         os = 'Observation successfully submitted';
         task_list = triggered_tasks ? triggered_tasks : pos;
         return new window.NH.NHModal('submit_success', server_data.title, task_list, buttons, 0, body);
       } else if (server_data.status === 'success' && data.status === 4) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
-        return new window.NH.NHModal('cancel_success', server_data.title, server_data.desc, [btn], 0, self.form);
+        return new window.NH.NHModal('cancel_success', server_data.title, '<p>' + server_data.desc + '</p>', [btn], 0, self.form);
       } else {
         action_buttons = (function() {
           var j, len1, ref1, ref2, results;

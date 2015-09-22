@@ -835,7 +835,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
 
             });
         });
@@ -1026,7 +1026,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('cancel_success');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Cancellation successful');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('The notification was successfully cancelled');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The notification was successfully cancelled</p>');
 
             });
         });
@@ -1166,7 +1166,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
 
             });
 
@@ -1358,7 +1358,7 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
             });
 
             it('Sends data to the server on a valid form being submitted via submit button - 1 Triggered task', function(){

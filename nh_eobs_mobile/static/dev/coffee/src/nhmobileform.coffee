@@ -312,7 +312,7 @@ class NHMobileForm extends NHMobile
             st_url = self.urls['single_task'](task.id).url
             tasks += '<li><a href="'+st_url+'">'+task.summary+'</a></li>'
           triggered_tasks = '<ul class="menu">'+tasks+'</ul>'
-        pos = '<p>Observation was submitted</p>'
+        pos = '<p>' + server_data.desc + '</p>'
         os = 'Observation successfully submitted'
         task_list = if triggered_tasks then triggered_tasks else pos
         new window.NH.NHModal('submit_success', server_data.title ,
@@ -322,7 +322,7 @@ class NHMobileForm extends NHMobile
           '" data-action="confirm" data-target="cancel_success">'+
           'Go to My Tasks</a>'
         new window.NH.NHModal('cancel_success', server_data.title,
-          server_data.desc, [btn], 0, self.form)
+          '<p>' + server_data.desc + '</p>', [btn], 0, self.form)
       else
         action_buttons = (element for element in self.form.elements \
           when element.getAttribute('type') in ['submit', 'reset'])
