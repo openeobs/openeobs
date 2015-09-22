@@ -1052,7 +1052,7 @@ describe('Data Entry Functionality', function(){
                     if(url == 'http://localhost:8069/mobile/test/test/0') {
                         var calculate_score = new NHMobileData({
                             status: 'success',
-                            title: 'Submit TEST score of 0 for Test Patient?',
+                            title: 'Submit TEST score of 0',
                             description: 'TEST observation scored 0 which means something',
                             data: {
                                 status: 3,
@@ -1077,7 +1077,7 @@ describe('Data Entry Functionality', function(){
                     }else if(url == 'http://localhost:8069/mobile/test/test/1'){
                         var calculate_score = new NHMobileData({
                             status: 'success',
-                            title: 'Submit TEST score of 0 for Test Patient?',
+                            title: 'Submit TEST score of 0',
                             description: 'TEST observation scored 0 which means something',
                             data: {
                                 status: 3,

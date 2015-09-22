@@ -291,7 +291,7 @@ class NHMobileForm extends NHMobile
           'data-action="submit" data-ajax-action="'+
           data.next_action+'">Submit</a>'
         new window.NH.NHModal('submit_observation',
-          server_data.title,
+          server_data.title + ' for ' + self.patient_name() + '?',
           server_data.desc,
           [can_btn, act_btn], 0, body)
         if 'clinical_risk' of data.score

@@ -402,7 +402,7 @@ NHMobileForm = (function(superClass) {
       if (server_data.status === 'success' && data.status === 3) {
         can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
         act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.next_action + '">Submit</a>';
-        new window.NH.NHModal('submit_observation', server_data.title, server_data.desc, [can_btn, act_btn], 0, body);
+        new window.NH.NHModal('submit_observation', server_data.title + ' for ' + self.patient_name() + '?', server_data.desc, [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
           cls = 'clinicalrisk-' + data.score.clinical_risk.toLowerCase();
