@@ -94,20 +94,6 @@
                   parent="menu_eobs_top_root"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
-        <menuitem name="Active Points of Care"
-                  id="menu_eobs_active_poc"
-                  sequence="1"
-                  parent="menu_eobs_category_ward_management"
-                  action="action_show_active_locations"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Inactive Points of Care"
-                  id="menu_eobs_inactive_poc"
-                  sequence="2"
-                  parent="menu_eobs_category_ward_management"
-                  action="action_show_inactive_locations"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
         <menuitem name="Activity Workload"
         	id="menu_eobs_activity_workload"
             sequence="3"
