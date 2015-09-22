@@ -320,7 +320,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         modal_vals = {}
         modal_vals['next_action'] = 'json_task_form_action' if section == 'task' else 'json_patient_form_action'
         # TODO: Need to add patient name in somehow
-        modal_vals['title'] = 'Submit {score_type} score of {score}?'.format(score_type=observation.upper(), score=score_dict.get('score', ''))
+        modal_vals['title'] = 'Submit {score_type} score of {score} '.format(score_type=observation.upper(), score=score_dict.get('score', ''))
         if 'clinical_risk' in score_dict:
             modal_vals['content'] = '<p><strong>Clinical risk: {risk}</strong></p><p>Please confirm you want to submit this score</p>'.format(risk=score_dict['clinical_risk'])
         else:
