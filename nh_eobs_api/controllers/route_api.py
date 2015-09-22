@@ -134,10 +134,9 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 res = a
                 res['status'] = True
                 break
-        # TODO: Change description to say You are now following len(res) patients from USER
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully accepted stand-in invite',
-                                                   description='You are following these patient(s)',
+                                                   description='You are following {0} patient(s) from {1}'.format(res['count'], res['user']),
                                                    data=res)
         try:
             api.complete(cr, uid, int(activity_id), {}, context=context)
@@ -164,7 +163,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 break
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully rejected stand-in invite',
-                                                   description='You are not following these patient(s)',
+                                                   description='You are not following {0} patient(s) from {1}'.format(res['count'], res['user']),
                                                    data=res)
         try:
             api.cancel(cr, uid, int(activity_id), {}, context=context)
