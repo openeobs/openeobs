@@ -14,7 +14,6 @@ module.exports = function(config) {
         'SL_Firefox': {
             base: 'SauceLabs',
             browserName: 'firefox',
-            version: '26',
             timeZone: 'London'
         }
     };

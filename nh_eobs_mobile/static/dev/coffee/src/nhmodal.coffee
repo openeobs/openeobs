@@ -123,91 +123,86 @@ class NHModal
   # - partial submit (submits partial observation)
   # - assign (assigns nurses to patients)
   handle_button_events: (event) ->
-    data_target = event.srcElement.getAttribute('data-target')
-    data_action = event.srcElement.getAttribute('data-ajax-action')
-    switch event.srcElement.getAttribute('data-action')
-      when 'close'
-        event.preventDefault()
-        dialog_id = document.getElementById(data_target)
-        cover = document.getElementById('cover')
-        document.getElementsByTagName('body')[0].removeChild(cover)
-        dialog_id.parentNode.removeChild(dialog_id)
-      when 'renable'
-        event.preventDefault()
-        forms = document.getElementsByTagName('form')
-        for form in forms
-          action_buttons = (element for element in form.elements \
-            when element.getAttribute('type') in ['submit', 'reset'])
-          for button in action_buttons
-            button.removeAttribute('disabled')
-        dialog_id = document.getElementById(data_target)
-        cover = document.getElementById('cover')
-        document.getElementsByTagName('body')[0].removeChild(cover)
-        dialog_id.parentNode.removeChild(dialog_id)
-      when 'submit'
-        event.preventDefault()
-        submit_event = document.createEvent 'CustomEvent'
-        submit_detail = {
-          'endpoint': event.srcElement.getAttribute('data-ajax-action')
-        }
-        submit_event.initCustomEvent('post_score_submit', true, false,
-          submit_detail)
-        document.dispatchEvent submit_event
-        dialog_id = document.getElementById(data_target)
-        cover = document.getElementById('cover')
-        document.getElementsByTagName('body')[0].removeChild(cover)
-        dialog_id.parentNode.removeChild(dialog_id)
-      when 'partial_submit'
-        event.preventDefault()
-        if not event.handled
+    event.preventDefault()
+    if not event.handled
+      target_el = if event.srcElement then event.srcElement else event.target
+      data_target = target_el.getAttribute('data-target')
+      data_action = target_el.getAttribute('data-ajax-action')
+      switch target_el.getAttribute('data-action')
+        when 'close'
+          dialog_id = document.getElementById(data_target)
+          cover = document.getElementById('cover')
+          document.getElementsByTagName('body')[0].removeChild(cover)
+          dialog_id.parentNode.removeChild(dialog_id)
+        when 'renable'
+          forms = document.getElementsByTagName('form')
+          for form in forms
+            action_buttons = (element for element in form.elements \
+              when element.getAttribute('type') in ['submit', 'reset'])
+            for button in action_buttons
+              button.removeAttribute('disabled')
+          dialog_id = document.getElementById(data_target)
+          cover = document.getElementById('cover')
+          document.getElementsByTagName('body')[0].removeChild(cover)
+          dialog_id.parentNode.removeChild(dialog_id)
+        when 'submit'
           submit_event = document.createEvent 'CustomEvent'
           submit_detail = {
-            'action':data_action,
-            'target': data_target
+            'endpoint': target_el.getAttribute('data-ajax-action')
           }
-          submit_event.initCustomEvent('partial_submit',false,
-            true,submit_detail)
+          submit_event.initCustomEvent('post_score_submit', true, false,
+            submit_detail)
           document.dispatchEvent submit_event
-          event.handled = true
-      when 'assign'
-        event.preventDefault()
-        dialog = document.getElementById(data_target)
-        dialog_form = dialog.getElementsByTagName('form')[0]
-        nurses = (el.value for el in dialog_form.elements when el.checked)
-        assign_event = document.createEvent 'CustomEvent'
-        assign_detail = {
-          'action':data_action,
-          'target': data_target,
-          'nurses': nurses
-        }
-        assign_event.initCustomEvent('assign_nurse', false, true, assign_detail)
-        document.dispatchEvent assign_event
-      when 'claim'
-        event.preventDefault()
-        claim_event = document.createEvent 'CustomEvent'
-        claim_event.initCustomEvent('claim_patients', false, true)
-        document.dispatchEvent claim_event
-      when 'accept'
-        event.preventDefault()
-        accept_event = document.createEvent 'CustomEvent'
-        invite = if event.srcElement then event.srcElement else event.target
-        accept_detail = {
-          'invite_id': invite.getAttribute('data-invite-id')
-        }
-        accept_event.initCustomEvent('accept_invite', false, true,
-          accept_detail)
-        document.dispatchEvent accept_event
-      when 'reject'
-        event.preventDefault()
-        reject_event = document.createEvent 'CustomEvent'
-        invite = if event.srcElement then event.srcElement else event.target
-        reject_detail = {
-          'invite_id': invite.getAttribute('data-invite-id')
-        }
-        reject_event.initCustomEvent('reject_invite', false, true,
-          reject_detail)
-        document.dispatchEvent reject_event
-    return
+          dialog_id = document.getElementById(data_target)
+          cover = document.getElementById('cover')
+          document.getElementsByTagName('body')[0].removeChild(cover)
+          dialog_id.parentNode.removeChild(dialog_id)
+        when 'partial_submit'
+          if not event.handled
+            submit_event = document.createEvent 'CustomEvent'
+            submit_detail = {
+              'action':data_action,
+              'target': data_target
+            }
+            submit_event.initCustomEvent('partial_submit',false,
+              true,submit_detail)
+            document.dispatchEvent submit_event
+            event.handled = true
+        when 'assign'
+          dialog = document.getElementById(data_target)
+          dialog_form = dialog.getElementsByTagName('form')[0]
+          nurses = (el.value for el in dialog_form.elements when el.checked)
+          assign_event = document.createEvent 'CustomEvent'
+          assign_detail = {
+            'action':data_action,
+            'target': data_target,
+            'nurses': nurses
+          }
+          assign_event.initCustomEvent('assign_nurse', false, true,
+            assign_detail)
+          document.dispatchEvent assign_event
+        when 'claim'
+          claim_event = document.createEvent 'CustomEvent'
+          claim_event.initCustomEvent('claim_patients', false, true, false)
+          document.dispatchEvent claim_event
+        when 'accept'
+          accept_event = document.createEvent 'CustomEvent'
+          accept_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          }
+          accept_event.initCustomEvent('accept_invite', false, true,
+            accept_detail)
+          document.dispatchEvent accept_event
+        when 'reject'
+          reject_event = document.createEvent 'CustomEvent'
+          reject_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          }
+          reject_event.initCustomEvent('reject_invite', false, true,
+            reject_detail)
+          document.dispatchEvent reject_event
+      event.handled = true
+      return
 
 ### istanbul ignore if ###
 if !window.NH
