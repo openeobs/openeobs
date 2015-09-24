@@ -33,14 +33,18 @@ class NHMobilePatient extends NHMobile
 
   handle_tabs: (event) ->
     event.preventDefault()
-    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a')
-    for tab in tabs
-      tab.classList.remove('selected')
-    document.getElementById('graph-content').style.display = 'none'
-    document.getElementById('table-content').style.display = 'none'
-    event.srcElement.classList.add('selected')
-    tab_target = event.srcElement.getAttribute('href').replace('#', '')
-    document.getElementById(tab_target).style.display = 'block';
+    if not event.handled
+      tabs = document.getElementsByClassName('tabs')[0]
+      .getElementsByTagName('a')
+      for tab in tabs
+        tab.classList.remove('selected')
+      document.getElementById('graph-content').style.display = 'none'
+      document.getElementById('table-content').style.display = 'none'
+      target_el = if event.srcElement then event.srcElement else event.target
+      target_el.classList.add('selected')
+      tab_target = target_el.getAttribute('href').replace('#', '')
+      document.getElementById(tab_target).style.display = 'block'
+      event.handled = true
 
   show_obs_menu: (event) ->
     event.preventDefault()

@@ -209,11 +209,12 @@ NHMobile = (function(superClass) {
   };
 
   NHMobile.prototype.fullscreen_patient_info = function(event, self) {
-    var container, options, options_close, page;
+    var container, options, options_close, page, target_el;
     event.preventDefault();
 
     /* istanbul ignore else */
     if (!event.handled) {
+      target_el = event.srcElement ? event.srcElement : event.target;
       container = document.createElement('div');
       container.setAttribute('class', 'full-modal');
       options = document.createElement('p');
@@ -232,7 +233,7 @@ NHMobile = (function(superClass) {
       options.appendChild(options_close);
       container.appendChild(options);
       page = document.createElement('iframe');
-      page.setAttribute('src', event.srcElement.getAttribute('href'));
+      page.setAttribute('src', target_el.getAttribute('href'));
 
       /* istanbul ignore next */
       page.onload = function() {
