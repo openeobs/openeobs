@@ -19,6 +19,7 @@
     "karma-coverage": "0.2.7",
     "karma-nyan-reporter": "0.0.60",
     "karma-html-reporter": "*",
-    "gulp-delete-lines": "0.0.7"
+    "gulp-delete-lines": "0.0.7",
+    "karma-sauce-launcher": "0.2.14"
   }
 }
