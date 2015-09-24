@@ -904,6 +904,7 @@ weight as(
         weight.weight_monitoring
     from wb_activity_latest activity
     left join nh_clinical_patient_weight_monitoring weight on activity.ids && array[weight.activity_id]
+    where activity.state = 'completed'
 );
 
 create materialized view
@@ -913,6 +914,7 @@ pbp as(
         pbp.pbp_monitoring
     from wb_activity_latest activity
     left join nh_clinical_patient_pbp_monitoring pbp on activity.ids && array[pbp.activity_id]
+    where activity.state = 'completed'
 );
 
 create or replace view last_movement_users as(

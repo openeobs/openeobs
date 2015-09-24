@@ -116,6 +116,6 @@ class nh_clinical_doctor_activities(orm.Model):
                     inner join nh_clinical_location location on activity.location_id = location.id
                     inner join nh_clinical_location parent_location on location.parent_id = parent_location.id
                     left join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
-                    where activity.state not in ('completed','cancelled') and activity.data_model = 'nh.clinical.notification.doctor_assessment'
+                    where activity.state not in ('completed','cancelled') and activity.data_model = 'nh.clinical.notification.doctor_assessment' and spell.state = 'started'
                 )
         """ % (self._table, self._table))
