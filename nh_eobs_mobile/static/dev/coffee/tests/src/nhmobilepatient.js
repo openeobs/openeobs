@@ -34,18 +34,22 @@ NHMobilePatient = (function(superClass) {
   }
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
-    var i, len, tab, tab_target, tabs;
+    var i, len, tab, tab_target, tabs, target_el;
     event.preventDefault();
-    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
-    for (i = 0, len = tabs.length; i < len; i++) {
-      tab = tabs[i];
-      tab.classList.remove('selected');
+    if (!event.handled) {
+      tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
+      for (i = 0, len = tabs.length; i < len; i++) {
+        tab = tabs[i];
+        tab.classList.remove('selected');
+      }
+      document.getElementById('graph-content').style.display = 'none';
+      document.getElementById('table-content').style.display = 'none';
+      target_el = event.srcElement ? event.srcElement : event.target;
+      target_el.classList.add('selected');
+      tab_target = target_el.getAttribute('href').replace('#', '');
+      document.getElementById(tab_target).style.display = 'block';
+      return event.handled = true;
     }
-    document.getElementById('graph-content').style.display = 'none';
-    document.getElementById('table-content').style.display = 'none';
-    event.srcElement.classList.add('selected');
-    tab_target = event.srcElement.getAttribute('href').replace('#', '');
-    return document.getElementById(tab_target).style.display = 'block';
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {

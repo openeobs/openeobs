@@ -14,8 +14,15 @@ module.exports = function(config) {
         'SL_Firefox': {
             base: 'SauceLabs',
             browserName: 'firefox',
-            version: '26',
             timeZone: 'London'
+        },
+        'SL_Mobile_Safari': {
+            base: 'SauceLabs',
+            browserName: 'iphone',
+            version: '8.0',
+            timeZone: 'London',
+            deviceName: 'iPad 2',
+            deviceOrientation: 'portrait'
         }
     };
 

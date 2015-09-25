@@ -214,6 +214,7 @@ class NHMobile extends NHLib
     event.preventDefault()
     ### istanbul ignore else ###
     if not event.handled
+      target_el = if event.srcElement then event.srcElement else event.target
       container = document.createElement('div')
       container.setAttribute('class', 'full-modal')
       options = document.createElement('p')
@@ -230,7 +231,7 @@ class NHMobile extends NHLib
       options.appendChild(options_close)
       container.appendChild(options)
       page = document.createElement('iframe')
-      page.setAttribute('src', event.srcElement.getAttribute('href'))
+      page.setAttribute('src', target_el.getAttribute('href'))
       ### istanbul ignore next ###
       page.onload = ->
         modal = document.getElementsByClassName('full-modal')[0]
