@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Open-eObs Styleguide</title>
+    <meta name="description" content="" />
+    <meta name="generator" content="kss-node" />
+    <style>
+    /*body{*/
+				/*width: 100%;*/
+			/*}*/
+			/*.leftnav{*/
+				/*width: 20%;*/
+				/*position: fixed;*/
+				/*top: 1.25em;*/
+				/*left: 2.5%;*/
+				/*border-radius: 10px;*/
+				/*border: 1px solid rgba(0,0,0,0.3);*/
+				/*box-shadow: 0px 1px 3px rgba(0,0,0,0.34);*/
+			/*}*/
+			/*.leftnav ul{*/
+				/*padding: 0;*/
+				/*margin-bottom: 0;*/
+			/*}*/
+			/*.leftnav li{*/
+				/*padding-left: 5%;*/
+				/*display: block;*/
+				/*border-bottom: 1px solid rgba(0,0,0,0.2);*/
+				/*margin: 0;*/
+			/*}*/
+			/*.leftnav li:last-child{*/
+				/*border-bottom-width: 0;*/
+			/*}*/
+			/*.leftnav li a{*/
+				/*text-transform: capitalize;*/
+				/*text-decoration: none;*/
+				/*color: #3778e9;*/
+				/*padding: 0.75em 0;*/
+				/*font-weight: bold;*/
+				/*display: block;*/
+			/*}*/
+			/*.main{*/
+				/*margin-left: 20%;*/
+				/*padding: 0 5%;*/
+			/*}*/
+			/*.main .example{*/
+				/*padding: 0 5% 1em 5%;*/
+				/*border-radius: 5px;*/
+				/*border: 1px solid rgba(0,0,0,0.1);*/
+                /*display: table;*/
+                /*width: 90%;*/
+                /*word-break: break-all;*/
+                /*word-wrap: break-word;*/
+
+			/*}*/
+			/*.top-link{*/
+				/*width: 100%;*/
+				/*text-align: right;*/
+			/*}*/
+            /*.example .span1, .example .span2, .example .span3, .example .span4, .example .span5, .example .span6, .example .span7, .example .span8, .example .span9, .example .span10, .example .span11, .example .span12{*/
+                /*border: 1px solid black;*/
+                /*border-radius: 10px;*/
+            /*}*/
+    </style>
+    <link rel="stylesheet" href="public/compile.css" />
+  </head>
+  <body id="kss-node" class="sg">
+	  <div class="leftnav">
+		<ul>
+			<li><a href="#top">Overview</a></li>
+			{{#eachRoot}}
+              <li class="kss-menu-item"><a href="section-{{reference}}.html"><span class="kss-ref">{{reference}}</span><span class="kss-name">{{header}}</span></a></li>
+            {{/eachRoot}}
+		</ul>
+	</div>
+	<div class="main">
+	{{#if overview}}
+    <div id="section-0" class="kss-section kss-overview section">{{{overview}}}</div>
+	{{else}}
+    {{#eachSection rootNumber}}
+    <div id="section-{{reference}}" class="kss-section section">
+    	<h2 class="kss-title"><span class="kss-ref">{{reference}}</span> {{header}}</h2>
+        {{#if description}}
+        <p class="kss-description">{{{description}}}</p>
+        {{/if}}
+        <h3>Modifiers</h3>
+        <ul>
+           {{#eachModifier}}
+           <li><strong>{{name}}</strong> - {{description}}</li>
+           {{/eachModifier}}
+        </ul>
+        {{#if markup}}
+        <h3>Examples</h3>
+		<div class="example">{{markup}}</div>
+        {{/if}}
+     </div>
+      {{/eachSection}}
+      {{/if}}
+	</div>
+  </body>
+</html>
