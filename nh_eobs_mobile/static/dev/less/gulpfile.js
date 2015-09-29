@@ -12,7 +12,7 @@ gulp.task('compileLESS', function(){
 
 gulp.task('Styleguide', function(){
 	del(['styleguide/**']);
-	gulp.src(['src/*.less'])
+	gulp.src(['src/nav.less'])
 	.pipe(kss({
 		overview: 'src/styleguide_overview.md',
 		templateDirectory: 'src/templates'
@@ -21,7 +21,7 @@ gulp.task('Styleguide', function(){
 
 	gulp.src(['src/compile.less'])
 	.pipe(less().on('error', util.log))
-	.pipe(gulp.dest('styleguide/public'))
+	.pipe(gulp.dest('styleguide/public'));
 });
 
-gulp.task('default', ['compileLESS'])
+gulp.task('default', ['compileLESS']);

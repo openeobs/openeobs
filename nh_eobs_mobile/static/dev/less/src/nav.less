@@ -1,0 +1,136 @@
+/*
+Navigation
+
+Styling for the main menu
+
+.header - Defines the navigation as floating at the top of the page
+.header-main - Contains utility items such as logo, logout etc
+.header-main .logo - Logo (floated left)
+.header-main .header-meta - Contains utility buttons (floated right)
+.header-menu - Contains the main navigation items used in conjuction with inline button style
+
+Markup:
+<div class="header">
+  <div class="header-main block">
+    <img src="http://nhsdemo.openeobs.net/mobile/src/img/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a href="#" class="button back">Logout</a></li>
+     </ul>
+  </div>
+  <ul class="header-menu two-col">
+    <li><a href="#" class="selected">Option one</a></li>
+    <li><a href="#">Option two <span class="urgent-badge">3</a></li>
+  </ul>
+</div>
+
+Styleguide 1.0
+*/
+
+.header{
+  display: inline-block;
+  padding-top: 0.5em;
+  margin-bottom: 5px;
+  box-shadow: 0px 1px 3px #888888;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background-color: #ffffff;
+  width: 100%;
+  z-index: 99;
+  &.no-menu{
+    padding-bottom: 0.7em;
+  }
+  .header-main{
+    height: 42px;
+  }
+  .barcode_block{
+    height: 60px;
+  }
+  .logo{
+    float: left;
+    // replace this with fluid
+    width: 118px;
+    height: auto;
+  }
+  .header-meta{
+    float: right;
+    list-style: none;
+    margin: 0;
+    margin-top: 0.45em;
+    width: 200px;
+    padding-left: 0;
+    li{
+      display: inline;
+    }
+    .scan{
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .logout{
+        float: right;
+        .button{
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+    }
+  }
+  .urgent-badge{
+    background-color: @action-colour;
+    color: #ffffff;
+    border-radius: 5px;
+    padding-left: 2%;
+    padding-right: 2%;
+    display: inline-block;
+    line-height: 1.5;
+    font-size: 0.8em;
+    font-weight: normal;
+    text-shadow: 0px 1px 0px #000000;
+  }
+}
+.header-menu, .dialog .options, .tabs{
+  display: block;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  border-top: 1px solid #eeeeee;
+  list-style: none;
+  background-color: #ffffff;
+  li{
+    display: inline;
+    float: left;
+    background-color: #ffffff;
+    a{
+      width: 90%;
+      padding: 1em 5% 1em 5%;
+      display: block;
+      text-align: center;
+      background-color: #ffffff;
+      //background-color: #fcfcfc;
+      color: @link-colour;
+      font-weight: normal;
+      //color: #ffffff;
+      //text-shadow: 0px 1px 0px #666666;
+      &.selected, &.confirm{
+        color: @action-colour;
+        font-weight: bold;
+        //background-color: #ffffff;
+      }
+    }
+  }
+  &.two-col li, &.twocol li{
+    width: 50%;
+    &:first-child{
+      border-right: 1px solid #eeeeee;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+  }
+  &.three-col li, &.threecol li{
+    width: 33%;
+    &:first-child{
+      border-right: 1px solid #eeeeee;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+  }
+}
