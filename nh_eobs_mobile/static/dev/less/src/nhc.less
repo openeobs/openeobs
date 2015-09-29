@@ -469,134 +469,134 @@ a.patientInfo{
   }
 }
 
-.dialog{
-  width: 90%;
-  margin-left: 5%;
-  margin-right: 5%;
-  border: 1px solid #888888;
-  border-radius: 20px;
-  background-color: #ffffff;
-  box-shadow: 0px 0px 5px #282828;
-  position: fixed;
-  top: 40%;
-  left: 0px;
-  z-index: 9999;
-  &.clinicalrisk-low{
-    .subtle-bgcolour(@ok-colour);
-  }
-  &.clinicalrisk-medium{
-    .not-as-subtle-bgcolour(@warning-colour);
-  }
-  &.clinicalrisk-high{
-    .subtle-bgcolour(@error-color);
-  }
-  .dialogContent{
-    overflow-y: scroll;
-    *{
-      max-width: 100%;
-      height: auto;
-    }
-  }
-  &.obsAlert{
-    display: inline-block !important;
-  }
-  h2, p{
-    padding-left: 5%;
-    padding-right: 5%;
-  }
-  dl{
-    padding-left: 5%;
-    padding-right: 5%;
-    dt{
-      font-weight: bold;
-      float: left;
-      margin-right: 5%;
-      width: 40%;
-      text-align: right;
-      clear: left;
-      &.twoline{
-          height: 2.2em;
-      }
-    }
-    dd{
-      width: 65%;
-      margin-right: 5%;
-      clear: right;
-      &.twoline{
-        height: 2.2em;
-      }
-    }
-  }
-  .options li:first-child, .options li:first-child a{
-    border-bottom-left-radius: 20px;
-  }
-  .options li:last-child, .options li:last-child a{
-    border-bottom-right-radius: 20px;
-  }
-  #obsSubmit, .action{
-    color: @action-colour;
-    font-weight: bold;
-  }
-  .obsError{
-    background-color: @error-color;
-    padding: 5%;
-    text-align: center;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    display: none;
-  }
-  .one-col{
-    padding: 0px;
-    margin: 0px;
-    border-top: 1px solid #eeeeee;
-     li{
-      display: inline;
-      background-color: #ffffff;
-      width: 100%;
-      a{
-        width: 100%;
-        padding: 1em 0 1em 0;
-        display: block;
-        text-align: center;
-        background-color: #ffffff;
-        &.cancel{
-          color: @link-colour;
-          font-weight: normal
-        }
-      }
-    }
-  }
-  .menu{
-    list-style: none;
-    padding: 0;
-    margin-bottom: 0;
-    li{
-      border-top: 1px solid #eeeeee;
-       a{
-         padding: 1em 5% 1em 5%;
-         width: 90%;
-         display: inline-block;
-         color: @action-colour;
-         font-weight: bold;
-       }
-    }
-  }
-  select{
-    width: 90%;
-    height: 2.4em; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
-    padding: 0.3em 1% 0.3em 1%;
-    font-size: 1em;
-    line-height: 1.4;
-    border-radius: 5px;
-    border-color: @link-colour;
-    color: @action-colour;
-    font-weight: bold;
-    background-color: #ffffff;
-    margin-bottom: 1em;
-    margin-left: 5%;
-  }
-}
+//.dialog{
+//  width: 90%;
+//  margin-left: 5%;
+//  margin-right: 5%;
+//  border: 1px solid #888888;
+//  border-radius: 20px;
+//  background-color: #ffffff;
+//  box-shadow: 0px 0px 5px #282828;
+//  position: fixed;
+//  top: 40%;
+//  left: 0px;
+//  z-index: 9999;
+//  &.clinicalrisk-low{
+//    .subtle-bgcolour(@ok-colour);
+//  }
+//  &.clinicalrisk-medium{
+//    .not-as-subtle-bgcolour(@warning-colour);
+//  }
+//  &.clinicalrisk-high{
+//    .subtle-bgcolour(@error-color);
+//  }
+//  .dialogContent{
+//    overflow-y: scroll;
+//    *{
+//      max-width: 100%;
+//      height: auto;
+//    }
+//  }
+//  &.obsAlert{
+//    display: inline-block !important;
+//  }
+//  h2, p{
+//    padding-left: 5%;
+//    padding-right: 5%;
+//  }
+//  dl{
+//    padding-left: 5%;
+//    padding-right: 5%;
+//    dt{
+//      font-weight: bold;
+//      float: left;
+//      margin-right: 5%;
+//      width: 40%;
+//      text-align: right;
+//      clear: left;
+//      &.twoline{
+//          height: 2.2em;
+//      }
+//    }
+//    dd{
+//      width: 65%;
+//      margin-right: 5%;
+//      clear: right;
+//      &.twoline{
+//        height: 2.2em;
+//      }
+//    }
+//  }
+//  .options li:first-child, .options li:first-child a{
+//    border-bottom-left-radius: 20px;
+//  }
+//  .options li:last-child, .options li:last-child a{
+//    border-bottom-right-radius: 20px;
+//  }
+//  #obsSubmit, .action{
+//    color: @action-colour;
+//    font-weight: bold;
+//  }
+//  .obsError{
+//    background-color: @error-color;
+//    padding: 5%;
+//    text-align: center;
+//    font-size: 1.2em;
+//    font-weight: bold;
+//    color: white;
+//    display: none;
+//  }
+//  .one-col{
+//    padding: 0px;
+//    margin: 0px;
+//    border-top: 1px solid #eeeeee;
+//     li{
+//      display: inline;
+//      background-color: #ffffff;
+//      width: 100%;
+//      a{
+//        width: 100%;
+//        padding: 1em 0 1em 0;
+//        display: block;
+//        text-align: center;
+//        background-color: #ffffff;
+//        &.cancel{
+//          color: @link-colour;
+//          font-weight: normal
+//        }
+//      }
+//    }
+//  }
+//  .menu{
+//    list-style: none;
+//    padding: 0;
+//    margin-bottom: 0;
+//    li{
+//      border-top: 1px solid #eeeeee;
+//       a{
+//         padding: 1em 5% 1em 5%;
+//         width: 90%;
+//         display: inline-block;
+//         color: @action-colour;
+//         font-weight: bold;
+//       }
+//    }
+//  }
+//  select{
+//    width: 90%;
+//    height: 2.4em; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
+//    padding: 0.3em 1% 0.3em 1%;
+//    font-size: 1em;
+//    line-height: 1.4;
+//    border-radius: 5px;
+//    border-color: @link-colour;
+//    color: @action-colour;
+//    font-weight: bold;
+//    background-color: #ffffff;
+//    margin-bottom: 1em;
+//    margin-left: 5%;
+//  }
+//}
 
 .newsScoreGreen, #obsScore.green{
   color: @ok-colour;
@@ -608,16 +608,16 @@ a.patientInfo{
   color: @error-color;
 }
 
-.cover{
-  display: inline-block;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(0,0,0,0.5);
-  z-index: 9998;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-}
+//.cover{
+//  display: inline-block;
+//  height: 100%;
+//  width: 100%;
+//  background-color: rgba(0,0,0,0.5);
+//  z-index: 9998;
+//  position: absolute;
+//  top: 0px;
+//  left: 0px;
+//}
 
 //patients.scala.html
 .patientlist{
@@ -1236,34 +1236,34 @@ text.title{
   }
 }
 
-#nurse_list{
-  .sharelist{
-    padding-left: 0;
-    li {
-      > label{
-        flex: 4 0 0;
-        margin: 0.8em 0;
-      }
-    }
-  }
-}
+//#nurse_list{
+//  .sharelist{
+//    padding-left: 0;
+//    li {
+//      > label{
+//        flex: 4 0 0;
+//        margin: 0.8em 0;
+//      }
+//    }
+//  }
+//}
 
-#assign_nurse .dialogContent input{
-  height: 2.4em;
-  margin: 0.5em 0;
-}
+//#assign_nurse .dialogContent input{
+//  height: 2.4em;
+//  margin: 0.5em 0;
+//}
 
-.dialogContent .tasklist{
-  list-style: none;
-  .block{
-    > a{
-      padding-bottom: 0;
-    }
-    .task-meta{
-      display: inline-block;
-    }
-  }
-}
+//.dialogContent .tasklist{
+//  list-style: none;
+//  .block{
+//    > a{
+//      padding-bottom: 0;
+//    }
+//    .task-meta{
+//      display: inline-block;
+//    }
+//  }
+//}
 
 .share_invite{
   .task-meta{

@@ -51,6 +51,12 @@
 		display: block;
 		padding: 0.5em 0;
 	}
+	.section{
+		padding-bottom: 3em;
+	}
+	.section:last-child{
+		border-bottom: 0 solid black;
+	}
 	.main{
 		width: 75%;
 		margin-left: 20%;
@@ -75,9 +81,19 @@
 		min-height: 1em;
 		margin-top: 1em;
 	}
-	.main .example .header, .mobile_preview .example .header{
-		position: absolute !important;
+	.main .example .header, .mobile_preview .example .header, .main .example .dialog, .mobile_preview .example .dialog, .main .example .cover, .mobile_preview .example .cover{
+		position: relative !important;
 		z-index: 0 !important;
+		top: 0;
+	}
+
+	.main .example .cover, .mobile_preview .example .cover{
+		position: absolute !important;
+	}
+
+	.main .example .dialog, .mobile_preview .example .dialog{
+		margin-bottom: 2em;
+		display: inline-block;
 	}
 
 	.main .example:before{
@@ -88,32 +104,36 @@
 		font-weight: bold;
 	}
 
-	.main h3{
+	h3.styleguide{
 		margin-top: 2.5em;
 		line-height: 1;
 		color: #3778e9;
 	}
-	.main h2{
+	h2.styleguide{
 		color: #3778e9;
 		font-size: 2em;
 		text-transform: capitalize;
 	}
-	.main h4{
+	h4.styleguide{
 		color: #3778e9;
 		line-height: 0;
 		margin-top: 3em;
 		margin-bottom: 0;
 	}
 
-	.section .options{
+	.section .styleguide .options{
 		list-style: none;
 		padding: 0;
-		margin: 0 0 1em 0;
+		margin: 0 2% 1em 0;
+		float: right;
+		font-size: 0.8em;
+		display: inline-block;
+		width: 20%;
 	}
-	.section .options li{
+	.section .styleguide .options li{
 		display: inline;
 	}
-	.section .options li a{
+	.section .styleguide .options li a{
 		background-color: #3778e9;
 		color: white;
 		text-decoration: none;
@@ -172,23 +192,22 @@
 		{{else}}
 		{{#eachSection rootNumber}}
 		<div id="section-{{reference}}" class="kss-section section">
-			<h2 class="kss-title">{{header}}</h2>
+			<h2 class="kss-titlev styleguide">{{header}}</h2>
 			{{#if description}}
 			<p class="kss-description">{{{description}}}</p>
 			{{/if}}
-			<h3>Modifiers</h3>
+			<h3 class="styleguide">Modifiers</h3>
 			<dl class="kss-modifiers">
 			   {{#eachModifier}}
 			   <dt>{{name}}</dt><dd>{{{description}}}</dd>
 			   {{/eachModifier}}
 			</dl>
 			{{#if markup}}
-			<h3>Example</h3>
-			<ul class="options">
+			<h3 class="styleguide">Example <ul class="options">
 				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
-			</ul>
+			</ul></h3>
 			<div class="example">{{{markup}}}</div>
-			<h3>Code</h3>
+			<h3 class="styleguide">Code</h3>
 			<div class="code"><pre><code class="html">{{markup}}</code></pre></div>
 			{{/if}}
 		 </div>
@@ -204,6 +223,10 @@
             bg.css('height', $('body').height()+'px');
             bg.click(function(){
                 $(this).remove();
+				$('html, body').css({
+					'overflow': 'auto',
+					'height': 'auto'
+				});
             });
 
             var iframe = $('<div>');
@@ -214,6 +237,10 @@
             iframe.append(wrapper);
             bg.append(iframe);
             $('body').append(bg);
+			$('html, body').css({
+				'overflow': 'hidden',
+				'height': '100%'
+			});
         }
     </script>
 	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
