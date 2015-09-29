@@ -24,7 +24,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
     _BP_RANGES = {'ranges': [90, 100, 110, 219], 'scores': '32103'}
     _PR_RANGES = {'ranges': [40, 50, 90, 110, 130], 'scores': '310123'}
     """
-    Default EWS policy has 4 different scenarios:
+    Default EWS (Early Warning Score) policy has 4 different scenarios:
         case 0: no clinical risk
         case 1: low clinical risk
         case 2: medium clinical risk
