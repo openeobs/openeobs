@@ -96,9 +96,7 @@ a.patientInfo{
     list-style: none;
     margin: 0;
     margin-top: 0.45em;
-    //width: 45%;
-    //replace with fluid
-    width: 150px;
+    width: 200px;
     padding-left: 0;
     li{
       display: inline;
@@ -166,6 +164,14 @@ a.patientInfo{
       box-sizing: border-box;
     }
   }
+  &.three-col li, &.threecol li{
+    width: 33%;
+    &:first-child{
+      border-right: 1px solid #eeeeee;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+  }
 }
 
 .tabs{
@@ -202,6 +208,10 @@ a.patientInfo{
   }
 }
 
+.share-content{
+  margin-bottom: 3.3em;
+}
+
 // tasks.scala.html
 .tasklist{
   margin: 0;
@@ -216,6 +226,7 @@ a.patientInfo{
       width: 100%;
       clear: both;
       float: none;
+      display: inline-block;
     }
     .task-right{
       float: right;
@@ -384,11 +395,8 @@ a.patientInfo{
         background-color: @action-colour;
         color: #ffffff;
         text-shadow: 0px 1px 0px #666666;
-        //border: 1px solid @action-colour;
-        width: 95%;
+        width: 100%;
         display: inline-block;
-        padding-top: 1em;
-        padding-bottom: 0px;
         text-align: center;
       }
     }
@@ -472,7 +480,6 @@ a.patientInfo{
   position: fixed;
   top: 40%;
   left: 0px;
-  display: none;
   z-index: 9999;
   &.clinicalrisk-low{
     .subtle-bgcolour(@ok-colour);
@@ -946,6 +953,7 @@ rect{
   iframe{
     width: 100%;
     height: 100%;
+    background-color: white;
   }
 }
 
@@ -956,6 +964,24 @@ rect{
 
 #table-content{
   padding-top: 2em;
+  table{
+    width: 100%;
+  }
+  tr{
+    th, td{
+      text-align: center;
+      vertical-align: top;
+      &:first-child{
+        text-align: left;
+      }
+    }
+  }
+  tbody tr:nth-child(odd){
+    background-color: rgba(128, 126, 126, 0.1);
+  }
+  thead th, tbody td{
+    padding: 0.5em 10px;
+  }
 }
 
 
@@ -980,8 +1006,8 @@ svg .background .red{
 }
 
 svg .background .normal{
-  fill: rgba(0,0,0,0.2);
-  stroke: rgba(0,0,0,0.2);
+  fill: white;
+  stroke: white;
 }
 
 svg .background line{
@@ -1047,6 +1073,7 @@ svg .data path{
         padding-bottom: 0.3em;
         text-align: center;
         border-left: 1px solid #262626;
+        vertical-align: top;
         &:first-child{
           text-align: left;
           padding-left: 0px;
@@ -1104,10 +1131,203 @@ text.title{
   }
 }
 
-
-
 .barcode_scan{
   margin-bottom: 1em;
   border-radius: 5px;
   width: 100%;
+}
+
+.sharelist{
+  list-style: none;
+  width: 100%;
+  li{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #eeeeee;
+    .patient-share, .patient_share_nurse{
+      flex: 1 0 0 ;
+      align-self: center;
+    }
+    > label {
+      flex: 4 0 0;
+      margin: 0;
+      margin-bottom: 0.8em;
+    }
+    label{
+      display: flex;
+      position: relative;
+      margin-bottom: 0;
+      width: 100%;
+      > .block{
+        flex: 4 0 0;
+        border-bottom: 0 solid black;
+      }
+      .block{
+        padding-top: 0.7em;
+        padding-bottom: 0.7em;
+      }
+      .task-meta{
+        width: 100%;
+        clear: both;
+        float: none;
+      }
+      .task-right{
+        float: right;
+        width: 27.5%;
+        margin-left: 2.5%;
+        margin-top: 0;
+        text-align: right;
+        font-weight: bold;
+        p{
+          margin-top: 0;
+          margin-bottom: 1em;
+        }
+      }
+      .task-left{
+        float: left;
+        width: 67.5%;
+        margin-right: 2.5%;
+        text-align: left;
+        margin-top: 0;
+        em{
+          font-weight: normal;
+          font-style: italic;
+        }
+      }
+      h2{
+        width: 65%;
+        color: #262626;
+      }
+      p{
+        color: black;
+        &.taskInfo{
+          text-decoration: underline;
+        }
+      }
+      .level-one{
+        background-color: #ccffcc;
+      }
+      .level-two{
+        background-color: #ffdfbe;
+      }
+      .level-three, .urgent{
+        background-color: #ffcccc;
+      }
+      .level-not-set{
+        background-color: #e5dfff;
+      }
+      .shared{
+        background-color: #eeeeee;
+      }
+    }
+  }
+}
+
+.share-footer{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 101%;
+  .user{
+    text-align: right;
+    margin-right: 6%;
+    color: rgba(0,0,0,0.3);
+  }
+}
+
+#nurse_list{
+  .sharelist{
+    padding-left: 0;
+    li {
+      > label{
+        flex: 4 0 0;
+        margin: 0.8em 0;
+      }
+    }
+  }
+}
+
+#assign_nurse .dialogContent input{
+  height: 2.4em;
+  margin: 0.5em 0;
+}
+
+.dialogContent .tasklist{
+  list-style: none;
+  .block{
+    > a{
+      padding-bottom: 0;
+    }
+    .task-meta{
+      display: inline-block;
+    }
+  }
+}
+
+.share_invite{
+  .task-meta{
+    padding-top: 1em;
+    padding-bottom: 0;
+    background-color: #ffcccc;
+    border-radius: 10px;
+    .task-left{
+      padding-left: 2.5%;
+      width: 65%;
+    }
+    .task-right{
+      padding-right: 2.5%;
+      width: 25%;
+      .aside{
+        float: right;
+        background-color: #4491ce;
+        color: white;
+        border-radius: 10px;
+        padding: 0.5em 2.5%;
+      }
+    }
+  }
+}
+.share_all{
+  background-color: #ea3172;
+  padding: 0.8em 2.5%;
+  margin: 0.5em 5%;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 0 #666666;
+}
+
+#popup_iframe iframe{
+  width: 100%;
+  border: 0 solid black;
+}
+#popup_iframe img{
+  width: 100%;
+}
+input[type="submit"][disabled]{
+  background-color: #be285d !important;
+}
+
+input[type="reset"][disabled]{
+  background-color: #3674a5 !important;
+}
+circle{
+  .point{
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
+  }
+  .empty_point{
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+  }
+}
+rect{
+  .empty_point{
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+  }
 }
