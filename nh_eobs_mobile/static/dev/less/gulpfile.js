@@ -12,7 +12,10 @@ gulp.task('compileLESS', function(){
 
 gulp.task('Styleguide', function(){
 	del(['styleguide/**']);
-	gulp.src(['src/nav.less', 'src/modal.less'])
+	gulp.src(['src/nav.less',
+		'src/modal.less',
+		'src/button.less',
+		'src/form.less'])
 	.pipe(kss({
 		overview: 'src/styleguide_overview.md',
 		templateDirectory: 'src/templates'

@@ -1,0 +1,106 @@
+/*
+Button
+
+Styling for buttons
+
+.button, button - Generic button class
+.button.go - Green button to indicate an progressive action
+.button.back - Blue button to indicate a regressive action
+.button.alignright - Helper class to float button right
+input[type="submit"][disabled], input[type="reset"][disabled] - Disabled button styling
+
+Markup:
+<ul class="element-list">
+  <li><button type="button">Default button</button></li>
+  <li><button type="button" class="alignright">Floaty button</button></li>
+  <li><a class="button">Default a.button</a></li>
+  <li><a class="button go">Go button</a></li>
+  <li><a class="button back">Back button</a></li>
+  <li><input type="submit" disabled="disabled" value="Disabled submit button"></li>
+  <li><input type="reset" disabled="disabled" value="Disabled reset button"></li>
+</ul>
+
+Styleguide 3.0
+*/
+
+@import "utils.less";
+button, .button, input[type="submit"], input[type="reset"]{
+  padding: .3em 2% .3em 2%;
+  font-size: 1em;
+  line-height: 1.4;
+  height: 2.4em;
+  border-radius: 5px;
+  background-color: #888888;
+  border: 1px solid #888888;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  &.alignright{
+    float: right;
+    display: inline-block;
+    clear: left;
+  }
+  &.go{
+    background-color: #22b232;
+    text-shadow: 0px 1px 0px #666666;
+    border: 1px solid #40b21b;
+  }
+  &.back{
+    background-color: #4491ce;
+    text-shadow: 0px 1px 0px #666666;
+    border: 1px solid #a9dbff;
+  }
+}
+
+input[type="submit"][disabled]{
+  background-color: #be285d !important;
+}
+
+input[type="reset"][disabled]{
+  background-color: #3674a5 !important;
+}
+
+/*
+Tabs
+
+Styling for tabs, currently supports two tabs only
+
+.tabs - Tab container
+.tabs li - Tab style
+.tabs li:first-child, .tabs li:last-child, .tabs li:first-child a, .tabs li:last-child a - Curved corners for end tabs
+
+Markup:
+<ul class="tabs">
+  <li><a>Tab one</a></li>
+  <li><a>Tab two</a></li>
+</ul>
+
+Styleguide 3.1
+*/
+
+
+.tabs{
+  border-top: 0px solid black;
+  margin-bottom: 5em;
+  li{
+    border: 1px solid #eeeeee;
+    width: 49.5% !important;
+    &:first-child{
+      border-bottom-left-radius: 5px;
+      border-top-left-radius: 5px;
+      a{
+        border-bottom-left-radius: 5px;
+        border-top-left-radius: 5px;
+      }
+    }
+    &:last-child{
+      border-left: 0px solid black;
+      border-bottom-right-radius: 5px;
+      border-top-right-radius: 5px;
+      a{
+       border-bottom-right-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+    }
+  }
+}
