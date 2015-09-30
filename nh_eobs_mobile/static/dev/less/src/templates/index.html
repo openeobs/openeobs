@@ -84,7 +84,8 @@
 	.main .example .header, .mobile_preview .example .header,
 	.main .example .dialog, .mobile_preview .example .dialog,
 	.main .example .cover, .mobile_preview .example .cover,
-	.main .example .full-modal, .mobile_preview .example .full-modal{
+	.main .example .full-modal, .mobile_preview .example .full-modal,
+	.main .example #patientName, .mobile_preview .example #patientName{
 		position: relative !important;
 		z-index: 0 !important;
 		top: 0;
@@ -101,6 +102,10 @@
 
 	.main .example:before{
 		box-sizing: border-box;
+	}
+
+	.main .example #obsForm{
+		padding-top: 0;
 	}
 
 	.main .example .element-list, .mobile_preview .example .element-list{
