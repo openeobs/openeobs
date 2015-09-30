@@ -9,6 +9,7 @@ Styling for forms
 #obsForm - Form element with offset for floating patient name & information button
 #obsForm .obsField - Container for form element (text, number inputs)
 #obsForm .obsSelectField - Container for form element (select inputs)
+#obsForm .obsField.valHide, #obsForm .obsSelectField.valHide - Hidden input, used with NHMobileForm JS for form control
 #obsForm .obsField.error, #obsForm .obsSelectField.error - Container for invalid form element
 #obsForm .obsField .input-header - Container for label & input
 #obsForm .obsSelectField .input-header - Container for label
@@ -200,18 +201,18 @@ Styleguide 4.1
     padding-bottom: 0.7em;
     height: 3.4em;
     .input-header{
-        label{
-          width: 45%;
-          float: left;
-          font-size: 1.2em;
-          padding-top: 0.6em;
-          padding-bottom: 0.6em;
-        }
-        input{
-         width: 45%;
-         float: right;
-        }
+      label{
+        width: 45%;
+        float: left;
+        font-size: 1.2em;
+        padding-top: 0.6em;
+        padding-bottom: 0.6em;
       }
+      input{
+       width: 45%;
+       float: right;
+      }
+    }
     &.error{
       .subtle-bgcolour(@error-color) !important;
       height: 4.4em;
@@ -222,6 +223,9 @@ Styleguide 4.1
     }
     &.warning.error{
       height: 5em !important;
+    }
+    &.valHide{
+      display: none;
     }
 
     .input-body{
@@ -236,6 +240,7 @@ Styleguide 4.1
     .targetString{
       font-style: italic;
     }
+
   }
 
   .obsSelectField{
@@ -253,6 +258,9 @@ Styleguide 4.1
     }
     &.warning{
       .subtle-bgcolour(@warning-colour);
+    }
+    &.valHide{
+      display: none;
     }
   }
   .input-body{

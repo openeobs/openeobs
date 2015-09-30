@@ -1,0 +1,236 @@
+@import "utils.less";
+
+// general
+
+#table-content, #graph-content{
+  display: inline-block;
+  width: 100%;
+}
+
+
+// form controls
+#controls{
+  position: relative;
+  width: 80%;
+  div{
+    display: inline-block;
+    float: left;
+    padding: 0px 5% 0px 0px;
+  }
+  #range{
+    position: absolute;
+    top: 0px;
+    right: -18%;
+    width: 20%;
+    padding: 0px;
+    text-align: right;
+  }
+  label{
+    display: inline-block;
+  }
+}
+
+
+@media screen and (max-width: 480px){
+  g.brush-container{
+    display: none;
+  }
+}
+
+@media screen and (min-width: 481px){
+  g.brush-container{
+    display: inherit;
+  }
+  #controls{
+    #start,#end{
+      display: none;
+    }
+    #range{
+
+    }
+  }
+}
+
+
+// tabular data
+.nhtable{
+  width: 100%;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  thead{
+    tr{
+      th{
+        text-align: center;
+        font-size: 0.8em;
+        border-bottom: 1px solid #262626;
+        border-left: 1px solid #262626;
+        &:first-child{
+          text-align: left;
+          padding-left: 0px;
+          border-left: 0px solid black;
+        }
+      }
+    }
+  }
+  tbody{
+    tr{
+      &:nth-child(even){
+        background-color: #dddddd;
+      }
+      td{
+        padding-left: 1%;
+        padding-right: 1%;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+        text-align: center;
+        border-left: 1px solid #262626;
+        vertical-align: top;
+        &:first-child{
+          text-align: left;
+          padding-left: 0px;
+          border-left: 0px solid black;
+        }
+      }
+    }
+  }
+}
+
+#table-content{
+  padding-top: 2em;
+  table{
+    width: 100%;
+  }
+  tr{
+    th, td{
+      text-align: center;
+      vertical-align: top;
+      &:first-child{
+        text-align: left;
+      }
+    }
+  }
+  tbody tr:nth-child(odd){
+    background-color: rgba(128, 126, 126, 0.1);
+  }
+  thead th, tbody td{
+    padding: 0.5em 10px;
+  }
+}
+
+//.card{
+//  border: 1px solid #dddddd;
+//  box-shadow: 1px 0px 3px #888888;
+//  border-radius: 5px;
+//  margin-bottom: 2em;
+//  h3{
+//    background-color: @link-colour;
+//    color: white;
+//    display: block;
+//    width: 90%;
+//    padding: 0.2em 5%;
+//    margin-top: 0px;
+//    border-top-left-radius: 5px;
+//    border-top-right-radius: 5px;
+//  }
+//  table{
+//    margin: 0 5%;
+//    width: 90%;
+//    tr{
+//      td:first-child{
+//        font-weight: bold;
+//        width: 60%;
+//      }
+//      td{
+//        vertical-align: top;
+//        table{
+//          width: 100%;
+//          margin: 0%;
+//        }
+//      }
+//    }
+//  }
+//}
+
+
+
+// svg
+text.title{
+  font-weight: bold;
+  font-size: 2em;
+}
+
+circle{
+  .point{
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
+  }
+  .empty_point{
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+  }
+}
+rect{
+  .empty_point{
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+  }
+}
+
+
+svg .axis path, svg .axis line{
+  fill: none;
+  stroke: #262626;
+  shape-rendering: crispEdges;
+}
+svg .axis text{
+  font-family: sans-serif;
+}
+svg .background .green{
+  fill: #ccffcc;
+}
+svg .background .amber{
+  fill: #ffe9c8;
+}
+svg .background .red{
+  fill: #ffcccc;
+}
+
+svg .background .normal{
+  fill: white;
+  stroke: white;
+}
+
+svg .background line{
+  fill: none;
+  stroke: rgba(0,0,0,0.15);
+  shape-rendering: crispEdges;
+}
+svg .brush{
+  fill: rgba(0,0,0,0.3);
+}
+
+svg .data path{
+  fill: none;
+  stroke: rgba(40,40,40,0.6);
+  shape-rendering: optimizeSpeed;
+}
+
+#chart_popup{
+  font-family: sans-serif;
+  background-color: rgba(0,0,0,0.6);
+  color: #ffffff;
+  display: inline-block;
+  padding: 0.5em 1%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  margin-top: -2.2em;
+  margin-left: -1.5%;
+}
+#chart_popup.hidden{
+  display: none;
+}
