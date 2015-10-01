@@ -14,8 +14,8 @@ _logger = logging.getLogger(__name__)
 class nh_clinical_patient_observation(orm.AbstractModel):
     _name = 'nh.clinical.patient.observation'
     _inherit = ['nh.activity.data']
-    _required = [] # fields required for complete observation
-    _num_fields = [] # numeric fields we want to be able to read as NULL instead of 0
+    _required = []  # fields required for complete observation
+    _num_fields = []  # numeric fields we want to be able to read as NULL instead of 0
     _partial_reasons = [
         ['patient_away_from_bed', 'Patient away from  bed'],
         ['patient_refused', 'Patient refused'],
@@ -31,6 +31,17 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         for obs in self.read(cr, uid, ids, ['none_values'], context):
             res.update({obs['id']: bool(set(self._required) & set(eval(obs['none_values'])))})
         return res
+
+    def _is_partial_search(self, cr, uid, obj, name, args, domain=None, context=None):
+        arg1, op, arg2 = args[0]
+        arg2 = bool(arg2)
+        all_ids = self.search(cr, uid, [])
+        is_partial_map = self._is_partial(cr, uid, all_ids, 'is_partial', None, context=context)
+        partial_ews_ids = [key for key, value in is_partial_map.items() if value]
+        if arg2:
+            return [('id', 'in', [ews_id for ews_id in all_ids if ews_id in partial_ews_ids])]
+        else:
+            return [('id', 'in', [ews_id for ews_id in all_ids if ews_id not in partial_ews_ids])]
 
     def _partial_observation_has_reason(self, cr, uid, ids, context=None):
         for o in self.browse(cr, uid, ids, context=context):
@@ -53,7 +64,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
-        'is_partial': fields.function(_is_partial, type='boolean', string='Is Partial?'),
+        'is_partial': fields.function(_is_partial, type='boolean', fnct_search=_is_partial_search,
+                                      string='Is Partial?'),
         'none_values': fields.text('Non-updated required fields'),
         'null_values': fields.text('Non-updated numeric fields'),
         'frequency': fields.selection(frequencies, 'Frequency'),
