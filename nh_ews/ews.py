@@ -85,7 +85,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         res = {}
         for ews in self.browse(cr, uid, ids, context):
             if ews.is_partial:
-                res[ews.id] = {'score': False, 'three_in_one': False, 'clinical_risk': 'None'}
+                res[ews.id] = {'score': False, 'three_in_one': False, 'clinical_risk': 'Unknown'}
             else:
                 res[ews.id] = self.calculate_score(ews)
             _logger.debug("Observation EWS activity_id=%s ews_id=%s score: %s" % (ews.activity_id.id, ews.id, res[ews.id]))
