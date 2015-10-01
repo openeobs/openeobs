@@ -16,7 +16,8 @@ gulp.task('Styleguide', function(){
 		'src/modal.less',
 		'src/button.less',
 		'src/form.less',
-		'src/list.less'])
+		'src/list.less',
+		'src/data_visualisation.less'])
 	.pipe(kss({
 		overview: 'src/styleguide_overview.md',
 		templateDirectory: 'src/templates'

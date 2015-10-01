@@ -91,6 +91,13 @@
 		top: 0;
 	}
 
+	.main .example #small_chart{
+		display: none;
+	}
+	.mobile_preview .example #big_chart{
+		display: none;
+	}
+
 	.main .example .cover, .mobile_preview .example .cover{
 		position: absolute !important;
 	}
@@ -187,6 +194,12 @@
 		background-color: white;
 		overflow: scroll;
 		display: block;
+	}
+	@media screen and (min-width: 481px){
+		.main .example #controls #start, .main .example #controls #end,
+		.mobile_preview .example #controls #start, .mobile_preview .example #controls #end{
+      		display: block !important;
+    	}
 	}
 
 

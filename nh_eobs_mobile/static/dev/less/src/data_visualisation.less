@@ -1,58 +1,259 @@
+/*
+
+Data Visualisation
+
+Styles for SVG Charts drawn by NHGraphLib and D3.js
+
+svg - Main SVG Chart
+text.title - SVG Header text
+circle.point - Complete data point for linear graph
+circle.empty_point - Incomplete data point from a partial observation for a linear graph
+rect.empty_point - Incomplete data point from a partial observation for a ranged graph
+svg .axis - Container for chart axes
+svg .axis path, svg .axis line - Lines used to plot chart axes
+svg .axis text - Text for chart axes
+svg .background - Container for the chart background, used to show colour ranges & target values
+svg .background .green, svg .background .amber, svg .background .red, svg .background .normal - Colours the background rectangles green, amber, red and grey respectively
+svg .background line - Makes sure grid lines are crisp
+svg .brush - Styling for the brush, used for selecting a subset of data
+svg .data path - Styling for the line used to connect data points in a linear graph
+#chart_popup - A tooltip for the charts to show individual values on hover over
+
+Markup:
+<div id="chart">
+  <svg width="100%" height="400px">
+    <text class="title" transform="translate(0,60)">Respiration Rate</text>
+    <g class="nhfocus" transform="translate(40, 140)" width="1033" id="big_chart">
+      <g class="nhgraph" width="1383" height="199"><g class="background"><text x="991" y="163" class="label">RR</text><text x="991" y="181" class="measurement">18/min</text><rect class="red range" x="0" y="153.225" width="973" clip-path="url(#respiration_rate-clip)" height="45.775000000000006"></rect><rect class="green range" x="0" y="138.29999999999998" width="973" clip-path="url(#respiration_rate-clip)" height="15.925000000000011"></rect><rect class="amber range" x="0" y="73.625" width="973" clip-path="url(#respiration_rate-clip)" height="20.89999999999999"></rect><rect class="red range" x="0" y="-100.5" width="973" clip-path="url(#respiration_rate-clip)" height="175.125"></rect><rect class="normal" y="99.5" x="0" width="973" clip-path="url(#respiration_rate-clip)" height="39.79999999999998"></rect><line class="vertical grid" x1="93.08307842234916" x2="93.08307842234916" y1="0" y2="199"></line><line class="vertical grid" x1="235.31528653799302" x2="235.31528653799302" y1="0" y2="199"></line><line class="vertical grid" x1="377.5474946536369" x2="377.5474946536369" y1="0" y2="199"></line><line class="vertical grid" x1="519.7797027692808" x2="519.7797027692808" y1="0" y2="199"></line><line class="vertical grid" x1="662.0119108849246" x2="662.0119108849246" y1="0" y2="199"></line><line class="vertical grid" x1="804.2441190005685" x2="804.2441190005685" y1="0" y2="199"></line><line class="vertical grid" x1="946.4763271162124" x2="946.4763271162124" y1="0" y2="199"></line><line class="horizontal grid" x1="0" x2="973" y1="199" y2="199"></line><line class="horizontal grid" x1="0" x2="973" y1="174.125" y2="174.125"></line><line class="horizontal grid" x1="0" x2="973" y1="149.25" y2="149.25"></line><line class="horizontal grid" x1="0" x2="973" y1="124.375" y2="124.375"></line><line class="horizontal grid" x1="0" x2="973" y1="99.5" y2="99.5"></line><line class="horizontal grid" x1="0" x2="973" y1="74.625" y2="74.625"></line><line class="horizontal grid" x1="0" x2="973" y1="49.75" y2="49.75"></line><line class="horizontal grid" x1="0" x2="973" y1="24.875" y2="24.875"></line><line class="horizontal grid" x1="0" x2="973" y1="0" y2="0"></line></g><g class="axes"><g class="x axis"><g class="tick" transform="translate(93.08307842234916,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">00:00</tspan></text></g><g class="tick" transform="translate(377.5474946536369,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">06:00</tspan></text></g><g class="tick" transform="translate(662.0119108849246,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">12:00</tspan></text></g><g class="tick" transform="translate(946.4763271162124,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">18:00</tspan></text></g><g class="tick" transform="translate(235.31528653799302,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">03:00</tspan></text></g><g class="tick" transform="translate(519.7797027692808,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">09:00</tspan></text></g><g class="tick" transform="translate(804.2441190005685,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">15:00</tspan></text></g><path class="domain" d="M0,-6V0H973V-6"></path></g><g class="y axis"><g class="tick" transform="translate(0,199)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">0</text></g><g class="tick" transform="translate(0,174.125)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">5</text></g><g class="tick" transform="translate(0,149.25)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">10</text></g><g class="tick" transform="translate(0,124.375)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">15</text></g><g class="tick" transform="translate(0,99.5)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">20</text></g><g class="tick" transform="translate(0,74.625)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">25</text></g><g class="tick" transform="translate(0,49.75)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">30</text></g><g class="tick" transform="translate(0,24.875)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">35</text></g><g class="tick" transform="translate(0,0)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">40</text></g><path class="domain" d="M-6,0H0V199H-6"></path></g></g><g class="data"><path d="M906.624969546033,109.45L567.9411087951057,114.425L66.37503045396713,94.52499999999999" clip-path="url(#respiration_rate-clip)" class="path"></path><circle cx="66.37503045396713" cy="94.52499999999999" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="567.9411087951057" cy="114.425" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="906.624969546033" cy="109.45" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle></g><defs><clipPath class="clip" id="respiration_rate-clip"><rect width="973" height="202" y="0" x="0"></rect></clipPath></defs></g>
+    </g>
+    <g class="nhfocus" transform="translate(40, 140)" width="409" id="small_chart">
+      <g class="nhgraph" width="1383" height="199"><g class="background"><text x="367" y="163" class="label">RR</text><text x="367" y="181" class="measurement">18/min</text><rect class="red range" x="0" y="153.225" width="349" clip-path="url(#respiration_rate-clip)" height="45.775000000000006"></rect><rect class="green range" x="0" y="138.29999999999998" width="349" clip-path="url(#respiration_rate-clip)" height="15.925000000000011"></rect><rect class="amber range" x="0" y="73.625" width="349" clip-path="url(#respiration_rate-clip)" height="20.89999999999999"></rect><rect class="red range" x="0" y="-100.5" width="349" clip-path="url(#respiration_rate-clip)" height="175.125"></rect><rect class="normal" y="99.5" x="0" width="349" clip-path="url(#respiration_rate-clip)" height="39.79999999999998"></rect><line class="vertical grid" x1="33.38745567255895" x2="33.38745567255895" y1="0" y2="199"></line><line class="vertical grid" x1="84.40394142010233" x2="84.40394142010233" y1="0" y2="199"></line><line class="vertical grid" x1="135.4204271676457" x2="135.4204271676457" y1="0" y2="199"></line><line class="vertical grid" x1="186.43691291518908" x2="186.43691291518908" y1="0" y2="199"></line><line class="vertical grid" x1="237.45339866273247" x2="237.45339866273247" y1="0" y2="199"></line><line class="vertical grid" x1="288.4698844102759" x2="288.4698844102759" y1="0" y2="199"></line><line class="vertical grid" x1="339.48637015781924" x2="339.48637015781924" y1="0" y2="199"></line><line class="horizontal grid" x1="0" x2="349" y1="199" y2="199"></line><line class="horizontal grid" x1="0" x2="349" y1="174.125" y2="174.125"></line><line class="horizontal grid" x1="0" x2="349" y1="149.25" y2="149.25"></line><line class="horizontal grid" x1="0" x2="349" y1="124.375" y2="124.375"></line><line class="horizontal grid" x1="0" x2="349" y1="99.5" y2="99.5"></line><line class="horizontal grid" x1="0" x2="349" y1="74.625" y2="74.625"></line><line class="horizontal grid" x1="0" x2="349" y1="49.75" y2="49.75"></line><line class="horizontal grid" x1="0" x2="349" y1="24.875" y2="24.875"></line><line class="horizontal grid" x1="0" x2="349" y1="0" y2="0"></line></g><g class="axes"><g class="x axis"><g class="tick" transform="translate(33.38745567255895,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">00:00</tspan></text></g><g class="tick" transform="translate(135.4204271676457,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">06:00</tspan></text></g><g class="tick" transform="translate(237.45339866273247,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">12:00</tspan></text></g><g class="tick" transform="translate(339.48637015781924,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">18:00</tspan></text></g><path class="domain" d="M0,-6V0H349V-6"></path></g><g class="y axis"><g class="tick" transform="translate(0,199)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">0</text></g><g class="tick" transform="translate(0,174.125)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">5</text></g><g class="tick" transform="translate(0,149.25)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">10</text></g><g class="tick" transform="translate(0,124.375)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">15</text></g><g class="tick" transform="translate(0,99.5)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">20</text></g><g class="tick" transform="translate(0,74.625)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">25</text></g><g class="tick" transform="translate(0,49.75)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">30</text></g><g class="tick" transform="translate(0,24.875)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">35</text></g><g class="tick" transform="translate(0,0)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">40</text></g><path class="domain" d="M-6,0H0V199H-6"></path></g></g><g class="data"><path d="M325.19230665114645,109.45L203.71166183914895,114.425L23.807693348853576,94.52499999999999" clip-path="url(#respiration_rate-clip)" class="path"></path><circle cx="23.807693348853576" cy="94.52499999999999" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="203.71166183914895" cy="114.425" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="325.19230665114645" cy="109.45" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle></g><defs><clipPath class="clip" id="respiration_rate-clip"><rect width="349" height="202" y="0" x="0"></rect></clipPath></defs></g>    </g>
+  </svg>
+</div>
+
+Styleguide 6.0
+
+*/
 @import "utils.less";
+text.title{
+  font-weight: bold;
+  font-size: 2em;
+}
 
-// general
+circle{
+  .point{
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
+  }
+  .empty_point{
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+  }
+}
+rect{
+  .empty_point{
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+  }
+}
 
-#table-content, #graph-content{
+
+svg .axis path, svg .axis line{
+  fill: none;
+  stroke: #262626;
+  shape-rendering: crispEdges;
+}
+svg .axis text{
+  font-family: sans-serif;
+}
+svg .background .green{
+  fill: #ccffcc;
+}
+svg .background .amber{
+  fill: #ffe9c8;
+}
+svg .background .red{
+  fill: #ffcccc;
+}
+
+svg .background .normal{
+  fill: white;
+  stroke: white;
+}
+
+svg .background line{
+  fill: none;
+  stroke: rgba(0,0,0,0.15);
+  shape-rendering: crispEdges;
+}
+svg .brush{
+  fill: rgba(0,0,0,0.3);
+}
+
+svg .data path{
+  fill: none;
+  stroke: rgba(40,40,40,0.6);
+  shape-rendering: optimizeSpeed;
+}
+
+#chart_popup{
+  font-family: sans-serif;
+  background-color: rgba(0,0,0,0.6);
+  color: #ffffff;
   display: inline-block;
-  width: 100%;
+  padding: 0.5em 1%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  margin-top: -2.2em;
+  margin-left: -1.5%;
+}
+#chart_popup.hidden{
+  display: none;
 }
 
+/*
 
-// form controls
-#controls{
-  position: relative;
-  width: 80%;
-  div{
-    display: inline-block;
-    float: left;
-    padding: 0px 5% 0px 0px;
-  }
-  #range{
-    position: absolute;
-    top: 0px;
-    right: -18%;
-    width: 20%;
-    padding: 0px;
-    text-align: right;
-  }
-  label{
-    display: inline-block;
-  }
-}
+Tabular Data
 
+Styles for displaying tabular data
 
-@media screen and (max-width: 480px){
-  g.brush-container{
-    display: none;
-  }
-}
+.nhtable, #table-content table - Container for tabular data
+.nhtable th:first-child, #table-content table th:first-child - Table header, left aligned
+.nhtable th, #table-content table th - Table header, center aligned
+.nhtable tbody tr, #table-content table tbody tr - Table row
+.nhtable tbody tr:nth-child(even), #table-content table tbody tr:nth-child(odd) - Table row, alternate rows are coloured light grey
+.nhtable td:first-child, #table-content table td:first-child - Table data, left aligned
+.nhtable td, #table-content table td - Table data, center aligned
 
-@media screen and (min-width: 481px){
-  g.brush-container{
-    display: inherit;
-  }
-  #controls{
-    #start,#end{
-      display: none;
-    }
-    #range{
+Markup:
+<div class="block">
+  <!-- Graph based table, generated by NHGraphLib -->
+  <div id="graph-content">
+    <div id="chart">
+      <h3>Non-plottable Values</h3>
+      <table class="nhtable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>AVPU</th>
+            <th>On Supplemental O<sub>2</sub></th>
+            <th>Inspired Oxygen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1988-01-12 06:00</td>
+            <td>A</td>
+            <td>Yes</td>
+            <td><strong>Device</strong> Nasal Cannula<br>
+            <strong>Flow</strong> 5l/hr</td>
+          </tr>
+          <tr>
+            <td>1988-01-12 07:00</td>
+            <td>A</td>
+            <td>No</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>1988-01-12 08:00</td>
+            <td>A</td>
+            <td>No</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Tabular data, generated by nh_eobs_mobile -->
+  <div id="table-content">
+    <h3>Tabular Values</h3>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>06:00<br>
+          1988-01-12</th>
+          <th>07:00<br>
+          1988-01-12</th>
+          <th>08:00<br>
+          1988-01-12</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>NEWS Score</td>
+          <td>0</td>
+          <td>1</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>Respiration Rate</td>
+          <td>18</td>
+          <td>21</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td>O<sub>2</sub> Saturation</td>
+          <td>99</td>
+          <td>100</td>
+          <td>99</td>
+        </tr>
+        <tr>
+          <td>Body Temperature</td>
+          <td>37.5</td>
+          <td>40.1</td>
+          <td>38.0</td>
+        </tr>
+        <tr>
+          <td>Blood Pressure Systolic</td>
+          <td>120</td>
+          <td>130</td>
+          <td>140</td>
+        </tr>
+        <tr>
+          <td>Blood Pressure Diastolic</td>
+          <td>80</td>
+          <td>90</td>
+          <td>100</td>
+        </tr>
+        <tr>
+          <td>Pulse Rate</td>
+          <td>50</td>
+          <td>80</td>
+          <td>60</td>
+        </tr>
+        <tr>
+          <td>AVPU</td>
+          <td>A</td>
+          <td>V</td>
+          <td>P</td>
+        </tr>
+        <tr>
+          <td>Patient On Supplemental O<sub>2</sub></td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Inspired Oxygen</td>
+          <td><strong>Device:</strong> Nasal Cannula<br>
+          <strong>Flow:</strong> 5l/hr</td.
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    }
-  }
-}
+Styleguide 6.1
+*/
 
-
-// tabular data
 .nhtable{
   width: 100%;
   border-bottom-left-radius: 10px;
@@ -151,86 +352,93 @@
 //  }
 //}
 
+/*
 
+Mobile controls
 
-// svg
-text.title{
-  font-weight: bold;
-  font-size: 2em;
-}
+Styling for controls used on mobile to select subset of data
 
-circle{
-  .point{
-    fill: black;
-    stroke: black;
-    stroke-width: 1px;
-  }
-  .empty_point{
-    fill: white;
-    stroke: black;
-    stroke-width: 1px;
-  }
-}
-rect{
-  .empty_point{
-    fill: white;
-    stroke: black;
-    stroke-width: 1px;
-  }
-}
+#graph-content - Container for graph version of patient data
+#table-content - Container for table version of patient data
+#controls - Container for input based controls for mobile use
+#controls #range - Checkbox for showing ranged values
 
+Markup:
+<!-- Mobile Controls -->
+<div class="block">
+  <div id="graph-content">
+    <div id="controls">
+      <div id="start">
+        <h4>Start Date</h4>
+        <label for="start_date">Date: <input type="date" name="start_date"></label>
+        <label for="start_time">Time: <input type="time" name="start_time"></label>
+      </div>
+      <div id="end">
+        <h4>End Date</h4>
+        <label for="end_date">Date: <input type="date" name="end_date"></label>
+        <label for="end_time">Time: <input type="time" name="end_time"></label>
+      </div>
+      <div id="range">
+        <label for="rangify">
+          <h4>Ranged values</h4>
+          <input type="checkbox" name="rangify">
+        </label>
+      </div>
+    </div>
+  </div>
+  <div id="table-content"></div>
+</div>
 
-svg .axis path, svg .axis line{
-  fill: none;
-  stroke: #262626;
-  shape-rendering: crispEdges;
-}
-svg .axis text{
-  font-family: sans-serif;
-}
-svg .background .green{
-  fill: #ccffcc;
-}
-svg .background .amber{
-  fill: #ffe9c8;
-}
-svg .background .red{
-  fill: #ffcccc;
-}
+Styleguide 6.2
+*/
 
-svg .background .normal{
-  fill: white;
-  stroke: white;
-}
+// general
 
-svg .background line{
-  fill: none;
-  stroke: rgba(0,0,0,0.15);
-  shape-rendering: crispEdges;
-}
-svg .brush{
-  fill: rgba(0,0,0,0.3);
-}
-
-svg .data path{
-  fill: none;
-  stroke: rgba(40,40,40,0.6);
-  shape-rendering: optimizeSpeed;
-}
-
-#chart_popup{
-  font-family: sans-serif;
-  background-color: rgba(0,0,0,0.6);
-  color: #ffffff;
+#table-content, #graph-content{
   display: inline-block;
-  padding: 0.5em 1%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 10px;
-  margin-top: -2.2em;
-  margin-left: -1.5%;
+  width: 100%;
 }
-#chart_popup.hidden{
-  display: none;
+
+
+// form controls
+#controls{
+  position: relative;
+  width: 80%;
+  div{
+    display: inline-block;
+    float: left;
+    padding: 0px 5% 0px 0px;
+  }
+  #range{
+    position: absolute;
+    top: 0px;
+    right: -18%;
+    width: 20%;
+    padding: 0px;
+    text-align: right;
+  }
+  label{
+    display: inline-block;
+  }
 }
+
+
+@media screen and (max-width: 480px){
+  g.brush-container{
+    display: none;
+  }
+}
+
+@media screen and (min-width: 481px){
+  g.brush-container{
+    display: inherit;
+  }
+  #controls{
+    #start,#end{
+      display: none;
+    }
+  }
+}
+
+
+
