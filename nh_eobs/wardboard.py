@@ -688,7 +688,7 @@ wb_ews_ranked as(
     from nh_clinical_spell spell
     inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews'
     left join nh_clinical_patient_observation_ews ews on ews.activity_id = activity.id
-    where ews.clinical_risk != 'Unknown') sub_query
+    where activity.state = 'scheduled' or (activity.state != 'scheduled' and ews.clinical_risk != 'Unknown')) sub_query
     where rank < 3
 );
 
