@@ -686,7 +686,9 @@ wb_ews_ranked as(
             split_part(activity.data_ref, ',', 2)::int as data_id,
             rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
     from nh_clinical_spell spell
-    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews') sub_query
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews'
+    left join nh_clinical_patient_observation_ews ews on ews.activity_id = activity.id
+    where ews.clinical_risk != 'Unknown') sub_query
     where rank < 3
 );
 
