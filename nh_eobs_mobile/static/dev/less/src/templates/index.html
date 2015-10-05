@@ -223,7 +223,7 @@
 
     </style>
     <link rel="stylesheet" href="public/compile.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+	<link rel="stylesheet" href="public/hilightjs.style.min.css">
   </head>
   <body id="kss-node" class="sg">
 	  <div class="leftnav">
@@ -236,7 +236,7 @@
             {{/eachRoot}}
 		</ul>
 		  <hr>
-		  {{#if homepage}}
+		  {{#if overview}}
 		  {{else}}
 		   <ul class="kss-menu-child">
 			   {{#eachSection rootNumber}}
@@ -265,8 +265,8 @@
 		  {{/if}}
 	  </div>
 	  <div class="main">
-		{{#if homepage}}
-		<div id="section-0" class="kss-section kss-overview section">{{{homepage}}}</div>
+		{{#if overview}}
+		<div id="section-0" class="kss-section kss-overview section">{{{overview}}}</div>
 		{{else}}
 		{{#eachSection rootNumber}}
 		<div id="section-{{reference}}" class="kss-section section">
@@ -292,7 +292,7 @@
 		  {{/eachSection}}
 		  {{/if}}
 	  </div>
-	  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	  <script src="public/jquery.js"></script>
 	  <script src="public/jquery-scrollspy.js"></script>
 	  <script type="text/javascript">
 		  $(document).ready(function(){
@@ -350,7 +350,7 @@
 			});
         }
     </script>
-  	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  	<script src="public/hilight.js"></script>
   	<script>hljs.initHighlightingOnLoad();</script>
   </body>
 </html>
