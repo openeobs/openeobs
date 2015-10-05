@@ -1,5 +1,6 @@
 # NHMobileForm contains utilities for working with the nh_eobs_mobile
 # observation form
+### istanbul ignore next ###
 class NHMobileForm extends NHMobile
 
   constructor: () ->
@@ -17,7 +18,7 @@ class NHMobileForm extends NHMobile
   setup_event_listeners: (self) ->
    
     # for each input in the form set up the event listeners
-    for input in @form.elements
+    for input in self.form.elements
       do () ->
         switch input.localName
           when 'input'
@@ -30,6 +31,9 @@ class NHMobileForm extends NHMobile
                   self.cancel_notification)
               when 'radio' then input.addEventListener('click',
                   self.trigger_actions)
+              when 'text'
+                input.addEventListener('change', self.validate)
+                input.addEventListener('change', self.trigger_actions)
           when 'select' then input.addEventListener('change',
             self.trigger_actions)
           when 'button' then input.addEventListener('click',
@@ -39,12 +43,15 @@ class NHMobileForm extends NHMobile
     # a certain time
     document.addEventListener 'form_timeout', (event) ->
       task_id = self.form.getAttribute('task-id')
+      ### istanbul ignore else ###
       if task_id
         self.handle_timeout(self, task_id)
     window.timeout_func = () ->
-      timeout = new CustomEvent('form_timeout', {'detail': 'form timed out'})
+      timeout = document.createEvent('CustomEvent')
+      timeout.initCustomEvent('form_timeout', false, true,
+        {'detail': 'form timed out'})
       document.dispatchEvent(timeout)
-    window.form_timeout = setTimeout(window.timeout_func, @form_timeout)
+    window.form_timeout = setTimeout(window.timeout_func, self.form_timeout)
 
     document.addEventListener 'post_score_submit', (event) ->
       if not event.handled
@@ -75,16 +82,19 @@ class NHMobileForm extends NHMobile
   # Validate the form - need to add basic validation messages to DOM so set
   # by server
   # inputs with a data-validation attribute already do this
+  # TODO: Currently only caters for number inputs
   validate: (event) =>
     event.preventDefault()
     @.reset_form_timeout(@)
     input = if event.srcElement then event.srcElement else event.target
+    input_type = input.getAttribute('type')
+    value = if input_type is 'number' then parseFloat(input.value) else
+      input.value
     @reset_input_errors(input)
-    value = parseFloat(input.value)
-    min = parseFloat(input.getAttribute('min'))
-    max = parseFloat(input.getAttribute('max'))
-    if typeof(value) isnt 'undefined' and not isNaN(value) and value isnt ''
-      if input.getAttribute('type') is 'number'
+    if typeof(value) isnt 'undefined' and value isnt ''
+      if input.getAttribute('type') is 'number' and not isNaN(value)
+        min = parseFloat(input.getAttribute('min'))
+        max = parseFloat(input.getAttribute('max'))
         if input.getAttribute('step') is '1' and value % 1 isnt 0
           @.add_input_errors(input, 'Must be whole number')
           return
@@ -119,6 +129,13 @@ class NHMobileForm extends NHMobile
               @.add_input_errors(target_input, criteria['message']['target'])
               @.add_input_errors(other_input, 'Please enter a value')
               continue
+      if input.getAttribute('type') is 'text'
+        if input.getAttribute('pattern')
+          regex_res = input.validity.patternMismatch
+          if regex_res
+            @.add_input_errors(input, 'Invalid value')
+            return
+
   
   # Certain inputs will affect other inputs, this function takes the JSON string
   # in the input's data-onchange attribute and does the appropriate action
@@ -136,6 +153,8 @@ class NHMobileForm extends NHMobile
       value = 'Default'
     if input.getAttribute('data-onchange')
       actions = eval(input.getAttribute('data-onchange'))
+      # TODO: needs a refactor if passing over a select value that is string
+      # this blows up
       for action in actions
         for condition in action['condition']
           if condition[0] not in ['True', 'False'] and
@@ -149,11 +168,13 @@ class NHMobileForm extends NHMobile
         mode = ' && '
         conditions = []
         for condition in action['condition']
+          ### istanbul ignore else ###
           if typeof condition is 'object'
             conditions.push(condition.join(' '))
           else
             mode = condition
         conditions = conditions.join(mode)
+        # TODO: doesn't work with comparative number inputs i.e. a > b
         if eval(conditions)
           if action['action'] is 'hide'
             for field in action['fields']
@@ -172,6 +193,7 @@ class NHMobileForm extends NHMobile
   submit: (event) =>
     event.preventDefault()
     @.reset_form_timeout(@)
+    ajax_act = @form.getAttribute('ajax-action')
     form_elements =
       (element for element in @form.elements \
         when not element.classList.contains('exclude'))
@@ -179,13 +201,25 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements \
         when element.classList.contains('error'))
     empty_elements =
-      (element for element in form_elements when not element.value)
+      (element for element in form_elements when not element.value or \
+      element.value is '')
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
+      action_buttons = (element for element in @form.elements \
+        when element.getAttribute('type') in ['submit', 'reset'])
+      for button in action_buttons
+        button.setAttribute('disabled', 'disabled')
       @submit_observation(@, form_elements, @form.getAttribute('ajax-action'),
         @form.getAttribute('ajax-args'))
+    else if empty_elements.length>0 and ajax_act.indexOf('notification') > 0
+      msg = '<p>The form contains empty fields, please enter '+
+        'data into these fields and resubmit</p>'
+      btn = '<a href="#" data-action="close" data-target="invalid_form">'+
+        'Cancel</a>'
+      new window.NH.NHModal('invalid_form', 'Form contains empty fields',
+        msg, [btn], 0, @.form)
     else if invalid_elements.length>0
-      msg = '<p class="block">The form contains errors, please correct '+
+      msg = '<p>The form contains errors, please correct '+
         'the errors and resubmit</p>'
       btn = '<a href="#" data-action="close" data-target="invalid_form">'+
         'Cancel</a>'
@@ -193,6 +227,10 @@ class NHMobileForm extends NHMobile
         msg, [btn], 0, @.form)
     else
       # display the partial obs dialog
+      action_buttons = (element for element in @form.elements \
+        when element.getAttribute('type') in ['submit', 'reset'])
+      for button in action_buttons
+        button.setAttribute('disabled', 'disabled')
       @display_partial_reasons(@)
 
   show_reference: (event) =>
@@ -229,9 +267,9 @@ class NHMobileForm extends NHMobile
         else '<a href="#" data-target="partial_reasons" '+
         'data-action="partial_submit" '+
         'data-ajax-action="json_patient_form_action">Confirm</a>'
-      can_btn = '<a href="#" data-action="close" '+
+      can_btn = '<a href="#" data-action="renable" '+
         'data-target="partial_reasons">Cancel</a>'
-      msg = '<p class="block">Please state reason for '+
+      msg = '<p>Please state reason for '+
         'submitting partial observation</p>'
       new window.NH.NHModal('partial_reasons', 'Submit partial observation',
         msg+select, [can_btn, con_btn], 0, self.form)
@@ -240,11 +278,12 @@ class NHMobileForm extends NHMobile
     # turn form data in to serialised string and ping off to server
     serialised_string = (el.name+'='+el.value for el in elements).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
+    # Disable the action buttons
     Promise.when(@call_resource(url, serialised_string)).then (server_data) ->
       data = server_data[0][0]
       body = document.getElementsByTagName('body')[0]
       if data and data.status is 3
-        can_btn = '<a href="#" data-action="close" '+
+        can_btn = '<a href="#" data-action="renable" '+
           'data-target="submit_observation">Cancel</a>'
         act_btn = '<a href="#" data-target="submit_observation" '+
           'data-action="submit" data-ajax-action="'+
@@ -284,16 +323,20 @@ class NHMobileForm extends NHMobile
         new window.NH.NHModal('cancel_success', 'Task successfully cancelled',
           '', [btn], 0, self.form)
       else
+        action_buttons = (element for element in self.form.elements \
+          when element.getAttribute('type') in ['submit', 'reset'])
+        for button in action_buttons
+          button.removeAttribute('disabled')
         btn = '<a href="#" data-action="close" '+
           'data-target="submit_error">Cancel</a>'
         new window.NH.NHModal('submit_error', 'Error submitting observation',
-          'Server returned an error',
-          [btn], 0, self.form)
+          'Server returned an error', [btn], 0, body)
 
   handle_timeout: (self, id) ->
     can_id = self.urls['json_cancel_take_task'](id)
     Promise.when(self.call_resource(can_id)).then (server_data) ->
-      msg = '<p class="block">Please pick the task again from the task list '+
+      ### Should be checking server data ###
+      msg = '<p>Please pick the task again from the task list '+
         'if you wish to complete it</p>'
       btn = '<a href="'+self.urls['task_list']().url+
         '" data-action="confirm">Go to My Tasks</a>'
@@ -369,6 +412,7 @@ class NHMobileForm extends NHMobile
       reason_to_use = reason
     if cancel_reason
       reason_to_use = cancel_reason
+    # TODO: Add an error catch if no value entered
     if reason_to_use
       form_elements.push(reason_to_use)
       self.submit_observation(self, form_elements, event.detail.action,
@@ -379,13 +423,17 @@ class NHMobileForm extends NHMobile
       dialog_id.parentNode.removeChild(dialog_id)
 
   process_post_score_submit: (self, event) ->
-    form_elements = (element for element in self.form.elements when not
+    form  = document.getElementsByTagName('form')?[0]
+    form_elements = (element for element in form.elements when not
       element.classList.contains('exclude'))
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute('ajax-args'))
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+
+### istanbul ignore else ###
 window?.NH.NHMobileForm = NHMobileForm
 

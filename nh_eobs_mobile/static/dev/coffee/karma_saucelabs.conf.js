@@ -1,4 +1,31 @@
 module.exports = function(config) {
+
+    if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
+        console.log('Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are set.');
+        process.exit(1);
+    }
+
+    var customLaunchers = {
+        'SL_Chrome': {
+            base: 'SauceLabs',
+            browserName: 'chrome',
+            timeZone: 'London'
+        },
+        'SL_Firefox': {
+            base: 'SauceLabs',
+            browserName: 'firefox',
+            timeZone: 'London'
+        },
+        'SL_Mobile_Safari': {
+            base: 'SauceLabs',
+            browserName: 'iphone',
+            version: '8.0',
+            timeZone: 'London',
+            deviceName: 'iPad 2',
+            deviceOrientation: 'portrait'
+        }
+    };
+
     config.set({
         basePath: '',
 
@@ -17,21 +44,32 @@ module.exports = function(config) {
 
         exclude: [],
 
-        hostname: 'localhost',
+        //hostname: 'localhost',
         port: 9876,
-
-        reporters: ['nyan', 'html', 'coverage'],
+        colors: true,
+        reporters: ['progress', 'saucelabs'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
         },
-
+        sauceLabs:{
+            testName: 'NHMobile',
+            recordScreenshots: true,
+            connectOptions: {
+                port: 5757,
+                logfile: 'sauce_connect.log',
+                username: process.env.SAUCE_USERNAME,
+                accessKey: process.env.SAUCE_ACCESS_KEY
+            }
+        },
+        browserNoActivityTimeout: 60000,
+        captureTimeout: 120000,
+        customLaunchers: customLaunchers,
+        browsers: Object.keys(customLaunchers),
         autoWatch: false,
         singleRun: true,
 
         frameworks: ['jasmine-ajax', 'jasmine'],
-
-        browsers: ['PhantomJS'],
 
         plugins: [
             'karma-jasmine',
@@ -40,7 +78,8 @@ module.exports = function(config) {
             'karma-phantomjs-launcher',
             'karma-coverage',
             'karma-nyan-reporter',
-            'karma-html-reporter'
+            'karma-html-reporter',
+            'karma-sauce-launcher'
         ],
 
         junitReporter: {

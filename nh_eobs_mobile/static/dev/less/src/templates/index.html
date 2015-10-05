@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Open-eObs Styleguide</title>
+    <meta name="description" content="" />
+    <meta name="generator" content="kss-node" />
+    <style>
+    html{
+		padding: 0;
+		margin: 0;
+	}
+	body{
+		width: 100%;
+		padding: 0;
+		margin: -1em 0 0 0;
+		background-color: white;
+		overflow: auto !important;
+		font-family: "Droid Sans", "Ubuntu", "Helvetica", sans-serif;
+	}
+
+	.leftnav{
+		width: 20%;
+		position: absolute;
+		top: 1.25em;
+		left: 2.5%;
+	}
+
+	.leftnav.active{
+		position: fixed;
+		top: 0;
+	}
+	.leftnav ul{
+		padding: 0;
+		margin-bottom: 0;
+	}
+	.leftnav li{
+		padding: 0;
+		display: block;
+		margin: 0;
+	}
+	.leftnav li.active a{
+		border-right: 3px solid rgba(0,0,0,0.1);
+		font-weight: bold;
+	}
+	.leftnav li a{
+		text-transform: capitalize;
+		text-decoration: none;
+		color: #3778e9;
+		display: block;
+		padding: 0.5em 0;
+	}
+	.section{
+		padding-bottom: 3em;
+	}
+	.section:last-child{
+		border-bottom: 0 solid black;
+	}
+	.main{
+		width: 75%;
+		margin-left: 20%;
+		display: table;
+		padding: 0 0 0 5%;
+	}
+	.main .code{
+		padding: 0 5% 1em 5%;
+		border-radius: 5px;
+		border: 1px solid rgba(0,0,0,0.1);
+		display: table;
+		width: 85%;
+		word-break: break-all;
+		word-wrap: break-word;
+		background-color: #f0f0f0;
+	}
+	.main .example{
+		padding: 0 5% 1em 5%;
+		display: inline-block;
+		width: 85%;
+		position: relative;
+		min-height: 1em;
+		margin-top: 1em;
+	}
+	.main .example .header, .mobile_preview .example .header,
+	.main .example .dialog, .mobile_preview .example .dialog,
+	.main .example .cover, .mobile_preview .example .cover,
+	.main .example .full-modal, .mobile_preview .example .full-modal,
+	.main .example #patientName, .mobile_preview .example #patientName,
+	.main .example .footer, .mobile_preview .example .footer,
+	.main .example .share-footer, .mobile_preview .example .share-footer{
+		position: relative !important;
+		z-index: 0 !important;
+		top: 0;
+	}
+
+	.main .example #small_chart{
+		display: none;
+	}
+	.mobile_preview .example #big_chart{
+		display: none;
+	}
+
+	.main .example .cover, .mobile_preview .example .cover{
+		position: absolute !important;
+	}
+
+	.main .example .dialog, .mobile_preview .example .dialog{
+		margin-bottom: 2em;
+		display: inline-block;
+	}
+
+	.main .example:before{
+		box-sizing: border-box;
+	}
+
+	.main .example #obsForm{
+		padding-top: 0;
+	}
+
+	.main .example .element-list, .mobile_preview .example .element-list{
+		list-style: none;
+		padding-left: 0;
+	}
+
+	.main .example .element-list li, .mobile_preview .example .element-list li{
+		padding: 0.8em 0;
+	}
+
+	dl dt{
+		font-weight: bold;
+	}
+
+	h3.styleguide{
+		margin-top: 2.5em;
+		line-height: 1;
+		color: #3778e9;
+	}
+	h2.styleguide{
+		color: #3778e9;
+		font-size: 2em;
+		text-transform: capitalize;
+	}
+	h4.styleguide{
+		color: #3778e9;
+		line-height: 0;
+		margin-top: 3em;
+		margin-bottom: 0;
+	}
+
+	.section .styleguide .options{
+		list-style: none;
+		padding: 0;
+		margin: 0 2% 1em 0;
+		float: right;
+		font-size: 0.8em;
+		display: inline-block;
+		width: 20%;
+	}
+	.section .styleguide .options li{
+		display: inline;
+	}
+	.section .styleguide .options li a{
+		background-color: #3778e9;
+		color: white;
+		text-decoration: none;
+		padding: 0.5em 3%;
+	}
+
+	 .mobile_preview_bg{
+		background-color: rgba(0,0,0,0.6);
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+	}
+	.mobile_preview{
+		/*background-image: url('img/phone-case.png');*/
+		/*background-repeat: no-repeat;*/
+		position: fixed;
+		top: 3em;
+		left: calc(50% - 240px);
+		height: 752px;
+		width: 480px;
+	}
+
+	.mobile_preview .wrapper, .tablet_preview .wrapper, .desktop_preview .wrapper{
+		position: relative;
+	}
+	.mobile_preview .example{
+		position: absolute;
+		top: 104px;
+		left: 15px;
+		width: 480px;
+		height: 726px;
+		border: 4px solid #22272d;
+		background-color: white;
+		overflow: scroll;
+		display: block;
+	}
+	@media screen and (min-width: 481px){
+		.main .example #controls #start, .main .example #controls #end,
+		.mobile_preview .example #controls #start, .mobile_preview .example #controls #end{
+      		display: block !important;
+    	}
+	}
+
+
+    </style>
+    <link rel="stylesheet" href="public/compile.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+  </head>
+  <body id="kss-node" class="sg">
+	  <div class="leftnav">
+		<ul>
+			<li><a href="index.html#top">Overview</a></li>
+			{{#eachRoot}}
+              <li class="kss-menu-item"><a href="section-{{reference}}.html"><span class="kss-name">{{header}}</span></a></li>
+            {{/eachRoot}}
+		</ul>
+	  </div>
+	  <div class="main">
+		{{#if overview}}
+		<div id="section-0" class="kss-section kss-overview section">{{{overview}}}</div>
+		{{else}}
+		{{#eachSection rootNumber}}
+		<div id="section-{{reference}}" class="kss-section section">
+			<h2 class="kss-titlev styleguide">{{header}}</h2>
+			{{#if description}}
+			<p class="kss-description">{{{description}}}</p>
+			{{/if}}
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			   {{#eachModifier}}
+			   <dt>{{name}}</dt><dd>{{{description}}}</dd>
+			   {{/eachModifier}}
+			</dl>
+			{{#if markup}}
+			<h3 class="styleguide">Example <ul class="options">
+				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+			</ul></h3>
+			<div class="example">{{{markup}}}</div>
+			<h3 class="styleguide">Code</h3>
+			<div class="code"><pre><code class="html">{{markup}}</code></pre></div>
+			{{/if}}
+		 </div>
+		  {{/eachSection}}
+		  {{/if}}
+	  </div>
+	  <script type="text/javascript">
+        function mobile(object, type) {
+            var clicked_obj = $(object);
+            var example_obj = clicked_obj.parents('.section').find('.example');
+            var bg = $('<div>');
+            bg.addClass('mobile_preview_bg');
+            bg.css('height', $('body').height()+'px');
+            bg.click(function(){
+                $(this).remove();
+				$('html, body').css({
+					'overflow': 'auto',
+					'height': 'auto'
+				});
+            });
+
+            var iframe = $('<div>');
+            iframe.addClass(type);
+            var wrapper = $('<div>');
+            wrapper.addClass('wrapper');
+            wrapper.append(example_obj.clone());
+            iframe.append(wrapper);
+            bg.append(iframe);
+            $('body').append(bg);
+			$('html, body').css({
+				'overflow': 'hidden',
+				'height': '100%'
+			});
+        }
+    </script>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  	<script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>

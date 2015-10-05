@@ -190,7 +190,7 @@
                      </h2>
                      <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
                          <h3>Confirm action taken?</h3>
-                         <p>Press the button below to confirm that you can completed the task <t t-esc="name"/></p>
+                         <p>Press the button below to confirm that you have completed the task <t t-esc="name"/></p>
                          <t t-if="len(inputs) > 0">
                             <div t-foreach="inputs" t-as="item">
                                 <t t-if="item['type']=='selection'">
@@ -204,7 +204,7 @@
 
                          <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
                          <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                         <div class="block obsSubmit">
+                         <div class="block obsSubmit" id="parent_submitButton">
                              <input type="submit" value="Confirm action" class="exclude" id="submitButton"/>
                          </div>
                          <t t-if="cancellable==True">
@@ -248,7 +248,7 @@
                             <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
                         </t>
                         <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                        <div class="block obsSubmit">
+                        <div class="block obsSubmit" id="parent_submitButton">
                             <input type="submit" value="Submit" class="exclude" id="submitButton"/>
                         </div>
                     </form>
@@ -273,15 +273,15 @@
 
                         <option value="">Please Select</option>
                         <t t-foreach="item['selection_options']" t-as="option">
-                            <option t-att-value="option['value']"><t t-esc="option['label']"/></option>
+                            <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
                     <t t-set="reference" t-value="item.get('reference')"/>
                    <t t-if="reference">
                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
                    </t>
-                   <span class="errors"><t t-esc="item['errors']"/></span>
-                   <span class="help"><t t-esc="item['info']"/></span>
+                   <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
+                   <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
                </div>
            </div>
         </template>
@@ -306,8 +306,8 @@
                     <t t-if="reference">
                         <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
                     </t>
-                    <span class="errors"><t t-esc="item['errors']"/></span>
-                    <span class="help"><t t-esc="item['info']"/></span>
+                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
+                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
                 </div>
             </div>
         </template>
@@ -332,8 +332,8 @@
                     <t t-if="reference">
                         <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
                     </t>
-                    <span class="errors"><t t-esc="item['errors']"/></span>
-                    <span class="help"><t t-esc="item['info']"/></span>
+                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
+                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
                 </div>
                 <!--<div class="input-body">-->
                     <!--<span class="errors">-->

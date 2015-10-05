@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-s
-import openerp, re, json, urls, jinja2, bisect, os
+import openerp, re, json, urls, jinja2, bisect, os, logging
 from openerp import http
 from openerp.http import Root, Response
 from openerp.modules.module import get_module_path
@@ -7,7 +7,10 @@ from datetime import datetime
 from openerp.http import request
 from werkzeug import utils, exceptions
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from openerp.osv import fields
+from openerp.osv import fields, orm
+
+
+_logger = logging.getLogger(__name__)
 
 URL_PREFIX = '/mobile/'
 URLS = urls.URLS
@@ -445,23 +448,21 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         else:
             patient = False
         form = dict()
-        form['action'] = URLS['task_form_action']+'{0}'.format(task_id)
+        form['action'] = URLS['task_form_action']+'{0}'.format(task_id)  # TODO: check if this is still actually used!
         form['type'] = task['data_model']
         form['task-id'] = int(task_id)
         form['patient-id'] = int(patient['id']) if patient and 'id' in patient and patient['id'] else False
         form['source'] = "task"
         form['start'] = datetime.now().strftime('%s')
-        if task.get('user_id') and task['user_id'][0] != uid:
-            return request.render('nh_eobs_mobile.error', qcontext={'error_string': 'Task is taken by another user',
-                                                                     'section': 'task',
-                                                                     'username': request.session['login'],
-                                                                     'notification_count': len(follow_activities),
-                                                                     'urls': URLS})
+        api_reg.unassign_my_activities(cr, uid)
         try:
             api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
-        except Exception:
-            #return 'unable to take task'
-            a = 0
+        except orm.except_orm as e:
+            exception_message = 'Opening the task (id: {task_id}) ' \
+                                'and trying to assign it to the current user (id: {user_id}) ' \
+                                'raises this exception: {exception}'.format(task_id=task_id, user_id=uid, exception=e)
+            _logger.debug(exception_message)
+            return utils.redirect(URLS['task_list'], 303)
 
         if 'notification' in task['data_model'] or 'placement' in task['data_model']:
             # load notification foo
@@ -475,23 +476,23 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     form_input['step'] = 0.1 if form_input['type'] is 'float' else 1
                     form_input['type'] = 'number'
                     form_input['number'] = True
-                    form_input['info'] = ''
-                    form_input['errors'] = ''
+                    # form_input['info'] = ''
+                    # form_input['errors'] = ''
                     form_input['min'] = str(form_input['min'])
                     #if form_input['target']:
                     #    form_input['target'] = False
                 elif form_input['type'] == 'selection':
                     form_input['selection_options'] = []
-                    form_input['info'] = ''
-                    form_input['errors'] = ''
+                    # form_input['info'] = ''
+                    # form_input['errors'] = ''
                     for option in form_input['selection']:
                         opt = dict()
                         opt['value'] = '{0}'.format(option[0])
                         opt['label'] = option[1]
                         form_input['selection_options'].append(opt)
-                elif form_input['type'] == 'text':
-                    form_input['info'] = ''
-                    form_input['errors'] = ''
+                # elif form_input['type'] == 'text':
+                #    form_input['info'] = ''
+                #    form_input['errors'] = ''
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(URLS['cancel_clinical_notification'], task_id)
             if 'notification' in task['data_model']:
@@ -553,6 +554,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                      'username': request.session['login'],
                                                                      'urls': URLS})
 
+    # TODO: eventually remove this method, it's no more used: it has been replaced by method 'process_ajax_form()'
+    # This method is still a valid fallback in case Javascript is disabled on the client side, but
+    # due to our current dependency from Javascript, that is a very improbable scenario.
     @http.route(URLS['task_form_action']+'<task_id>', type="http", auth="user")
     def process_form(self, task_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -716,6 +720,18 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         kw_copy = kw.copy()
+
+        data_timestamp = kw_copy.get('startTimestamp', None)
+        data_task_id = kw_copy.get('taskId', None)
+
+        if data_timestamp is not None:
+            del kw_copy['startTimestamp']
+        if data_task_id is not None:
+            del kw_copy['taskId']
+        for key, value in kw_copy.items():
+            if not value:
+                del kw_copy[key]
+
         kw_copy['reason'] = int(kw_copy['reason'])
         result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
         return request.make_response(json.dumps({'status':1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})

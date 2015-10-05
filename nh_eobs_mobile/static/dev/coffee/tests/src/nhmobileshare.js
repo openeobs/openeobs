@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHMobileShare,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -28,6 +30,8 @@ NHMobileShare = (function(superClass) {
     this.all_button.addEventListener('click', function(event) {
       var button, button_mode;
       event.preventDefault();
+
+      /* istanbul ignore else */
       if (!event.handled) {
         button = event.srcElement ? event.srcElement : event.target;
         button_mode = button.getAttribute('mode');
@@ -92,7 +96,7 @@ NHMobileShare = (function(superClass) {
         return new window.NH.NHModal('assign_nurse', 'Assign patient to colleague', nurse_list, btns, 0, self.form);
       });
     } else {
-      msg = '<p class="block">Please select patients to hand' + ' to another staff member</p>';
+      msg = '<p>Please select patients to hand' + ' to another staff member</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       return new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -116,11 +120,11 @@ NHMobileShare = (function(superClass) {
     if (patients.length > 0) {
       assign_btn = '<a href="#" data-action="claim" ' + 'data-target="claim_patients" data-ajax-action="json_claim_patients">' + 'Claim</a>';
       can_btn = '<a href="#" data-action="close" data-target="claim_patients"' + '>Cancel</a>';
-      claim_msg = '<p class="block">Claim patients shared with colleagues</p>';
+      claim_msg = '<p>Claim patients shared with colleagues</p>';
       btns = [assign_btn, can_btn];
       new window.NH.NHModal('claim_patients', 'Claim Patients?', claim_msg, btns, 0, self.form);
     } else {
-      msg = '<p class="block">Please select patients to claim back</p>';
+      msg = '<p>Please select patients to claim back</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -187,7 +191,7 @@ NHMobileShare = (function(superClass) {
           document.getElementsByTagName('body')[0].removeChild(cover);
           popup.parentNode.removeChild(popup);
           can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
-          share_msg = '<p class="block">Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
+          share_msg = '<p>Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
           btns = [can_btn];
           return new window.NH.NHModal('share_success', 'Patients Shared', share_msg, btns, 0, body);
         } else {
@@ -245,12 +249,12 @@ NHMobileShare = (function(superClass) {
           ti.innerHTML = '<br>';
         }
         can_btn = '<a href="#" data-action="close" ' + 'data-target="claim_success">Cancel</a>';
-        claim_msg = '<p class="block">Successfully claimed patients</p>';
+        claim_msg = '<p>Successfully claimed patients</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_success', 'Patients Claimed', claim_msg, btns, 0, body);
       } else {
         can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Cancel</a>';
-        claim_msg = '<p class="block">There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
+        claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);
       }
@@ -288,9 +292,15 @@ NHMobileShare = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShare = NHMobileShare;

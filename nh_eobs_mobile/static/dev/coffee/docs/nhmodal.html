@@ -77,6 +77,8 @@ Params:</p>
     cover.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'close'</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@id</span> <span class="hljs-keyword">is</span> <span class="hljs-string">'submit_observation'</span>
+      cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'renable'</span>)
     cover.setAttribute(<span class="hljs-string">'data-target'</span>, <span class="hljs-property">@id</span>)
     cover.style.height = (body.clientHeight)+<span class="hljs-string">'px'</span>
     cover.addEventListener(<span class="hljs-string">'click'</span>, self.handle_button_events)</pre></div></div>
@@ -203,7 +205,6 @@ Params:</p>
         <span class="hljs-keyword">when</span> <span class="hljs-number">1</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options one-col'</span>)
         <span class="hljs-keyword">when</span> <span class="hljs-number">2</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options two-col'</span>)
         <span class="hljs-keyword">when</span> <span class="hljs-number">3</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options three-col'</span>)
-        <span class="hljs-keyword">when</span> <span class="hljs-number">4</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options four-col'</span>)
       <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> buttons
         <span class="hljs-keyword">do</span> (self) -&gt;
           option_button = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'li'</span>)
@@ -310,7 +311,7 @@ uses clientHeight to calculate the height of objects</p>
       dialog_height = ((dhh + dopth) + (margins.top + margins.bottom))
       <span class="hljs-keyword">if</span> elh &gt; <span class="hljs-built_in">window</span>.innerHeight
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>.innerHeight - dialog_height
-      <span class="hljs-keyword">return</span> elh - dialog_height
+
     max_height = available_space(dialog, el)
     top_offset = el.offsetTop + margins.top
     dialog.style.top = top_offset+<span class="hljs-string">'px'</span>
@@ -345,6 +346,18 @@ Currently offers</p>
     <span class="hljs-keyword">switch</span> event.srcElement.getAttribute(<span class="hljs-string">'data-action'</span>)
       <span class="hljs-keyword">when</span> <span class="hljs-string">'close'</span>
         event.preventDefault()
+        dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
+        cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+        <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+        dialog_id.parentNode.removeChild(dialog_id)
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'renable'</span>
+        event.preventDefault()
+        forms = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)
+        <span class="hljs-keyword">for</span> form <span class="hljs-keyword">in</span> forms
+          action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form.elements \
+            <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+          <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+            button.removeAttribute(<span class="hljs-string">'disabled'</span>)
         dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
         cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
         <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
@@ -416,6 +429,7 @@ Currently offers</p>
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
+
 <span class="hljs-built_in">window</span>?.NH.NHModal = NHModal</pre></div></div>
             
         </li>

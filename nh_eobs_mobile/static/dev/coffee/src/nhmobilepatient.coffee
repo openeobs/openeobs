@@ -1,6 +1,7 @@
 # NHMobilePatient contains utilities for working with
 # the nh_eobs_mobile patient view, namely getting data
 #  and passing it to graph lib
+### istanbul ignore next ###
 class NHMobilePatient extends NHMobile
 
   constructor: () ->
@@ -13,6 +14,7 @@ class NHMobilePatient extends NHMobile
     table_view.style.display = 'none'
 
     obs = document.getElementsByClassName('obs')
+    ### istanbul ignore else ###
     if obs and obs.length > 0
       obs[0].addEventListener('click', @.show_obs_menu)
 
@@ -29,22 +31,28 @@ class NHMobilePatient extends NHMobile
 
   handle_tabs: (event) ->
     event.preventDefault()
-    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a')
-    for tab in tabs
-      tab.classList.remove('selected')
-    document.getElementById('graph-content').style.display = 'none'
-    document.getElementById('table-content').style.display = 'none'
-    event.srcElement.classList.add('selected')
-    $(event.srcElement.getAttribute('href')).show()
+    if not event.handled
+      tabs = document.getElementsByClassName('tabs')[0]
+      .getElementsByTagName('a')
+      for tab in tabs
+        tab.classList.remove('selected')
+      document.getElementById('graph-content').style.display = 'none'
+      document.getElementById('table-content').style.display = 'none'
+      target_el = if event.srcElement then event.srcElement else event.target
+      target_el.classList.add('selected')
+      tab_target = target_el.getAttribute('href').replace('#', '')
+      document.getElementById(tab_target).style.display = 'block'
+      event.handled = true
 
   show_obs_menu: (event) ->
     event.preventDefault()
     obs_menu = document.getElementById('obsMenu')
-    new window.NH.NHModal('obs_menu',
-      'Pick an observation for ',
-      '<ul class="menu">'+obs_menu.innerHTML+'</ul>',
+    body = document.getElementsByTagName('body')[0]
+    menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>'
+    new NHModal('obs_menu',
+      'Pick an observation for ', menu,
       ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'],
-      0, document.getElementsByTagName('body')[0])
+      0, body)
 
 
   draw_graph: (self, server_data) ->
@@ -191,7 +199,7 @@ class NHMobilePatient extends NHMobile
       svg.table.keys = [
         {
           title: 'NEWS Score',
-          keys: ['score']
+          keys: ['score_display']
         }
         {
           title: 'Respiration Rate',
@@ -271,18 +279,20 @@ class NHMobilePatient extends NHMobile
 
         if fr or c or f
           ob.inspired_oxygen = ""
+          ### istanbul ignore else ###
           if ob.device_id
             ob.inspired_oxygen += "<strong>Device:</strong> " +
               ob.device_id[1] + "<br>"
-
+          ### istanbul ignore else ###
           if fr
             ob.inspired_oxygen += "<strong>Flow:</strong> " +
               ob.flow_rate + "l/hr<br>"
-
+          ### istanbul ignore else ###
           if c
             ob.inspired_oxygen += "<strong>Concentration:</strong> " +
               ob.concentration + "%<br>"
 
+          ### istanbul ignore else ###
           if ob.cpap_peep and ob.cpap_peep > -1
             ob.inspired_oxygen += "<strong>CPAP PEEP:</strong> " +
               ob.cpap_peep + "<br>"
@@ -293,7 +303,7 @@ class NHMobilePatient extends NHMobile
               ob.niv_epap + "<br>"
             ob.inspired_oxygen += "<strong>NIV IPAP</strong>: " +
               ob.niv_ipap + "<br>"
-
+          ### istanbul ignore else ###
           if ob.indirect_oxymetry_spo2
             ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + "%"
 
@@ -310,7 +320,8 @@ class NHMobilePatient extends NHMobile
       graph_tabs[0].style.display = 'none'
 
 
-
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+### istanbul ignore else ###
 window?.NH.NHMobilePatient = NHMobilePatient

@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHLib,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -13,6 +15,8 @@ NHLib = (function() {
   NHLib.prototype.date_from_string = function(date_string) {
     var date;
     date = new Date(date_string);
+
+    /* istanbul ignore else */
     if (isNaN(date.getTime())) {
       date = new Date(date_string.replace(' ', 'T'));
     }
@@ -47,6 +51,9 @@ NHLib = (function() {
   return NHLib;
 
 })();
+
+
+/* istanbul ignore else */
 
 if (!window.NH) {
   window.NH = {};

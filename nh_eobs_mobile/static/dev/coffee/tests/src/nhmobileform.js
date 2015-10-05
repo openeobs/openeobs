@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHMobileForm,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -29,7 +31,7 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.setup_event_listeners = function(self) {
     var fn, i, input, len, ref;
-    ref = this.form.elements;
+    ref = self.form.elements;
     fn = function() {
       switch (input.localName) {
         case 'input':
@@ -43,6 +45,9 @@ NHMobileForm = (function(superClass) {
               return input.addEventListener('click', self.cancel_notification);
             case 'radio':
               return input.addEventListener('click', self.trigger_actions);
+            case 'text':
+              input.addEventListener('change', self.validate);
+              return input.addEventListener('change', self.trigger_actions);
           }
           break;
         case 'select':
@@ -58,18 +63,21 @@ NHMobileForm = (function(superClass) {
     document.addEventListener('form_timeout', function(event) {
       var task_id;
       task_id = self.form.getAttribute('task-id');
+
+      /* istanbul ignore else */
       if (task_id) {
         return self.handle_timeout(self, task_id);
       }
     });
     window.timeout_func = function() {
       var timeout;
-      timeout = new CustomEvent('form_timeout', {
+      timeout = document.createEvent('CustomEvent');
+      timeout.initCustomEvent('form_timeout', false, true, {
         'detail': 'form timed out'
       });
       return document.dispatchEvent(timeout);
     };
-    window.form_timeout = setTimeout(window.timeout_func, this.form_timeout);
+    window.form_timeout = setTimeout(window.timeout_func, self.form_timeout);
     document.addEventListener('post_score_submit', function(event) {
       if (!event.handled) {
         self.process_post_score_submit(self, event);
@@ -97,16 +105,17 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var cond, crit_target, crit_val, criteria, criterias, i, input, len, max, min, operator, other_input, other_input_value, results, target_input, target_input_value, value;
+    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, max, min, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
+    input_type = input.getAttribute('type');
+    value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
-    value = parseFloat(input.value);
-    min = parseFloat(input.getAttribute('min'));
-    max = parseFloat(input.getAttribute('max'));
-    if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
-      if (input.getAttribute('type') === 'number') {
+    if (typeof value !== 'undefined' && value !== '') {
+      if (input.getAttribute('type') === 'number' && !isNaN(value)) {
+        min = parseFloat(input.getAttribute('min'));
+        max = parseFloat(input.getAttribute('max'));
         if (input.getAttribute('step') === '1' && value % 1 !== 0) {
           this.add_input_errors(input, 'Must be whole number');
           return;
@@ -121,7 +130,6 @@ NHMobileForm = (function(superClass) {
         }
         if (input.getAttribute('data-validation')) {
           criterias = eval(input.getAttribute('data-validation'));
-          results = [];
           for (i = 0, len = criterias.length; i < len; i++) {
             criteria = criterias[i];
             crit_target = criteria['condition']['target'];
@@ -149,7 +157,14 @@ NHMobileForm = (function(superClass) {
               continue;
             }
           }
-          return results;
+        }
+      }
+      if (input.getAttribute('type') === 'text') {
+        if (input.getAttribute('pattern')) {
+          regex_res = input.validity.patternMismatch;
+          if (regex_res) {
+            this.add_input_errors(input, 'Invalid value');
+          }
         }
       }
     }
@@ -196,6 +211,8 @@ NHMobileForm = (function(superClass) {
         ref5 = action['condition'];
         for (l = 0, len3 = ref5.length; l < len3; l++) {
           condition = ref5[l];
+
+          /* istanbul ignore else */
           if (typeof condition === 'object') {
             conditions.push(condition.join(' '));
           } else {
@@ -238,9 +255,10 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var btn, element, empty_elements, form_elements, invalid_elements, msg;
+    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     event.preventDefault();
     this.reset_form_timeout(this);
+    ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
       var i, len, ref, results;
       ref = this.form.elements;
@@ -269,19 +287,55 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         element = form_elements[i];
-        if (!element.value) {
+        if (!element.value || element.value === '') {
           results.push(element);
         }
       }
       return results;
     })();
     if (invalid_elements.length < 1 && empty_elements.length < 1) {
+      action_buttons = (function() {
+        var i, len, ref, ref1, results;
+        ref = this.form.elements;
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          element = ref[i];
+          if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+            results.push(element);
+          }
+        }
+        return results;
+      }).call(this);
+      for (i = 0, len = action_buttons.length; i < len; i++) {
+        button = action_buttons[i];
+        button.setAttribute('disabled', 'disabled');
+      }
       return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
+    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+      msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
+      btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
+      return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
     } else if (invalid_elements.length > 0) {
-      msg = '<p class="block">The form contains errors, please correct ' + 'the errors and resubmit</p>';
+      msg = '<p>The form contains errors, please correct ' + 'the errors and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
     } else {
+      action_buttons = (function() {
+        var j, len1, ref, ref1, results;
+        ref = this.form.elements;
+        results = [];
+        for (j = 0, len1 = ref.length; j < len1; j++) {
+          element = ref[j];
+          if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+            results.push(element);
+          }
+        }
+        return results;
+      }).call(this);
+      for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+        button = action_buttons[j];
+        button.setAttribute('disabled', 'disabled');
+      }
       return this.display_partial_reasons(this);
     }
   };
@@ -321,8 +375,8 @@ NHMobileForm = (function(superClass) {
       }
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
-      can_btn = '<a href="#" data-action="close" ' + 'data-target="partial_reasons">Cancel</a>';
-      msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
+      can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
+      msg = '<p>Please state reason for ' + 'submitting partial observation</p>';
       return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
@@ -340,11 +394,11 @@ NHMobileForm = (function(superClass) {
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
     return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
-      var act_btn, body, btn, buttons, can_btn, cls, data, i, len, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
       data = server_data[0][0];
       body = document.getElementsByTagName('body')[0];
       if (data && data.status === 3) {
-        can_btn = '<a href="#" data-action="close" ' + 'data-target="submit_observation">Cancel</a>';
+        can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
         act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>';
         new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
@@ -378,8 +432,24 @@ NHMobileForm = (function(superClass) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
         return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
       } else {
+        action_buttons = (function() {
+          var j, len1, ref1, ref2, results;
+          ref1 = self.form.elements;
+          results = [];
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            element = ref1[j];
+            if ((ref2 = element.getAttribute('type')) === 'submit' || ref2 === 'reset') {
+              results.push(element);
+            }
+          }
+          return results;
+        })();
+        for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+          button = action_buttons[j];
+          button.removeAttribute('disabled');
+        }
         btn = '<a href="#" data-action="close" ' + 'data-target="submit_error">Cancel</a>';
-        return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', [btn], 0, self.form);
+        return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', [btn], 0, body);
       }
     });
   };
@@ -388,8 +458,10 @@ NHMobileForm = (function(superClass) {
     var can_id;
     can_id = self.urls['json_cancel_take_task'](id);
     return Promise.when(self.call_resource(can_id)).then(function(server_data) {
+
+      /* Should be checking server data */
       var btn, msg;
-      msg = '<p class="block">Please pick the task again from the task list ' + 'if you wish to complete it</p>';
+      msg = '<p>Please pick the task again from the task list ' + 'if you wish to complete it</p>';
       btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>';
       return new window.NH.NHModal('form_timeout', 'Task window expired', msg, [btn], 0, document.getElementsByTagName('body')[0]);
     });
@@ -503,13 +575,14 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_post_score_submit = function(self, event) {
-    var element, endpoint, form_elements;
+    var element, endpoint, form, form_elements, ref;
+    form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
     form_elements = (function() {
-      var i, len, ref, results;
-      ref = self.form.elements;
+      var i, len, ref1, results;
+      ref1 = form.elements;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        element = ref[i];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        element = ref1[i];
         if (!element.classList.contains('exclude')) {
           results.push(element);
         }
@@ -524,9 +597,15 @@ NHMobileForm = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileForm = NHMobileForm;

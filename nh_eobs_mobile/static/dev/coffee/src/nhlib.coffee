@@ -1,4 +1,5 @@
 # NHLib includes utilities that make working with Odoo easier by default
+### istanbul ignore next ###
 class NHLib
 
   # date format taken from Odoo
@@ -11,6 +12,7 @@ class NHLib
   # hacky fix to normalise this
   date_from_string: (date_string) ->
     date = new Date(date_string)
+    ### istanbul ignore else ###
     if isNaN(date.getTime())
       date = new Date(date_string.replace(' ', 'T'))
     if isNaN(date.getTime())
@@ -44,7 +46,7 @@ class NHLib
   # with leading zero
   leading_zero: (date_element) ->
     return ("0" + date_element).slice(-2)
-
+### istanbul ignore else ###
 if !window.NH
   window.NH = {}
 window.NH.NHLib = NHLib

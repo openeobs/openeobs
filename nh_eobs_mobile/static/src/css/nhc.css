@@ -758,10 +758,10 @@ a.patientInfo .obs {
   background-color: #ea3172;
   color: #ffffff;
   text-shadow: 0px 1px 0px #666666;
-  width: 95%;
+  width: 100%;
   display: inline-block;
-  padding-top: 1em;
-  padding-bottom: 0px;
+  /*padding-top: 1em;*/
+  /*padding-bottom: 0px;*/
   text-align: center;
 }
 #obsForm .obsSubmit {
@@ -1603,4 +1603,22 @@ text.title {
 
 #popup_iframe iframe{
     border: 0 solid black;
+}
+
+input[type="submit"][disabled]{
+  background-color: #be285d !important;
+}
+
+input[type="reset"][disabled]{
+  background-color: #3674a5 !important;
+}
+circle.empty_point, rect.empty_point {
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+}
+circle.point{
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
 }

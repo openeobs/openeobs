@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHMobileShareInvite,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -12,6 +14,8 @@ NHMobileShareInvite = (function(superClass) {
     for (j = 0, len = invite_list.length; j < len; j++) {
       invite = invite_list[j];
       invite.addEventListener('click', function(event) {
+
+        /* istanbul ignore else */
         var activity_id, btn;
         if (!event.handled) {
           btn = event.srcElement ? event.srcElement : event.target;
@@ -90,25 +94,29 @@ NHMobileShareInvite = (function(superClass) {
         covers = document.getElementsByClassName('cover');
         for (j = 0, len = covers.length; j < len; j++) {
           cover = covers[j];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', '<p class="block">Now following ' + data['count'] + ' patients from ' + data['user'] + '</p>', btns, 0, body);
+        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', '<p>Now following ' + data['count'] + ' patients from ' + data['user'] + '</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
         for (k = 0, len1 = covers.length; k < len1; k++) {
           cover = covers[k];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_error', 'Error accepting patients', '<p class="block">There was an error accepting the invite to follow,' + 'Please try again</p>', btns, 0, body);
+        return new window.NH.NHModal('invite_error', 'Error accepting patients', '<p>There was an error accepting the invite to follow,' + 'Please try again</p>', btns, 0, body);
       }
     });
   };
@@ -139,25 +147,29 @@ NHMobileShareInvite = (function(superClass) {
         covers = document.getElementsByClassName('cover');
         for (j = 0, len = covers.length; j < len; j++) {
           cover = covers[j];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', '<p class="block">The invitation to follow ' + data['user'] + '\'s ' + 'patients was rejected</p>', btns, 0, body);
+        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', '<p>The invitation to follow ' + data['user'] + '\'s ' + 'patients was rejected</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
         for (k = 0, len1 = covers.length; k < len1; k++) {
           cover = covers[k];
+
+          /* istanbul ignore else */
           if (cover != null) {
             cover.parentNode.removeChild(cover);
           }
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_error', 'Error rejecting patients', '<p class="block">There was an error rejecting the invite to follow,' + ' Please try again</p>', btns, 0, body);
+        return new window.NH.NHModal('reject_error', 'Error rejecting patients', '<p>There was an error rejecting the invite to follow,' + ' Please try again</p>', btns, 0, body);
       }
     });
   };
@@ -166,9 +178,15 @@ NHMobileShareInvite = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShareInvite = NHMobileShareInvite;
