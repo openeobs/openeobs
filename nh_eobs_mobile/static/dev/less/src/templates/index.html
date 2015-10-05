@@ -44,6 +44,13 @@
 	.backtotop{
 		font-size: 0.8em;
 	}
+	.kss-menu-subchild{
+		display: none;
+		font-size: 0.75em;
+	}
+	.kss-menu-subchild.active{
+		display: block;
+	}
 	.leftnav li.active a{
 		border-right: 3px solid rgba(0,0,0,0.1);
 		font-weight: bold;
@@ -235,6 +242,16 @@
 			   {{else}}
 			   <li class="kss-submenu-item'" id="nav-section-{{reference}}">
 				   <a href="#section-{{reference}}"><span class="kss-name">{{header}}</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   {{#eachSection reference}}
+					   {{#whenDepth 1}}
+					   {{else}}
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-{{reference}}"><span class="kss-name">{{header}}</span></a>
+							</li>
+					   {{/whenDepth}}
+					   {{/eachSection}}
+				   </ul> -->
 			   </li>
 			   {{/whenDepth}}
 			   {{/eachSection}}
@@ -286,11 +303,13 @@
                    max: position.top + $(this).height(),
                    onEnter: function(element, position) {
                        $("li[id='nav-"+element.id+"']").addClass('active');
+//					   $("li[id='nav-"+element.id+"'] .kss-menu-subchild").addClass('active');
                        $('.leftnav').addClass('active');
 
                    },
                    onLeave: function(element, position) {
                        $("li[id='nav-"+element.id+"']").removeClass('active');
+//					   $("li[id='nav-"+element.id+"'] .kss-menu-subchild").removeClass('active');
                        if(i < 1) {
                            $('.leftnav').removeClass('active');
                        }
