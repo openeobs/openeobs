@@ -120,19 +120,20 @@ NHModal = (function() {
 
   NHModal.prototype.handle_button_events = function(event) {
     var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
-    event.preventDefault();
     if (!event.handled) {
       target_el = event.srcElement ? event.srcElement : event.target;
       data_target = target_el.getAttribute('data-target');
       data_action = target_el.getAttribute('data-ajax-action');
       switch (target_el.getAttribute('data-action')) {
         case 'close':
+          event.preventDefault();
           dialog_id = document.getElementById(data_target);
           cover = document.getElementById('cover');
           document.getElementsByTagName('body')[0].removeChild(cover);
           dialog_id.parentNode.removeChild(dialog_id);
           break;
         case 'renable':
+          event.preventDefault();
           forms = document.getElementsByTagName('form');
           for (i = 0, len = forms.length; i < len; i++) {
             form = forms[i];
@@ -159,6 +160,7 @@ NHModal = (function() {
           dialog_id.parentNode.removeChild(dialog_id);
           break;
         case 'submit':
+          event.preventDefault();
           submit_event = document.createEvent('CustomEvent');
           submit_detail = {
             'endpoint': target_el.getAttribute('data-ajax-action')
@@ -171,6 +173,7 @@ NHModal = (function() {
           dialog_id.parentNode.removeChild(dialog_id);
           break;
         case 'partial_submit':
+          event.preventDefault();
           if (!event.handled) {
             submit_event = document.createEvent('CustomEvent');
             submit_detail = {
@@ -183,6 +186,7 @@ NHModal = (function() {
           }
           break;
         case 'assign':
+          event.preventDefault();
           dialog = document.getElementById(data_target);
           dialog_form = dialog.getElementsByTagName('form')[0];
           nurses = (function() {
@@ -207,11 +211,13 @@ NHModal = (function() {
           document.dispatchEvent(assign_event);
           break;
         case 'claim':
+          event.preventDefault();
           claim_event = document.createEvent('CustomEvent');
           claim_event.initCustomEvent('claim_patients', false, true, false);
           document.dispatchEvent(claim_event);
           break;
         case 'accept':
+          event.preventDefault();
           accept_event = document.createEvent('CustomEvent');
           accept_detail = {
             'invite_id': target_el.getAttribute('data-invite-id')
@@ -220,6 +226,7 @@ NHModal = (function() {
           document.dispatchEvent(accept_event);
           break;
         case 'reject':
+          event.preventDefault();
           reject_event = document.createEvent('CustomEvent');
           reject_detail = {
             'invite_id': target_el.getAttribute('data-invite-id')
