@@ -647,6 +647,9 @@ class nh_clinical_wardboard(orm.Model):
 
 drop view if exists wb_activity_ranked cascade;
 drop view if exists wb_ews_ranked cascade;
+drop view if exists wb_spell_ranked cascade;
+drop view if exists wb_transfer_ranked cascade;
+drop view if exists wb_discharge_ranked cascade;
 drop view if exists last_movement_users cascade;
 drop view if exists last_transfer_users cascade;
 drop view if exists last_discharge_users cascade;
@@ -683,8 +686,54 @@ wb_ews_ranked as(
             split_part(activity.data_ref, ',', 2)::int as data_id,
             rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
     from nh_clinical_spell spell
-    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews') sub_query
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews'
+    left join nh_clinical_patient_observation_ews ews on ews.activity_id = activity.id
+    where activity.state = 'scheduled' or (activity.state != 'scheduled' and ews.clinical_risk != 'Unknown')) sub_query
     where rank < 3
+);
+
+create or replace view
+wb_spell_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.id = spell.activity_id) sub_query
+    where rank = 1
+);
+
+create or replace view
+-- transfer per spell, data_model, state
+wb_transfer_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.transfer') sub_query
+    where rank = 1
+);
+
+create or replace view
+-- discharge per spell, data_model, state
+wb_discharge_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.discharge') sub_query
+    where rank = 1
 );
 
 create materialized view
@@ -857,6 +906,7 @@ weight as(
         weight.weight_monitoring
     from wb_activity_latest activity
     left join nh_clinical_patient_weight_monitoring weight on activity.ids && array[weight.activity_id]
+    where activity.state = 'completed'
 );
 
 create materialized view
@@ -866,6 +916,7 @@ pbp as(
         pbp.pbp_monitoring
     from wb_activity_latest activity
     left join nh_clinical_patient_pbp_monitoring pbp on activity.ids && array[pbp.activity_id]
+    where activity.state = 'completed'
 );
 
 create or replace view last_movement_users as(
@@ -889,40 +940,38 @@ create or replace view last_movement_users as(
 
 create or replace view last_discharge_users as(
     select
-        spell.id as spell_id,
+        activity.spell_id as spell_id,
         array_agg(distinct users.id) as user_ids,
         array_agg(distinct users2.id) as ward_user_ids
-    from nh_clinical_spell spell
-    inner join wb_activity_ranked activity on activity.id = spell.activity_id and activity.rank = 1
-    inner join wb_activity_ranked discharge on discharge.parent_id = activity.id and discharge.rank = 1 and discharge.state = 'completed' and discharge.data_model = 'nh.clinical.patient.discharge'
-    inner join nh_clinical_patient_discharge discharge_data on discharge_data.activity_id = discharge.id
+    from wb_spell_ranked activity
+    inner join wb_discharge_ranked discharge on discharge.parent_id = activity.id and discharge.rank = 1 and discharge.state = 'completed'
+    inner join nh_clinical_patient_discharge discharge_data on discharge_data.id = discharge.data_id
     inner join nh_clinical_location location on location.id = discharge_data.location_id
     inner join ward_locations wl on wl.id = location.id
     left join user_location_rel ulrel on ulrel.location_id = location.id
     left join res_users users on users.id = ulrel.user_id
     left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
     left join res_users users2 on users2.id = ulrel2.user_id
-    where now() at time zone 'UTC' - discharge.date_terminated < interval '1d'
-    group by spell.id
+    where now() at time zone 'UTC' - discharge.date_terminated < interval '3d' and activity.rank = 1 and activity.state = 'completed'
+    group by activity.spell_id
 );
 
 create or replace view last_transfer_users as(
     select
-        spell.id as spell_id,
+        activity.spell_id as spell_id,
         array_agg(distinct users.id) as user_ids,
         array_agg(distinct users2.id) as ward_user_ids
-    from nh_clinical_spell spell
-    inner join wb_activity_ranked activity on activity.id = spell.activity_id and activity.rank = 1
-    inner join wb_activity_ranked transfer on transfer.parent_id = activity.id and transfer.rank = 1 and transfer.state = 'completed' and transfer.data_model = 'nh.clinical.patient.transfer'
-    inner join nh_clinical_patient_transfer transfer_data on transfer_data.activity_id = transfer.id
+    from wb_spell_ranked activity
+    inner join wb_transfer_ranked transfer on transfer.parent_id = activity.id and transfer.rank = 1 and transfer.state = 'completed'
+    inner join nh_clinical_patient_transfer transfer_data on transfer_data.id = transfer.data_id
     inner join nh_clinical_location location on location.id = transfer_data.origin_loc_id
     inner join ward_locations wl on wl.id = location.id
     left join user_location_rel ulrel on ulrel.location_id = location.id
     left join res_users users on users.id = ulrel.user_id
     left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
     left join res_users users2 on users2.id = ulrel2.user_id
-    where now() at time zone 'UTC' - transfer.date_terminated < interval '1d' and activity.state = 'started'
-    group by spell.id
+    where now() at time zone 'UTC' - transfer.date_terminated < interval '3d' and activity.state = 'started' and activity.rank = 1
+    group by activity.spell_id
 );
 
 create or replace view
@@ -961,9 +1010,15 @@ nh_clinical_wardboard as(
         end as nhs_number,
         extract(year from age(now(), patient.dob)) as age,
         ews0.next_diff_polarity ||
-        case when extract(days from ews0.next_diff_interval) > 0
-            then  extract(days from ews0.next_diff_interval) || ' day(s) ' else ''
-        end || to_char(ews0.next_diff_interval, 'HH24:MI') next_diff,
+        case
+            when ews0.date_scheduled is not null then
+              -- case when greatest(now() at time zone 'UTC', ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' else '' end ||
+              case when extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) > 0
+                then extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) || ' day(s) '
+                else '' end ||
+              to_char(justify_hours(greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled)), 'HH24:MI') || ' hours'
+            else to_char((interval '0s'), 'HH24:MI')
+        end as next_diff,
         case ews0.frequency < 60
             when true then ews0.frequency || ' min(s)'
             else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'
@@ -1000,7 +1055,7 @@ nh_clinical_wardboard as(
         param.uotarget_unit,
         consulting_doctors.names as consultant_names,
         case
-            when spell_activity.date_terminated > now() - interval '1d' and spell_activity.state = 'completed' then true
+            when spell_activity.date_terminated > now() - interval '3d' and spell_activity.state = 'completed' then true
             else false
         end as recently_discharged
         
