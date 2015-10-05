@@ -41,6 +41,9 @@
 		display: block;
 		margin: 0;
 	}
+	.backtotop{
+		font-size: 0.8em;
+	}
 	.leftnav li.active a{
 		border-right: 3px solid rgba(0,0,0,0.1);
 		font-weight: bold;
@@ -215,7 +218,7 @@
   <body id="kss-node" class="sg">
 	  <div class="leftnav">
 		<ul>
-			<li><a href="index.html#top">Overview</a></li>
+			<li><a href="index.html">Overview</a></li>
 			{{#eachRoot}}
               <li class="kss-menu-item" id="top-level-{{reference}}">
 				  <a href="section-{{reference}}.html"><span class="kss-name">{{header}}</span></a>
@@ -235,6 +238,9 @@
 			   </li>
 			   {{/whenDepth}}
 			   {{/eachSection}}
+			   <li class="kss-submenu-item backtotop">
+				   <a href="#kss-node"><span class="kss-name">Back to top</span></a>
+			   </li>
 		   </ul>
 		  {{/if}}
 	  </div>
