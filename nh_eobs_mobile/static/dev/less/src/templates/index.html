@@ -6,6 +6,7 @@
     <title>Open-eObs Styleguide</title>
     <meta name="description" content="" />
     <meta name="generator" content="kss-node" />
+
     <style>
     html{
 		padding: 0;
@@ -203,7 +204,9 @@
       		display: block !important;
     	}
 	}
-
+	#top-level-{{@root.rootNumber}}{
+		text-decoration: underline;
+	}
 
     </style>
     <link rel="stylesheet" href="public/compile.css" />
@@ -214,13 +217,30 @@
 		<ul>
 			<li><a href="index.html#top">Overview</a></li>
 			{{#eachRoot}}
-              <li class="kss-menu-item"><a href="section-{{reference}}.html"><span class="kss-name">{{header}}</span></a></li>
+              <li class="kss-menu-item" id="top-level-{{reference}}">
+				  <a href="section-{{reference}}.html"><span class="kss-name">{{header}}</span></a>
+			  </li>
             {{/eachRoot}}
 		</ul>
+		  <hr>
+		  {{#if homepage}}
+		  {{else}}
+		   <ul class="kss-menu-child">
+			   {{#eachSection rootNumber}}
+			   {{#whenDepth 1}}
+			   <li class="kss-submenu-header"><span class="kss-name">{{header}}</span></li>
+			   {{else}}
+			   <li class="kss-submenu-item'" id="nav-section-{{reference}}">
+				   <a href="#section-{{reference}}"><span class="kss-name">{{header}}</span></a>
+			   </li>
+			   {{/whenDepth}}
+			   {{/eachSection}}
+		   </ul>
+		  {{/if}}
 	  </div>
 	  <div class="main">
-		{{#if overview}}
-		<div id="section-0" class="kss-section kss-overview section">{{{overview}}}</div>
+		{{#if homepage}}
+		<div id="section-0" class="kss-section kss-overview section">{{{homepage}}}</div>
 		{{else}}
 		{{#eachSection rootNumber}}
 		<div id="section-{{reference}}" class="kss-section section">
@@ -246,7 +266,34 @@
 		  {{/eachSection}}
 		  {{/if}}
 	  </div>
+	  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	  <script src="public/jquery-scrollspy.js"></script>
 	  <script type="text/javascript">
+		  $(document).ready(function(){
+			  $('.kss-section').each(function(i){
+               var position = $(this).position();
+               if(i < 1){
+                   position.top = position.top + 40;
+               }
+               $(this).scrollspy({
+                   min: position.top,
+                   max: position.top + $(this).height(),
+                   onEnter: function(element, position) {
+                       $("li[id='nav-"+element.id+"']").addClass('active');
+                       $('.leftnav').addClass('active');
+
+                   },
+                   onLeave: function(element, position) {
+                       $("li[id='nav-"+element.id+"']").removeClass('active');
+                       if(i < 1) {
+                           $('.leftnav').removeClass('active');
+                       }
+                   }
+               });
+
+
+           });
+		  });
         function mobile(object, type) {
             var clicked_obj = $(object);
             var example_obj = clicked_obj.parents('.section').find('.example');
@@ -275,7 +322,6 @@
 			});
         }
     </script>
-	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
   	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
   	<script>hljs.initHighlightingOnLoad();</script>
   </body>

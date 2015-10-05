@@ -2,7 +2,8 @@ var gulp = require('gulp'),
 	less = require('gulp-less'),
 	util = require('gulp-util'),
 	del = require('del'),
-	kss = require('gulp-kss');
+	kss = require('gulp-kss'),
+	handlebars = require('handlebars');
 
 gulp.task('compileLESS', function(){
 	gulp.src('src/compile.less')
@@ -19,7 +20,7 @@ gulp.task('Styleguide', function(){
 		'src/list.less',
 		'src/data_visualisation.less'])
 	.pipe(kss({
-		overview: 'src/styleguide_overview.md',
+		homepage: 'src/styleguide_overview.md',
 		templateDirectory: 'src/templates'
 	}))
 	.pipe(gulp.dest('styleguide/'));
