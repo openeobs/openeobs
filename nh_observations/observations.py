@@ -24,7 +24,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     ]
     
     def _is_partial(self, cr, uid, ids, field, args, context=None):
-        ids = isinstance(ids, (tuple, list)) and ids or [ids]
+        ids = ids if isinstance(ids, (tuple, list)) else [ids]
         if not self._required:
             return {id: False for id in ids}
         res = {}
