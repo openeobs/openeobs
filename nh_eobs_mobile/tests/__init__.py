@@ -1,7 +1,3 @@
-# Route & cookie override tests
-# import test_routes  # TODO: remove this test, it's old and probably not up to date
-# import test_cookie_override  # TODO: remove this test, the file under test not even exist anymore
-
 # Controller tests
 # import test_task_patient_list
 #import test_observation_form
@@ -31,5 +27,5 @@ import test_HTML_login
 import test_HTML_patient_detail
 import test_HTML_patient_list
 import test_HTML_stand_in_list
-#import test_HTML_task_detail
+import test_HTML_task_detail
 import test_HTML_task_list
