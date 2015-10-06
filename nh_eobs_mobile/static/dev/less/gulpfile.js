@@ -2,7 +2,8 @@ var gulp = require('gulp'),
 	less = require('gulp-less'),
 	util = require('gulp-util'),
 	del = require('del'),
-	kss = require('gulp-kss');
+	kss = require('gulp-kss'),
+	flatten = require('gulp-flatten');
 
 gulp.task('compileLESS', function(){
 	gulp.src('src/compile.less')
@@ -27,6 +28,10 @@ gulp.task('Styleguide', function(){
 	gulp.src(['src/compile.less'])
 	.pipe(less().on('error', util.log))
 	.pipe(gulp.dest('styleguide/public'));
+
+	gulp.src('src/templates/public/**')
+		.pipe(flatten())
+		.pipe(gulp.dest('styleguide/public'))
 });
 
 gulp.task('default', ['compileLESS']);
