@@ -17,7 +17,6 @@
              'views/wardboard_view.xml',
              'views/workload_view.xml',
              'views/placement_view.xml',
-             'views/userboard_view.xml',
              'views/overdue_view.xml',
              'views/views.xml',
              'views/kamishibai_view.xml',
