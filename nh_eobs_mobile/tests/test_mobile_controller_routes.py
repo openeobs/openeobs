@@ -133,6 +133,14 @@ class TestMobileControllerRouting(tests.common.HttpCase):
             'confirm_review_frequency',
             'confirm_bed_placement',
             'json_patient_barcode',
+            'json_patient_info',
+            'js_routes',
+            'json_cancel_take_task',
+            'json_colleagues_list',
+            'json_partial_reasons',
+            'ajax_task_cancellation_options',
+            'ajax_get_patient_obs',
+            'json_invite_patients'
         ]
 
     def test_reaching_routes_as_authenticated_user(self):  # TODO: split this in one separated method for each role (?)

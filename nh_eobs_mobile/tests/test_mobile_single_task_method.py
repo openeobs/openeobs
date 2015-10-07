@@ -76,7 +76,7 @@ class TestMobileControllerTaskMethods(tests.common.HttpCase):
         self.assertEqual(self.auth_resp.status_code, 200)
         self.assertIn('class="tasklist"', self.auth_resp.content)
 
-    def test_02_method_get_task_first_unassign_and_then_try_assigning_task(self):
+    def test_method_get_task_first_unassign_and_then_try_assigning_task(self):
         mocked_method_calling_list = []
 
         def register_mock_calling_list(*args, **kwargs):
@@ -108,7 +108,7 @@ class TestMobileControllerTaskMethods(tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(len(mocked_method_calling_list), 2)
 
-    def test_01_method_get_task_catches_right_exception(self):
+    def test_method_get_task_catches_right_exception(self):
         # Try to retrieve an activity with no user related to it (skip the test if cannot find any)
         activity_registry = self.registry['nh.activity']
         task_id_list = activity_registry.search(self.cr, self.uid, [], limit=1)
