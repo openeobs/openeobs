@@ -107,7 +107,7 @@ openerp.nh_eobs = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (['Doctors','Spells','Hospital Wards','Device Categories','Patients Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
+                if (['Doctors','Spells','Hospital Wards','Device Categories','Acuity Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
                     options.selectable = false;
                 };
                 if ('Patients' != options.action.name){
@@ -117,12 +117,12 @@ openerp.nh_eobs = function (instance) {
                     clearInterval(timing5);
                 }
                 wardboard_groups_opened = false;
-                if (options.action.name == "Patients Board"){
+                if (options.action.name == "Acuity Board"){
                     if (typeof(timing) != 'undefined'){
                         clearInterval(timing);
                     }
                     timing = window.setInterval(function(){
-                        var button =  $("a:contains('Patients Board')");
+                        var button =  $("a:contains('Acuity Board')");
                         if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('oe_active') && $(".oe_view_manager_view_list").css('display') != 'none'){
                             wardboard_refreshed = true;
                             button.click();
@@ -975,28 +975,28 @@ openerp.nh_eobs = function (instance) {
     // Function to handle the time to next observation
     // Displays (overdue)? [0-9]* days [0-2][0-9]:[0-5][0-9]
     // Takes the date string returned by Odoo
-    var nh_date_diff_to_string = function(date1, date2){
-        var time_diff = (date1.getTime() - date2.getTime()) / 1000;
-        var string_to_return = ' ';
-        if(time_diff < 0){
-            string_to_return += 'overdue: ';
-            time_diff = Math.abs(time_diff);
-        }
-        var days = Math.floor(time_diff/86400);
-        time_diff -= days * 86400;
-        var hours = Math.floor(time_diff/3600);
-        time_diff -= hours * 3600;
-        var mins = Math.floor(time_diff/60);
-        if(days > 0){
-            var term = 'day';
-            if(days > 1){
-                term += 's';
-            }
-            string_to_return += days + ' ' + term + ' ';
-        }
-        string_to_return += ('0' + hours).slice(-2) +':'+ ('0' + mins).slice(-2);
-        return string_to_return;
-    };
+    //var nh_date_diff_to_string = function(date1, date2){
+    //    var time_diff = (date1.getTime() - date2.getTime()) / 1000;
+    //    var string_to_return = ' ';
+    //    if(time_diff < 0){
+    //        string_to_return += 'overdue: ';
+    //        time_diff = Math.abs(time_diff);
+    //    }
+    //    var days = Math.floor(time_diff/86400);
+    //    time_diff -= days * 86400;
+    //    var hours = Math.floor(time_diff/3600);
+    //    time_diff -= hours * 3600;
+    //    var mins = Math.floor(time_diff/60);
+    //    if(days > 0){
+    //        var term = 'day';
+    //        if(days > 1){
+    //            term += 's';
+    //        }
+    //        string_to_return += days + ' ' + term + ' ';
+    //    }
+    //    string_to_return += ('0' + hours).slice(-2) +':'+ ('0' + mins).slice(-2);
+    //    return string_to_return;
+    //};
 
     var normalize_format = function (format) {
         return Date.normalizeFormat(instance.web.strip_raw_chars(format));
@@ -1062,11 +1062,6 @@ openerp.nh_eobs = function (instance) {
                     s = value.toString(normalize_format(l10n.date_format)
                             + ' ' + normalize_format(l10n.time_format));
                     return s.substring(0, s.length - 3);
-                }else if(descriptor.string == "Date Scheduled"){
-
-                    var deadline = value;
-                    var now = new Date();
-                    return nh_date_diff_to_string(deadline, now);
                 }
                 return value.toString(normalize_format(l10n.date_format)
                             + ' ' + normalize_format(l10n.time_format));
