@@ -10,7 +10,7 @@
 # import json_endpoint_test
 
 import test_mobile_controller_routes
-#import test_mobile_controller_methods
+import test_mobile_controller_methods
 import test_mobile_single_task_method
 
 # PhantomJS tests

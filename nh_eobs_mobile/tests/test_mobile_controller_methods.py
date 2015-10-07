@@ -159,24 +159,6 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         self.assertEqual(self.auth_resp.status_code, 200)
         self.assertIn('class="tasklist"', self.auth_resp.content)
 
-    def test_method_take_task_ajax(self):
-        take_task_ajax_route = [r for r in routes if r['name'] == 'json_take_task']
-        self.assertEqual(len(take_task_ajax_route), 1,
-                         "Endpoint to the 'json_take_task' route not unique. Cannot run the test!")
-
-        # Try to retrieve an activity with no user related to it (skip the test if cannot find any)
-        activity_registry = self.registry['nh.activity']
-        task_id_list = activity_registry.search(self.cr, self.uid, [('user_id', '=', False)], limit=1)
-        if len(task_id_list) == 0:
-            self.skipTest('Cannot find an activity that has no user related to it. Cannot run the test!')
-
-        task_ajax_url = self._build_url(take_task_ajax_route[0]['endpoint'], task_id_list[0])
-        test_resp = requests.post(task_ajax_url, cookies=self.auth_resp.cookies)
-
-        self.assertEqual(test_resp.status_code, 200)
-        self.assertEqual(test_resp.headers['content-type'], 'application/json')
-        self.assertIn('status', test_resp.content)
-
     def test_method_get_font(self):
         font_url = self._build_url('src/fonts/{}'.format('non-existing-font'), None, mobile=True)
         test_resp = requests.get(font_url, cookies=self.auth_resp.cookies)
@@ -195,19 +177,6 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         test_resp = requests.get(patient_obs_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 404)
 
-    def test_method_calculate_obs_score(self):
-        """Pass to the method an observation type which doesn't allow a score calculation."""
-        calculate_obs_score_route = [r for r in routes if r['name'] == 'calculate_obs_score']
-        self.assertEqual(len(calculate_obs_score_route), 1,
-                         "Endpoint to the 'calculate_obs_score' route not unique. Cannot run the test!")
-
-        # Assure that neither 'ews' nor 'gcs' observations are used for the test
-        failing_score_observation_types = self.model_observation_types - {'ews', 'gcs'}
-        test_observation = random_choice(list(failing_score_observation_types))
-        obs_score_url = self._build_url(calculate_obs_score_route[0]['endpoint'], '{}'.format(test_observation))
-        test_resp = requests.post(obs_score_url, cookies=self.auth_resp.cookies)
-        self.assertEqual(test_resp.status_code, 400)
-
     def test_method_mobile_logout_redirects_to_login_page(self):
         # Retrieve the 'logout' route and build the complete URL for it
         logout_route = [r for r in routes if r['name'] == 'logout']
@@ -225,29 +194,6 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         test_resp = requests.get(logout_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.url, login_url)
-
-    def test_method_get_colleagues(self):
-        """Get the colleagues list while being authenticated as a user not belonging to any 'share group'.
-
-        The 'share groups' are defined inside the 'get_colleagues' method, and they are:
-            - 'NH Clinical Ward Manager Group'
-            - 'NH Clinical Nurse Group'
-            - 'NH Clinical HCA Group'
-        """
-        # Authenticate as a 'doctor' user (that is, a user NOT belonging to any 'share group')
-        doctor_data = self._get_user_belonging_to_group('NH Clinical Doctor Group')
-        doctor_login_name = doctor_data.get('login')
-        doctor_auth_resp = self._get_authenticated_response(doctor_login_name)
-        self.assertEqual(doctor_auth_resp.status_code, 200, "Cannot authenticate as 'doctor' user for running this test!")
-        self.assertIn('class="tasklist"', doctor_auth_resp.content, "Cannot authenticate as 'doctor' user for running this test!")
-
-        colleagues_list_route = [r for r in routes if r['name'] == 'json_colleagues_list']
-        self.assertEqual(len(colleagues_list_route), 1,
-                         "Endpoint to the 'json_colleagues_list' route not unique. Cannot run the test!")
-        colleagues_list_url = self._build_url(colleagues_list_route[0]['endpoint'], None, mobile=True)
-
-        test_resp = requests.get(colleagues_list_url, cookies=doctor_auth_resp.cookies)
-        self.assertEqual(test_resp.status_code, 200)
 
     def test_method_get_patients_list(self):
         get_patients_route = [r for r in routes if r['name'] == 'patient_list']
@@ -1181,8 +1127,6 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'step': 1,
                 'initially_hidden': False,
                 'number': True,
-                'info': '',
-                'errors': ''
             },
             {
                 'name': 'test_float',
@@ -1194,16 +1138,12 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'digits': [2, 1],
                 'initially_hidden': False,
                 'number': True,
-                'info': '',
-                'errors': ''
             },
             {
                 'name': 'test_text',
                 'type': 'text',
                 'label': 'Test Text',
                 'initially_hidden': False,
-                'info': '',
-                'errors': ''
             },
             {
                 'name': 'test_select',
@@ -1218,8 +1158,6 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                     ['list', 'List']
                 ],
                 'initially_hidden': False,
-                'info': '',
-                'errors': '',
                 'selection_options': [
                     {
                         'value': 'an',
@@ -1374,8 +1312,6 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'step': 1,
                 'initially_hidden': False,
                 'number': True,
-                'info': '',
-                'errors': ''
             },
             {
                 'name': 'test_float',
@@ -1387,16 +1323,12 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'digits': [2, 1],
                 'initially_hidden': False,
                 'number': True,
-                'info': '',
-                'errors': ''
             },
             {
                 'name': 'test_text',
                 'type': 'text',
                 'label': 'Test Text',
                 'initially_hidden': False,
-                'info': '',
-                'errors': ''
             },
             {
                 'name': 'test_select',
@@ -1411,8 +1343,6 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                     ['list', 'List']
                 ],
                 'initially_hidden': False,
-                'info': '',
-                'errors': '',
                 'selection_options': [
                     {
                         'value': 'an',
