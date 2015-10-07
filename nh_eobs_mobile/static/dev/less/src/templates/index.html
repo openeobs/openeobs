@@ -6,6 +6,7 @@
     <title>Open-eObs Styleguide</title>
     <meta name="description" content="" />
     <meta name="generator" content="kss-node" />
+
     <style>
     html{
 		padding: 0;
@@ -39,6 +40,16 @@
 		padding: 0;
 		display: block;
 		margin: 0;
+	}
+	.backtotop{
+		font-size: 0.8em;
+	}
+	.kss-menu-subchild{
+		display: none;
+		font-size: 0.75em;
+	}
+	.kss-menu-subchild.active{
+		display: block;
 	}
 	.leftnav li.active a{
 		border-right: 3px solid rgba(0,0,0,0.1);
@@ -150,20 +161,23 @@
 	.section .styleguide .options{
 		list-style: none;
 		padding: 0;
-		margin: 0 2% 1em 0;
+		margin: 0 6% 1em 0;
 		float: right;
 		font-size: 0.8em;
 		display: inline-block;
-		width: 20%;
+		width: 50%;
 	}
 	.section .styleguide .options li{
-		display: inline;
+		display: inline-block;
+		float: right;
 	}
 	.section .styleguide .options li a{
 		background-color: #3778e9;
 		color: white;
 		text-decoration: none;
 		padding: 0.5em 3%;
+		display: inline-block;
+		width: 100%;
 	}
 
 	 .mobile_preview_bg{
@@ -174,13 +188,13 @@
 		width: 100%;
 	}
 	.mobile_preview{
-		/*background-image: url('img/phone-case.png');*/
-		/*background-repeat: no-repeat;*/
+		background-image: url('public/mio.svg');
+		background-repeat: no-repeat;
 		position: fixed;
-		top: 3em;
+		/*top: 3em;*/
 		left: calc(50% - 240px);
-		height: 752px;
-		width: 480px;
+		height: 1086px;
+		width: 580px;
 	}
 
 	.mobile_preview .wrapper, .tablet_preview .wrapper, .desktop_preview .wrapper{
@@ -188,10 +202,10 @@
 	}
 	.mobile_preview .example{
 		position: absolute;
-		top: 104px;
-		left: 15px;
+		top: 159px;
+		left: 48px;
 		width: 480px;
-		height: 726px;
+		height: 758px;
 		border: 4px solid #22272d;
 		background-color: white;
 		overflow: scroll;
@@ -203,20 +217,52 @@
       		display: block !important;
     	}
 	}
-
+	#top-level-{{@root.rootNumber}}{
+		text-decoration: underline;
+	}
 
     </style>
     <link rel="stylesheet" href="public/compile.css" />
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/styles/default.min.css">
+	<link rel="stylesheet" href="public/hilightjs.style.min.css">
   </head>
   <body id="kss-node" class="sg">
 	  <div class="leftnav">
 		<ul>
-			<li><a href="index.html#top">Overview</a></li>
+			<li><a href="index.html">Overview</a></li>
 			{{#eachRoot}}
-              <li class="kss-menu-item"><a href="section-{{reference}}.html"><span class="kss-name">{{header}}</span></a></li>
+              <li class="kss-menu-item" id="top-level-{{reference}}">
+				  <a href="section-{{reference}}.html"><span class="kss-name">{{header}}</span></a>
+			  </li>
             {{/eachRoot}}
 		</ul>
+		  <hr>
+		  {{#if overview}}
+		  {{else}}
+		   <ul class="kss-menu-child">
+			   {{#eachSection rootNumber}}
+			   {{#whenDepth 1}}
+			   <li class="kss-submenu-header"><span class="kss-name">{{header}}</span></li>
+			   {{else}}
+			   <li class="kss-submenu-item'" id="nav-section-{{reference}}">
+				   <a href="#section-{{reference}}"><span class="kss-name">{{header}}</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   {{#eachSection reference}}
+					   {{#whenDepth 1}}
+					   {{else}}
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-{{reference}}"><span class="kss-name">{{header}}</span></a>
+							</li>
+					   {{/whenDepth}}
+					   {{/eachSection}}
+				   </ul> -->
+			   </li>
+			   {{/whenDepth}}
+			   {{/eachSection}}
+			   <li class="kss-submenu-item backtotop">
+				   <a href="#kss-node"><span class="kss-name">Back to top</span></a>
+			   </li>
+		   </ul>
+		  {{/if}}
 	  </div>
 	  <div class="main">
 		{{#if overview}}
@@ -246,7 +292,36 @@
 		  {{/eachSection}}
 		  {{/if}}
 	  </div>
+	  <script src="public/jquery.js"></script>
+	  <script src="public/jquery-scrollspy.js"></script>
 	  <script type="text/javascript">
+		  $(document).ready(function(){
+			  $('.kss-section').each(function(i){
+               var position = $(this).position();
+               if(i < 1){
+                   position.top = position.top + 40;
+               }
+               $(this).scrollspy({
+                   min: position.top,
+                   max: position.top + $(this).height(),
+                   onEnter: function(element, position) {
+                       $("li[id='nav-"+element.id+"']").addClass('active');
+//					   $("li[id='nav-"+element.id+"'] .kss-menu-subchild").addClass('active');
+                       $('.leftnav').addClass('active');
+
+                   },
+                   onLeave: function(element, position) {
+                       $("li[id='nav-"+element.id+"']").removeClass('active');
+//					   $("li[id='nav-"+element.id+"'] .kss-menu-subchild").removeClass('active');
+                       if(i < 1) {
+                           $('.leftnav').removeClass('active');
+                       }
+                   }
+               });
+
+
+           });
+		  });
         function mobile(object, type) {
             var clicked_obj = $(object);
             var example_obj = clicked_obj.parents('.section').find('.example');
@@ -275,8 +350,7 @@
 			});
         }
     </script>
-	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-  	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.8.0/highlight.min.js"></script>
+  	<script src="public/hilight.js"></script>
   	<script>hljs.initHighlightingOnLoad();</script>
   </body>
 </html>
