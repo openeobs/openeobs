@@ -311,7 +311,15 @@ describe('Data Entry Functionality', function(){
 
                 // Fix the issue
                 NHMobileForm.prototype.add_input_errors.calls.reset();
+                NHMobileForm.prototype.reset_input_errors.calls.reset();
+                NHMobileForm.prototype.validate.calls.reset();
                 test_int.value = 19;
+
+
+                // change event
+                var fix_int_event = document.createEvent('CustomEvent');
+                fix_int_event.initCustomEvent('change', false, true, false);
+                test_int.dispatchEvent(fix_int_event);
 
                 // change event
                 var fix_event = document.createEvent('CustomEvent');
@@ -330,6 +338,53 @@ describe('Data Entry Functionality', function(){
                 expect(int_errors.innerHTML).toBe('');
             });
 
+            it('Keeps invalid number flag when another validation criteria is met', function(){
+               var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_int = document.getElementById('test_int');
+                var parent_int = test_int.parentNode.parentNode;
+                var test_attr = document.getElementById('test_attr');
+                var parent_attr = test_attr.parentNode.parentNode;
+                var int_errors = parent_int.getElementsByClassName('errors')[0];
+                var attr_errors = parent_attr.getElementsByClassName('errors')[0];
+
+                // set value to be too low on the data-validation element
+                test_int.value = 1337;
+
+                // change event - attr
+                var int_high_event = document.createEvent('CustomEvent');
+                int_high_event.initCustomEvent('change', false, true, false);
+                test_int.dispatchEvent(int_high_event);
+
+                // verify calls - attr
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - int
+                expect(parent_int.classList.contains('error')).toBe(true);
+                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
+
+                // set value to be normal for the target element on data-validation
+                test_attr.value = 18;
+
+                // change event
+                var attr_val_event = document.createEvent('CustomEvent');
+                attr_val_event.initCustomEvent('change', false, true, false);
+                test_attr.dispatchEvent(attr_val_event);
+
+                // verify calls
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM
+                expect(parent_int.classList.contains('error')).toBe(true);
+                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
+            });
         });
 
         describe('Validation on a text input', function(){

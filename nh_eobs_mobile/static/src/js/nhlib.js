@@ -239,9 +239,10 @@ NHMobile = (function(superClass) {
   };
 
   NHMobile.prototype.fullscreen_patient_info = function(event, self) {
-    var container, options, options_close, page;
+    var container, options, options_close, page, target_el;
     event.preventDefault();
     if (!event.handled) {
+      target_el = event.srcElement ? event.srcElement : event.target;
       container = document.createElement('div');
       container.setAttribute('class', 'full-modal');
       options = document.createElement('p');
@@ -258,7 +259,7 @@ NHMobile = (function(superClass) {
       options.appendChild(options_close);
       container.appendChild(options);
       page = document.createElement('iframe');
-      page.setAttribute('src', event.srcElement.getAttribute('href'));
+      page.setAttribute('src', target_el.getAttribute('href'));
       page.onload = function() {
         var contents, header, iframe, modal, obs, ref, ref1;
         modal = document.getElementsByClassName('full-modal')[0];
@@ -398,6 +399,7 @@ NHMobileForm = (function(superClass) {
     this.show_reference = bind(this.show_reference, this);
     this.submit = bind(this.submit, this);
     this.trigger_actions = bind(this.trigger_actions, this);
+    this.validate_number_input = bind(this.validate_number_input, this);
     this.validate = bind(this.validate, this);
     var ptn_name, ref, self;
     this.form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
@@ -486,7 +488,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, max, min, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
+    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
@@ -495,20 +497,7 @@ NHMobileForm = (function(superClass) {
     this.reset_input_errors(input);
     if (typeof value !== 'undefined' && value !== '') {
       if (input.getAttribute('type') === 'number' && !isNaN(value)) {
-        min = parseFloat(input.getAttribute('min'));
-        max = parseFloat(input.getAttribute('max'));
-        if (input.getAttribute('step') === '1' && value % 1 !== 0) {
-          this.add_input_errors(input, 'Must be whole number');
-          return;
-        }
-        if (value < min) {
-          this.add_input_errors(input, 'Input too low');
-          return;
-        }
-        if (value > max) {
-          this.add_input_errors(input, 'Input too high');
-          return;
-        }
+        this.validate_number_input(input);
         if (input.getAttribute('data-validation')) {
           criterias = eval(input.getAttribute('data-validation'));
           for (i = 0, len = criterias.length; i < len; i++) {
@@ -526,18 +515,16 @@ NHMobileForm = (function(superClass) {
             cond = target_input_value + ' ' + operator + ' ' + other_input_value;
             if (eval(cond)) {
               this.reset_input_errors(other_input);
-              continue;
-            }
-            if (typeof other_input_value !== 'undefined' && !isNaN(other_input_value) && other_input_value !== '') {
+            } else if (typeof other_input_value !== 'undefined' && !isNaN(other_input_value) && other_input_value !== '') {
               this.add_input_errors(target_input, criteria['message']['target']);
               this.add_input_errors(other_input, criteria['message']['value']);
-              continue;
             } else {
               this.add_input_errors(target_input, criteria['message']['target']);
               this.add_input_errors(other_input, 'Please enter a value');
-              continue;
             }
           }
+          this.validate_number_input(other_input);
+          this.validate_number_input(target_input);
         }
       }
       if (input.getAttribute('type') === 'text') {
@@ -547,6 +534,26 @@ NHMobileForm = (function(superClass) {
             this.add_input_errors(input, 'Invalid value');
           }
         }
+      }
+    }
+  };
+
+  NHMobileForm.prototype.validate_number_input = function(input) {
+    var max, min, value;
+    min = parseFloat(input.getAttribute('min'));
+    max = parseFloat(input.getAttribute('max'));
+    value = parseFloat(input.value);
+    if (typeof value !== 'undefined' && value !== '' && !isNaN(value)) {
+      if (input.getAttribute('step') === '1' && value % 1 !== 0) {
+        this.add_input_errors(input, 'Must be whole number');
+        return;
+      }
+      if (value < min) {
+        this.add_input_errors(input, 'Input too low');
+        return;
+      }
+      if (value > max) {
+        this.add_input_errors(input, 'Input too high');
       }
     }
   };
@@ -1021,18 +1028,22 @@ NHMobilePatient = (function(superClass) {
   }
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
-    var i, len, tab, tab_target, tabs;
+    var i, len, tab, tab_target, tabs, target_el;
     event.preventDefault();
-    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
-    for (i = 0, len = tabs.length; i < len; i++) {
-      tab = tabs[i];
-      tab.classList.remove('selected');
+    if (!event.handled) {
+      tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
+      for (i = 0, len = tabs.length; i < len; i++) {
+        tab = tabs[i];
+        tab.classList.remove('selected');
+      }
+      document.getElementById('graph-content').style.display = 'none';
+      document.getElementById('table-content').style.display = 'none';
+      target_el = event.srcElement ? event.srcElement : event.target;
+      target_el.classList.add('selected');
+      tab_target = target_el.getAttribute('href').replace('#', '');
+      document.getElementById(tab_target).style.display = 'block';
+      return event.handled = true;
     }
-    document.getElementById('graph-content').style.display = 'none';
-    document.getElementById('table-content').style.display = 'none';
-    event.srcElement.classList.add('selected');
-    tab_target = event.srcElement.getAttribute('href').replace('#', '');
-    return document.getElementById(tab_target).style.display = 'block';
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
@@ -1982,120 +1993,122 @@ NHModal = (function() {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, element, form, forms, i, invite, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event;
-    data_target = event.srcElement.getAttribute('data-target');
-    data_action = event.srcElement.getAttribute('data-ajax-action');
-    switch (event.srcElement.getAttribute('data-action')) {
-      case 'close':
-        event.preventDefault();
-        dialog_id = document.getElementById(data_target);
-        cover = document.getElementById('cover');
-        document.getElementsByTagName('body')[0].removeChild(cover);
-        dialog_id.parentNode.removeChild(dialog_id);
-        break;
-      case 'renable':
-        event.preventDefault();
-        forms = document.getElementsByTagName('form');
-        for (i = 0, len = forms.length; i < len; i++) {
-          form = forms[i];
-          action_buttons = (function() {
-            var j, len1, ref, ref1, results;
-            ref = form.elements;
+    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
+    if (!event.handled) {
+      target_el = event.srcElement ? event.srcElement : event.target;
+      data_target = target_el.getAttribute('data-target');
+      data_action = target_el.getAttribute('data-ajax-action');
+      switch (target_el.getAttribute('data-action')) {
+        case 'close':
+          event.preventDefault();
+          dialog_id = document.getElementById(data_target);
+          cover = document.getElementById('cover');
+          document.getElementsByTagName('body')[0].removeChild(cover);
+          dialog_id.parentNode.removeChild(dialog_id);
+          break;
+        case 'renable':
+          event.preventDefault();
+          forms = document.getElementsByTagName('form');
+          for (i = 0, len = forms.length; i < len; i++) {
+            form = forms[i];
+            action_buttons = (function() {
+              var j, len1, ref, ref1, results;
+              ref = form.elements;
+              results = [];
+              for (j = 0, len1 = ref.length; j < len1; j++) {
+                element = ref[j];
+                if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+                  results.push(element);
+                }
+              }
+              return results;
+            })();
+            for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+              button = action_buttons[j];
+              button.removeAttribute('disabled');
+            }
+          }
+          dialog_id = document.getElementById(data_target);
+          cover = document.getElementById('cover');
+          document.getElementsByTagName('body')[0].removeChild(cover);
+          dialog_id.parentNode.removeChild(dialog_id);
+          break;
+        case 'submit':
+          event.preventDefault();
+          submit_event = document.createEvent('CustomEvent');
+          submit_detail = {
+            'endpoint': target_el.getAttribute('data-ajax-action')
+          };
+          submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
+          document.dispatchEvent(submit_event);
+          dialog_id = document.getElementById(data_target);
+          cover = document.getElementById('cover');
+          document.getElementsByTagName('body')[0].removeChild(cover);
+          dialog_id.parentNode.removeChild(dialog_id);
+          break;
+        case 'partial_submit':
+          event.preventDefault();
+          if (!event.handled) {
+            submit_event = document.createEvent('CustomEvent');
+            submit_detail = {
+              'action': data_action,
+              'target': data_target
+            };
+            submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
+            document.dispatchEvent(submit_event);
+            event.handled = true;
+          }
+          break;
+        case 'assign':
+          event.preventDefault();
+          dialog = document.getElementById(data_target);
+          dialog_form = dialog.getElementsByTagName('form')[0];
+          nurses = (function() {
+            var k, len2, ref, results;
+            ref = dialog_form.elements;
             results = [];
-            for (j = 0, len1 = ref.length; j < len1; j++) {
-              element = ref[j];
-              if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
-                results.push(element);
+            for (k = 0, len2 = ref.length; k < len2; k++) {
+              el = ref[k];
+              if (el.checked) {
+                results.push(el.value);
               }
             }
             return results;
           })();
-          for (j = 0, len1 = action_buttons.length; j < len1; j++) {
-            button = action_buttons[j];
-            button.removeAttribute('disabled');
-          }
-        }
-        dialog_id = document.getElementById(data_target);
-        cover = document.getElementById('cover');
-        document.getElementsByTagName('body')[0].removeChild(cover);
-        dialog_id.parentNode.removeChild(dialog_id);
-        break;
-      case 'submit':
-        event.preventDefault();
-        submit_event = document.createEvent('CustomEvent');
-        submit_detail = {
-          'endpoint': event.srcElement.getAttribute('data-ajax-action')
-        };
-        submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
-        document.dispatchEvent(submit_event);
-        dialog_id = document.getElementById(data_target);
-        cover = document.getElementById('cover');
-        document.getElementsByTagName('body')[0].removeChild(cover);
-        dialog_id.parentNode.removeChild(dialog_id);
-        break;
-      case 'partial_submit':
-        event.preventDefault();
-        if (!event.handled) {
-          submit_event = document.createEvent('CustomEvent');
-          submit_detail = {
+          assign_event = document.createEvent('CustomEvent');
+          assign_detail = {
             'action': data_action,
-            'target': data_target
+            'target': data_target,
+            'nurses': nurses
           };
-          submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
-          document.dispatchEvent(submit_event);
-          event.handled = true;
-        }
-        break;
-      case 'assign':
-        event.preventDefault();
-        dialog = document.getElementById(data_target);
-        dialog_form = dialog.getElementsByTagName('form')[0];
-        nurses = (function() {
-          var k, len2, ref, results;
-          ref = dialog_form.elements;
-          results = [];
-          for (k = 0, len2 = ref.length; k < len2; k++) {
-            el = ref[k];
-            if (el.checked) {
-              results.push(el.value);
-            }
-          }
-          return results;
-        })();
-        assign_event = document.createEvent('CustomEvent');
-        assign_detail = {
-          'action': data_action,
-          'target': data_target,
-          'nurses': nurses
-        };
-        assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
-        document.dispatchEvent(assign_event);
-        break;
-      case 'claim':
-        event.preventDefault();
-        claim_event = document.createEvent('CustomEvent');
-        claim_event.initCustomEvent('claim_patients', false, true);
-        document.dispatchEvent(claim_event);
-        break;
-      case 'accept':
-        event.preventDefault();
-        accept_event = document.createEvent('CustomEvent');
-        invite = event.srcElement ? event.srcElement : event.target;
-        accept_detail = {
-          'invite_id': invite.getAttribute('data-invite-id')
-        };
-        accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
-        document.dispatchEvent(accept_event);
-        break;
-      case 'reject':
-        event.preventDefault();
-        reject_event = document.createEvent('CustomEvent');
-        invite = event.srcElement ? event.srcElement : event.target;
-        reject_detail = {
-          'invite_id': invite.getAttribute('data-invite-id')
-        };
-        reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
-        document.dispatchEvent(reject_event);
+          assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
+          document.dispatchEvent(assign_event);
+          break;
+        case 'claim':
+          event.preventDefault();
+          claim_event = document.createEvent('CustomEvent');
+          claim_event.initCustomEvent('claim_patients', false, true, false);
+          document.dispatchEvent(claim_event);
+          break;
+        case 'accept':
+          event.preventDefault();
+          accept_event = document.createEvent('CustomEvent');
+          accept_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          };
+          accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
+          document.dispatchEvent(accept_event);
+          break;
+        case 'reject':
+          event.preventDefault();
+          reject_event = document.createEvent('CustomEvent');
+          reject_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          };
+          reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
+          document.dispatchEvent(reject_event);
+      }
+      event.handled = true;
     }
   };
 
