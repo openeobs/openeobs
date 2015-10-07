@@ -99,7 +99,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return super(nh_clinical_patient_observation, self).create_activity(cr, uid, activity_vals, data_vals, context)      
                 
     def write(self, cr, uid, ids, vals, context=None):
-        ids = isinstance(ids, (tuple, list)) and ids or [ids]
+        ids = ids if isinstance(ids, (tuple, list)) else [ids]
         if not self._required and not self._num_fields:
             return super(nh_clinical_patient_observation, self).write(cr, uid, ids, vals, context)
         for obs in self.read(cr, uid, ids, ['none_values', 'null_values'], context):
