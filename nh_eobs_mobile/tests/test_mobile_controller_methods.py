@@ -49,8 +49,10 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     def _parse_route_arguments(self, route):
         """Parse route arguments according to specific rules.
 
-        :param route: A dictionary with all the necessary route data
-        :return: A URL-formatted string with a value for each argument, or None if the route doesn't required any argument
+        :param route: all the necessary route data
+        :type route: dict
+        :returns: a URL-formatted string with a value for each argument, or None if the route doesn't required any argument
+        :rtype: str
         """
         # Regex and variables for managing the route's arguments
         index_argument_regex = re.compile(r'_id$')
@@ -77,10 +79,14 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     def _build_url(self, route_endpoint, route_arguments, mobile=True):
         """Build a URL from the endpoint and the arguments provided.
 
-        :param route_endpoint: A string with the endpoint of a specific route, without arguments
-        :param route_arguments: A string with the arguments for a specific route's endpoint
-        :param mobile: A boolean to select between the 'web' or 'mobile' version of the URL (default: True)
-        :return: A string with a full URL, ready to be reached via browser or requests
+        :param route_endpoint: endpoint of a specific route, without arguments
+        :type route_endpoint: str
+        :param route_arguments: arguments for a specific route's endpoint
+        :type route_arguments: str
+        :param mobile: select between the 'web' or 'mobile' version of the URL (default: True)
+        :type mobile: bool
+        :returns: full URL, ready to be reached via browser or requests
+        :rtype: str
         """
         if mobile:
             base_url = BASE_MOBILE_URL
@@ -91,8 +97,9 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     def _get_authenticated_response(self, user_name):
         """Get a Response object with an authenticated session within its cookies.
 
-        :param user_name: A string with the username of the user to be authenticated as
-        :return: A Response object
+        :param user_name: username of the user to be authenticated as
+        :type user_name: str
+        :returns: a Response object
         """
         auth_response = requests.post(BASE_MOBILE_URL + 'login',
                                       {'username': user_name,
@@ -104,11 +111,13 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     def _get_user_belonging_to_group(self, group_name):
         """Get the 'id' and the 'login' name of a user belonging to a specific group.
 
-        :param group_name: A string with the name of the group from which retrieve a user (belonging to it)
-        :return: A dictionary with 2 key-value couples:
+        :param group_name: name of the group from which retrieving a user (belonging to it)
+        :type group_name: str
+        :returns: a dictionary with 2 key-value couples:
             - 'login': the login name of the retrieved user (belonging to the group passed as argument)
             - 'id': the id of the retrieved user (belonging to the group passed as argument)
-        :return: None if there isn't any user belonging to that group
+        :rtype: dict
+        :returns: None if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
         users_login_list = users_pool.search_read(self.cr, self.uid,
@@ -123,11 +132,13 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
         """Patch a list of methods related to an Odoo's model.
 
-        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
-        :param methods_patching: A list of two-values tuples, each containing:
+        :param odoo_model: a valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param methods_patching: list of two-values tuples, each containing:
             - the method to be patched (string)
             - the function that will substitute the method to be patched (the actual name of the function)
+        :type methods_patching: list
         :return: True (if no errors were raised during the patching)
+        :rtype: bool
         """
         for method_to_patch, substituting_function in methods_patching:
             odoo_model._patch_method(method_to_patch, substituting_function)
@@ -137,8 +148,10 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         """Revert the Odoo's patching of a list of methods.
 
         :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
-        :param methods_to_be_reverted: A list of model's 'original' methods to be reactivated back (string)
+        :param methods_to_be_reverted: list of model's 'original' methods to be reactivated back (string)
+        :type methods_to_be_reverted: list
         :return: True (if no errors were raised during the patching)
+        :rtype: bool
         """
         for m in methods_to_be_reverted:
             odoo_model._revert_method(m)
@@ -684,10 +697,14 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
     def _build_url(self, route_endpoint, route_arguments, mobile=True):
         """Build a URL from the endpoint and the arguments provided.
 
-        :param route_endpoint: A string with the endpoint of a specific route, without arguments
-        :param route_arguments: A string with the arguments for a specific route's endpoint
-        :param mobile: A boolean to select between the 'web' or 'mobile' version of the URL (default: True)
-        :return: A string with a full URL, ready to be reached via browser or requests
+        :param route_endpoint: endpoint of a specific route, without arguments
+        :type route_endpoint: str
+        :param route_arguments: arguments for a specific route's endpoint
+        :type route_arguments: str
+        :param mobile: select between the 'web' or 'mobile' version of the URL (default: True)
+        :type mobile: bool
+        :returns: full URL, ready to be reached via browser or requests
+        :rtype: str
         """
         if mobile:
             base_url = BASE_MOBILE_URL
@@ -698,8 +715,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
     def _get_authenticated_response(self, user_name):
         """Get a Response object with an authenticated session within its cookies.
 
-        :param user_name: A string with the username of the user to be authenticated as
-        :return: A Response object
+        :param user_name: username of the user to be authenticated as
+        :type user_name: str
+        :returns: a Response object
         """
         auth_response = requests.post(BASE_MOBILE_URL + 'login',
                                       {'username': user_name,
@@ -711,11 +729,13 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
     def _get_user_belonging_to_group(self, group_name):
         """Get the 'id' and the 'login' name of a user belonging to a specific group.
 
-        :param group_name: A string with the name of the group from which retrieve a user (belonging to it)
-        :return: A dictionary with 2 key-value couples:
+        :param group_name: name of the group from which retrieving a user (belonging to it)
+        :type group_name: str
+        :returns: a dictionary with 2 key-value couples:
             - 'login': the login name of the retrieved user (belonging to the group passed as argument)
             - 'id': the id of the retrieved user (belonging to the group passed as argument)
-        :return: None if there isn't any user belonging to that group
+        :rtype: dict
+        :returns: None if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
         users_login_list = users_pool.search_read(self.cr, self.uid,
@@ -730,11 +750,13 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
     def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
         """Patch a list of methods related to an Odoo's model.
 
-        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
-        :param methods_patching: A list of two-values tuples, each containing:
+        :param odoo_model: a valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param methods_patching: list of two-values tuples, each containing:
             - the method to be patched (string)
             - the function that will substitute the method to be patched (the actual name of the function)
+        :type methods_patching: list
         :return: True (if no errors were raised during the patching)
+        :rtype: bool
         """
         for method_to_patch, substituting_function in methods_patching:
             odoo_model._patch_method(method_to_patch, substituting_function)
@@ -744,8 +766,10 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         """Revert the Odoo's patching of a list of methods.
 
         :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
-        :param methods_to_be_reverted: A list of model's 'original' methods to be reactivated back (string)
+        :param methods_to_be_reverted: list of model's 'original' methods to be reactivated back (string)
+        :type methods_to_be_reverted: list
         :return: True (if no errors were raised during the patching)
+        :rtype: bool
         """
         for m in methods_to_be_reverted:
             odoo_model._revert_method(m)
@@ -1434,7 +1458,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
             }
         )
 
-    def test_method_get_single_task_manages_exception_while_assigning_task(self):
+    def test_method_get_single_task_manages_specific_exception_while_assigning_task(self):
         # Override the class' static method to make it raise an exception
         def mock_nh_eobs_api_assign(*args, **kwargs):
             raise except_orm('Expected exception!', 'Expected exception raised during the test.')
@@ -1465,4 +1489,44 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         self.assertEqual(len(test_resp.history), 1, 'Method under test did not redirect after the exception.')
         self.assertEqual(test_resp.history[0].status_code, 303,
                          'HTTP code during the redirection was not the expected one.')
+        self.assertIn('tasks', test_resp.url)
         self.assertIn(self.task_list_url, test_resp.url, 'Method under test did not redirect to the expected page.')
+
+    def test_method_get_task_first_unassign_and_then_try_assigning_task(self):
+        mocked_method_calling_list = []
+
+        # Two different mocking methods are needed, despite they are identical:
+        # in fact, if two different methods are being mocked by one single function,
+        # the system cannot understand which one is meant to be called, and could raise errors.
+        def register_mock_unassign_calling(*args, **kwargs):
+            mocked_method_calling_list.append(('ARGS = {}'.format(args), 'KWARGS = {}'.format(kwargs)))
+            return True
+
+        def register_mock_assign_calling(*args, **kwargs):
+            mocked_method_calling_list.append(('ARGS = {}'.format(args), 'KWARGS = {}'.format(kwargs)))
+            return True
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
+            ('unassign_my_activities', register_mock_unassign_calling),
+            ('assign', register_mock_assign_calling),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+
+        # Actually reach the 'single task' page
+        try:
+            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+        finally:
+            # Just the first element of every tuple is needed for reverting the patchers
+            methods_to_revert = [m[0] for m in methods_patching_list]
+
+            # Stop Odoo's patchers
+            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self.registry['nh.activity']._revert_method('read')
+
+        self.assertEqual(test_resp.status_code, 200)
+        self.assertEqual(len(mocked_method_calling_list), 2)
