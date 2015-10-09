@@ -447,15 +447,17 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                         context=context)
         task = activity_reg.read(cr, uid, task_id, ['user_id', 'data_model', 'summary', 'patient_id'], context=context)
         patient = dict()
-        if task['patient_id']:
+        if task and task.get('patient_id'):
             patient_info = api_reg.get_patients(cr, uid, [task['patient_id'][0]], context=context)
-            if len(patient_info) > 0:
+            if not patient_info:
+                exceptions.abort(404)
+            elif len(patient_info) > 0:
                 patient_info = patient_info[0]
             patient['url'] = URLS['single_patient'] + '{0}'.format(patient_info['id'])
             patient['name'] = patient_info['full_name']
             patient['id'] = patient_info['id']
         else:
-            patient = False
+            exceptions.abort(404)
         form = dict()
         form['action'] = URLS['task_form_action']+'{0}'.format(task_id)  # TODO: check if this is still actually used!
         form['type'] = task['data_model']
@@ -800,7 +802,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         patient = dict()
         patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
-        if len(patient_info) > 0:
+        if not patient_info:
+                exceptions.abort(404)
+        elif len(patient_info) > 0:
             patient_info = patient_info[0]
         patient['url'] = URLS['single_patient'] + '{0}'.format(patient_info['id'])
         patient['name'] = patient_info['full_name']

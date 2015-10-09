@@ -190,6 +190,60 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         test_resp = requests.get(patient_obs_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 404)
 
+    def test_method_take_patient_observation_returns_404_when_list_of_related_patients_is_empty(self):
+        """
+        Test that the method returns a '404 Not Found' response,
+        if the list of patients (internally fetched) is empty.
+        (e.g. this could happen when a user tries
+        to submit an observation for a non-existing patient,
+        by manually inputting a wrong patient ID in the URL).
+        In such a case, searching a patient will return an empty list.
+        """
+        def mock_get_assigned_activities(*args, **kwargs):
+            fake_activities_list = [
+                'this',
+                'will',
+                'not',
+                'be',
+                'used',
+                'at',
+                'all'
+            ]
+            return fake_activities_list
+
+        def mock_get_patients(*args, **kwargs):
+            empty_list = []
+            return empty_list
+
+        take_patient_obs_route = [r for r in routes if r['name'] == 'patient_ob']
+        self.assertEqual(len(take_patient_obs_route), 1,
+                         "Endpoint to the 'patient_ob' route not unique. Cannot run the test!")
+
+        # Retrieve only observations existing as model, but not as active observations
+        test_observation = random_choice(list(self.active_observation_types))
+
+        patient_obs_url = self._build_url(take_patient_obs_route[0]['endpoint'], '{}/1'.format(test_observation))
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', mock_get_assigned_activities),
+            ('get_patients', mock_get_patients)
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+
+        # Actually reach the 'single task' page
+        try:
+            test_resp = requests.get(patient_obs_url, cookies=self.auth_resp.cookies)
+        finally:
+            # Just the first element of every tuple is needed for reverting the patchers
+            methods_to_revert = [m[0] for m in methods_patching_list]
+
+            # Stop Odoo's patchers
+            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+
+        self.assertEqual(test_resp.status_code, 404)
+
     def test_method_mobile_logout_redirects_to_login_page(self):
         # Retrieve the 'logout' route and build the complete URL for it
         logout_route = [r for r in routes if r['name'] == 'logout']
@@ -1530,3 +1584,76 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
 
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(len(mocked_method_calling_list), 2)
+
+    def test_method_single_task_returns_404_when_task_has_no_patient_related_to_it(self):
+        """
+        Test that the method returns a '404 Not Found' response
+        if the task doesn't have a patient related to it.
+        (e.g. this could happen when a user tries
+        to reach a non-existing task,
+        by manually inputting a wrong task ID in the URL).
+        In such a case, the search among activities will return False.
+        """
+        def mock_nh_activity_read(*args, **kwargs):
+            return False
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
+            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
+            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+
+        # Actually reach the 'single task' page
+        try:
+            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+        finally:
+            # Just the first element of every tuple is needed for reverting the patchers
+            methods_to_revert = [m[0] for m in methods_patching_list]
+
+            # Stop Odoo's patchers
+            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self.registry['nh.activity']._revert_method('read')
+
+        self.assertEqual(test_resp.status_code, 404)
+
+    def test_method_single_task_returns_404_when_list_of_related_patients_is_empty(self):
+        """
+        Test that the method returns a '404 Not Found' response,
+        if the list of patients related to the task is empty.
+
+        Despite this edge case is theoretically impossible
+        in a real world scenario, this test assures that the code
+        properly manages such an edge-case value.
+        """
+        def mock_get_patients(*args, **kwargs):
+            empty_list = []
+            return empty_list
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        methods_patching_list = [
+            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
+            ('get_patients', mock_get_patients),
+            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
+            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+        ]
+        self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
+        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+
+        # Actually reach the 'single task' page
+        try:
+            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+        finally:
+            # Just the first element of every tuple is needed for reverting the patchers
+            methods_to_revert = [m[0] for m in methods_patching_list]
+
+            # Stop Odoo's patchers
+            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self.registry['nh.activity']._revert_method('read')
+
+        self.assertEqual(test_resp.status_code, 404)
