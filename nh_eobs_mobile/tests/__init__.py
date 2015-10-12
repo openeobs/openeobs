@@ -1,16 +1,20 @@
 # Controller tests
 # import test_task_patient_list
-#import test_observation_form
-#import test_adhoc_observation_form
-#import test_notification_form
+# import test_observation_form
+# import test_adhoc_observation_form
+# import test_notification_form
 # import test_ward_manager_placement_form
 # import test_observation_frequency_form
 # import test_medical_team_form
 # import test_bed_placement_form
 # import json_endpoint_test
 
-import test_mobile_controller_routes
-import test_mobile_controller_methods
+
+"""
+Commenting out the following tests are they are unreliable
+"""
+# import test_mobile_controller_routes
+# import test_mobile_controller_methods
 
 # PhantomJS tests
 # import test_login

@@ -13,7 +13,7 @@ from werkzeug import utils, exceptions
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.osv import fields, orm
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
-from openerp.addons.nh_eobs_api.routing import Route
+from openerp.addons.nh_eobs_api.routing import Route as EobsRoute
 
 _logger = logging.getLogger(__name__)
 
@@ -27,10 +27,10 @@ db_monodb = http.db_monodb
 
 loader = jinja2.FileSystemLoader(get_module_path('nh_eobs_mobile') + '/views/')
 env = jinja2.Environment(loader=loader)
-single_patient = Route('single_patient', '/patient/<patient_id>', methods=['GET'], url_prefix='/mobile')
-patient_list = Route('patient_list', '/patients/', methods=['GET'], url_prefix='/mobile')
-task_list = Route('task_list', '/tasks/', methods=['GET'], url_prefix='/mobile')
-single_task = Route('single_task', '/task/<task_id>', methods=['GET'], url_prefix='/mobile')
+single_patient = EobsRoute('single_patient', '/patient/<patient_id>', methods=['GET'], url_prefix='/mobile')
+patient_list = EobsRoute('patient_list', '/patients/', methods=['GET'], url_prefix='/mobile')
+task_list = EobsRoute('task_list', '/tasks/', methods=['GET'], url_prefix='/mobile')
+single_task = EobsRoute('single_task', '/task/<task_id>', methods=['GET'], url_prefix='/mobile')
 route_manager.add_route(single_patient)
 route_manager.add_route(patient_list)
 route_manager.add_route(single_task)
