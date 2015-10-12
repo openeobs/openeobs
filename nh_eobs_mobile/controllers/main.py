@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-s
-import openerp, re, json, urls, jinja2, bisect, os, logging
+import openerp
+import re
+import urls
+import jinja2
+import os
+import logging
 from openerp import http
-from openerp.http import Root, Response
 from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
@@ -149,17 +153,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         with open(get_module_path('nh_eobs_mobile') + '/static/src/js/validation.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
-    # @http.route(URLS['js_routes'], type='http', auth='none')
-    # def javascript_routes(self, *args, **kw):
-    #     urls.BASE_URL = request.httprequest.host_url[:-1] + URL_PREFIX
-    #     URLS = urls.URLS
-    #     routes = urls.routes
-    #     for route in routes:
-    #         route['args_list'] = ','.join(route['args']) if route['args'] else False
-    #     return request.make_response(env.get_template('routes_template.js').render({
-    #         'routes': routes,
-    #         'base_url': request.httprequest.host_url[:-1] + URL_PREFIX
-    #     }), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['graph_lib'], type='http', auth='none')
     def graph_lib(self, *args, **kw):
@@ -310,80 +303,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                               'urls': URLS,
                                                                               'user_id': uid})
 
-    # @http.route(URLS['json_share_patients'], type='http', auth='user')
-    # def share_patients(self, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry['nh.eobs.api']
-    #     user_api = request.registry['res.users']
-    #     kw_copy = kw.copy()
-    #     user_ids = [int(id) for id in kw_copy['user_ids'].split(',')]
-    #     patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
-    #     users = user_api.read(cr, uid, user_ids, context=context)
-    #     for user_id in user_ids:
-    #         api.follow_invite(cr, uid, patient_ids, user_id, context=context)
-    #     return request.make_response(json.dumps({'status': True,
-    #                                              'reason': 'An invite has been sent to follow the selected patients.',
-    #                                              'shared_with': [user['display_name'] for user in users]}),
-    #                                  headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['json_claim_patients'], type='http', auth='user')
-    # def claim_patients(self, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry['nh.eobs.api']
-    #     kw_copy = kw.copy()
-    #     patient_ids = [int(id) for id in kw_copy['patient_ids'].split(',')]
-    #     api.remove_followers(cr, uid, patient_ids, context=context)
-    #     return request.make_response(json.dumps({'status': True,
-    #                                              'reason': 'Followers removed successfully.'}),
-    #                                  headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['json_colleagues_list'], type='http', auth='user')
-    # def get_colleagues(self, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry['nh.eobs.api']
-    #     return request.make_response(json.dumps(api.get_share_users(cr, uid, context=context)),
-    #                                  headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['json_invite_patients']+'<activity_id>', type='http', auth='user')
-    # def get_shared_patients(self, activity_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry['nh.eobs.api']
-    #     activities = api.get_assigned_activities(cr, uid, activity_type='nh.clinical.patient.follow', context=context)
-    #     res = {}
-    #     for a in activities:
-    #         if a['id'] == int(activity_id):
-    #             res = api.get_patients(cr, uid, a['patient_ids'], context=context)
-    #             break
-    #     return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['json_accept_patients']+'<activity_id>', type='http', auth='user')
-    # def accept_shared_patients(self, activity_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry['nh.eobs.api']
-    #     activities = api.get_assigned_activities(cr, uid, activity_type='nh.clinical.patient.follow', context=context)
-    #     res = {}
-    #     for a in activities:
-    #         if a['id'] == int(activity_id):
-    #             res = a
-    #             res['status'] = True
-    #             break
-    #     api.complete(cr, uid, int(activity_id), {}, context=context)
-    #     return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['json_reject_patients']+'<activity_id>', type='http', auth='user')
-    # def reject_shared_patients(self, activity_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry['nh.eobs.api']
-    #     activities = api.get_assigned_activities(cr, uid, activity_type='nh.clinical.patient.follow', context=context)
-    #     res = {}
-    #     for a in activities:
-    #         if a['id'] == int(activity_id):
-    #             res = a
-    #             res['status'] = True
-    #             break
-    #     api.cancel(cr, uid, int(activity_id), {}, context=context)
-    #     return request.make_response(json.dumps(res), headers={'Content-Type': 'application/json'})
-
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -402,39 +321,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                              'username': request.session['login'],
                                                                              'notification_count': len(follow_activities),
                                                                              'urls': URLS})
-
-    # @http.route(URLS['json_take_task']+'<task_id>', type="http", auth="user")
-    # def take_task_ajax(self, task_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     task_id = int(task_id)
-    #     activity_reg = request.registry['nh.activity']
-    #     api_reg = request.registry['nh.eobs.api']
-    #     task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
-    #     if task and task.get('user_id') and task['user_id'][0] != uid:
-    #         return request.make_response(json.dumps({'status': 'false', 'reason': 'task assigned to another user'}), headers={'Content-Type': 'application/json'})
-    #     else:
-    #         return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})
-    #     try:
-    #         api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
-    #         return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})
-    #     except Exception:
-    #         return request.make_response(json.dumps({'status': 'false', 'reason': 'unable to assign to user'}), headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['json_cancel_take_task']+'<task_id>', type="http", auth="user")
-    # def cancel_take_task_ajax(self, task_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     task_id = int(task_id)
-    #     activity_reg = request.registry['nh.activity']
-    #     api_reg = request.registry['nh.eobs.api']
-    #     task = activity_reg.read(cr, uid, task_id, ['user_id'], context=context)
-    #     if task.get('user_id') and task['user_id'][0] != uid:
-    #         return request.make_response(json.dumps({'status': 'false', 'reason': "Can't cancel other user's task"}), headers={'Content-Type': 'application/json'})
-    #     else:
-    #         try:
-    #             api_reg.unassign(cr, uid, task_id, context=context)
-    #             return request.make_response(json.dumps({'status': 'true'}), headers={'Content-Type': 'application/json'})
-    #         except Exception:
-    #             return request.make_response(json.dumps({'status': 'false', 'reason': "Unable to unassign task"}), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
@@ -580,179 +466,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         activity_api.complete(cr, uid, int(task_id), context)
         return utils.redirect(URLS['task_list'])
 
-
-    # @http.route(URLS['json_task_form_action']+'<observation>/<task_id>', type="http", auth="user")
-    # def process_ajax_form(self, observation, task_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry('nh.eobs.api')
-    #     activity_api = request.registry('nh.activity')
-    #     ews_pool = request.registry('nh.clinical.patient.observation.'+observation)
-    #     converter_pool = request.registry('ir.fields.converter')
-    #     converter = converter_pool.for_model(cr, uid, ews_pool, str, context=context)
-    #     kw_copy = kw.copy()
-    #     test = {}
-    #     timestamp = kw_copy['startTimestamp']
-    #     device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
-    #
-    #     del kw_copy['startTimestamp']
-    #     if 'taskId' in kw_copy:
-    #         del kw_copy['taskId']
-    #     if device_id:
-    #         del kw_copy['device_id']
-    #     for key, value in kw_copy.items():
-    #         if not value:
-    #             del kw_copy[key]
-    #
-    #     converted_data = converter(kw_copy, test)
-    #     converted_data['date_started'] = datetime.fromtimestamp(int(timestamp)).strftime(DTF)
-    #     if device_id:
-    #         converted_data['device_id'] = device_id
-    #     result = api.complete(cr, uid, int(task_id), converted_data, context)
-    #     triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
-    #     triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
-    #     triggered_tasks = [v for v in triggered_tasks if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
-    #     return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
-
-    # @http.route(URLS['calculate_obs_score']+'<observation>', type="http", auth="user")
-    # def calculate_obs_score(self, observation, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api_pool = request.registry('nh.eobs.api')
-    #     model = 'nh.clinical.patient.observation.'+observation
-    #     converter_pool = request.registry('ir.fields.converter')
-    #     observation_pool = request.registry(model)
-    #     converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
-    #     data = kw.copy()
-    #     test = {}
-    #     section = 'task' if 'taskId' in data else 'patient'
-    #     if 'startTimestamp' in data:
-    #         del data['startTimestamp']
-    #     if 'taskId' in data:
-    #         del data['taskId']
-    #     if observation == 'ews':
-    #         observation = 'news'
-    #         for key, value in data.items():
-    #             if not value or key not in ['avpu_text', 'blood_pressure_systolic', 'body_temperature', 'indirect_oxymetry_spo2', 'oxygen_administration_flag', 'pulse_rate', 'respiration_rate']:
-    #                 del data[key]
-    #     converted_data = converter(data, test)
-    #
-    #     score_dict = api_pool.get_activity_score(cr, uid, model, converted_data, context=context)
-    #     if not score_dict:
-    #         exceptions.abort(400)
-    #     modal_vals = {}
-    #     modal_vals['next_action'] = 'json_task_form_action' if section == 'task' else 'json_patient_form_action'
-    #     modal_vals['title'] = 'Submit {score_type} of {score}'.format(score_type=observation.upper(), score=score_dict.get('score', ''))
-    #     if 'clinical_risk' in score_dict:
-    #         modal_vals['content'] = '<p><strong>Clinical risk: {risk}</strong></p><p>Please confirm you want to submit this score</p>'.format(risk=score_dict['clinical_risk'])
-    #     else:
-    #         modal_vals['content'] = '<p>Please confirm you want to submit this score</p>'
-    #
-    #     return request.make_response(json.dumps({'status': 3, 'score': score_dict, 'modal_vals': modal_vals}), headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['json_partial_reasons'], type="http", auth="user")
-    # def get_partial_reasons(self, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     ews_pool = request.registry('nh.clinical.patient.observation.ews')
-    #     return request.make_response(json.dumps(ews_pool._partial_reasons), headers={'Content-Type': 'application/json'})
-
-    # @http.route(URLS['json_patient_info']+'<patient_id>', type="http", auth="user")
-    # def get_patient_info(self, patient_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api_pool = request.registry('nh.eobs.api')
-    #     patient_info = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)
-    #     if len(patient_info) > 0:
-    #         return request.make_response(json.dumps(patient_info[0]), headers={'Content-Type': 'application/json'})
-    #     else:
-    #         return request.make_response(json.dumps({'status': 2, 'error': 'Patient not found'}), headers={'Content-Type': 'application/json'})
-
-    # @http.route(URLS['json_patient_barcode']+'<hospital_number>', type="http", auth="user")
-    # def get_patient_barcode(self, hospital_number, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api_pool = request.registry('nh.eobs.api')
-    #     patient_info = api_pool.get_patient_info(cr, uid, hospital_number, context=context)
-    #     if len(patient_info) > 0:
-    #         return request.make_response(json.dumps(patient_info[0]), headers={'Content-Type': 'application/json'})
-    #     else:
-    #         return request.make_response(json.dumps({'status': 2, 'error': 'Patient not found'}), headers={'Content-Type': 'application/json'})
-    #
-    # @http.route('/ajax_test', type="http", auth="user")
-    # def ajax_test(self, *args, **kw):
-    #     test_html = '<html><head><script src="{jquery}"></script><script src="{routes}"></script></head><body>Test</body></html>'.format(jquery=URLS['jquery'], routes=URLS['js_routes'])
-    #     return test_html
-
-
-    # @http.route(URLS['confirm_clinical_notification']+'<task_id>', type="http", auth="user")
-    # def confirm_clinical(self, task_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry('nh.eobs.api')
-    #     activity_api = request.registry('nh.activity')
-    #     kw_copy = kw.copy()
-    #     if 'taskId' in kw_copy:
-    #         del kw_copy['taskId']
-    #     if 'frequency' in kw_copy:
-    #         kw_copy['frequency'] = int(kw_copy['frequency'])
-    #     if 'location_id' in kw_copy:
-    #         kw_copy['location_id'] = int(kw_copy['location_id'])
-    #     result = api.complete(cr, uid, int(task_id), kw_copy)
-    #     triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
-    #     triggered_tasks = activity_api.read(cr, uid, triggered_ids, [])
-    #     triggered_tasks = [v for v in triggered_tasks if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
-    #     return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
-    #
-    # # TODO: remove this once switch to coffeescript
-    #
-    # @http.route(URLS['confirm_review_frequency']+'<task_id>', type="http", auth="user")
-    # def confirm_review_frequency(self, task_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry('nh.eobs.api')
-    #     activity_api = request.registry('nh.activity')
-    #     kw_copy = kw.copy()
-    #     del kw_copy['taskId']
-    #     kw_copy['frequency'] = int(kw_copy['frequency'])
-    #     result = api.complete(cr, uid, int(task_id), kw_copy)
-    #     triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(task_id)]])
-    #     triggered_tasks = [v for v in activity_api.read(cr, uid, triggered_ids, []) if 'ews' not in v['data_model'] and api.check_activity_access(cr, uid, v['id'], context=context)]
-    #     return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
-    #
-    # # TODO: remove this once switch to coffeescript
-    #
-    # @http.route(URLS['confirm_bed_placement']+'<task_id>', type="http", auth="user")
-    # def confirm_bed_placement(self, task_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry('nh.eobs.api')
-    #     kw_copy = kw.copy()
-    #     del kw_copy['taskId']
-    #     kw_copy['location_id'] = int(kw_copy['location_id'])
-    #     result = api.complete(cr, uid, int(task_id), kw_copy)
-    #     return request.make_response(json.dumps({'status': 1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})
-    #
-    #
-    # @http.route(URLS['cancel_clinical_notification']+'<task_id>', type="http", auth="user")
-    # def cancel_clinical(self, task_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api_pool = request.registry('nh.eobs.api')
-    #     kw_copy = kw.copy()
-    #
-    #     data_timestamp = kw_copy.get('startTimestamp', None)
-    #     data_task_id = kw_copy.get('taskId', None)
-    #
-    #     if data_timestamp is not None:
-    #         del kw_copy['startTimestamp']
-    #     if data_task_id is not None:
-    #         del kw_copy['taskId']
-    #     for key, value in kw_copy.items():
-    #         if not value:
-    #             del kw_copy[key]
-    #
-    #     kw_copy['reason'] = int(kw_copy['reason'])
-    #     result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
-    #     return request.make_response(json.dumps({'status':1, 'related_tasks': []}), headers={'Content-Type': 'application/json'})
-    #
-    # @http.route(URLS['ajax_task_cancellation_options'], type='http', auth='user')
-    # def cancel_reasons(self, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api_pool = request.registry('nh.eobs.api')
-    #     return request.make_response(json.dumps(api_pool.get_cancel_reasons(cr, uid, context=context)), headers={'Content-Type': 'application/json'})
-
     @http.route(URLS['single_patient']+'<patient_id>', type='http', auth='user')
     def get_patient(self, patient_id, *args, **kw):
         cr, uid, context = request.cr, request.uid, request.context
@@ -776,21 +489,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                    'obs_list': obs,
                                                                    'notification_count': len(follow_activities),
                                                                    'username': request.session['login']})
-
-
-
-
-    # @http.route(URLS['ajax_get_patient_obs']+'<patient_id>', type='http', auth='user')
-    # def get_patient_obs(self, patient_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api_pool = request.registry('nh.eobs.api')
-    #     ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
-    #     for ew in ews:
-    #         for e in ew:
-    #             if e in ['date_terminated', 'create_date', 'write_date', 'date_started']:
-    #                 ew[e] = fields.datetime.context_timestamp(cr, uid, datetime.strptime(ew[e], DTF), context=context).strftime(DTF)
-    #     return request.make_response(json.dumps({'obs': ews, 'obsType': 'ews'}), headers={'Content-Type': 'application/json'})
-
 
     @http.route(URLS['patient_ob']+'<observation>/<patient_id>', type='http', auth='user')
     def take_patient_observation(self, observation, patient_id, *args, **kw):
@@ -854,36 +552,3 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                                                                              'notification_count': len(follow_activities),
                                                                              'username': request.session['login'],
                                                                              'urls': URLS})
-
-    # @http.route(URLS['json_patient_form_action']+'<observation>/<patient_id>', type='http', auth='user')
-    # def process_patient_observation_form(self, observation, patient_id, *args, **kw):
-    #     cr, uid, context = request.cr, request.uid, request.context
-    #     api = request.registry('nh.eobs.api')
-    #     activity_api = request.registry('nh.activity')
-    #     observation_pool = request.registry('nh.clinical.patient.observation.'+observation)
-    #     converter_pool = request.registry('ir.fields.converter')
-    #     converter = converter_pool.for_model(cr, uid, observation_pool, str, context=context)
-    #     kw_copy = kw.copy()
-    #     test = {}
-    #     timestamp = kw_copy['startTimestamp']
-    #     device_id = kw_copy['device_id'] if 'device_id' in kw_copy else False
-    #
-    #     del kw_copy['startTimestamp']
-    #     if 'taskId' in kw_copy:
-    #         del kw_copy['taskId']
-    #     if device_id:
-    #         del kw_copy['device_id']
-    #     for key, value in kw_copy.items():
-    #         if not value:
-    #             del kw_copy[key]
-    #
-    #     converted_data = converter(kw_copy, test)
-    #     converted_data['date_started'] = datetime.fromtimestamp(int(timestamp)).strftime(DTF)
-    #     if device_id:
-    #         converted_data['device_id'] = device_id
-    #
-    #     new_activity = api.create_activity_for_patient(cr, uid, int(patient_id), observation, context=context)
-    #     result = api.complete(cr, uid, int(new_activity), converted_data, context)
-    #     triggered_ids = activity_api.search(cr, uid, [['creator_id', '=', int(new_activity)]])
-    #     triggered_tasks = [v for v in activity_api.read(cr, uid, triggered_ids, []) if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
-    #     return request.make_response(json.dumps({'status': 1, 'related_tasks': triggered_tasks}), headers={'Content-Type': 'application/json'})
