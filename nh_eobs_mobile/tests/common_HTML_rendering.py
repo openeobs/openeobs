@@ -2,6 +2,7 @@ __author__ = 'lorenzo'
 import jinja2
 import os
 from lxml import etree
+from openerp.addons.nh_eobs_mobile.controllers.urls import URLS
 from openerp.modules.module import get_module_path
 from openerp.tests import common
 
@@ -11,13 +12,13 @@ class MobileHTMLRenderingCase(common.TransactionCase):
 
     @classmethod
     def setUpClass(cls):
-        """
-        Declare useful variables to be inherited and used by the children test cases.
+        """Declare useful variables to be inherited and used by the children test cases.
         For instance:
             - the path to the 'fixtures' directory
             - an XML parser set to remove all the white spaces while parsing a file
             - a Jinja2 environment to be used for rendering templates
             - a context dictionary to be passed to the Odoo's methods requiring it
+            - the URLS dictionary used by the mobile controller
             - etc.
         """
         super(MobileHTMLRenderingCase, cls).setUpClass()
@@ -30,11 +31,10 @@ class MobileHTMLRenderingCase(common.TransactionCase):
             'tz': 'Europe/London',
             'uid': 1
         }
+        cls.controller_urls = URLS
 
     def _get_fixture_file_path(self, fixture_name):
-        """
-        Return the absolute path of a fixture file present in the 'fixtures' sub-directory.
-
+        """Return the absolute path of a fixture file present in the 'fixtures' sub-directory.
         :param fixture_name: A string with the name of the fixture file.
         :returns: A string with the absolute path of the file passed as argument, or False if such a file doesn't exist.
         """

@@ -54,7 +54,7 @@ if (!window.NH) {
 
 window.NH.NHLib = NHLib;
 
-var NHMobile, Promise,
+var NHMobile, NHMobileData, Promise,
   slice = [].slice,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -114,6 +114,20 @@ Promise = (function() {
 
 })();
 
+NHMobileData = (function() {
+  function NHMobileData(raw_data) {
+    var self;
+    this.status = raw_data.status;
+    this.title = raw_data.title;
+    this.desc = raw_data.description;
+    this.data = raw_data.data;
+    self = this;
+  }
+
+  return NHMobileData;
+
+})();
+
 NHMobile = (function(superClass) {
   extend(NHMobile, superClass);
 
@@ -122,12 +136,13 @@ NHMobile = (function(superClass) {
     promise = new Promise();
     req = new XMLHttpRequest();
     req.addEventListener('readystatechange', function() {
-      var btn, msg, ref, successResultCodes;
+      var btn, mob_data, msg, ref, successResultCodes;
       if (req.readyState === 4) {
         successResultCodes = [200, 304];
         if (ref = req.status, indexOf.call(successResultCodes, ref) >= 0) {
-          data = eval('[' + req.responseText + ']');
-          return promise.complete(data);
+          data = JSON.parse(req.responseText);
+          mob_data = new NHMobileData(data);
+          return promise.complete(mob_data);
         } else {
           btn = '<a href="#" data-action="close" ' + 'data-target="data_error">Ok</a>';
           msg = '<div class="block">The server returned an error ' + 'while processing the request. Please check your ' + 'input and resubmit</div>';
@@ -200,14 +215,12 @@ NHMobile = (function(superClass) {
   NHMobile.prototype.get_patient_info = function(patient_id, self) {
     var patient_url;
     patient_url = this.urls.json_patient_info(patient_id).url;
-    Promise.when(this.process_request('GET', patient_url)).then(function(server_data) {
-      var cancel, data, fullscreen, patient_details, patient_name;
-      data = server_data[0][0];
-      patient_name = '';
+    Promise.when(this.process_request('GET', patient_url)).then(function(raw_data) {
+      var cancel, data, fullscreen, patient_details, patient_name, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      patient_name = server_data.title;
       patient_details = '';
-      if (data.full_name) {
-        patient_name += ' ' + data.full_name;
-      }
       if (data.gender) {
         patient_name += '<span class="alignright">' + data.gender + '</span>';
       }
@@ -338,9 +351,10 @@ NHMobileBarcode = (function(superClass) {
       }
       url = self.urls.json_patient_barcode(input.value.split(',')[1]);
       url_meth = url.method;
-      return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
-        var activities_string, activity, content, data, i, len, ref;
-        data = server_data[0][0];
+      return Promise.when(self.process_request(url_meth, url.url)).then(function(raw_data) {
+        var activities_string, activity, content, data, i, len, ref, server_data;
+        server_data = raw_data[0];
+        data = server_data.data;
         activities_string = "";
         if (data.activities.length > 0) {
           activities_string = '<ul class="menu">';
@@ -735,12 +749,13 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.display_partial_reasons = function(self) {
     var form_type;
     form_type = self.form.getAttribute('data-source');
-    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(data) {
-      var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
+    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(rdata) {
+      var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
+      server_data = rdata[0];
+      data = server_data.data;
       options = '';
-      ref = data[0][0];
-      for (i = 0, len = ref.length; i < len; i++) {
-        option = ref[i];
+      for (i = 0, len = data.length; i < len; i++) {
+        option = data[i];
         option_val = option[0];
         option_name = option[1];
         options += '<option value="' + option_val + '">' + option_name + '</option>';
@@ -748,8 +763,8 @@ NHMobileForm = (function(superClass) {
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
-      msg = '<p>Please state reason for ' + 'submitting partial observation</p>';
-      return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
+      msg = '<p>' + server_data.desc + '</p>';
+      return new window.NH.NHModal('partial_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
 
@@ -765,20 +780,21 @@ NHMobileForm = (function(superClass) {
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
-    return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
-      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
-      data = server_data[0][0];
+    return Promise.when(this.call_resource(url, serialised_string)).then(function(raw_data) {
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
+      server_data = raw_data[0];
+      data = server_data.data;
       body = document.getElementsByTagName('body')[0];
-      if (data && data.status === 3) {
+      if (server_data.status === 'success' && data.status === 3) {
         can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
-        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>';
-        new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], [can_btn, act_btn], 0, body);
+        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.next_action + '">Submit</a>';
+        new window.NH.NHModal('submit_observation', server_data.title + ' for ' + self.patient_name() + '?', server_data.desc, [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
-          cls = 'clinicalrisk-' + data.score['clinical_risk'].toLowerCase();
+          cls = 'clinicalrisk-' + data.score.clinical_risk.toLowerCase();
           return sub_ob.classList.add(cls);
         }
-      } else if (data && data.status === 1) {
+      } else if (server_data.status === 'success' && data.status === 1) {
         triggered_tasks = '';
         buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'];
         if (data.related_tasks.length === 1) {
@@ -795,14 +811,13 @@ NHMobileForm = (function(superClass) {
           }
           triggered_tasks = '<ul class="menu">' + tasks + '</ul>';
         }
-        pos = '<p>Observation was submitted</p>';
+        pos = '<p>' + server_data.desc + '</p>';
         os = 'Observation successfully submitted';
         task_list = triggered_tasks ? triggered_tasks : pos;
-        title = triggered_tasks ? 'Action required' : os;
-        return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, body);
-      } else if (data && data.status === 4) {
+        return new window.NH.NHModal('submit_success', server_data.title, task_list, buttons, 0, body);
+      } else if (server_data.status === 'success' && data.status === 4) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
-        return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
+        return new window.NH.NHModal('cancel_success', server_data.title, '<p>' + server_data.desc + '</p>', [btn], 0, self.form);
       } else {
         action_buttons = (function() {
           var j, len1, ref1, ref2, results;
@@ -842,21 +857,22 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.cancel_notification = function(self) {
     var opts;
     opts = this.urls.ajax_task_cancellation_options();
-    return Promise.when(this.call_resource(opts)).then(function(data) {
-      var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
+    return Promise.when(this.call_resource(opts)).then(function(raw_data) {
+      var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
       options = '';
-      ref = data[0][0];
-      for (i = 0, len = ref.length; i < len; i++) {
-        option = ref[i];
+      for (i = 0, len = data.length; i < len; i++) {
+        option = data[i];
         option_val = option.id;
         option_name = option.name;
         options += '<option value="' + option_val + '">' + option_name + '</option>';
       }
       select = '<select name="reason">' + options + '</select>';
-      msg = '<p>Please state reason for cancelling task</p>';
+      msg = '<p>' + server_data.desc + '</p>';
       can_btn = '<a href="#" data-action="close" ' + 'data-target="cancel_reasons">Cancel</a>';
       con_btn = '<a href="#" data-target="cancel_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="cancel_clinical_notification">Confirm</a>';
-      return new window.NH.NHModal('cancel_reasons', 'Cancel task', msg + select, [can_btn, con_btn], 0, document.getElementsByTagName('form')[0]);
+      return new window.NH.NHModal('cancel_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, document.getElementsByTagName('form')[0]);
     });
   };
 
@@ -1003,8 +1019,11 @@ NHMobilePatient = (function(superClass) {
       tab.addEventListener('click', this.handle_tabs);
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(server_data) {
-      return self.draw_graph(self, server_data);
+    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
+      var data, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      return self.draw_graph(self, data);
     });
   }
 
@@ -1039,7 +1058,7 @@ NHMobilePatient = (function(superClass) {
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {
     var bp_graph, c, chart, context, controls, element_for_chart, f, focus, fr, graph_content, graph_tabs, i, len, ob, obs, oxy_graph, pulse_graph, resp_rate_graph, score_graph, svg, tabular_obs, temp_graph;
     element_for_chart = 'chart';
-    obs = server_data[0][0].obs.reverse();
+    obs = server_data.obs.reverse();
     if (obs.length > 0) {
       svg = new window.NH.NHGraphLib('#' + element_for_chart);
       resp_rate_graph = new window.NH.NHGraph();
@@ -1453,19 +1472,21 @@ NHMobileShare = (function(superClass) {
     if (patients.length > 0) {
       url = self.urls.json_colleagues_list();
       urlmeth = url.method;
-      return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-        var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list;
-        data = server_data[0][0];
+      return Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+        var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list, ref, server_data;
+        server_data = raw_data[0];
+        data = server_data.data;
         nurse_list = '<form id="nurse_list"><ul class="sharelist">';
-        for (i = 0, len = data.length; i < len; i++) {
-          nurse = data[i];
-          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse['id'] + '" class="patient_share_nurse" value="' + nurse['id'] + '"/><label for="nurse_select_' + nurse['id'] + '">' + nurse['name'] + ' (' + nurse['patients'] + ')</label></li>';
+        ref = data.colleagues;
+        for (i = 0, len = ref.length; i < len; i++) {
+          nurse = ref[i];
+          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse.id + '" class="patient_share_nurse" value="' + nurse.id + '"/><label for="nurse_select_' + nurse.id + '">' + nurse.name + ' (' + nurse.patients + ')</label></li>';
         }
         nurse_list += '</ul><p class="error"></p></form>';
         assign_btn = '<a href="#" data-action="assign" ' + 'data-target="assign_nurse" data-ajax-action="json_assign_nurse">' + 'Assign</a>';
         can_btn = '<a href="#" data-action="close" data-target="assign_nurse"' + '>Cancel</a>';
         btns = [assign_btn, can_btn];
-        return new window.NH.NHModal('assign_nurse', 'Assign patient to colleague', nurse_list, btns, 0, self.form);
+        return new window.NH.NHModal('assign_nurse', server_data.title, nurse_list, btns, 0, self.form);
       });
     } else {
       msg = '<p>Please select patients to hand' + ' to another staff member</p>';
@@ -1531,10 +1552,11 @@ NHMobileShare = (function(superClass) {
       nurse_ids = 'user_ids=' + nurses;
       patient_ids = 'patient_ids=' + patients;
       data_string = patient_ids + '&' + nurse_ids;
-      Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-        var btns, can_btn, cover, data, i, len, pt, pt_el, pts, share_msg, ti;
-        data = server_data[0][0];
-        if (data['status']) {
+      Promise.when(self.call_resource(url, data_string)).then(function(raw_data) {
+        var btns, can_btn, cover, data, i, len, pt, pt_el, pts, server_data, share_msg, ti;
+        server_data = raw_data[0];
+        data = server_data.data;
+        if (server_data.status === 'success') {
           pts = (function() {
             var i, len, ref, ref1, results;
             ref = form.elements;
@@ -1554,18 +1576,18 @@ NHMobileShare = (function(superClass) {
             pt_el.parentNode.classList.add('shared');
             ti = pt_el.getElementsByClassName('taskInfo')[0];
             if (ti.innerHTML.indexOf('Shared') < 0) {
-              ti.innerHTML = 'Shared with: ' + data['shared_with'].join(', ');
+              ti.innerHTML = 'Shared with: ' + data.shared_with.join(', ');
             } else {
-              ti.innerHTML += ', ' + data['shared_with'].join(', ');
+              ti.innerHTML += ', ' + data.shared_with.join(', ');
             }
           }
           cover = document.getElementById('cover');
           document.getElementsByTagName('body')[0].removeChild(cover);
           popup.parentNode.removeChild(popup);
           can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
-          share_msg = '<p>Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
+          share_msg = '<p>' + server_data.desc + data.shared_with.join(', ') + '</p>';
           btns = [can_btn];
-          return new window.NH.NHModal('share_success', 'Patients Shared', share_msg, btns, 0, body);
+          return new window.NH.NHModal('share_success', server_data.title, share_msg, btns, 0, body);
         } else {
           return error_message.innerHTML = 'Error assigning colleague(s),' + ' please try again';
         }
@@ -1591,15 +1613,16 @@ NHMobileShare = (function(superClass) {
     })();
     data_string = 'patient_ids=' + patients;
     url = self.urls.json_claim_patients();
-    Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-      var body, btns, can_btn, claim_msg, cover, data, i, len, popup, pt, pt_el, pts, ti;
-      data = server_data[0][0];
+    Promise.when(self.call_resource(url, data_string)).then(function(raw_data) {
+      var body, btns, can_btn, claim_msg, cover, data, i, len, popup, pt, pt_el, pts, server_data, ti;
+      server_data = raw_data[0];
+      data = server_data.data;
       popup = document.getElementById('claim_patients');
       cover = document.getElementById('cover');
       body = document.getElementsByTagName('body')[0];
       body.removeChild(cover);
       popup.parentNode.removeChild(popup);
-      if (data['status']) {
+      if (server_data.status === 'success') {
         pts = (function() {
           var i, len, ref, ref1, results;
           ref = form.elements;
@@ -1621,9 +1644,9 @@ NHMobileShare = (function(superClass) {
           ti.innerHTML = '<br>';
         }
         can_btn = '<a href="#" data-action="close" ' + 'data-target="claim_success">Cancel</a>';
-        claim_msg = '<p>Successfully claimed patients</p>';
+        claim_msg = '<p>' + server_data.desc + '</p>';
         btns = [can_btn];
-        return new window.NH.NHModal('claim_success', 'Patients Claimed', claim_msg, btns, 0, body);
+        return new window.NH.NHModal('claim_success', server_data.title, claim_msg, btns, 0, body);
       } else {
         can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Cancel</a>';
         claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
@@ -1718,13 +1741,14 @@ NHMobileShareInvite = (function(superClass) {
     var url, urlmeth;
     url = self.urls.json_invite_patients(activity_id);
     urlmeth = url.method;
-    Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var acpt_btn, body, btns, can_btn, cls_btn, data, j, len, pt, pt_list, pt_obj;
-      data = server_data[0][0];
+    Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+      var acpt_btn, body, btns, can_btn, cls_btn, data, j, len, pt, pt_list, pt_obj, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
       pt_list = '<ul class="tasklist">';
       for (j = 0, len = data.length; j < len; j++) {
         pt = data[j];
-        pt_obj = '<li class="block"><a>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['next_ews_time'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['full_name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<br><em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</a></li>';
+        pt_obj = '<li class="block"><a>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt.next_ews_time + '</p></div>' + '<div class="task-left">' + '<strong>' + pt.full_name + '</strong>' + '(' + pt.ews_score + ' <i class="icon-' + pt.ews_trend + '-arrow"></i> )' + '<br><em>' + pt.location + ', ' + pt.parent_location + '</em>' + '</div>' + '</div>' + '</a></li>';
         pt_list += pt_obj;
       }
       pt_list += '</ul>';
@@ -1733,7 +1757,7 @@ NHMobileShareInvite = (function(superClass) {
       acpt_btn = '<a href="#" data-action="accept" data-target="accept_invite"' + 'data-ajax-action="json_accept_invite" ' + 'data-invite-id="' + activity_id + '">Accept</a>';
       btns = [cls_btn, can_btn, acpt_btn];
       body = document.getElementsByTagName('body')[0];
-      return new window.NH.NHModal('accept_invite', 'Accept invitation to follow patients?', pt_list, btns, 0, body);
+      return new window.NH.NHModal('accept_invite', server_data.title, pt_list, btns, 0, body);
     });
     return true;
   };
@@ -1743,10 +1767,11 @@ NHMobileShareInvite = (function(superClass) {
     url = self.urls.json_accept_patients(activity_id);
     urlmeth = url.method;
     body = document.getElementsByTagName('body')[0];
-    return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1;
-      data = server_data[0][0];
-      if (data['status']) {
+    return Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      if (server_data.status === 'success') {
         invites = document.getElementsByClassName('share_invite');
         invite = ((function() {
           var j, len, results;
@@ -1770,7 +1795,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', '<p>Now following ' + data['count'] + ' patients from ' + data['user'] + '</p>', btns, 0, body);
+        return new window.NH.NHModal('invite_success', server_data.title, '<p>' + server_data.desc + '</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
@@ -1792,10 +1817,11 @@ NHMobileShareInvite = (function(superClass) {
     url = self.urls.json_reject_patients(activity_id);
     urlmeth = url.method;
     body = document.getElementsByTagName('body')[0];
-    return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1;
-      data = server_data[0][0];
-      if (data['status']) {
+    return Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      if (server_data.status === 'success') {
         invites = document.getElementsByClassName('share_invite');
         invite = ((function() {
           var j, len, results;
@@ -1819,7 +1845,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', '<p>The invitation to follow ' + data['user'] + '\'s ' + 'patients was rejected</p>', btns, 0, body);
+        return new window.NH.NHModal('reject_success', server_data.title, '<p>' + server_data.desc + '</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');

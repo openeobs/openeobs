@@ -68,7 +68,7 @@ routes = [
     },
     {
         'name': 'js_routes',
-        'endpoint': 'src/js/routes.js',
+        'endpoint': 'api/v1/routes',
         'method': 'GET',
         'args': False
     },
