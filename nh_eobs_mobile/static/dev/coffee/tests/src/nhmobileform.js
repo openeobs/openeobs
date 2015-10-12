@@ -15,6 +15,7 @@ NHMobileForm = (function(superClass) {
     this.show_reference = bind(this.show_reference, this);
     this.submit = bind(this.submit, this);
     this.trigger_actions = bind(this.trigger_actions, this);
+    this.validate_number_input = bind(this.validate_number_input, this);
     this.validate = bind(this.validate, this);
     var ptn_name, ref, self;
     this.form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
@@ -105,7 +106,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, max, min, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
+    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
@@ -114,20 +115,7 @@ NHMobileForm = (function(superClass) {
     this.reset_input_errors(input);
     if (typeof value !== 'undefined' && value !== '') {
       if (input.getAttribute('type') === 'number' && !isNaN(value)) {
-        min = parseFloat(input.getAttribute('min'));
-        max = parseFloat(input.getAttribute('max'));
-        if (input.getAttribute('step') === '1' && value % 1 !== 0) {
-          this.add_input_errors(input, 'Must be whole number');
-          return;
-        }
-        if (value < min) {
-          this.add_input_errors(input, 'Input too low');
-          return;
-        }
-        if (value > max) {
-          this.add_input_errors(input, 'Input too high');
-          return;
-        }
+        this.validate_number_input(input);
         if (input.getAttribute('data-validation')) {
           criterias = eval(input.getAttribute('data-validation'));
           for (i = 0, len = criterias.length; i < len; i++) {
@@ -145,18 +133,16 @@ NHMobileForm = (function(superClass) {
             cond = target_input_value + ' ' + operator + ' ' + other_input_value;
             if (eval(cond)) {
               this.reset_input_errors(other_input);
-              continue;
-            }
-            if (typeof other_input_value !== 'undefined' && !isNaN(other_input_value) && other_input_value !== '') {
+            } else if (typeof other_input_value !== 'undefined' && !isNaN(other_input_value) && other_input_value !== '') {
               this.add_input_errors(target_input, criteria['message']['target']);
               this.add_input_errors(other_input, criteria['message']['value']);
-              continue;
             } else {
               this.add_input_errors(target_input, criteria['message']['target']);
               this.add_input_errors(other_input, 'Please enter a value');
-              continue;
             }
           }
+          this.validate_number_input(other_input);
+          this.validate_number_input(target_input);
         }
       }
       if (input.getAttribute('type') === 'text') {
@@ -166,6 +152,26 @@ NHMobileForm = (function(superClass) {
             this.add_input_errors(input, 'Invalid value');
           }
         }
+      }
+    }
+  };
+
+  NHMobileForm.prototype.validate_number_input = function(input) {
+    var max, min, value;
+    min = parseFloat(input.getAttribute('min'));
+    max = parseFloat(input.getAttribute('max'));
+    value = parseFloat(input.value);
+    if (typeof value !== 'undefined' && value !== '' && !isNaN(value)) {
+      if (input.getAttribute('step') === '1' && value % 1 !== 0) {
+        this.add_input_errors(input, 'Must be whole number');
+        return;
+      }
+      if (value < min) {
+        this.add_input_errors(input, 'Input too low');
+        return;
+      }
+      if (value > max) {
+        this.add_input_errors(input, 'Input too high');
       }
     }
   };

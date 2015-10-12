@@ -93,17 +93,7 @@ class NHMobileForm extends NHMobile
     @reset_input_errors(input)
     if typeof(value) isnt 'undefined' and value isnt ''
       if input.getAttribute('type') is 'number' and not isNaN(value)
-        min = parseFloat(input.getAttribute('min'))
-        max = parseFloat(input.getAttribute('max'))
-        if input.getAttribute('step') is '1' and value % 1 isnt 0
-          @.add_input_errors(input, 'Must be whole number')
-          return
-        if value < min
-          @.add_input_errors(input, 'Input too low')
-          return
-        if value > max
-          @.add_input_errors(input, 'Input too high')
-          return
+        @validate_number_input(input)
         if input.getAttribute('data-validation')
           criterias = eval(input.getAttribute('data-validation'))
           for criteria in criterias
@@ -119,16 +109,15 @@ class NHMobileForm extends NHMobile
             cond = target_input_value + ' ' + operator + ' ' + other_input_value
             if eval(cond)
               @.reset_input_errors(other_input)
-              continue
-            if typeof(other_input_value) isnt 'undefined' and
+            else if typeof(other_input_value) isnt 'undefined' and
             not isNaN(other_input_value) and other_input_value isnt ''
               @.add_input_errors(target_input, criteria['message']['target'])
               @.add_input_errors(other_input, criteria['message']['value'])
-              continue
             else
               @.add_input_errors(target_input, criteria['message']['target'])
               @.add_input_errors(other_input, 'Please enter a value')
-              continue
+          @validate_number_input(other_input)
+          @validate_number_input(target_input)
       if input.getAttribute('type') is 'text'
         if input.getAttribute('pattern')
           regex_res = input.validity.patternMismatch
@@ -136,6 +125,22 @@ class NHMobileForm extends NHMobile
             @.add_input_errors(input, 'Invalid value')
             return
 
+  # Validate number input to make sure it fits within the defined range and is
+  # float or int
+  validate_number_input: (input) =>
+    min = parseFloat(input.getAttribute('min'))
+    max = parseFloat(input.getAttribute('max'))
+    value = parseFloat(input.value)
+    if typeof(value) isnt 'undefined' and value isnt '' and not isNaN(value)
+      if input.getAttribute('step') is '1' and value % 1 isnt 0
+        @.add_input_errors(input, 'Must be whole number')
+        return
+      if value < min
+        @.add_input_errors(input, 'Input too low')
+        return
+      if value > max
+        @.add_input_errors(input, 'Input too high')
+        return
   
   # Certain inputs will affect other inputs, this function takes the JSON string
   # in the input's data-onchange attribute and does the appropriate action
