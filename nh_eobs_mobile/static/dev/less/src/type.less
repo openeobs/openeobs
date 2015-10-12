@@ -18,53 +18,74 @@ Markup:
 <h4>Header 4</h4>
 <h5>Header 5</h5>
 <h6>Header 6</h6>
-<p>Paragraph</p>
+<h2>Paragraph Styles</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dignissim ullamcorper eros. Suspendisse efficitur leo id tellus finibus laoreet et ac sem. Nunc vestibulum erat odio. In laoreet posuere libero, at ultricies orci malesuada ac. Duis aliquam quam ut blandit scelerisque. Proin magna felis, luctus vitae justo id, rhoncus gravida nisi. Aenean elementum velit est, sed efficitur justo scelerisque eget. Proin ut arcu a dolor laoreet dictum. Aenean rhoncus, odio at interdum consequat, elit tellus suscipit est, suscipit tristique nisi justo vitae dolor. Fusce et suscipit nibh. Duis dui leo, fermentum a libero sed, cursus imperdiet risus. Sed auctor vehicula interdum. In sit amet ultrices eros, vel tincidunt purus. Nullam porta et risus a eleifend.</p>
+<p>Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.</p>
+<h3>Header in paragraph</h3>
+<p>Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.</p>
+<h2>List styles</h2>
 <ul>
   <li>List item</li>
   <li>List item</li>
 </ul>
+<ol>
+  <li>List item</li>
+  <li>List item</li>
+</ol>
+<dl>
+  <dt>Definition</dt>
+  <dd>Description</dd>
+  <dt>Definition</dt>
+  <dd>Description</dd>
+</dl>
 
 Styleguide 1.3
 */
 @import "utils.less";
 
-@base-font-size: 1.25rem;
-@base-line-height: 1.75rem;
-@measure: 760px;
-
 body {
   font-size: 1.25rem;
   line-height: 1.75rem;
-  max-width: 760px;
   margin: 0 auto;
 }
 h1 {
   font-size: 2.1875rem;
   line-height: 3.5rem;
   margin-top: 3.5rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 0;
+  //margin-bottom: 1.75rem;
 }
 h2 {
   font-size: 1.8125rem;
-  line-height: 3.5rem;
-  margin-top: 3.5rem;
-  margin-bottom: 1.75rem;
+  line-height: 2.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+  //margin-bottom: 1.75rem;
 }
 h3 {
   font-size: 1.5rem;
   line-height: 1.75rem;
   margin-top: 1.75rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 0;
+  //margin-bottom: 1.75rem;
 }
 h4 {
   font-size: 1.25rem;
   line-height: 1.75rem;
   margin-top: 1.75rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 0;
+  //margin-bottom: 1.75rem;
 }
-p, ul, ol, pre, table, blockquote {
+ul, ol, pre, table, blockquote {
   margin-top: 1.75rem;
   margin-bottom: 1.75rem;
+}
+p{
+  margin-top: 0;
+  margin-bottom: 1.75rem;
+}
+dd{
+  -webkit-margin-start: 0;
 }
 
 /* Sanitation */

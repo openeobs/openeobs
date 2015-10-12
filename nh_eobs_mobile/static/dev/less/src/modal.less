@@ -264,11 +264,22 @@ Styleguide 2.4.2
         margin: 0.5em 0;
       }
     }
+    p, dl{
+      &:first-child{
+        margin-top: 0.6rem;
+      }
+    }
   }
   &.obsAlert{
     display: inline-block !important;
   }
-  h2, p{
+  h2{
+    margin-top: 0.6rem;
+    margin-bottom: 0.6rem;
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+  p{
     padding-left: 5%;
     padding-right: 5%;
   }
