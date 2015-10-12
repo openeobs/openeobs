@@ -21,9 +21,9 @@ class TestApiDemo(TransactionCase):
         self.patient_pool = self.registry('nh.clinical.patient')
         self.activity_pool = self.registry('nh.activity')
 
-        self.adtgroup_id = self.group_pool.search(cr, uid, [['name', '=', 'NH Clinical ADT Group']])
-        self.adtuid_ids = self.user_pool.search(cr, uid, [['groups_id', 'in', self.adtgroup_id]])
-        if not self.adtuid_ids:
+        self.admin_group_id = self.group_pool.search(cr, uid, [['name', '=', 'NH Clinical Admin Group']])
+        self.admin_uid_ids = self.user_pool.search(cr, uid, [['groups_id', 'in', self.admin_group_id]])
+        if not self.admin_uid_ids:
             raise osv.except_osv('No ADT User!', 'ADT user required to register patient.')
 
     ##############
@@ -242,7 +242,7 @@ class TestApiDemo(TransactionCase):
     def test_12_generate_patients(self):
         cr, uid = self.cr, self.uid
 
-        patient_ids = self.api_demo.generate_patients(cr, self.adtuid_ids[0], 10)
+        patient_ids = self.api_demo.generate_patients(cr, self.admin_uid_ids[0], 10)
         self.assertEquals(10, len(patient_ids))
         # test if gender, sex, ethnicity, names, dob have been assigned.
         for id in patient_ids:
@@ -256,9 +256,9 @@ class TestApiDemo(TransactionCase):
             self.assertEquals(len(patient.dob) > 0, True)
 
         # test for unexpected arguments.
-        self.assertEquals(0, len(self.api_demo.generate_patients(cr, self.adtuid_ids[0], 0)))
-        self.assertEquals(0, len(self.api_demo.generate_patients(cr, self.adtuid_ids[0], -1)))
-        self.assertRaises(TypeError, self.api_demo.generate_patients, cr, self.adtuid_ids[0], "test")
+        self.assertEquals(0, len(self.api_demo.generate_patients(cr, self.admin_uid_ids[0], 0)))
+        self.assertEquals(0, len(self.api_demo.generate_patients(cr, self.admin_uid_ids[0], -1)))
+        self.assertRaises(TypeError, self.api_demo.generate_patients, cr, self.admin_uid_ids[0], "test")
 
     def test_13_admit_patients(self):
         cr, uid, = self.cr, self.uid
