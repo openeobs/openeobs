@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Notifications &mdash; nh_observations 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="nh_observations 0.0.1 documentation" href="index.html" />
+    <link rel="prev" title="Parameters" href="parameters.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="parameters.html" title="Parameters"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">nh_observations 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-notifications">
+<span id="notifications"></span><h1><code class="docutils literal"><span class="pre">Notifications</span></code><a class="headerlink" href="#module-notifications" title="Permalink to this headline">¶</a></h1>
+<p><cite>notifications.py</cite> defines a set of activity types to serve as
+informative reminders for the users that some action needs to take
+place. They usually don&#8217;t represent an action themselves.</p>
+<p>A complete notification means the notification was read and the action
+it refers to was done.</p>
+<p>The abstract definition of a notification from which all other
+notifications inherit is also included here.</p>
+<div class="section" id="base-notification">
+<h2><code class="docutils literal"><span class="pre">Base</span> <span class="pre">Notification</span></code><a class="headerlink" href="#base-notification" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="notifications.nh_clinical_notification">
+<em class="property">class </em><code class="descclassname">notifications.</code><code class="descname">nh_clinical_notification</code><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract representation of what a clinical notification is. Contains
+common information that all notifications will have but does not
+represent any entity itself, so it basically acts as a template
+for every other notification.</p>
+<dl class="method">
+<dt id="notifications.nh_clinical_notification.get_form_description">
+<code class="descname">get_form_description</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>patient_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification.get_form_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification.get_form_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a description in dictionary format of the input fields
+that would be required in the user gui when the notification is
+shown.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>patient_id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> id</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of dictionaries</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifications.nh_clinical_notification.is_cancellable">
+<code class="descname">is_cancellable</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification.is_cancellable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification.is_cancellable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notifications cannot be cancelled by the user by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">False</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="hca-notification">
+<h2><code class="docutils literal"><span class="pre">HCA</span> <span class="pre">Notification</span></code><a class="headerlink" href="#hca-notification" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="notifications.nh_clinical_notification_hca">
+<em class="property">class </em><code class="descclassname">notifications.</code><code class="descname">nh_clinical_notification_hca</code><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_hca"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_hca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a generic notification meant to be addressed only for
+the <cite>HCA</cite> user group.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="nurse-notification">
+<h2><code class="docutils literal"><span class="pre">Nurse</span> <span class="pre">Notification</span></code><a class="headerlink" href="#nurse-notification" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="notifications.nh_clinical_notification_nurse">
+<em class="property">class </em><code class="descclassname">notifications.</code><code class="descname">nh_clinical_notification_nurse</code><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_nurse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_nurse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a generic notification meant to be addressed only for
+the <cite>Nurse</cite> user group.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="review-frequency">
+<h2><code class="docutils literal"><span class="pre">Review</span> <span class="pre">Frequency</span></code><a class="headerlink" href="#review-frequency" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="notifications.nh_clinical_notification_frequency">
+<em class="property">class </em><code class="descclassname">notifications.</code><code class="descname">nh_clinical_notification_frequency</code><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_frequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>This notification addresses the specific need of an observation
+frequency that needs to be reviewed by the medical staff.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="doctor-assessment">
+<h2><code class="docutils literal"><span class="pre">Doctor</span> <span class="pre">Assessment</span></code><a class="headerlink" href="#doctor-assessment" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="notifications.nh_clinical_notification_doctor_assessment">
+<em class="property">class </em><code class="descclassname">notifications.</code><code class="descname">nh_clinical_notification_doctor_assessment</code><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_doctor_assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_doctor_assessment" title="Permalink to this definition">¶</a></dt>
+<dd><p>This notification addresses the specific need of a doctor
+assessment needs to take place.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="index.html">
+<img class="logo" src="_static/img/company_logo.png" alt="Logo"/>
+</a></p><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="observations.html"><code class="docutils literal"><span class="pre">Observations</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html"><code class="docutils literal"><span class="pre">Parameters</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href=""><code class="docutils literal"><span class="pre">Notifications</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#base-notification"><code class="docutils literal"><span class="pre">Base</span> <span class="pre">Notification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hca-notification"><code class="docutils literal"><span class="pre">HCA</span> <span class="pre">Notification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nurse-notification"><code class="docutils literal"><span class="pre">Nurse</span> <span class="pre">Notification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#review-frequency"><code class="docutils literal"><span class="pre">Review</span> <span class="pre">Frequency</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#doctor-assessment"><code class="docutils literal"><span class="pre">Doctor</span> <span class="pre">Assessment</span></code></a></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="parameters.html"
+                        title="previous chapter"><code class="docutils literal"><span class="pre">Parameters</span></code></a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Neova Health.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
