@@ -17,6 +17,7 @@
     "phantomjs": "1.9.16",
     "karma-coverage": "0.2.7",
     "karma-nyan-reporter": "0.0.60",
-    "karma-html-reporter": "*"
+    "karma-html-reporter": "*",
+    "karma-sauce-launcher": "^0.2.14"
   }
 }

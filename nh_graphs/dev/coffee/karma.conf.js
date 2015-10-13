@@ -3,10 +3,16 @@ module.exports = function(config) {
         basePath: '',
 
         files: [
+            'tests/src/*.js',
+            'tests/lib/*.js',
+            'tests/spec/*.js'
         ],
 
         exclude: [
         ],
+
+        hostname: 'localhost',
+        port: 9876,
 
         reporters: ['nyan', 'html', 'coverage'],
 

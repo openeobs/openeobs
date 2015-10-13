@@ -35,4 +35,12 @@ gulp.task('docs', function(){
 	.pipe(gulp.dest('docs'))
 })
 
+gulp.task('pycharm_test_compile', function(){
+	gulp.src(['src/*.coffee'])
+	.pipe(coffeelint())
+	.pipe(coffeelint.reporter())
+	.pipe(coffee({bare: true}))
+	.pipe(gulp.dest('tests/src'))
+});
+
 gulp.task('default', ['compile']);
