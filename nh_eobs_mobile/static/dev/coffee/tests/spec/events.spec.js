@@ -67,15 +67,22 @@ describe("Event Handling", function(){
                 mobile = new NHMobile();
                 spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
                    var promise = new Promise();
-                   promise.complete([{
-                        'full_name': 'Test Patient',
-                        'gender': 'M',
-                        'dob': '1988-01-12 00:00',
-                        'location': 'Bed 1',
-                        'ews_score': 1,
-                        'other_identifier': '012345678',
-                        'patient_identifier': 'NHS012345678'
-                    }]);
+                   var fake_patient = new NHMobileData({
+                       status: 'success',
+                       title: 'Test Patient',
+                       description: 'Information on Test Patient',
+                       data: {
+                            full_name : 'Test Patient',
+                            gender: 'M',
+                            dob : '1988-01-12 00:00',
+                            location : 'Bed 1',
+                            ews_score : 1,
+                            other_identifier : '012345678',
+                            patient_identifier : 'NHS012345678'
+                        }
+                    }
+                   );
+                   promise.complete(fake_patient);
                    return promise;
                 });
             });
@@ -277,7 +284,15 @@ describe("Event Handling", function(){
                 spyOn(NHMobilePatient.prototype, 'handle_tabs');
                 spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                    var promise = new Promise();
-                    promise.complete([{'obs': []}]);
+                    var empty_graph = new NHMobileData({
+                        status: 'success',
+                        title: 'Test Patient',
+                        description: 'Observations for Test Patient',
+                        data: {
+                            obs: []
+                        }
+                    });
+                    promise.complete(empty_graph);
                     return promise;
                 });
                 var test = document.getElementById('test');

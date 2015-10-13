@@ -259,9 +259,11 @@ class NHMobileForm extends NHMobile
 
   display_partial_reasons: (self) =>
     form_type = self.form.getAttribute('data-source')
-    Promise.when(@call_resource(@.urls.json_partial_reasons())).then (data) ->
+    Promise.when(@call_resource(@.urls.json_partial_reasons())).then (rdata) ->
+      server_data = rdata[0]
+      data = server_data.data
       options = ''
-      for option in data[0][0]
+      for option in data
         option_val = option[0]
         option_name = option[1]
         options += '<option value="'+option_val+'">'+option_name+'</option>'
@@ -274,9 +276,8 @@ class NHMobileForm extends NHMobile
         'data-ajax-action="json_patient_form_action">Confirm</a>'
       can_btn = '<a href="#" data-action="renable" '+
         'data-target="partial_reasons">Cancel</a>'
-      msg = '<p>Please state reason for '+
-        'submitting partial observation</p>'
-      new window.NH.NHModal('partial_reasons', 'Submit partial observation',
+      msg = '<p>' + server_data.desc + '</p>'
+      new window.NH.NHModal('partial_reasons', server_data.title,
         msg+select, [can_btn, con_btn], 0, self.form)
 
   submit_observation: (self, elements, endpoint, args) =>
@@ -284,24 +285,25 @@ class NHMobileForm extends NHMobile
     serialised_string = (el.name+'='+el.value for el in elements).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
     # Disable the action buttons
-    Promise.when(@call_resource(url, serialised_string)).then (server_data) ->
-      data = server_data[0][0]
+    Promise.when(@call_resource(url, serialised_string)).then (raw_data) ->
+      server_data = raw_data[0]
+      data = server_data.data
       body = document.getElementsByTagName('body')[0]
-      if data and data.status is 3
+      if server_data.status is 'success' and data.status is 3
         can_btn = '<a href="#" data-action="renable" '+
           'data-target="submit_observation">Cancel</a>'
         act_btn = '<a href="#" data-target="submit_observation" '+
           'data-action="submit" data-ajax-action="'+
-          data.modal_vals['next_action']+'">Submit</a>'
+          data.next_action+'">Submit</a>'
         new window.NH.NHModal('submit_observation',
-          data.modal_vals['title'] + ' for ' + self.patient_name() + '?',
-          data.modal_vals['content'],
+          server_data.title + ' for ' + self.patient_name() + '?',
+          server_data.desc,
           [can_btn, act_btn], 0, body)
         if 'clinical_risk' of data.score
           sub_ob = document.getElementById('submit_observation')
-          cls = 'clinicalrisk-'+data.score['clinical_risk'].toLowerCase()
+          cls = 'clinicalrisk-'+data.score.clinical_risk.toLowerCase()
           sub_ob.classList.add(cls)
-      else if data and data.status is 1
+      else if server_data.status is 'success' and data.status is 1
         triggered_tasks = ''
         buttons = ['<a href="'+self.urls['task_list']().url+
           '" data-action="confirm">Go to My Tasks</a>']
@@ -315,18 +317,17 @@ class NHMobileForm extends NHMobile
             st_url = self.urls['single_task'](task.id).url
             tasks += '<li><a href="'+st_url+'">'+task.summary+'</a></li>'
           triggered_tasks = '<ul class="menu">'+tasks+'</ul>'
-        pos = '<p>Observation was submitted</p>'
+        pos = '<p>' + server_data.desc + '</p>'
         os = 'Observation successfully submitted'
         task_list = if triggered_tasks then triggered_tasks else pos
-        title = if triggered_tasks then 'Action required' else os
-        new window.NH.NHModal('submit_success', title ,
+        new window.NH.NHModal('submit_success', server_data.title ,
           task_list, buttons, 0, body)
-      else if data and data.status is 4
+      else if server_data.status is 'success' and data.status is 4
         btn = '<a href="'+self.urls['task_list']().url+
           '" data-action="confirm" data-target="cancel_success">'+
           'Go to My Tasks</a>'
-        new window.NH.NHModal('cancel_success', 'Task successfully cancelled',
-          '', [btn], 0, self.form)
+        new window.NH.NHModal('cancel_success', server_data.title,
+          '<p>' + server_data.desc + '</p>', [btn], 0, self.form)
       else
         action_buttons = (element for element in self.form.elements \
           when element.getAttribute('type') in ['submit', 'reset'])
@@ -350,20 +351,22 @@ class NHMobileForm extends NHMobile
 
   cancel_notification: (self) =>
     opts = @.urls.ajax_task_cancellation_options()
-    Promise.when(@call_resource(opts)).then (data) ->
+    Promise.when(@call_resource(opts)).then (raw_data) ->
+      server_data = raw_data[0]
+      data = server_data.data
       options = ''
-      for option in data[0][0]
+      for option in data
         option_val = option.id
         option_name = option.name
         options += '<option value="'+option_val+'">'+option_name+'</option>'
       select = '<select name="reason">'+options+'</select>'
-      msg = '<p>Please state reason for cancelling task</p>'
+      msg = '<p>' + server_data.desc + '</p>'
       can_btn = '<a href="#" data-action="close" '+
         'data-target="cancel_reasons">Cancel</a>'
       con_btn = '<a href="#" data-target="cancel_reasons" '+
         'data-action="partial_submit" '+
         'data-ajax-action="cancel_clinical_notification">Confirm</a>'
-      new window.NH.NHModal('cancel_reasons', 'Cancel task', msg+select,
+      new window.NH.NHModal('cancel_reasons', server_data.title, msg+select,
         [can_btn, con_btn], 0, document.getElementsByTagName('form')[0])
 
   reset_form_timeout: (self) ->

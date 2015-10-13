@@ -3,15 +3,20 @@
  */
 describe('Patient Information Functionality', function(){
     var mobile;
-    var patient_info_data = [{
-        'full_name': 'Test Patient',
-        'gender': 'M',
-        'dob': '1988-01-12 00:00',
-        'location': 'Bed 1',
-        'ews_score': 1,
-        'other_identifier': '012345678',
-        'patient_identifier': 'NHS012345678'
-    }];
+    var patient_info_data = new NHMobileData({
+        status: 'success',
+        title: 'Test Patient',
+        description: 'Information on Test Patient',
+        data: {
+            full_name: 'Test Patient',
+            gender: 'M',
+            dob: '1988-01-12 00:00',
+            location: 'Bed 1',
+            ews_score: 1,
+            other_identifier: '012345678',
+            patient_identifier: 'NHS012345678'
+        }
+    });
     beforeEach(function(){
         var body_el = document.getElementsByTagName('body')[0];
         var test = document.getElementById('test');
@@ -72,7 +77,7 @@ describe('Patient Information Functionality', function(){
             expect(NHMobile.prototype.process_request).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[1]).toBe('patient_info');
-            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe(' Test Patient<span class="alignright">M</span>');
+            expect(NHModal.prototype.create_dialog.calls.argsFor(0)[2]).toBe('Test Patient<span class="alignright">M</span>');
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl><p><a href="http://localhost:8069/mobile/patient/3" id="patient_obs_fullscreen" class="button patient_obs">View Patient Observation Data</a></p>');
         });
     });
@@ -80,8 +85,7 @@ describe('Patient Information Functionality', function(){
     describe('Rendering patient information using patient data from server', function(){
         var test_pat;
         beforeEach(function(){
-            var raw_test_pat = eval(patient_info_data);
-            test_pat = raw_test_pat[0];
+            test_pat = patient_info_data.data;
         });
         it('Renders name and gender in body if nameless flag set to false', function(){
             var test_pat_info = mobile.render_patient_info(test_pat, false, mobile)
@@ -172,7 +176,7 @@ describe('Patient Information Functionality', function(){
     });
 
     describe('Getting patient information by scanning a barcode on patient\'s wristband', function(){
-        var barcode, test_area;
+        var barcode, test_area, barcode_data;
         beforeEach(function(){
             test_area = document.getElementById('test');
             test_area.innerHTML = '<div class="header">' +
@@ -188,31 +192,37 @@ describe('Patient Information Functionality', function(){
                 '</ul></div>'
             trigger_button = test_area.getElementsByClassName('scan')[0];
             barcode = new NHMobileBarcode(trigger_button);
-            patient_info_data[0] = {
-                'full_name': 'Test Patient',
-                'gender': 'M',
-                'dob': '1988-01-12 00:00',
-                'location': 'Bed 1',
-                'ews_score': 1,
-                'ews_trend': 'up',
-                'other_identifier': '012345678',
-                'patient_identifier': 'NHS012345678',
-                'activities': [
-                    {
-                        'display_name': 'NEWS Observation',
-                        'id': 1,
-                        'time': 'Overdue: 00:10 hours'
-                    },
-                    {
-                        'display_name': 'Inform Medical Team',
-                        'id': 2,
-                        'time': ''
-                    }
-                ]
-            };
+            barcode_data = new NHMobileData({
+                status: 'success',
+                title: 'Test Patient',
+                description: 'Information on Test Patient',
+                data: {
+                    full_name: 'Test Patient',
+                    gender: 'M',
+                    dob: '1988-01-12 00:00',
+                    location: 'Bed 1',
+                    //parent_location: 'Ward 1',
+                    ews_score: 1,
+                    ews_trend: 'up',
+                    other_identifier: '012345678',
+                    patient_identifier: 'NHS012345678',
+                    activities: [
+                        {
+                            display_name: 'NEWS Observation',
+                            id: 1,
+                            time: 'Overdue: 00:10 hours'
+                        },
+                        {
+                            display_name: 'Inform Medical Team',
+                            id: 2,
+                            time: ''
+                        }
+                    ]
+                }
+            });
             spyOn(NHMobileBarcode.prototype, 'process_request').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete(patient_info_data);
+                promise.complete(barcode_data);
                 return promise;
             });
         });
@@ -322,7 +332,7 @@ describe('Patient Information Functionality', function(){
         });
 
         it('It receives patient\'s data, without activities and render it', function(){
-            patient_info_data[0]["activities"] = [];
+            barcode_data.data.activities = [];
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
             spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
@@ -521,7 +531,15 @@ describe('Patient Information Functionality', function(){
         it('On receiving no data from the server removes the tabs, controls and shows a message to say so', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
-                promise.complete([{'obs': []}]);
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                            obs: []
+                    }
+                });
+                promise.complete(empty_graph);
                 return promise;
             });
             spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
@@ -538,61 +556,68 @@ describe('Patient Information Functionality', function(){
         it('On receiving data from the server creates NHGraph and NHTable objects to draw into the chart element', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
-                promise.complete([{'obs': [{
-                    'respiration_rate': 18,
-                    'indirect_oxymetry_spo2': 99,
-                    'body_temperature': 37.5,
-                    'pulse_rate': 80,
-                    'blood_pressure_systolic': 120,
-                    'blood_pressure_diastolic': 80,
-                    'score': 0,
-                    'avpu_text': 'A',
-                    'oxygen_administration_flag': false,
-                    'flow_rate': false,
-                    'concentration': false,
-                    'device_id': false,
-                    'cpap_peep': false,
-                    'niv_backup': false,
-                    'niv_ipap': false,
-                    'niv_epap': false
-                },
-                {
-                    'respiration_rate': 18,
-                    'indirect_oxymetry_spo2': 99,
-                    'body_temperature': 37.5,
-                    'pulse_rate': 80,
-                    'blood_pressure_systolic': 120,
-                    'blood_pressure_diastolic': 80,
-                    'score': 0,
-                    'avpu_text': 'A',
-                    'oxygen_administration_flag': true,
-                    'flow_rate': 0.5,
-                    'concentration': false,
-                    'device_id': [1, 'Test CPAP Device'],
-                    'cpap_peep': 2,
-                    'niv_backup': false,
-                    'niv_ipap': false,
-                    'niv_epap': false
-                },
-                {
-                    'respiration_rate': 18,
-                    'indirect_oxymetry_spo2': 99,
-                    'body_temperature': 37.5,
-                    'pulse_rate': 80,
-                    'blood_pressure_systolic': 120,
-                    'blood_pressure_diastolic': 80,
-                    'score': 0,
-                    'avpu_text': 'A',
-                    'oxygen_administration_flag': true,
-                    'flow_rate': false,
-                    'concentration': 2,
-                    'device_id': [1, 'Test NIV Device'],
-                    'cpap_peep': false,
-                    'niv_backup': 1,
-                    'niv_ipap': 2,
-                    'niv_epap': 3
-                }
-                ]}]);
+                var graph_data = new NHMobileData({
+                    status: 'success', 
+                    title: 'Test Patient', 
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: [{
+                        respiration_rate: 18,
+                        indirect_oxymetry_spo2: 99,
+                        body_temperature: 37.5,
+                        pulse_rate: 80,
+                        blood_pressure_systolic: 120,
+                        blood_pressure_diastolic: 80,
+                        score: 0,
+                        avpu_text: 'A',
+                        oxygen_administration_flag: false,
+                        flow_rate: false,
+                        concentration: false,
+                        device_id: false,
+                        cpap_peep: false,
+                        niv_backup: false,
+                        niv_ipap: false,
+                        niv_epap: false
+                    },
+                    {
+                        respiration_rate: 18,
+                        indirect_oxymetry_spo2: 99,
+                        body_temperature: 37.5,
+                        pulse_rate: 80,
+                        blood_pressure_systolic: 120,
+                        blood_pressure_diastolic: 80,
+                        score: 0,
+                        avpu_text: 'A',
+                        oxygen_administration_flag: true,
+                        flow_rate: 0.5,
+                        concentration: false,
+                        device_id: [1, 'Test CPAP Device'],
+                        cpap_peep: 2,
+                        niv_backup: false,
+                        niv_ipap: false,
+                        niv_epap: false
+                    },
+                    {
+                        respiration_rate: 18,
+                        indirect_oxymetry_spo2: 99,
+                        body_temperature: 37.5,
+                        pulse_rate: 80,
+                        blood_pressure_systolic: 120,
+                        blood_pressure_diastolic: 80,
+                        score: 0,
+                        avpu_text: 'A',
+                        oxygen_administration_flag: true,
+                        flow_rate: false,
+                        concentration: 2,
+                        device_id: [1, 'Test NIV Device'],
+                        cpap_peep: false,
+                        niv_backup: 1,
+                        niv_ipap: 2,
+                        niv_epap: 3
+                    }
+                    ]
+                }});
+                promise.complete(graph_data);
                 return promise;
             });
             spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
@@ -628,7 +653,14 @@ describe('Patient Information Functionality', function(){
             spyOn(NHMobilePatient.prototype, 'handle_tabs').and.callThrough();
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete([{'obs': []}]);
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                        obs: []
+                    }});
+                promise.complete(empty_graph);
                 return promise;
             });
             nhpatient = new NHMobilePatient();
@@ -658,7 +690,14 @@ describe('Patient Information Functionality', function(){
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete([{'obs': []}]);
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                        obs: []
+                    }});
+                promise.complete(empty_graph);
                 return promise;
             });
             nhpatient = new NHMobilePatient();

@@ -12,7 +12,7 @@
                     <link rel="manifest" t-att-href="urls['manifest']"/>
                     <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
-                    <script t-att-src="urls['js_routes']" type="text/javascript"></script>
+                    <script src="/api/v1/routes" type="text/javascript"></script>
                     <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
                 </head>
                 <body>
@@ -103,7 +103,7 @@
                                         <t t-if="'notification' in item and item['notification']==True">
                                             <i class="icon-alert"></i>
                                         </t>
-                                        <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i>)<br/>
+                                        <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
                                         <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
                                     </div>
                                 </div>
@@ -153,7 +153,7 @@
                             </li>
                             <t t-foreach="items" t-as="item">
                                 <li>
-                                    <label t-att-class="'shared' if item['invited_users'] else ''">
+                                    <label t-att-class="'shared' if item.get('invited_users') else ''">
                                         <input type="checkbox" t-att-name="'patient_share_'+str(item['id'])" t-att-value="item['id']" class="patient-share"/>
                                         <div t-att-class="item['color']+' block'">
                                             <div class="task-meta">
@@ -164,13 +164,13 @@
                                                     <t t-if="'notification' in item and item['notification']==True">
                                                         <i class="icon-alert"></i>
                                                     </t>
-                                                    <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
+                                                    <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="item['trend_icon']"></i></t>)</t><br/>
                                                     <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
                                                 </div>
                                             </div>
                                             <div class="task-meta">
-                                                <p class="taskInfo"><t t-if="item['invited_users']">Shared with: <t t-esc="item['invited_users']"/></t><br/>
-                                                <t t-if="item['followers']">Following: <t t-esc="item['followers']"/></t><br/></p>
+                                                <p class="taskInfo"><t t-if="item.get('invited_users')">Shared with: <t t-esc="item['invited_users']"/></t><br/>
+                                                <t t-if="item.get('followers')">Following: <t t-esc="item['followers']"/></t><br/></p>
                                             </div>
                                         </div>
                                     </label>
@@ -276,14 +276,15 @@
                             <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
-                   <t t-if="item['name']=='bristol_type'">
-                       <p><button data-type="image" t-att-data-url="urls['bristol_stools_chart']" data-title="Bristol Stools Chart" class="button exclude">Bristol Type Reference</button></p>
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                   <t t-if="reference">
+                       <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
                    </t>
                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
                </div>
            </div>
-       </template>
+        </template>
 
         <template name="Input box" t-name="nh_eobs_mobile.observation_data_input">
             <div t-att-class="'block obsField valHide' if 'initially_hidden' in item and item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
@@ -301,6 +302,10 @@
                     </t>  -->
                 </div>
                 <div class="input-body">
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                    </t>
                     <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
                 </div>
@@ -316,16 +321,32 @@
                         </t> -->
 
                     <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''"/>
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
                     <!-- </t>
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
                     </t>  -->
                 </div>
                 <div class="input-body">
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                    </t>
                     <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
                 </div>
+                <!--<div class="input-body">-->
+                    <!--<span class="errors">-->
+                        <!--<t t-if="item['errors']">-->
+                            <!--<t t-esc="item['errors']"/>-->
+                        <!--</t>-->
+                    <!--</span>-->
+                    <!--<span class="help">-->
+                        <!--<t t-if="item['info']">-->
+                            <!--<t t-esc="item['info']"/>-->
+                        <!--</t>-->
+                    <!--</span>-->
+                <!--</div>-->
             </div>
         </template>
 
@@ -360,7 +381,7 @@
                                 <h3 class="obs">Take observation</h3>
                             </t>
                         </a>
-                        <ul id="obsMenu" class="menu hidden">
+                        <ul t-if="len(obs_list) > 0" id="obsMenu" class="menu hidden">
                             <t t-foreach="obs_list" t-as="ob">
                                 <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>
                             </t>

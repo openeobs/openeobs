@@ -53,7 +53,13 @@ describe('Data Entry Functionality', function(){
                  spyOn(NHMobileForm.prototype, 'add_input_errors').and.callThrough();
                  spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                      var promise = new Promise();
-                     promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                      return promise;
                  });
 
@@ -391,7 +397,13 @@ describe('Data Entry Functionality', function(){
                  spyOn(NHMobileForm.prototype, 'add_input_errors').and.callThrough();
                  spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                      var promise = new Promise();
-                     promise.complete([{}]);
+                     var empty = new NHMobileData({
+                         status: 'success',
+                         title: '',
+                         description: '',
+                         data: {}
+                     })
+                     promise.complete(empty);
                      return promise;
                  });
 
@@ -558,7 +570,13 @@ describe('Data Entry Functionality', function(){
             spyOn(NHMobileForm.prototype, 'handle_timeout').and.callThrough();
             spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete([{}]);
+                 var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                 return promise;
             });
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
@@ -653,7 +671,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
                 var test = document.getElementById('test');
@@ -763,11 +787,32 @@ describe('Data Entry Functionality', function(){
                     var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if (url == 'http://localhost:8069/mobile/ews/partial_reasons/') {
-                        promise.complete([[[1,'Option 1'], [2, 'Option 2']]]);
+                        var partial_reasons = new NHMobileData({
+                            status: 'success',
+                            title: 'Reason for partial observation',
+                            description: 'Please state reason for submitting partial observation',
+                            data: [[1,'Option 1'], [2, 'Option 2']]
+                        });
+                        promise.complete(partial_reasons);
                     }else if(url == 'http://localhost:8069/mobile/task/submit_ajax/test/0'){
-                        promise.complete([{'status': 1, 'related_tasks': []}])
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                status: 1,
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(obs_submit)
                     }else{
-                        promise.complete([{}]);
+                         var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     }
                     return promise;
                 });
@@ -821,7 +866,8 @@ describe('Data Entry Functionality', function(){
                 // check modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('partial_reasons');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Submit partial observation');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Reason for partial observation');
+                // failing due to data from server not being correct
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
 
                 // choose an option and click the submit button
@@ -843,8 +889,8 @@ describe('Data Entry Functionality', function(){
                 // check that modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
 
             });
         });
@@ -944,11 +990,41 @@ describe('Data Entry Functionality', function(){
                     var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if (url == 'http://localhost:8069/mobile/tasks/cancel_reasons/') {
-                        promise.complete([[{'id': 1, 'name': 'Option 1'}, {'id': 2, 'name': 'Option 2'}]]);
+                        var cancel_reasons = new NHMobileData({
+                            status: 'success',
+                            title: 'Reason for cancelling task?',
+                            description: 'Please state reason for cancelling task',
+                            data: [
+                                {
+                                    id: 1,
+                                    name: 'Option 1'
+                                },
+                                {
+                                    id: 2,
+                                    name: 'Option 2'
+                                }
+                            ]
+                        })
+                        promise.complete(cancel_reasons);
                     }else if(url == 'http://localhost:8069/mobile/tasks/cancel_clinical/test'){
-                        promise.complete([{'status': 4}])
+                        var cancel_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Cancellation successful',
+                            description: 'The notification was successfully cancelled',
+                            data: {
+                                status: 4,
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(cancel_submit)
                     }else{
-                        promise.complete([{}]);
+                         var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     }
                     return promise;
                 });
@@ -982,7 +1058,7 @@ describe('Data Entry Functionality', function(){
                 //expect(cancel_button.getAttribute('disabled')).toBe('disabled');
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('cancel_reasons');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Cancel task');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Reason for cancelling task?');
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please state reason for cancelling task</p><select name="reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
 
                 // choose an option and click the submit button
@@ -1004,8 +1080,8 @@ describe('Data Entry Functionality', function(){
                 // check that modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('cancel_success');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Task successfully cancelled');
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Cancellation successful');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The notification was successfully cancelled</p>');
 
             });
         });
@@ -1029,21 +1105,53 @@ describe('Data Entry Functionality', function(){
                     var url= NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if(url == 'http://localhost:8069/mobile/test/test/0') {
-                        promise.complete([{'status': 3, 'modal_vals': {
-                            'next_action': 'json_task_form_action',
-                            'title': 'Submit TEST score of 0',
-                            'content': 'TEST observation scored 0 which means something'
-                        }, 'score': {'score': 0}}]);
+                        var calculate_score = new NHMobileData({
+                            status: 'success',
+                            title: 'Submit TEST score of 0',
+                            description: 'TEST observation scored 0 which means something',
+                            data: {
+                                status: 3,
+                                next_action: 'json_task_form_action',
+                                score: {
+                                    score: 0
+                                }
+                            }
+                        });
+                        promise.complete(calculate_score);
                     }else if(url == 'http://localhost:8069/mobile/task/submit_ajax/test/0'){
-                        promise.complete([{'status': 1, 'related_tasks': []}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                status: 1,
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else if(url == 'http://localhost:8069/mobile/test/test/1'){
-                        promise.complete([{'status': 3, 'modal_vals': {
-                            'next_action': 'json_task_form_action',
-                            'title': 'Submit TEST score of 0',
-                            'content': 'TEST observation scored 0 which means something'
-                        }, 'score': {'score': 0, 'clinical_risk': 'low'}}]);
+                        var calculate_score = new NHMobileData({
+                            status: 'success',
+                            title: 'Submit TEST score of 0',
+                            description: 'TEST observation scored 0 which means something',
+                            data: {
+                                status: 3,
+                                next_action: 'json_task_form_action',
+                                score: {
+                                    score: 0,
+                                    clinical_risk: 'low'
+                                }
+                            }
+                        });
+                        promise.complete(calculate_score);
                     }else{
-                        promise.complete([{}]);
+                         var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                        promise.complete(empty);
                     }
                     return promise;
                 });
@@ -1112,8 +1220,8 @@ describe('Data Entry Functionality', function(){
                 //expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
 
             });
 
@@ -1208,18 +1316,60 @@ describe('Data Entry Functionality', function(){
                     var url= NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
                     if(url == 'http://localhost:8069/mobile/test/test/0'){
-                        promise.complete([{'status': 1, 'related_tasks': []}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                status: 1,
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else if(url == 'http://localhost:8069/mobile/test/test/1'){
-                        promise.complete([{'status': 1, 'related_tasks': [
-                            {'summary': 'Test Task', 'id': 1337}
-                        ]}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Action required',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                status: 1,
+                                related_tasks: [
+                                    {
+                                        summary: 'Test Task',
+                                        id: 1337
+                                    }
+                                ]
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else if(url == 'http://localhost:8069/mobile/test/test/2'){
-                        promise.complete([{'status': 1, 'related_tasks': [
-                            {'summary': 'Test Task', 'id': 1337},
-                            {'summary': 'Test Task 2', 'id': 666}
-                        ]}]);
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Action required',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                status: 1,
+                                related_tasks: [
+                                    {
+                                        summary: 'Test Task',
+                                        id: 1337
+                                    },
+                                    {
+                                        summary: 'Test Task 2',
+                                        id: 666
+                                    }
+                                ]
+                            }
+                        })
+                        promise.complete(obs_submit);
                     }else{
-                         promise.complete([{}]);
+                          var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     }
                     return promise;
                 });
@@ -1262,8 +1412,8 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Observation successfully submitted')
-                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Observation was submitted</p>');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
             });
 
             it('Sends data to the server on a valid form being submitted via submit button - 1 Triggered task', function(){
@@ -1386,7 +1536,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'show_triggered_elements').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
 
@@ -1482,7 +1638,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'validate');
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                    var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
                 var test = document.getElementById('test');
@@ -1564,7 +1726,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'show_reference').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
@@ -1627,7 +1795,13 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'trigger_actions').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var promise = new Promise();
-                    promise.complete([{}]);
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
                     return promise;
                 });
 

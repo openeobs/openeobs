@@ -1,6 +1,6 @@
 
 /* istanbul ignore next */
-var NHMobile, Promise,
+var NHMobile, NHMobileData, Promise,
   slice = [].slice,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -62,6 +62,20 @@ Promise = (function() {
 
 })();
 
+NHMobileData = (function() {
+  function NHMobileData(raw_data) {
+    var self;
+    this.status = raw_data.status;
+    this.title = raw_data.title;
+    this.desc = raw_data.description;
+    this.data = raw_data.data;
+    self = this;
+  }
+
+  return NHMobileData;
+
+})();
+
 NHMobile = (function(superClass) {
   extend(NHMobile, superClass);
 
@@ -70,14 +84,15 @@ NHMobile = (function(superClass) {
     promise = new Promise();
     req = new XMLHttpRequest();
     req.addEventListener('readystatechange', function() {
-      var btn, msg, ref, successResultCodes;
+      var btn, mob_data, msg, ref, successResultCodes;
       if (req.readyState === 4) {
         successResultCodes = [200, 304];
 
         /* istanbul ignore if */
         if (ref = req.status, indexOf.call(successResultCodes, ref) >= 0) {
-          data = eval('[' + req.responseText + ']');
-          return promise.complete(data);
+          data = JSON.parse(req.responseText);
+          mob_data = new NHMobileData(data);
+          return promise.complete(mob_data);
         } else {
           btn = '<a href="#" data-action="close" ' + 'data-target="data_error">Ok</a>';
           msg = '<div class="block">The server returned an error ' + 'while processing the request. Please check your ' + 'input and resubmit</div>';
@@ -166,16 +181,12 @@ NHMobile = (function(superClass) {
   NHMobile.prototype.get_patient_info = function(patient_id, self) {
     var patient_url;
     patient_url = this.urls.json_patient_info(patient_id).url;
-    Promise.when(this.process_request('GET', patient_url)).then(function(server_data) {
-      var cancel, data, fullscreen, patient_details, patient_name;
-      data = server_data[0][0];
-      patient_name = '';
+    Promise.when(this.process_request('GET', patient_url)).then(function(raw_data) {
+      var cancel, data, fullscreen, patient_details, patient_name, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      patient_name = server_data.title;
       patient_details = '';
-
-      /* istanbul ignore else */
-      if (data.full_name) {
-        patient_name += ' ' + data.full_name;
-      }
 
       /* istanbul ignore else */
       if (data.gender) {

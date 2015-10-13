@@ -87,6 +87,18 @@ class Promise
 
     @callbacks.push callback
 
+# NHMobileData
+#-------------
+# A utility class to hold data from the server
+class NHMobileData
+  constructor: (raw_data) ->
+    @status = raw_data.status
+    @title = raw_data.title
+    @desc = raw_data.description
+    @data = raw_data.data
+    self = @
+
+
 # NHMobile
 #----------
 # contains utilities for working with the
@@ -106,8 +118,9 @@ class NHMobile extends NHLib
         successResultCodes = [200, 304]
         ### istanbul ignore if ###
         if req.status in successResultCodes
-          data = eval('['+req.responseText+']')
-          promise.complete data
+          data = JSON.parse(req.responseText)
+          mob_data = new NHMobileData(data)
+          promise.complete mob_data
         else
           btn = '<a href="#" data-action="close" ' +
             'data-target="data_error">Ok</a>'
@@ -180,13 +193,11 @@ class NHMobile extends NHLib
   # data
   get_patient_info: (patient_id, self) =>
     patient_url = this.urls.json_patient_info(patient_id).url
-    Promise.when(@process_request('GET', patient_url)).then (server_data) ->
-      data = server_data[0][0]
-      patient_name = ''
+    Promise.when(@process_request('GET', patient_url)).then (raw_data) ->
+      server_data = raw_data[0]
+      data = server_data.data
+      patient_name = server_data.title
       patient_details = ''
-      ### istanbul ignore else ###
-      if data.full_name
-        patient_name += ' ' + data.full_name
       ### istanbul ignore else ###
       if data.gender
         patient_name += '<span class="alignright">' + data.gender + '</span>'
