@@ -1,3 +1,7 @@
+"""
+`nh_clinical_extension.py` extends several NH Clinical classes to add
+relevant observations related functionality.
+"""
 from openerp.osv import orm, fields, osv
 from openerp import SUPERUSER_ID
 from datetime import datetime as dt, timedelta as td
@@ -5,10 +9,23 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class nh_clinical_patient(orm.Model):
+    """
+    Extends :class:`patient<base.nh_clinical_patient>`
+    """
     _name = 'nh.clinical.patient'
     _inherit = 'nh.clinical.patient'
 
     def write(self, cr, uid, ids, vals, context=None):
+        """
+        Calls :meth:`write<openerp.models.Model.write>` and
+        automatically updates the :class:`location<base.nh_clinical_location>`
+        of every :mod:`observation<observations.nh_clinical_patient_observation>`
+        and :mod:`notification<notifications.nh_clinical_notification>`
+        related.
+
+        :returns: ``True``
+        :rtype: bool
+        """
         res = super(nh_clinical_patient, self).write(cr, uid, ids, vals, context=context)
         if 'current_location_id' in vals:
             activity_pool = self.pool['nh.activity']
@@ -19,10 +36,27 @@ class nh_clinical_patient(orm.Model):
 
 
 class nh_clinical_api_extension(orm.AbstractModel):
+    """
+    Extends the NH Clinical :class:`API<api.nh_clinical_api>`
+    """
     _name = 'nh.clinical.api'
     _inherit = 'nh.clinical.api'
 
     def change_activity_frequency(self, cr, uid, patient_id, activity_type, frequency, context=None):
+        """
+        Creates and completes a new
+        :mod:`review frequency<notifications.nh_clinical_notification_frequency>`
+        task to update the frequency of the specified activity type.
+
+        :param patient_id: :class:`patient<base.nh_clinical_patient>` id.
+        :type patient_id: int
+        :param activity_type: activity type ``_name`` attribute
+        :type activity_type: str
+        :param frequency: new frequency in minutes
+        :type frequency: int
+        :returns: ``True``
+        :rtype: bool
+        """
         activity_pool = self.pool['nh.activity']
         spell_pool = self.pool['nh.clinical.spell']
         change_freq_pool = self.pool['nh.clinical.notification.frequency']
@@ -48,6 +82,28 @@ class nh_clinical_api_extension(orm.AbstractModel):
         return activity_pool.complete(cr, uid, frequency_activity_id, context=context)
 
     def trigger_notifications(self, cr, uid, values, context=None):
+        """
+        Creates a new :mod:`notification<notifications.nh_clinical_notification>`
+        for every element in the `notifications` list provided in
+        ``values``::
+
+            {
+                'notifications': [{
+                    'model': (str) type of notification,  //required
+                    'summary': (str) notification text,  //optional
+                    'groups': (list of str) user groups for which the notification is created, //required
+                    'assign': (bool)  //assign the notification to the user?
+                }, ...],
+                'parent_id': spell type activity id,
+                'creator_id': activity id triggering,
+                'patient_id': patient id,
+                'model': self._name,
+                'group': group name of the user triggering ('hca','nurse')
+            }
+
+        :param values: contains information to create the notifications.
+        :type values: dict
+        """
         for n in values['notifications']:
             # notifications: [{'summary','model','groups'}]
             if values.get('group') in n['groups']:
@@ -80,6 +136,17 @@ class nh_clinical_api_extension(orm.AbstractModel):
                 pool.create_activity(cr, SUPERUSER_ID, a_values, d_values, context=context)
 
     def cancel_open_activities(self, cr, uid, parent_id, model, context=None):
+        """
+        Cancels all not `completed` or `cancelled` activities of the
+        provided type and :class:`spell<base.nh_clinical_spell>`.
+
+        :param parent_id: :class:`activity<activity.nh_activity>` id of `nh.clinical.spell` type.
+        :type parent_id: int
+        :param model: activity type ``_name`` attribute.
+        :type model: str
+        :returns: ``True``
+        :rtype: bool
+        """
         activity_pool = self.pool['nh.activity']
         domain = [('parent_id', '=', parent_id),
                   ('data_model', '=', model),

@@ -27,7 +27,6 @@ Module Reference
    parameters
    notifications
    nh_clinical_extension
-   helpers
 
 Additional Notes
 ----------------
