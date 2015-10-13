@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+``observations.py`` defines a set of activity types to record basic
+medical observations. They have in common their simple logic and data as
+none of them should require complex policies to be implemented.
+
+The abstract definition of an observation from which all other
+observations inherit is also included here.
+"""
+
 from openerp.osv import orm, fields, osv
 from openerp.addons.nh_observations.parameters import frequencies
 from openerp.addons.nh_observations.helpers import refresh_materialized_views
@@ -12,6 +21,12 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation(orm.AbstractModel):
+    """
+    Abstract representation of what a medical observation is. Contains
+    common information that all observations will have but does not
+    represent any entity itself, so it basically acts as a template
+    for every other observation.
+    """
     _name = 'nh.clinical.patient.observation'
     _inherit = ['nh.activity.data']
     _required = []  # fields required for complete observation
@@ -83,6 +98,15 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     ]
     
     def create(self, cr, uid, vals, context=None):
+        """
+        Checks for ``null`` numeric values before writing to the
+        database and removes them from the ``vals`` dictionary to avoid
+        Odoo writing incorrect ``0`` values and then calls
+        :meth:`create<openerp.models.Model.create>`.
+
+        :returns: :mod:`observation<observations.nh_clinical_patient_observation>` id.
+        :rtype: int
+        """
         none_values = list(set(self._required) - set(vals.keys()))
         null_values = list(set(self._num_fields) - set(vals.keys()))
         vals.update({'none_values': none_values, 'null_values': null_values})
@@ -99,6 +123,18 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return super(nh_clinical_patient_observation, self).create_activity(cr, uid, activity_vals, data_vals, context)      
                 
     def write(self, cr, uid, ids, vals, context=None):
+        """
+        Checks for ``null`` numeric values before writing to the
+        database and removes them from the ``vals`` dictionary to avoid
+        Odoo writing incorrect ``0`` values and then calls
+        :meth:`write<openerp.models.Model.write>`.
+
+        If the ``frequency`` is updated, the observation will be
+        rescheduled accordingly.
+
+        :returns: ``True``
+        :rtype: bool
+        """
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
         if not self._required and not self._num_fields:
             return super(nh_clinical_patient_observation, self).write(cr, uid, ids, vals, context)
@@ -115,8 +151,16 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return True
 
     def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read'):
-        # if not self._num_fields:
-        #     return super(nh_clinical_patient_observation, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        """
+        Calls :meth:`read<openerp.models.Model.read>` and then looks for
+        potential numeric values that might be actually ``null`` instead
+        of ``0`` (as Odoo interprets every numeric value as ``0`` when
+        it finds ``null`` in the database) and fixes the return value
+        accordingly.
+
+        :returns: dictionary with the read values
+        :rtype: dict
+        """
         nolist = False
         if not isinstance(ids, list):
             ids = [ids]
@@ -140,6 +184,15 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return res
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
+        """
+        Looks for the related :class:`spell<base.nh_clinical_spell>` and
+        gets its current location.
+
+        :param activity_id: :class:`activity<activity.nh_activity>` id
+        :type activity_id: int
+        :returns: :class:`location<base.nh_clinical_location>` id
+        :rtype: int
+        """
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context)
         patient_id = activity.data_ref.patient_id.id
@@ -152,10 +205,24 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             return False
 
     def get_form_description(self, cr, uid, patient_id, context=None):
+        """
+        Returns a description in dictionary format of the input fields
+        that would be required in the user gui to submit the
+        observation.
+
+        :param patient_id: :class:`patient<base.nh_clinical_patient>` id
+        :type patient_id: int
+        :returns: a list of dictionaries
+        :rtype: list
+        """
         return self._form_description
 
 
 class nh_clinical_patient_observation_height(orm.Model):
+    """
+    Represents the action of measuring a
+    :class:`patient<base.nh_clinical_patient>` height.
+    """
     _name = 'nh.clinical.patient.observation.height'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['height']
@@ -183,6 +250,10 @@ class nh_clinical_patient_observation_height(orm.Model):
 
 
 class nh_clinical_patient_observation_weight(orm.Model):
+    """
+    Represents the action of measuring a
+    :class:`patient<base.nh_clinical_patient>` weight.
+    """
     _name = 'nh.clinical.patient.observation.weight'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['weight']
@@ -207,6 +278,17 @@ class nh_clinical_patient_observation_weight(orm.Model):
     ]
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
+        """
+        If a specific ``date_scheduled`` parameter is not specified.
+        The `_POLICY['schedule']` dictionary value will be used to find
+        the closest time to the current time from the ones specified
+        (0 to 23 hours)
+
+        Then it will call :meth:`schedule<activity.nh_activity.schedule>`
+
+        :returns: ``True``
+        :rtype: bool
+        """
         if not date_scheduled:
             hour = td(hours=1)
             schedule_times = []
@@ -220,6 +302,15 @@ class nh_clinical_patient_observation_weight(orm.Model):
         return super(nh_clinical_patient_observation_weight, self).schedule(cr, uid, activity_id, date_scheduled, context=context)
 
     def complete(self, cr, uid, activity_id, context=None):
+        """
+        Calls :meth:`complete<activity.nh_activity.complete>` and then
+        creates and schedules a new weight observation if the current
+        :mod:`weight monitoring<parameters.nh_clinical_patient_weight_monitoring>`
+        parameter is ``True``.
+
+        :returns: ``True``
+        :rtype: bool
+        """
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
 
@@ -245,6 +336,11 @@ class nh_clinical_patient_observation_weight(orm.Model):
 
 
 class nh_clinical_patient_observation_blood_product(orm.Model):
+    """
+    Represents the action of measuring any of the
+    :class:`patient<base.nh_clinical_patient>` blood components.
+    Usually related to blood transfusions.
+    """
     _name = 'nh.clinical.patient.observation.blood_product'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['vol', 'product']
@@ -288,6 +384,10 @@ class nh_clinical_patient_observation_blood_product(orm.Model):
 
 
 class nh_clinical_patient_observation_blood_sugar(orm.Model):
+    """
+    Represents the action of measuring a
+    :class:`patient<base.nh_clinical_patient>` blood sugar concentration.
+    """
     _name = 'nh.clinical.patient.observation.blood_sugar'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['blood_sugar']
@@ -315,6 +415,11 @@ class nh_clinical_patient_observation_blood_sugar(orm.Model):
 
 
 class nh_clinical_patient_observation_pain(orm.Model):
+    """
+    Represents the action of subjectively measuring a
+    :class:`patient<base.nh_clinical_patient>` pain on a scale from
+    1 to 10.
+    """
     _name = 'nh.clinical.patient.observation.pain'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['rest_score', 'movement_score']
@@ -350,6 +455,10 @@ class nh_clinical_patient_observation_pain(orm.Model):
 
 
 class nh_clinical_patient_observation_urine_output(orm.Model):
+    """
+    Represents the action of measuring a
+    :class:`patient<base.nh_clinical_patient>` urine output per hour.
+    """
     _name = 'nh.clinical.patient.observation.urine_output'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['urine_output']
@@ -369,6 +478,20 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
     ]
 
     def get_form_description(self, cr, uid, patient_id, context=None):
+        """
+         Returns a description in dictionary format of the input fields
+         that would be required in the user gui to submit this
+         observation.
+
+         Adds an additional label to the ``urine_output`` field with
+         the :mod:`urine output target<parameters.nh_clinical_patient_urine_output_target>`
+         if the :class:`patient<base.nh_clinical_patient>` has one.
+
+        :param patient_id: :class:`patient<base.nh_clinical_patient>` id
+        :type patient_id: int
+        :returns: a list of dictionaries
+        :rtype: list
+        """
         uotarget_pool = self.pool['nh.clinical.patient.uotarget']
         units = {1: 'ml/hour', 2: 'L/day'}
         fd = copy.deepcopy(self._form_description)
@@ -387,6 +510,11 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
 
 
 class nh_clinical_patient_observation_bowels_open(orm.Model):
+    """
+    Represents the action of observing if a
+    :class:`patient<base.nh_clinical_patient>` has the bowels open or
+    not.
+    """
     _name = 'nh.clinical.patient.observation.bowels_open'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['bowels_open']
