@@ -1,3 +1,8 @@
+"""
+``api.py`` defines the core methods for eObs in the taking of patient
+observations.
+"""
+
 from openerp.osv import orm, osv, fields
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -9,6 +14,14 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_eobs_api(orm.AbstractModel):
+    """
+    Defines attributes and methods used by eObs in the making of patient
+    observations.
+
+    ``_active_observations`` are the observation types supported by
+    eObs.
+    """
+
     _name = 'nh.eobs.api'
     _active_observations = [
         {
@@ -65,6 +78,17 @@ class nh_eobs_api(orm.AbstractModel):
         return True
 
     def check_activity_access(self, cr, uid, activity_id, context=None):
+        """
+        Verifies if an :class:`activity<activity.nh_activity>` is
+        assigned to a :class:`user<base.res_users>`.
+
+        :param uid: id of user to verify
+        :type uid: int
+        :param activity_id: id of activity to verify
+        :type activity_id: int
+        :returns: ``True`` if user is assigned. Otherwise ``False``
+        :rtype: bool
+        """
         activity_pool = self.pool['nh.activity']
         domain = [('id', '=', activity_id), '|', ('user_ids', 'in', [uid]), ('user_id', '=', uid)]
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
@@ -83,6 +107,27 @@ class nh_eobs_api(orm.AbstractModel):
         return activity_id
 
     def get_activities_for_spell(self, cr, uid, spell_id, activity_type, start_date=None, end_date=None, context=None):
+        """
+        Gets all :class:`activities<activity.nh_activity>` for a patient
+        :class:`spell<spell.nh_clinical_spell>`.
+
+        :param spell_id: id for the patient spell
+        :type spell_id: int
+        :param activity_type: type of activity [optional]
+        :type activity_type: str
+        :param start_date: retrieve activities only on or after this
+            date. Must be provided if ``activity_type`` has also been
+            given
+        :type start_date: str
+        :param end_date: retrieve activities only on or before this
+            date. Must be provided if ``activity_type`` has also been
+            given
+        :type end_date: str
+        :returns: list of dictionaries of activities, including all
+            fields and values
+        :rtype: list
+        """
+
         spell_pool = self.pool['nh.clinical.spell']
         if not spell_pool.search(cr, uid, [['id', '=', spell_id]], context=context):
             raise osv.except_osv('Error!', 'Spell ID provided does not exist')
@@ -108,6 +153,20 @@ class nh_eobs_api(orm.AbstractModel):
         return model_pool.read(cr, uid, ids, [], context=context)
 
     def get_share_users(self, cr, uid, context=None):
+        """
+        Gets :class:`user<base.res_users>` information `name`, `id`
+        and `number of patients responsible for`) of each user who
+        shares responsibility for a
+        :class:`patient<base.nh_clinical_patient>` or patients as the
+        user calling the method (``uid``).
+
+        :param uid: id of user calling method
+        :type uid: int
+        :returns: list of dictionaries containing values ``name``,
+            ``id`` and ``patients`` for each user
+        :rtype: list
+        """
+
         result = []
         user_pool = self.pool['res.users']
         activity_pool = self.pool['nh.activity']
@@ -144,8 +203,14 @@ class nh_eobs_api(orm.AbstractModel):
 
     def get_activities(self, cr, uid, ids, context=None):
         """
-        Return a list of activities
-        :param ids: ids of the activities we want. If empty returns all activities.
+        Gets a list of :class:`activities<activity.nh_activity>`.
+
+        :param ids: ids of the activities. An empty list returns all
+            activities
+        :type ids: list
+        :returns: list of dictionaries containing activities. See source
+            for specific attributes returned for each activity
+        :rtype: list
         """
 
         domain = [('id', 'in', ids)] if ids else [
@@ -218,14 +283,18 @@ class nh_eobs_api(orm.AbstractModel):
             activity_values = cr.dictfetchall()
         return activity_values
 
-    # case when extract(days from ews0.next_diff_interval) > 0
-    #         then  extract(days from ews0.next_diff_interval) || ' day(s) ' else ''
-    #     end || to_char(ews0.next_diff_interval, 'HH24:MI') next_diff,
-
     def get_assigned_activities(self, cr, uid, activity_type=None, context=None):
         """
-        Get open assigned activities of the specified type (any by default).
+        Gets :class:`users<base.res_users>` open assigned
+        :class:`activities<activity.nh_activity>` of the specified type
+        (any by default).
+
+        :param activity_type: type of activity [optional]
+        :type activity_type: str [default is ``None``]
+        :returns: list of dictionaries containing activities
+        :rtype: list
         """
+
         activity_pool = self.pool['nh.activity']
         domain = [['state', 'not in', ['cancelled', 'completed']],
                   ['user_id', '=', uid]]
@@ -255,8 +324,14 @@ class nh_eobs_api(orm.AbstractModel):
 
     def cancel(self, cr, uid, activity_id, data, context=None):
         """
-        Cancel an activity
+        Cancel an :class:`activity<activity.nh_activity>`.
+
+        :param activity_id: id of activity to cancel
+        :type activity_id: int
+        :returns: ``True``
+        :rtype: bool
         """
+
         if not data:
             data = {}
         activity_pool = self.pool['nh.activity']
@@ -266,8 +341,12 @@ class nh_eobs_api(orm.AbstractModel):
 
     def submit(self, cr, uid, activity_id, data, context=None):
         """
-        Submit an activity update
+        Submit an :class:`activity<activity.nh_activity>` update.
+
+        :param activity_id: id of activity to update
+        :type activity_id: int
         """
+
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
         if not self.check_activity_access(cr, uid, activity_id, context=context):

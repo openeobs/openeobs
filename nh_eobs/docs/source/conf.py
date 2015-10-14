@@ -41,7 +41,8 @@ extensions = [
 # mock Odoo modules
 autodoc_mock_imports = [
     'openerp.osv.orm', 'openerp.osv.osv', 'openerp.osv.fields',
-    'openerp.tools', 'openerp.SUPERUSER_ID', 'faker.Faker'
+    'openerp.tools', 'openerp.SUPERUSER_ID', 'openerp.tools.translate',
+    'faker.Faker'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -145,7 +146,7 @@ html_theme = 'alabaster'
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+html_favicon = '_static/img/favicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -166,8 +167,14 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
-
+html_sidebars = {
+    '**': [
+        'sidebarlogo.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+    ]
+}
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
 #html_additional_pages = {}
@@ -182,7 +189,7 @@ html_static_path = ['_static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True
@@ -298,4 +305,10 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/', None),
+    'odoo': ('https://odoo.com/documentation/master/', None),
+    'activity': ('https://nh-activity.readthedocs.org/en/develop/', None),
+    'clinical': ('https://nh-clinical.readthedocs.org/en/develop/', None)
+}
+
