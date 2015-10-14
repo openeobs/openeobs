@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
 from openerp.osv import orm, fields
 import logging
 from openerp import SUPERUSER_ID
 from datetime import datetime as dt
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp.addons.nh_observations.helpers import refresh_materialized_views
 _logger = logging.getLogger(__name__)
 
 
@@ -59,8 +57,3 @@ class nh_clinical_patient_o2target(orm.Model):
             return False
         activity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
         return activity.data_ref.level_id.id if activity.data_ref.level_id else False
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_o2target, self).complete(cr, uid, activity_id, context)
-        return res

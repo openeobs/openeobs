@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from openerp.osv import orm, fields
 import logging
 from openerp import SUPERUSER_ID
-from openerp.addons.nh_observations.helpers import refresh_materialized_views
 from datetime import datetime as dt
 _logger = logging.getLogger(__name__)
 
@@ -24,7 +22,6 @@ class nh_clinical_patient_pbp_monitoring(orm.Model):
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
-    @refresh_materialized_views('pbp')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
