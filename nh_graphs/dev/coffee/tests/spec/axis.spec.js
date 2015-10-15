@@ -1,7 +1,7 @@
 /**
  * Created by colinwren on 29/06/15.
  */
-describe('Axis', function () {
+xdescribe('Axis', function () {
     var graphlib, graph, context , focus, test_area;
     beforeEach(function () {
         var body_el = document.getElementsByTagName('body')[0];

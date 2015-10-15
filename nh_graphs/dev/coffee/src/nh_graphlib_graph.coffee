@@ -128,6 +128,7 @@ class NHGraph extends NHGraphLib
     # - Background: Stores the background layer
     #   - Obj: D3 object for background layer
     #   - Data: The data used to plot the background rectangles
+    #     - [{"class": "green",s: 1, e: 4},{"class": "amber",s: 4,e: 6},{"class": "red",s: 6,e: 22}]
     # - Brush: Stores the brush if the graph is associated with a NHContext
     @drawables = {
       area: null,

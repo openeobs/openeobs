@@ -36,11 +36,20 @@ gulp.task('docs', function(){
 })
 
 gulp.task('pycharm_test_compile', function(){
+
+	// Compile source coffee
 	gulp.src(['src/*.coffee'])
 	.pipe(coffeelint())
 	.pipe(coffeelint.reporter())
 	.pipe(coffee({bare: true}))
-	.pipe(gulp.dest('tests/src'))
+	.pipe(gulp.dest('tests/src'));
+
+	// Compile spec coffee
+	gulp.src(['tests/spec/coffee/*.coffee'])
+	.pipe(coffeelint())
+	.pipe(coffeelint.reporter())
+	.pipe(coffee({bare: true}))
+	.pipe(gulp.dest('tests/spec'))
 });
 
 gulp.task('default', ['compile']);
