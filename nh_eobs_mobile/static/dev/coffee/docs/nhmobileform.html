@@ -475,7 +475,7 @@ this blows up</p>
           <span class="hljs-string">'data-action="submit" data-ajax-action="'</span>+
           data.next_action+<span class="hljs-string">'"&gt;Submit&lt;/a&gt;'</span>
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_observation'</span>,
-          server_data.title,
+          server_data.title + <span class="hljs-string">' for '</span> + self.patient_name() + <span class="hljs-string">'?'</span>,
           server_data.desc,
           [can_btn, act_btn], <span class="hljs-number">0</span>, body)
         <span class="hljs-keyword">if</span> <span class="hljs-string">'clinical_risk'</span> <span class="hljs-keyword">of</span> data.score
@@ -496,7 +496,7 @@ this blows up</p>
             st_url = self.urls[<span class="hljs-string">'single_task'</span>](task.id).url
             tasks += <span class="hljs-string">'&lt;li&gt;&lt;a href="'</span>+st_url+<span class="hljs-string">'"&gt;'</span>+task.summary+<span class="hljs-string">'&lt;/a&gt;&lt;/li&gt;'</span>
           triggered_tasks = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>+tasks+<span class="hljs-string">'&lt;/ul&gt;'</span>
-        pos = <span class="hljs-string">'&lt;p&gt;Observation was submitted&lt;/p&gt;'</span>
+        pos = <span class="hljs-string">'&lt;p&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>
         os = <span class="hljs-string">'Observation successfully submitted'</span>
         task_list = <span class="hljs-keyword">if</span> triggered_tasks <span class="hljs-keyword">then</span> triggered_tasks <span class="hljs-keyword">else</span> pos
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_success'</span>, server_data.title ,
@@ -506,7 +506,7 @@ this blows up</p>
           <span class="hljs-string">'" data-action="confirm" data-target="cancel_success"&gt;'</span>+
           <span class="hljs-string">'Go to My Tasks&lt;/a&gt;'</span>
         <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_success'</span>, server_data.title,
-          server_data.desc, [btn], <span class="hljs-number">0</span>, self.form)
+          <span class="hljs-string">'&lt;p&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>, [btn], <span class="hljs-number">0</span>, self.form)
       <span class="hljs-keyword">else</span>
         action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements \
           <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])

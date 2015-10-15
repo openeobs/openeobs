@@ -469,7 +469,8 @@ describe("Event Handling", function(){
             });
 
             beforeEach(function(){
-                spyOn(NHModal.prototype, 'handle_button_events');
+                spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHModal.prototype, 'close_modal');
                 var body = document.getElementsByTagName('body')[0];
                 new NHModal('test', 'Test', '<p>Test</p>', [
                     '<a data-action="close" id="close">Close</a>'
@@ -491,6 +492,8 @@ describe("Event Handling", function(){
                 cover.dispatchEvent(click_event);
                 expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
+                expect(NHModal.prototype.close_modal).toHaveBeenCalled();
+                expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
             });
 
             it('Captures and handles cover click', function(){
@@ -500,6 +503,8 @@ describe("Event Handling", function(){
                 close.dispatchEvent(click_event);
                 expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
+                expect(NHModal.prototype.close_modal).toHaveBeenCalled();
+                expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
             });
         });
     });
