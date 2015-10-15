@@ -329,6 +329,27 @@ uses clientHeight to calculate the height of objects</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
+              <p>Remove a modal and it’s cover from DOM
+Takes the ID of the modal</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_modal</span>: <span class="hljs-function"><span class="hljs-params">(modal_id)</span> -&gt;</span>
+    dialog_id = <span class="hljs-built_in">document</span>.getElementById(modal_id)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> dialog_id <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span>
+      cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
               <p>Handle events from buttons created in options array
 Currently offers</p>
 <ul>
@@ -341,7 +362,7 @@ NOTE: Don’t preventDefault() straight away as will disable all button clicks</
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_button_events</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_button_events</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
     <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
       target_el = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
       data_target = target_el.getAttribute(<span class="hljs-string">'data-target'</span>)
@@ -349,10 +370,7 @@ NOTE: Don’t preventDefault() straight away as will disable all button clicks</
       <span class="hljs-keyword">switch</span> target_el.getAttribute(<span class="hljs-string">'data-action'</span>)
         <span class="hljs-keyword">when</span> <span class="hljs-string">'close'</span>
           event.preventDefault()
-          dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
-          cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
-          <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
-          dialog_id.parentNode.removeChild(dialog_id)
+          <span class="hljs-property">@close_modal</span>(data_target)
         <span class="hljs-keyword">when</span> <span class="hljs-string">'renable'</span>
           event.preventDefault()
           forms = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)
@@ -361,10 +379,7 @@ NOTE: Don’t preventDefault() straight away as will disable all button clicks</
               <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
             <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
               button.removeAttribute(<span class="hljs-string">'disabled'</span>)
-          dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
-          cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
-          <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
-          dialog_id.parentNode.removeChild(dialog_id)
+          <span class="hljs-property">@close_modal</span>(data_target)
         <span class="hljs-keyword">when</span> <span class="hljs-string">'submit'</span>
           event.preventDefault()
           submit_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
@@ -374,10 +389,7 @@ NOTE: Don’t preventDefault() straight away as will disable all button clicks</
           submit_event.initCustomEvent(<span class="hljs-string">'post_score_submit'</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>,
             submit_detail)
           <span class="hljs-built_in">document</span>.dispatchEvent submit_event
-          dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
-          cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
-          <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
-          dialog_id.parentNode.removeChild(dialog_id)
+          <span class="hljs-property">@close_modal</span>(data_target)
         <span class="hljs-keyword">when</span> <span class="hljs-string">'partial_submit'</span>
           event.preventDefault()
           <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled

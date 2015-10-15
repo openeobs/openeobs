@@ -116,6 +116,15 @@ class NHModal
       dialog_content.style.maxHeight = max_height+'px'
     return
 
+  # Remove a modal and it's cover from DOM
+  # Takes the ID of the modal
+  close_modal: (modal_id) ->
+    dialog_id = document.getElementById(modal_id)
+    if typeof dialog_id isnt 'undefined'
+      cover = document.getElementById('cover')
+      document.getElementsByTagName('body')[0].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)
+
   # Handle events from buttons created in options array
   # Currently offers
   # - close (closes modal)
@@ -123,7 +132,7 @@ class NHModal
   # - partial submit (submits partial observation)
   # - assign (assigns nurses to patients)
   # NOTE: Don't preventDefault() straight away as will disable all button clicks
-  handle_button_events: (event) ->
+  handle_button_events: (event) =>
     if not event.handled
       target_el = if event.srcElement then event.srcElement else event.target
       data_target = target_el.getAttribute('data-target')
@@ -131,10 +140,7 @@ class NHModal
       switch target_el.getAttribute('data-action')
         when 'close'
           event.preventDefault()
-          dialog_id = document.getElementById(data_target)
-          cover = document.getElementById('cover')
-          document.getElementsByTagName('body')[0].removeChild(cover)
-          dialog_id.parentNode.removeChild(dialog_id)
+          @close_modal(data_target)
         when 'renable'
           event.preventDefault()
           forms = document.getElementsByTagName('form')
@@ -143,10 +149,7 @@ class NHModal
               when element.getAttribute('type') in ['submit', 'reset'])
             for button in action_buttons
               button.removeAttribute('disabled')
-          dialog_id = document.getElementById(data_target)
-          cover = document.getElementById('cover')
-          document.getElementsByTagName('body')[0].removeChild(cover)
-          dialog_id.parentNode.removeChild(dialog_id)
+          @close_modal(data_target)
         when 'submit'
           event.preventDefault()
           submit_event = document.createEvent 'CustomEvent'
@@ -156,10 +159,7 @@ class NHModal
           submit_event.initCustomEvent('post_score_submit', true, false,
             submit_detail)
           document.dispatchEvent submit_event
-          dialog_id = document.getElementById(data_target)
-          cover = document.getElementById('cover')
-          document.getElementsByTagName('body')[0].removeChild(cover)
-          dialog_id.parentNode.removeChild(dialog_id)
+          @close_modal(data_target)
         when 'partial_submit'
           event.preventDefault()
           if not event.handled

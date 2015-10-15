@@ -1101,6 +1101,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHModal.prototype, 'close_modal').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var url= NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
@@ -1213,6 +1214,7 @@ describe('Data Entry Functionality', function(){
                 expect(submit_button.getAttribute('disabled')).toBe('disabled');
                 expect(document.getElementById('submit_observation')).toBe(null);
                 expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+                expect(NHModal.prototype.close_modal).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.process_post_score_submit).toHaveBeenCalled();
                 /* Currently not working due to some weird scope bug */
                 //expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();

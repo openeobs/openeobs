@@ -1,6 +1,7 @@
 
 /* istanbul ignore next */
-var NHModal;
+var NHModal,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 NHModal = (function() {
   function NHModal(id1, title1, content1, options1, popupTime, el1) {
@@ -11,6 +12,7 @@ NHModal = (function() {
     this.options = options1;
     this.popupTime = popupTime;
     this.el = el1;
+    this.handle_button_events = bind(this.handle_button_events, this);
     self = this;
     dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
     body = document.getElementsByTagName('body')[0];
@@ -118,8 +120,18 @@ NHModal = (function() {
     }
   };
 
+  NHModal.prototype.close_modal = function(modal_id) {
+    var cover, dialog_id;
+    dialog_id = document.getElementById(modal_id);
+    if (typeof dialog_id !== 'undefined') {
+      cover = document.getElementById('cover');
+      document.getElementsByTagName('body')[0].removeChild(cover);
+      return dialog_id.parentNode.removeChild(dialog_id);
+    }
+  };
+
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
+    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, data_action, data_target, dialog, dialog_form, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
     if (!event.handled) {
       target_el = event.srcElement ? event.srcElement : event.target;
       data_target = target_el.getAttribute('data-target');
@@ -127,10 +139,7 @@ NHModal = (function() {
       switch (target_el.getAttribute('data-action')) {
         case 'close':
           event.preventDefault();
-          dialog_id = document.getElementById(data_target);
-          cover = document.getElementById('cover');
-          document.getElementsByTagName('body')[0].removeChild(cover);
-          dialog_id.parentNode.removeChild(dialog_id);
+          this.close_modal(data_target);
           break;
         case 'renable':
           event.preventDefault();
@@ -154,10 +163,7 @@ NHModal = (function() {
               button.removeAttribute('disabled');
             }
           }
-          dialog_id = document.getElementById(data_target);
-          cover = document.getElementById('cover');
-          document.getElementsByTagName('body')[0].removeChild(cover);
-          dialog_id.parentNode.removeChild(dialog_id);
+          this.close_modal(data_target);
           break;
         case 'submit':
           event.preventDefault();
@@ -167,10 +173,7 @@ NHModal = (function() {
           };
           submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
           document.dispatchEvent(submit_event);
-          dialog_id = document.getElementById(data_target);
-          cover = document.getElementById('cover');
-          document.getElementsByTagName('body')[0].removeChild(cover);
-          dialog_id.parentNode.removeChild(dialog_id);
+          this.close_modal(data_target);
           break;
         case 'partial_submit':
           event.preventDefault();
