@@ -53,6 +53,10 @@
             
   <h1>Source code for ews</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">`ews.py` defines the Early Warning Score observation class and its</span>
+<span class="sd">standard behaviour and policy triggers based on the UK NEWS standard.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">openerp.osv</span> <span class="kn">import</span> <span class="n">orm</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">osv</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">bisect</span>
@@ -64,6 +68,17 @@
 
 
 <div class="viewcode-block" id="nh_clinical_patient_observation_ews"><a class="viewcode-back" href="../ews.html#ews.nh_clinical_patient_observation_ews">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_observation_ews</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an Early Warning Score</span>
+<span class="sd">    :class:`observation&lt;observations.nh_clinical_patient_observation&gt;`</span>
+<span class="sd">    which stores a group of physiological parameters measured from the</span>
+<span class="sd">    :class:`patient&lt;base.nh_clinical_patient&gt;` that together determine</span>
+<span class="sd">    a score that serves as an indicator of the illness current acuity.</span>
+
+<span class="sd">    The basis of the scoring system are the following six parameters:</span>
+<span class="sd">    respiratory rate, oxygen saturations, temperature, systolic blood</span>
+<span class="sd">    pressure, pulse rate and level of consciousness.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.observation.ews&#39;</span>
     <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.clinical.patient.observation&#39;</span><span class="p">]</span>
     <span class="n">_required</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;respiration_rate&#39;</span><span class="p">,</span> <span class="s">&#39;indirect_oxymetry_spo2&#39;</span><span class="p">,</span> <span class="s">&#39;body_temperature&#39;</span><span class="p">,</span> <span class="s">&#39;blood_pressure_systolic&#39;</span><span class="p">,</span> <span class="s">&#39;pulse_rate&#39;</span><span class="p">]</span>
@@ -99,7 +114,22 @@
                <span class="p">],</span>
                <span class="s">&#39;risk&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;None&#39;</span><span class="p">,</span> <span class="s">&#39;Low&#39;</span><span class="p">,</span> <span class="s">&#39;Medium&#39;</span><span class="p">,</span> <span class="s">&#39;High&#39;</span><span class="p">]}</span>
 
-    <span class="k">def</span> <span class="nf">calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ews_data</span><span class="p">):</span>
+<div class="viewcode-block" id="nh_clinical_patient_observation_ews.calculate_score"><a class="viewcode-back" href="../ews.html#ews.nh_clinical_patient_observation_ews.calculate_score">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ews_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the score and clinical risk values based on the NEWS</span>
+<span class="sd">        parameters provided.</span>
+
+<span class="sd">        It will return as extra information the presence of any Red</span>
+<span class="sd">        Score parameter within the data. (any parameter that scores 3)</span>
+
+<span class="sd">        :param ews_data: The NEWS parameters: ``respiration_rate``,</span>
+<span class="sd">                         ``indirect_oxymetry_spo2``, ``body_temperature``,</span>
+<span class="sd">                         ``blood_pressure_systolic``, ``pulse_rate``,</span>
+<span class="sd">                         ``oxygen_administration_flag`` and ``avpu_text``</span>
+<span class="sd">        :type ews_data: dict</span>
+<span class="sd">        :returns: ``score``, ``clinical_risk`` and ``three_in_one``</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">three_in_one</span> <span class="o">=</span> <span class="bp">False</span>
 
@@ -134,7 +164,7 @@
         <span class="n">clinical_risk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_POLICY</span><span class="p">[</span><span class="s">&#39;risk&#39;</span><span class="p">][</span><span class="n">case</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s">&#39;score&#39;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span> <span class="s">&#39;three_in_one&#39;</span><span class="p">:</span> <span class="n">three_in_one</span><span class="p">,</span> <span class="s">&#39;clinical_risk&#39;</span><span class="p">:</span> <span class="n">clinical_risk</span><span class="p">}</span>
-
+</div>
     <span class="k">def</span> <span class="nf">_get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">ews</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
@@ -187,7 +217,6 @@
 
     <span class="n">_avpu_values</span> <span class="o">=</span> <span class="p">[[</span><span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;Alert&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;V&#39;</span><span class="p">,</span> <span class="s">&#39;Voice&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;P&#39;</span><span class="p">,</span> <span class="s">&#39;Pain&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">,</span> <span class="s">&#39;Unresponsive&#39;</span><span class="p">]]</span>
     <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="c">#&#39;duration&#39;: fields.integer(&#39;Duration&#39;),</span>
         <span class="s">&#39;score&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">_get_score</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;integer&#39;</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="s">&#39;score&#39;</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">&#39;Score&#39;</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="p">{</span>
             <span class="s">&#39;nh.clinical.patient.observation.ews&#39;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">ids</span><span class="p">,</span> <span class="p">[],</span> <span class="mi">10</span><span class="p">)</span> <span class="c"># all fields of self</span>
         <span class="p">}),</span>
@@ -452,10 +481,32 @@
 
     <span class="n">_order</span> <span class="o">=</span> <span class="s">&quot;order_by desc, id desc&quot;</span>
 
-    <span class="k">def</span> <span class="nf">handle_o2_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="nh_clinical_patient_observation_ews.handle_o2_devices"><a class="viewcode-back" href="../ews.html#ews.nh_clinical_patient_observation_ews.handle_o2_devices">[docs]</a>    <span class="k">def</span> <span class="nf">handle_o2_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks the current state of supplemental oxygen</span>
+<span class="sd">        :class:`device sessions&lt;devices.nh_clinical_device_session&gt;` on</span>
+<span class="sd">        the related :class:`spell&lt;base.nh_clinical_spell&gt;`.</span>
+
+<span class="sd">        It :meth:`completes&lt;devices.nh_clinical_device_session.complete&gt;`</span>
+<span class="sd">        the sessions if the current NEWS does not have the oxygen</span>
+<span class="sd">        administration flag up.</span>
+
+<span class="sd">        It :meth:`completes&lt;devices.nh_clinical_device_session.complete&gt;`</span>
+<span class="sd">        any session with an oxygen administration</span>
+<span class="sd">        :class:`device type&lt;devices.nh_clinical_device_type&gt;` that does</span>
+<span class="sd">        not match the NEWS device.</span>
+
+<span class="sd">        It :meth:`starts&lt;devices.nh_clinical_device_session.start&gt;` a</span>
+<span class="sd">        new session if the NEWS device provided does not have already</span>
+<span class="sd">        an open one related to the spell.</span>
+
+<span class="sd">        :param activity_id: :class:`activity&lt;activity.nh_activity&gt;` id. (NEWS type)</span>
+<span class="sd">        :type activity_id: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
         <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
         <span class="n">device_activity_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[</span>
+            <span class="p">[</span><span class="s">&#39;parent_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">parent_id</span><span class="o">.</span><span class="n">id</span><span class="p">],</span>
             <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nh.clinical.device.session&#39;</span><span class="p">],</span>
             <span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;not in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">,</span> <span class="s">&#39;cancelled&#39;</span><span class="p">]]],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
         <span class="n">da_browse</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">device_activity_ids</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
@@ -478,20 +529,45 @@
                     <span class="s">&#39;device_type_id&#39;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">device_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                     <span class="s">&#39;device_id&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">})</span>
                 <span class="n">activity_pool</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">device_activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
-
+</div>
     <span class="k">def</span> <span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">data_vals</span><span class="o">=</span><span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="n">data_vals</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;oxygen_administration&#39;</span><span class="p">):</span>
             <span class="n">vals</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;oxygen_administration_flag&#39;</span><span class="p">:</span> <span class="n">vals</span><span class="p">[</span><span class="s">&#39;oxygen_administration&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;oxygen_administration_flag&#39;</span><span class="p">)})</span>
             <span class="k">del</span> <span class="n">vals</span><span class="p">[</span><span class="s">&#39;oxygen_administration&#39;</span><span class="p">]</span>
-
-
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_observation_ews</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">data_vals</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 
     <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;ews0&#39;</span><span class="p">,</span> <span class="s">&#39;ews1&#39;</span><span class="p">,</span> <span class="s">&#39;ews2&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Implementation of the default EWS policy</span>
+<span class="sd">        It determines which acuity case the current observation is in</span>
+<span class="sd">        with the stored data and responds to the different policy</span>
+<span class="sd">        triggers accordingly defined on the ``_POLICY`` dictionary::</span>
+
+<span class="sd">            {&#39;ranges&#39;: [0, 4, 6], &#39;case&#39;: &#39;0123&#39;, --&gt; Used with bisect to</span>
+<span class="sd">            determine the acuity case based on the score.</span>
+<span class="sd">            &#39;frequencies&#39;: [720, 240, 60, 30], --&gt; frequency of recurrency</span>
+<span class="sd">            of the NEWS observation, based on the case.</span>
+<span class="sd">            &#39;notifications&#39;: [...],</span>
+<span class="sd">               Information sent to the trigger_notifications method,</span>
+<span class="sd">               based on case.</span>
+<span class="sd">            &#39;risk&#39;: [&#39;None&#39;, &#39;Low&#39;, &#39;Medium&#39;, &#39;High&#39;]} --&gt; Clinical risk</span>
+<span class="sd">            of the patient, based on case.</span>
+
+<span class="sd">        All the case based lists work in a simple way:</span>
+<span class="sd">        list[case] --&gt; value used</span>
+
+<span class="sd">        After the policy triggers take place the activity is `completed`</span>
+<span class="sd">        and a new NEWS activity is created. Then the case based</span>
+<span class="sd">        `frequency` is applied, effectively scheduling it.</span>
+
+<span class="sd">        In the case of having a `partial` observation we won&#39;t have a new</span>
+<span class="sd">        frequency so the new activity is scheduled to the same time the</span>
+<span class="sd">        one just `completed` was, as the need for a complete observation</span>
+<span class="sd">        is still there.</span>
+
+<span class="sd">        :returns: ``True``</span>
+<span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
         <span class="n">groups_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;res.groups&#39;</span><span class="p">]</span>
@@ -531,7 +607,15 @@
                                                <span class="bp">self</span><span class="o">.</span><span class="n">_POLICY</span><span class="p">[</span><span class="s">&#39;frequencies&#39;</span><span class="p">][</span><span class="n">case</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span> <span class="nf">create_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="o">=</span><span class="p">{},</span> <span class="n">vals_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="nh_clinical_patient_observation_ews.create_activity"><a class="viewcode-back" href="../ews.html#ews.nh_clinical_patient_observation_ews.create_activity">[docs]</a>    <span class="k">def</span> <span class="nf">create_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="o">=</span><span class="p">{},</span> <span class="n">vals_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When creating a new activity of this type every other not</span>
+<span class="sd">        `completed` or `cancelled` instance related to the same patient</span>
+<span class="sd">        will be automatically cancelled.</span>
+
+<span class="sd">        :returns: :class:`activity&lt;activity.nh_activity&gt;` id.</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
         <span class="n">domain</span> <span class="o">=</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">vals_data</span><span class="p">[</span><span class="s">&#39;patient_id&#39;</span><span class="p">]],</span> <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;new&#39;</span><span class="p">,</span> <span class="s">&#39;started&#39;</span><span class="p">,</span> <span class="s">&#39;scheduled&#39;</span><span class="p">]]]</span>
         <span class="n">ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
@@ -539,8 +623,18 @@
             <span class="n">activity_pool</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">aid</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_observation_ews</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="p">,</span> <span class="n">vals_data</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="nh_clinical_patient_observation_ews.get_form_description"><a class="viewcode-back" href="../ews.html#ews.nh_clinical_patient_observation_ews.get_form_description">[docs]</a>    <span class="k">def</span> <span class="nf">get_form_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a description in dictionary format of the input fields</span>
+<span class="sd">        that would be required in the user gui to submit the</span>
+<span class="sd">        observation.</span>
 
-    <span class="k">def</span> <span class="nf">get_form_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="sd">        :param patient_id: :class:`patient&lt;base.nh_clinical_patient&gt;` id</span>
+<span class="sd">        :type patient_id: int</span>
+<span class="sd">        :returns: a list of dictionaries</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">device_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.device.type&#39;</span><span class="p">]</span>
         <span class="n">o2target_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.patient.o2target&#39;</span><span class="p">]</span>
         <span class="n">o2level_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.o2level&#39;</span><span class="p">]</span>
@@ -562,16 +656,20 @@
             <span class="k">if</span> <span class="n">field</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;device_id&#39;</span><span class="p">:</span>
                 <span class="n">field</span><span class="p">[</span><span class="s">&#39;selection&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">device_selection</span>
         <span class="k">return</span> <span class="n">fd</span>
-
+</div>
 <div class="viewcode-block" id="nh_clinical_patient_observation_ews.get_last_case"><a class="viewcode-back" href="../ews.html#ews.nh_clinical_patient_observation_ews.get_last_case">[docs]</a>    <span class="k">def</span> <span class="nf">get_last_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Checks for the last completed NEWS observation for the provided patient and returns the case.</span>
-<span class="sd">        :return: False if there is no NEWS observation completed.</span>
-<span class="sd">                0 to 3 integer. Number representing each case.</span>
-<span class="sd">                0 - No Risk</span>
-<span class="sd">                1 - Low Risk</span>
-<span class="sd">                2 - Medium Risk</span>
-<span class="sd">                3 - High Risk</span>
+<span class="sd">        Checks for the last completed NEWS for the provided</span>
+<span class="sd">        :class:`patient&lt;base.nh_clinical_patient&gt;` and returns the</span>
+<span class="sd">        acuity case::</span>
+
+<span class="sd">            0 - No Risk</span>
+<span class="sd">            1 - Low Risk</span>
+<span class="sd">            2 - Medium Risk</span>
+<span class="sd">            3 - High Risk</span>
+
+<span class="sd">        :returns: ``False`` or the acuity case</span>
+<span class="sd">        :rtype: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">domain</span> <span class="o">=</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;nh.clinical.patient.observation.ews&#39;</span><span class="p">],</span>
                   <span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;completed&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;parent_id.state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;started&#39;</span><span class="p">]]</span>

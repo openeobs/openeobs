@@ -59,22 +59,131 @@
             
   <div class="section" id="module-ews">
 <span id="early-warning-score"></span><h1><code class="docutils literal"><span class="pre">Early</span> <span class="pre">Warning</span> <span class="pre">Score</span></code><a class="headerlink" href="#module-ews" title="Permalink to this headline">¶</a></h1>
+<p><cite>ews.py</cite> defines the Early Warning Score observation class and its
+standard behaviour and policy triggers based on the UK NEWS standard.</p>
 <div class="section" id="early-warning-score-observation">
 <h2><code class="docutils literal"><span class="pre">Early</span> <span class="pre">Warning</span> <span class="pre">Score</span> <span class="pre">Observation</span></code><a class="headerlink" href="#early-warning-score-observation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ews.nh_clinical_patient_observation_ews">
 <em class="property">class </em><code class="descclassname">ews.</code><code class="descname">nh_clinical_patient_observation_ews</code><a class="reference internal" href="_modules/ews.html#nh_clinical_patient_observation_ews"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ews.nh_clinical_patient_observation_ews" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Represents an Early Warning Score
+<code class="xref py py-class docutils literal"><span class="pre">observation</span></code>
+which stores a group of physiological parameters measured from the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> that together determine
+a score that serves as an indicator of the illness current acuity.</p>
+<p>The basis of the scoring system are the following six parameters:
+respiratory rate, oxygen saturations, temperature, systolic blood
+pressure, pulse rate and level of consciousness.</p>
+<dl class="method">
+<dt id="ews.nh_clinical_patient_observation_ews.calculate_score">
+<code class="descname">calculate_score</code><span class="sig-paren">(</span><em>ews_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ews.html#nh_clinical_patient_observation_ews.calculate_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ews.nh_clinical_patient_observation_ews.calculate_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the score and clinical risk values based on the NEWS
+parameters provided.</p>
+<p>It will return as extra information the presence of any Red
+Score parameter within the data. (any parameter that scores 3)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ews_data</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; The NEWS parameters: <code class="docutils literal"><span class="pre">respiration_rate</span></code>,
+<code class="docutils literal"><span class="pre">indirect_oxymetry_spo2</span></code>, <code class="docutils literal"><span class="pre">body_temperature</span></code>,
+<code class="docutils literal"><span class="pre">blood_pressure_systolic</span></code>, <code class="docutils literal"><span class="pre">pulse_rate</span></code>,
+<code class="docutils literal"><span class="pre">oxygen_administration_flag</span></code> and <code class="docutils literal"><span class="pre">avpu_text</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">score</span></code>, <code class="docutils literal"><span class="pre">clinical_risk</span></code> and <code class="docutils literal"><span class="pre">three_in_one</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ews.nh_clinical_patient_observation_ews.create_activity">
+<code class="descname">create_activity</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>vals_activity={}</em>, <em>vals_data={}</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ews.html#nh_clinical_patient_observation_ews.create_activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ews.nh_clinical_patient_observation_ews.create_activity" title="Permalink to this definition">¶</a></dt>
+<dd><p>When creating a new activity of this type every other not
+<cite>completed</cite> or <cite>cancelled</cite> instance related to the same patient
+will be automatically cancelled.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference external" href="https://nh-activity.readthedocs.org/en/develop/activity.html#activity.nh_activity" title="(in nh_activity v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">activity</span></code></a> id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ews.nh_clinical_patient_observation_ews.get_form_description">
+<code class="descname">get_form_description</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>patient_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ews.html#nh_clinical_patient_observation_ews.get_form_description"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ews.nh_clinical_patient_observation_ews.get_form_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a description in dictionary format of the input fields
+that would be required in the user gui to submit the
+observation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>patient_id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> id</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of dictionaries</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="ews.nh_clinical_patient_observation_ews.get_last_case">
 <code class="descname">get_last_case</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>patient_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ews.html#nh_clinical_patient_observation_ews.get_last_case"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ews.nh_clinical_patient_observation_ews.get_last_case" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks for the last completed NEWS observation for the provided patient and returns the case.
-:return: False if there is no NEWS observation completed.</p>
-<blockquote>
-<div>0 to 3 integer. Number representing each case.
-0 - No Risk
+<dd><p>Checks for the last completed NEWS for the provided
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> and returns the
+acuity case:</p>
+<div class="highlight-python"><div class="highlight"><pre>0 - No Risk
 1 - Low Risk
 2 - Medium Risk
-3 - High Risk</div></blockquote>
+3 - High Risk
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">False</span></code> or the acuity case</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)">int</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ews.nh_clinical_patient_observation_ews.handle_o2_devices">
+<code class="descname">handle_o2_devices</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>activity_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ews.html#nh_clinical_patient_observation_ews.handle_o2_devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ews.nh_clinical_patient_observation_ews.handle_o2_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the current state of supplemental oxygen
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/devices.html#devices.nh_clinical_device_session" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">device</span> <span class="pre">sessions</span></code></a> on
+the related <code class="xref py py-class docutils literal"><span class="pre">spell</span></code>.</p>
+<p>It <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/devices.html#devices.nh_clinical_device_session.complete" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-meth docutils literal"><span class="pre">completes</span></code></a>
+the sessions if the current NEWS does not have the oxygen
+administration flag up.</p>
+<p>It <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/devices.html#devices.nh_clinical_device_session.complete" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-meth docutils literal"><span class="pre">completes</span></code></a>
+any session with an oxygen administration
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/devices.html#devices.nh_clinical_device_type" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">device</span> <span class="pre">type</span></code></a> that does
+not match the NEWS device.</p>
+<p>It <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/devices.html#devices.nh_clinical_device_session.start" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-meth docutils literal"><span class="pre">starts</span></code></a> a
+new session if the NEWS device provided does not have already
+an open one related to the spell.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>activity_id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <a class="reference external" href="https://nh-activity.readthedocs.org/en/develop/activity.html#activity.nh_activity" title="(in nh_activity v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">activity</span></code></a> id. (NEWS type)</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
