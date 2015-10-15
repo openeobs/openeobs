@@ -609,10 +609,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :class:`patient<base.nh_clinical_patient>` and returns the
         acuity case::
 
-        0 - No Risk
-        1 - Low Risk
-        2 - Medium Risk
-        3 - High Risk
+            0 - No Risk
+            1 - Low Risk
+            2 - Medium Risk
+            3 - High Risk
 
         :returns: ``False`` or the acuity case
         :rtype: int

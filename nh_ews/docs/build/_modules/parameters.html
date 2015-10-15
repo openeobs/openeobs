@@ -53,10 +53,12 @@
             
   <h1>Source code for parameters</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
-
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">`parameters.py` define extra observation parameters related to the</span>
+<span class="sd">Early Warning Score observation and relevant to its policies.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">openerp.osv</span> <span class="kn">import</span> <span class="n">orm</span><span class="p">,</span> <span class="n">fields</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">openerp</span> <span class="kn">import</span> <span class="n">SUPERUSER_ID</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span>
 <span class="kn">from</span> <span class="nn">openerp.tools</span> <span class="kn">import</span> <span class="n">DEFAULT_SERVER_DATETIME_FORMAT</span> <span class="k">as</span> <span class="n">dtf</span>
 <span class="kn">from</span> <span class="nn">openerp.addons.nh_observations.helpers</span> <span class="kn">import</span> <span class="n">refresh_materialized_views</span>
@@ -64,6 +66,11 @@
 
 
 <div class="viewcode-block" id="nh_clinical_o2level"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_o2level">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_o2level</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a oxygen saturation range.</span>
+
+<span class="sd">    To be used by the oxygen saturation target as the target range.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.o2level&#39;</span>
 
     <span class="k">def</span> <span class="nf">_get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -83,11 +90,23 @@
         <span class="s">&#39;active&#39;</span><span class="p">:</span> <span class="bp">True</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">unlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="nh_clinical_o2level.unlink"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_o2level.unlink">[docs]</a>    <span class="k">def</span> <span class="nf">unlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prevents the deletion of any records of this object to avoid</span>
+<span class="sd">        loss of data. The records will be flagged as inactive instead.</span>
+
+<span class="sd">        :returns: ``True``</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;active&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
 
-</div>
+</div></div>
 <div class="viewcode-block" id="nh_clinical_patient_o2target"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_o2target">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_o2target</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a :class:`patient&lt;base.nh_clinical_patient&gt;` oxygen</span>
+<span class="sd">    saturation target. Set by clinicians after assessing the patient</span>
+<span class="sd">    condition, if necessary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.o2target&#39;</span>
     <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span>
     <span class="n">_rec_name</span> <span class="o">=</span> <span class="s">&#39;level_id&#39;</span>
@@ -98,9 +117,17 @@
 
 <div class="viewcode-block" id="nh_clinical_patient_o2target.get_last"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_o2target.get_last">[docs]</a>    <span class="k">def</span> <span class="nf">get_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">datetime</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Checks if there is an O2 Target assigned for the provided Patient</span>
-<span class="sd">        :return: False if there is no assigned O2 Target.</span>
-<span class="sd">                nh.clinical.o2level id of the last assigned O2 Target</span>
+<span class="sd">        Checks if there is a target assigned for the provided</span>
+<span class="sd">        :class:`patient&lt;base.nh_clinical_patient&gt;`</span>
+
+<span class="sd">        :parameter patient_id: :class:`patient&lt;base.nh_clinical_patient&gt;` id.</span>
+<span class="sd">        :type patient_id: int</span>
+<span class="sd">        :parameter datetime: date formatted string, `now` by default,</span>
+<span class="sd">                             the method will search targets assigned</span>
+<span class="sd">                             before this date.</span>
+<span class="sd">        :type datetime: str</span>
+<span class="sd">        :returns: :mod:`oxygen range&lt;parameters.nh_clinical_o2level&gt;` id.</span>
+<span class="sd">        :rtype: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">datetime</span><span class="p">:</span>
             <span class="n">datetime</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dtf</span><span class="p">)</span>
