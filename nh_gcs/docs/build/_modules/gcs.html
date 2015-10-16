@@ -53,6 +53,10 @@
             
   <h1>Source code for gcs</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">`gcs.py` defines the Glasgow Coma Scale observation class and its</span>
+<span class="sd">standard behaviour and policy triggers based on this worldwide standard.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">openerp.osv</span> <span class="kn">import</span> <span class="n">orm</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">osv</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">bisect</span>
@@ -62,6 +66,19 @@
 
 
 <div class="viewcode-block" id="nh_clinical_patient_observation_gcs"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_observation_gcs</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an Glasgow Coma Scale</span>
+<span class="sd">    :class:`observation&lt;observations.nh_clinical_patient_observation&gt;`</span>
+<span class="sd">    which stores three parameters that are used as a way to communicate</span>
+<span class="sd">    about the level of consciousness of</span>
+<span class="sd">    :class:`patients&lt;base.nh_clinical_patient&gt;` with acute brain injury.</span>
+
+<span class="sd">    The basis of the scale system are the following parameters:</span>
+<span class="sd">    Eye response: spontaneous, to sound, to pressure, none.</span>
+<span class="sd">    Verbal response: orientated, confused, words, sounds, none.</span>
+<span class="sd">    Motor response: obey commands, localising, normal flexion, abnormal</span>
+<span class="sd">    flexion, extension, none.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.observation.gcs&#39;</span>
     <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.clinical.patient.observation&#39;</span><span class="p">]</span>
     <span class="n">_required</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;eyes&#39;</span><span class="p">,</span> <span class="s">&#39;verbal&#39;</span><span class="p">,</span> <span class="s">&#39;motor&#39;</span><span class="p">]</span>
@@ -96,13 +113,22 @@
     <span class="n">_POLICY</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;ranges&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s">&#39;case&#39;</span><span class="p">:</span> <span class="s">&#39;01234&#39;</span><span class="p">,</span> <span class="s">&#39;frequencies&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="mi">720</span><span class="p">],</span>
                <span class="s">&#39;notifications&#39;</span><span class="p">:</span> <span class="p">[[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]]}</span>
 
-    <span class="k">def</span> <span class="nf">calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gcs_data</span><span class="p">):</span>
+<div class="viewcode-block" id="nh_clinical_patient_observation_gcs.calculate_score"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs.calculate_score">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gcs_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the score based on the GCS parameters provided.</span>
+
+<span class="sd">        :param gcs_data: The GCS parameters: ``eyes``, ``verbal`` and</span>
+<span class="sd">                         ``motor``.</span>
+<span class="sd">        :type gcs_data: dict</span>
+<span class="sd">        :returns: ``score``</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">eyes</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;eyes&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;C&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;eyes&#39;</span><span class="p">])</span>
         <span class="n">verbal</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;verbal&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;T&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;verbal&#39;</span><span class="p">])</span>
         <span class="n">motor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;motor&#39;</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="s">&#39;score&#39;</span><span class="p">:</span> <span class="n">eyes</span><span class="o">+</span><span class="n">verbal</span><span class="o">+</span><span class="n">motor</span><span class="p">}</span>
-
+</div>
     <span class="k">def</span> <span class="nf">_get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">gcs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
@@ -154,7 +180,12 @@
 
 <div class="viewcode-block" id="nh_clinical_patient_observation_gcs.complete"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs.complete">[docs]</a>    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Implementation of the default GCS policy</span>
+<span class="sd">        It determines which acuity case the current observation is in</span>
+<span class="sd">        with the stored data and responds to the different policy</span>
+<span class="sd">        triggers accordingly defined on the ``_POLICY`` dictionary.</span>
+
+<span class="sd">        :returns: ``True``</span>
+<span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
         <span class="n">api_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.api&#39;</span><span class="p">]</span>
@@ -177,7 +208,15 @@
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_observation_gcs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 </div>
-    <span class="k">def</span> <span class="nf">create_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="o">=</span><span class="p">{},</span> <span class="n">vals_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="nh_clinical_patient_observation_gcs.create_activity"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs.create_activity">[docs]</a>    <span class="k">def</span> <span class="nf">create_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="o">=</span><span class="p">{},</span> <span class="n">vals_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When creating a new activity of this type, an exception will be</span>
+<span class="sd">        raised if the :class:`spell&lt;base.nh_clinical_spell&gt;` already has</span>
+<span class="sd">        an open GCS.</span>
+
+<span class="sd">        :returns: :class:`activity&lt;activity.nh_activity&gt;` id.</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">vals_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;patient_id&#39;</span><span class="p">),</span> <span class="s">&quot;patient_id is a required field!&quot;</span>
         <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
         <span class="n">domain</span> <span class="o">=</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span><span class="s">&#39;=&#39;</span><span class="p">,</span><span class="n">vals_data</span><span class="p">[</span><span class="s">&#39;patient_id&#39;</span><span class="p">]],[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span><span class="s">&#39;=&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],[</span><span class="s">&#39;state&#39;</span><span class="p">,</span><span class="s">&#39;in&#39;</span><span class="p">,[</span><span class="s">&#39;new&#39;</span><span class="p">,</span><span class="s">&#39;started&#39;</span><span class="p">,</span><span class="s">&#39;scheduled&#39;</span><span class="p">]]]</span>
@@ -187,7 +226,7 @@
                                  <span class="s">&quot;Having more than one activity of type &#39;</span><span class="si">%s</span><span class="s">&#39; is restricted. &quot;</span>
                                  <span class="s">&quot;Terminate activities with ids=</span><span class="si">%s</span><span class="s"> first&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ids</span><span class="p">)))</span>
         <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_observation_gcs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="p">,</span> <span class="n">vals_data</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">res</span></div>
+        <span class="k">return</span> <span class="n">res</span></div></div>
 </pre></div>
 
           </div>

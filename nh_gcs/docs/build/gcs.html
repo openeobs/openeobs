@@ -59,15 +59,76 @@
             
   <div class="section" id="module-gcs">
 <span id="glasgow-coma-scale"></span><h1><code class="docutils literal"><span class="pre">Glasgow</span> <span class="pre">Coma</span> <span class="pre">Scale</span></code><a class="headerlink" href="#module-gcs" title="Permalink to this headline">¶</a></h1>
+<p><cite>gcs.py</cite> defines the Glasgow Coma Scale observation class and its
+standard behaviour and policy triggers based on this worldwide standard.</p>
 <div class="section" id="glasgow-coma-scale-observation">
 <h2><code class="docutils literal"><span class="pre">Glasgow</span> <span class="pre">Coma</span> <span class="pre">Scale</span> <span class="pre">Observation</span></code><a class="headerlink" href="#glasgow-coma-scale-observation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="gcs.nh_clinical_patient_observation_gcs">
 <em class="property">class </em><code class="descclassname">gcs.</code><code class="descname">nh_clinical_patient_observation_gcs</code><a class="reference internal" href="_modules/gcs.html#nh_clinical_patient_observation_gcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcs.nh_clinical_patient_observation_gcs" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Represents an Glasgow Coma Scale
+<code class="xref py py-class docutils literal"><span class="pre">observation</span></code>
+which stores three parameters that are used as a way to communicate
+about the level of consciousness of
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patients</span></code></a> with acute brain injury.</p>
+<p>The basis of the scale system are the following parameters:
+Eye response: spontaneous, to sound, to pressure, none.
+Verbal response: orientated, confused, words, sounds, none.
+Motor response: obey commands, localising, normal flexion, abnormal
+flexion, extension, none.</p>
+<dl class="method">
+<dt id="gcs.nh_clinical_patient_observation_gcs.calculate_score">
+<code class="descname">calculate_score</code><span class="sig-paren">(</span><em>gcs_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gcs.html#nh_clinical_patient_observation_gcs.calculate_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcs.nh_clinical_patient_observation_gcs.calculate_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the score based on the GCS parameters provided.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gcs_data</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; The GCS parameters: <code class="docutils literal"><span class="pre">eyes</span></code>, <code class="docutils literal"><span class="pre">verbal</span></code> and
+<code class="docutils literal"><span class="pre">motor</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">score</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="gcs.nh_clinical_patient_observation_gcs.complete">
 <code class="descname">complete</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>activity_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gcs.html#nh_clinical_patient_observation_gcs.complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcs.nh_clinical_patient_observation_gcs.complete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implementation of the default GCS policy</p>
+<dd><p>It determines which acuity case the current observation is in
+with the stored data and responds to the different policy
+triggers accordingly defined on the <code class="docutils literal"><span class="pre">_POLICY</span></code> dictionary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gcs.nh_clinical_patient_observation_gcs.create_activity">
+<code class="descname">create_activity</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>vals_activity={}</em>, <em>vals_data={}</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gcs.html#nh_clinical_patient_observation_gcs.create_activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gcs.nh_clinical_patient_observation_gcs.create_activity" title="Permalink to this definition">¶</a></dt>
+<dd><p>When creating a new activity of this type, an exception will be
+raised if the <code class="xref py py-class docutils literal"><span class="pre">spell</span></code> already has
+an open GCS.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><a class="reference external" href="https://nh-activity.readthedocs.org/en/develop/activity.html#activity.nh_activity" title="(in nh_activity v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">activity</span></code></a> id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)">int</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
