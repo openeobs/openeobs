@@ -59,12 +59,36 @@
             
   <div class="section" id="module-notifications">
 <span id="notifications"></span><h1><code class="docutils literal"><span class="pre">Notifications</span></code><a class="headerlink" href="#module-notifications" title="Permalink to this headline">¶</a></h1>
+<p><cite>notifications.py</cite> define notification types necessary for the Early
+Warning Score policy triggers.</p>
 <div class="section" id="patient-assessment">
 <h2><code class="docutils literal"><span class="pre">Patient</span> <span class="pre">Assessment</span></code><a class="headerlink" href="#patient-assessment" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="notifications.nh_clinical_notification_assessment">
 <em class="property">class </em><code class="descclassname">notifications.</code><code class="descname">nh_clinical_notification_assessment</code><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_assessment" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This notification addresses the specific need of the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> needing medical
+assessment.</p>
+<dl class="method">
+<dt id="notifications.nh_clinical_notification_assessment.complete">
+<code class="descname">complete</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>activity_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_assessment.complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_assessment.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-meth docutils literal"><span class="pre">completes</span></code> the activity
+and triggers a
+<code class="xref py py-class docutils literal"><span class="pre">review</span> <span class="pre">frequency</span></code>
+by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
 
 </div>
 <div class="section" id="inform-medical-team">
@@ -72,7 +96,45 @@
 <dl class="class">
 <dt id="notifications.nh_clinical_notification_medical_team">
 <em class="property">class </em><code class="descclassname">notifications.</code><code class="descname">nh_clinical_notification_medical_team</code><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_medical_team"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_medical_team" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This notification addresses the specific need of the responsible
+medical team having to be informed about the current
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> condition.</p>
+<dl class="method">
+<dt id="notifications.nh_clinical_notification_medical_team.complete">
+<code class="descname">complete</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>activity_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_medical_team.complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_medical_team.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="xref py py-meth docutils literal"><span class="pre">completes</span></code> the activity
+and triggers a
+<code class="xref py py-class docutils literal"><span class="pre">doctor</span> <span class="pre">assessment</span></code>
+by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="notifications.nh_clinical_notification_medical_team.is_cancellable">
+<code class="descname">is_cancellable</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/notifications.html#nh_clinical_notification_medical_team.is_cancellable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#notifications.nh_clinical_notification_medical_team.is_cancellable" title="Permalink to this definition">¶</a></dt>
+<dd><p>This notification is cancellable by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
 
 </div>
 </div>
