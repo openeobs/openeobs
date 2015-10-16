@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nh_ews documentation build configuration file
+# nh_gcs documentation build configuration file
 #
 
 import sys, os
@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'nh_ews'
+project = u'nh_gcs'
 copyright = u'2015, Neova Health'
 author = u'Neova Health'
 
@@ -178,7 +178,7 @@ html_show_sourcelink = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'nh_ews'
+htmlhelp_basename = 'nh_gcs'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -197,7 +197,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  (master_doc, 'nh_ews.tex', u'nh\\_ews Documentation',
+  (master_doc, 'nh_gcs.tex', u'nh\\_gcs Documentation',
    u'Neova Health', 'manual'),
 ]
 
@@ -227,7 +227,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'nh_ews', u'nh_ews Documentation',
+    (master_doc, 'nh_gcs', u'nh_gcs Documentation',
      [author], 1)
 ]
 
@@ -241,7 +241,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'Neova Health Clinical', u'nh_ews Documentation',
+  (master_doc, 'Neova Health Clinical', u'nh_gcs Documentation',
    author, 'Neova Health', 'One line description of project.',
    'Miscellaneous'),
 ]
