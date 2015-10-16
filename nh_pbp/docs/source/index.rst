@@ -1,7 +1,7 @@
-.. nh_gcs documentation master file
+.. nh_pbp documentation master file
 
-NH Glasgow Coma Scale
-=====================
+NH Postural Blood Pressure
+==========================
 
 If it fits, i sits stretch, or spot something, big eyes, big eyes, crouch,
 shake butt, prepare to pounce leave fur on owners clothes refuse to drink water
@@ -23,7 +23,8 @@ Module Reference
 .. toctree::
    :maxdepth: 2
 
-   gcs
+   pbp
+   parameters
 
 Additional Notes
 ----------------

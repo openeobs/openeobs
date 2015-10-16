@@ -1,4 +1,4 @@
-.. nh_ews documentation master file
+.. nh_neurovascular documentation master file
 
 NH Neurovascular
 ================
