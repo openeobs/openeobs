@@ -1,8 +1,8 @@
 Contribution Guidelines
 =======================
 
-Philosophy of Neova Health and NH Glasgow Coma Scale
-----------------------------------------------------
+Philosophy of Neova Health and NH Neurovascular
+-----------------------------------------------
 Nap all day stretch. Who's the baby claws in your leg but meowzer!. All of a
 sudden cat goes crazy give attitude, or eat prawns daintily with a claw then
 lick paws clean wash down prawns with a lap of carnation milk then retire to

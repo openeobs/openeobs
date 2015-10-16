@@ -1,3 +1,6 @@
+"""
+`neurovascular.py`
+"""
 from openerp.osv import orm, fields, osv
 import logging
 
@@ -5,6 +8,9 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation_neurovascular(orm.Model):
+    """
+    Neurovascular Observation implementation
+    """
     _name = 'nh.clinical.patient.observation.neurovascular'
     _inherit = ['nh.clinical.patient.observation']
     _required = []
