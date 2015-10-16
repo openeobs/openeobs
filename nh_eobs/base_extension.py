@@ -1,16 +1,33 @@
-from openerp.osv import orm,fields
+"""
+Extends :class:`nh_clinical_location<base.nh_clinical_location>` for
+additional eObs UI functionality.
+"""
+
+from openerp.osv import orm, fields
 import logging
 
 _logger = logging.getLogger(__name__)
 
 
 class nh_ui_location(orm.Model):
+    """
+    Extends :class:`location<base.nh_clinical_location>`.
+    """
 
     _name = 'nh.clinical.location'
     _inherit = 'nh.clinical.location'
 
     def _get_patient_info(self, cr, uid, ids, field_names, arg, context=None):
-        ewsfields = {
+        """
+        Used by function fields ``patient_score`` and ``patient_risk``
+        to get the current
+        :class:`EWS<ews.nh_clinical_patient_observation_ews>`
+        information for each
+        :class:`patient<base.nh_clinical_patient>` in an open
+        :class:`spell<spell.nh_clinical_spell>`.
+        """
+
+        ews_fields = {
             'patient_score': 'score',
             'patient_risk': 'clinical_risk'
         }
@@ -34,7 +51,7 @@ class nh_ui_location(orm.Model):
                 if not ews:
                     res[location_id][field_name] = False
                 else:
-                    res[location_id][field_name] = str(eval("ews.%s" % ewsfields[field_name]))
+                    res[location_id][field_name] = str(eval("ews.%s" % ews_fields[field_name]))
         return res
 
     _columns = {
@@ -43,6 +60,13 @@ class nh_ui_location(orm.Model):
     }
 
     def search(self, cr, uid, domain, offset=0, limit=None, order=None, context=None, count=False):
+        """
+        Extends Odoo's :meth:`search()<openerp.models.Model.search>`,
+        allowing :class:`users<base.res_users>` who are members of the
+        `Ward Manager` :class:`group<base.res_groups>` to search from
+        all locations for which they're responsible for.
+        """
+
         if context is None:
             context = {}
         if context.get('nh_open_form'):
@@ -62,6 +86,11 @@ class nh_ui_location(orm.Model):
         return super(nh_ui_location, self).search(cr, uid, domain, offset=offset, limit=limit, order=order, context=context, count=count)
 
     def create(self, cr, uid, vals, context=None):
+        """
+        Extends Odoo's :meth:`create()<openerp.models.Model.create>`,
+        refreshing the materialized view `ward_locations`.
+        """
+
         res = super(nh_ui_location, self).create(cr, uid, vals, context=context)
         sql = """
                 refresh materialized view ward_locations;

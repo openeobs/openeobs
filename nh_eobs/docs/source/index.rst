@@ -24,6 +24,7 @@ Module Reference
    :maxdepth: 2
 
    api
+   base_extension
 
 Additional Notes
 ----------------
