@@ -56,7 +56,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     def get_js_routes(self, *args, **kw):
         name_of_template = 'routes_template.js'
         path_to_template = get_module_path('nh_eobs_api') + '/views/'
-        routes = route_manager.get_javascript_routes(name_of_template, path_to_template, additional_context={'base_url': route_manager.BASE_URL, 'base_prefix': route_manager.URL_PREFIX})
+        base_url = request.httprequest.host_url[:-1]  # override the RouteManager's base url only for JS routes
+        routes = route_manager.get_javascript_routes(name_of_template, path_to_template, additional_context={'base_url': base_url, 'base_prefix': route_manager.URL_PREFIX})
         return request.make_response(routes, headers={'Content-Type': 'application/javascript'})
 
     @http.route(**route_manager.expose_route('json_share_patients'))
