@@ -53,6 +53,11 @@
             
   <h1>Source code for stools</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">`stools.py` defines the bristol stool scale observation class and its</span>
+<span class="sd">standard behaviour and policy triggers. There are currently no standard</span>
+<span class="sd">scalation policies defined.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">openerp.osv</span> <span class="kn">import</span> <span class="n">orm</span><span class="p">,</span> <span class="n">fields</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -60,10 +65,16 @@
 
 
 <div class="viewcode-block" id="nh_clinical_patient_observation_stools"><a class="viewcode-back" href="../stools.html#stools.nh_clinical_patient_observation_stools">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_observation_stools</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a Bristol Stool Scale</span>
+<span class="sd">    :class:`observation&lt;observations.nh_clinical_patient_observation&gt;`,</span>
+<span class="sd">    which is used as a useful research tool to evaluate the</span>
+<span class="sd">    effectiveness of treatments for various diseases of the bowel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.observation.stools&#39;</span>
     <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.clinical.patient.observation&#39;</span><span class="p">]</span>
     <span class="n">_required</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">_description</span> <span class="o">=</span> <span class="s">&quot;Bristol Stools Observation&quot;</span>
+    <span class="n">_description</span> <span class="o">=</span> <span class="s">&quot;Bristol Stool Scale Observation&quot;</span>
     <span class="n">_boolean_selection</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">True</span><span class="p">,</span> <span class="s">&#39;Yes&#39;</span><span class="p">],</span> <span class="p">[</span><span class="bp">False</span><span class="p">,</span> <span class="s">&#39;No&#39;</span><span class="p">]]</span>
     <span class="n">_quantity_selection</span> <span class="o">=</span> <span class="p">[[</span><span class="s">&#39;large&#39;</span><span class="p">,</span> <span class="s">&#39;Large&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;medium&#39;</span><span class="p">,</span> <span class="s">&#39;Medium&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;small&#39;</span><span class="p">,</span> <span class="s">&#39;Small&#39;</span><span class="p">]]</span>
     <span class="n">_colour_selection</span> <span class="o">=</span> <span class="p">[[</span><span class="s">&#39;brown&#39;</span><span class="p">,</span> <span class="s">&#39;Brown&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;yellow&#39;</span><span class="p">,</span> <span class="s">&#39;Yellow&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;green&#39;</span><span class="p">,</span> <span class="s">&#39;Green&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;black&#39;</span><span class="p">,</span> <span class="s">&#39;Black/Tarry&#39;</span><span class="p">],</span>
