@@ -550,6 +550,7 @@ openerp.nh_eobs = function (instance) {
 
                     var score_graph = new window.NH.NHGraph();
                     score_graph.options.keys = ['score'];
+                    score_graph.options.plot_partial = false;
                     score_graph.style.dimensions.height = 200;
                     score_graph.style.data_style = 'stepped';
                     score_graph.style.padding.bottom = 10;
