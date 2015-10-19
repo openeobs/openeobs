@@ -2,7 +2,7 @@
 ======================
 .. automodule:: gcs
 
-``Glasgow Coma Scale Observation``
-----------------------------------
+``GCS Observation``
+-------------------
 .. autoclass:: nh_clinical_patient_observation_gcs
     :members:

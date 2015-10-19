@@ -2,7 +2,7 @@
 =======================
 .. automodule:: ews
 
-``Early Warning Score Observation``
------------------------------------
+``EWS Observation``
+-------------------
 .. autoclass:: nh_clinical_patient_observation_ews
     :members:
