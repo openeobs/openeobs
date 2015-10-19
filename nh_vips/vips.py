@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+`vips.py` defines the visual infusion phlebitis score observation class
+and its standard behaviour and policy triggers.
+"""
 from openerp.osv import orm, fields
 import logging
 import bisect
@@ -8,6 +12,16 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation_vips(orm.Model):
+    """
+    Represents a Visual Infusion Phlebitis Score
+    :class:`observation<observations.nh_clinical_patient_observation>`,
+    which is used to early detect the possible development of phlebitis
+    on any patient with an intravenous access device in place.
+
+    The score is computed from several visual assessments done by the
+    medical staff in charge: ``pain``, ``redness``, ``swelling``,
+    palpable venous ``cord`` and ``pyrexia``.
+    """
     _name = 'nh.clinical.patient.observation.vips'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['pain', 'redness', 'swelling', 'cord', 'pyrexia']
@@ -31,28 +45,40 @@ class nh_clinical_patient_observation_vips(orm.Model):
                     {'model': 'nurse', 'summary': 'Initiate plebitis treatment', 'groups': ['nurse', 'hca']}]
                ]}
 
+    def calculate_score(self, vips_data):
+        """
+        Computes the score based on the VIPS parameters provided.
+
+        :param vips_data: The VIPS parameters: ``pain``, ``redness``,
+                         ``swelling``, ``cord`` and ``pyrexia``.
+        :type vips_data: dict
+        :returns: ``score``
+        :rtype: dict
+        """
+        score = 0
+        pain = vips_data.get('pain') == 'yes'
+        redness = vips_data.get('redness') == 'yes'
+        swelling = vips_data.get('swelling') == 'yes'
+        cord = vips_data.get('cord') == 'yes'
+        pyrexia = vips_data.get('pyrexia') == 'yes'
+
+        if all([pain, redness, swelling, cord, pyrexia]):
+            score = 5
+        elif all([pain, redness, swelling, cord]):
+            score = 4
+        elif all([pain, redness, swelling]):
+            score = 3
+        elif all([pain, redness]) or all([pain, swelling]) or all([redness, swelling]):
+            score = 2
+        elif any([pain, redness]):
+            score = 1
+
+        return {'score': score}
+
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for vips in self.browse(cr, uid, ids, context):
-            score = 0
-            pain = vips.pain == 'yes'
-            redness = vips.redness == 'yes'
-            swelling = vips.swelling == 'yes'
-            cord = vips.cord == 'yes'
-            pyrexia = vips.pyrexia == 'yes'
-
-            if all([pain, redness, swelling, cord, pyrexia]):
-                score = 5
-            elif all([pain, redness, swelling, cord]):
-                score = 4
-            elif all([pain, redness, swelling]):
-                score = 3
-            elif all([pain, redness]) or all([pain, swelling]) or all([redness, swelling]):
-                score = 2
-            elif any([pain, redness]):
-                score = 1
-
-            res[vips.id] = {'score': score}
+            res[vips.id] = self.calculate_score(vips)
             _logger.debug("Observation VIPS activity_id=%s vips_id=%s score: %s" % (vips.activity_id.id, vips.id, res[vips.id]))
         return res
 
@@ -116,7 +142,16 @@ class nh_clinical_patient_observation_vips(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         """
-        Implementation of the default VIPS policy
+        It determines which acuity case the current observation is in
+        with the stored data and responds to the different policy
+        triggers accordingly defined on the ``_POLICY`` dictionary.
+
+        After the policy triggers take place the activity is `completed`
+        and a new VIPS activity is created. Then the case based
+        `frequency` is applied, effectively scheduling it.
+
+        :returns: ``True``
+        :rtype: bool
         """
         activity_pool = self.pool['nh.activity']
         api_pool = self.pool['nh.clinical.api']
