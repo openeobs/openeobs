@@ -159,6 +159,18 @@ describe 'Axes', ->
 
   describe 'X-Axis', ->
 
+    describe "Visibility", ->
+
+      it "is visible by default", ->
+        graphlib.init()
+        expect(document.querySelectorAll('.x').length).toBe 1
+
+      it "can be hidden", ->
+        graph.style.axis.x.hide = true
+        graphlib.init()
+        expect(document.querySelectorAll('.x').length).toBe 0
+
+
     describe 'Scale', ->
 
       it 'Adds time padding of 100 to the scale when plotting a single data point and no time padding defined', ->
@@ -369,6 +381,17 @@ describe 'Axes', ->
             expect(time_re.exec tspans[2].textContent).not.toBe null
 
   describe 'Y-Axis', ->
+
+    describe "Visibility", ->
+
+      it "is visible by default", ->
+        graphlib.init()
+        expect(document.querySelectorAll('.y').length).toBe 1
+
+      it "can be hidden", ->
+        graph.style.axis.y.hide = true
+        graphlib.init()
+        expect(document.querySelectorAll('.y').length).toBe 0
 
     describe 'Scale', ->
 

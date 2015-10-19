@@ -142,6 +142,17 @@ describe('Axes', function() {
     });
   });
   describe('X-Axis', function() {
+    describe("Visibility", function() {
+      it("is visible by default", function() {
+        graphlib.init();
+        return expect(document.querySelectorAll('.x').length).toBe(1);
+      });
+      return it("can be hidden", function() {
+        graph.style.axis.x.hide = true;
+        graphlib.init();
+        return expect(document.querySelectorAll('.x').length).toBe(0);
+      });
+    });
     describe('Scale', function() {
       it('Adds time padding of 100 to the scale when plotting a single data point and no time padding defined', function() {
         var data_point, end, start;
@@ -298,6 +309,17 @@ describe('Axes', function() {
     });
   });
   return describe('Y-Axis', function() {
+    describe("Visibility", function() {
+      it("is visible by default", function() {
+        graphlib.init();
+        return expect(document.querySelectorAll('.y').length).toBe(1);
+      });
+      return it("can be hidden", function() {
+        graph.style.axis.y.hide = true;
+        graphlib.init();
+        return expect(document.querySelectorAll('.y').length).toBe(0);
+      });
+    });
     describe('Scale', function() {
       return it("Uses min/max values set in graph.axes.y object", function() {
         var y_ticks_text;
