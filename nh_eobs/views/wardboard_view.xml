@@ -109,7 +109,8 @@
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
                                                                              ('usage','=','bed'),
                                                                              ('is_available','=',True),
-                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"/>
+                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"
+                                required="1"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
