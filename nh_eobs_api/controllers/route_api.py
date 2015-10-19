@@ -284,9 +284,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         triggered_tasks = [v for v in triggered_tasks if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         partial = True if 'partial_reason' in kw_copy and kw_copy['partial_reason'] else False
         response_data = {'related_tasks': triggered_tasks, 'status': 1}
+        rel_tasks = 'Here are related tasks based on the observation' if len(triggered_tasks) > 0 else ''
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully Submitted{0} {1}'.format(' Partial' if partial else '',ob_pool._description),
-                                                   description='Here are related tasks based on the observation',
+                                                   description=rel_tasks,
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
@@ -519,8 +520,9 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         partial = True if 'partial_reason' in kw_copy and kw_copy['partial_reason'] else False
         response_data = {'related_tasks': triggered_tasks, 'status': 1}
+        rel_tasks = 'Here are related tasks based on the observation' if len(triggered_tasks) > 0 else ''
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully Submitted{0} {1}'.format(' Partial' if partial else '', observation_pool._description),
-                                                   description='Here are related tasks based on the observation',
+                                                   description=rel_tasks,
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
