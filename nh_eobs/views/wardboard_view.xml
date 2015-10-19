@@ -294,7 +294,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
@@ -673,7 +673,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
