@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="nh_pbp 0.0.1 documentation" href="index.html" />
-    <link rel="next" title="Contribution Guidelines" href="contribute.html" />
+    <link rel="next" title="Parameters" href="parameters.html" />
     <link rel="prev" title="Getting Started" href="getting-started.html" />
    
   
@@ -43,7 +43,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="contribute.html" title="Contribution Guidelines"
+          <a href="parameters.html" title="Parameters"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="getting-started.html" title="Getting Started"
@@ -59,15 +59,58 @@
             
   <div class="section" id="module-pbp">
 <span id="postural-blood-pressure"></span><h1><code class="docutils literal"><span class="pre">Postural</span> <span class="pre">Blood</span> <span class="pre">Pressure</span></code><a class="headerlink" href="#module-pbp" title="Permalink to this headline">¶</a></h1>
+<p><cite>pbp.py</cite> defines the postural blood pressure observation class and its
+standard behaviour and policy triggers.</p>
 <div class="section" id="postural-blood-pressure-observation">
 <h2><code class="docutils literal"><span class="pre">Postural</span> <span class="pre">Blood</span> <span class="pre">Pressure</span> <span class="pre">Observation</span></code><a class="headerlink" href="#postural-blood-pressure-observation" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pbp.nh_clinical_patient_observation_pbp">
 <em class="property">class </em><code class="descclassname">pbp.</code><code class="descname">nh_clinical_patient_observation_pbp</code><a class="reference internal" href="_modules/pbp.html#nh_clinical_patient_observation_pbp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbp.nh_clinical_patient_observation_pbp" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Represents a Postural Blood Pressure
+<code class="xref py py-class docutils literal"><span class="pre">observation</span></code>
+for postural hypotension detection, storing the systolic and
+dyastolic blood pressure for both standing and sitting postures.</p>
+<dl class="method">
 <dt id="pbp.nh_clinical_patient_observation_pbp.complete">
 <code class="descname">complete</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>activity_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pbp.html#nh_clinical_patient_observation_pbp.complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbp.nh_clinical_patient_observation_pbp.complete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implementation of the default PBP policy</p>
+<dd><p>It determines which acuity case the current observation is in
+with the stored data and responds to the different policy
+triggers accordingly defined on the <code class="docutils literal"><span class="pre">_POLICY</span></code> dictionary.</p>
+<p>Calls <code class="xref py py-meth docutils literal"><span class="pre">complete</span></code> and then
+creates and schedules a new postural blood pressure observation
+if the current
+<a class="reference internal" href="parameters.html#parameters.nh_clinical_patient_pbp_monitoring" title="parameters.nh_clinical_patient_pbp_monitoring"><code class="xref py py-mod docutils literal"><span class="pre">postural</span> <span class="pre">blood</span> <span class="pre">pressure</span> <span class="pre">monitoring</span></code></a>
+parameter is <code class="docutils literal"><span class="pre">True</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pbp.nh_clinical_patient_observation_pbp.schedule">
+<code class="descname">schedule</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>activity_id</em>, <em>date_scheduled=None</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pbp.html#nh_clinical_patient_observation_pbp.schedule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbp.nh_clinical_patient_observation_pbp.schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a specific <code class="docutils literal"><span class="pre">date_scheduled</span></code> parameter is not specified.
+The <cite>_POLICY[&#8216;schedule&#8217;]</cite> dictionary value will be used to find
+the closest time to the current time from the ones specified
+(0 to 23 hours)</p>
+<p>Then it will call <code class="xref py py-meth docutils literal"><span class="pre">schedule</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -92,6 +135,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#postural-blood-pressure-observation"><code class="docutils literal"><span class="pre">Postural</span> <span class="pre">Blood</span> <span class="pre">Pressure</span> <span class="pre">Observation</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="parameters.html"><code class="docutils literal"><span class="pre">Parameters</span></code></a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contribution Guidelines</a></li>
@@ -103,8 +147,8 @@
   <p class="topless"><a href="getting-started.html"
                         title="previous chapter">Getting Started</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="contribute.html"
-                        title="next chapter">Contribution Guidelines</a></p>
+  <p class="topless"><a href="parameters.html"
+                        title="next chapter"><code class="docutils literal"><span class="pre">Parameters</span></code></a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">

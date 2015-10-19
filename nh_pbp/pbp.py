@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+`pbp.py` defines the postural blood pressure observation class and its
+standard behaviour and policy triggers.
+"""
 from openerp.osv import orm, fields
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -10,6 +14,12 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation_pbp(orm.Model):
+    """
+    Represents a Postural Blood Pressure
+    :class:`observation<observations.nh_clinical_patient_observation>`
+    for postural hypotension detection, storing the systolic and
+    dyastolic blood pressure for both standing and sitting postures.
+    """
     _name = 'nh.clinical.patient.observation.pbp'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['systolic_sitting', 'diastolic_sitting', 'systolic_standing', 'diastolic_standing']
@@ -151,6 +161,17 @@ class nh_clinical_patient_observation_pbp(orm.Model):
     ]
 
     def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
+        """
+        If a specific ``date_scheduled`` parameter is not specified.
+        The `_POLICY['schedule']` dictionary value will be used to find
+        the closest time to the current time from the ones specified
+        (0 to 23 hours)
+
+        Then it will call :meth:`schedule<activity.nh_activity.schedule>`
+
+        :returns: ``True``
+        :rtype: bool
+        """
         hour = td(hours=1)
         schedule_times = []
         for s in self._POLICY['schedule']:
@@ -163,7 +184,18 @@ class nh_clinical_patient_observation_pbp(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         """
-        Implementation of the default PBP policy
+        It determines which acuity case the current observation is in
+        with the stored data and responds to the different policy
+        triggers accordingly defined on the ``_POLICY`` dictionary.
+
+        Calls :meth:`complete<activity.nh_activity.complete>` and then
+        creates and schedules a new postural blood pressure observation
+        if the current
+        :mod:`postural blood pressure monitoring<parameters.nh_clinical_patient_pbp_monitoring>`
+        parameter is ``True``.
+
+        :returns: ``True``
+        :rtype: bool
         """
         activity_pool = self.pool['nh.activity']
         api_pool = self.pool['nh.clinical.api']

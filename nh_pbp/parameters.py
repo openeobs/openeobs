@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-
+"""
+`parameters.py` defines the blood pressure monitoring parameter which
+is directly related to the postural blood pressure observation.
+"""
 from openerp.osv import orm, fields
 import logging
 from openerp import SUPERUSER_ID
@@ -9,6 +12,16 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_pbp_monitoring(orm.Model):
+    """
+    Represents the action of setting the
+    :class:`patient<base.nh_clinical_patient>` blood pressure monitoring
+    status to `yes` or `no`. This would mainly depend on hospital policy
+    and the medical staff assessment.
+
+    This parameter is directly related to the
+    :mod:`postural blood pressure<pbp.nh_clinical_patient_observation_pbp>`
+    observation.
+    """
     _name = 'nh.clinical.patient.pbp_monitoring'
     _inherit = ['nh.activity.data']
 
