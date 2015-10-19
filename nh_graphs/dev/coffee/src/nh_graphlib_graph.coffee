@@ -111,6 +111,7 @@ class NHGraph extends NHGraphLib
     # two values
     @options = {
       keys: new Array(),
+      plot_partial: true,
       label: null,
       measurement: '',
       normal: {
@@ -425,12 +426,12 @@ class NHGraph extends NHGraphLib
         .on('mouseout', (d) ->
           self.hide_popup()
         )
-
-
-
         self.drawables.data.selectAll(".empty_point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-          if d.none_values isnt "[]" and d[self.options.keys[0]] isnt false
+          none_vals = d.none_values
+          key = self.options.keys[0]
+          partial = self.options.plot_partial
+          if none_vals isnt "[]" and d[key] isnt false and partial
             return d
           )
         )
@@ -562,7 +563,10 @@ class NHGraph extends NHGraphLib
 
           self.drawables.data.selectAll(".range.top.empty_point")
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-            if d.none_values isnt "[]" and d[self.options.keys[0]] isnt false
+            none_vals = d.none_values
+            key = self.options.keys[0]
+            partial = self.options.plot_partial
+            if none_vals isnt "[]" and d[key] isnt false and partial
               return d
             )
           ).enter()
@@ -585,7 +589,9 @@ class NHGraph extends NHGraphLib
             string_to_use = 'Partial Observation:<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
-            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+            self.show_popup('<p>'+string_to_use+'</p>',
+              event.pageX,
+              event.pageY)
           )
           .on('mouseout', (d) ->
             self.hide_popup()
@@ -594,7 +600,10 @@ class NHGraph extends NHGraphLib
 
           self.drawables.data.selectAll(".range.bottom.empty_point")
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-            if d.none_values isnt "[]" and d[self.options.keys[1]] isnt false
+            none_vals = d.none_values
+            key = self.options.keys[1]
+            partial = self.options.plot_partial
+            if none_vals isnt "[]" and d[key] isnt false and partial
               return d
             )
           ).enter()
@@ -616,7 +625,9 @@ class NHGraph extends NHGraphLib
             string_to_use = 'Partial Observation:<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
-            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+            self.show_popup('<p>'+string_to_use+'</p>',
+              event.pageX,
+              event.pageY)
           )
           .on('mouseout', (d) ->
             self.hide_popup()
@@ -624,9 +635,12 @@ class NHGraph extends NHGraphLib
 
           self.drawables.data.selectAll(".range.extent.empty_point")
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            partial = self.options.plot_partial
             top = d[self.options.keys[0]]
             bottom = d[self.options.keys[1]]
-            if d.none_values isnt "[]" and top isnt false and bottom isnt false
+            none_vals = d.none_values
+            keys_valid = top isnt false and bottom isnt false
+            if none_vals isnt "[]" and keys_valid and partial
               return d
             )
           ).enter()
@@ -636,7 +650,8 @@ class NHGraph extends NHGraphLib
               return self.axes.y.scale(d[self.options.keys[0]])
             ,
             'x': (d) ->
-              return self.axes.x.scale(self.date_from_string(d.date_terminated))
+              return self.axes.x.scale(
+                self.date_from_string(d.date_terminated))
             ,
             'height': (d) ->
               self.axes.y.scale(d[self.options.keys[1]]) -
@@ -649,7 +664,9 @@ class NHGraph extends NHGraphLib
             string_to_use = 'Partial Observation<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
-            self.show_popup('<p>'+string_to_use+'</p>',event.pageX,event.pageY)
+            self.show_popup('<p>'+string_to_use+'</p>',
+              event.pageX,
+              event.pageY)
           )
           .on('mouseout', (d) ->
             self.hide_popup()
@@ -657,7 +674,7 @@ class NHGraph extends NHGraphLib
         else
           # Throw error if given incorrect number of keys to plot
           throw new Error('Cannot plot ranged graph with ' +
-            self.options.keys.length + 'data points')
+            self.options.keys.length + ' data point(s)')
      )
       when 'star' then console.log('star')
       when 'pie' then console.log('pie')
