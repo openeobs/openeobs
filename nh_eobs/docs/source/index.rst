@@ -28,6 +28,9 @@ Module Reference
    overdue
    placement
    policy
+   spell_management
+   ward_dashboard
+   workload
 
 
 Additional Notes

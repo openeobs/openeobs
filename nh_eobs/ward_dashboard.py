@@ -1,9 +1,23 @@
+"""
+Gives an overview of the current state of ward and bed
+:class:`locations<base.nh_clinical_location>`.
+"""
 from openerp.osv import orm, fields, osv
 import logging
 _logger = logging.getLogger(__name__)
 
 
 class nh_eobs_ward_dashboard(orm.Model):
+    """
+    Extends :class:`location<base.nh_clinical_location>`, providing
+    an overall state of a ward location.
+
+    It shows number of related :class:`users<base.res_users>` by type,
+    number of free beds, number of
+    :class:`patients<base.nh_clinical_patient>` by risk, number of
+    waiting patients, etc.
+    """
+
     _name = "nh.eobs.ward.dashboard"
     _inherits = {'nh.clinical.location': 'location_id'}
     _description = "Ward Dashboard"
@@ -70,6 +84,20 @@ class nh_eobs_ward_dashboard(orm.Model):
     }
 
     def patient_board(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo `action` which defines a `form` view for a
+        :class:`wardboard<wardboard.nh_clinical_wardboard>` for all
+        :class:`patients<base.nh_clinical_patient>` in an `open`
+        :class:`spell<spell.nh_clinical_spell>` and
+        :class:`placed<operations.nh_clinical_patient_placement>` in a
+        bed :class:`location<base.nh_clinical_location>`.
+
+        :param ids: ward dashboard ids
+        :type ids: list
+        :returns: Odoo `action` definition
+        :rtype: dict
+        """
+
         wdb = self.browse(cr, uid, ids[0], context=context)
         context.update({'search_default_clinical_risk': 1, 'search_default_high_risk': 0,
                         'search_default_ward_id': wdb.id})
@@ -225,6 +253,15 @@ class nh_eobs_ward_dashboard(orm.Model):
 
 
 class nh_eobs_bed_dashboard(orm.Model):
+    """
+    Extends :class:`location<base.nh_clinical_location>`, providing
+    an overall state of a bed location.
+
+    It shows number of `assigned` and `following` nurses and hcas
+    :class:`users<base.res_users>` as well as the
+    :class:`patient<base.nh_clinical_patient>` placed in the bed.
+    """
+
     _name = "nh.eobs.bed.dashboard"
     _inherits = {'nh.clinical.location': 'location_id'}
     _description = "Bed Dashboard"

@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+Shows the pending :class:`activities<activity.nh_clinical_activity>` by
+proximity interval.
+"""
 from openerp.osv import orm, fields, osv
 import logging        
 _logger = logging.getLogger(__name__)
@@ -6,6 +10,12 @@ from openerp import tools
 
 
 class nh_clinical_workload(orm.Model):
+    """
+    Extends :class:`activity<activity.nh_activity>`, categorising each
+    pending activity by distance from when the activity is scheduled
+    for, including overdue activities.
+    """
+
     _name = "nh.activity.workload"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Workload"

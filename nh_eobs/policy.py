@@ -1,3 +1,10 @@
+"""
+Defines the `policy` for :mod:`operations<operations>` and
+:mod:`ADT<adt>`.
+
+See :meth:`trigger_policy()<activity.nh_activity_data.trigger_policy>`
+for how policies are executed.
+"""
 from openerp.osv import orm
 
 
