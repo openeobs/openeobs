@@ -765,6 +765,7 @@ NHGraph = (function(superClass) {
     };
     this.options = {
       keys: new Array(),
+      plot_partial: true,
       label: null,
       measurement: '',
       normal: {
@@ -1026,7 +1027,11 @@ NHGraph = (function(superClass) {
           return self.hide_popup();
         });
         return self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          if (d.none_values !== "[]" && d[self.options.keys[0]] !== false) {
+          var key, none_vals, partial;
+          none_vals = d.none_values;
+          key = self.options.keys[0];
+          partial = self.options.plot_partial;
+          if (none_vals !== "[]" && d[key] !== false && partial) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
@@ -1127,7 +1132,11 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.top.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            if (d.none_values !== "[]" && d[self.options.keys[0]] !== false) {
+            var key, none_vals, partial;
+            none_vals = d.none_values;
+            key = self.options.keys[0];
+            partial = self.options.plot_partial;
+            if (none_vals !== "[]" && d[key] !== false && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1154,7 +1163,11 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.bottom.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            if (d.none_values !== "[]" && d[self.options.keys[1]] !== false) {
+            var key, none_vals, partial;
+            none_vals = d.none_values;
+            key = self.options.keys[1];
+            partial = self.options.plot_partial;
+            if (none_vals !== "[]" && d[key] !== false && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1181,10 +1194,13 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           return self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var bottom, top;
+            var bottom, keys_valid, none_vals, partial, top;
+            partial = self.options.plot_partial;
             top = d[self.options.keys[0]];
             bottom = d[self.options.keys[1]];
-            if (d.none_values !== "[]" && top !== false && bottom !== false) {
+            none_vals = d.none_values;
+            keys_valid = top !== false && bottom !== false;
+            if (none_vals !== "[]" && keys_valid && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1213,7 +1229,7 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
         } else {
-          throw new Error('Cannot plot ranged graph with ' + self.options.keys.length + 'data points');
+          throw new Error('Cannot plot ranged graph with ' + self.options.keys.length + ' data point(s)');
         }
       case 'star':
         return console.log('star');
