@@ -176,7 +176,9 @@ describe 'Background', ->
         it "throws error if array not in expected format", ->
           graph.drawables.background.data = invalidAbnormal
           graphlib.init()
-          expect(-> graphlib.draw()).toThrow(new Error('Invalid background range data'))
+
+          err = new Error('Invalid background range data')
+          expect(-> graphlib.draw()).toThrow(err)
 
         it "throws error if range larger than axis range", ->
           invalidAbnormal = [
@@ -186,7 +188,10 @@ describe 'Background', ->
           ]
           graph.drawables.background.data = invalidAbnormal
           graphlib.init()
-          expect(-> graphlib.draw()).toThrow(new Error('Invalid background range data'))
+
+          err = new Error('Invalid background range data')
+
+          expect(-> graphlib.draw()).toThrow(err)
 
     describe "Normal Range", ->
 
@@ -217,7 +222,6 @@ describe 'Background', ->
         it "is the expected height", ->
 
           # ( (Min/Max difference) / Axis Max ) * graph height = rectHeight
-
           normalHeight = normals[0].getAttribute 'height'
           expect(+normalHeight).toBeCloseTo(((8/60) * graphHeight),1)
 
@@ -226,9 +230,10 @@ describe 'Background', ->
           expect(normals[0].getAttribute 'x').toBe '0'
 
           # graph height - (( range max / axis max ) * graph height ) = rectY
-
           normalY = normals[0].getAttribute 'y'
-          expect(+normalY).toBeCloseTo((graphHeight - ((20/60) * graphHeight)),1)
+          expected = graphHeight - ((20/60) * graphHeight)
+          expect(+normalY).toBeCloseTo(expected,1)
+
 
       describe "No normal range", ->
 
@@ -244,8 +249,6 @@ describe 'Background', ->
           expect(norm[0].getAttribute 'height').toBe '0'
 
     describe "Score Range", ->
-
-      rects = null
 
       describe "One range", ->
 
@@ -278,7 +281,8 @@ describe 'Background', ->
 
           greenHeight = greens[0].getAttribute 'height'
 
-          # ( ( Range min/max difference) / Axis Max ) * graph height = rectHeight
+          # ((Range min/max difference) / Axis Max ) * graph height
+          # = rectHeight
           dif = singleAbnormal[0].e - singleAbnormal[0].s
           expected = (dif/60) * graphHeight
 
@@ -320,6 +324,8 @@ describe 'Background', ->
         greenRects = null
         amberRects = null
         redRects = null
+        rects = null
+
         validAbnormal = null
 
         beforeEach ->
@@ -422,6 +428,11 @@ describe 'Background', ->
       graphlib.draw()
 
       expect(document.querySelectorAll('.measurement').length).toBe 2
+
+    xit "uses the 'label text height' property", ->
+
+    xit "uses 'label width' property to prevent overlap", ->
+
 
   describe "Gridlines", ->
 

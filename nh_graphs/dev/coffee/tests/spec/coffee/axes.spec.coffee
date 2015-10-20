@@ -173,15 +173,18 @@ describe 'Axes', ->
 
     describe 'Scale', ->
 
-      it 'Adds time padding of 100 to the scale when plotting a single data point and no time padding defined', ->
+      it 'Adds time padding of 100 to the scale when plotting a single data \
+        point and no time padding defined', ->
 
         # Set up the original extent so can check
-        data_point = graphlib.date_from_string(graphlib.data.raw[0]['date_terminated'])
+        terminated = graphlib.data.raw[0]['date_terminated']
+        data_point = graphlib.date_from_string(terminated)
 
         # initalise the graph
         graphlib.init()
 
-        # As we're dealing with a single data point the initialisation should pad the extent by 100 minutes
+        # As we're dealing with a single data point the initialisation should
+        # pad the extent by 100 minutes
         expect(graphlib.style.time_padding).toBe(100)
         start = new Date(data_point)
         end = new Date(data_point)
@@ -190,14 +193,18 @@ describe 'Axes', ->
         end.setMinutes(end.getMinutes()+100)
 
         # Need to do string conversion as can't compare date to date
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string(start))
-        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string(end))
+        starts = graphlib.date_to_string(start)
+        ends = graphlib.date_to_string(end)
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts)
+        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends)
 
 
-      it 'Adds time padding of 3 to the scale when plotting a single data point and time padding of 3 is defined', ->
+      it 'Adds time padding of 3 to the scale when plotting a single data \
+        point and time padding of 3 is defined', ->
 
         # Set up the original extent so can check
-        data_point = graphlib.date_from_string(graphlib.data.raw[0]['date_terminated'])
+        terminated = graphlib.data.raw[0]['date_terminated']
+        data_point = graphlib.date_from_string(terminated)
 
         # set time padding to 3
         graphlib.style.time_padding = 3
@@ -205,7 +212,8 @@ describe 'Axes', ->
         # initalise the graph
         graphlib.init()
 
-        # As we're dealing with a single data point the initialisation should pad the extent by 100 minutes
+        # As we're dealing with a single data point the initialisation should
+        # pad the extent by 100 minutes
         expect(graphlib.style.time_padding).toBe(3)
         start = new Date(data_point)
         end = new Date(data_point)
@@ -214,17 +222,27 @@ describe 'Axes', ->
         end.setMinutes(end.getMinutes()+3)
 
         # Need to do string conversion as can't compare date to date
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string(start))
-        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string(end))
+        starts = graphlib.date_to_string(start)
+        ends = graphlib.date_to_string(end)
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts)
+        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends)
 
 
-      it 'Adds time padding of date difference divided by SVG width divided by 500 to the scale when plotting multiple data points and no time padding defined', ->
+      it 'Adds time padding of date difference divided by SVG width divided \
+        by 500 to the scale when plotting multiple data points and no time \
+        padding defined', ->
         graphlib.data.raw = ews_data.multiple_records
-        original_extent = [graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']), graphlib.date_from_string(graphlib.data.raw[1]['date_terminated'])]
+
+        raw1 = graphlib.data.raw[0]['date_terminated']
+        raw2 = graphlib.data.raw[1]['date_terminated']
+        term1 = graphlib.date_from_string(raw1)
+        term2 = graphlib.date_from_string(raw2)
+        original_extent = [term1, term2]
 
         graphlib.init()
 
-        # dates are 1 hour apart (3600000), svg is 500px (500px - 0 margins) and 3600000 / 500 / 500 = 14.4
+        # dates are 1 hour apart (3600000), svg is 500px (500px - 0 margins)
+        # and 3600000 / 500 / 500 = 14.4
         expect(graphlib.style.time_padding).toBe(14.4)
         start = new Date(original_extent[0])
         end = new Date(original_extent[1])
@@ -233,18 +251,29 @@ describe 'Axes', ->
         end.setMinutes(end.getMinutes()+14.4)
 
         # Need to do string conversion as can't compare date to date
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string(start))
-        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string(end))
+        starts = graphlib.date_to_string(start)
+        ends = graphlib.date_to_string(end)
 
-      it 'Adds time padding of 3 to the scale when plotting multiple data points when time padding of 3 is defined', ->
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts)
+        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends)
+
+      it 'Adds time padding of 3 to the scale when plotting multiple data \
+        points when time padding of 3 is defined', ->
+
         graphlib.data.raw = ews_data.multiple_records
-        original_extent = [graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']), graphlib.date_from_string(graphlib.data.raw[1]['date_terminated'])]
+
+        raw1 = graphlib.data.raw[0]['date_terminated']
+        raw2 = graphlib.data.raw[1]['date_terminated']
+        term1 = graphlib.date_from_string(raw1)
+        term2 = graphlib.date_from_string(raw2)
+        original_extent = [term1, term2]
 
         # set time padding to 3
         graphlib.style.time_padding = 3
         graphlib.init()
 
-        # As we're dealing with a single data point the initialisation should pad the extent by 100 minutes
+        # As we're dealing with a single data point the initialisation
+        # should pad the extent by 100 minutes
         expect(graphlib.style.time_padding).toBe(3)
         start = new Date(original_extent[0])
         end = new Date(original_extent[1])
@@ -252,9 +281,12 @@ describe 'Axes', ->
         start.setMinutes(start.getMinutes()-3)
         end.setMinutes(end.getMinutes()+3)
 
+
         # Need to do string conversion as can't compare date to date
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string start)
-        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string end)
+        starts = graphlib.date_to_string(start)
+        ends = graphlib.date_to_string(end)
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts)
+        expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends)
 
     describe 'Ticks', ->
 
@@ -404,26 +436,19 @@ describe 'Axes', ->
         expect(y_ticks_text.length).toBeGreaterThan(3)
 
         expect(+(y_ticks_text[0].textContent)).toBe graph.axes.y.min
-        expect(+(y_ticks_text[y_ticks_text.length-1].textContent)).toBe graph.axes.y.max
+        lastTick = y_ticks_text[y_ticks_text.length-1].textContent
+        expect(+lastTick).toBe graph.axes.y.max
 
-    xdescribe 'Ticks', ->
+    describe 'Steps', ->
 
-      it "are evenly spaced", ->
+      it "changes tick label format as defined", ->
+
+        graph.style.axis.step = 2
 
         graphlib.init()
         graphlib.draw()
 
-        y_ticks = document.querySelectorAll('.y .tick')
+        y_ticks = document.querySelectorAll('.y .tick text')
 
-        yPos = []
-
-        # Create array of tick x-values
-        for tick in x_ticks
-          yPos.push(+(tick.getAttribute('transform').substr(10,5)))
-
-        # Compare difference between each value
-        lastGap = null
-        for i in [1..xPos.length-1]
-          if lastGap != null
-            expect(Math.round(xPos[i]-xPos[i-1])).toBe lastGap
-          lastGap = Math.round(xPos[i]-xPos[i-1])
+        for tick in y_ticks
+          expect(tick.textContent.substr(-2)).toBe '00'

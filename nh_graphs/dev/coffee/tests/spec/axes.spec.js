@@ -155,20 +155,24 @@ describe('Axes', function() {
     });
     describe('Scale', function() {
       it('Adds time padding of 100 to the scale when plotting a single data point and no time padding defined', function() {
-        var data_point, end, start;
-        data_point = graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']);
+        var data_point, end, ends, start, starts, terminated;
+        terminated = graphlib.data.raw[0]['date_terminated'];
+        data_point = graphlib.date_from_string(terminated);
         graphlib.init();
         expect(graphlib.style.time_padding).toBe(100);
         start = new Date(data_point);
         end = new Date(data_point);
         start.setMinutes(start.getMinutes() - 100);
         end.setMinutes(end.getMinutes() + 100);
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string(start));
-        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string(end));
+        starts = graphlib.date_to_string(start);
+        ends = graphlib.date_to_string(end);
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
+        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
       it('Adds time padding of 3 to the scale when plotting a single data point and time padding of 3 is defined', function() {
-        var data_point, end, start;
-        data_point = graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']);
+        var data_point, end, ends, start, starts, terminated;
+        terminated = graphlib.data.raw[0]['date_terminated'];
+        data_point = graphlib.date_from_string(terminated);
         graphlib.style.time_padding = 3;
         graphlib.init();
         expect(graphlib.style.time_padding).toBe(3);
@@ -176,26 +180,38 @@ describe('Axes', function() {
         end = new Date(data_point);
         start.setMinutes(start.getMinutes() - 3);
         end.setMinutes(end.getMinutes() + 3);
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string(start));
-        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string(end));
+        starts = graphlib.date_to_string(start);
+        ends = graphlib.date_to_string(end);
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
+        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
       it('Adds time padding of date difference divided by SVG width divided by 500 to the scale when plotting multiple data points and no time padding defined', function() {
-        var end, original_extent, start;
+        var end, ends, original_extent, raw1, raw2, start, starts, term1, term2;
         graphlib.data.raw = ews_data.multiple_records;
-        original_extent = [graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']), graphlib.date_from_string(graphlib.data.raw[1]['date_terminated'])];
+        raw1 = graphlib.data.raw[0]['date_terminated'];
+        raw2 = graphlib.data.raw[1]['date_terminated'];
+        term1 = graphlib.date_from_string(raw1);
+        term2 = graphlib.date_from_string(raw2);
+        original_extent = [term1, term2];
         graphlib.init();
         expect(graphlib.style.time_padding).toBe(14.4);
         start = new Date(original_extent[0]);
         end = new Date(original_extent[1]);
         start.setMinutes(start.getMinutes() - 14.4);
         end.setMinutes(end.getMinutes() + 14.4);
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string(start));
-        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string(end));
+        starts = graphlib.date_to_string(start);
+        ends = graphlib.date_to_string(end);
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
+        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
       return it('Adds time padding of 3 to the scale when plotting multiple data points when time padding of 3 is defined', function() {
-        var end, original_extent, start;
+        var end, ends, original_extent, raw1, raw2, start, starts, term1, term2;
         graphlib.data.raw = ews_data.multiple_records;
-        original_extent = [graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']), graphlib.date_from_string(graphlib.data.raw[1]['date_terminated'])];
+        raw1 = graphlib.data.raw[0]['date_terminated'];
+        raw2 = graphlib.data.raw[1]['date_terminated'];
+        term1 = graphlib.date_from_string(raw1);
+        term2 = graphlib.date_from_string(raw2);
+        original_extent = [term1, term2];
         graphlib.style.time_padding = 3;
         graphlib.init();
         expect(graphlib.style.time_padding).toBe(3);
@@ -203,8 +219,10 @@ describe('Axes', function() {
         end = new Date(original_extent[1]);
         start.setMinutes(start.getMinutes() - 3);
         end.setMinutes(end.getMinutes() + 3);
-        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(graphlib.date_to_string(start));
-        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(graphlib.date_to_string(end));
+        starts = graphlib.date_to_string(start);
+        ends = graphlib.date_to_string(end);
+        expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
+        return expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
     });
     return describe('Ticks', function() {
@@ -322,33 +340,27 @@ describe('Axes', function() {
     });
     describe('Scale', function() {
       return it("Uses min/max values set in graph.axes.y object", function() {
-        var y_ticks_text;
+        var lastTick, y_ticks_text;
         graphlib.init();
         graphlib.draw();
         y_ticks_text = document.querySelectorAll('.y .tick text');
         expect(y_ticks_text.length).toBeGreaterThan(3);
         expect(+y_ticks_text[0].textContent).toBe(graph.axes.y.min);
-        return expect(+y_ticks_text[y_ticks_text.length - 1].textContent).toBe(graph.axes.y.max);
+        lastTick = y_ticks_text[y_ticks_text.length - 1].textContent;
+        return expect(+lastTick).toBe(graph.axes.y.max);
       });
     });
-    return xdescribe('Ticks', function() {
-      return it("are evenly spaced", function() {
-        var i, j, k, lastGap, len, ref, results, tick, yPos, y_ticks;
+    return describe('Steps', function() {
+      return it("changes tick label format as defined", function() {
+        var j, len, results, tick, y_ticks;
+        graph.style.axis.step = 2;
         graphlib.init();
         graphlib.draw();
-        y_ticks = document.querySelectorAll('.y .tick');
-        yPos = [];
-        for (j = 0, len = x_ticks.length; j < len; j++) {
-          tick = x_ticks[j];
-          yPos.push(+(tick.getAttribute('transform').substr(10, 5)));
-        }
-        lastGap = null;
+        y_ticks = document.querySelectorAll('.y .tick text');
         results = [];
-        for (i = k = 1, ref = xPos.length - 1; 1 <= ref ? k <= ref : k >= ref; i = 1 <= ref ? ++k : --k) {
-          if (lastGap !== null) {
-            expect(Math.round(xPos[i] - xPos[i - 1])).toBe(lastGap);
-          }
-          results.push(lastGap = Math.round(xPos[i] - xPos[i - 1]));
+        for (j = 0, len = y_ticks.length; j < len; j++) {
+          tick = y_ticks[j];
+          results.push(expect(tick.textContent.substr(-2)).toBe('00'));
         }
         return results;
       });

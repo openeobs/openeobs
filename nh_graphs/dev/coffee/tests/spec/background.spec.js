@@ -179,13 +179,16 @@ describe('Background', function() {
           }
         ];
         it("throws error if array not in expected format", function() {
+          var err;
           graph.drawables.background.data = invalidAbnormal;
           graphlib.init();
+          err = new Error('Invalid background range data');
           return expect(function() {
             return graphlib.draw();
-          }).toThrow(new Error('Invalid background range data'));
+          }).toThrow(err);
         });
         return it("throws error if range larger than axis range", function() {
+          var err;
           invalidAbnormal = [
             {
               'class': 'green',
@@ -203,9 +206,10 @@ describe('Background', function() {
           ];
           graph.drawables.background.data = invalidAbnormal;
           graphlib.init();
+          err = new Error('Invalid background range data');
           return expect(function() {
             return graphlib.draw();
-          }).toThrow(new Error('Invalid background range data'));
+          }).toThrow(err);
         });
       });
     });
@@ -236,10 +240,11 @@ describe('Background', function() {
           return expect(+normalHeight).toBeCloseTo((8 / 60) * graphHeight, 1);
         });
         return it("is positioned correctly", function() {
-          var normalY;
+          var expected, normalY;
           expect(normals[0].getAttribute('x')).toBe('0');
           normalY = normals[0].getAttribute('y');
-          return expect(+normalY).toBeCloseTo(graphHeight - ((20 / 60) * graphHeight), 1);
+          expected = graphHeight - ((20 / 60) * graphHeight);
+          return expect(+normalY).toBeCloseTo(expected, 1);
         });
       });
       return describe("No normal range", function() {
@@ -257,8 +262,6 @@ describe('Background', function() {
       });
     });
     return describe("Score Range", function() {
-      var rects;
-      rects = null;
       describe("One range", function() {
         var greens, singleAbnormal;
         greens = null;
@@ -317,10 +320,11 @@ describe('Background', function() {
         return expect(amberRects.length).toBe(0);
       });
       return describe("Multiple score ranges", function() {
-        var amberRects, greenRects, redRects, validAbnormal;
+        var amberRects, greenRects, rects, redRects, validAbnormal;
         greenRects = null;
         amberRects = null;
         redRects = null;
+        rects = null;
         validAbnormal = null;
         beforeEach(function() {
           validAbnormal = [
@@ -407,7 +411,7 @@ describe('Background', function() {
       graphlib.init();
       return expect(document.querySelectorAll('.label').length).toBe(0);
     });
-    return it("displays multiple measurements when more than one key specified", function() {
+    it("displays multiple measurements when more than one key specified", function() {
       graph.options.keys = ['respiration_rate', 'pulse_rate'];
       graph.options.label = 'RR/HR';
       graph.options.measurement = '/min';
@@ -415,6 +419,8 @@ describe('Background', function() {
       graphlib.draw();
       return expect(document.querySelectorAll('.measurement').length).toBe(2);
     });
+    xit("uses the 'label text height' property", function() {});
+    return xit("uses 'label width' property to prevent overlap", function() {});
   });
   return describe("Gridlines", function() {
     var horis, vertis;
