@@ -362,7 +362,9 @@ describe 'Data', ->
 
       describe "Incomplete observations", ->
 
-         beforeEach ->
+        partials = null
+
+        beforeEach ->
 
           graphlib.data.raw = ews_data.multi_partial
           graph.options.plot_partial = true
@@ -377,10 +379,12 @@ describe 'Data', ->
 
           circles = document.querySelectorAll '.nhgraph .data circle'
           paths = document.querySelectorAll '.nhgraph .data path'
+          partials = document.querySelectorAll '.nhgraph .data .empty_point'
 
-        it "doesn't create empty data points", ->
-          expect(circles.length).toBe 2
+        it "plots empty data points", ->
+          expect(circles.length).toBe 3
           expect(paths.length).toBe 1
+          expect(partials.length).toBe 1
 
     describe "Range", ->
 
@@ -412,13 +416,14 @@ describe 'Data', ->
 
       it "throws error if 2 keys are not defined", ->
         keys = ['blood_pressure_systolic']
+        graph.options.keys = keys
+
         msg = 'Cannot plot ranged graph with '
         msg += graph.options.keys.length
         msg += ' data point(s)'
-        err = new Error msg
 
         graphlib.init()
-        expect(-> graphlib.draw()()).toThrow(new Error())
+        expect(-> graphlib.draw()()).toThrow(new Error(msg))
 
       describe "Single Record", ->
 
@@ -521,11 +526,11 @@ describe 'Data', ->
 
         beforeEach ->
 
-          graphlib.data.raw = ews_data.incomplete_record
+          graphlib.data.raw = ews_data.multi_partial
           none = "['blood_pressure_systolic','blood_pressure_diastolic']"
           graphlib.data.raw[0].none_values = none
-          graphlib.data.raw[0].blood_pressure_diastolic = false
-          graphlib.data.raw[0].blood_pressure_systolic = false
+          graphlib.data.raw[1].blood_pressure_diastolic = false
+          graphlib.data.raw[1].blood_pressure_systolic = false
 
           graphlib.init()
           graphlib.draw()
@@ -535,8 +540,8 @@ describe 'Data', ->
           extents = document.querySelectorAll '.range.extent'
 
         it "doesn't create empty data points", ->
-          expect(tops.length).toBe 0
-          expect(bottoms.length).toBe 0
-          expect(extents.length).toBe 0
+          expect(tops.length).toBe 2
+          expect(bottoms.length).toBe 2
+          expect(extents.length).toBe 2
 
 
