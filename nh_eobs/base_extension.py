@@ -1,8 +1,7 @@
 """
 Extends :class:`nh_clinical_location<base.nh_clinical_location>` for
-additional eObs UI functionality.
+additional Open eObs UI.
 """
-
 from openerp.osv import orm, fields
 import logging
 

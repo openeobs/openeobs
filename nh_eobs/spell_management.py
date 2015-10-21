@@ -1,5 +1,5 @@
 """
-Used by the `Spell Management` view.
+Defines models used for `Open eObs` spellboard UI.
 """
 from openerp.osv import orm, fields, osv
 from datetime import datetime as dt

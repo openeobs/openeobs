@@ -1,8 +1,7 @@
 """
-``api.py`` defines the core methods for eObs in the taking of patient
-observations.
+Defines the core methods for `Open eObs` in the taking of
+:class:`patient<base.nh_clinical_patient>` observations.
 """
-
 from openerp.osv import orm, osv, fields
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -15,8 +14,8 @@ _logger = logging.getLogger(__name__)
 
 class nh_eobs_api(orm.AbstractModel):
     """
-    Defines attributes and methods used by eObs in the making of patient
-    observations.
+    Defines attributes and methods used by `Open eObs` in the making of
+    patient observations.
 
     ``_active_observations`` are the observation types supported by
     eObs.

@@ -1,5 +1,5 @@
 """
-Shows all :class:`patients<base.nh_clinical_patient>` pending
+Shows all :class:`patients<base.nh_clinical_patient>` pending a
 :class:`placement<operations.nh_clinical_patient_placement>` in a
 :class:`bed location<base.nh_clinical_location>`.
 """

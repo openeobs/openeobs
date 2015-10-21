@@ -1,6 +1,6 @@
 """
-Overdue and doctors activities defined, extending
-:class:`activity<activity.nh_activity>`.
+Defines :class:`overdue<nh_clinical_overdue>` and
+:class:`doctors activities<nh_clinical_doctor_activities>`.
 """
 from openerp.osv import orm, fields, osv
 import logging
