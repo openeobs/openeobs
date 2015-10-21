@@ -64,7 +64,7 @@ Markup:
         <strong>Test Patient </strong><br>
         Ward A, Bed 01
       </h3>
-      <h3 class="obs">Take observation</h3>
+      <h3 class="obs button do-it">Take observation</h3>
     </a>
   </div>
 </div>
@@ -134,11 +134,12 @@ a.patientInfo{
     right: 0;
     top: 0em;
     text-align: right;
-    padding: 0.3em 2%;
-    border-radius: 5px;
-    color: #ffffff;
-    text-shadow: 0px 1px 0px #666666;
-    background-color: @action-colour;
+    //padding: 0.3em 2%;
+    //border-radius: 5px;
+    //color: #ffffff;
+    //text-shadow: 0px 1px 0px #666666;
+    //background-color: @action-colour;
+    margin-top: -1px;
   }
 }
 
@@ -228,7 +229,7 @@ Styleguide 2.1
     float: right;
     list-style: none;
     margin: 0;
-    margin-top: 0.45em;
+    //margin-top: 0.45em;
     width: 200px;
     padding-left: 0;
     li{
@@ -317,6 +318,7 @@ i - Element used for icons
 .icon-info - A 'i' in a circle, used for patient information
 .icon-alert - An exclamation mark in a triangle, used for alerts
 .icon-left-arrow - A left pointing arrow, used to indicate a clinical risk trend that hasn't changed
+.icon-same-arrow - An alias for the icon-left-arrow class
 .icon-up-arrow - An upwards pointing arrow, used to indicate a clinical risk that has increased
 .icon-down-arrow - A downwards pointing arrow, used to indicate a clinical risk that has decreased
 
@@ -351,8 +353,10 @@ i{
 .icon-alert:before{
    content: "\f071";
 }
-.icon-left-arrow:before{
-  content: "\f060"
+.icon-left-arrow, .icon-same-arrow {
+  &:before {
+    content: "\f060";
+  }
 }
 .icon-up-arrow:before{
   content: "\f062"
@@ -361,25 +365,25 @@ i{
   content: "\f063"
 }
 
-/*
+  /*
 
-Grid
+  Grid
 
-Styles for aligning elements, basically everything on the page clears the edge of the browser by 5% (ideal for proper scrolling space)
+  Styles for aligning elements, basically everything on the page clears the edge of the browser by 5% (ideal for proper scrolling space)
 
-.block - Adds 5% padding
-.block .block - Removes the 5% padding from a nested block class
+  .block - Adds 5% padding
+  .block .block - Removes the 5% padding from a nested block class
 
-Markup:
-<div class="block">
-  <p>This is a single block</p>
+  Markup:
   <div class="block">
-    <p>This is inside a double block</p>
+    <p>This is a single block</p>
+    <div class="block">
+      <p>This is inside a double block</p>
+    </div>
   </div>
-</div>
 
-Styleguide 1.2
-*/
+  Styleguide 1.2
+  */
 .block{
   width: 90%;
   padding-left: 5%;
@@ -390,6 +394,7 @@ Styleguide 1.2
     padding-right: 0%;
   }
 }
+
 
 /*
 

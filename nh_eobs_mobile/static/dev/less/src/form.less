@@ -35,7 +35,7 @@ Markup:
         <input name="respiration_rate" type="number" min="1" max="59" step="1" value="18.7">
       </div>
       <div class="input-body">
-        <span class="errors">Value must be a whole number</span>
+        <span class="errors"><i class="icon-alert"></i> Value must be a whole number</span>
         <span class="help"></span>
       </div>
     </div>
@@ -48,7 +48,7 @@ Markup:
       </div>
       <div class="input-body">
         <span class="errors"></span>
-        <span class="help"><span class="targetString">Target: 88-90</span></span>
+        <span class="help"><span class="targetString"><i class="icon-info"></i> Target: 88-90</span></span>
       </div>
     </div>
   </div>
@@ -312,15 +312,15 @@ Styleguide 2.3.1
         text-align: center;
       }
     }
-  .obsSubmit{
-    padding-top: 2em;
+  .obsSubmit, .obsConfirm{
+    padding-top: 1em;
     /* padding-bottom: 1em; */
     input{
-      background-color: @action-colour;
-      color: #ffffff;
-      font-weight: bold;
-      text-shadow: 0px 1px 0px #666666;
-      border: 1px solid #ff9494;
+      //background-color: @action-colour;
+      //color: #ffffff;
+      //font-weight: bold;
+      //text-shadow: 0px 1px 0px #666666;
+      //border: 1px solid #ff9494;
       //font-size: 1.2em;
       //height: 2.4em;
       width: 100%;
@@ -328,40 +328,40 @@ Styleguide 2.3.1
   }
 }
 
-.obsConfirm{
-  margin: 0;
-  margin-top: 1.75rem;
-  #cancelSubmit{
-     padding: 0px;
-  }
-}
+//.obsConfirm{
+//  margin: 0;
+//  margin-top: 1.75rem;
+//  #cancelSubmit{
+//     padding: 0px;
+//  }
+//}
 
-.obsSubmit .button{
-    background-color: @action-colour;
-    width: 100%;
-    color: #ffffff;
-    font-weight: bold;
-    text-shadow: 0px 1px 0px #666666;
-    //font-size: 1.2em;
-    //height: 2.4em;
-    text-align: center;
-    display: inline-block;
-    padding: 0px;
-    padding-top: 1em;
-}
-.obsConfirm .button{
-    background-color: @link-colour;
-    width: 100%;
-    color: #ffffff;
-    font-weight: bold;
-    text-shadow: 0px 1px 0px #666666;
-    //font-size: 1.2em;
-    //height: 2.4em;
-    text-align: center;
-    display: inline-block;
-    padding: 0px;
-    padding-top: 1em;
-}
+//.obsSubmit .button{
+//    background-color: @action-colour;
+//    width: 100%;
+//    color: #ffffff;
+//    font-weight: bold;
+//    text-shadow: 0px 1px 0px #666666;
+//    //font-size: 1.2em;
+//    //height: 2.4em;
+//    text-align: center;
+//    display: inline-block;
+//    padding: 0px;
+//    padding-top: 1em;
+//}
+//.obsConfirm .button{
+//    background-color: @link-colour;
+//    width: 100%;
+//    color: #ffffff;
+//    font-weight: bold;
+//    text-shadow: 0px 1px 0px #666666;
+//    //font-size: 1.2em;
+//    //height: 2.4em;
+//    text-align: center;
+//    display: inline-block;
+//    //padding: 0px;
+//    //padding-top: 1em;
+//}
 
 // For review frequency
 
