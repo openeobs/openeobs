@@ -10,12 +10,38 @@ Styling for buttons
 input[type="submit"][disabled], input[type="reset"][disabled] - Disabled button styling
 
 Markup:
+<h4>Normal Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button">Default Button</button></li>
+  <li><button type="button" class="go">Login Button</button></li>
+  <li><button type="button" class="back">Menu Button</button></li>
+  <li><button type="button" class="do-it">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it">Cancel Button</button></li>
+</ul>
+<h4>Small Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button" class="small">Default Button</button></li>
+  <li><button type="button" class="go small">Login Button</button></li>
+  <li><button type="button" class="back small">Menu Button</button></li>
+  <li><button type="button" class="do-it small">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it small">Cancel Button</button></li>
+</ul>
+<h4>Big Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button" class="big">Default Button</button></li>
+  <li><button type="button" class="go big">Login Button</button></li>
+  <li><button type="button" class="back big">Menu Button</button></li>
+  <li><button type="button" class="do-it big">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it big">Cancel Button</button></li>
+</ul>
+<h4>Full Width Button</h4>
 <ul class="element-list">
-  <li><button type="button">Default button</button></li>
-  <li><button type="button" class="alignright">Floaty button</button></li>
-  <li><a class="button">Default a.button</a></li>
-  <li><a class="button go">Go button</a></li>
-  <li><a class="button back">Back button</a></li>
+  <li><a class="button big do-it full-width">A big pink full width button</a></li>
+  <li><a class="button small dont-do-it full-width">A big pink full width button</a></li>
+  <li><a class="button go full-width">A big pink full width button</a></li>
+</ul>
+<h4>Disabled form buttons</h4>
+<ul class="element-list">
   <li><input type="submit" disabled="disabled" value="Disabled submit button"></li>
   <li><input type="reset" disabled="disabled" value="Disabled reset button"></li>
 </ul>
@@ -26,61 +52,90 @@ Styleguide 1.6
 @import "utils.less";
 button, .button, input[type="submit"], input[type="reset"]{
   padding: .3em 2% .3em 2%;
-  font-size: 1em;
-  line-height: 1.4;
-  height: 2.4em;
+  //font-size: 1em;
+  //line-height: 1.4;
+  //height: 2.4em;
   border-radius: 5px;
   background-color: #888888;
-  border: 1px solid #888888;
+  border: 1px solid rgba(0,0,0,0.2);
   text-decoration: none;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.2);
   color: white;
   font-weight: bold;
+  text-align: center;
+  &:hover, &.disabled, &[disabled]{
+    background-color: darken(#888888, 10%);
+  }
+  &.disabled, &[disabled]{
+    color: darken(white, 10%);
+  }
   &.alignright{
     float: right;
     display: inline-block;
     clear: left;
   }
   &.go{
-    background-color: #22b232;
-    text-shadow: 0px 1px 0px #666666;
-    border: 1px solid #40b21b;
+    background-color: @go-colour;
+    &:hover, &.disabled, &[disabled]{
+      background-color: darken(@go-colour, 10%);
+    }
   }
-  &.back{
-    background-color: #4491ce;
-    text-shadow: 0px 1px 0px #666666;
-    border: 1px solid #a9dbff;
+  &.back, &.dont-do-it, &[type="reset"]{
+    background-color: @link-colour;
+    &:hover, &.disabled, &[disabled]{
+      background-color: darken(@link-colour, 10%);
+    }
+  }
+  &.do-it, &[type="submit"]{
+    background-color: @action-colour;
+    &:hover, &.disabled, &[disabled]{
+      background-color: darken(@action-colour, 10%);
+    }
+  }
+  &.small{
+    font-size: 0.75rem;
+  }
+  &.big{
+    font-size: 1.5rem;
+  }
+  &.full-width{
+    width: 96%;
+    display: block;
+  }
+  &.rounder{
+    border-radius: 10px;
   }
 }
 
-input[type="submit"][disabled]{
-  background-color: #be285d !important;
-}
+//input[type="submit"][disabled]{
+//  background-color: #be285d !important;
+//}
+//
+//input[type="reset"][disabled]{
+//  background-color: #3674a5 !important;
+//}
 
-input[type="reset"][disabled]{
-  background-color: #3674a5 !important;
-}
+//.patient_obs{
+//  padding: 0.3em 2%;
+//  border-radius: 5px;
+//  color: #ffffff;
+//  text-shadow: 0px 1px 0px #666666;
+//  background-color: @action-colour;
+//  width: 96%;
+//  display: block;
+//  font-size: 1.2em;
+//  text-align: center;
+//}
 
-.patient_obs{
-  padding: 0.3em 2%;
-  border-radius: 5px;
-  color: #ffffff;
-  text-shadow: 0px 1px 0px #666666;
-  background-color: @action-colour;
-  width: 96%;
-  display: block;
-  font-size: 1.2em;
-  text-align: center;
-}
-
-.share_all{
-  background-color: #ea3172;
-  padding: 0.8em 2.5%;
-  margin: 0.5em 5%;
-  border-radius: 10px;
-  color: white;
-  font-weight: bold;
-  text-shadow: 0 1px 0 #666666;
-}
+//.share_all{
+//  background-color: #ea3172;
+//  padding: 0.8em 2.5%;
+//  margin: 0.5em 5%;
+//  border-radius: 10px;
+//  color: white;
+//  font-weight: bold;
+//  text-shadow: 0 1px 0 #666666;
+//}
 
 /*
 Tabs

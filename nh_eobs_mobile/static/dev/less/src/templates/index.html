@@ -128,10 +128,20 @@
 		padding-top: 0;
 	}
 
-	.main .example .element-list, .mobile_preview .example .element-list{
+	.main .example .element-list, .mobile_preview .example .element-list,
+	.main .example .inline-list, .mobile_preview .example .inline-list{
 		list-style: none;
 		padding-left: 0;
 	}
+
+	.main .example .inline-list li, .mobile_preview .example .inline-list li{
+		display: inline;
+	}
+
+	.main .example .inline-list li > button, .mobile_preview .example .inline-list li > button{
+		margin-bottom: 1rem;
+	}
+
 
 	.main .example .element-list li, .mobile_preview .example .element-list li{
 		padding: 0.8em 0;
