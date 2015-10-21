@@ -342,7 +342,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         expected_json = self.registry('nh.clinical.patient.observation.ews')._partial_reasons
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Reason for partial observation',
-                                 'Please select an option from the list',
+                                 'Please state reason for submitting partial observation',
                                  expected_json)
 
     # Test Stand-in routes
@@ -474,7 +474,9 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         # Check the returned JSON data against the expected ones
-        expected_json = mock_get_share_users()
+        expected_json = {
+            'colleagues': mock_get_share_users()
+        }
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Colleagues on shift',
                                  'Choose colleagues for stand-in',
@@ -550,7 +552,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully accepted stand-in invite',
-                                 'You are following these patient(s)',
+                                 'You are following 3 patient(s) from Nurse Nadine',
                                  expected_json)
 
     def test_09_bis_accept_user_route_manages_exception_while_completing_activity(self):
@@ -624,7 +626,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully rejected stand-in invite',
-                                 'You are not following these patient(s)',
+                                 'You are not following 3 patient(s) from Nurse Nadine',
                                  expected_json)
 
     def test_10_bis_reject_user_route_manages_exception_while_cancelling_activity(self):
@@ -988,11 +990,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                     'data_model': 'nh.clinical.notification.frequency',
                     'state': 'scheduled'
                 }
-            ]
+            ],
+            'status': 1
         }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-                                 'Successfully submitted observation',
+                                 'Successfully Submitted NEWS Observation',
                                  'Here are related tasks based on the observation',
                                  expected_json)
 
@@ -1060,7 +1063,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                     'id': 789,
                     'data_model': 'nh.clinical.notification.assessment'
                 },
-            ]
+            ],
+            'status': 1
         }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
@@ -1148,7 +1152,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Reason for cancelling task?',
-                                 'Please select an option from the dropdown',
+                                 'Please state reason for cancelling task',
                                  expected_json)
 
     # Test Patient routes
@@ -1448,10 +1452,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                     'data_model': 'nh.clinical.notification.frequency',
                     'state': 'scheduled'
                 }
-            ]
+            ],
+            'status': 1
         }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-                                 'Observation successfully submitted',
+                                 'Successfully Submitted NEWS Observation',
                                  'Here are related tasks based on the observation',
                                  expected_json)
