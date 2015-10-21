@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Defines models for the `Wardboard` view.
+"""
 from openerp.osv import orm, fields, osv
 import logging
 
@@ -7,6 +10,10 @@ _logger = logging.getLogger(__name__)
 from openerp import SUPERUSER_ID
 
 class wardboard_swap_beds(orm.TransientModel):
+    """
+    Allows a :class:`patient<base.nh_clinical_patient>` to swap beds
+    with another patient on the same ward.
+    """
     _name = 'wardboard.swap_beds'
     
     _columns = {
@@ -18,6 +25,16 @@ class wardboard_swap_beds(orm.TransientModel):
     }
 
     def do_swap(self, cr, uid, ids, context=None):
+        """
+        Swaps the bed :class:`locations<base.nh_clinical_location>` of
+        two :class:`patients<base.nh_clinical_patient>`.
+
+        :param ids: list of ids for records
+        :type ids: list
+        :returns: ``True``
+        :rtype: bool
+        """
+
         data = self.browse(cr, uid, ids[0])
         values = {
             'location1_id': data.location1_id.id,
@@ -29,6 +46,18 @@ class wardboard_swap_beds(orm.TransientModel):
         activity_pool.complete(cr, uid, swap_id, context=context)
     
     def onchange_location2(self, cr, uid, ids, location2_id, context=None):
+        """
+        Returns dictionary containing the
+        :class:`patient<base.nh_clinical_patient>` id of patient in the
+        :class:`location<base.nh_clinical_location>` of the
+        ``location2_id`` parameter.
+
+        :param location2_id: location id
+        :type location2_id: int
+        :returns: dictionary containing patient id
+        :rtype: dict
+        """
+
         if not location2_id:
             return {'value': {'patient2_id': False}}
         patient_pool = self.pool['nh.clinical.patient']
@@ -38,6 +67,12 @@ class wardboard_swap_beds(orm.TransientModel):
         return {'value': {'patient2_id': patient_id[0]}}
 
 class wardboard_patient_placement(orm.TransientModel):
+    """
+    Moves :class:`patient<base.nh_clinical_patient>` from a bed
+    :class:`location<base.nh_clinical_location>` to another vacant bed
+    location.
+    """
+
     _name = "wardboard.patient.placement"
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
@@ -47,6 +82,16 @@ class wardboard_patient_placement(orm.TransientModel):
     }
 
     def do_move(self, cr, uid, ids, context=None):
+        """
+        Moves the :class:`patient<base.nh_clinical_patient>` from their
+        current bed location to a destination bed location.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: ``True``
+        :rtype: bool
+        """
+
         wiz = self.browse(cr, uid, ids[0], context=context)
         spell_pool = self.pool['nh.clinical.spell']
         move_pool = self.pool['nh.clinical.patient.move']
@@ -63,6 +108,10 @@ class wardboard_patient_placement(orm.TransientModel):
 
 
 class wardboard_device_session_start(orm.TransientModel):
+    """
+    Starts a :class:`device<devices.nh_clinical_device>` session.
+    """
+
     _name = "wardboard.device.session.start"
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
@@ -73,6 +122,19 @@ class wardboard_device_session_start(orm.TransientModel):
     }
 
     def onchange_device_category_id(self, cr, uid, ids, device_category_id, context=None):
+        """
+        Returns domain dictionary containing the
+        :class:`type<devices.nh_clinical_device_type>` id of the
+        :class:`device<devices.nh_clinical_device>`.
+
+        :param device_category_id:
+            :class:`category<devices.nh_clinical_device_category>` id of
+            the device
+        :type device_category_id: int
+        :returns: domain dictionary containing ``device_type_id``
+        :rtype: dict
+        """
+
         response = False
         if device_category_id:
             response = {'value': {'device_id': False, 'device_type_id': False}}
@@ -81,6 +143,17 @@ class wardboard_device_session_start(orm.TransientModel):
         return response
 
     def onchange_device_type_id(self, cr, uid, ids, device_type_id, context=None):
+        """
+        Given a device :class:`type<devices.nh_clinical_device_type>`
+        id, it returns a domain dictionary containing the
+        :class:`device<devices.nh_clinical_device>` id.
+
+        :param device_type_id: type id of the device
+        :type device_type_id: int
+        :returns: domain dictionary containing ``device_id``
+        :rtype: dict
+        """
+
         response = False
         if device_type_id:
             response = {'value': {'device_id': False}}
@@ -89,6 +162,17 @@ class wardboard_device_session_start(orm.TransientModel):
         return response
 
     def onchange_device_id(self, cr, uid, ids, device_id, context=None):
+        """
+        Given a device :class:`device<devices.nh_clinical_device>` id,
+        it returns a domain dictionary containing the
+        :class:`type<devices.nh_clinical_device_type>` id.
+
+        :param device_id: id of the device
+        :type device_id: int
+        :returns: domain dictionary containing ``device_id``
+        :rtype: dict
+        """
+
         device_pool = self.pool['nh.clinical.device']
         if not device_id:
             return {}
@@ -96,6 +180,16 @@ class wardboard_device_session_start(orm.TransientModel):
         return {'value': {'device_type_id': device.type_id.id}}
 
     def do_start(self, cr, uid, ids, context=None):
+        """
+        Starts a :class:`session<devices.nh_clinical_device_session>`
+        for a device.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: ``True``
+        :rtype: bool
+        """
+
         wiz = self.browse(cr, uid, ids[0], context=context)
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(cr, uid, wiz.patient_id.id, context=context)
@@ -109,6 +203,11 @@ class wardboard_device_session_start(orm.TransientModel):
         self.pool['nh.activity'].submit(cr, uid, device_activity_id, {'location': wiz.location}, context)
 
 class wardboard_device_session_complete(orm.TransientModel):
+    """
+    Completes a :class:`session<devices.nh_clinical_device_session>` for
+    a device.
+    """
+
     _name = "wardboard.device.session.complete"
 
     _columns = {
@@ -118,6 +217,16 @@ class wardboard_device_session_complete(orm.TransientModel):
     }   
     
     def do_complete(self, cr, uid, ids, context=None):
+        """
+        Completed a :class:`session<devices.nh_clinical_device_session>`
+        for a device.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: Odoo `action` definition
+        :rtype: dict
+        """
+
         activity_pool = self.pool['nh.activity']
         wiz = self.browse(cr, uid, ids[0])
         activity_pool.submit(cr, uid, wiz.session_id.activity_id.id, {'removal_reason': wiz.removal_reason, 'planned': wiz.planned}, context)
@@ -141,9 +250,24 @@ class wardboard_device_session_complete(orm.TransientModel):
 
 
 class nh_clinical_device_session(orm.Model):
+    """
+    Extends :class:`session<devices.nh_clinical_device_session>`.
+    """
+
     _inherit = "nh.clinical.device.session"
 
     def device_session_complete(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`device session complete<wardboard_device_session_complete>`
+        for the view ``view_wardboard_device_session_complete_form``.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: Odoo `action` definition
+        :rtype: dict
+        """
+
         device_session = self.browse(cr, uid, ids[0], context=context)
         res_id = self.pool['wardboard.device.session.complete'].create(cr, uid, {'session_id': device_session.id})
         view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_device_session_complete_form')[1]
@@ -162,10 +286,19 @@ class nh_clinical_device_session(orm.Model):
 
 
 class nh_clinical_wardboard(orm.Model):
+    """
+    Represents a :class:`patient<base.nh_clinical_patient>` with basic
+    patient information (`admission`, `spell`, `location`, etc.).
+
+    Also includes
+    :class:`observation<observations.nh_clinical_patient_observation>`
+    data such as
+    :class:`EWS<ews.nh_clinical_patient_observation_ews>`,
+    :class:`weight<observations.nh_clinical_patient_observation_weight>`,
+    etc.
+    """
+
     _name = "nh.clinical.wardboard"
-#     _inherits = {
-#                  'nh.clinical.patient': 'patient_id',
-#     }
     _description = "Wardboard"
     _auto = False
     _table = "nh_clinical_wardboard"
@@ -357,6 +490,17 @@ class nh_clinical_wardboard(orm.Model):
     }
     
     def device_session_start(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`device session start<wardboard_device_session_start>`
+        for the view ``view_wardboard_device_session_start_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
         res_id = self.pool['wardboard.device.session.start'].create(cr, uid, 
                                                         {
@@ -377,6 +521,18 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def open_previous_spell(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_form_discharged`` to open a previous
+        :class:`spell<spell.nh_clinical_spell>`.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         activity_pool = self.pool['nh.activity']
         wb = self.browse(cr, uid, ids[0], context=context)
         activity_ids = activity_pool.search(cr, uid, [
@@ -401,6 +557,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_swap_beds(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`swap beds<wardboard_swap_beds>` for the view
+        ``view_wardboard_swap_beds_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         swap_beds_pool = self.pool['wardboard.swap_beds']
         wb = self.browse(cr, uid, ids[0])
         res_id = swap_beds_pool.create(cr, uid, {
@@ -421,6 +588,20 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_patient_placement(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`patient placement<wardboard_patient_placement>` for the
+        view ``view_wardboard_patient_placement_form``. Raises an
+        exception if :class:`patient<base.nh_clinical_patient>` isn't
+        placed in a bed.
+
+        :param ids: records ids
+        :type ids: list
+        :raises: :class:`osv.except_osv<openerp.osv.osv.except_orm>`
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
         # assumed that patient's placement is completed
         # parent location of bed is taken as ward
@@ -469,6 +650,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_prescribe(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_prescribe_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -487,6 +679,17 @@ class nh_clinical_wardboard(orm.Model):
         }
         
     def wardboard_chart(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_chart_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -505,6 +708,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_weight_chart(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_weight_chart_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -525,6 +739,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_bs_chart(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_bs_chart_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -543,6 +768,16 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_ews(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo tree window action for `completed`
+        :class:`ews<ews.nh_clinical_patient_observation_ews>`.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
         return {
             'name': wardboard.full_name,
@@ -556,6 +791,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_place(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`patient placement<operations.nh_clinical_patient_placement>`
+        for the view ``view_patient_placement_complete``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -584,6 +830,13 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def write(self, cr, uid, ids, vals, context=None):
+        """
+        Extends Odoo's :meth:`write()<openerp.models.Model.write>`.
+
+        :returns: ``True``
+        :rtype: bool
+        """
+
         activity_pool = self.pool['nh.activity']
         for wb in self.browse(cr, uid, ids, context=context):
             if 'mrsa' in vals:

@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-NH eObs
-=======
+NH Open eObs
+============
 
 If it fits, i sits stretch, or spot something, big eyes, big eyes, crouch,
 shake butt, prepare to pounce leave fur on owners clothes refuse to drink water
@@ -30,6 +30,7 @@ Module Reference
    policy
    spell_management
    ward_dashboard
+   wardboard
    workload
 
 
