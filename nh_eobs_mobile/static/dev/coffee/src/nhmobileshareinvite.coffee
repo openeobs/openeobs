@@ -14,28 +14,31 @@ class NHMobileShareInvite extends NHMobile
     for invite in invite_list
       invite.addEventListener 'click', (event) ->
         ### istanbul ignore else ###
-        if not event.handled
-          btn = if event.srcElement then event.srcElement else event.target
-          activity_id = btn.getAttribute('data-invite-id')
-          self.handle_invite_click(self, activity_id)
-          event.handled = true
+#        if not event.handled
+        btn = if event.srcElement then event.srcElement else event.target
+        activity_id = btn.getAttribute('data-invite-id')
+        args = [self, activity_id]
+        self.handle_event(event, self.handle_invite_click, true, args)
+#          event.handled = true
     document.addEventListener 'accept_invite', (event) ->
-      if not event.handled
-        activity_id = event.detail.invite_id
-        self.handle_accept_button_click(self, activity_id)
-        event.handled = true
+#      if not event.handled
+      activity_id = event.detail.invite_id
+      args = [self, activity_id]
+      self.handle_event(event, self.handle_accept_button_click, true, args)
+#        event.handled = true
     document.addEventListener 'reject_invite', (event) ->
-      if not event.handled
-        activity_id = event.detail.invite_id
-        self.handle_reject_button_click(self, activity_id)
-        event.handled = true
+#      if not event.handled
+      activity_id = event.detail.invite_id
+      args = [self, activity_id]
+      self.handle_event(event, self.handle_reject_button_click, true, args)
+#        event.handled = true
     super()
 
   # On the user clicking the invitation to follow another user's patients
   # - Contact the server with the ID of the invite activity
   # - The server will return a list of patients that are to be shared
   # - Show the patients in a modal with a button accept the invitation
-  handle_invite_click: (self, activity_id) ->
+  handle_invite_click: (event, self, activity_id) ->
     url = self.urls.json_invite_patients(activity_id)
     urlmeth = url.method
     Promise.when(self.process_request(urlmeth, url.url)).then (raw_data) ->
@@ -76,7 +79,7 @@ class NHMobileShareInvite extends NHMobile
   # - Hit up the server to accept the invitation to follow
   # - If successful remove the invite from DOM and show modal
   # - If not successful inform the user of error
-  handle_accept_button_click: (self, activity_id) ->
+  handle_accept_button_click: (event, self, activity_id) ->
     url = self.urls.json_accept_patients(activity_id)
     urlmeth = url.method
     body = document.getElementsByTagName('body')[0]
@@ -119,7 +122,7 @@ class NHMobileShareInvite extends NHMobile
   # - Hit up the server to reject the invitation to follow
   # - If successful remove the invite from DOM and show modal
   # - If not successful inform the user of error
-  handle_reject_button_click: (self, activity_id) ->
+  handle_reject_button_click: (event, self, activity_id) ->
     url = self.urls.json_reject_patients(activity_id)
     urlmeth = url.method
     body = document.getElementsByTagName('body')[0]

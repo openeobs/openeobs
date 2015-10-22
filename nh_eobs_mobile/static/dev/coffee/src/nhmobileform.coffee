@@ -24,20 +24,33 @@ class NHMobileForm extends NHMobile
           when 'input'
             switch input.getAttribute('type')
               when 'number'
-                input.addEventListener('change', self.validate)
-                input.addEventListener('change', self.trigger_actions)
-              when 'submit' then input.addEventListener('click', self.submit)
-              when 'reset' then input.addEventListener('click',
-                  self.cancel_notification)
-              when 'radio' then input.addEventListener('click',
-                  self.trigger_actions)
+                input.addEventListener('change', (e) ->
+                  self.handle_event(e, self.validate, true)
+                  e.handled = false
+                  self.handle_event(e, self.trigger_actions, true)
+                )
+#                input.addEventListener('change', self.trigger_actions)
+              when 'submit' then input.addEventListener('click', (e) ->
+                self.handle_event(e, self.submit, true)
+              )
+              when 'reset' then input.addEventListener('click', (e) ->
+                self.handle_event(e, self.cancel_notification, true)
+              )
+              when 'radio' then input.addEventListener('click', (e) ->
+                self.handle_event(e, self.trigger_actions, true)
+              )
               when 'text'
-                input.addEventListener('change', self.validate)
-                input.addEventListener('change', self.trigger_actions)
-          when 'select' then input.addEventListener('change',
-            self.trigger_actions)
-          when 'button' then input.addEventListener('click',
-            self.show_reference)
+                input.addEventListener('change', (e) ->
+                  self.handle_event(e, self.validate, true)
+                  e.handled = false
+                  self.handle_event(e, self.trigger_actions, true)
+                )
+          when 'select' then input.addEventListener('change', (e) ->
+            self.handle_event(e, self.trigger_actions, true)
+          )
+          when 'button' then input.addEventListener('click', (e) ->
+            self.handle_event(e, self.show_reference, true)
+          )
 
     # Set up form timeout so that the task is put back in the task list after
     # a certain time
@@ -54,14 +67,16 @@ class NHMobileForm extends NHMobile
     window.form_timeout = setTimeout(window.timeout_func, self.form_timeout)
 
     document.addEventListener 'post_score_submit', (event) ->
-      if not event.handled
-        self.process_post_score_submit(self, event)
-        event.handled = true
+      self.handle_event(event, self.process_post_score_submit, true, self)
+#      if not event.handled
+#        self.process_post_score_submit(self, event)
+#        event.handled = true
 
     document.addEventListener 'partial_submit', (event) ->
-      if not event.handled
-        self.process_partial_submit(self,event)
-        event.handled = true
+      self.handle_event(event, self.process_partial_submit, true, self)
+#      if not event.handled
+#        self.process_partial_submit(self,event)
+#        event.handled = true
 
     @patient_name_el.addEventListener 'click', (event) ->
       event.preventDefault()
@@ -84,9 +99,10 @@ class NHMobileForm extends NHMobile
   # inputs with a data-validation attribute already do this
   # TODO: Currently only caters for number inputs
   validate: (event) =>
-    event.preventDefault()
+#    event.preventDefault()
     @.reset_form_timeout(@)
-    input = if event.srcElement then event.srcElement else event.target
+#    input = if event.srcElement then event.srcElement else event.target
+    input = event.src_el
     input_type = input.getAttribute('type')
     value = if input_type is 'number' then parseFloat(input.value) else
       input.value
@@ -146,7 +162,8 @@ class NHMobileForm extends NHMobile
   # in the input's data-onchange attribute and does the appropriate action
   trigger_actions: (event) =>
     @.reset_form_timeout(@)
-    input = if event.srcElement then event.srcElement else event.target
+#    input = if event.srcElement then event.srcElement else event.target
+    input = event.src_el
     value = input.value
     if input.getAttribute('type') is 'radio'
       for el in document.getElementsByName(input.name)
@@ -196,7 +213,7 @@ class NHMobileForm extends NHMobile
     return
    
   submit: (event) =>
-    event.preventDefault()
+#    event.preventDefault()
     @.reset_form_timeout(@)
     ajax_act = @form.getAttribute('ajax-action')
     form_elements =
@@ -239,9 +256,10 @@ class NHMobileForm extends NHMobile
       @display_partial_reasons(@)
 
   show_reference: (event) =>
-    event.preventDefault()
+#    event.preventDefault()
     @.reset_form_timeout(@)
-    input = if event.srcElement then event.srcElement else event.target
+    input = event.src_el
+#    input = if event.srcElement then event.srcElement else event.target
     ref_type = input.getAttribute('data-type')
     ref_url = input.getAttribute('data-url')
     ref_title = input.getAttribute('data-title')
@@ -410,7 +428,7 @@ class NHMobileForm extends NHMobile
     inp.classList.remove('exclude')
     inp.disabled = false
 
-  process_partial_submit: (self, event) ->
+  process_partial_submit: (event, self) ->
     form_elements = (element for element in self.form.elements when not
       element.classList.contains('exclude'))
     reason_to_use = false
@@ -430,7 +448,7 @@ class NHMobileForm extends NHMobile
       document.getElementsByTagName('body')[0].removeChild(cover)
       dialog_id.parentNode.removeChild(dialog_id)
 
-  process_post_score_submit: (self, event) ->
+  process_post_score_submit: (event, self) ->
     form  = document.getElementsByTagName('form')?[0]
     form_elements = (element for element in form.elements when not
       element.classList.contains('exclude'))

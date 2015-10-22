@@ -8,63 +8,43 @@ var NHMobileShare,
 NHMobileShare = (function(superClass) {
   extend(NHMobileShare, superClass);
 
-  function NHMobileShare(share_button1, claim_button1, all_button) {
+  function NHMobileShare(share_button, claim_button, all_button) {
     var self;
-    this.share_button = share_button1;
-    this.claim_button = claim_button1;
+    this.share_button = share_button;
+    this.claim_button = claim_button;
     this.all_button = all_button;
     self = this;
     this.form = document.getElementById('handover_form');
     this.share_button.addEventListener('click', function(event) {
-      var share_button;
-      event.preventDefault();
-      share_button = event.srcElement ? event.srcElement : event.target;
-      return self.share_button_click(self);
+      return self.handle_event(event, self.share_button_click, true, self);
     });
     this.claim_button.addEventListener('click', function(event) {
-      var claim_button;
-      event.preventDefault();
-      claim_button = event.srcElement ? event.srcElement : event.target;
-      return self.claim_button_click(self);
+      return self.handle_event(event, self.claim_button_click, true, self);
     });
     this.all_button.addEventListener('click', function(event) {
       var button, button_mode;
-      event.preventDefault();
-
-      /* istanbul ignore else */
-      if (!event.handled) {
-        button = event.srcElement ? event.srcElement : event.target;
-        button_mode = button.getAttribute('mode');
-        if (button_mode === 'select') {
-          self.select_all_patients(self, event);
-          button.textContent = 'Unselect all';
-          button.setAttribute('mode', 'unselect');
-        } else {
-          self.unselect_all_patients(self, event);
-          button.textContent = 'Select all';
-          button.setAttribute('mode', 'select');
-        }
-        return event.handled = true;
+      button = event.srcElement ? event.srcElement : event.target;
+      button_mode = button.getAttribute('mode');
+      if (button_mode === 'select') {
+        self.handle_event(event, self.select_all_patients, true, self);
+        button.textContent = 'Unselect all';
+        return button.setAttribute('mode', 'unselect');
+      } else {
+        self.handle_event(event, self.unselect_all_patients, true, self);
+        button.textContent = 'Select all';
+        return button.setAttribute('mode', 'select');
       }
     });
     document.addEventListener('assign_nurse', function(event) {
-      event.preventDefault();
-      if (!event.handled) {
-        self.assign_button_click(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.assign_button_click, true, self);
     });
     document.addEventListener('claim_patients', function(event) {
-      event.preventDefault();
-      if (!event.handled) {
-        self.claim_patients_click(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.claim_patients_click, true, self);
     });
     NHMobileShare.__super__.constructor.call(this);
   }
 
-  NHMobileShare.prototype.share_button_click = function(self) {
+  NHMobileShare.prototype.share_button_click = function(event, self) {
     var btn, el, msg, patients, url, urlmeth;
     patients = (function() {
       var i, len, ref, results;
@@ -104,7 +84,7 @@ NHMobileShare = (function(superClass) {
     }
   };
 
-  NHMobileShare.prototype.claim_button_click = function(self) {
+  NHMobileShare.prototype.claim_button_click = function(event, self) {
     var assign_btn, btn, btns, can_btn, claim_msg, el, form, msg, patients;
     form = document.getElementById('handover_form');
     patients = (function() {
@@ -133,7 +113,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.assign_button_click = function(self, event) {
+  NHMobileShare.prototype.assign_button_click = function(event, self) {
     var body, data_string, el, error_message, form, nurse_ids, nurses, patient_ids, patients, popup, url;
     nurses = event.detail.nurses;
     form = document.getElementById('handover_form');
@@ -205,7 +185,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.claim_patients_click = function(self, event) {
+  NHMobileShare.prototype.claim_patients_click = function(event, self) {
     var data_string, el, form, patients, url;
     form = document.getElementById('handover_form');
     patients = (function() {
@@ -266,7 +246,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.select_all_patients = function(self, event) {
+  NHMobileShare.prototype.select_all_patients = function(event, self) {
     var el, form, i, len, ref;
     form = document.getElementById('handover_form');
     ref = form.elements;
@@ -279,7 +259,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.unselect_all_patients = function(self, event) {
+  NHMobileShare.prototype.unselect_all_patients = function(event, self) {
     var el, form, i, len, ref;
     form = document.getElementById('handover_form');
     ref = form.elements;

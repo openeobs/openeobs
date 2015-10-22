@@ -57,23 +57,7 @@ notification in patient list</p>
     self = @
     invite_list = patient_list.getElementsByClassName(<span class="hljs-string">'share_invite'</span>)
     <span class="hljs-keyword">for</span> invite <span class="hljs-keyword">in</span> invite_list
-      invite.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-          btn = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-          activity_id = btn.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
-          self.handle_invite_click(self, activity_id)
-          event.handled = <span class="hljs-literal">true</span>
-    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'accept_invite'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-        activity_id = event.detail.invite_id
-        self.handle_accept_button_click(self, activity_id)
-        event.handled = <span class="hljs-literal">true</span>
-    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'reject_invite'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-        activity_id = event.detail.invite_id
-        self.handle_reject_button_click(self, activity_id)
-        event.handled = <span class="hljs-literal">true</span>
-    <span class="hljs-keyword">super</span>()</pre></div></div>
+      invite.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
             
         </li>
         
@@ -84,6 +68,103 @@ notification in patient list</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
+              <pre><code>   <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        btn = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+        activity_id = btn.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
+        args = [self, activity_id]
+        self.handle_event(event, self.handle_invite_click, <span class="hljs-literal">true</span>, args)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <pre><code>     event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'accept_invite'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <pre><code> <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      activity_id = event.detail.invite_id
+      args = [self, activity_id]
+      self.handle_event(event, self.handle_accept_button_click, <span class="hljs-literal">true</span>, args)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <pre><code>   event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'reject_invite'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <pre><code> <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      activity_id = event.detail.invite_id
+      args = [self, activity_id]
+      self.handle_event(event, self.handle_reject_button_click, <span class="hljs-literal">true</span>, args)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <pre><code>   event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">super</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
               <p>On the user clicking the invitation to follow another user’s patients</p>
 <ul>
 <li>Contact the server with the ID of the invite activity</li>
@@ -93,7 +174,7 @@ notification in patient list</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_invite_click</span>: <span class="hljs-function"><span class="hljs-params">(self, activity_id)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_invite_click</span>: <span class="hljs-function"><span class="hljs-params">(event, self, activity_id)</span> -&gt;</span>
     url = self.urls.json_invite_patients(activity_id)
     urlmeth = url.method
     Promise.<span class="hljs-keyword">when</span>(self.process_request(urlmeth, url.url)).<span class="hljs-keyword">then</span> (raw_data) -&gt;
@@ -133,11 +214,11 @@ notification in patient list</p>
         </li>
         
         
-        <li id="section-4">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>On the accept button being clicked</p>
 <ul>
@@ -148,7 +229,7 @@ notification in patient list</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_accept_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, activity_id)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_accept_button_click</span>: <span class="hljs-function"><span class="hljs-params">(event, self, activity_id)</span> -&gt;</span>
     url = self.urls.json_accept_patients(activity_id)
     urlmeth = url.method
     body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
@@ -188,11 +269,11 @@ notification in patient list</p>
         </li>
         
         
-        <li id="section-5">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>On the reject button being clicked</p>
 <ul>
@@ -203,7 +284,7 @@ notification in patient list</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_reject_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, activity_id)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_reject_button_click</span>: <span class="hljs-function"><span class="hljs-params">(event, self, activity_id)</span> -&gt;</span>
     url = self.urls.json_reject_patients(activity_id)
     urlmeth = url.method
     body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
