@@ -26,9 +26,156 @@ describe("Event Handling", function(){
     });
 
     it('Has a function to help manage events', function(){
-        //TODO: Add this event handler
-       //expect(typeof(NHLib.prototype.handle_event)).toBe('function');
-        expect(true).toBe(true);
+       expect(typeof(NHLib.prototype.handle_event)).toBe('function');
+    });
+
+    describe('Event Handling', function(){
+
+       beforeEach(function(){
+           var test_area = document.getElementById('test');
+           test_area.setAttribute('class', '');
+            test_area.innerHTML = '';
+           spyOn(NHLib.prototype, 'handle_event').and.callThrough();
+       });
+        afterEach(function(){
+            var test_area = document.getElementById('test');
+            test_area.setAttribute('class', '');
+            test_area.innerHTML = '';
+       });
+
+        it('Sets the correct event target element and passes it the specified function', function(){
+            var test_area = document.getElementById('test');
+            test_area.innerHTML = '<button id="test_button"></button>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                test_lib.handle_event(e, default_action, true);
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(click_event.src_el).toBe(button);
+            expect(test_area.classList.contains('default-happened')).toBe(true);
+        });
+
+        it('Prevents the default behaviour from happening when asked to', function(){
+            var test_area = document.getElementById('test');
+            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                test_lib.handle_event(e, non_default_action, true);
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('default-prevented')).toBe(true);
+            expect(document.location.hash).not.toBe('#default');
+        });
+
+        it('Allows the default behaviour to happen when asked to', function(){
+            var test_area = document.getElementById('test');
+            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                test_lib.handle_event(e, non_default_action, false);
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('default-prevented')).toBe(true);
+            expect(document.location.hash).toBe('#default');
+        });
+
+        it('It only calls the function to call once', function(){
+           var test_area = document.getElementById('test');
+            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                test_lib.handle_event(e, non_default_action, true);
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('default-prevented')).toBe(true);
+            NHLib.prototype.handle_event.calls.reset();
+
+            button.dispatchEvent(click_event);
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('default-prevented')).toBe(true);
+            expect(test_area.classList.contains('double-call')).toBe(false);
+        });
+
+        it('It passes over the custom arguments for a function', function(){
+           var test_area = document.getElementById('test');
+            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                var args = ['one', 'two', 'three']
+                test_lib.handle_event(e, arg_actions, true, args);
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('arg')).toBe(true);
+            expect(test_area.classList.contains('p1-one')).toBe(true);
+            expect(test_area.classList.contains('p2-two')).toBe(true);
+            expect(test_area.classList.contains('p3-three')).toBe(true);
+        });
+
+         it('It accounts for a single argument being passed', function(){
+           var test_area = document.getElementById('test');
+            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                test_lib.handle_event(e, arg_action, true, 'one');
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('arg')).toBe(true);
+            expect(test_area.classList.contains('p1-one')).toBe(true);
+        });
     });
 
     describe('Click events', function(){

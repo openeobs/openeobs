@@ -9,12 +9,8 @@
 # import test_bed_placement_form
 # import json_endpoint_test
 
-
-"""
-Commenting out the following tests are they are unreliable
-"""
-# import test_mobile_controller_routes
-# import test_mobile_controller_methods
+import test_mobile_controller_routes
+import test_mobile_controller_methods
 
 # PhantomJS tests
 # import test_login
