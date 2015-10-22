@@ -20,7 +20,7 @@ module.exports = function(config) {
         hostname: 'localhost',
         port: 9876,
 
-        reporters: ['nyan', 'html', 'coverage'],
+        reporters: ['nyan', 'coverage'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
@@ -54,16 +54,16 @@ module.exports = function(config) {
           dir : 'coverage/'
         },
 
-        htmlReporter: {
-            outputDir: 'karma_html',
-            templatePath: null,
-            focusOnFailures: false,
-            namedFiles: false,
-            pageTitle: null,
-            urlFriendlyName: false,
-            reportName: 'report-summary-filename',
-            preserveDescribeNesting: true
-        }
+        //htmlReporter: {
+        //    outputDir: 'karma_html',
+        //    templatePath: null,
+        //    focusOnFailures: false,
+        //    namedFiles: false,
+        //    pageTitle: null,
+        //    urlFriendlyName: false,
+        //    reportName: 'report-summary-filename',
+        //    preserveDescribeNesting: true
+        //}
 
     })
 }
