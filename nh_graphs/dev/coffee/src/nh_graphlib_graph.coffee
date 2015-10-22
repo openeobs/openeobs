@@ -795,8 +795,11 @@ class NHGraph extends NHGraphLib
             self.axes.y.scale(d[self.options.keys[0]])
         )
       )
+
       when 'star' then console.log('star')
+
       when 'pie' then console.log('pie')
+
       when 'sparkline' then console.log('sparkline')
       # If no graph style defined throw an error
       else throw new Error('no graph style defined')

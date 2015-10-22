@@ -338,27 +338,6 @@ describe 'Data', ->
             for path in paths
               expect(path.getAttribute 'clip-path').toBe clipURL
 
-          xit "starts and finishes at data points", ->
-            for i in [0..paths.length-1]
-
-              # Get start and end cx and cy of data point
-              expectedStartX = +circles[i].getAttribute 'cx'
-              #expectedStartY = +circles[i].getAttribute 'cy'
-
-              expectedEndX = +circles[i+1].getAttribute 'cx'
-              #expectedEndY = +circles[i+1].getAttribute 'cy'
-
-              # Get start co-oridinates in path.d string
-              dString = paths[i].getAttribute('d')
-
-              startX = +dString.substr(1,4)
-              #startY = +dString.match(/,(.*)/)[0].substr(0,6)
-
-              endX = +dString.match(/L(.*)/)[1].substr(0,6)
-              #endY = +dString.match(/,(.*)/)[1].substr(0,6)
-
-              expect(startX).toBeCloseTo(expectedStartX,0)
-              expect(endX).toBeCloseTo(expectedEndX,0)
 
       describe "Incomplete observations", ->
 

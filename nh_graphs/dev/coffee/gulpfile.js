@@ -1,10 +1,12 @@
 var gulp = require('gulp'),
-	coffeelint = require('gulp-coffeelint'),
-	karma = require('gulp-karma'),
-	notify = require('gulp-notify'),
-	concat = require('gulp-concat'),
-	docco = require('gulp-docco'),
-	coffee = require('gulp-coffee');
+coffeelint = require('gulp-coffeelint'),
+karma = require('gulp-karma'),
+notify = require('gulp-notify'),
+concat = require('gulp-concat'),
+docco = require('gulp-docco'),
+coffee = require('gulp-coffee');
+
+var Server = require('karma').Server;
 
 gulp.task('compile', function(){
 	gulp.src(['src/*.coffee'])
@@ -13,6 +15,13 @@ gulp.task('compile', function(){
 	.pipe(coffee({bare: true}))
 	.pipe(concat('nh_graphlib.js'))
 	.pipe(gulp.dest('../../static/src/js'))
+});
+
+gulp.task('karma', function (done) {
+  new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start()
 });
 
 gulp.task('test', function(){
@@ -53,3 +62,4 @@ gulp.task('pycharm_test_compile', function(){
 });
 
 gulp.task('default', ['compile']);
+gulp.task('all',['pycharm_test_compile','karma']);

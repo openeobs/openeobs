@@ -11,6 +11,23 @@ describe 'Interaction', ->
   context = null
   focus = null
   test_area = null
+  range = null
+
+  # Function to simulate 'click' event
+  click = (el) ->
+    ev = document.createEvent 'MouseEvent'
+    ev.initMouseEvent(
+      'click',
+      true, #bubble
+      true, #cancelable
+      window,
+      null,
+      0,0,0,0,
+      false,false,false,false, #modifier keys
+      0, #left
+      null
+    )
+    el.dispatchEvent(ev)
 
   beforeEach ->
 
@@ -86,6 +103,13 @@ describe 'Interaction', ->
     context.title = 'NEWS Score'
     context.style.margin.bottom = 0
 
+    # Add rangify checkbox
+    range = document.createElement('input')
+    range.setAttribute('id','rangify')
+    range.setAttribute('type','checkbox')
+    test_area.appendChild(range)
+
+    graphlib.options.controls.rangify = range
     graphlib.focus = focus
     graphlib.context = context
     graphlib.data.raw = ews_data.multi_partial
@@ -113,6 +137,38 @@ describe 'Interaction', ->
 
   describe "Pop-ups", ->
 
+    # Function to simulate 'mouseover' event
+    mouseover = (el) ->
+      ev = document.createEvent 'MouseEvent'
+      ev.initMouseEvent(
+        'mouseover',
+        true, #bubble
+        true, #cancelable
+        window,
+        null,
+        0,0,0,0,
+        false,false,false,false, #modifier keys
+        0, #left
+        null
+      )
+      el.dispatchEvent(ev)
+
+    # Function to simulate 'mouseout' event
+    mouseout = (el) ->
+      ev = document.createEvent 'MouseEvent'
+      ev.initMouseEvent(
+        'mouseout',
+        true, #bubble
+        true, #cancelable
+        window,
+        null,
+        0,0,0,0,
+        false,false,false,false, #modifier keys
+        0, #left
+        null
+      )
+      el.dispatchEvent(ev)
+
     describe "Methods", ->
 
       it "nh-graphlib_graph has pop-up methods", ->
@@ -138,132 +194,195 @@ describe 'Interaction', ->
 
     describe "Event listeners", ->
 
-      # Function to simulate 'mouseover' event
-      mouseover = (el) ->
-        ev = document.createEvent 'MouseEvent'
-        ev.initMouseEvent(
-          'mouseover',
-          true, #bubble
-          true, #cancelable
-          window,
-          null,
-          0,0,0,0,
-          false,false,false,false, #modifier keys
-          0, #left
-          null
-        )
-        el.dispatchEvent(ev)
-
-      # Function to simulate 'mouseout' event
-      mouseout = (el) ->
-        ev = document.createEvent 'MouseEvent'
-        ev.initMouseEvent(
-          'mouseout',
-          true, #bubble
-          true, #cancelable
-          window,
-          null,
-          0,0,0,0,
-          false,false,false,false, #modifier keys
-          0, #left
-          null
-        )
-        el.dispatchEvent(ev)
-
-      beforeEach ->
-        graphlib.init()
-        graphlib.draw()
-
-        spyOn(bp_graph, 'show_popup').and.callThrough()
-        spyOn(pulse_graph, 'show_popup').and.callThrough()
-
-        spyOn(bp_graph, 'hide_popup').and.callThrough()
-        spyOn(pulse_graph, 'hide_popup').and.callThrough()
-
       describe "Linear / Stepped Points", ->
 
         points = null
 
         beforeEach ->
+          graphlib.init()
+          graphlib.draw()
+
+          spyOn(NHGraph.prototype, 'show_popup').and.callThrough()
+          spyOn(NHGraph.prototype, 'hide_popup').and.callThrough()
+
           points = document.querySelectorAll '.point'
 
         it "mouse over event calls show_popup method on all points", ->
 
+          expect(points.length).toBeGreaterThan(1)
+
           for i in [0..points.length-1]
             mouseover(points[i])
-            setTimeout( ->
-              expect(pulse_graph.show_popup.calls.count()).toBe i+1
-            ,1000)
+
+          setTimeout( ->
+            count = NHGraph.prototype.show_popup.calls.count()
+            expect(count).toBe points.length
+          ,100)
 
         it "mouse out event calls hide_popup method on all points", ->
 
+          expect(points.length).toBeGreaterThan(1)
+
           for i in [0..points.length-1]
             mouseout(points[i])
-            setTimeout( ->
-              expect(pulse_graph.hide_popup.calls.count()).toBe i+1
-            ,1000)
+
+          setTimeout( ->
+            count = NHGraph.prototype.hide_popup.calls.count()
+            expect(count).toBe points.length
+          ,100)
 
       describe "Linear / Stepped Empty Points", ->
 
         points = null
 
         beforeEach ->
+          graphlib.init()
+          graphlib.draw()
+
+          spyOn(NHGraph.prototype, 'show_popup').and.callThrough()
+          spyOn(NHGraph.prototype, 'hide_popup').and.callThrough()
+
           points = document.querySelectorAll '.empty_point'
 
-        it "mouseover event calls show_popup method on all empty points", ->
+        it "mouse over event calls show_popup method on all points", ->
+
+          expect(points.length).toBeGreaterThan(1)
 
           for i in [0..points.length-1]
             mouseover(points[i])
-            setTimeout( ->
-              expect(pulse_graph.show_popup.calls.count()).toBe i+1
-            ,1000)
 
-        it "mouseout event calls hide_popup method on all empty points", ->
+          setTimeout( ->
+            count = NHGraph.prototype.show_popup.calls.count()
+            expect(count).toBe points.length
+          ,100)
+
+        it "mouse out event calls hide_popup method on all points", ->
+
+          expect(points.length).toBeGreaterThan(1)
 
           for i in [0..points.length-1]
             mouseout(points[i])
-            setTimeout( ->
-              expect(pulse_graph.hide_popup.calls.count()).toBe i+1
-            ,1000)
+
+          setTimeout( ->
+            count = NHGraph.prototype.hide_popup.calls.count()
+            expect(count).toBe points.length
+          ,100)
 
       describe "Range Bars", ->
 
         ranges = null
 
         beforeEach ->
-           ranges = document.querySelectorAll '.range'
+          graphlib.init()
+          graphlib.draw()
+
+          spyOn(NHGraph.prototype, 'show_popup').and.callThrough()
+          spyOn(NHGraph.prototype, 'hide_popup').and.callThrough()
+
+          ranges = document.querySelectorAll '.range'
 
         it "mouseover event calls show_popup method on all range elements", ->
 
+          expect(ranges.length).toBeGreaterThan(1)
+
           for i in [0..ranges.length-1]
             mouseover(ranges[i])
-            setTimeout( ->
-              expect(bp_graph.show_popup.calls.count()).toBe i+1
-            ,1000)
+
+          setTimeout( ->
+            count = NHGraph.prototype.show_popup.calls.count()
+            expect(count).toBe ranges.length
+          ,100)
 
         it "mouseout event calls hide_popup method on all range elements", ->
 
+          expect(ranges.length).toBeGreaterThan(1)
+
           for i in [0..ranges.length-1]
             mouseout(ranges[i])
-            setTimeout( ->
-              expect(bp_graph.hide_popup.calls.count()).toBe i+1
-            ,1000)
+
+          setTimeout( ->
+            count = NHGraph.prototype.hide_popup.calls.count()
+            expect(count).toBe ranges.length
+          ,100)
 
 
-  describe "Rangify", ->
+  fdescribe "Rangify", ->
 
     describe "Properties", ->
+
+      beforeEach ->
+        graphlib.init()
 
       it "nhgraphlib.graph has ranged_extent property", ->
         expect(bp_graph.axes.y.ranged_extent).toBeDefined
 
-      it "initialises with correct range", ->
-        graphlib.init()
-        expect(bp_graph.axes.y.ranged_extent).toBe [80, 120]
+      it "nhgraphlib.graph initialises range_extent with correct range", ->
+        expect(bp_graph.axes.y.ranged_extent[0]).toBe 80
+        expect(bp_graph.axes.y.ranged_extent[1]).toBe 120
 
       it "nhgraphlib.graph has rangify method", ->
-        expect(bp_graph.rangify_graph).toBe true
+        expect(bp_graph.rangify_graph).toBeDefined()
+
+      it "nhgraphlib has link to rangify checkbox element", ->
+        expect(graphlib.options.controls.rangify).toBeDefined()
 
     describe "Events", ->
 
-      it "context"
+      graphs = null
+
+      beforeEach ->
+
+        spyOn(bp_graph, 'redraw').and.callThrough()
+        spyOn(bp_graph, 'rangify_graph').and.callThrough()
+        spyOn(score_graph, 'redraw').and.callThrough()
+        spyOn(score_graph, 'rangify_graph').and.callThrough()
+        spyOn(pulse_graph, 'redraw').and.callThrough()
+        spyOn(pulse_graph, 'rangify_graph').and.callThrough()
+
+        graphs = [bp_graph, pulse_graph, score_graph]
+
+        # Set range padding to 0 initially
+        for graph in graphs
+          graph.style.range_padding = 0
+
+        graphlib.init()
+        graphlib.draw()
+
+        click(range)
+        setTimeout( ->
+          console.log 'waited'
+        ,100)
+
+
+
+      describe "Check", ->
+
+        it "calls rangify method on all graphs when checkbox clicked", ->
+
+          for graph in graphs
+            expect(graph.rangify_graph).toHaveBeenCalled()
+
+        it "calls redraw method on all graphs", ->
+
+          for graph in graphs
+            expect(graph.redraw).toHaveBeenCalled()
+
+      describe "Uncheck", ->
+
+        beforeEach ->
+          click(range)
+          setTimeout( ->
+            console.log 'waited'
+          ,100)
+
+        it "calls rangify method on all graphs when checkbox clicked", ->
+
+          for graph in graphs
+            expect(graph.rangify_graph).toHaveBeenCalled()
+
+
+        it "calls redraw method on all graphs", ->
+
+          for graph in graphs
+            expect(graph.redraw).toHaveBeenCalled()
+
