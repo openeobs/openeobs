@@ -20,3 +20,19 @@ function cleanUp(){
     var test = document.getElementById('test');
     test.innerHTML = '';
 }
+
+// Utility class for event handling tests
+function default_action(event){
+    var test_area = document.getElementById('test');
+    if(test_area.classList.contains('default-happened')){
+        test_area.classList.add('double-call');
+    }else{
+        test_area.classList.add('default-happened')
+    }
+}
+
+// Utility class for event handling tests
+function non_default_action(event){
+    var test_area = document.getElementById('test');
+    test_area.classList.add('default-prevented')
+}
