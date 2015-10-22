@@ -48,12 +48,18 @@ class NHLib
     return ("0" + date_element).slice(-2)
 
   # A utility for handling events
-  handle_event: (raw_e, func, pref_dev) ->
+  handle_event: (raw_e, func, pref_dev, raw_args) ->
     if not raw_e.handled
       raw_e.src_el = if raw_e.srcElement then raw_e.srcElement else raw_e.target
       if pref_dev
         raw_e.preventDefault()
-      func.apply func, [raw_e]
+      args = [raw_e]
+      if typeof(raw_args) isnt 'undefined'
+        if not Array.isArray(raw_args)
+          raw_args = [raw_args]
+        for arg in raw_args
+          args.push arg
+      func.apply func, args
       raw_e.handled = true
 
 ### istanbul ignore else ###

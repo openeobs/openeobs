@@ -131,6 +131,51 @@ describe("Event Handling", function(){
             expect(test_area.classList.contains('default-prevented')).toBe(true);
             expect(test_area.classList.contains('double-call')).toBe(false);
         });
+
+        it('It passes over the custom arguments for a function', function(){
+           var test_area = document.getElementById('test');
+            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                var args = ['one', 'two', 'three']
+                test_lib.handle_event(e, arg_actions, true, args);
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('arg')).toBe(true);
+            expect(test_area.classList.contains('p1-one')).toBe(true);
+            expect(test_area.classList.contains('p2-two')).toBe(true);
+            expect(test_area.classList.contains('p3-three')).toBe(true);
+        });
+
+         it('It accounts for a single argument being passed', function(){
+           var test_area = document.getElementById('test');
+            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+            var button = document.getElementById('test_button');
+            var test_lib = new NHLib();
+
+            // setup the event handler
+            button.addEventListener('click', function(e){
+                test_lib.handle_event(e, arg_action, true, 'one');
+            });
+
+            // fire off event
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            button.dispatchEvent(click_event);
+
+            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+            expect(test_area.classList.contains('arg')).toBe(true);
+            expect(test_area.classList.contains('p1-one')).toBe(true);
+        });
     });
 
     describe('Click events', function(){
