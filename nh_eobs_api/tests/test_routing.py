@@ -4,11 +4,14 @@ import json
 import logging
 import openerp.tests
 import requests
+
 from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
 from openerp.modules.module import get_module_path
-from unittest import skip
+from unittest import skip, SkipTest
 
 # IMPORTS for @route TEST
+from random import choice as random_choice
+
 from openerp import http
 from openerp.tests import DB as DB_NAME
 from openerp.tools import config
@@ -607,6 +610,7 @@ custom_keywords_route = Route('custom_keywords_route', '/custom/keywords/route/'
 
 expose_route_2 = Route('expose_route_2', '/expose/route2/', auth='none')
 diff_prefix_route = Route('prefix', '/prefix/', url_prefix='/test/url', auth='none')
+
 # Add the Route objects to the RouteManager (mandatory to them being considered by the routing workflow)
 route_manager_test.add_route(no_args_route)
 route_manager_test.add_route(no_args_route_auth_as_user)
@@ -665,16 +669,49 @@ class ControllerForTesting(http.Controller):
 
 class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
+    def _get_user_belonging_to_group(self, group_name):
+        """Get the 'login' name of a user belonging to a specific group.
+
+        :param group_name: name of the group from which retrieve a user (belonging to it)
+        :type group_name: str
+        :return: the login name of the retrieved user (belonging to the group passed as argument)
+        :rtype: str
+        :return: None if there isn't any user belonging to that group
+        """
+        users_pool = self.registry['res.users']
+        users_login_list = users_pool.search_read(self.cr, self.uid,
+                                                  domain=[('groups_id.name', '=', group_name)],
+                                                  fields=['login'])
+        # The search result is a list of dictionaries,
+        # so if at least one of them exists in the list,
+        # just its 'login' value must be returned
+        try:
+            login_name = random_choice(users_login_list)
+        except IndexError:
+            login_name = None
+
+        # Here is where just the 'login' value is returned,
+        # instead of the whole dictionary
+        return login_name.get('login', None)
+
     def _get_authenticated_response(self, user_name):
         """Get a Response object with an authenticated session within its cookies.
 
-        :param user_name: A string with the username of the user to be authenticated as
+        :param user_name: username of the user to be authenticated as
+        :type user_name: str
         :return: A Response object
+
+        Within this test suite, only the basic Odoo routes
+        and the ones defined above in this very file are available
+        (that is, these tests cannot rely on the mobile controller routes).
+
+        Hence, the authentication must be done against the base Odoo system
+        (and NOT against the mobile controller routes).
         """
-        auth_response = requests.post(BASE_MOBILE_URL + '/login',
-                                      {'username': user_name,
+        auth_response = requests.post(BASE_URL + '/web/login',
+                                      {'login': user_name,
                                        'password': user_name,
-                                       'database': DB_NAME},
+                                       'db': DB_NAME},
                                       cookies=self.session_resp.cookies)
         return auth_response
 
@@ -683,14 +720,6 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.session_resp = requests.post(BASE_URL + '/web', {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
             self.fail('Cannot retrieve a valid session to be used for the tests!')
-        """
-        login_name = self._get_user_belonging_to_group('NH Clinical Nurse Group')
-        self.assertNotEqual(login_name, False,
-                            "Cannot find any 'nurse' user for authentication before running the test!")
-        self.auth_resp = self._get_authenticated_response(login_name)
-        self.assertEqual(self.auth_resp.status_code, 200)
-        self.assertIn('class="tasklist"', self.auth_resp.content)
-        """
 
     def test_route_with_no_arguments(self):
         test_resp = requests.get(BASE_MOBILE_URL + no_args_route.url, cookies=self.session_resp.cookies)
@@ -698,18 +727,23 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertIn('Successfully reached the "route without arguments" page.', test_resp.text)
 
     def test_route_with_no_arguments_auth_as_user(self):
-        # Try to access the route as an unauthenticated user, expecting a redirection to the login page
+        # Try to access the route as an unauthenticated user, expecting a redirection to the login page.
         test_resp = requests.get(BASE_MOBILE_URL + no_args_route_auth_as_user.url, cookies=self.session_resp.cookies)
         self.assertEqual(len(test_resp.history), 1)
         self.assertEqual(test_resp.history[0].status_code, 302)
         self.assertIn('web/login?redirect=', test_resp.url)
 
-        # Authenticate and check the login was successful
-        auth_resp = self._get_authenticated_response('nadine')
-        self.assertEqual(auth_resp.status_code, 200)
-        self.assertIn('class="tasklist"', auth_resp.content)
+        # To correctly execute this test,
+        # the route under test must be accessed as an authenticated user.
+        # Hence, this test will be skipped if the authentication fails.
+        login_name = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        self.assertIsNotNone(login_name, "Cannot find any 'nurse' user for authentication!")
+        auth_resp = self._get_authenticated_response(login_name)
+        if auth_resp.status_code != 200:
+            self.skipTest('Error during the authenticating (status code: {}).'.format(auth_resp.status_code))
 
-        # Try again to access the route, this time expecting a success
+        # Try again to access the route using cookies
+        # from an authenticated session, this time expecting a success.
         test_resp = requests.get(BASE_MOBILE_URL + no_args_route_auth_as_user.url, cookies=auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
         self.assertIn('Successfully reached the "route without arguments" page as an authenticated user.', test_resp.text)
