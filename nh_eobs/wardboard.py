@@ -854,7 +854,7 @@ class nh_clinical_wardboard(orm.Model):
                     'parent_id': wb.spell_activity_id.id,
                 }, {
                     'patient_id': wb.spell_activity_id.patient_id.id,
-                    'diabetes': vals['diabetes'] == 'yes'
+                    'status': vals['diabetes'] == 'yes'
                 }, context=context)
                 activity_pool.complete(cr, uid, diabetes_id, context=context)
             if 'pbp_monitoring' in vals:
@@ -863,7 +863,7 @@ class nh_clinical_wardboard(orm.Model):
                     'parent_id': wb.spell_activity_id.id,
                 }, {
                     'patient_id': wb.spell_activity_id.patient_id.id,
-                    'pbp_monitoring': vals['pbp_monitoring'] == 'yes'
+                    'status': vals['pbp_monitoring'] == 'yes'
                 }, context=context)
                 activity_pool.complete(cr, uid, pbpm_id, context=context)
             if 'weight_monitoring' in vals:
@@ -872,7 +872,7 @@ class nh_clinical_wardboard(orm.Model):
                     'parent_id': wb.spell_activity_id.id,
                 }, {
                     'patient_id': wb.spell_activity_id.patient_id.id,
-                    'weight_monitoring': vals['weight_monitoring'] == 'yes'
+                    'status': vals['weight_monitoring'] == 'yes'
                 }, context=context)
                 activity_pool.complete(cr, uid, wm_id, context=context)
             if 'o2target' in vals:
@@ -1127,7 +1127,7 @@ param as(
         select
             activity.spell_id,
             height.height,
-            diabetes.diabetes,
+            diabetes.status as diabetes,
             mrsa.status as mrsa,
             pc.status,
             o2target_level.id as o2target_level_id,
@@ -1156,7 +1156,7 @@ create materialized view
 weight as(
     select
         activity.spell_id,
-        weight.weight_monitoring
+        weight.status
     from wb_activity_latest activity
     left join nh_clinical_patient_weight_monitoring weight on activity.ids && array[weight.activity_id]
     where activity.state = 'completed'
@@ -1166,7 +1166,7 @@ create materialized view
 pbp as(
     select
         activity.spell_id,
-        pbp.pbp_monitoring
+        pbp.status
     from wb_activity_latest activity
     left join nh_clinical_patient_pbp_monitoring pbp on activity.ids && array[pbp.activity_id]
     where activity.state = 'completed'
@@ -1293,8 +1293,8 @@ nh_clinical_wardboard as(
         param.o2target_level_id as o2target,
         case when param.mrsa then 'yes' else 'no' end as mrsa,
         case when param.diabetes then 'yes' else 'no' end as diabetes,
-        case when pbp.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
-        case when weight.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
+        case when pbp.status then 'yes' else 'no' end as pbp_monitoring,
+        case when weight.status then 'yes' else 'no' end as weight_monitoring,
         case when param.status then 'yes' else 'no' end as palliative_care,
         case
             when param.post_surgery and param.post_surgery_date > now() - interval '4h' then 'yes'

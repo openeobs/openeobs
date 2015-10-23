@@ -134,7 +134,7 @@ class TestObservationExtension(SingleTransactionCase):
 
         self.mrsa_pool._patch_method('refresh_views', do_refresh_views)
 
-        mrsa_id = self.mrsa_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'mrsa': False})
+        mrsa_id = self.mrsa_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'status': False})
         start = dt.now()
         self.assertTrue(self.activity_pool.complete(cr, uid, mrsa_id))
         delta = dt.now() - start
@@ -155,7 +155,7 @@ class TestObservationExtension(SingleTransactionCase):
 
         self.diabetes_pool._patch_method('refresh_views', do_refresh_views)
 
-        diabetes_id = self.diabetes_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'diabetes': False})
+        diabetes_id = self.diabetes_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0], 'status': False})
         start = dt.now()
         self.assertTrue(self.activity_pool.complete(cr, uid, diabetes_id))
         delta = dt.now() - start
@@ -240,7 +240,7 @@ class TestObservationExtension(SingleTransactionCase):
         self.wmonitoring_pool._patch_method('refresh_views', do_refresh_views)
 
         wm_id = self.wmonitoring_pool.create_activity(cr, uid, {}, {'patient_id': self.patients[0],
-                                                                    'weight_monitoring': False})
+                                                                    'status': False})
         start = dt.now()
         self.assertTrue(self.activity_pool.complete(cr, uid, wm_id))
         delta = dt.now() - start
