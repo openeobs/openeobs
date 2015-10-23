@@ -63,7 +63,7 @@ class nh_clinical_patient_diabetes(orm.Model):
     _name = 'nh.clinical.patient.diabetes'
     _inherit = ['nh.activity.data'] 
     _columns = {
-        'diabetes': fields.boolean('Diabetes', required=True),                
+        'status': fields.boolean('Diabetes', required=True),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
@@ -247,7 +247,7 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
         return result
 
     _columns = {
-        'weight_monitoring': fields.boolean('Weight Monitoring', required=True),
+        'status': fields.boolean('Weight Monitoring', required=True),
         'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
@@ -257,7 +257,7 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         weight_pool = self.pool['nh.clinical.patient.observation.weight']
-        if activity.data_ref.weight_monitoring:
+        if activity.data_ref.status:
             activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, weight_pool._name, context=context)
             weight_activity_id = weight_pool.create_activity(cr, SUPERUSER_ID,
                                  {'creator_id': activity_id, 'parent_id': activity.parent_id.id},

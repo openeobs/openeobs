@@ -73,7 +73,7 @@ class TestPBP(common.SingleTransactionCase):
         self.activity_pool.submit(cr, uid, monitoring_id, {'pbp_monitoring': True})
         check_monitoring = self.activity_pool.browse(cr, uid, monitoring_id)
         self.assertTrue(check_monitoring.data_ref.patient_id.id == patient_id, msg="PBP Monitoring parameter set: Patient id not submitted correctly")
-        self.assertTrue(check_monitoring.data_ref.pbp_monitoring, msg="PBP Monitoring parameter set: Monitoring value not submitted correctly")
+        self.assertTrue(check_monitoring.data_ref.status, msg="PBP Monitoring parameter set: Monitoring value not submitted correctly")
         self.activity_pool.complete(cr, uid, monitoring_id)
         check_monitoring = self.activity_pool.browse(cr, uid, monitoring_id)
         self.assertTrue(check_monitoring.state == 'completed', msg="PBP Monitoring parameter set not completed successfully")
