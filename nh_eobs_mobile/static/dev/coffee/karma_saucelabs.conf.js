@@ -93,16 +93,16 @@ module.exports = function(config) {
           dir : 'coverage/'
         },
 
-        htmlReporter: {
-            outputDir: 'karma_html',
-            templatePath: null,
-            focusOnFailures: false,
-            namedFiles: false,
-            pageTitle: null,
-            urlFriendlyName: false,
-            reportName: 'report-summary-filename',
-            preserveDescribeNesting: true
-        }
+        //htmlReporter: {
+        //    outputDir: 'karma_html',
+        //    templatePath: null,
+        //    focusOnFailures: false,
+        //    namedFiles: false,
+        //    pageTitle: null,
+        //    urlFriendlyName: false,
+        //    reportName: 'report-summary-filename',
+        //    preserveDescribeNesting: true
+        //}
 
     })
 }
