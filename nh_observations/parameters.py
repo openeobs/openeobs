@@ -44,7 +44,7 @@ class nh_clinical_patient_mrsa(orm.Model):
     _name = 'nh.clinical.patient.mrsa'
     _inherit = ['nh.activity.data'] 
     _columns = {
-        'mrsa': fields.boolean('MRSA', required=True),                
+        'status': fields.boolean('MRSA', required=True),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 

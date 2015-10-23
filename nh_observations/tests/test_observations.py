@@ -166,14 +166,14 @@ class test_observations(common.SingleTransactionCase):
         
         # MRSA parameter
         mrsa_data = {
-            'mrsa': fake.random_element([True, False])
+            'status': fake.random_element([True, False])
         }        
         mrsa_activity_id = self.mrsa_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, mrsa_activity_id, mrsa_data)
         check_mrsa = self.activity_pool.browse(cr, user_id, mrsa_activity_id)
 
         self.assertTrue(check_mrsa.data_ref.patient_id.id == patient_id, msg="MRSA Parameter: Patient id not submitted correctly")
-        self.assertTrue(check_mrsa.data_ref.mrsa == mrsa_data['mrsa'], msg="MRSA Parameter: MRSA not submitted correctly")
+        self.assertTrue(check_mrsa.data_ref.status == mrsa_data['status'], msg="MRSA Parameter: MRSA not submitted correctly")
         self.activity_pool.complete(cr, user_id, mrsa_activity_id)
         check_mrsa = self.activity_pool.browse(cr, user_id, mrsa_activity_id)
         self.assertTrue(check_mrsa.state == 'completed', msg="MRSA Parameter Completed: State not updated")
