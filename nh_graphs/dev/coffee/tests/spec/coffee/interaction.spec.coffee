@@ -123,6 +123,9 @@ describe 'Interaction', ->
     if (pulse_graph != null)
       pulse_graph = null
 
+    if (score_graph != null)
+      score_graph = null
+
     if (bp_graph != null)
       bp_graph = null
 
@@ -194,119 +197,115 @@ describe 'Interaction', ->
 
     describe "Event listeners", ->
 
+      points = null
+      ranges = null
+
+      beforeEach ->
+        spyOn(NHGraph.prototype, 'show_popup').and.callThrough()
+        spyOn(NHGraph.prototype, 'hide_popup').and.callThrough()
+
+        graphlib.init()
+        graphlib.draw()
+
+
       describe "Linear / Stepped Points", ->
 
-        points = null
-
         beforeEach ->
-          graphlib.init()
-          graphlib.draw()
-
-          spyOn(NHGraph.prototype, 'show_popup').and.callThrough()
-          spyOn(NHGraph.prototype, 'hide_popup').and.callThrough()
-
           points = document.querySelectorAll '.point'
 
         it "mouse over event calls show_popup method on all points", ->
 
           expect(points.length).toBeGreaterThan(1)
 
-          for i in [0..points.length-1]
-            mouseover(points[i])
+          for point in points
+            mouseover(point)
 
           setTimeout( ->
-            count = NHGraph.prototype.show_popup.calls.count()
-            expect(count).toBe points.length
+            console.log 'waited'
           ,100)
+
+          c = NHGraph.prototype.show_popup.calls.count()
+          expect(c).toBe points.length
 
         it "mouse out event calls hide_popup method on all points", ->
 
-          expect(points.length).toBeGreaterThan(1)
-
-          for i in [0..points.length-1]
-            mouseout(points[i])
+          for point in points
+            mouseout(point)
 
           setTimeout( ->
-            count = NHGraph.prototype.hide_popup.calls.count()
-            expect(count).toBe points.length
+            console.log 'waited'
           ,100)
+
+          c = NHGraph.prototype.hide_popup.calls.count()
+          expect(c).toBe points.length
+
 
       describe "Linear / Stepped Empty Points", ->
 
-        points = null
-
         beforeEach ->
-          graphlib.init()
-          graphlib.draw()
-
-          spyOn(NHGraph.prototype, 'show_popup').and.callThrough()
-          spyOn(NHGraph.prototype, 'hide_popup').and.callThrough()
-
           points = document.querySelectorAll '.empty_point'
 
         it "mouse over event calls show_popup method on all points", ->
 
           expect(points.length).toBeGreaterThan(1)
 
-          for i in [0..points.length-1]
-            mouseover(points[i])
+          for point in points
+            mouseover(point)
 
           setTimeout( ->
-            count = NHGraph.prototype.show_popup.calls.count()
-            expect(count).toBe points.length
+            console.log 'waited'
           ,100)
+
+          c = NHGraph.prototype.show_popup.calls.count()
+          expect(c).toBe points.length
 
         it "mouse out event calls hide_popup method on all points", ->
 
-          expect(points.length).toBeGreaterThan(1)
-
-          for i in [0..points.length-1]
-            mouseout(points[i])
+          for point in points
+            mouseout(point)
 
           setTimeout( ->
-            count = NHGraph.prototype.hide_popup.calls.count()
-            expect(count).toBe points.length
+            console.log 'waited'
           ,100)
+
+          c = NHGraph.prototype.hide_popup.calls.count()
+          expect(c).toBe points.length
 
       describe "Range Bars", ->
 
-        ranges = null
-
         beforeEach ->
-          graphlib.init()
-          graphlib.draw()
-
-          spyOn(NHGraph.prototype, 'show_popup').and.callThrough()
-          spyOn(NHGraph.prototype, 'hide_popup').and.callThrough()
-
-          ranges = document.querySelectorAll '.range'
+          ranges = document.querySelectorAll '.data .range'
 
         it "mouseover event calls show_popup method on all range elements", ->
 
           expect(ranges.length).toBeGreaterThan(1)
 
-          for i in [0..ranges.length-1]
-            mouseover(ranges[i])
+          for range in ranges
+            mouseover(range)
 
           setTimeout( ->
-            count = NHGraph.prototype.show_popup.calls.count()
-            expect(count).toBe ranges.length
+            console.log 'waited'
           ,100)
+
+          c = NHGraph.prototype.show_popup.calls.count()
+          expect(c).toBe ranges.length
 
         it "mouseout event calls hide_popup method on all range elements", ->
 
           expect(ranges.length).toBeGreaterThan(1)
 
-          for i in [0..ranges.length-1]
-            mouseout(ranges[i])
+          for range in ranges
+            mouseout(range)
 
           setTimeout( ->
-            count = NHGraph.prototype.hide_popup.calls.count()
-            expect(count).toBe ranges.length
+            console.log 'waited'
           ,100)
 
+          c = NHGraph.prototype.hide_popup.calls.count()
+          expect(c).toBe ranges.length
 
-  fdescribe "Rangify", ->
+
+  describe "Rangify", ->
 
     describe "Properties", ->
 
@@ -317,7 +316,8 @@ describe 'Interaction', ->
         expect(bp_graph.axes.y.ranged_extent).toBeDefined
 
       it "nhgraphlib.graph initialises range_extent with correct range", ->
-        expect(bp_graph.axes.y.ranged_extent[0]).toBe 80
+
+        #expect(bp_graph.axes.y.ranged_extent[0]).toBe 80
         expect(bp_graph.axes.y.ranged_extent[1]).toBe 120
 
       it "nhgraphlib.graph has rangify method", ->
@@ -331,45 +331,90 @@ describe 'Interaction', ->
       graphs = null
 
       beforeEach ->
-
+        ###
+        spyOn(NHGraph.prototype, 'rangify_graph').and.callThrough()
+        spyOn(NHGraph.prototype, 'redraw').and.callThrough()
+        ###
         spyOn(bp_graph, 'redraw').and.callThrough()
         spyOn(bp_graph, 'rangify_graph').and.callThrough()
-        spyOn(score_graph, 'redraw').and.callThrough()
-        spyOn(score_graph, 'rangify_graph').and.callThrough()
         spyOn(pulse_graph, 'redraw').and.callThrough()
         spyOn(pulse_graph, 'rangify_graph').and.callThrough()
 
-        graphs = [bp_graph, pulse_graph, score_graph]
 
-        # Set range padding to 0 initially
-        for graph in graphs
-          graph.style.range_padding = 0
+        graphs = [bp_graph, pulse_graph, score_graph]
 
         graphlib.init()
         graphlib.draw()
 
         click(range)
+
         setTimeout( ->
           console.log 'waited'
         ,100)
 
 
 
+
       describe "Check", ->
 
         it "calls rangify method on all graphs when checkbox clicked", ->
+          ###
+          count = NHGraph.prototype.rangify_graph.calls.count()
+          expect(count).toBe 3
+          ###
+          count = bp_graph.rangify_graph.calls.count()
+          count += pulse_graph.rangify_graph.calls.count()
 
-          for graph in graphs
-            expect(graph.rangify_graph).toHaveBeenCalled()
+          expect(count).toBe 2
 
         it "calls redraw method on all graphs", ->
 
+          count = bp_graph.redraw.calls.count()
+          count += pulse_graph.redraw.calls.count()
+
+          expect(count).toBe 2
+
+        it "switches axes to ranged min/max", ->
+
           for graph in graphs
-            expect(graph.redraw).toHaveBeenCalled()
+
+            padding = graph.style.range_padding
+
+            expectedMin = graph.axes.y.ranged_extent[0] - padding
+            expectedMax = graph.axes.y.ranged_extent[1] + padding
+
+            ticks = graph.axes.obj[0][0].querySelectorAll '.tick text'
+
+            expect(ticks.length).toBeGreaterThan 2
+
+            # Get min axis label
+            min = 300
+            for tick in ticks
+              if tick.textContent != ''
+                val = +tick.textContent
+                if val < min
+                  min = val
+
+            expect(min).toBeGreaterThan expectedMin - 2
+
+
+            # Get max axis label
+            max = 0
+            for tick in ticks
+              if tick.textContent != ''
+                val = +tick.textContent
+                if val > max
+                  max = val
+
+            expect(max).toBeLessThan expectedMax + 2
+
+
 
       describe "Uncheck", ->
 
         beforeEach ->
+
+          range.checked = true
           click(range)
           setTimeout( ->
             console.log 'waited'
@@ -377,12 +422,47 @@ describe 'Interaction', ->
 
         it "calls rangify method on all graphs when checkbox clicked", ->
 
-          for graph in graphs
-            expect(graph.rangify_graph).toHaveBeenCalled()
+          count = bp_graph.rangify_graph.calls.count()
+          count += pulse_graph.rangify_graph.calls.count()
 
+          expect(count).toBe 4
 
         it "calls redraw method on all graphs", ->
 
-          for graph in graphs
-            expect(graph.redraw).toHaveBeenCalled()
+          count = bp_graph.redraw.calls.count()
+          count += pulse_graph.redraw.calls.count()
+
+          expect(count).toBe 4
+
+        it "switches axes back to initial min/max on all graphs", ->
+
+          # actually just checks score graph..
+
+          expectedMin = score_graph.axes.y.min
+          expectedMax = score_graph.axes.y.max
+
+          ticks = score_graph.axes.obj[0][0].querySelectorAll '.tick text'
+
+          expect(ticks.length).toBeGreaterThan 2
+
+          # Get min axis label
+          min = 300
+          for tick in ticks
+            if tick.textContent != ''
+              val = +tick.textContent
+              if val < min
+                min = val
+
+          expect(min).toBe expectedMin
+
+
+          # Get max axis label
+          max = 0
+          for tick in ticks
+            if tick.textContent != ''
+              val = +tick.textContent
+              if val > max
+                max = val
+
+          expect(max).toBe expectedMax
 
