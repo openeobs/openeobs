@@ -255,7 +255,7 @@ class TestObservationReport(TransactionCase):
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
         'id': 1,
-        'mrsa': True,
+        'status': True,
         'terminate_uid': [1, 'Test'],
         'write_uid': [1, 'Test']
     }

@@ -845,7 +845,7 @@ class nh_clinical_wardboard(orm.Model):
                     'parent_id': wb.spell_activity_id.id,
                 }, {
                     'patient_id': wb.spell_activity_id.patient_id.id,
-                    'mrsa': vals['mrsa'] == 'yes'
+                    'status': vals['mrsa'] == 'yes'
                 }, context=context)
                 activity_pool.complete(cr, uid, mrsa_id, context=context)
             if 'diabetes' in vals:
@@ -1128,7 +1128,7 @@ param as(
             activity.spell_id,
             height.height,
             diabetes.diabetes,
-            mrsa.mrsa,
+            mrsa.status as mrsa,
             pc.status,
             o2target_level.id as o2target_level_id,
             ps.status as post_surgery,
