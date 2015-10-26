@@ -70,7 +70,7 @@ class TestPBP(common.SingleTransactionCase):
         self.assertFalse(pbp_activity_ids, msg="Postural Blood Pressure monitoring activities were triggered before setting monitoring ON")
         # Set PBP Monitoring ON
         monitoring_id = self.pbp_monitoring_pool.create_activity(cr, uid, {'parent_id': spell_activity.id}, {'patient_id': patient_id})
-        self.activity_pool.submit(cr, uid, monitoring_id, {'pbp_monitoring': True})
+        self.activity_pool.submit(cr, uid, monitoring_id, {'status': True})
         check_monitoring = self.activity_pool.browse(cr, uid, monitoring_id)
         self.assertTrue(check_monitoring.data_ref.patient_id.id == patient_id, msg="PBP Monitoring parameter set: Patient id not submitted correctly")
         self.assertTrue(check_monitoring.data_ref.status, msg="PBP Monitoring parameter set: Monitoring value not submitted correctly")
@@ -104,7 +104,7 @@ class TestPBP(common.SingleTransactionCase):
 
         # Set PBP Monitoring OFF
         monitoring_id = self.pbp_monitoring_pool.create_activity(cr, uid, {'parent_id': spell_activity.id}, {'patient_id': patient_id})
-        self.activity_pool.submit(cr, uid, monitoring_id, {'pbp_monitoring': False})
+        self.activity_pool.submit(cr, uid, monitoring_id, {'status': False})
         self.activity_pool.complete(cr, uid, monitoring_id)
         pbp_activity_ids = self.activity_pool.search(cr, uid, [['data_model', '=', 'nh.clinical.patient.observation.pbp'], ['patient_id', '=', patient_id], ['state', '=', 'scheduled']])
         self.assertTrue(pbp_activity_ids, msg="PBP activity cancelled after setting monitoring OFF")
