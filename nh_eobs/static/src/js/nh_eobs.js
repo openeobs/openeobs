@@ -15,6 +15,7 @@ openerp.nh_eobs = function (instance) {
     var kiosk_t;
     var kiosk_button;
     var ranged_chart = null;
+    var modal_view = null;
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
@@ -832,7 +833,7 @@ openerp.nh_eobs = function (instance) {
     instance.web.FormView.include({
          can_be_discarded: function() {
              // Hack to save if on the patient allocation stuff
-            if(this.model !== 'nh.clinical.allocating.user'){
+            if(this.model !== 'nh.clinical.allocating'){
                 return this._super();
             }
 
@@ -1103,7 +1104,7 @@ openerp.nh_eobs = function (instance) {
     // Override of the do_action implementation in web.View so it actually gets record ids [WI-577]
     instance.web.View.include({
         do_execute_action: function (action_data, dataset, record_id, on_closed) {
-            if((['nh.clinical.allocating.user', 'nh.clinical.wardboard'].indexOf(dataset.model) < 0) || (typeof(this.fields_view.type) !== 'undefined' && this.fields_view.type !== 'tree') || action_data.type !== 'action'){
+            if((['nh.clinical.allocating', 'nh.clinical.wardboard'].indexOf(dataset.model) < 0) || (typeof(this.fields_view.type) !== 'undefined' && this.fields_view.type !== 'tree') || action_data.type !== 'action'){
                 return this._super(action_data, dataset, record_id, on_closed);
             }
 
@@ -1187,6 +1188,7 @@ openerp.nh_eobs = function (instance) {
                         title_to_use = 'Shift Management';
                     }
 
+                    modal_view = self.ViewManager;
 
                     var pop = new instance.nh_eobs.PagedFormOpenPopup(action);
                     pop.show_element(
@@ -1372,7 +1374,7 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.ViewManager.include({
         do_create_view: function(view_type){
-            if (this.dataset.model === 'nh.clinical.allocating.user'){
+            if (this.dataset.model === 'nh.clinical.allocating'){
                 this.views[view_type].options.initial_mode = 'edit';
             }
             return this._super(view_type);
@@ -1381,7 +1383,7 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.FormView.include({
         on_button_save: function(e) {
-            if (this.dataset.model === 'nh.clinical.allocating.user'){
+            if (this.dataset.model === 'nh.clinical.allocating'){
                 var self = this;
                 $(e.target).attr("disabled", true);
                 return this.save().done(function(result) {
@@ -1389,14 +1391,18 @@ openerp.nh_eobs = function (instance) {
                     self.reload();
                     self.ViewManager.ActionManager.$el.parent().parent().find('.modal-header .close').click();
                 }).always(function(){
-                   $(e.target).attr("disabled", false)
+                    $(e.target).attr("disabled", false);
+                    self.$el.parents('.modal').find('.close').click();
+                    if (modal_view != undefined){
+                        modal_view.reinitialize();
+                    }
                 });
             } else {
                 return this._super(e);
             }
         },
         on_button_cancel: function(e) {
-            if (this.dataset.model === 'nh.clinical.allocating.user'){
+            if (this.dataset.model === 'nh.clinical.allocating'){
                 var self = this;
                 if (this.can_be_discarded()) {
                     this.to_view_mode();
@@ -1406,6 +1412,10 @@ openerp.nh_eobs = function (instance) {
                     this.to_edit_mode();
                 }
                 this.trigger('on_button_cancel');
+                self.$el.parents('.modal').find('.close').click();
+                if (modal_view != undefined){
+                    modal_view.reinitialize();
+                }
                 return false;
             } else {
                 return this._super(e);
@@ -1417,7 +1427,7 @@ openerp.nh_eobs = function (instance) {
        init: function (group, opts) {
            var self = this;
            this._super(group, opts);
-           if (this.dataset.model === 'nh.clinical.allocating.user' || this.dataset.model === 'nh.clinical.wardboard'){
+           if (this.dataset.model === 'nh.clinical.allocating' || this.dataset.model === 'nh.clinical.wardboard'){
                this.$current = $('<tbody>')
                     .delegate('input[readonly=readonly]', 'click', function (e) {
                         e.preventDefault();
@@ -1467,23 +1477,4 @@ openerp.nh_eobs = function (instance) {
            }
        }
     });
-
-    //instance.nh_eobs.time_to_next_obs = instance.web_kanban.FormatChar.extend({
-    //    className: 'nh_time_to_next_obs',
-    //    start: function(){
-    //        var self = this;
-    //        console.log('this is working')
-    //        // Widget to handle the time to next observation
-    //        // Displays (overdue)? [0-9]* days [0-2][0-9]:[0-5][0-9]
-    //        // Takes the date string returned by Odoo
-    //        var deadline = instance.web.auto_str_to_date(value);
-    //        var now = new Date();
-    //        var time_to_deadline = Math.abs(deadline.getTime() - now.getTime())
-    //        //return value.toString(normalize_format('%d/%m/%y')
-    //        //            + ' ' + normalize_format('%H:%M'));
-    //        return time_to_deadline.toString();
-    //
-    //    }
-    //});
-    //instance.web_kanban.fields_registry.add('nh_time_to_next_obs', 'instance.nh_eobs.time_to_next_obs');
 }
