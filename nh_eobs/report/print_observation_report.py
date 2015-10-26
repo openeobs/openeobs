@@ -316,7 +316,7 @@ class ObservationReport(models.AbstractModel):
             for mrsa in mrsa_history:
                 mrsa['values'] = mrsa_pool.read(cr, uid, int(mrsa['data_ref'].split(',')[1]), [])
                 if mrsa['values']:
-                    mrsa['values']['mrsa'] = 'Yes' if mrsa['values']['mrsa'] else 'No'
+                    mrsa['values']['mrsa'] = 'Yes' if mrsa['values']['status'] else 'No'
                     mrsa['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_started'], dtf), pretty_date_format) if mrsa['values']['date_started'] else False
                     mrsa['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_terminated'], dtf), pretty_date_format) if mrsa['values']['date_terminated'] else False
             #
@@ -327,7 +327,7 @@ class ObservationReport(models.AbstractModel):
             for diabetes in diabetes_history:
                 diabetes['values'] = diabetes_pool.read(cr, uid, int(diabetes['data_ref'].split(',')[1]), [])
                 if diabetes['values']:
-                    diabetes['values']['diabetes'] = 'Yes' if diabetes['values']['diabetes'] else 'No'
+                    diabetes['values']['diabetes'] = 'Yes' if diabetes['values']['status'] else 'No'
                     diabetes['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_started'], dtf), pretty_date_format) if diabetes['values']['date_started'] else False
                     diabetes['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_terminated'], dtf), pretty_date_format) if diabetes['values']['date_terminated'] else False
             #
