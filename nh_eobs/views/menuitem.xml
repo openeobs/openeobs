@@ -122,12 +122,12 @@
                   action="action_show_locations"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Shift Management"
-                  id="menu_eobs_user_management_v2"
-                  sequence="7"
-                  parent="menu_eobs_category_ward_management"
-                  action="nh_clinical.action_nhc_user_allocation"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+        <!--<menuitem name="Shift Management"-->
+                  <!--id="menu_eobs_user_management_v2"-->
+                  <!--sequence="7"-->
+                  <!--parent="menu_eobs_category_ward_management"-->
+                  <!--action="nh_clinical.action_nhc_user_allocation"-->
+                  <!--groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>-->
 
         <menuitem name="Open eObs Users"
                   id="menu_eobs_admin_user_management"
