@@ -1,3 +1,6 @@
+"""
+Defines models used for `Open eObs` spellboard UI.
+"""
 from openerp.osv import orm, fields, osv
 from datetime import datetime as dt
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
@@ -7,6 +10,12 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_spellboard(orm.Model):
+    """
+    Extends :class:`spell<spell.nh_clinical_spell>`, joining it with
+    :class:`activity<activity.nh_activity>` to provide additional
+    information related to the spell.
+    """
+
     _name = "nh.clinical.spellboard"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Spell Management View"
@@ -58,6 +67,20 @@ class nh_clinical_spellboard(orm.Model):
         """ % (self._table, self._table))
 
     def create(self, cr, uid, vals, context=None):
+        """
+        Extends :meth:`create()<openerp.models.Model.create>`. Admits
+        :class:`patient<base.nh_clinical_patient>` or raises an
+        exception.
+
+        :param vals: must contain keys ``patient_id``, ``location_id``,
+            ``code``, ``start_date``, ``ref_doctor_ids`` and
+            ``con_doctor_ids``
+        :type vals: dict
+        :raises: :class:`osv.except_osv<openerp.osv.osv.except_orm>`
+        :returns: id of new record
+        :rtype: int
+        """
+
         api = self.pool['nh.eobs.api']
         patient_pool = self.pool['nh.clinical.patient']
         location_pool = self.pool['nh.clinical.location']
@@ -78,6 +101,11 @@ class nh_clinical_spellboard(orm.Model):
         return spell_activity_id
 
     def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read'):
+        """
+        Extends :meth:`read()<openerp.models.Model.read>` to fetch
+        fields ``con_doctor_ids`` and ``ref_doctor_ids``.
+        """
+
         res = super(nh_clinical_spellboard, self).read(cr, uid, ids, fields=fields, context=context, load=load)
         if not fields or 'ref_doctor_ids' in fields or 'con_doctor_ids' in fields:
             activity_pool = self.pool['nh.activity']
@@ -88,6 +116,15 @@ class nh_clinical_spellboard(orm.Model):
         return res
 
     def write(self, cr, uid, ids, vals, context=None):
+        """
+        Extends :meth:`write()<openerp.models.Model.read>` to fetch
+        fields ``con_doctor_ids`` and ``ref_doctor_ids``.
+
+        :raises: :class:`osv.except_osv<openerp.osv.osv.except_orm>`
+        :returns: ``True`` if successful. Otherwise ``False``
+        :rtype: bool
+        """
+
         api = self.pool['nh.eobs.api']
         location_pool = self.pool['nh.clinical.location']
         if vals.get('patient_id'):
@@ -107,6 +144,15 @@ class nh_clinical_spellboard(orm.Model):
         return all([res[r] for r in res.keys()])
 
     def cancel(self, cr, uid, ids, context=None):
+        """
+        Cancels the open admissions of one or more patients.
+
+        :param ids: spell ids
+        :type ids: list
+        :returns: ``True`` if successful. Otherwise ``False``
+        :rtype: bool
+        """
+
         api = self.pool['nh.eobs.api']
         res = {}
         for spell in self.browse(cr, uid, ids, context=context):
@@ -114,6 +160,15 @@ class nh_clinical_spellboard(orm.Model):
         return all([res[r] for r in res.keys()])
 
     def discharge(self, cr, uid, ids, context=None):
+        """
+        Discharges one or more patients.
+
+        :param ids: spell ids
+        :type ids: list
+        :returns: ``True`` if successful. Otherwise ``False``
+        :rtype: bool
+        """
+
         api = self.pool['nh.eobs.api']
         res = {}
         for spell in self.browse(cr, uid, ids, context=context):
@@ -121,6 +176,15 @@ class nh_clinical_spellboard(orm.Model):
         return all([res[r] for r in res.keys()])
 
     def cancel_discharge(self, cr, uid, ids, context=None):
+        """
+        Cancels the discharge of one or more patients.
+
+        :param ids: spell ids
+        :type ids: list
+        :returns: ``True`` if successful. Otherwise ``False``
+        :rtype: bool
+        """
+
         api = self.pool['nh.eobs.api']
         res = {}
         for spell in self.browse(cr, uid, ids, context=context):

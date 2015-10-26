@@ -108,7 +108,7 @@ openerp.nh_eobs = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (['Doctors','Spells','Hospital Wards','Device Categories','Acuity Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
+                if (['Doctors','Spells','Hospital Wards','Device Categories','Acuity Board','Patients by Ward','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
                     options.selectable = false;
                 };
                 if ('Patients' != options.action.name){
@@ -118,7 +118,7 @@ openerp.nh_eobs = function (instance) {
                     clearInterval(timing5);
                 }
                 wardboard_groups_opened = false;
-                if (options.action.name == "Acuity Board"){
+                if (['Acuity Board','Patients by Ward'].indexOf(options.action.name) > -1){
                     if (typeof(timing) != 'undefined'){
                         clearInterval(timing);
                     }
@@ -551,6 +551,7 @@ openerp.nh_eobs = function (instance) {
 
                     var score_graph = new window.NH.NHGraph();
                     score_graph.options.keys = ['score'];
+                    score_graph.options.plot_partial = false;
                     score_graph.style.dimensions.height = 200;
                     score_graph.style.data_style = 'stepped';
                     score_graph.style.padding.bottom = 10;

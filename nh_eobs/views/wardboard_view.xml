@@ -109,7 +109,8 @@
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
                                                                              ('usage','=','bed'),
                                                                              ('is_available','=',True),
-                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"/>
+                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"
+                                required="1"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
@@ -294,7 +295,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
@@ -673,7 +674,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
@@ -791,7 +792,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_patients_by_ward">
-            <field name="name">Acuity Board</field>
+            <field name="name">Patients by Ward</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,kanban</field>

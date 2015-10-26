@@ -19,9 +19,11 @@
     text-align: center;
 }
 
-.nhc_obs_list .oe_list_header_columns .oe_list_header_nhc_datetime > div {
-    text-align: left;
+.nhc_obs_list .oe_list_header_columns .oe_list_header_nhc_datetime > div,
+.nhc_obs_list .oe_list_content > tbody > tr > td.oe_list_field_nhc_datetime {
+    text-align: left !important;
 }
+
 
 .nhc_obs_list .oe-treeview-table td.oe_number{
     text-align: center !important;
