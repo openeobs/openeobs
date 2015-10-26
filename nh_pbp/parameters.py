@@ -27,8 +27,8 @@ class nh_clinical_patient_pbp_monitoring(orm.Model):
 
     def _get_value(self, cr, uid, ids, fn, args, context=None):
         result = dict.fromkeys(ids, False)
-        for r in self.read(cr, uid, ids, ['pbp_monitoring'], context=context):
-            result[r['id']] = 'On' if r['pbp_monitoring'] else 'Off'
+        for r in self.read(cr, uid, ids, ['status'], context=context):
+            result[r['id']] = 'On' if r['status'] else 'Off'
         return result
 
     _columns = {
