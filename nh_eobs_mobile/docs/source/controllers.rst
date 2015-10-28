@@ -6,10 +6,6 @@
 .. automodule:: urls
     :members:
 
-``Main``
---------
-.. autoclass:: main.MobileFrontend
-    :members:
 
 
 
