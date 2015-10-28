@@ -42,8 +42,8 @@ extensions = [
 # Mock Odoo modules
 autodock_mock_imports = [
     'openerp.osv.orm', 'openerp.osv.osv', 'openerp.osv.fields',
-    'openerp.tools', 'openerp.SUPERUSER_ID',
-    'nh_eobs_api.controllers.route_api.route_manager']
+    'openerp.tools', 'openerp.SUPERUSER_ID', 'openerp.osv',
+    'openerp.tools.config']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
