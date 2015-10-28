@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-s
+"""
+Defines helper methods and handlers for eObs Mobile.
+"""
 import openerp
 import re
 import urls
@@ -38,22 +41,42 @@ route_manager.add_route(task_list)
 
 
 def abort_and_redirect(url):
+    """
+    Aborts and redirects to ``url``.
+
+    :param url: URL
+    :type url: str
+    :returns: `302 Found` status code and redirection to ``url``
+    """
+
     r = request.httprequest
     response = utils.redirect(url, 302)
     response = r.app.get_response(r, response, explicit_session=False)
     exceptions.abort(response)
 
+
 def ensure_db(redirect=URLS['login']):
-    # This helper should be used in web client auth="none" routes
-    # if those routes needs a db to work with.
-    # If the heuristics does not find any database, then the users will be
-    # redirected to db selector or any url specified by `redirect` argument.
-    # If the db is taken out of a query parameter, it will be checked against
-    # `http.db_filter()` in order to ensure it's legit and thus avoid db
-    # forgering that could lead to xss attacks.
+    """
+    Used by client when a :meth:`http.route()<openerp.http.route>` has
+    authentication method parameter as "none" (``auth='none'``) and if
+    the route is dependent on a database.
+
+    If no database is found, it will redirect to URL assigned to
+    ``redirect`` parameter.
+
+    If database name is from a query parameter, it will be checked by
+    :meth:`http.db_filter()<openerp.http.db_filter>` thus to avoid
+    database forgery that could lead to xss attacks.
+
+    :param redirect: URL to redirect to
+    :type redirect: str
+    :returns: ``None``
+    :rtype: NoneType
+    """
+
     db = request.params.get('db')
 
-    # Ensure db is legit
+    # Ensure "legitness" of database
     if db and db not in http.db_filter([db]):
         db = None
 
@@ -96,29 +119,69 @@ def ensure_db(redirect=URLS['login']):
 
 
 class MobileFrontend(openerp.addons.web.controllers.main.Home):
+    """
+    Defines handler methods for routes defined in :mod:`urls<urls>`.
+    """
 
     @http.route(URLS['stylesheet'], type='http', auth='none')
     def get_stylesheet(self, *args, **kw):
+        """
+        Returns /static/src/css/nhc.css (custom stylesheet) response
+        object.
+
+        :returns: /static/src/css/nhc.css
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/css/nhc.css', 'r') as stylesheet:
             return request.make_response(stylesheet.read(), headers={'Content-Type': 'text/css; charset=utf-8'})
 
     @http.route(URLS['manifest'], type='http', auth='none')
     def get_manifest(self, *args, **kw):
+        """
+        Returns /static/src/manifest.json response object.
+
+        :returns: /static/src/manifest.json
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/manifest.json', 'r') as manifest:
             return request.make_response(manifest.read(), headers={'Content-Type': 'application/json'})
 
     @http.route(URLS['small_icon'], type='http', auth='none')
     def get_small_icon(self, *args, **kw):
+        """
+        Returns /static/src/icon/hd_small.png response object.
+
+        :returns: /static/src/icon/hd_small.png
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/icon/hd_small.png', 'r') as icon:
             return request.make_response(icon.read(), headers={'Content-Type': 'image/png'})
 
     @http.route(URLS['big_icon'], type='http', auth='none')
     def get_big_icon(self, *args, **kw):
+        """
+        Returns /static/src/icon/hd_hi.png response object.
+
+        :returns: /static/src/icon/hd_hi.png
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/icon/hd_hi.png', 'r') as icon:
             return request.make_response(icon.read(), headers={'Content-Type': 'image/png'})
 
     @http.route('/mobile/src/fonts/<xmlid>', auth='none', type='http')
     def get_font(self, xmlid, *args, **kw):
+        """
+        Returns font-woff response object from fonts contained in
+        /static/srs/font/.
+
+        :returns: a Web Open Font Format (WOFF) font
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         font_file_request = get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid
         # Consider only the file's name (without additional unwanted parts) when checking for file's existence
         font_file_path = get_module_path('nh_eobs_mobile') + '/static/src/fonts/' + xmlid.split('?')[0]
@@ -130,47 +193,110 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['logo'], type='http', auth='none')
     def get_logo(self, *args, **kw):
+        """
+        Returns /static/src/img/open_eobs_logo.png response object.
+
+        :returns: /static/src/img/open_eobs_logo.png
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/img/open_eobs_logo.png', 'r') as logo:
             return request.make_response(logo.read(), headers={'Content-Type': 'image/png'})
 
     @http.route(URLS['bristol_stools_chart'], type='http', auth='none')
     def get_bristol_stools_chart(self, *args, **kw):
+        """
+        Returns /static/src/img/bristol_stools.png response object.
+
+        :returns: /static/src/img/bristol_stools.png
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/img/bristol_stools.png', 'r') as bsc:
             return request.make_response(bsc.read(), headers={'Content-Type': 'image/png'})
 
     @http.route(URLS['jquery'], type='http', auth='none')
     def get_jquery(self, *args, **kw):
+        """
+        Returns /static/src/js/jquery.js response object.
+
+        :returns: /static/src/js/jquery.js
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/js/jquery.js', 'r') as jquery:
             return request.make_response(jquery.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['observation_form_js'], type='http', auth='none')
     def get_observation_js(self, *args, **kw):
+        """
+        Returns /static/src/js/observation.js response object.
+
+        :returns: /static/src/js/observation.js
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/js/observation.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['observation_form_validation'], type='http', auth='none')
     def get_observation_validation(self, *args, **kw):
+        """
+        Returns /static/src/js/validation.js response object.
+
+        :returns: /static/src/js/validation.js
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/js/validation.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
-
     @http.route(URLS['graph_lib'], type='http', auth='none')
     def graph_lib(self, *args, **kw):
+        """
+        Returns /static/src/js/nh_graphlib.js response object.
+
+        :returns: /static/src/js/nh_graphlib.js
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_graphs') + '/static/src/js/nh_graphlib.js', 'r') as pg:
             return request.make_response(pg.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['patient_graph'], type='http', auth='none')
     def patient_graph_js(self, *args, **kw):
+        """
+        Returns /static/src/js/draw_ews_graph.js response object.
+
+        :returns: /static/src/js/draw_ews_graph.js
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_eobs_mobile') + '/static/src/js/draw_ews_graph.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URLS['data_driven_documents'], type='http', auth='none')
     def d_three(self, *args, **kw):
+        """
+        Returns /static/lib/js/d3.js response object.
+
+        :returns: /static/lib/js/d3.js
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         with open(get_module_path('nh_graphs') + '/static/lib/js/d3.js', 'r') as js:
             return request.make_response(js.read(), headers={'Content-Type': 'text/javascript'})
 
     @http.route(URL_PREFIX, type='http', auth='none')
     def index(self, *args, **kw):
+        """
+        Redirects :class:`user<base.res_users>` to task list if logged
+        in. Otherwise the user will be redirect to login.
+
+        :returns: :class:`Response<werkzeug.wrappers.Response>`
+        :rtype: :class:`werkzeug.wrappers.Response` object
+        """
+
         ensure_db()
         if request.session.uid:
             return utils.redirect(URLS['task_list'], 303)
@@ -179,6 +305,15 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['login'], type="http", auth="none")
     def mobile_login(self, *args, **kw):
+        """
+        Logs a :class:`user<base.res_users>` in (HTTP POST), redirecting
+        to the task list. If username or password is invalid, the login
+        page response is returned with a message. For HTTP GET, the
+        the login page response is returned.
+
+        :returns: Either task list or login response objects
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
 
         if not request.uid:
             request.uid = openerp.SUPERUSER_ID
@@ -222,13 +357,30 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['logout'], type='http', auth="user")
     def mobile_logout(self, *args, **kw):
+        """
+        Logs a :class:`user<base.res_users>` out, returning them to the
+        login page.
+
+        :returns: login page response object
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         api = request.registry['nh.eobs.api']
         api.unassign_my_activities(request.cr, request.session.uid)
         request.session.logout(keep_db=True)
         return utils.redirect(URLS['login'], 303)
 
-
     def calculate_ews_class(self, score):
+        """
+        Returns the :class:`EWS<nh_clinical_patient_observation_ews>`
+        class.
+
+        :param score: EWS score
+        :type score: str
+        :returns: EWS class
+        :rtype: str
+        """
+
         if score == 'None':
             return 'level-none'
         elif score == 'Low':
@@ -242,6 +394,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['patient_list'], type='http', auth="user")
     def get_patients(self, *args, **kw):
+        """
+        Returns the patient task list for patients.
+
+        :returns: patient task list response object
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         cr, uid, context = request.cr, request.session.uid, request.context
         patient_api = request.registry['nh.eobs.api']
         patient_api.unassign_my_activities(cr, uid)
@@ -272,6 +431,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['share_patient_list'], type='http', auth='user')
     def get_share_patients(self, *args, **kw):
+        """
+        Renders the shared patient list.
+
+        :returns: shared patient list response object
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         cr, uid, context = request.cr, request.session.uid, request.context
         api = request.registry['nh.eobs.api']
         api.unassign_my_activities(cr, uid)
@@ -305,6 +471,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
+        """
+        Renders the patient task list for tasks.
+
+        :returns: task list response object
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         cr, uid, context = request.cr, request.uid, request.context
         task_api = request.registry['nh.eobs.api']
         task_api.unassign_my_activities(cr, uid)
@@ -324,6 +497,19 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
+        """
+        Returns a
+        :class:`notification<notifications.nh_clinical_notification>`,
+        :class:`observation<observations.nh_clinical_patient_observation>`
+        or :class:`placement<operations.nh_clinical_patient_placement>`
+        task. If the task is neither of these then an error is returned.
+
+        :param task_id: id of task
+        :type task_id: int
+        :returns: task response object
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         cr, uid, context = request.cr, request.uid, request.context
         activity_reg = request.registry['nh.activity']
         api_reg = request.registry['nh.eobs.api']
@@ -468,6 +654,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['single_patient']+'<patient_id>', type='http', auth='user')
     def get_patient(self, patient_id, *args, **kw):
+        """
+        Renders the :class:`patient<base.nh_clinical_patient>` view.
+
+        :returns: patient response object
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
+
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         patient = api_pool.get_patients(cr, uid, [int(patient_id)], context=context)[0]
@@ -492,6 +685,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @http.route(URLS['patient_ob']+'<observation>/<patient_id>', type='http', auth='user')
     def take_patient_observation(self, observation, patient_id, *args, **kw):
+        """
+        Renders the
+        :class:`observation<observations.nh_clinical_patient_observation>`
+        entry view.
+
+        :returns: observations entry response object
+        :rtype: :class:`http.Response<openerp.http.Response>`
+        """
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         follow_activities = api_pool.get_assigned_activities(cr, uid,

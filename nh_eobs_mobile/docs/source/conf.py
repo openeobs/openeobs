@@ -19,8 +19,8 @@ import shlex
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, os.path.abspath('../../controllers/'))
 sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath('../../controllers'))
 
 # -- General configuration ------------------------------------------------
 
@@ -42,7 +42,8 @@ extensions = [
 # Mock Odoo modules
 autodock_mock_imports = [
     'openerp.osv.orm', 'openerp.osv.osv', 'openerp.osv.fields',
-    'openerp.tools', 'openerp.SUPERUSER_ID']
+    'openerp.tools', 'openerp.SUPERUSER_ID',
+    'nh_eobs_api.controllers.route_api.route_manager']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -306,6 +307,7 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/', None),
+    'werkzeug': ('http://werkzeug.pocoo.org/docs/dev/', None),
     'odoo': ('https://odoo.com/documentation/master/', None),
     'activity': ('https://nh-activity.readthedocs.org/en/develop/', None),
     'clinical': ('https://nh-clinical.readthedocs.org/en/develop/', None),

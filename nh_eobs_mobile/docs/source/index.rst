@@ -25,6 +25,7 @@ Contents:
    :maxdepth: 2
 
    nfc_models
+   controllers
 
 Additional Notes
 ----------------
