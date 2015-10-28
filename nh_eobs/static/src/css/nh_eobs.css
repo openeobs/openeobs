@@ -145,3 +145,8 @@
  .openerp .nh_oe_number_fix .oe_list_content td.oe_list_field_cell.oe_number, .openerp .nh_oe_string_fix .oe_list_content td.oe_list_field_cell.oe_list_field_char{
      text-align: left !important;
  }
+
+ .openerp .oe_list_content td.oe_number {
+     text-align: left !important;
+     max-width: 100px;
+ }
