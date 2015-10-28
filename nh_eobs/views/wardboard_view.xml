@@ -39,7 +39,7 @@
                         </ul>
                     </header>
                     <sheet>
-                        <field name="ews_ids"/>
+                        <field name="ews_ids" no_open="1"/>
                     </sheet>
                 </form>
             </field>
