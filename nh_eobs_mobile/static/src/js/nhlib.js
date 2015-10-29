@@ -44,6 +44,28 @@ NHLib = (function() {
     return ("0" + date_element).slice(-2);
   };
 
+  NHLib.prototype.handle_event = function(raw_e, func, pref_dev, raw_args) {
+    var arg, args, i, len;
+    if (!raw_e.handled) {
+      raw_e.src_el = raw_e.srcElement ? raw_e.srcElement : raw_e.target;
+      if (pref_dev) {
+        raw_e.preventDefault();
+      }
+      args = [raw_e];
+      if (typeof raw_args !== 'undefined') {
+        if (!Array.isArray(raw_args)) {
+          raw_args = [raw_args];
+        }
+        for (i = 0, len = raw_args.length; i < len; i++) {
+          arg = raw_args[i];
+          args.push(arg);
+        }
+      }
+      func.apply(func, args);
+      return raw_e.handled = true;
+    }
+  };
+
   return NHLib;
 
 })();
@@ -1998,8 +2020,8 @@ NHModal = (function() {
   NHModal.prototype.close_modal = function(modal_id) {
     var cover, dialog_id;
     dialog_id = document.getElementById(modal_id);
-    if (typeof dialog_id !== 'undefined') {
-      cover = document.getElementById('cover');
+    if (typeof dialog_id !== 'undefined' && dialog_id) {
+      cover = document.querySelectorAll('#cover[data-target="' + modal_id + '"]')[0];
       document.getElementsByTagName('body')[0].removeChild(cover);
       return dialog_id.parentNode.removeChild(dialog_id);
     }

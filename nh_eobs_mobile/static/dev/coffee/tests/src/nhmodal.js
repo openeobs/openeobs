@@ -123,8 +123,8 @@ NHModal = (function() {
   NHModal.prototype.close_modal = function(modal_id) {
     var cover, dialog_id;
     dialog_id = document.getElementById(modal_id);
-    if (typeof dialog_id !== 'undefined') {
-      cover = document.getElementById('cover');
+    if (typeof dialog_id !== 'undefined' && dialog_id) {
+      cover = document.querySelectorAll('#cover[data-target="' + modal_id + '"]')[0];
       document.getElementsByTagName('body')[0].removeChild(cover);
       return dialog_id.parentNode.removeChild(dialog_id);
     }

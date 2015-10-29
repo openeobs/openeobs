@@ -120,8 +120,10 @@ class NHModal
   # Takes the ID of the modal
   close_modal: (modal_id) ->
     dialog_id = document.getElementById(modal_id)
-    if typeof dialog_id isnt 'undefined'
-      cover = document.getElementById('cover')
+    if typeof dialog_id isnt 'undefined' and dialog_id
+#      cover = document.getElementById('cover')
+      cover = document.querySelectorAll('#cover[data-target="'+
+        modal_id+'"]')[0]
       document.getElementsByTagName('body')[0].removeChild(cover)
       dialog_id.parentNode.removeChild(dialog_id)
 
