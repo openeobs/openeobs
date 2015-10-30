@@ -302,6 +302,36 @@ class NHGraph extends NHGraphLib
         ,'class': 'measurement'
       })
 
+    # Check normal range background data validity
+    ((self) ->
+      valid = true
+      # Check if both have been defined
+      if self.options.normal.min? and self.options.normal.max?
+        min = self.options.normal.min
+        max = self.options.normal.max
+
+        # Get axis min / max values
+        yMin = self.axes.y.min
+        yMax = self.axes.y.max
+
+        # Throw error if either value is NaN
+        if isNaN(min) or isNaN(max)
+          valid = false
+
+        # Check values are valid
+        else
+          if min > yMax or min < yMin or min > max then valid = false
+          if max < yMin or max > yMax or max < min then valid = false
+      else
+        valid = false
+
+      if !valid
+        console.log 'Invalid normal range defined'
+
+        self.options.normal.min = 0
+        self.options.normal.max = 0
+    )(@)
+
     window.addEventListener('graph_resize', (event) ->
       self.resize_graph(self, event)
     )

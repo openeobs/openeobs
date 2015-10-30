@@ -930,6 +930,33 @@ NHGraph = (function(superClass) {
         'class': 'measurement'
       });
     }
+    (function(self) {
+      var max, min, valid, yMax, yMin;
+      valid = true;
+      if ((self.options.normal.min != null) && (self.options.normal.max != null)) {
+        min = self.options.normal.min;
+        max = self.options.normal.max;
+        yMin = self.axes.y.min;
+        yMax = self.axes.y.max;
+        if (isNaN(min) || isNaN(max)) {
+          valid = false;
+        } else {
+          if (min > yMax || min < yMin || min > max) {
+            valid = false;
+          }
+          if (max < yMin || max > yMax || max < min) {
+            valid = false;
+          }
+        }
+      } else {
+        valid = false;
+      }
+      if (!valid) {
+        console.log('Invalid normal range defined');
+        self.options.normal.min = 0;
+        return self.options.normal.max = 0;
+      }
+    })(this);
     window.addEventListener('graph_resize', function(event) {
       return self.resize_graph(self, event);
     });
