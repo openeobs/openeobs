@@ -190,13 +190,15 @@ class NHGraphLib
   # 2. Set the attribute for the object
   # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (self, event) ->
-    self.style.dimensions.width = \
-      nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
-      (self.style.margin.left + self.style.margin.right)
-    self.obj?.attr('width', self.style.dimensions.width)
-    context_event = document.createEvent('HTMLEvents')
-    context_event.initEvent('context_resize', true, true)
-    window.dispatchEvent(context_event)
+    if !event.handled
+      self.style.dimensions.width = \
+        nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
+        (self.style.margin.left + self.style.margin.right)
+      self.obj?.attr('width', self.style.dimensions.width)
+      context_event = document.createEvent('HTMLEvents')
+      context_event.initEvent('context_resize', true, true)
+      window.dispatchEvent(context_event)
+      event.handled = true
     return
 
   # Handle the creation of the graph objects and add event listeners

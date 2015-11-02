@@ -53,12 +53,6 @@ gulp.task('pycharm_test_compile', function(){
 	.pipe(coffee({bare: true}))
 	.pipe(gulp.dest('tests/src'));
 
-	// Compile spec coffee
-	gulp.src(['tests/spec/coffee/*.coffee'])
-	.pipe(coffeelint())
-	.pipe(coffeelint.reporter())
-	.pipe(coffee({bare: true}))
-	.pipe(gulp.dest('tests/spec'))
 });
 
 gulp.task('default', ['compile']);

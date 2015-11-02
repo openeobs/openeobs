@@ -7,26 +7,28 @@
  */
 
 describe('Context', function() {
-  var context, focus, graphlib, mousedown, pulse_graph, range, score_graph, test_area, touchstart;
+  var context, focus, graphlib, mousedown, pulse_graph, score_graph, test_area, touchstart;
   graphlib = null;
   pulse_graph = null;
   score_graph = null;
   context = null;
   focus = null;
   test_area = null;
-  range = null;
+
   mousedown = function(el) {
     var ev;
     ev = document.createEvent('MouseEvent');
     ev.initMouseEvent('mousedown', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
     el.dispatchEvent(ev);
   };
+
   touchstart = function(el) {
     var ev;
     ev = document.createEvent('MouseEvent');
     ev.initMouseEvent('touchstart', true, true, window, null, 50, 0, 50, 0, false, false, false, false, 0, null);
     el.dispatchEvent(ev);
   };
+
   beforeEach(function() {
     var body_el;
     body_el = document.getElementsByTagName('body')[0];
@@ -34,6 +36,7 @@ describe('Context', function() {
     test_area.setAttribute('id', 'test_area');
     test_area.style.width = '500px';
     body_el.appendChild(test_area);
+
     if (graphlib === null) {
       graphlib = new NHGraphLib('#test_area');
     }
@@ -49,6 +52,7 @@ describe('Context', function() {
     if (focus === null) {
       focus = new NHFocus();
     }
+
     pulse_graph.options.keys = ['pulse_rate'];
     pulse_graph.options.label = 'HR';
     pulse_graph.options.measurement = '/min';
@@ -60,6 +64,7 @@ describe('Context', function() {
     pulse_graph.style.axis.x.hide = true;
     pulse_graph.style.data_style = 'linear';
     pulse_graph.style.label_width = 60;
+
     score_graph.options.keys = ['score'];
     score_graph.style.dimensions.height = 132.5;
     score_graph.style.data_style = 'stepped';
@@ -81,54 +86,59 @@ describe('Context', function() {
       }
     ];
     score_graph.style.label_width = 60;
+
     focus.graphs.push(pulse_graph);
     focus.title = 'Individual values';
     focus.style.padding.right = 0;
     focus.style.margin.top = 0;
     focus.style.padding.top = 0;
+
     context.graph = score_graph;
     context.title = 'NEWS Score';
+
     graphlib.focus = focus;
     graphlib.context = context;
     graphlib.data.raw = ews_data.multi_partial;
   });
 
-  afterEach(function() {
-    var i, j, len, len1, pop, pops, test, tests;
-    if (graphlib !== null) {
-      graphlib = null;
-    }
-    if (pulse_graph !== null) {
-      pulse_graph = null;
-    }
-    if (score_graph !== null) {
-      score_graph = null;
-    }
-    if (context !== null) {
-      context = null;
-    }
-    if (focus !== null) {
-      focus = null;
-    }
-    if (test_area !== null) {
-      test_area.parentNode.removeChild(test_area);
-      test_area = null;
-    }
-    pops = document.querySelectorAll('#chart_popup');
-    if (pops.length > 0) {
-      for (i = 0, len = pops.length; i < len; i++) {
-        pop = pops[i];
-        pop.parentNode.removeChild(pop);
-      }
-    }
-    tests = document.querySelectorAll('#test_area');
-    if (tests.length > 0) {
-      for (j = 0, len1 = tests.length; j < len1; j++) {
-        test = tests[j];
-        test.parentNode.removeChild(test);
-      }
-    }
-  });
+    afterEach(function () {
+
+        if (graphlib !== null) {
+            graphlib = null;
+        }
+        if (pulse_graph !== null) {
+            pulse_graph = null;
+        }
+        if (score_graph !== null) {
+            score_graph = null;
+        }
+        if (context !== null) {
+            context = null;
+        }
+        if (focus !== null) {
+            focus = null;
+        }
+        if (test_area !== null) {
+            test_area.parentNode.removeChild(test_area);
+            test_area = null;
+        }
+        var pops = document.querySelectorAll('#chart_popup');
+        if (pops.length > 0) {
+            for (var i = 0, len = pops.length; i < len; i++) {
+                pop = pops[i];
+                pop.parentNode.removeChild(pop);
+            }
+        }
+
+        var tests = document.querySelectorAll('#test_area');
+        if (tests.length > 0) {
+            for (var j = 0, len1 = tests.length; j < len1; j++) {
+                test = tests[j];
+                test.parentNode.removeChild(test);
+            }
+        }
+    });
+
   describe("Properties", function() {
     it("nhgraphlib has properties for data range covered", function() {
       expect(graphlib.data.extent.start).toBeDefined();

@@ -3,10 +3,10 @@
   Created by Jon Wyatt on 18/10/15
   Stripped down set-up and tear down from resize and context suites
   that causes karma to hang and crash when running in phantomJS
-
+  but not in Chrome
  */
 
-describe('Bugger', function() {
+xdescribe('Bugger', function() {
   var
   graphlib = null,
   pulse_graph = null,
@@ -139,6 +139,8 @@ describe('Bugger', function() {
         pop.parentNode.removeChild(pop);
       }
     }
+
+    // In case multiple test areas exist
     var tests = document.querySelectorAll('#test_area');
     if (tests.length > 0) {
       for (var i = 0; i < tests.length; i++) {
@@ -251,7 +253,7 @@ describe('Bugger', function() {
 
     beforeEach(function() {
       graphlib.init();
-      //graphlib.draw();
+      graphlib.draw();
     });
 
     it("has right number of test elements post-init", function() {

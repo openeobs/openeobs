@@ -180,13 +180,16 @@ class NHGraph extends NHGraphLib
 
   # Handle window resize event
   resize_graph: (self, event) ->
-    self.style.dimensions.width = self.parent_obj.style.dimensions.width -
-      ((self.parent_obj.style.padding.left +
-      self.parent_obj.style.padding.right) + (self.style.margin.left +
-      self.style.margin.right)) - @.style.label_width
-    self.obj.attr('width', self.style.dimensions.width)
-    self.axes.x.scale?.range()[1] = self.style.dimensions.width
-    self.redraw(self.parent_obj)
+    if !event.handled
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+        ((self.parent_obj.style.padding.left +
+        self.parent_obj.style.padding.right) + (self.style.margin.left +
+        self.style.margin.right)) - @.style.label_width
+      self.obj.attr('width', self.style.dimensions.width)
+      self.axes.x.scale?.range()[1] = self.style.dimensions.width
+      self.redraw(self.parent_obj)
+      event.handled = true
+    return
 
   # Setup graph which involves:
   # 1. Append a new group to the parent NHFocus or NHContext

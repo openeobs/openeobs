@@ -64,47 +64,50 @@ class NHContext extends NHGraphLib
   # 5. Update the range and ticks for the X axis
   # 6. Redraw the graph
   handle_resize: (self, parent_svg, event) =>
-    self.style.dimensions.width = self.parent_obj.style.dimensions.width -
-          ((self.parent_obj.style.padding.left +
-          self.parent_obj.style.padding.right) +
-          (self.style.margin.left + self.style.margin.right))
-    self.obj.attr('width', self.style.dimensions.width)
-    self.axes.x.scale?.range()[1] = self.style.dimensions.width
-    graph_event = document.createEvent('HTMLEvents')
-    graph_event.initEvent('focus_resize', true, true)
-    window.dispatchEvent(graph_event)
-    if self.parent_obj.options.mobile.is_mob
-      new_date = new Date(self.axes.x.max)
-      if window.innerWidth > window.innerHeight
-        d = new_date.getDate()-
-          self.parent_obj.options.mobile.date_range.landscape
-        new_date.setDate(d)
-        self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
-      else
-        d = new_date.getDate()-
-          self.parent_obj.options.mobile.date_range.portrait
-        new_date.setDate(d)
-        self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
+    if !event.handled
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+            ((self.parent_obj.style.padding.left +
+            self.parent_obj.style.padding.right) +
+            (self.style.margin.left + self.style.margin.right))
+      self.obj.attr('width', self.style.dimensions.width)
+      self.axes.x.scale?.range()[1] = self.style.dimensions.width
+      graph_event = document.createEvent('HTMLEvents')
+      graph_event.initEvent('focus_resize', true, true)
+      window.dispatchEvent(graph_event)
+      if self.parent_obj.options.mobile.is_mob
+        new_date = new Date(self.axes.x.max)
+        if window.innerWidth > window.innerHeight
+          d = new_date.getDate()-
+            self.parent_obj.options.mobile.date_range.landscape
+          new_date.setDate(d)
+          self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
+        else
+          d = new_date.getDate()-
+            self.parent_obj.options.mobile.date_range.portrait
+          new_date.setDate(d)
+          self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
 
-      self.parent_obj.options.controls.date.start?.value = \
-        new_date.getFullYear() + '-' +
-        self.leading_zero(new_date.getMonth()+1) + '-' +
-        self.leading_zero(new_date.getDate())
-      self.parent_obj.options.controls.date.end?.value = \
-        self.axes.x.max.getFullYear() + '-' +
-        self.leading_zero(self.axes.x.max.getMonth()+1) + '-' +
-        self.leading_zero(self.axes.x.max.getDate())
-      self.parent_obj.options.controls.time.start?.value = \
-        self.leading_zero(new_date.getHours()) + ':' +
-        self.leading_zero(new_date.getMinutes())
-      self.parent_obj.options.controls.time.end?.value = \
-        self.leading_zero(self.axes.x.max.getHours()) + ':' +
-        self.leading_zero(self.axes.x.max.getMinutes())
+        self.parent_obj.options.controls.date.start?.value = \
+          new_date.getFullYear() + '-' +
+          self.leading_zero(new_date.getMonth()+1) + '-' +
+          self.leading_zero(new_date.getDate())
+        self.parent_obj.options.controls.date.end?.value = \
+          self.axes.x.max.getFullYear() + '-' +
+          self.leading_zero(self.axes.x.max.getMonth()+1) + '-' +
+          self.leading_zero(self.axes.x.max.getDate())
+        self.parent_obj.options.controls.time.start?.value = \
+          self.leading_zero(new_date.getHours()) + ':' +
+          self.leading_zero(new_date.getMinutes())
+        self.parent_obj.options.controls.time.end?.value = \
+          self.leading_zero(self.axes.x.max.getHours()) + ':' +
+          self.leading_zero(self.axes.x.max.getMinutes())
 
-    self.graph.axes.x.scale.range([0, self.style.dimensions.width -
-      self.graph.style.label_width])
-    self.graph.axes.x.axis.ticks((self.style.dimensions.width/100))
-    self.graph.redraw(@)
+      self.graph.axes.x.scale.range([0, self.style.dimensions.width -
+        self.graph.style.label_width])
+      self.graph.axes.x.axis.ticks((self.style.dimensions.width/100))
+      self.graph.redraw(@)
+
+      event.handled = true
     return
 
   # Handle brush events and update focus and controls

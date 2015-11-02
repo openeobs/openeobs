@@ -112,11 +112,13 @@ describe('Pop-Ups', function() {
       }
     }
   });
+
   describe("Methods", function() {
     beforeEach(function() {
       graphlib.init();
       graphlib.draw();
     });
+
     it("nh-graphlib_graph has pop-up methods", function() {
       expect(typeof bp_graph.show_popup).toBe('function');
       expect(typeof bp_graph.hide_popup).toBe('function');
@@ -140,20 +142,25 @@ describe('Pop-Ups', function() {
       expect(popClass[0]).toBe('hidden');
     });
   });
+
   describe("Event listeners", function() {
     var points, ranges;
     points = null;
     ranges = null;
+
     beforeEach(function() {
       spyOn(NHGraph.prototype, 'show_popup').and.callThrough();
       spyOn(NHGraph.prototype, 'hide_popup').and.callThrough();
+
       graphlib.init();
       graphlib.draw();
     });
+
     describe("Linear / Stepped Points", function() {
       beforeEach(function() {
         points = document.querySelectorAll('.point');
       });
+
       it("mouse over event calls show_popup method on all points", function() {
         var c, i, len, point;
         expect(points.length).toBeGreaterThan(0);

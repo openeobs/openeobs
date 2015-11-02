@@ -1,7 +1,8 @@
 
 /*
   Created by Jon Wyatt on 14/10/15
- */
+*/
+
 describe('Background', function() {
 
   var context, focus, graph, graphlib, test_area;
@@ -79,6 +80,7 @@ describe('Background', function() {
       }
     }
   });
+
   describe("Structure", function() {
     var countClass, validAbnormal;
     validAbnormal = null;
