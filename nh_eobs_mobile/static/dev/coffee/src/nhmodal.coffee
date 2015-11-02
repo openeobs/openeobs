@@ -19,7 +19,7 @@ class NHModal
     cover.setAttribute('class', 'cover')
     cover.setAttribute('id', 'cover')
     cover.setAttribute('data-action', 'close')
-    if @id is 'submit_observation'
+    if @id is 'submit_observation' or @id is 'partial_reasons'
       cover.setAttribute('data-action', 'renable')
     cover.setAttribute('data-target', @id)
     cover.style.height = (body.clientHeight)+'px'
