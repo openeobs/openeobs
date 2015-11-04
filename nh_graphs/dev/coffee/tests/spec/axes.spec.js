@@ -371,6 +371,7 @@ describe('Axes', function() {
     });
   });
   describe('Y-Axis', function() {
+
     describe("Visibility", function() {
       it("is visible by default", function() {
         graphlib.init();

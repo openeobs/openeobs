@@ -14,7 +14,7 @@ module.exports = function(config) {
         hostname: 'localhost',
         port: 9876,
 
-        reporters: ['progress', 'coverage'],
+        reporters: ['nyan', 'coverage'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
@@ -25,7 +25,7 @@ module.exports = function(config) {
 
         frameworks: ['jasmine'],
 
-        browsers: ['Chrome'],
+        browsers: ['Chrome','PhantomJS'],
 
         plugins: [
             'karma-jasmine',

@@ -376,6 +376,7 @@ describe('Context', function() {
       spyOn(graphlib, 'mobile_date_end_change').and.callThrough();
       spyOn(graphlib, 'mobile_time_start_change').and.callThrough();
       spyOn(graphlib, 'mobile_time_end_change').and.callThrough();
+
       inp = document.createElement('input');
       inp.setAttribute('type', 'date');
       test_area.appendChild(inp);
@@ -392,6 +393,7 @@ describe('Context', function() {
       inp.setAttribute('type', 'time');
       test_area.appendChild(inp);
       graphlib.options.controls.time.end = inp;
+
       graphlib.init();
       graphlib.draw();
       graphlib.options.mobile.is_mob = true;

@@ -54,6 +54,7 @@ describe('Pop-Ups', function() {
     pulse_graph.style.axis.x.hide = true;
     pulse_graph.style.data_style = 'linear';
     pulse_graph.style.label_width = 60;
+
     keys = ['blood_pressure_systolic', 'blood_pressure_diastolic'];
     bp_graph.options.keys = keys;
     bp_graph.options.label = 'BP';

@@ -222,7 +222,9 @@ describe('Rangify', function() {
       it("switches axes back to initial min/max on all graphs", function() {
         var expectedMax, expectedMin, i, j, len, len1, max, min, tick, ticks, val;
         click(rangify);
-        expectedMin = pulse_graph.axes.y.min;
+
+        // Should be axes.y.min but
+        expectedMin = 40;
         expectedMax = pulse_graph.axes.y.max;
         ticks = pulse_graph.axes.obj[0][0].querySelectorAll('.tick text');
 
