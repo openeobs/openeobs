@@ -77,7 +77,7 @@ Params:</p>
     cover.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'close'</span>)
-    <span class="hljs-keyword">if</span> <span class="hljs-property">@id</span> <span class="hljs-keyword">is</span> <span class="hljs-string">'submit_observation'</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@id</span> <span class="hljs-keyword">is</span> <span class="hljs-string">'submit_observation'</span> <span class="hljs-keyword">or</span> <span class="hljs-property">@id</span> <span class="hljs-keyword">is</span> <span class="hljs-string">'partial_reasons'</span>
       cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'renable'</span>)
     cover.setAttribute(<span class="hljs-string">'data-target'</span>, <span class="hljs-property">@id</span>)
     cover.style.height = (body.clientHeight)+<span class="hljs-string">'px'</span>
@@ -336,10 +336,7 @@ Takes the ID of the modal</p>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_modal</span>: <span class="hljs-function"><span class="hljs-params">(modal_id)</span> -&gt;</span>
     dialog_id = <span class="hljs-built_in">document</span>.getElementById(modal_id)
-    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> dialog_id <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span>
-      cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
-      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
-      dialog_id.parentNode.removeChild(dialog_id)</pre></div></div>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> dialog_id <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span> dialog_id</pre></div></div>
             
         </li>
         
@@ -349,6 +346,24 @@ Takes the ID of the modal</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <pre><code> cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      cover = <span class="hljs-built_in">document</span>.querySelectorAll(<span class="hljs-string">'#cover[data-target="'</span>+
+        modal_id+<span class="hljs-string">'"]'</span>)[<span class="hljs-number">0</span>]
+      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Handle events from buttons created in options array
 Currently offers</p>

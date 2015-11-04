@@ -20,7 +20,7 @@ NHModal = (function() {
     cover.setAttribute('class', 'cover');
     cover.setAttribute('id', 'cover');
     cover.setAttribute('data-action', 'close');
-    if (this.id === 'submit_observation') {
+    if (this.id === 'submit_observation' || this.id === 'partial_reasons') {
       cover.setAttribute('data-action', 'renable');
     }
     cover.setAttribute('data-target', this.id);
