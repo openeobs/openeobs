@@ -243,7 +243,7 @@ class wardboard_device_session_complete(orm.TransientModel):
             'res_id': wardboard_id,
             'view_mode': 'form',
             'view_type': 'form',
-            'target': 'inline',
+            'target': 'current',
             'context': context,
             'view_id': view_id
         }
