@@ -1,7 +1,6 @@
 
 /*
   Created by Jon Wyatt on 13/10/15 (copied from Colin Wren 29/06/15).
-
  */
 
 describe('Axes', function() {

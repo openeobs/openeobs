@@ -163,6 +163,7 @@ describe('Background', function() {
       });
     });
     describe("Data", function() {
+
       describe("Normal range", function() {
         it("draws range height 0 if data out of expected range", function() {
           var normals;
@@ -173,10 +174,11 @@ describe('Background', function() {
           normals = document.querySelectorAll('.normal');
           expect(normals[0].getAttribute('height')).toBe('0');
         });
+
         it("draw range height 0 if data invalid", function() {
           var normals;
           graph.options.normal.min = 1;
-          graph.options.normal.max = null;
+          graph.options.normal.max = 'hello';
           graphlib.init();
           graphlib.draw();
           normals = document.querySelectorAll('.normal');
@@ -208,6 +210,7 @@ describe('Background', function() {
           ranges = document.querySelectorAll('.range');
           expect(ranges.length).toBe(0);
         });
+
         /*
         it("throws error if array not in expected format", function() {
           var ranges;
@@ -410,9 +413,53 @@ describe('Background', function() {
             expect(+rectY).toBeCloseTo(expected - 1, 1);
           }
         });
+
+        describe("Redraw", function() {
+
+          beforeEach(function() {
+            graph.redraw();
+            greenRects = document.querySelectorAll('.green');
+            amberRects = document.querySelectorAll('.amber');
+            graphs = document.querySelectorAll('.nhgraph');
+            graphWidth = graphs[0].getAttribute('width');
+            graphHeight = graphs[0].getAttribute('height');
+            rects = [greenRects[0], amberRects[0], redRects[0]];
+          });
+
+          it("creates the right number of rects", function() {
+          expect(greenRects.length).toBe(1);
+          expect(amberRects.length).toBe(1);
+          expect(redRects.length).toBe(1);
+          expect(rects.length).toBe(3);
+          });
+
+          it("creates the right size rects", function() {
+            var dif, expected, i, j, rectHeight, rectWidth, ref;
+            for (var i = 0; i < rects.length; i++) {
+              rectHeight = rects[i].getAttribute('height');
+              rectWidth = rects[i].getAttribute('width');
+              expect(+rectWidth).toBe(+graphWidth);
+              dif = validAbnormal[i].e - validAbnormal[i].s;
+              expected = (dif / 60) * graphHeight;
+              expect(+rectHeight).toBeCloseTo(expected + 1, 1);
+            }
+          });
+
+          it("positions each rect correctly", function() {
+            var expected, i, j, rectX, rectY, ref;
+            for (var i = 0; i < rects.length; i++) {
+              rectX = rects[i].getAttribute('x');
+              rectY = rects[i].getAttribute('y');
+              expected = graphHeight - ((validAbnormal[i].e / 60) * graphHeight);
+              expect(rectX).toBe('0');
+              expect(+rectY).toBeCloseTo(expected - 1, 1);
+            }
+          });
+        })
       });
     });
   });
+
   describe("Labels", function() {
     it("displays the correct label when provided", function() {
       var label;
@@ -422,6 +469,7 @@ describe('Background', function() {
       expect(label.length).toBe(1);
       expect(label[0].textContent).toBe('RR');
     });
+
     it("displays the correct units when provided", function() {
       var measure;
       graph.options.keys = ['respiration_rate'];
@@ -432,11 +480,13 @@ describe('Background', function() {
       measure = document.querySelectorAll('.background .measurement');
       expect(measure[0].textContent).toBe('18/min');
     });
+
     it("displays nothing when no label specified", function() {
       graph.options.label = null;
       graphlib.init();
       expect(document.querySelectorAll('.label').length).toBe(0);
     });
+
     it("displays multiple measurements when more than one key specified", function() {
       graph.options.keys = ['respiration_rate', 'pulse_rate'];
       graph.options.label = 'RR/HR';
@@ -446,26 +496,32 @@ describe('Background', function() {
       expect(document.querySelectorAll('.measurement').length).toBe(2);
     });
   });
+
   describe("Gridlines", function() {
+
     var horis, vertis;
     horis = null;
     vertis = null;
+
     beforeEach(function() {
       graphlib.init();
       graphlib.draw();
       vertis = document.querySelectorAll('.background .vertical');
       horis = document.querySelectorAll('.background .horizontal');
     });
+
     it("has at least one vertical grid line per tick", function() {
       var xTicks;
       xTicks = document.querySelectorAll('.x .tick');
       expect(horis.length).toBeGreaterThan(xTicks.length - 1);
     });
+
     it("has at least one horizontal grid line per tick", function() {
       var yTicks;
       yTicks = document.querySelectorAll('.y .tick');
       expect(vertis.length).toBeGreaterThan(yTicks.length - 1);
     });
+
     it("has evenly spaced horizontal grid lines", function() {
       var lastGap, yPos;
       yPos = [];
@@ -481,6 +537,7 @@ describe('Background', function() {
         lastGap = yPos[i] - yPos[i - 1];
       }
     });
+
     it("has evenly spaced vertical grid lines", function() {
       var lastGap, xPos;
       xPos = [];

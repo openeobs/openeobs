@@ -367,9 +367,10 @@ describe('Context', function() {
       });
     });
   });
-  return describe("Mobile Inputs", function() {
+  describe("Mobile Inputs", function() {
     var changeEvent;
     changeEvent = null;
+
     beforeEach(function() {
       var inp;
       spyOn(graphlib, 'mobile_date_start_change').and.callThrough();
@@ -400,6 +401,7 @@ describe('Context', function() {
       changeEvent = document.createEvent('Event');
       changeEvent.initEvent('change', true, true);
     });
+
     it("nhgraphlib.init() adds event listeners to inputs if present", function() {
       graphlib.options.controls.date.start.dispatchEvent(changeEvent);
       graphlib.options.controls.date.end.dispatchEvent(changeEvent);

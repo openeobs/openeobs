@@ -1,6 +1,6 @@
 
 /*
-  Created by Jon Wyatt on 30/10/15
+  Created by Jon Wyatt on 2/11/15
  */
 
 describe('Resize', function() {
@@ -181,12 +181,11 @@ describe('Resize', function() {
             var resize_event = document.createEvent('HTMLEvents');
             resize_event.initEvent('resize', true, true);
             window.dispatchEvent(resize_event);
-
-            console.log('GraphLib width: ' + graphlib.style.dimensions.width)
         });
 
         it("sets style.dimensions.width to element width - margins", function () {
             //var expected = 800 - graphlib.style.margin.left - graphlib.style.margin.right
+            // Only works if first in list ?why
             expect(graphlib.style.dimensions.width).toBe(800)
         });
 
@@ -256,76 +255,68 @@ describe('Resize', function() {
             // Works in chrome console but not here, tried all spy options
             expect(context.graph.redraw).toHaveBeenCalled()
         });
+    });
 
-        describe("Mobile (is_mob = true)", function() {
+    describe("Portrait",function() {
 
-            beforeEach(function() {
-                context.parent_obj.options.mobile.is_mob = true;
-            });
+        beforeEach(function() {
+            graphlib.options.mobile.is_mob = true;
 
-            describe("Landscape",function() {
+            window.innerHeight = 800;
+            window.innerWidth = 600;
 
-                beforeEach(function() {
-                    window.innerHeight = 600;
-                    window.innerWidth = 800;
+            graphlib.init();
+            graphlib.draw();
 
-                    test_area.style.width = '700px';
+            var resize_event = document.createEvent('HTMLEvents');
+            resize_event.initEvent('context_resize', true, true);
+            window.dispatchEvent(resize_event);
+        });
 
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('context_resize', true, true);
-                    window.dispatchEvent(resize_event);
+        it("adjusts x-axis min to max minus 1 day", function() {
+            /*
+                As above - works in isolation (fit) but not with landscape
+                both work in chrome console, ?set-up/tear-down pollution
+             */
 
-                    console.log('height: ' + window.innerHeight);
-                    console.log('width: ' + window.innerWidth);
-                    console.log('max: ' + context.axes.x.max);
-                });
+            var min = context.graph.axes.x.scale.domain()[0];
 
-                it("adjusts x-axis min to max minus 5 days", function() {
-                    /*
-                        Works in isolation (fit) but not with portrait test
-                        both work in chrome console
-                     */
-
-                    var min = context.graph.axes.x.scale.domain()[0];
-
-                    var expected = new Date(focus.axes.x.max);
-                    expected.setDate(expected.getDate() - 5);
-                    expect(min.toString()).toBe(expected.toString());
-                });
-            });
-
-            describe("Portrait",function() {
-
-                beforeEach(function() {
-                    window.innerHeight = 800;
-                    window.innerWidth = 600;
-
-                    test_area.style.width = '500px';
-
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('context_resize', true, true);
-                    window.dispatchEvent(resize_event);
-
-                    console.log('height: ' + window.innerHeight);
-                    console.log('width: ' + window.innerWidth);
-                    console.log('max: ' + context.axes.x.max);
-                });
-
-                it("adjusts x-axis min to max minus 1 day", function() {
-                    /*
-                        As above - works in isolation (fit) but not with landscape
-                        both work in chrome console, ?set-up/tear-down pollution
-                     */
-
-                    var min = context.graph.axes.x.scale.domain()[0];
-
-                    var expected = new Date(focus.axes.x.max);
-                    expected.setDate(expected.getDate() - 1);
-                    expect(min.toString()).toBe(expected.toString());
-                });
-            });
+            var expected = new Date(focus.axes.x.max);
+            expected.setDate(expected.getDate() - 1);
+            expect(min.toString()).toBe(expected.toString());
         });
     });
+
+    describe("Landscape",function() {
+
+        beforeEach(function() {
+            graphlib.options.mobile.is_mob = true;
+
+            window.innerHeight = 600;
+            window.innerWidth = 800;
+
+            graphlib.init();
+            graphlib.draw();
+
+            var resize_event = document.createEvent('HTMLEvents');
+            resize_event.initEvent('context_resize', true, true);
+            window.dispatchEvent(resize_event);
+        });
+
+        it("adjusts x-axis min to max minus 5 days", function() {
+            /*
+                Works in isolation (fit) but not with portrait test
+                both work in chrome console
+            */
+
+            var min = context.graph.axes.x.scale.domain()[0];
+
+            var expected = new Date(focus.axes.x.max);
+            expected.setDate(expected.getDate() - 5);
+            expect(min.toString()).toBe(expected.toString());
+        });
+    });
+
 
     describe("NHFocus.handle_resize()", function() {
 
@@ -376,7 +367,7 @@ describe('Resize', function() {
         describe("Mobile (is_mob = true)", function() {
 
             beforeEach(function() {
-                focus.parent_obj.options.mobile.is_mob = true;
+                graphlib.options.mobile.is_mob = true;
             });
 
             describe("Portrait",function() {
@@ -486,11 +477,50 @@ describe('Resize', function() {
 
         beforeEach(function() {
 
+            spyOn(pulse_graph, 'redraw').and.callThrough();
+            spyOn(NHGraph.prototype, 'resize_graph').and.callThrough();
 
+            graphlib.init();
+            graphlib.draw();
+
+            focus.style.dimensions.width = 500;
+
+            var resize_event = document.createEvent('HTMLEvents');
+            resize_event.initEvent('graph_resize', true, true);
+            window.dispatchEvent(resize_event);
         });
 
-    });
+        it("runs when 'resize_graph' event fires",function() {
+            expect(NHGraph.prototype.resize_graph).toHaveBeenCalled()
+        });
 
-})
+        it("sets style.dimensions.width to parent object width - padding / margins",function() {
+            var actual = pulse_graph.style.dimensions.width;
+            var expected = 500
+                            - focus.style.padding.left
+                            - focus.style.padding.right
+                            - pulse_graph.style.margin.left
+                            - pulse_graph.style.margin.right
+                            - pulse_graph.style.label_width;
+
+            expect(actual).toBe(expected)
+        });
+
+        it("sets object width to dimensions.width",function() {
+            expect(+pulse_graph.obj.attr('width')).toBe(pulse_graph.style.dimensions.width)
+        });
+
+        it("sets x-axis scale range if defined",function() {
+            if (pulse_graph.axes.x.scale) {
+                expect(pulse_graph.axes.x.scale.range()[1]).toBe(pulse_graph.style.dimensions.width)
+            }
+            else expect(true).toBe(true)
+        });
+
+        it("calls own redraw method",function() {
+            expect(pulse_graph.redraw).toHaveBeenCalled()
+        });
+    });
+});
 
 
