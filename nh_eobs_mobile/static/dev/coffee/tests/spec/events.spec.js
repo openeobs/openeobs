@@ -618,9 +618,11 @@ describe("Event Handling", function(){
             beforeEach(function(){
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHModal.prototype, 'close_modal').and.callThrough();
+                spyOn(NHModal.prototype, 'unlock_scrolling').and.callThrough();
+                spyOn(NHModal.prototype, 'lock_scrolling').and.callThrough();
                 var body = document.getElementsByTagName('body')[0];
                 new NHModal('test_one', 'Test', '<p>Test</p>', [
-                    '<a data-action="close" id="close">Close</a>'
+                    '<a data-action="close" id="close" data-target="test_one">Close</a>'
                 ], 0, body);
             });
 
@@ -641,6 +643,9 @@ describe("Event Handling", function(){
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
                 expect(NHModal.prototype.close_modal).toHaveBeenCalled();
                 expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(false);
             });
 
             it('Only closes the associated modal and cover when there are two modals present and clicking on first modal cover [BUG 1284]', function(){
@@ -648,6 +653,9 @@ describe("Event Handling", function(){
                 new NHModal('test_two', 'Test Two', '<p>Test Two</p>', [
                     '<a data-action="close" id="close">Close</a>'
                 ], 0, body);
+
+                expect(NHModal.prototype.lock_scrolling).toHaveBeenCalled();
+                expect(body.classList.contains('no-scroll')).toBe(true);
 
                 var covers = document.getElementsByClassName('cover');
                 expect(covers.length).toBe(2);
@@ -659,6 +667,9 @@ describe("Event Handling", function(){
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
                 expect(NHModal.prototype.close_modal).toHaveBeenCalled();
                 expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(true);
 
                 var test_two = document.getElementById('test_two');
                 expect(test_two).not.toBe(null);
@@ -682,6 +693,9 @@ describe("Event Handling", function(){
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
                 expect(NHModal.prototype.close_modal).toHaveBeenCalled();
                 expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(true);
 
                 var test_one = document.getElementById('test_one');
                 expect(test_one).not.toBe(null);
@@ -698,6 +712,9 @@ describe("Event Handling", function(){
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
                 expect(NHModal.prototype.close_modal).toHaveBeenCalled();
                 expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(false);
             });
         });
     });

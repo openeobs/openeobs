@@ -1910,6 +1910,7 @@ NHModal = (function() {
     this.popupTime = popupTime;
     this.el = el1;
     this.handle_button_events = bind(this.handle_button_events, this);
+    this.close_modal = bind(this.close_modal, this);
     self = this;
     dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
     body = document.getElementsByTagName('body')[0];
@@ -1921,8 +1922,8 @@ NHModal = (function() {
       cover.setAttribute('data-action', 'renable');
     }
     cover.setAttribute('data-target', this.id);
-    cover.style.height = body.clientHeight + 'px';
     cover.addEventListener('click', self.handle_button_events);
+    this.lock_scrolling();
     body.appendChild(cover);
     this.el.appendChild(dialog);
     this.calculate_dimensions(dialog, dialog.getElementsByClassName('dialogContent')[0], this.el);
@@ -2018,12 +2019,14 @@ NHModal = (function() {
   };
 
   NHModal.prototype.close_modal = function(modal_id) {
-    var cover, dialog_id;
+    var cover, dialog_id, self;
+    self = this;
     dialog_id = document.getElementById(modal_id);
     if (typeof dialog_id !== 'undefined' && dialog_id) {
       cover = document.querySelectorAll('#cover[data-target="' + modal_id + '"]')[0];
       document.getElementsByTagName('body')[0].removeChild(cover);
-      return dialog_id.parentNode.removeChild(dialog_id);
+      dialog_id.parentNode.removeChild(dialog_id);
+      return self.unlock_scrolling();
     }
   };
 
@@ -2135,6 +2138,21 @@ NHModal = (function() {
           document.dispatchEvent(reject_event);
       }
       event.handled = true;
+    }
+  };
+
+  NHModal.prototype.lock_scrolling = function() {
+    var body;
+    body = document.getElementsByTagName('body')[0];
+    return body.classList.add('no-scroll');
+  };
+
+  NHModal.prototype.unlock_scrolling = function() {
+    var body, dialogs;
+    body = document.getElementsByTagName('body')[0];
+    dialogs = document.getElementsByClassName('dialog');
+    if (dialogs.length < 1) {
+      return body.classList.remove('no-scroll');
     }
   };
 

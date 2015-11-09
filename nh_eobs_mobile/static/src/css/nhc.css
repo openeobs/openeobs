@@ -1622,3 +1622,8 @@ circle.point{
     stroke: black;
     stroke-width: 1px;
 }
+
+body.no-scroll{
+  overflow: hidden;
+  height: 100%;
+}
