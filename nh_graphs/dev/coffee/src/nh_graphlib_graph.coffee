@@ -7,7 +7,7 @@ Array::min=->
 # NHGraph provides a graphic view of data which can be manipulated via a brush
 # or other method that changes the range of the axis
 
-### istanbul ignore next ###
+
 class NHGraph extends NHGraphLib
   constructor: () ->
     # X & Y axis for the graph and the object that holds them

@@ -118,11 +118,18 @@ describe("NHGraphLib",function() {
     });
 
     describe("init()",function() {
-        // Extra little test to plug coverage gap, could add more unit tests later
+        // Extra test to plug coverage gap
         it("throws error if initialised without element to play with",function() {
             graphlib.el = null;
             expect(function() {graphlib.init()}).toThrow(new Error('No element specified'))
-        })
+        });
+
+        it("throws error if initialised with no data provided",function() {
+            // Currently not implemented
+            graphlib.data.raw = [];
+            expect(function() {graphlib.init()}).toThrow(new Error('No observation data provided'))
+        });
+
     });
 
 

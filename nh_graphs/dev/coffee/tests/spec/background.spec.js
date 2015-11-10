@@ -221,6 +221,7 @@ describe('Background', function() {
           ranges = document.querySelectorAll('.range');
           expect(ranges.length).toBe(0);
         });
+
         it("throws error if range larger than axis range", function() {
           var ranges;
           invalidAbnormal = [

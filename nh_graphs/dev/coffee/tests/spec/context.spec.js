@@ -161,6 +161,7 @@ describe('Context', function() {
       expect(context.brush).toBeDefined();
     });
   });
+
   describe("Methods", function() {
     beforeEach(function() {
       spyOn(context, 'init').and.callThrough();
@@ -269,6 +270,16 @@ describe('Context', function() {
         graphlib.init();
         xbrushes = document.querySelectorAll('.nhcontext .x.brush');
         expect(xbrushes.length).toBe(1);
+      });
+    });
+
+    describe("NHFocus.init()",function() {
+      it("errors if called before parent object", function() {
+        var err;
+        err = new Error('Focus init being called before SVG initialised');
+        expect(function() {
+         focus.init();
+        }).toThrow(err);
       });
     });
 
