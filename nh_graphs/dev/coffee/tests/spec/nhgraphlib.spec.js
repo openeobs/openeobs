@@ -191,7 +191,7 @@ describe("NHGraphLib",function() {
 
             // Check each date is earlier than the one before
             for (i = 1; i < ar.length; i++) {
-                expect(ar[i].getTime()).toBeLessThan(ar[i-1].getTime())
+                expect(ar[i].getTime()).toBeGreaterThan(ar[i-1].getTime())
             }
         });
 
