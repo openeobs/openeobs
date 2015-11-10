@@ -32,7 +32,7 @@ class nh_clinical_patient_pbp_monitoring(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('Postural Blood Presssure Monitoring', required=True),
+        'status': fields.boolean('Postural Blood Presssure Monitoring'),
         'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }

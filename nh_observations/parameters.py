@@ -44,7 +44,7 @@ class nh_clinical_patient_mrsa(orm.Model):
     _name = 'nh.clinical.patient.mrsa'
     _inherit = ['nh.activity.data'] 
     _columns = {
-        'status': fields.boolean('MRSA', required=True),
+        'status': fields.boolean('MRSA'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
@@ -63,7 +63,7 @@ class nh_clinical_patient_diabetes(orm.Model):
     _name = 'nh.clinical.patient.diabetes'
     _inherit = ['nh.activity.data'] 
     _columns = {
-        'status': fields.boolean('Diabetes', required=True),
+        'status': fields.boolean('Diabetes'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
@@ -90,7 +90,7 @@ class nh_clinical_patient_palliative_care(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('On Palliative Care?', required=True),
+        'status': fields.boolean('On Palliative Care?'),
         'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
@@ -127,7 +127,7 @@ class nh_clinical_patient_post_surgery(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('On Recovery from Surgery?', required=True),
+        'status': fields.boolean('On Recovery from Surgery?'),
         'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
@@ -185,7 +185,7 @@ class nh_clinical_patient_critical_care(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('On Critical Care?', required=True),
+        'status': fields.boolean('On Critical Care?'),
         'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
@@ -247,7 +247,7 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('Weight Monitoring', required=True),
+        'status': fields.boolean('Weight Monitoring'),
         'value': fields.function(_get_value, type='char', size=3, string='String Value'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
