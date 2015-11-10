@@ -145,6 +145,7 @@ describe('Rangify', function() {
     });
 
     describe("Check", function() {
+
       it("calls rangify method on all graphs when checkbox clicked", function() {
         var count;
         click(rangify);

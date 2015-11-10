@@ -212,6 +212,7 @@ describe('Background', function() {
         });
 
         /*
+
         it("throws error if array not in expected format", function() {
           var ranges;
           graph.drawables.background.data = invalidAbnormal;

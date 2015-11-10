@@ -181,11 +181,13 @@ describe('Resize', function() {
             var resize_event = document.createEvent('HTMLEvents');
             resize_event.initEvent('resize', true, true);
             window.dispatchEvent(resize_event);
+
+            console.log(graphlib.style.dimensions.width)
         });
 
         it("sets style.dimensions.width to element width - margins", function () {
             //var expected = 800 - graphlib.style.margin.left - graphlib.style.margin.right
-            // Only works if first in list ?why
+            // Not working. ?why. Works in chrome console.
             expect(graphlib.style.dimensions.width).toBe(800)
         });
 
@@ -257,65 +259,7 @@ describe('Resize', function() {
         });
     });
 
-    describe("Portrait",function() {
 
-        beforeEach(function() {
-            graphlib.options.mobile.is_mob = true;
-
-            window.innerHeight = 800;
-            window.innerWidth = 600;
-
-            graphlib.init();
-            graphlib.draw();
-
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('context_resize', true, true);
-            window.dispatchEvent(resize_event);
-        });
-
-        it("adjusts x-axis min to max minus 1 day", function() {
-            /*
-                As above - works in isolation (fit) but not with landscape
-                both work in chrome console, ?set-up/tear-down pollution
-             */
-
-            var min = context.graph.axes.x.scale.domain()[0];
-
-            var expected = new Date(focus.axes.x.max);
-            expected.setDate(expected.getDate() - 1);
-            expect(min.toString()).toBe(expected.toString());
-        });
-    });
-
-    describe("Landscape",function() {
-
-        beforeEach(function() {
-            graphlib.options.mobile.is_mob = true;
-
-            window.innerHeight = 600;
-            window.innerWidth = 800;
-
-            graphlib.init();
-            graphlib.draw();
-
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('context_resize', true, true);
-            window.dispatchEvent(resize_event);
-        });
-
-        it("adjusts x-axis min to max minus 5 days", function() {
-            /*
-                Works in isolation (fit) but not with portrait test
-                both work in chrome console
-            */
-
-            var min = context.graph.axes.x.scale.domain()[0];
-
-            var expected = new Date(focus.axes.x.max);
-            expected.setDate(expected.getDate() - 5);
-            expect(min.toString()).toBe(expected.toString());
-        });
-    });
 
 
     describe("NHFocus.handle_resize()", function() {
@@ -359,75 +303,8 @@ describe('Resize', function() {
         });
 
         it("calls redraw with correct extent",function(){
-
             // Not being called. Works in chrome console
             expect(focus.redraw).toHaveBeenCalledWith([focus.axes.x.min,focus.axes.x.max])
-        });
-
-        describe("Mobile (is_mob = true)", function() {
-
-            beforeEach(function() {
-                graphlib.options.mobile.is_mob = true;
-            });
-
-            describe("Portrait",function() {
-
-                beforeEach(function() {
-                    window.innerHeight = 800;
-                    window.innerWidth = 600;
-
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('focus_resize', true, true);
-                    window.dispatchEvent(resize_event);
-                });
-
-                it("calls redraw with x-axis min to max minus 1 day", function() {
-                    /*
-                        Like in NHContext suite, test failed when run after landscape suite
-                        Works individually, when run first and in chrome console.
-                     */
-                    var min = pulse_graph.axes.x.scale.domain()[0];
-                    var expected = new Date(pulse_graph.axes.x.max);
-                    expected.setDate(expected.getDate() - 1);
-
-                    expect(min.toString()).toBe(expected.toString());
-                });
-            });
-
-            describe("Landscape",function() {
-
-                beforeEach(function() {
-                    window.innerHeight = 600;
-                    window.innerWidth = 800;
-
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('focus_resize', true, true);
-                    window.dispatchEvent(resize_event);
-                });
-
-                it("sets focus graphs x-axis min to max minus 5 days", function() {
-                    /*
-                        As above, test fails when combined with portrait
-                        Works individually, when run before portrait and in chrome console.
-                     */
-
-                    var min = pulse_graph.axes.x.scale.domain()[0];
-                    var expected = new Date(pulse_graph.axes.x.max);
-                    expected.setDate(expected.getDate() - 5);
-
-                    expect(min.toString()).toBe(expected.toString());
-                });
-
-                xit("calls redraw with x-axis min to x-axis max minus 5 days", function() {
-                    // Should pass but not being called, works in chrome console
-
-                    var max = new Date(focus.axes.x.max);
-                    var min = new Date(max);
-                    min.setDate(max.getDate() - graphlib.options.mobile.date_range.landscape);
-
-                    expect(focus.redraw).toHaveBeenCalledWith([min,max]);
-                });
-            });
         });
     });
 
@@ -518,8 +395,137 @@ describe('Resize', function() {
         });
 
         it("calls own redraw method",function() {
+            // Not being called, works in chrome console. ?why
             expect(pulse_graph.redraw).toHaveBeenCalled()
         });
+    });
+
+    describe("Mobile (is_mob)",function() {
+
+        beforeEach(function() {
+
+            graphlib.options.mobile.is_mob = true;
+            graphlib.init();
+            graphlib.draw();
+        });
+
+
+        describe("NHContext.handle_resize()",function() {
+
+            describe("Portrait",function() {
+
+                beforeEach(function() {
+
+                    spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(0);
+
+                    var resize_event = document.createEvent('HTMLEvents');
+                    resize_event.initEvent('context_resize', true, true);
+                    window.dispatchEvent(resize_event);
+                });
+
+                it("adjusts x-axis min to max minus 1 day", function() {
+                    /*
+                        As above - works in isolation (fit) but not with landscape
+                        both work in chrome console, ?set-up/tear-down pollution
+                     */
+                    expect(NHGraphLib.prototype.is_landscape).toHaveBeenCalled();
+
+                    var min = context.graph.axes.x.scale.domain()[0];
+
+                    var expected = new Date(focus.axes.x.max);
+                    expected.setDate(expected.getDate() - 1);
+                    expect(min.toString()).toBe(expected.toString())
+                })
+            });
+
+            describe("Landscape",function() {
+
+                beforeEach(function() {
+
+                    spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(1);
+
+                    var resize_event = document.createEvent('HTMLEvents');
+                    resize_event.initEvent('context_resize', true, true);
+                    window.dispatchEvent(resize_event);
+                });
+
+                it("adjusts x-axis min to max minus 5 days", function() {
+                    /*
+                        Works in isolation (fit) but not with portrait test
+                        both work in chrome console
+                    */
+                    expect(NHGraphLib.prototype.is_landscape).toHaveBeenCalled()
+                    var min = context.graph.axes.x.scale.domain()[0];
+
+                    var expected = new Date(focus.axes.x.max);
+                    expected.setDate(expected.getDate() - 5);
+                    expect(min.toString()).toBe(expected.toString())
+                })
+            })
+        });
+
+        describe("NHFocus.handle_resize()", function() {
+
+            describe("Landscape",function() {
+
+                beforeEach(function() {
+                    spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(1);
+                    spyOn(focus, 'redraw').and.callThrough();
+
+                    var resize_event = document.createEvent('HTMLEvents');
+                    resize_event.initEvent('focus_resize', true, true);
+                    window.dispatchEvent(resize_event);
+                });
+
+                it("sets focus graphs x-axis min to max minus 5 days", function() {
+                    /*
+                        As above, test fails when combined with portrait
+                        Works individually, when run before portrait and in chrome console.
+                     */
+
+                    var min = pulse_graph.axes.x.scale.domain()[0];
+                    var expected = new Date(pulse_graph.axes.x.max);
+                    expected.setDate(expected.getDate() - 5);
+
+                    expect(min.toString()).toBe(expected.toString());
+                });
+
+                it("calls redraw with x-axis min to x-axis max minus 5 days", function() {
+                    // As above
+
+                    var max = new Date(focus.axes.x.max);
+                    var min = new Date(max);
+                    min.setDate(max.getDate() - graphlib.options.mobile.date_range.landscape);
+
+                    expect(focus.redraw).toHaveBeenCalledWith([min,max]);
+                });
+            });
+
+            describe("Portrait",function() {
+
+                beforeEach(function() {
+
+                    spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(0);
+
+                    var resize_event = document.createEvent('HTMLEvents');
+                    resize_event.initEvent('focus_resize', true, true);
+                    window.dispatchEvent(resize_event);
+                });
+
+                it("calls redraw with x-axis min to max minus 1 day", function() {
+                    /*
+                        Like in NHContext suite, test failed when run after landscape suite
+                        Works individually, when run first and in chrome console.
+                     */
+                    var min = pulse_graph.axes.x.scale.domain()[0];
+                    var expected = new Date(pulse_graph.axes.x.max);
+                    expected.setDate(expected.getDate() - 1);
+
+                    expect(min.toString()).toBe(expected.toString());
+                });
+            });
+        });
+
     });
 });
 

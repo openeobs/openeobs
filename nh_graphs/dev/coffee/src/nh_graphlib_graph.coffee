@@ -1,9 +1,13 @@
 # Add min ability to Array class to find smallest value in Array
+
+### istanbul ignore next ###
 Array::min=->
   Math.min.apply(null, this)
 
 # NHGraph provides a graphic view of data which can be manipulated via a brush
 # or other method that changes the range of the axis
+
+### istanbul ignore next ###
 class NHGraph extends NHGraphLib
   constructor: () ->
     # X & Y axis for the graph and the object that holds them
@@ -164,21 +168,18 @@ class NHGraph extends NHGraphLib
   # Handles rangify input event which changes the Y Axis to it's ranged scale
   # or to initial scale
   rangify_graph: (self, event) ->
-    ### istanbul ignore else ###
-    if !event.handled
-      if event.srcElement.checked
-        d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
-        d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
-        self.axes.y.scale.domain([(if d0 > 0 then d0 else 0), d1])
-      else
-        self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
-      self.redraw(self.parent_obj)
-      self.axes.y.obj.selectAll('.tick line').filter((d) ->
-        if self.style.axis.step < 1
-          if not (d % 1 is 0)
-            return d
-      ).attr('class', 'y-minor-tick')
-      event.handles = true
+    if event.srcElement.checked
+      d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
+      d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
+      self.axes.y.scale.domain([(if d0 > 0 then d0 else 0), d1])
+    else
+      self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
+    self.redraw(self.parent_obj)
+    self.axes.y.obj.selectAll('.tick line').filter((d) ->
+      if self.style.axis.step < 1
+        if not (d % 1 is 0)
+          return d
+    ).attr('class', 'y-minor-tick')
     return
 
   # Handle window resize event
@@ -841,6 +842,7 @@ class NHGraph extends NHGraphLib
       else throw new Error('no graph style defined')
     return
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
 window.NH.NHGraph = NHGraph

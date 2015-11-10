@@ -1,5 +1,7 @@
 # NHTable provides a table presentation of data which like a graph can be
 # changed via brushing
+
+### istanbul ignore next ###
 class NHTable extends NHGraphLib
 
   # Properties of the table
@@ -136,6 +138,7 @@ class NHTable extends NHGraphLib
       data)
     return
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
 window.NH.NHTable = NHTable

@@ -1,5 +1,7 @@
 # NHFocus provides a grouping of many graphs together so they can all be
 # manipulated at the same time
+
+### istanbul ignore next ###
 class NHFocus
   constructor: () ->
     # Style defines the styling of the main SVG block:
@@ -66,7 +68,7 @@ class NHFocus
       self.obj.attr('width', self.style.dimensions.width)
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
       if self.parent_obj.options.mobile.is_mob
-        if window.innerWidth > window.innerHeight
+        if self.parent_obj.is_landscape()
           new_date = new Date(self.axes.x.max)
           d = new_date.getDate()-
             self.parent_obj.options.mobile.date_range.landscape
@@ -178,6 +180,7 @@ class NHFocus
       table.redraw(@)
     return
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
 window.NH.NHFocus = NHFocus

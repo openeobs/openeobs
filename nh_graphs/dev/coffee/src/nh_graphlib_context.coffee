@@ -1,5 +1,6 @@
 # NHContext provides a context graph for modifying the focus graphs via a brush
 # or input boxes
+### istanbul ignore next ###
 class NHContext extends NHGraphLib
   constructor: () ->
     # Style defines the styling of the main SVG block:
@@ -76,7 +77,7 @@ class NHContext extends NHGraphLib
       window.dispatchEvent(graph_event)
       if self.parent_obj.options.mobile.is_mob
         new_date = new Date(self.axes.x.max)
-        if window.innerWidth > window.innerHeight
+        if self.parent_obj.is_landscape()
           d = new_date.getDate()-
             self.parent_obj.options.mobile.date_range.landscape
           new_date.setDate(d)
@@ -216,6 +217,7 @@ class NHContext extends NHGraphLib
     @.graph.draw(@)
     return
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
 window.NH.NHContext = NHContext

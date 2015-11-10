@@ -155,6 +155,14 @@ class NHGraphLib
       self.focus.redraw([self.focus.axes.x.min, new_date])
     return
 
+  # Method to determine device orientation, used by NHContext and NHFocus
+  # on resize event when is_mob = true
+  is_landscape: () ->
+    if window.innerWidth > window.innerHeight
+      return 1
+    else
+      return 0
+
   # Handle events when input defined in options.controls.time.start changed
   # 1. Gets the current date (which is graph's X axis start)
   # 2. Get the value from input
@@ -340,8 +348,10 @@ class NHGraphLib
         return d.value
      )
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+### istanbul ignore else ###
 window.NH.NHGraphLib = NHGraphLib
 
 

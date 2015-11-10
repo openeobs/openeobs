@@ -102,6 +102,23 @@ describe('Table', function() {
         }
     });
 
+    describe("Title",function(){
+
+        it("doesn't add title if not defined",function(){
+            table.title = null;
+            graphlib.init();
+            var h3s = document.querySelectorAll('h3');
+            expect(h3s.length).toBe(0)
+        });
+
+        it("adds title if defined",function() {
+            graphlib.init();
+            var h3s = document.querySelectorAll('h3');
+            expect(h3s.length).toBe(1);
+            expect(h3s[0].textContent).toBe(table.title)
+        });
+    });
+
     describe("NHTable Methods", function () {
 
         describe("init()", function () {
@@ -119,10 +136,7 @@ describe('Table', function() {
                 expect(table.parent_obj).toBe(focus)
             });
 
-            it("adds title if defined",function() {
-                var h3s = document.querySelectorAll('h3');
-                expect(h3s[0].textContent).toBe(table.title)
-            });
+
 
             xit("doesn't add title if not defined",function() {
                 expect(false).toBe(true)
@@ -265,5 +279,6 @@ describe('Table', function() {
                 expect(false).toBe(true)
             });
         });
-    })
+    });
+
 });

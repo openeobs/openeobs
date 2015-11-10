@@ -7,6 +7,7 @@
  */
 
 describe('Context', function() {
+
   var context, focus, graphlib, mousedown, pulse_graph, score_graph, test_area, touchstart;
   graphlib = null;
   pulse_graph = null;
@@ -168,6 +169,7 @@ describe('Context', function() {
     });
 
     describe("nhcontext.init()", function() {
+
       it("errors if called before parent object", function() {
         var err;
         err = new Error('Context init being called before SVG initialised');
@@ -175,13 +177,16 @@ describe('Context', function() {
           context.init();
         }).toThrow(err);
       });
+
       it("is defined", function() {
         expect(context.init).toBeDefined();
       });
+
       it("is called when parent object init() is called", function() {
         graphlib.init();
         expect(context.init).toHaveBeenCalled();
       });
+
       it("adds title if defined", function() {
         var titles;
         context.title = "Hello";
@@ -190,6 +195,7 @@ describe('Context', function() {
         expect(titles.length).toBe(2);
         expect(titles[0].textContent).toBe('Hello');
       });
+
       it("doesn't add title if not defined", function() {
         var titles;
         context.title = null;
@@ -197,12 +203,14 @@ describe('Context', function() {
         titles = document.querySelectorAll('#test_area svg .title');
         expect(titles.length).toBe(1);
       });
+
       it("adds single context group element with class of nhcontext", function() {
         var contexts;
         graphlib.init();
         contexts = document.querySelectorAll('.nhcontext');
         expect(contexts.length).toBe(1);
       });
+
       it("uses offsets of parent object and title height to position g correctly", function() {
         var contexts, trans;
         graphlib.init();
@@ -210,6 +218,7 @@ describe('Context', function() {
         trans = contexts[0].getAttribute('transform');
         expect(trans).toBe('translate(40,140)');
       });
+
       it("uses offsets of parent object to position g correctly", function() {
         var contexts, trans;
         context.title = null;
@@ -218,6 +227,7 @@ describe('Context', function() {
         trans = contexts[0].getAttribute('transform');
         expect(trans).toBe('translate(40,60)');
       });
+
       it("calculates dimensions for nhcontext and applies to g", function() {
         var contexts, width;
         width = context.style.dimensions.width;
@@ -228,6 +238,7 @@ describe('Context', function() {
         contexts = document.querySelectorAll('.nhcontext');
         expect(+contexts[0].getAttribute('width')).toBe(width);
       });
+
       it("sets up x axis based on parent (nhgraphlib) extent", function() {
         var parentEnd, parentStart;
         graphlib.init();
@@ -236,10 +247,12 @@ describe('Context', function() {
         expect(context.axes.x.min).toBe(parentStart);
         expect(context.axes.x.max).toBe(parentEnd);
       });
+
       it("initialises context graph", function() {
         graphlib.init();
         expect(context.graph.init).toHaveBeenCalled();
       });
+
       it("adds brush-container element to graph", function() {
         var brushes;
         brushes = document.querySelectorAll('.nhcontext .brush-container');
@@ -248,6 +261,7 @@ describe('Context', function() {
         brushes = document.querySelectorAll('.nhcontext .brush-container');
         expect(brushes.length).toBe(1);
       });
+
       it("adds x brush element within brush container", function() {
         var xbrushes;
         xbrushes = document.querySelectorAll('.nhcontext .x.brush');
@@ -257,6 +271,7 @@ describe('Context', function() {
         expect(xbrushes.length).toBe(1);
       });
     });
+
     describe("draw()", function() {
       it("draws the context graph assigned to object", function() {
         graphlib.init();
@@ -264,14 +279,18 @@ describe('Context', function() {
         expect(context.graph.draw).toHaveBeenCalled();
       });
     });
+
     describe("handle_brush()", function() {
+
       beforeEach(function() {
         spyOn(context, 'handle_brush').and.callThrough();
         spyOn(focus, 'redraw').and.callThrough();
       });
+
       it("has a handle_brush method to update focus and controls", function() {
         expect(context.handle_brush).toBeDefined();
       });
+
       it("is called when brush clicked", function() {
         var xbrushes;
         graphlib.init();
@@ -279,6 +298,7 @@ describe('Context', function() {
         mousedown(xbrushes[0]);
         expect(context.handle_brush).toHaveBeenCalled();
       });
+
       it("is called on 'tochstart'", function() {
         var xbrushes;
         graphlib.init();
@@ -286,6 +306,7 @@ describe('Context', function() {
         mousedown(xbrushes[0]);
         expect(context.handle_brush).toHaveBeenCalled();
       });
+
       it("calls focus.redraw with context min/max when brush extent is zero", function() {
         var conMax, conMin, extents, xbrushes;
         graphlib.init();
@@ -299,7 +320,9 @@ describe('Context', function() {
         conMax = context.axes.x.max;
         expect(focus.redraw).toHaveBeenCalledWith([conMin, conMax]);
       });
+
       describe("Mobile", function() {
+
         beforeEach(function() {
           var inp;
           inp = document.createElement('input');
@@ -319,6 +342,7 @@ describe('Context', function() {
           test_area.appendChild(inp);
           graphlib.options.controls.time.end = inp;
         });
+
         describe("Inputs", function() {
           beforeEach(function() {
             var extents, xbrushes;
@@ -329,6 +353,7 @@ describe('Context', function() {
             extents[0].setAttribute('width', '0');
             touchstart(xbrushes[0]);
           });
+
           it("updates start date input with new date", function() {
             var actual, expected;
             actual = new Date(graphlib.options.controls.date.start.value);
@@ -337,6 +362,7 @@ describe('Context', function() {
             expected = expected.toString().substr(0, 16);
             expect(actual).toBe(expected);
           });
+
           it("updates start time input with new time", function() {
             var actual, conMin, expected;
             actual = graphlib.options.controls.time.start.value;
@@ -346,6 +372,7 @@ describe('Context', function() {
             expected += conMin.getMinutes();
             expect(actual).toBe(expected);
           });
+
           it("updates end date input with new date", function() {
             var actual, expected;
             actual = new Date(graphlib.options.controls.date.end.value);
@@ -354,6 +381,7 @@ describe('Context', function() {
             expected = expected.toString().substr(0, 16);
             expect(actual).toBe(expected);
           });
+
           it("updates end time input with new time", function() {
             var actual, conMin, expected;
             actual = graphlib.options.controls.time.end.value;
@@ -367,7 +395,9 @@ describe('Context', function() {
       });
     });
   });
+
   describe("Mobile Inputs", function() {
+
     var changeEvent;
     changeEvent = null;
 
@@ -397,6 +427,7 @@ describe('Context', function() {
 
       graphlib.init();
       graphlib.draw();
+
       graphlib.options.mobile.is_mob = true;
       changeEvent = document.createEvent('Event');
       changeEvent.initEvent('change', true, true);

@@ -117,6 +117,7 @@ describe('Data', function() {
     });
   });
   */
+
   describe("Styles", function() {
     var circles, graphHeight, graphWidth, paths;
     graph = null;
