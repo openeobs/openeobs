@@ -345,7 +345,7 @@ class TestWardboard(SingleTransactionCase):
         fields = ['spell_ids', 'move_ids', 'o2target_ids', 'uotarget_ids', 'weight_ids', 'blood_sugar_ids', 'mrsa_ids',
                   'diabetes_ids', 'pbp_monitoring_ids', 'weight_monitoring_ids', 'palliative_care_ids',
                   'post_surgery_ids', 'critical_care_ids', 'pbp_ids', 'ews_ids', 'gcs_ids', 'pain_ids',
-                  'urine_output_ids', 'bowels_open_ids', 'ews_list_ids']
+                  'urine_output_ids', 'ews_list_ids']
         res = self.wardboard_pool._get_data_ids_multi(cr, self.wm_uid, [self.wb_id], fields, None)
 
         self.assertListEqual(res[self.wb_id]['spell_ids'], [])

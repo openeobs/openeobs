@@ -883,7 +883,7 @@ class nh_eobs_api(orm.AbstractModel):
     def merge(self, cr, uid, patient_id, data, context=None):
         """
         Wraps
-        :meth:`cancel_discharge()<api.nh_clinical_patient.cancel_discharge>`
+        :meth:`merge()<api.nh_clinical_patient.merge>`
         of a :class:`patient<base.nh_clinical_patient>`.
 
         :param patient_id: `hospital number` of the patient to merge

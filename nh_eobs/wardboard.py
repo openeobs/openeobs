@@ -243,7 +243,7 @@ class wardboard_device_session_complete(orm.TransientModel):
             'res_id': wardboard_id,
             'view_mode': 'form',
             'view_type': 'form',
-            'target': 'inline',
+            'target': 'current',
             'context': context,
             'view_id': view_id
         }
@@ -472,7 +472,6 @@ class nh_clinical_wardboard(orm.Model):
         'gcs_ids': fields.function(_get_data_ids_multi, multi='gcs_ids', type='many2many', relation='nh.clinical.patient.observation.gcs', string='GCS Obs'),
         'pain_ids': fields.function(_get_data_ids_multi, multi='pain_ids', type='many2many', relation='nh.clinical.patient.observation.pain', string='Pain Obs'),
         'urine_output_ids': fields.function(_get_data_ids_multi, multi='urine_output_ids', type='many2many', relation='nh.clinical.patient.observation.urine_output', string='Urine Output Flag'),
-        'bowels_open_ids': fields.function(_get_data_ids_multi, multi='bowel_open_ids', type='many2many', relation='nh.clinical.patient.observation.bowels_open', string='Bowel Open Flag'),
         'ews_list_ids': fields.function(_get_data_ids_multi, multi='ews_list_ids', type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs List'),
         'transferred_user_ids': fields.function(_get_transferred_user_ids, type='many2many', relation='res.users', fnct_search=_transferred_user_ids_search, string='Recently Transferred Access'),
         'recently_discharged_uids': fields.function(_get_recently_discharged_uids, type='many2many', relation='res.users', fnct_search=_recently_discharged_uids_search, string='Recently Discharged Access'),

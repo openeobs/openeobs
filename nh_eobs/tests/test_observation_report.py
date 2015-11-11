@@ -25,7 +25,8 @@ class TestObservationReport(TransactionCase):
         'create_date': '1988-01-12 06:00:00',
         'write_date': '1988-01-12 06:00:00',
         'score': '1',
-        'clinical_risk': 'Medium'
+        'clinical_risk': 'Medium',
+        'is_partial': False
     }
 
     ews_data = {
@@ -609,7 +610,7 @@ class TestObservationReport(TransactionCase):
         self.assertEqual(report_test, True, 'Unable to print Observation Report')
 
     def test_05_observation_report_without_spell_without_start_time_with_end_time(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AttributeError):
             report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
             report_test = test_reports.try_report(cr, uid, report_model, [], data={
                 'spell_id': None,
@@ -618,7 +619,7 @@ class TestObservationReport(TransactionCase):
             })
 
     def test_06_observation_report_without_spell_without_start_time_without_end_time(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AttributeError):
             report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
             report_test = test_reports.try_report(cr, uid, report_model, [], data={
                 'spell_id': None,
@@ -627,7 +628,7 @@ class TestObservationReport(TransactionCase):
             })
 
     def test_07_observation_report_without_spell_with_start_time_without_end_time(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AttributeError):
             report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
             report_test = test_reports.try_report(cr, uid, report_model, [], data={
                 'spell_id': None,
@@ -647,8 +648,9 @@ class TestObservationReport(TransactionCase):
 
     def test_09_observation_report_without_data(self):
         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-        with self.assertRaises(ValueError):
+        with self.assertRaises(AttributeError):
             test_reports.try_report(cr, uid, report_model, [])
+
 
     def test_10_convert_db_date_to_context_date_with_format(self):
         test_date = datetime.strptime('1988-01-12 06:00:00', '%Y-%m-%d %H:%M:%S')
