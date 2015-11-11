@@ -91,9 +91,11 @@ describe('Axes', function() {
 
 
   describe("NHGraphLib, NHContext, NHFocus, NHGraph axes properties", function() {
+
     it('NHGraphLib has properties for setting the axis label height', function() {
       expect(graphlib.style.hasOwnProperty('axis_label_text_height')).toBe(true);
     });
+
     it('NHContext has axes property that holds information for X and Y axes', function() {
       expect(context.hasOwnProperty('axes')).toBe(true);
       expect(context.axes.hasOwnProperty('x')).toBe(true);
@@ -107,6 +109,7 @@ describe('Axes', function() {
       expect(context.axes.y.hasOwnProperty('min')).toBe(true);
       expect(context.axes.y.hasOwnProperty('max')).toBe(true);
     });
+
     it('NHFocus has axes property that holds information for X and Y axes', function() {
       expect(focus.hasOwnProperty('axes')).toBe(true);
       expect(focus.axes.hasOwnProperty('x')).toBe(true);
@@ -120,6 +123,7 @@ describe('Axes', function() {
       expect(focus.axes.y.hasOwnProperty('min')).toBe(true);
       expect(focus.axes.y.hasOwnProperty('max')).toBe(true);
     });
+
     it('NHGraph has axes property that holds information for X and Y axes', function() {
       expect(graph.hasOwnProperty('axes')).toBe(true);
       expect(graph.axes.hasOwnProperty('x')).toBe(true);
@@ -137,6 +141,7 @@ describe('Axes', function() {
       expect(graph.axes.y.hasOwnProperty('obj')).toBe(true);
       expect(graph.axes.y.hasOwnProperty('ranged_extent')).toBe(true);
     });
+
     it('NHGraph has styling properties for X and Y axes', function() {
       expect(graph.style.hasOwnProperty('axis')).toBe(true);
       expect(graph.style.hasOwnProperty('axis_label_text_height')).toBe(true);
@@ -149,6 +154,7 @@ describe('Axes', function() {
       expect(graph.style.axis.y.hasOwnProperty('size')).toBe(true);
     });
   });
+
   describe("Structure", function() {
 
     beforeEach(function() {
@@ -207,6 +213,7 @@ describe('Axes', function() {
         expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
         expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
+
       it('Adds time padding of 3 to the scale when plotting a single data point and time padding of 3 is defined', function() {
         var data_point, end, ends, start, starts, terminated;
         terminated = graphlib.data.raw[0]['date_terminated'];
@@ -223,6 +230,7 @@ describe('Axes', function() {
         expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
         expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
+
       it('Adds time padding of date difference divided by SVG width divided by 500 to the scale when plotting multiple data points and no time padding defined', function() {
         var end, ends, original_extent, raw1, raw2, start, starts, term1, term2;
         graphlib.data.raw = ews_data.multiple_records;
@@ -242,6 +250,7 @@ describe('Axes', function() {
         expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
         expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
+
       it('Adds time padding of 3 to the scale when plotting multiple data points when time padding of 3 is defined', function() {
         var end, ends, original_extent, raw1, raw2, start, starts, term1, term2;
         graphlib.data.raw = ews_data.multiple_records;
@@ -263,6 +272,7 @@ describe('Axes', function() {
         expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
     });
+
     describe('Ticks', function() {
 
       it("has sensible amount", function() {
@@ -276,6 +286,7 @@ describe('Axes', function() {
       });
 
       it("are evenly spaced", function() {
+
         var lastGap, tick, xPos, x_ticks;
         graphlib.init();
         graphlib.draw();
@@ -299,6 +310,7 @@ describe('Axes', function() {
       });
 
       describe('Labels', function() {
+
         it("use default size if no size defined", function() {
           var j, len, tick, tspans, x_ticks;
           graphlib.init();
@@ -369,13 +381,16 @@ describe('Axes', function() {
       });
     });
   });
+
   describe('Y-Axis', function() {
 
     describe("Visibility", function() {
+
       it("is visible by default", function() {
         graphlib.init();
         expect(document.querySelectorAll('.y').length).toBe(1);
       });
+
       it("can be hidden", function() {
         graph.style.axis.y.hide = true;
         graphlib.init();
@@ -384,6 +399,7 @@ describe('Axes', function() {
     });
 
     describe('Scale', function() {
+
       it("Uses min/max values set in graph.axes.y object", function() {
         var lastTick, y_ticks_text;
         graphlib.init();
@@ -397,6 +413,7 @@ describe('Axes', function() {
     });
 
     describe('Steps', function() {
+
       it("changes tick label format as defined", function() {
         var j, len, tick, y_ticks;
         graph.style.axis.step = 2;

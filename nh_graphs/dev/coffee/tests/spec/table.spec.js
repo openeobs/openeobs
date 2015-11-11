@@ -207,37 +207,37 @@ describe('Table', function() {
                 expect(trs.length).toBe(expected)
             });
 
-            it("shows the expected values in each cell",function() {
-                /* Complexicated method not working, resorting to simple..
-                var ranged = [];
-
-                for (var i = 0; i < graphlib.data.raw.length; i++) {
-                    var d = new Date(graphlib.date_from_string(graphlib.data.raw[i].date_terminated));
-                    if (d <= table.range[1] && d >= table.range[0]) {
-                        ranged.push(graphlib.data.raw[i])
-                    }
-                }
-
-                var trs = document.querySelectorAll('.nhtable tbody tr');
-                expect(trs.length).toBe(ranged.length);
-
-                var key = ['date_terminated', 'avpu_text', 'oxygen_administration_device', 'inspired_oxygen'];
-
-                for (var row = 0; row < trs.length; row++) {
-                    console.log('row '+ row);
-                    var tds = trs[row].querySelectorAll('td');
-
-                    for (var column = 0; column < tds.length; column ++) {
-                        console.log('column '+ column);
-                        if (rang
-                        ed[row][key[column]] && tds[column]) {
-                            expect(tds[column].textContent).toBe(ranged[row][key[column]])
-                        }
-                    }
-                }
-                */
-
-            });
+            //it("shows the expected values in each cell",function() {
+            //    /* Complexicated method not working, resorting to simple..
+            //    var ranged = [];
+            //
+            //    for (var i = 0; i < graphlib.data.raw.length; i++) {
+            //        var d = new Date(graphlib.date_from_string(graphlib.data.raw[i].date_terminated));
+            //        if (d <= table.range[1] && d >= table.range[0]) {
+            //            ranged.push(graphlib.data.raw[i])
+            //        }
+            //    }
+            //
+            //    var trs = document.querySelectorAll('.nhtable tbody tr');
+            //    expect(trs.length).toBe(ranged.length);
+            //
+            //    var key = ['date_terminated', 'avpu_text', 'oxygen_administration_device', 'inspired_oxygen'];
+            //
+            //    for (var row = 0; row < trs.length; row++) {
+            //        console.log('row '+ row);
+            //        var tds = trs[row].querySelectorAll('td');
+            //
+            //        for (var column = 0; column < tds.length; column ++) {
+            //            console.log('column '+ column);
+            //            if (rang
+            //            ed[row][key[column]] && tds[column]) {
+            //                expect(tds[column].textContent).toBe(ranged[row][key[column]])
+            //            }
+            //        }
+            //    }
+            //    */
+            //
+            //});
 
         });
 
@@ -275,9 +275,9 @@ describe('Table', function() {
                 expect(trs.length).toBe(expected)
             });
 
-            xit("shows the expected values in each cell",function() {
-                expect(false).toBe(true)
-            });
+            //xit("shows the expected values in each cell",function() {
+            //    expect(false).toBe(true)
+            //});
         });
     });
 

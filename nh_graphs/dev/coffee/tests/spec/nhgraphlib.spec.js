@@ -125,11 +125,10 @@ describe("NHGraphLib",function() {
         });
 
         it("throws error if initialised with no data provided",function() {
-            // Currently not implemented
             graphlib.data.raw = [];
-            expect(function() {graphlib.init()}).toThrow(new Error('No observation data provided'))
+            graphlib.init()
+            expect(function() {graphlib.draw()}).toThrow(new Error('No raw data provided'))
         });
-
     });
 
 
@@ -183,6 +182,7 @@ describe("NHGraphLib",function() {
 
         it("shows the records in reverse chronological order",function() {
             // Not working in Phantom, date_from_string() and Date() unable to parse
+
             // Grab the header cells as an array
             var els = document.querySelectorAll('table thead tr th');
             expect(els.length).toBe(4);
@@ -191,14 +191,13 @@ describe("NHGraphLib",function() {
             var ar = [];
             for (i = 1; i < els.length; i++) {
 
-                // Convert inner html to date object
-                // Add leading 0 for PhantomJS date parsing
-                ar.push(new Date(els[i].innerHTML.replace('<br>',' 0')))
+                // Resorting to comparing just the hours as Phantom unable to parse date
+                ar.push(+els[i].innerHTML.replace('<br>',' ').substr(0,2))
             }
 
-            // Check each date is earlier than the one before
+            // Check each hour is greater than the one before (elements reversed by .push)
             for (i = 1; i < ar.length; i++) {
-                expect(ar[i].getTime()).toBeGreaterThan(ar[i-1].getTime())
+                expect(ar[i]).toBeGreaterThan(ar[i-1])
             }
         });
 
@@ -213,13 +212,25 @@ describe("NHGraphLib",function() {
 
         it("converts boolean values to Yes/No",function(){
             var els = document.querySelectorAll('table tbody tr');
-            expect(els[8].getElementsByTagName('td')[1].textContent).toBe('No');
-            expect(els[8].getElementsByTagName('td')[2].textContent).toBe('Yes');
+            for (var i = 0; i < graphlib.data.raw.length; i++) {
+                if (graphlib.data.raw[i].oxygen_administration_flag) {
+                    expect(els[8].getElementsByTagName('td')[i+1].textContent).toBe('Yes')
+                }
+                else {
+                    expect(els[8].getElementsByTagName('td')[i+1].textContent).toBe('No')
+                }
+            }
         });
-/*
-        it("handles nested keys, e.g. inspired_oxygen",function() {
 
+        it("handles nested keys, e.g. inspired_oxygen",function() {
+            var actual = document.querySelectorAll('table tbody tr')[9].getElementsByTagName('td')[3].innerHTML;
+
+            // Cheating to avoid this sort of stuff..
+            //var ar = actual.split(/<\/strong>|<strong>|<br>/g).filter(function(el) { if (el !== '') return el})
+
+            var expected = "<strong>Flow Rate:</strong> 15lpm<br><strong>Concentration:</strong> 100%<br><strong>Device:</strong> 12<br>";
+            expect(actual).toBe(expected);
         })
-*/
+
     })
 })

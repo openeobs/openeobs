@@ -278,10 +278,13 @@ class NHGraphLib
 
   # Trigger the draw functions for context, focus and tabular representation
   draw: () ->
-    @.context?.draw(@)
-    @.focus?.draw(@)
-    if @.table.element?
-      @.draw_table(@)
+    if @.data.raw.length > 0
+      @.context?.draw(@)
+      @.focus?.draw(@)
+      if @.table.element?
+        @.draw_table(@)
+    else
+      throw new Error('No raw data provided')
 
   # Draw the tabular representation
   # 1. Get the elements
