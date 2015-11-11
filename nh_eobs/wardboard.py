@@ -487,6 +487,120 @@ class nh_clinical_wardboard(orm.Model):
     _group_by_full = {
         'clinical_risk': _get_cr_groups,
     }
+
+    def onchange_palliative_care(self, cr, uid, ids, pc, ps, cc, context=None):
+        """
+        Checks if any of the other special circumstances parameters
+        are ``True`` and returns a warning if that is the case.
+
+        :param pc: palliative care value
+        :type pc: str
+        :param ps: post surgery value
+        :type ps: str
+        :param cc: critical care value
+        :type cc: str
+        :returns: dictionary containing warning and/or values
+        :rtype: dict
+        """
+        res = {}
+        if pc == 'no':
+            return res
+        # wb = self.browse(cr, uid, ids[0], context=context)
+        if ps == 'yes':
+            res['warning'] = {
+                'title': 'Warning',
+                'message': 'You must deactivate Post Surgery status first'
+            }
+            res['value'] = {
+                'palliative_care': 'no'
+            }
+            return res
+        if cc == 'yes':
+            res['warning'] = {
+                'title': 'Warning',
+                'message': 'You must deactivate Critical Care status first'
+            }
+            res['value'] = {
+                'palliative_care': 'no'
+            }
+            return res
+        return res
+
+    def onchange_critical_care(self, cr, uid, ids, pc, ps, cc, context=None):
+        """
+        Checks if any of the other special circumstances parameters
+        are ``True`` and returns a warning if that is the case.
+
+        :param pc: palliative care value
+        :type pc: str
+        :param ps: post surgery value
+        :type ps: str
+        :param cc: critical care value
+        :type cc: str
+        :returns: dictionary containing warning and/or values
+        :rtype: dict
+        """
+        res = {}
+        if cc == 'no':
+            return res
+        # wb = self.browse(cr, uid, ids[0], context=context)
+        if ps == 'yes':
+            res['warning'] = {
+                'title': 'Warning',
+                'message': 'You must deactivate Post Surgery status first'
+            }
+            res['value'] = {
+                'critical_care': 'no'
+            }
+            return res
+        if pc == 'yes':
+            res['warning'] = {
+                'title': 'Warning',
+                'message': 'You must deactivate Palliative Care status first'
+            }
+            res['value'] = {
+                'critical_care': 'no'
+            }
+            return res
+        return res
+
+    def onchange_post_surgery(self, cr, uid, ids, pc, ps, cc, context=None):
+        """
+        Checks if any of the other special circumstances parameters
+        are ``True`` and returns a warning if that is the case.
+
+        :param pc: palliative care value
+        :type pc: str
+        :param ps: post surgery value
+        :type ps: str
+        :param cc: critical care value
+        :type cc: str
+        :returns: dictionary containing warning and/or values
+        :rtype: dict
+        """
+        res = {}
+        if ps == 'no':
+            return res
+        # wb = self.browse(cr, uid, ids[0], context=context)
+        if pc == 'yes':
+            res['warning'] = {
+                'title': 'Warning',
+                'message': 'You must deactivate Palliative Care status first'
+            }
+            res['value'] = {
+                'post_surgery': 'no'
+            }
+            return res
+        if cc == 'yes':
+            res['warning'] = {
+                'title': 'Warning',
+                'message': 'You must deactivate Critical Care status first'
+            }
+            res['value'] = {
+                'post_surgery': 'no'
+            }
+            return res
+        return res
     
     def device_session_start(self, cr, uid, ids, context=None):
         """
