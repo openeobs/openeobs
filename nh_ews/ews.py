@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+`ews.py` defines the Early Warning Score observation class and its
+standard behaviour and policy triggers based on the UK NEWS standard.
+"""
 from openerp.osv import orm, fields, osv
 import logging
 import bisect
@@ -9,6 +13,17 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation_ews(orm.Model):
+    """
+    Represents an Early Warning Score
+    :class:`observation<observations.nh_clinical_patient_observation>`
+    which stores a group of physiological parameters measured from the
+    :class:`patient<base.nh_clinical_patient>` that together determine
+    a score that serves as an indicator of the illness current acuity.
+
+    The basis of the scoring system are the following six parameters:
+    respiratory rate, oxygen saturations, temperature, systolic blood
+    pressure, pulse rate and level of consciousness.
+    """
     _name = 'nh.clinical.patient.observation.ews'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['respiration_rate', 'indirect_oxymetry_spo2', 'body_temperature', 'blood_pressure_systolic', 'pulse_rate']
@@ -45,6 +60,21 @@ class nh_clinical_patient_observation_ews(orm.Model):
                'risk': ['None', 'Low', 'Medium', 'High']}
 
     def calculate_score(self, ews_data):
+        """
+        Computes the score and clinical risk values based on the NEWS
+        parameters provided.
+
+        It will return as extra information the presence of any Red
+        Score parameter within the data. (any parameter that scores 3)
+
+        :param ews_data: The NEWS parameters: ``respiration_rate``,
+                         ``indirect_oxymetry_spo2``, ``body_temperature``,
+                         ``blood_pressure_systolic``, ``pulse_rate``,
+                         ``oxygen_administration_flag`` and ``avpu_text``
+        :type ews_data: dict
+        :returns: ``score``, ``clinical_risk`` and ``three_in_one``
+        :rtype: dict
+        """
         score = 0
         three_in_one = False
 
@@ -132,7 +162,6 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     _avpu_values = [['A', 'Alert'], ['V', 'Voice'], ['P', 'Pain'], ['U', 'Unresponsive']]
     _columns = {
-        #'duration': fields.integer('Duration'),
         'score': fields.function(_get_score, type='integer', multi='score', string='Score', store={
             'nh.clinical.patient.observation.ews': (lambda self, cr, uid, ids, ctx: ids, [], 10) # all fields of self
         }),
@@ -398,9 +427,31 @@ class nh_clinical_patient_observation_ews(orm.Model):
     _order = "order_by desc, id desc"
 
     def handle_o2_devices(self, cr, uid, activity_id, context=None):
+        """
+        Checks the current state of supplemental oxygen
+        :class:`device sessions<devices.nh_clinical_device_session>` on
+        the related :class:`spell<base.nh_clinical_spell>`.
+
+        It :meth:`completes<devices.nh_clinical_device_session.complete>`
+        the sessions if the current NEWS does not have the oxygen
+        administration flag up.
+
+        It :meth:`completes<devices.nh_clinical_device_session.complete>`
+        any session with an oxygen administration
+        :class:`device type<devices.nh_clinical_device_type>` that does
+        not match the NEWS device.
+
+        It :meth:`starts<devices.nh_clinical_device_session.start>` a
+        new session if the NEWS device provided does not have already
+        an open one related to the spell.
+
+        :param activity_id: :class:`activity<activity.nh_activity>` id. (NEWS type)
+        :type activity_id: int
+        """
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         device_activity_ids = activity_pool.search(cr, uid, [
+            ['parent_id', '=', activity.parent_id.id],
             ['data_model', '=', 'nh.clinical.device.session'],
             ['state', 'not in', ['completed', 'cancelled']]], context=context)
         da_browse = activity_pool.browse(cr, uid, device_activity_ids, context=context)
@@ -429,13 +480,38 @@ class nh_clinical_patient_observation_ews(orm.Model):
         if vals.get('oxygen_administration'):
             vals.update({'oxygen_administration_flag': vals['oxygen_administration'].get('oxygen_administration_flag')})
             del vals['oxygen_administration']
-
-
         return super(nh_clinical_patient_observation_ews, self).submit(cr, SUPERUSER_ID, activity_id, data_vals, context)
 
     def complete(self, cr, uid, activity_id, context=None):
         """
-        Implementation of the default EWS policy
+        It determines which acuity case the current observation is in
+        with the stored data and responds to the different policy
+        triggers accordingly defined on the ``_POLICY`` dictionary::
+
+            {'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
+            determine the acuity case based on the score.
+            'frequencies': [720, 240, 60, 30], --> frequency of recurrency
+            of the NEWS observation, based on the case.
+            'notifications': [...],
+               Information sent to the trigger_notifications method,
+               based on case.
+            'risk': ['None', 'Low', 'Medium', 'High']} --> Clinical risk
+            of the patient, based on case.
+
+        All the case based lists work in a simple way:
+        list[case] --> value used
+
+        After the policy triggers take place the activity is `completed`
+        and a new NEWS activity is created. Then the case based
+        `frequency` is applied, effectively scheduling it.
+
+        In the case of having a `partial` observation we won't have a new
+        frequency so the new activity is scheduled to the same time the
+        one just `completed` was, as the need for a complete observation
+        is still there.
+
+        :returns: ``True``
+        :rtype: bool
         """
         activity_pool = self.pool['nh.activity']
         groups_pool = self.pool['res.groups']
@@ -476,6 +552,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
         return res
 
     def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
+        """
+        When creating a new activity of this type every other not
+        `completed` or `cancelled` instance related to the same patient
+        will be automatically cancelled.
+
+        :returns: :class:`activity<activity.nh_activity>` id.
+        :rtype: int
+        """
         activity_pool = self.pool['nh.activity']
         domain = [['patient_id', '=', vals_data['patient_id']], ['data_model', '=', self._name], ['state', 'in', ['new', 'started', 'scheduled']]]
         ids = activity_pool.search(cr, SUPERUSER_ID, domain, context=context)
@@ -485,6 +569,16 @@ class nh_clinical_patient_observation_ews(orm.Model):
         return res
 
     def get_form_description(self, cr, uid, patient_id, context=None):
+        """
+        Returns a description in dictionary format of the input fields
+        that would be required in the user gui to submit the
+        observation.
+
+        :param patient_id: :class:`patient<base.nh_clinical_patient>` id
+        :type patient_id: int
+        :returns: a list of dictionaries
+        :rtype: list
+        """
         device_pool = self.pool['nh.clinical.device.type']
         o2target_pool = self.pool['nh.clinical.patient.o2target']
         o2level_pool = self.pool['nh.clinical.o2level']
@@ -509,13 +603,17 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     def get_last_case(self, cr, uid, patient_id, context=None):
         """
-        Checks for the last completed NEWS observation for the provided patient and returns the case.
-        :return: False if there is no NEWS observation completed.
-                0 to 3 integer. Number representing each case.
-                0 - No Risk
-                1 - Low Risk
-                2 - Medium Risk
-                3 - High Risk
+        Checks for the last completed NEWS for the provided
+        :class:`patient<base.nh_clinical_patient>` and returns the
+        acuity case::
+
+            0 - No Risk
+            1 - Low Risk
+            2 - Medium Risk
+            3 - High Risk
+
+        :returns: ``False`` or the acuity case
+        :rtype: int
         """
         domain = [['patient_id', '=', patient_id], ['data_model', '=', 'nh.clinical.patient.observation.ews'],
                   ['state', '=', 'completed'], ['parent_id.state', '=', 'started']]

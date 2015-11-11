@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'NH Clinical Early Warning Score Observation',
+    'name': 'NH Early Warning Score',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',

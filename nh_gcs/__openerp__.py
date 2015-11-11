@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'NH Clinical Glasgow Coma Score Observation',
+    'name': 'NH Glasgow Coma Scale',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',

@@ -73,6 +73,11 @@ class nh_clinical_patient_palliative_care(orm.Model):
     _name = 'nh.clinical.patient.palliative_care'
     _inherit = ['nh.activity.data']
 
+    _POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews',
+                               'type': 'recurring',
+                               'cancel_others': True,
+                               'context': 'eobs'}]}
+
     def _get_value(self, cr, uid, ids, fn, args, context=None):
         result = dict.fromkeys(ids, False)
         for r in self.read(cr, uid, ids, ['status'], context=context):
@@ -94,6 +99,10 @@ class nh_clinical_patient_palliative_care(orm.Model):
                                                           '|', ['data_model', 'ilike', '%observation%'],
                                                           ['data_model', 'ilike', '%notification%']], context=context)
             [activity_pool.cancel(cr, uid, aid, context=context) for aid in activity_ids]
+        else:
+            self.trigger_policy(cr, uid, activity_id,
+                                location_id=activity.parent_id.location_id.id,
+                                context=context)
         return super(nh_clinical_patient_palliative_care, self).complete(cr, uid, activity_id, context=context)
 
 

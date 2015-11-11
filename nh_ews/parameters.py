@@ -1,13 +1,22 @@
 # -*- coding: utf-8 -*-
+"""
+`parameters.py` define extra observation parameters related to the
+Early Warning Score observation and relevant to its policies.
+"""
 from openerp.osv import orm, fields
 import logging
-from openerp import SUPERUSER_ID
 from datetime import datetime as dt
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+from openerp.addons.nh_observations.helpers import refresh_materialized_views
 _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_o2level(orm.Model):
+    """
+    Represents a oxygen saturation range.
+
+    To be used by the oxygen saturation target as the target range.
+    """
     _name = 'nh.clinical.o2level'
 
     def _get_name(self, cr, uid, ids, fn, args, context=None):
@@ -28,10 +37,22 @@ class nh_clinical_o2level(orm.Model):
     }
 
     def unlink(self, cr, uid, ids, context=None):
+        """
+        Prevents the deletion of any records of this object to avoid
+        loss of data. The records will be flagged as inactive instead.
+
+        :returns: ``True``
+        :rtype: bool
+        """
         return self.write(cr, uid, ids, {'active': False}, context=context)
 
 
 class nh_clinical_patient_o2target(orm.Model):
+    """
+    Represents a :class:`patient<base.nh_clinical_patient>` oxygen
+    saturation target. Set by clinicians after assessing the patient
+    condition, if necessary.
+    """
     _name = 'nh.clinical.patient.o2target'
     _inherit = ['nh.activity.data']
     _rec_name = 'level_id'
@@ -42,9 +63,17 @@ class nh_clinical_patient_o2target(orm.Model):
 
     def get_last(self, cr, uid, patient_id, datetime=False, context=None):
         """
-        Checks if there is an O2 Target assigned for the provided Patient
-        :return: False if there is no assigned O2 Target.
-                nh.clinical.o2level id of the last assigned O2 Target
+        Checks if there is a target assigned for the provided
+        :class:`patient<base.nh_clinical_patient>`
+
+        :parameter patient_id: :class:`patient<base.nh_clinical_patient>` id.
+        :type patient_id: int
+        :parameter datetime: date formatted string, `now` by default,
+                             the method will search targets assigned
+                             before this date.
+        :type datetime: str
+        :returns: :mod:`oxygen range<parameters.nh_clinical_o2level>` id.
+        :rtype: int
         """
         if not datetime:
             datetime = dt.now().strftime(dtf)
@@ -57,3 +86,8 @@ class nh_clinical_patient_o2target(orm.Model):
             return False
         activity = activity_pool.browse(cr, uid, o2target_ids[0], context=context)
         return activity.data_ref.level_id.id if activity.data_ref.level_id else False
+
+    @refresh_materialized_views('param')
+    def complete(self, cr, uid, activity_id, context=None):
+        res = super(nh_clinical_patient_o2target, self).complete(cr, uid, activity_id, context)
+        return res
