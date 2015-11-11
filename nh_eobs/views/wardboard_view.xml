@@ -39,7 +39,7 @@
                         </ul>
                     </header>
                     <sheet>
-                        <field name="ews_ids"/>
+                        <field name="ews_ids" no_open="1"/>
                     </sheet>
                 </form>
             </field>
@@ -109,7 +109,8 @@
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
                                                                              ('usage','=','bed'),
                                                                              ('is_available','=',True),
-                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"/>
+                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"
+                                required="1"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
@@ -294,7 +295,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
@@ -587,22 +588,22 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="priority">15</field>
             <field name="arch" type="xml">
-                <form string="Wardboard Discharged Patients Form View" version="7.0" create="0" delete="0">
+                <form string="Wardboard Form View" version="7.0" create="0" delete="0">
                     <header>
                         <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                         <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
-                        <button name="wardboard_chart" string="NEWS Chart" type="object"/>
-                        <button name="wardboard_ews" string="NEWS List" type="object"/>
-                        <button name="wardboard_weight_chart" string="Weight Chart" type="object"/>
-                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object"/>
+                        <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user"/>
+                        <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object" groups="base.group_user"/>
                     </header>
                     <sheet>
                         <group>
                             <group string="Early Warning Score">
-                                <field name="next_diff" readonly="1"/>
-                                <field name="frequency" readonly="1"/>
                                 <field name="ews_score" readonly="1"/>
-                                <field name="ews_trend" readonly="1"/>
+                                <field name="ews_trend_string" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
+                                <field name="next_diff" readonly="1"/>
                             </group>
                         </group>
                         <notebook>
@@ -616,7 +617,7 @@
                                 <group string="Movements History">
                                     <field name="move_ids" readonly="1" nolabel="1">
                                         <tree>
-                                            <field name="location_id" />
+                                            <field name="location_name" />
                                             <field name="date_terminated" widget="nhc_datetime" string="Date In"/>
                                         </tree>
                                         <form>
@@ -673,7 +674,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
@@ -724,9 +725,19 @@
                                     </group>
                             </page>
                             <page string="Monitoring">
+                                <group string="Special Circumstances">
+                                    <field name="palliative_care" readonly="1"/>
+                                    <field name="palliative_care_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid" string="Changed By"/>
+                                        </tree>
+                                    </field>
+                                </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_monitoring" readonly="1" string="Active"/>
-                                    <field name="pbp_monitoring_ids" readonly="True" nolabel="1">
+                                    <field name="pbp_monitoring" string="Active" readonly="1"/>
+                                    <field name="pbp_monitoring_ids" colspan="2" readonly="True" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="value" string="Value"/>
@@ -735,7 +746,7 @@
                                     </field>
                                 </group>
                                 <group string="Weight">
-                                    <field name="weight_monitoring" readonly="1" string="Active"/>
+                                    <field name="weight_monitoring" string="Active" readonly="1"/>
                                     <field name="weight_monitoring_ids" colspan="2" readonly="True" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
@@ -745,8 +756,8 @@
                                     </field>
                                 </group>
                                 <group string="O2 Saturation Target">
-                                    <field name="o2target" widget="selection" readonly="1" string="Current Target"/>
-                                    <field name="o2target_ids" nolabel="1" readonly="1">
+                                    <field name="o2target" widget="selection" string="Current Target" readonly="1"/>
+                                    <field name="o2target_ids" nolabel="1" colspan="2" readonly="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="level_id" string="Value"/>
@@ -791,7 +802,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_patients_by_ward">
-            <field name="name">Acuity Board</field>
+            <field name="name">Patients by Ward</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,kanban</field>

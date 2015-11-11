@@ -173,16 +173,20 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertEqual(ward.no_risk_patients, 0, msg='Incorrect no_risk_patients field')
         self.assertEqual(ward.noscore_patients, 3, msg='Incorrect noscore_patients field')
 
-    def test_10_ward_dashboard_patient_board(self):
+    def test_10_ward_dashboard_acuity_board(self):
         cr, uid = self.cr, self.uid
+        ir_model_pool = self.registry('ir.model.data')
 
+        kanban_view_id = ir_model_pool.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_kanban')[1]
+        tree_view_id = ir_model_pool.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_tree')[1]
+        form_view_id = ir_model_pool.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_form')[1]
         res = self.ward_pool.patient_board(cr, self.wm_uid, [self.ward_id], {})
+
         self.assertDictEqual(res, {
-            'name': 'Patients Board',
+            'name': 'Acuity Board',
             'type': 'ir.actions.act_window',
             'res_model': 'nh.clinical.wardboard',
-            'view_type': 'form',
-            'view_mode': 'kanban,form,tree',
+            'views': [(kanban_view_id, 'kanban'), (tree_view_id, 'tree'), (form_view_id, 'form')],
             'domain': [('spell_state', '=', 'started'), ('location_id.usage', '=', 'bed')],
             'target': 'current',
             'context': {'search_default_clinical_risk': 1, 'search_default_high_risk': 0,

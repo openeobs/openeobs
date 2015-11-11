@@ -56,7 +56,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     def get_js_routes(self, *args, **kw):
         name_of_template = 'routes_template.js'
         path_to_template = get_module_path('nh_eobs_api') + '/views/'
-        routes = route_manager.get_javascript_routes(name_of_template, path_to_template, additional_context={'base_url': route_manager.BASE_URL, 'base_prefix': route_manager.URL_PREFIX})
+        base_url = request.httprequest.host_url[:-1]  # override the RouteManager's base url only for JS routes
+        routes = route_manager.get_javascript_routes(name_of_template, path_to_template, additional_context={'base_url': base_url, 'base_prefix': route_manager.URL_PREFIX})
         return request.make_response(routes, headers={'Content-Type': 'application/javascript'})
 
     @http.route(**route_manager.expose_route('json_share_patients'))
@@ -283,9 +284,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         triggered_tasks = [v for v in triggered_tasks if observation not in v['data_model'] and api.check_activity_access(cr, uid, v['id']) and v['state'] not in ['completed', 'cancelled']]
         partial = True if 'partial_reason' in kw_copy and kw_copy['partial_reason'] else False
         response_data = {'related_tasks': triggered_tasks, 'status': 1}
+        rel_tasks = 'Here are related tasks based on the observation' if len(triggered_tasks) > 0 else ''
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully Submitted{0} {1}'.format(' Partial' if partial else '',ob_pool._description),
-                                                   description='Here are related tasks based on the observation',
+                                                   description=rel_tasks,
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
@@ -320,7 +322,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         modal_vals = {}
         modal_vals['next_action'] = 'json_task_form_action' if section == 'task' else 'json_patient_form_action'
         # TODO: Need to add patient name in somehow
-        modal_vals['title'] = 'Submit {score_type} score of {score} '.format(score_type=observation.upper(), score=score_dict.get('score', ''))
+        modal_vals['title'] = 'Submit {score_type} score of {score}'.format(score_type=observation.upper(), score=score_dict.get('score', ''))
         if 'clinical_risk' in score_dict:
             modal_vals['content'] = '<p><strong>Clinical risk: {risk}</strong></p><p>Please confirm you want to submit this score</p>'.format(risk=score_dict['clinical_risk'])
         else:
@@ -432,8 +434,20 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             if not value:
                 del kw_copy[key]
 
-        kw_copy['reason'] = int(kw_copy['reason'])  # TODO: this seems not to be used anywhere; possibly remove it ?
-        result = api_pool.cancel(cr, uid, int(task_id), kw_copy)  # TODO: add a check if method 'complete' fails(?)
+        # Try to get the cancel reason and add it to the dictionary if successful.
+        cancel_reason = kw_copy.get('reason')
+        if cancel_reason:
+            kw_copy['reason'] = int(cancel_reason)
+
+        try:
+            result = api_pool.cancel(cr, uid, int(task_id), kw_copy)
+        except osv.except_osv:
+            response_data = {'error': 'The server returned an error while trying to cancel the task.'}
+            response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_ERROR,
+                                                       title='Cancellation unsuccessful',
+                                                       description='Unable to cancel the notification',
+                                                       data=response_data)
+            return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
         response_data = {'related_tasks': [], 'status': 4}
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
@@ -518,8 +532,9 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
         partial = True if 'partial_reason' in kw_copy and kw_copy['partial_reason'] else False
         response_data = {'related_tasks': triggered_tasks, 'status': 1}
+        rel_tasks = 'Here are related tasks based on the observation' if len(triggered_tasks) > 0 else ''
         response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
                                                    title='Successfully Submitted{0} {1}'.format(' Partial' if partial else '', observation_pool._description),
-                                                   description='Here are related tasks based on the observation',
+                                                   description=rel_tasks,
                                                    data=response_data)
         return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)

@@ -122,12 +122,12 @@
                   action="action_show_locations"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Shift Management"
-                  id="menu_eobs_user_management_v2"
-                  sequence="7"
-                  parent="menu_eobs_category_ward_management"
-                  action="nh_clinical.action_nhc_user_allocation"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+        <!--<menuitem name="Shift Management"-->
+                  <!--id="menu_eobs_user_management_v2"-->
+                  <!--sequence="7"-->
+                  <!--parent="menu_eobs_category_ward_management"-->
+                  <!--action="nh_clinical.action_nhc_user_allocation"-->
+                  <!--groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>-->
 
         <menuitem name="Open eObs Users"
                   id="menu_eobs_admin_user_management"
@@ -135,6 +135,33 @@
                   parent="menu_eobs_category_ward_management"
                   action="nh_clinical.action_nhc_user_management_admin"
                   groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+
+        <menuitem name="Shift Management"
+                  sequence="4"
+                  id="menu_eobs_category_shift_management"
+                  parent="menu_eobs_top_root"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Nursing Shift Change"
+                  id="menu_eobs_nursing_shift_management"
+                  sequence="0"
+                  parent="menu_eobs_category_shift_management"
+                  action="nh_clinical.action_nhc_staff_allocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Nursing Re-Allocation"
+                  id="menu_eobs_nursing_reallocate"
+                  sequence="1"
+                  parent="menu_eobs_category_shift_management"
+                  action="nh_clinical.action_nhc_staff_reallocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Medical Shift Change"
+                  id="menu_eobs_medical_shift_management"
+                  sequence="2"
+                  parent="menu_eobs_category_shift_management"
+                  action="nh_clinical.action_nhc_doctor_allocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev"/>
 

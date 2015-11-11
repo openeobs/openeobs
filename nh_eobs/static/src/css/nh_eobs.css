@@ -19,9 +19,11 @@
     text-align: center;
 }
 
-.nhc_obs_list .oe_list_header_columns .oe_list_header_nhc_datetime > div {
-    text-align: left;
+.nhc_obs_list .oe_list_header_columns .oe_list_header_nhc_datetime > div,
+.nhc_obs_list .oe_list_content > tbody > tr > td.oe_list_field_nhc_datetime {
+    text-align: left !important;
 }
+
 
 .nhc_obs_list .oe-treeview-table td.oe_number{
     text-align: center !important;
@@ -142,4 +144,9 @@
 
  .openerp .nh_oe_number_fix .oe_list_content td.oe_list_field_cell.oe_number, .openerp .nh_oe_string_fix .oe_list_content td.oe_list_field_cell.oe_list_field_char{
      text-align: left !important;
+ }
+
+ .openerp .oe_list_content td.oe_number {
+     text-align: left !important;
+     max-width: 100px;
  }

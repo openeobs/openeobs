@@ -176,6 +176,16 @@
                         font-size: 10px;
                     }
 
+                    circle .point{
+                        fill: black;
+                        stroke: black;
+                        stroke-width: 1px;
+                    }
+                    circle .empty_point{
+                        fill: white;
+                        stroke: black;
+                        stroke-width: 1px;
+                    }
                 </style>
             </xpath>
         </template>
@@ -789,41 +799,43 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="ews" t-as="observation">
-                                        <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
-                                            <td class="col-xs-2"><t t-esc="observation['values']['score']"/></td>
-                                            <td class="col-xs-2"><t t-esc="observation['values']['clinical_risk']"/></td>
-                                            <td class="col-xs-5 pre-pre-compact-data">
-                                                <table class="pre-compact-data col-xs-12 row">
-                                                    <t t-foreach="observation['triggered_actions']" t-as="task">
-                                                        <tr>
-                                                            <td class="col-xs-12">
-                                                                <table class="compact-data col-xs-12">
-                                                                    <tr>
-                                                                        <td colspan="2" class="header col-xs-12">
-                                                                            <h4><t t-esc="task['summary']"/></h4>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <t t-if="task['notes']">
+                                        <t t-if="not observation['values']['is_partial']">
+                                            <tr class="main-entry">
+                                                <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                                                <td class="col-xs-2"><t t-esc="observation['values']['score']"/></td>
+                                                <td class="col-xs-2"><t t-esc="observation['values']['clinical_risk']"/></td>
+                                                <td class="col-xs-5 pre-pre-compact-data">
+                                                    <table class="pre-compact-data col-xs-12 row">
+                                                        <t t-foreach="observation['triggered_actions']" t-as="task">
+                                                            <tr>
+                                                                <td class="col-xs-12">
+                                                                    <table class="compact-data col-xs-12">
                                                                         <tr>
-                                                                            <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
+                                                                            <td colspan="2" class="header col-xs-12">
+                                                                                <h4><t t-esc="task['summary']"/></h4>
+                                                                            </td>
                                                                         </tr>
-                                                                    </t>
-                                                                    <tr>
-                                                                        <td class="col-xs-6"><t t-if="task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
-                                                                        <td class="col-xs-6"><t t-if="task['date_terminated']"><strong>Date:</strong> <t t-esc="task['date_terminated']"/></t><br/>
-                                                                            <t t-if="task['date_terminated']==False">
-                                                                                    Task still in progress
-                                                                            </t>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </td>
-                                                        </tr>
-                                                    </t>
-                                                </table>
-                                            </td>
-                                        </tr>
+                                                                        <t t-if="task['notes']">
+                                                                            <tr>
+                                                                                <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
+                                                                            </tr>
+                                                                        </t>
+                                                                        <tr>
+                                                                            <td class="col-xs-6"><t t-if="task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
+                                                                            <td class="col-xs-6"><t t-if="task['date_terminated']"><strong>Date:</strong> <t t-esc="task['date_terminated']"/></t><br/>
+                                                                                <t t-if="task['date_terminated']==False">
+                                                                                        Task still in progress
+                                                                                </t>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </t>
                                     </t>
                                 </tbody>
                             </table>
