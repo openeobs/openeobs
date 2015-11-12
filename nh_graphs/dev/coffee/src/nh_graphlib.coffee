@@ -354,7 +354,7 @@ class NHGraphLib
 ### istanbul ignore if ###
 if !window.NH
   window.NH = {}
-### istanbul ignore else ###
+
 window.NH.NHGraphLib = NHGraphLib
 
 

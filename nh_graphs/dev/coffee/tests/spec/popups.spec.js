@@ -2,7 +2,9 @@
 /*
   Created by Jon Wyatt on 18/10/15
  */
+
 describe('Pop-Ups', function() {
+
   var bp_graph, focus, graphlib, mouseout, mouseover, pulse_graph, test_area;
   graphlib = null;
   pulse_graph = null;
@@ -12,25 +14,58 @@ describe('Pop-Ups', function() {
 
   mouseover = function(el) {
     var ev;
-    ev = document.createEvent('MouseEvent');
-    ev.initMouseEvent('mouseover', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
-    el.dispatchEvent(ev);
+
+    if (el.dispatchEvent) {
+      try {
+        // Chrome, Firefox, Safari
+        ev = new MouseEvent('mouseover', {bubbles: true, cancelable: true});
+      }
+      catch (e) {
+        // PhantomJS
+        ev = document.createEvent('MouseEvent');
+        ev.initMouseEvent('mouseover', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
+      }
+      el.dispatchEvent(ev);
+    }
+    else {
+      // IE
+      ev = document.createEventObject('MouseEvent')
+      el.fireEvent('mouseover', ev)
+    }
   };
 
   mouseout = function(el) {
     var ev;
-    ev = document.createEvent('MouseEvent');
-    ev.initMouseEvent('mouseout', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
-    el.dispatchEvent(ev);
+
+    if (el.dispatchEvent) {
+      try {
+        // Chrome, Firefox, Safari
+        ev = new MouseEvent('mouseout', {bubbles: true, cancelable: true});
+      }
+      catch (e) {
+        // PhantomJS
+        ev = document.createEvent('MouseEvent');
+        ev.initMouseEvent('mouseout', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
+      }
+      el.dispatchEvent(ev);
+    }
+    else {
+      // IE
+      ev = document.createEventObject('MouseEvent')
+      el.fireEvent('mouseout', ev)
+    }
   };
 
+
   beforeEach(function() {
+
     var body_el, keys;
     body_el = document.getElementsByTagName('body')[0];
     test_area = document.createElement('div');
     test_area.setAttribute('id', 'test_area');
     test_area.style.width = '500px';
     body_el.appendChild(test_area);
+
     if (graphlib === null) {
       graphlib = new NHGraphLib('#test_area');
     }
@@ -43,6 +78,7 @@ describe('Pop-Ups', function() {
     if (focus === null) {
       focus = new NHFocus();
     }
+
     pulse_graph.options.keys = ['pulse_rate'];
     pulse_graph.options.label = 'HR';
     pulse_graph.options.measurement = '/min';
@@ -67,6 +103,7 @@ describe('Pop-Ups', function() {
     bp_graph.style.axis.x.hide = true;
     bp_graph.style.data_style = 'range';
     bp_graph.style.label_width = 60;
+
     focus.graphs.push(pulse_graph);
     focus.graphs.push(bp_graph);
     focus.title = 'Individual values';
@@ -115,6 +152,7 @@ describe('Pop-Ups', function() {
   });
 
   describe("Methods", function() {
+
     beforeEach(function() {
       graphlib.init();
       graphlib.draw();
@@ -124,6 +162,7 @@ describe('Pop-Ups', function() {
       expect(typeof bp_graph.show_popup).toBe('function');
       expect(typeof bp_graph.hide_popup).toBe('function');
     });
+
     it("show popup works as expected", function() {
       var pop, popLeft, popText, popTop;
       pulse_graph.show_popup('Hello', 42, 69);
@@ -135,6 +174,7 @@ describe('Pop-Ups', function() {
       expect(popTop).toBe('69px');
       expect(popText).toBe('Hello');
     });
+
     it("hide popup works as expected", function() {
       var pop, popClass;
       pulse_graph.hide_popup();
@@ -145,11 +185,13 @@ describe('Pop-Ups', function() {
   });
 
   describe("Event listeners", function() {
+
     var points, ranges;
     points = null;
     ranges = null;
 
     beforeEach(function() {
+
       spyOn(NHGraph.prototype, 'show_popup').and.callThrough();
       spyOn(NHGraph.prototype, 'hide_popup').and.callThrough();
 
@@ -158,6 +200,7 @@ describe('Pop-Ups', function() {
     });
 
     describe("Linear / Stepped Points", function() {
+
       beforeEach(function() {
         points = document.querySelectorAll('.point');
       });
@@ -172,6 +215,7 @@ describe('Pop-Ups', function() {
         c = NHGraph.prototype.show_popup.calls.count();
         expect(c).toBe(points.length);
       });
+
       it("mouse out event calls hide_popup method on all points", function() {
         var c, i, len, point;
         expect(points.length).toBeGreaterThan(0);
@@ -183,10 +227,13 @@ describe('Pop-Ups', function() {
         expect(c).toBe(points.length);
       });
     });
+
     describe("Linear / Stepped Empty Points", function() {
+
       beforeEach(function() {
         points = document.querySelectorAll('.empty_point');
       });
+
       it("mouse over event calls show_popup method on all empty points", function() {
         var c, i, len, point;
         expect(points.length).toBeGreaterThan(1);
@@ -197,6 +244,7 @@ describe('Pop-Ups', function() {
         c = NHGraph.prototype.show_popup.calls.count();
         expect(c).toBe(points.length);
       });
+
       it("mouse out event calls hide_popup method on all empty points", function() {
         var c, i, len, point;
         expect(points.length).toBeGreaterThan(1);
@@ -208,10 +256,13 @@ describe('Pop-Ups', function() {
         expect(c).toBe(points.length);
       });
     });
+
     describe("Range Bars", function() {
+
       beforeEach(function() {
         ranges = document.querySelectorAll('.data .range');
       });
+
       it("mouseover event calls show_popup method on all range elements", function() {
         var c, i, len, range;
         expect(ranges.length).toBeGreaterThan(1);
@@ -222,6 +273,7 @@ describe('Pop-Ups', function() {
         c = NHGraph.prototype.show_popup.calls.count();
         expect(c).toBe(ranges.length);
       });
+
       it("mouseout event calls hide_popup method on all range elements", function() {
         var c, i, len, range;
         expect(ranges.length).toBeGreaterThan(1);
@@ -232,6 +284,7 @@ describe('Pop-Ups', function() {
         c = NHGraph.prototype.hide_popup.calls.count();
         expect(c).toBe(ranges.length);
       });
+
     });
   });
 });

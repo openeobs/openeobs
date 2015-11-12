@@ -4,6 +4,7 @@
  */
 
 describe('Axes', function() {
+
   var context, focus, graph, graphlib, test_area;
   graphlib = null;
   graph = null;
@@ -164,18 +165,22 @@ describe('Axes', function() {
 
     it("Creates a DOM structure for the axis which is easy to understand", function() {
       var focus_el, focus_els, graph_el, graph_els, x_el, x_els, y_el, y_els;
+
       focus_els = document.getElementsByClassName('nhfocus');
       expect(focus_els.length).toBe(1);
-      focus_el = focus_els[0];
-      graph_els = focus_el.getElementsByClassName('nhgraph');
+
+      graph_els = document.querySelectorAll('.nhfocus .nhgraph');
       expect(graph_els.length).toBe(1);
-      graph_el = graph_els[0];
-      x_els = graph_el.getElementsByClassName('x');
+
+      x_els = document.querySelectorAll('.nhgraph .x');
       expect(x_els.length).toBe(1);
+
       x_el = x_els[0];
       expect(x_el.getAttribute('class')).toBe('x axis');
-      y_els = graph_el.getElementsByClassName('y');
+
+      y_els = document.querySelectorAll('.nhgraph .y');
       expect(y_els.length).toBe(1);
+
       y_el = y_els[0];
       expect(y_el.getAttribute('class')).toBe('y axis');
     });

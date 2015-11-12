@@ -457,7 +457,7 @@ class NHGraph extends NHGraphLib
           return self.axes.y.scale(d[self.options.keys[0]])
         ).attr("r", 3).attr("class", "point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
-        .on('mouseover', (d) ->
+        .on('mouseover', (d,event) ->
           self.show_popup(d[self.options.keys[0]],event.pageX,event.pageY)
         )
         .on('mouseout', (d) ->
@@ -482,7 +482,7 @@ class NHGraph extends NHGraphLib
         .attr("r", 3)
         .attr("class", "empty_point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
-        .on('mouseover', (d) ->
+        .on('mouseover', (d,event) ->
           self.show_popup('Partial observation: ' + d[self.options.keys[0]],
             event.pageX,
             event.pageY)
@@ -524,7 +524,7 @@ class NHGraph extends NHGraphLib
             'class': 'range top',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
           })
-          .on('mouseover', (d) ->
+          .on('mouseover', (d,event) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -555,7 +555,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.cap.width,
             'class': 'range bottom',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -588,7 +588,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.width,
             'class': 'range extent',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -622,7 +622,7 @@ class NHGraph extends NHGraphLib
             'class': 'range top empty_point',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
           })
-          .on('mouseover', (d) ->
+          .on('mouseover', (d,event) ->
             string_to_use = 'Partial Observation:<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -658,7 +658,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.cap.width,
             'class': 'range bottom empty_point',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = 'Partial Observation:<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -697,7 +697,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.width,
             'class': 'range extent empty_point',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = 'Partial Observation<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
