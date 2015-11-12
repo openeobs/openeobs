@@ -6,7 +6,7 @@
   and includes mobile date / time input changes in nhgraphlib
  */
 
-fdescribe('Context', function() {
+describe('Context', function() {
 
   var context, focus, graphlib, mousedown, pulse_graph, score_graph, test_area, touchstart;
   graphlib = null;
@@ -31,28 +31,6 @@ fdescribe('Context', function() {
   };
 
   beforeEach(function() {
-
-    // Custom matcher to check value matches one of a set of possible values
-    jasmine.addMatchers({
-      toBeEither: function(util, customEqualityTesters) {
-        return {
-          compare: function(actual,expected) {
-            var result = {};
-            result.pass = false;
-            for (i = 0; i < expected.length; i++) {
-              if (expected[i] === actual) result.pass = true
-            };
-            if (result.pass) {
-              result.message = actual + " matched one of " + expected
-            }
-            else {
-              result.message = "Expected " + actual + " to be one of " + expected.toString()
-            }
-            return result
-          }
-        }
-      }
-    });
 
     var body_el;
     body_el = document.getElementsByTagName('body')[0];

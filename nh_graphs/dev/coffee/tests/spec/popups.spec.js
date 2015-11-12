@@ -5,57 +5,12 @@
 
 describe('Pop-Ups', function() {
 
-  var bp_graph, focus, graphlib, mouseout, mouseover, pulse_graph, test_area;
+  var bp_graph, focus, graphlib, pulse_graph, test_area;
   graphlib = null;
   pulse_graph = null;
   bp_graph = null;
   focus = null;
   test_area = null;
-
-  mouseover = function(el) {
-    var ev;
-
-    if (el.dispatchEvent) {
-      try {
-        // Chrome, Firefox, Safari
-        ev = new MouseEvent('mouseover', {bubbles: true, cancelable: true});
-      }
-      catch (e) {
-        // PhantomJS
-        ev = document.createEvent('MouseEvent');
-        ev.initMouseEvent('mouseover', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
-      }
-      el.dispatchEvent(ev);
-    }
-    else {
-      // IE
-      ev = document.createEventObject('MouseEvent')
-      el.fireEvent('mouseover', ev)
-    }
-  };
-
-  mouseout = function(el) {
-    var ev;
-
-    if (el.dispatchEvent) {
-      try {
-        // Chrome, Firefox, Safari
-        ev = new MouseEvent('mouseout', {bubbles: true, cancelable: true});
-      }
-      catch (e) {
-        // PhantomJS
-        ev = document.createEvent('MouseEvent');
-        ev.initMouseEvent('mouseout', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
-      }
-      el.dispatchEvent(ev);
-    }
-    else {
-      // IE
-      ev = document.createEventObject('MouseEvent')
-      el.fireEvent('mouseout', ev)
-    }
-  };
-
 
   beforeEach(function() {
 
@@ -210,7 +165,7 @@ describe('Pop-Ups', function() {
         expect(points.length).toBeGreaterThan(0);
         for (i = 0, len = points.length; i < len; i++) {
           point = points[i];
-          mouseover(point);
+          ev.mouse('mouseover',point)
         }
         c = NHGraph.prototype.show_popup.calls.count();
         expect(c).toBe(points.length);
@@ -221,7 +176,7 @@ describe('Pop-Ups', function() {
         expect(points.length).toBeGreaterThan(0);
         for (i = 0, len = points.length; i < len; i++) {
           point = points[i];
-          mouseout(point);
+          ev.mouse('mouseout',point)
         }
         c = NHGraph.prototype.hide_popup.calls.count();
         expect(c).toBe(points.length);
@@ -239,7 +194,7 @@ describe('Pop-Ups', function() {
         expect(points.length).toBeGreaterThan(1);
         for (i = 0, len = points.length; i < len; i++) {
           point = points[i];
-          mouseover(point);
+          ev.mouse('mouseover',point)
         }
         c = NHGraph.prototype.show_popup.calls.count();
         expect(c).toBe(points.length);
@@ -250,7 +205,7 @@ describe('Pop-Ups', function() {
         expect(points.length).toBeGreaterThan(1);
         for (i = 0, len = points.length; i < len; i++) {
           point = points[i];
-          mouseout(point);
+          ev.mouse('mouseout',point)
         }
         c = NHGraph.prototype.hide_popup.calls.count();
         expect(c).toBe(points.length);
@@ -267,19 +222,17 @@ describe('Pop-Ups', function() {
         var c, i, len, range;
         expect(ranges.length).toBeGreaterThan(1);
         for (i = 0, len = ranges.length; i < len; i++) {
-          range = ranges[i];
-          mouseover(range);
+          ev.mouse('mouseover',ranges[i])
         }
         c = NHGraph.prototype.show_popup.calls.count();
         expect(c).toBe(ranges.length);
       });
 
       it("mouseout event calls hide_popup method on all range elements", function() {
-        var c, i, len, range;
+        var c, i;
         expect(ranges.length).toBeGreaterThan(1);
-        for (i = 0, len = ranges.length; i < len; i++) {
-          range = ranges[i];
-          mouseout(range);
+        for (i = 0; i < ranges.length; i++) {
+          ev.mouse('mouseout',ranges[i])
         }
         c = NHGraph.prototype.hide_popup.calls.count();
         expect(c).toBe(ranges.length);
