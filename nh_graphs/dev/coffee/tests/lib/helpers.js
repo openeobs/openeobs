@@ -2,7 +2,7 @@
 beforeEach(function() {
     // Custom matcher to check value matches one of a set of possible values
     jasmine.addMatchers({
-        toBeEither: function (util, customEqualityTesters) {
+        toBeEither: function () {
             return {
                 compare: function (actual, expected) {
                     var result = {};
@@ -40,12 +40,33 @@ ev.mouse = function (action, el, x, y) {
     if (el.dispatchEvent) {
         try {
             // Chrome, Firefox, Safari
-            ev = new MouseEvent(action, {bubbles: true, cancelable: true, clientX: x, clientY: y, screenX: x, screenY: y});
+            ev = new MouseEvent(action, {
+                bubbles: true,
+                cancelable: true,
+                clientX: x,
+                clientY: y,
+                screenX: x,
+                screenY: y});
         }
         catch (e) {
             // PhantomJS
             ev = document.createEvent('MouseEvent');
-            ev.initMouseEvent(action, true, true, window, null, x, y, x, y, false, false, false, false, 0, null);
+            ev.initMouseEvent(
+                action,
+                true,
+                true,
+                window,
+                null,
+                x,
+                y,
+                x,
+                y,
+                false,
+                false,
+                false,
+                false,
+                0,
+                null);
         }
         el.dispatchEvent(ev);
     }
@@ -71,7 +92,7 @@ ev.html = function (action, el) {
     if (window.dispatchEvent) {
         try {
             // Chrome, Firefox, Safari
-            ev = CustomEvent(action);
+            ev = new CustomEvent(action);
         }
         catch (e) {
             // PhantomJS
@@ -81,11 +102,12 @@ ev.html = function (action, el) {
         if (el) el.dispatchEvent(ev);
         else return ev
     }
-    else {
+    else if (document.createEventObject) {
         // IE
         ev = document.createEventObject('HTMLEvent');
         if (el) el.fireEvent(action, ev);
         else return ev
     }
+    else return "Fail, no event method found"
 }
 
