@@ -173,9 +173,7 @@ describe('Resize', function() {
             graphlib.init();
             graphlib.draw();
 
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('resize', true, true);
-            window.dispatchEvent(resize_event);
+            ev.html('resize',window);
 
             expect(NHGraphLib.prototype.redraw_resize).toHaveBeenCalled()
         });
@@ -187,9 +185,7 @@ describe('Resize', function() {
             graphlib.init();
             graphlib.draw();
 
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('context_resize', true, true);
-            window.dispatchEvent(resize_event);
+            ev.html('context_resize',window);
 
             expect(context.handle_resize).toHaveBeenCalled()
         });
@@ -200,9 +196,7 @@ describe('Resize', function() {
             graphlib.init();
             graphlib.draw();
 
-            var focus_resize = document.createEvent('HTMLEvents');
-            focus_resize.initEvent('focus_resize', true, true);
-            window.dispatchEvent(focus_resize);
+            ev.html('focus_resize',window);
 
             expect(NHFocus.prototype.handle_resize).toHaveBeenCalled()
         });
@@ -213,9 +207,7 @@ describe('Resize', function() {
             graphlib.init();
             graphlib.draw();
 
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('graph_resize', true, true);
-            window.dispatchEvent(resize_event);
+            ev.html('graph_resize',window);
 
             expect(NHGraph.prototype.resize_graph).toHaveBeenCalled()
         });
@@ -233,9 +225,7 @@ describe('Resize', function() {
             // Set new div width and trigger resize event
             test_area.style.width = '800px';
 
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('resize', true, true);
-            //window.dispatchEvent(resize_event);
+            var resize_event = ev.html('resize');
             graphlib.redraw_resize(graphlib,resize_event);
 
         });
@@ -265,8 +255,7 @@ describe('Resize', function() {
             // Set new div width and trigger resize event
             test_area.style.width = '800px';
 
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('resize', true, true);
+            var resize_event = ev.html('context_resize');
             context.handle_resize(context,context.parent_obj.obj,resize_event)
         });
 
@@ -314,9 +303,8 @@ describe('Resize', function() {
             graphlib.init();
             graphlib.draw();
 
-            var focus_resize = document.createEvent('HTMLEvents');
-            focus_resize.initEvent('focus_resize', true, true);
-            focus.handle_resize(focus,focus_resize)
+            var resize_event = ev.html('focus_resize');
+            focus.handle_resize(focus,resize_event)
         });
 
         it("sets style.dimensions.width to parent object - padding + margin",function() {
@@ -400,8 +388,7 @@ describe('Resize', function() {
 
             focus.style.dimensions.width = 500;
 
-            var resize_event = document.createEvent('HTMLEvents');
-            resize_event.initEvent('graph_resize', true, true);
+            var resize_event = ev.html('graph_resize');
             pulse_graph.resize_graph(pulse_graph,resize_event)
         });
 
@@ -468,9 +455,7 @@ describe('Resize', function() {
 
                     spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(0);
 
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('context_resize', true, true);
-                    //window.dispatchEvent(resize_event);
+                    var resize_event = ev.html('context_resize');
                     context.handle_resize(context,context.parent_obj.obj,resize_event)
                 });
 
@@ -495,8 +480,7 @@ describe('Resize', function() {
 
                     spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(1);
 
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('context_resize', true, true);
+                    var resize_event = ev.html('context_resize');
                     context.handle_resize(context,context.parent_obj.obj,resize_event)
                 });
 
@@ -539,8 +523,7 @@ describe('Resize', function() {
                     test_area.appendChild(inp);
                     graphlib.options.controls.time.end = inp;
 
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('context_resize', true, true);
+                    var resize_event = ev.html('context_resize');
                     context.handle_resize(context,context.parent_obj.obj,resize_event)
                 });
 
@@ -548,8 +531,8 @@ describe('Resize', function() {
                     var actual, expected;
                     actual = new Date(graphlib.options.controls.date.start.value);
                     expected = new Date(context.graph.axes.x.scale.domain()[0]);
-                    actual = actual.toString().substr(0, 16);
-                    expected = expected.toString().substr(0, 16);
+                    actual = actual.toString().substr(0, 10);
+                    expected = expected.toString().substr(0, 10);
                     expect(actual).toBe(expected);
                 });
 
@@ -567,8 +550,8 @@ describe('Resize', function() {
                     var actual, expected;
                     actual = new Date(graphlib.options.controls.date.end.value);
                     expected = new Date(context.axes.x.max);
-                    actual = actual.toString().substr(0, 16);
-                    expected = expected.toString().substr(0, 16);
+                    actual = actual.toString().substr(0, 10);
+                    expected = expected.toString().substr(0, 10);
                     expect(actual).toBe(expected);
                 });
 
@@ -593,8 +576,7 @@ describe('Resize', function() {
                     spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(1);
                     spyOn(focus, 'redraw').and.callThrough();
 
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('focus_resize', true, true);
+                    var resize_event = ev.html('focus_resize');
                     focus.handle_resize(focus,focus.parent_obj.obj,resize_event)
                 });
 
@@ -627,8 +609,7 @@ describe('Resize', function() {
 
                     spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(0);
 
-                    var resize_event = document.createEvent('HTMLEvents');
-                    resize_event.initEvent('focus_resize', true, true);
+                    var resize_event = ev.html('focus_resize');
                     focus.handle_resize(focus,focus.parent_obj.obj,resize_event)
                 });
 

@@ -29,23 +29,23 @@ ev = {}
 
 /*
  Function to create and dispatch mouse events using browser specific method
- Expects action as string e.g. 'mouseover','click' and the target element
+ Expects action as string e.g. 'mouseover','click', target element and optional x/y co-ords
 */
 ev.mouse = function (action, el, x, y) {
+
     var ev;
+    if (!x) x = 0;
+    if (!y) y = 0;
+
     if (el.dispatchEvent) {
         try {
             // Chrome, Firefox, Safari
-            ev = new MouseEvent(action, {bubbles: true, cancelable: true});
+            ev = new MouseEvent(action, {bubbles: true, cancelable: true, clientX: x, clientY: y, screenX: x, screenY: y});
         }
         catch (e) {
             // PhantomJS
             ev = document.createEvent('MouseEvent');
-            ev.initMouseEvent(action, true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
-        }
-        if (x) {
-            ev.pageX = x;
-            ev.pageY = y
+            ev.initMouseEvent(action, true, true, window, null, x, y, x, y, false, false, false, false, 0, null);
         }
         el.dispatchEvent(ev);
     }
@@ -53,8 +53,10 @@ ev.mouse = function (action, el, x, y) {
         // IE
         ev = document.createEventObject('MouseEvent');
         if (x) {
-            ev.pageX = x;
-            ev.pageY = y
+            ev.clientX = x;
+            ev.clientY = y;
+            ev.screenX = x;
+            ev.screenY = y
         }
         el.fireEvent(action, ev)
     }
@@ -62,11 +64,11 @@ ev.mouse = function (action, el, x, y) {
 
 /*
  Function to dispatch HTML Events e.g. resize
- If no element provided defaults to window
+ If no element provided returns event instead of dispatching
 */
 ev.html = function (action, el) {
     var ev;
-    if (el.dispatchEvent) {
+    if (window.dispatchEvent) {
         try {
             // Chrome, Firefox, Safari
             ev = CustomEvent(action);
@@ -76,12 +78,14 @@ ev.html = function (action, el) {
             ev = document.createEvent('HTMLEvents');
             ev.initEvent(action, true, true);
         }
-        el.dispatchEvent(ev);
+        if (el) el.dispatchEvent(ev);
+        else return ev
     }
     else {
         // IE
         ev = document.createEventObject('HTMLEvent');
-        el.fireEvent(action, ev)
+        if (el) el.fireEvent(action, ev);
+        else return ev
     }
-};
+}
 

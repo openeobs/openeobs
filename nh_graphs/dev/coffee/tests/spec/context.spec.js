@@ -8,27 +8,13 @@
 
 describe('Context', function() {
 
-  var context, focus, graphlib, mousedown, pulse_graph, score_graph, test_area, touchstart;
+  var context, focus, graphlib, pulse_graph, score_graph, test_area;
   graphlib = null;
   pulse_graph = null;
   score_graph = null;
   context = null;
   focus = null;
   test_area = null;
-
-  mousedown = function(el) {
-    var ev;
-    ev = document.createEvent('MouseEvent');
-    ev.initMouseEvent('mousedown', true, true, window, null, 0, 0, 0, 0, false, false, false, false, 0, null);
-    el.dispatchEvent(ev);
-  };
-
-  touchstart = function(el) {
-    var ev;
-    ev = document.createEvent('MouseEvent');
-    ev.initMouseEvent('touchstart', true, true, window, null, 50, 0, 50, 0, false, false, false, false, 0, null);
-    el.dispatchEvent(ev);
-  };
 
   beforeEach(function() {
 
@@ -164,6 +150,7 @@ describe('Context', function() {
   });
 
   describe("Methods", function() {
+
     beforeEach(function() {
       spyOn(context, 'init').and.callThrough();
       spyOn(context.graph, 'init').and.callThrough();
@@ -303,19 +290,19 @@ describe('Context', function() {
         expect(context.handle_brush).toBeDefined();
       });
 
-      it("is called when brush clicked", function() {
+      it("is called on 'mousedown'", function() {
         var xbrushes;
         graphlib.init();
         xbrushes = document.querySelectorAll('.nhcontext .x.brush');
-        mousedown(xbrushes[0]);
+        ev.mouse('mousedown',xbrushes[0]);
         expect(context.handle_brush).toHaveBeenCalled();
       });
 
-      it("is called on 'tochstart'", function() {
+      it("is called on 'touchstart'", function() {
         var xbrushes;
         graphlib.init();
         xbrushes = document.querySelectorAll('.nhcontext .x.brush');
-        mousedown(xbrushes[0]);
+        ev.mouse('touchstart',xbrushes[0]);
         expect(context.handle_brush).toHaveBeenCalled();
       });
 
@@ -326,7 +313,7 @@ describe('Context', function() {
         xbrushes = document.querySelectorAll('.nhcontext .x.brush');
         extents = document.querySelectorAll('.nhcontext .x.brush .extent');
         extents[0].setAttribute('width', '0');
-        touchstart(xbrushes[0]);
+        ev.mouse('touchstart',xbrushes[0],50,0);
         expect(context.handle_brush).toHaveBeenCalled();
         conMin = context.axes.x.min;
         conMax = context.axes.x.max;
@@ -356,6 +343,7 @@ describe('Context', function() {
         });
 
         describe("Inputs", function() {
+
           beforeEach(function() {
             var extents, xbrushes;
             graphlib.init();
@@ -363,15 +351,15 @@ describe('Context', function() {
             xbrushes = document.querySelectorAll('.nhcontext .x.brush');
             extents = document.querySelectorAll('.nhcontext .x.brush .extent');
             extents[0].setAttribute('width', '0');
-            touchstart(xbrushes[0]);
+            ev.mouse('touchstart',xbrushes[0],50,0);
           });
 
           it("updates start date input with new date", function() {
             var actual, expected;
             actual = new Date(graphlib.options.controls.date.start.value);
             expected = new Date(context.axes.x.min);
-            actual = actual.toString().substr(0, 16);
-            expected = expected.toString().substr(0, 16);
+            actual = actual.toString().substr(0, 10);
+            expected = expected.toString().substr(0, 10);
             expect(actual).toBe(expected);
           });
 
@@ -389,8 +377,8 @@ describe('Context', function() {
             var actual, expected;
             actual = new Date(graphlib.options.controls.date.end.value);
             expected = new Date(context.axes.x.max);
-            actual = actual.toString().substr(0, 16);
-            expected = expected.toString().substr(0, 16);
+            actual = actual.toString().substr(0, 10);
+            expected = expected.toString().substr(0, 10);
             expect(actual).toBe(expected);
           });
 

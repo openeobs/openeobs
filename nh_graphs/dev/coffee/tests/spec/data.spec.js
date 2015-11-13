@@ -17,6 +17,7 @@ describe('Data', function() {
     test_area.setAttribute('id', 'test_area');
     test_area.style.width = '500px';
     body_el.appendChild(test_area);
+
     if (graphlib === null) {
       graphlib = new NHGraphLib('#test_area');
     }
@@ -26,6 +27,7 @@ describe('Data', function() {
     if (focus === null) {
       focus = new NHFocus();
     }
+
     graph.options.keys = ['respiration_rate'];
     graph.options.label = 'RR';
     graph.options.measurement = '/min';
@@ -36,13 +38,16 @@ describe('Data', function() {
     graph.style.dimensions.height = 250;
     graph.style.data_style = 'linear';
     graph.style.label_width = 60;
+
     focus.graphs.push(graph);
+
     graphlib.focus = focus;
     graphlib.data.raw = ews_data.single_record;
   });
 
   afterEach(function() {
     var j, k, len, len1, pop, pops, test, tests;
+
     if (graphlib !== null) {
       graphlib = null;
     }
@@ -143,7 +148,7 @@ describe('Data', function() {
     describe("Linear", function() {
 
       var clipURL;
-      clipURL = 'url(#respiration_rate-clip)';
+      clipURL = ['url(#respiration_rate-clip)','url("#respiration_rate-clip")'];
 
       describe("Single observation", function() {
 
@@ -233,7 +238,7 @@ describe('Data', function() {
             var j, len, path;
             for (j = 0, len = paths.length; j < len; j++) {
               path = paths[j];
-              expect(path.getAttribute('clip-path')).toBe(clipURL);
+              expect(path.getAttribute('clip-path')).toBeEither(clipURL);
             }
           });
 
@@ -276,7 +281,9 @@ describe('Data', function() {
     describe("Stepped", function() {
 
       var clipURL;
-      clipURL = 'url(#respiration_rate-clip)';
+      clipURL = [
+        'url(#respiration_rate-clip)',
+        'url("#respiration_rate-clip")'];
 
       beforeEach(function() {
         graph.style.data_style = 'stepped';
@@ -370,7 +377,7 @@ describe('Data', function() {
             var j, len, path;
             for (j = 0, len = paths.length; j < len; j++) {
               path = paths[j];
-              expect(path.getAttribute('clip-path')).toBe(clipURL);
+              expect(path.getAttribute('clip-path')).toBeEither(clipURL);
             }
           });
         });
@@ -412,7 +419,10 @@ describe('Data', function() {
       capWidth = null;
       capHeight = null;
       rangeWidth = null;
-      clipURL = 'url(#blood_pressure_systolic-blood_pressure_diastolic-clip)';
+
+      clipURL = [
+        'url(#blood_pressure_systolic-blood_pressure_diastolic-clip)',
+        'url("#blood_pressure_systolic-blood_pressure_diastolic-clip")'];
 
       beforeEach(function() {
         var keys;
@@ -489,7 +499,7 @@ describe('Data', function() {
           var el, j, len;
           for (j = 0, len = bar.length; j < len; j++) {
             el = bar[j];
-            expect(el.getAttribute('clip-path')).toBe(clipURL);
+            expect(el.getAttribute('clip-path')).toBeEither(clipURL);
           }
         });
       });
@@ -503,6 +513,7 @@ describe('Data', function() {
           tops = document.querySelectorAll('.range.top');
           bottoms = document.querySelectorAll('.range.bottom');
           extents = document.querySelectorAll('.range.extent');
+          bar = [tops[0], extents[0], bottoms[0]];
         });
 
         it("has the correct number of range bars", function() {
@@ -550,7 +561,7 @@ describe('Data', function() {
           var el, j, len;
           for (j = 0, len = bar.length; j < len; j++) {
             el = bar[j];
-            expect(el.getAttribute('clip-path')).toBe(clipURL);
+            expect(el.getAttribute('clip-path')).toBeEither(clipURL);
           }
         });
       });
