@@ -4,7 +4,32 @@ karma = require('gulp-karma'),
 notify = require('gulp-notify'),
 concat = require('gulp-concat'),
 docco = require('gulp-docco'),
-coffee = require('gulp-coffee');
+coffee = require('gulp-coffee'),
+sauceConnectLauncher = require('sauce-connect-launcher');
+
+gulp.task('sauce_start', function() {
+	sauceConnectLauncher({
+		username: 'neovahealth',
+		accessKey: 'b7964b4f-b0e7-44ee-81e3-883c3ee47652'
+	}, function (err, sauceConnectProcess) {
+		if (err) {
+			console.error(err.message);
+			return;
+		}
+		console.log("Sauce Connect ready");
+	});
+});
+
+gulp.task('sauce_stop', function() {
+	sauceConnectLauncher({
+		username: 'neovahealth',
+		accessKey: 'b7964b4f-b0e7-44ee-81e3-883c3ee47652'
+	}, function (err, sauceConnectProcess) {
+		sauceConnectProcess.close(function () {
+			console.log("Closed Sauce Connect process");
+		})
+	});
+});
 
 var Server = require('karma').Server;
 

@@ -168,7 +168,7 @@ class NHGraph extends NHGraphLib
   # Handles rangify input event which changes the Y Axis to it's ranged scale
   # or to initial scale
   rangify_graph: (self, event) ->
-    if event.srcElement.checked
+    if event.target.checked
       d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
       d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
       self.axes.y.scale.domain([(if d0 > 0 then d0 else 0), d1])

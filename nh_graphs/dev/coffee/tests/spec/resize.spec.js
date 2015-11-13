@@ -460,10 +460,6 @@ describe('Resize', function() {
                 });
 
                 it("adjusts x-axis min to max minus 1 day", function() {
-                    /*
-                        As above - works in isolation (fit) but not with landscape
-                        both work in chrome console, ?set-up/tear-down pollution
-                     */
                     expect(NHGraphLib.prototype.is_landscape).toHaveBeenCalled();
 
                     var min = context.graph.axes.x.scale.domain()[0];
@@ -485,10 +481,6 @@ describe('Resize', function() {
                 });
 
                 it("adjusts x-axis min to max minus 5 days", function() {
-                    /*
-                        Works in isolation (fit) but not with portrait test
-                        both work in chrome console
-                    */
                     expect(NHGraphLib.prototype.is_landscape).toHaveBeenCalled();
                     var min = context.graph.axes.x.scale.domain()[0];
 
@@ -496,7 +488,7 @@ describe('Resize', function() {
                     expected.setDate(expected.getDate() - 5);
                     expect(min.toString()).toBe(expected.toString())
                 })
-            })
+            });
 
             describe("Date/time inputs",function() {
 

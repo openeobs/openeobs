@@ -132,7 +132,7 @@ class NHGraphLib
   mobile_date_start_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.min
-      dates = event.srcElement.value.split('-')
+      dates = event.target.value.split('-')
       new_date = new Date(current_date.setFullYear(dates[0],
         parseInt(dates[1])-1, dates[2]))
       self.focus.axes.x.min = new_date
@@ -148,7 +148,7 @@ class NHGraphLib
   mobile_date_end_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.max
-      dates = event.srcElement.value.split('-')
+      dates = event.target.value.split('-')
       new_date = new Date(current_date.setFullYear(dates[0],
         parseInt(dates[1])-1, dates[2]))
       self.focus.axes.x.max = new_date
@@ -172,7 +172,7 @@ class NHGraphLib
   mobile_time_start_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.min
-      time = event.srcElement.value.split(':')
+      time = event.target.value.split(':')
       new_time = new Date(current_date.setHours(time[0], time[1]))
       self.focus.axes.x.min = new_time
       self.focus.redraw([new_time, self.focus.axes.x.max])
@@ -187,7 +187,7 @@ class NHGraphLib
   mobile_time_end_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.max
-      time = event.srcElement.value.split(':')
+      time = event.target.value.split(':')
       new_time = new Date(current_date.setHours(time[0], time[1]))
       self.focus.axes.x.max = new_time
       self.focus.redraw([self.focus.axes.x.min, new_time])
