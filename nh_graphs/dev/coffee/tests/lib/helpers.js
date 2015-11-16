@@ -95,17 +95,11 @@ ev.html = function (action, el) {
             ev = new CustomEvent(action);
         }
         catch (e) {
-            // PhantomJS
+            // PhantomJS, IE
             ev = document.createEvent('HTMLEvents');
             ev.initEvent(action, true, true);
         }
         if (el) el.dispatchEvent(ev);
-        else return ev
-    }
-    else if (document.createEventObject) {
-        // IE
-        ev = document.createEventObject('HTMLEvent');
-        if (el) el.fireEvent(action, ev);
         else return ev
     }
     else return "Fail, no event method found"
