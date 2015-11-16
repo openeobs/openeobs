@@ -1,7 +1,19 @@
+import logging
+from psycopg2 import ProgrammingError
+
+_logger = logging.getLogger(__name__)
+
+
 def migrate(cr, installed_version):
-    if installed_version[-3:] == '0.1':
-        cr.execute(
-            """
-            ALTER TABLE nh_clinical_patient_pbp_monitoring RENAME COLUMN pbp_monitoring TO status;
-            """
-        )
+    if installed_version[-3:] == "0.1":
+        tables = [
+            ("nh_clinical_patient_pbp_monitoring", "pbp_monitoring")
+        ]
+        for t in tables:
+            try:
+                query = "ALTER TABLE %s RENAME COLUMN %s TO status" % (t[0], t[1])
+                cr.execute(query)
+            except ProgrammingError as e:
+                cr.rollback()
+                _logger.info("Migration already made: " + str(e))
+                pass
