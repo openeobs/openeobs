@@ -100,7 +100,7 @@ describe('Resize', function() {
 
         graphlib.focus = focus;
         graphlib.context = context;
-        graphlib.data.raw = ews_data.multi_partial;
+        graphlib.data.raw = ews_data.multi_partial
     });
 
     afterEach(function () {
@@ -417,7 +417,6 @@ describe('Resize', function() {
         });
 
         it("calls own redraw method",function() {
-            // Not being called, works in chrome console. ?why
             expect(pulse_graph.redraw).toHaveBeenCalled()
         });
     });
@@ -426,6 +425,30 @@ describe('Resize', function() {
 
         beforeEach(function() {
             graphlib.options.mobile.is_mob = true;
+
+            var inp;
+            inp = document.createElement('input');
+            inp.setAttribute('type', 'date');
+            test_area.appendChild(inp);
+            graphlib.options.controls.date.start = inp;
+
+            inp = document.createElement('input');
+            inp.setAttribute('type', 'time');
+            test_area.appendChild(inp);
+            graphlib.options.controls.time.start = inp;
+
+            inp = document.createElement('input');
+            inp.setAttribute('type', 'date');
+            test_area.appendChild(inp);
+            graphlib.options.controls.date.end = inp;
+
+            inp = document.createElement('input');
+            inp.setAttribute('type', 'time');
+            test_area.appendChild(inp);
+            graphlib.options.controls.time.end = inp;
+
+            inp.addEventListener('change',function() {graphlib.redraw_resize(graphlib,ev.html('resize'))});
+
             graphlib.init();
             graphlib.draw();
         });
@@ -443,13 +466,11 @@ describe('Resize', function() {
                 window.innerHeight = 800;
                 expect(graphlib.is_landscape()).toBe(0);
             });
-
         });
-
 
         describe("NHContext.handle_resize()",function() {
 
-            describe("Portrait",function() {
+           describe("Portrait",function() {
 
                 beforeEach(function() {
 
@@ -467,15 +488,51 @@ describe('Resize', function() {
                     var expected = new Date(focus.axes.x.max);
                     expected.setDate(expected.getDate() - 1);
                     expect(min.toString()).toBe(expected.toString())
-                })
+                });
+
+                it("updates start date input with new date", function() {
+                    var actual, expected;
+                    actual = new Date(graphlib.options.controls.date.start.value);
+                    expected = new Date(context.graph.axes.x.scale.domain()[0]);
+                    actual = actual.toString().substr(0,10);
+                    expected = expected.toString().substr(0,10);
+                    expect(actual).toBe(expected);
+                });
+
+                it("updates start time input with new time", function() {
+                    var actual, conMin, expected;
+                    actual = graphlib.options.controls.time.start.value;
+                    conMin = new Date(context.graph.axes.x.scale.domain()[0]);
+                    expected = conMin.getHours();
+                    expected += ':';
+                    expected += conMin.getMinutes();
+                    expect(actual).toBe(expected);
+                });
+
+                it("updates end date input with new date", function() {
+                    var actual, expected;
+                    actual = new Date(graphlib.options.controls.date.end.value);
+                    expected = new Date(context.axes.x.max);
+                    actual = actual.toString().substr(0,10);
+                    expected = expected.toString().substr(0,10);
+                    expect(actual).toBe(expected);
+                });
+
+                it("updates end time input with new time", function() {
+                    var actual, conMin, expected;
+                    actual = graphlib.options.controls.time.end.value;
+                    conMin = new Date(context.axes.x.max);
+                    expected = conMin.getHours();
+                    expected += ':';
+                    expected += conMin.getMinutes();
+                    expect(actual).toBe(expected);
+                });
             });
 
             describe("Landscape",function() {
 
                 beforeEach(function() {
-
                     spyOn(NHGraphLib.prototype, 'is_landscape').and.returnValue(1);
-
                     var resize_event = ev.html('context_resize');
                     context.handle_resize(context,context.parent_obj.obj,resize_event)
                 });
@@ -487,9 +544,47 @@ describe('Resize', function() {
                     var expected = new Date(focus.axes.x.max);
                     expected.setDate(expected.getDate() - 5);
                     expect(min.toString()).toBe(expected.toString())
-                })
-            });
+                });
 
+                it("updates start date input with new date", function() {
+                    var actual, expected;
+                    actual = new Date(graphlib.options.controls.date.start.value);
+                    expected = new Date(context.graph.axes.x.scale.domain()[0]);
+                    actual = actual.toString().substr(0, 10);
+                    expected = expected.toString().substr(0, 10);
+                    expect(actual).toBe(expected);
+                });
+
+                it("updates start time input with new time", function() {
+                    var actual, conMin, expected;
+                    actual = graphlib.options.controls.time.start.value;
+                    conMin = new Date(context.graph.axes.x.scale.domain()[0]);
+                    expected = conMin.getHours();
+                    expected += ':';
+                    expected += conMin.getMinutes();
+                    expect(actual).toBe(expected);
+                });
+
+                it("updates end date input with new date", function() {
+                    var actual, expected;
+                    actual = new Date(graphlib.options.controls.date.end.value);
+                    expected = new Date(context.axes.x.max);
+                    actual = actual.toString().substr(0, 10);
+                    expected = expected.toString().substr(0, 10);
+                    expect(actual).toBe(expected);
+                });
+
+                it("updates end time input with new time", function() {
+                    var actual, conMin, expected;
+                    actual = graphlib.options.controls.time.end.value;
+                    conMin = new Date(context.axes.x.max);
+                    expected = conMin.getHours();
+                    expected += ':';
+                    expected += conMin.getMinutes();
+                    expect(actual).toBe(expected);
+                });
+            });
+/*
             describe("Date/time inputs",function() {
 
                 beforeEach(function() {
@@ -558,6 +653,7 @@ describe('Resize', function() {
                 });
 
             })
+            */
         });
 
         describe("NHFocus.handle_resize()", function() {
