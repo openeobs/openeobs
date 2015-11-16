@@ -9,8 +9,8 @@ sauceConnectLauncher = require('sauce-connect-launcher');
 
 gulp.task('hot_sauce', function() {
 	sauceConnectLauncher({
-		username: '',
-		accessKey: ''
+		username: process.env.SAUCE_USERNAME,
+		accessKey: process.env.SAUCE_ACCESS_KEY
 	}, function (err, sauceConnectProcess) {
 		if (err) {
 			console.error(err.message);
@@ -22,8 +22,8 @@ gulp.task('hot_sauce', function() {
 
 gulp.task('sauce_stop', function() {
 	sauceConnectLauncher({
-		username: '',
-		accessKey: ''
+		username: process.env.SAUCE_USERNAME,
+		accessKey: process.env.SAUCE_ACCESS_KEY
 	}, function (err, sauceConnectProcess) {
 		sauceConnectProcess.close(function () {
 			console.log("Closed Sauce Connect process");
