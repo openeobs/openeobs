@@ -16,7 +16,6 @@ from openerp.osv import orm, fields
 import logging
 from openerp import SUPERUSER_ID
 from datetime import datetime as dt, timedelta as td
-from openerp.addons.nh_observations.helpers import refresh_materialized_views
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 _logger = logging.getLogger(__name__)
 
@@ -42,16 +41,12 @@ class nh_clinical_patient_mrsa(orm.Model):
     or not.
     """
     _name = 'nh.clinical.patient.mrsa'
-    _inherit = ['nh.activity.data'] 
+    _inherit = ['nh.activity.data']
     _columns = {
         'status': fields.boolean('MRSA'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_mrsa, self).complete(cr, uid, activity_id, context)
-        return res
 
 class nh_clinical_patient_diabetes(orm.Model):
     """
@@ -66,11 +61,6 @@ class nh_clinical_patient_diabetes(orm.Model):
         'status': fields.boolean('Diabetes'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_diabetes, self).complete(cr, uid, activity_id, context)
-        return res
 
 
 class nh_clinical_patient_palliative_care(orm.Model):
@@ -100,7 +90,6 @@ class nh_clinical_patient_palliative_care(orm.Model):
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
-    @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
@@ -142,7 +131,6 @@ class nh_clinical_patient_post_surgery(orm.Model):
     }
     _ews_frequency = 60
 
-    @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
@@ -219,7 +207,6 @@ class nh_clinical_patient_critical_care(orm.Model):
             return False
         return activity_pool.browse(cr, uid, a_ids[0], context=context).data_ref.status
 
-    @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
@@ -261,7 +248,6 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
     }
 
-    @refresh_materialized_views('weight')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
@@ -310,8 +296,3 @@ class nh_clinical_patient_urine_output_target(orm.Model):
             return False
         activity = activity_pool.browse(cr, uid, a_ids[0], context=context)
         return [activity.data_ref.volume, activity.data_ref.unit]
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_urine_output_target, self).complete(cr, uid, activity_id, context)
-        return res

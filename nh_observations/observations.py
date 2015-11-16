@@ -7,10 +7,8 @@ none of them should require complex policies to be implemented.
 The abstract definition of an observation from which all other
 observations inherit is also included here.
 """
-
 from openerp.osv import orm, fields, osv
 from openerp.addons.nh_observations.parameters import frequencies
-from openerp.addons.nh_observations.helpers import refresh_materialized_views
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import SUPERUSER_ID
@@ -243,11 +241,6 @@ class nh_clinical_patient_observation_height(orm.Model):
         }
     ]
 
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_observation_height, self).complete(cr, uid, activity_id, context)
-        return res
-
 
 class nh_clinical_patient_observation_weight(orm.Model):
     """
@@ -377,11 +370,6 @@ class nh_clinical_patient_observation_blood_product(orm.Model):
         }
     ]
 
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_observation_blood_product, self).complete(cr, uid, activity_id, context)
-        return res
-
 
 class nh_clinical_patient_observation_blood_sugar(orm.Model):
     """
@@ -407,11 +395,6 @@ class nh_clinical_patient_observation_blood_sugar(orm.Model):
             'initially_hidden': False
         }
     ]
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_observation_blood_sugar, self).complete(cr, uid, activity_id, context)
-        return res
 
 
 class nh_clinical_patient_observation_pain(orm.Model):
@@ -447,11 +430,6 @@ class nh_clinical_patient_observation_pain(orm.Model):
             'initially_hidden': False
         }
     ]
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_observation_pain, self).complete(cr, uid, activity_id, context)
-        return res
 
 
 class nh_clinical_patient_observation_urine_output(orm.Model):
@@ -503,7 +481,26 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
                 field['secondary_label'] = 'Target: {0} {1}'.format(uotarget[0], units[uotarget[1]])
         return fd
 
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_observation_urine_output, self).complete(cr, uid, activity_id, context)
-        return res
+
+class nh_clinical_patient_observation_bowels_open(orm.Model):
+    """
+    Represents the action of observing if a
+    :class:`patient<base.nh_clinical_patient>` has the bowels open or
+    not.
+    """
+    _name = 'nh.clinical.patient.observation.bowels_open'
+    _inherit = ['nh.clinical.patient.observation']
+    _required = ['bowels_open']
+    _description = "Bowels Open Flag"
+    _columns = {
+        'bowels_open': fields.selection([['yes', 'Yes'], ['no', 'No']], 'Bowels Open')
+    }
+    _form_description = [
+        {
+            'name': 'bowels_open',
+            'type': 'selection',
+            'label': 'Bowels Open',
+            'selection': [['yes', 'Yes'], ['no', 'No']],
+            'initially_hidden': False
+        }
+    ]
