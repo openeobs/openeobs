@@ -576,7 +576,8 @@ class TestWardboard(SingleTransactionCase):
 
         res = self.wardboard_pool._get_recently_discharged_uids(cr, self.wm_uid, [self.wb_disc_id, self.wb_id3],
                                                                 'recently_discharged_uids', None)
-        self.assertListEqual(res[self.wb_disc_id], [self.wm_uid, self.dr_uid])
+
+        self.assertListEqual(sorted(res[self.wb_disc_id]), sorted([self.wm_uid, self.dr_uid]))
         self.assertFalse(res[self.wb_id3])
 
     def test_27_recently_discharged_uids_search(self):

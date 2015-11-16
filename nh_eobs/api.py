@@ -1043,7 +1043,8 @@ class nh_eobs_api(orm.AbstractModel):
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type, context=None):
         """
         Creates an :class:`activity<activity.nh_activity>` of specified
-        type for a :class:`patient<base.nh_clinical_patient>`. Raises
+        type for a :class:`patient<base.nh_clinical_patient>` if there
+        is no open activity of that type for that patient. Raises
         exception if the activity type is invalid, if there's no open
         spell for the patient or if there are no access rules for the
         activity type.
