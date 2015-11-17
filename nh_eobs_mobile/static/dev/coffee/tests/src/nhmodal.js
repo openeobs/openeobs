@@ -17,6 +17,7 @@ NHModal = (function(superClass) {
     this.popupTime = popupTime;
     this.el = el1;
     this.handle_button_events = bind(this.handle_button_events, this);
+    this.close_modal = bind(this.close_modal, this);
     self = this;
     dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
     body = document.getElementsByTagName('body')[0];
@@ -24,7 +25,7 @@ NHModal = (function(superClass) {
     cover.setAttribute('class', 'cover');
     cover.setAttribute('id', 'cover');
     cover.setAttribute('data-action', 'close');
-    if (this.id === 'submit_observation') {
+    if (this.id === 'submit_observation' || this.id === 'partial_reasons') {
       cover.setAttribute('data-action', 'renable');
     }
     cover.setAttribute('data-target', this.id);
@@ -32,6 +33,7 @@ NHModal = (function(superClass) {
     cover.addEventListener('click', function(e) {
       return self.handle_event(e, self.handle_button_events, false);
     });
+    this.lock_scrolling();
     body.appendChild(cover);
     this.el.appendChild(dialog);
     this.calculate_dimensions(dialog, dialog.getElementsByClassName('dialogContent')[0], this.el);
@@ -128,12 +130,14 @@ NHModal = (function(superClass) {
   };
 
   NHModal.prototype.close_modal = function(modal_id) {
-    var cover, dialog_id;
+    var cover, dialog_id, self;
+    self = this;
     dialog_id = document.getElementById(modal_id);
-    if (typeof dialog_id !== 'undefined') {
-      cover = document.getElementById('cover');
+    if (typeof dialog_id !== 'undefined' && dialog_id) {
+      cover = document.querySelectorAll('#cover[data-target="' + modal_id + '"]')[0];
       document.getElementsByTagName('body')[0].removeChild(cover);
-      return dialog_id.parentNode.removeChild(dialog_id);
+      dialog_id.parentNode.removeChild(dialog_id);
+      return self.unlock_scrolling();
     }
   };
 
@@ -232,6 +236,21 @@ NHModal = (function(superClass) {
         };
         reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
         return document.dispatchEvent(reject_event);
+    }
+  };
+
+  NHModal.prototype.lock_scrolling = function() {
+    var body;
+    body = document.getElementsByTagName('body')[0];
+    return body.classList.add('no-scroll');
+  };
+
+  NHModal.prototype.unlock_scrolling = function() {
+    var body, dialogs;
+    body = document.getElementsByTagName('body')[0];
+    dialogs = document.getElementsByClassName('dialog');
+    if (dialogs.length < 1) {
+      return body.classList.remove('no-scroll');
     }
   };
 

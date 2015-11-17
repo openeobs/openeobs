@@ -98,7 +98,8 @@ Params:</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    body.appendChild(cover)
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@lock_scrolling</span>()
+    body.appendChild(cover)
     <span class="hljs-property">@el</span>.appendChild(dialog)</pre></div></div>
             
         </li>
@@ -338,9 +339,15 @@ Takes the ID of the modal</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_modal</span>: <span class="hljs-function"><span class="hljs-params">(modal_id)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_modal</span>: <span class="hljs-function"><span class="hljs-params">(modal_id)</span> =&gt;</span>
+    self = @
     dialog_id = <span class="hljs-built_in">document</span>.getElementById(modal_id)
-    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> dialog_id <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span> dialog_id</pre></div></div>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> dialog_id <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span> dialog_id
+      cover = <span class="hljs-built_in">document</span>.querySelectorAll(<span class="hljs-string">'#cover[data-target="'</span>+
+        modal_id+<span class="hljs-string">'"]'</span>)[<span class="hljs-number">0</span>]
+      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)
+      self.unlock_scrolling()</pre></div></div>
             
         </li>
         
@@ -350,24 +357,6 @@ Takes the ID of the modal</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
-              </div>
-              <pre><code> cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
-</code></pre>
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>      cover = <span class="hljs-built_in">document</span>.querySelectorAll(<span class="hljs-string">'#cover[data-target="'</span>+
-        modal_id+<span class="hljs-string">'"]'</span>)[<span class="hljs-number">0</span>]
-      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
-      dialog_id.parentNode.removeChild(dialog_id)</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-18">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Handle events from buttons created in options array
 Currently offers</p>
@@ -512,7 +501,43 @@ NOTE: Don’t preventDefault() straight away as will disable all button clicks</
 </code></pre>
             </div>
             
-            <div class="content"><div class='highlight'><pre>
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Function to prevent scrolling via locking body size to defined height and
+setting overflow to none</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">lock_scrolling</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+    body.classList.add(<span class="hljs-string">'no-scroll'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Function to reinstate scrolling via unlocking body size and setting
+overflow to scroll</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">unlock_scrolling</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+    dialogs = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'dialog'</span>)
+    <span class="hljs-keyword">if</span> dialogs.length &lt; <span class="hljs-number">1</span>
+      body.classList.remove(<span class="hljs-string">'no-scroll'</span>)
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
