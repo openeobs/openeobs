@@ -7,23 +7,23 @@ docco = require('gulp-docco'),
 coffee = require('gulp-coffee'),
 sauceConnectLauncher = require('sauce-connect-launcher');
 
-gulp.task('sauce_start', function() {
+gulp.task('hot_sauce', function() {
 	sauceConnectLauncher({
-		username: 'neovahealth',
-		accessKey: '***REMOVED***'
+		username: process.env.SAUCE_USERNAME,
+		accessKey: process.env.SAUCE_ACCESS_KEY
 	}, function (err, sauceConnectProcess) {
 		if (err) {
 			console.error(err.message);
 			return;
 		}
-		console.log("Sauce Connect ready");
+		console.log("Gulping hot sauce");
 	});
 });
 
 gulp.task('sauce_stop', function() {
 	sauceConnectLauncher({
-		username: 'neovahealth',
-		accessKey: '***REMOVED***'
+		username: process.env.SAUCE_USERNAME,
+		accessKey: process.env.SAUCE_ACCESS_KEY
 	}, function (err, sauceConnectProcess) {
 		sauceConnectProcess.close(function () {
 			console.log("Closed Sauce Connect process");
