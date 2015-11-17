@@ -617,10 +617,12 @@ describe("Event Handling", function(){
 
             beforeEach(function(){
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
-                spyOn(NHModal.prototype, 'close_modal');
+                spyOn(NHModal.prototype, 'close_modal').and.callThrough();
+                spyOn(NHModal.prototype, 'unlock_scrolling').and.callThrough();
+                spyOn(NHModal.prototype, 'lock_scrolling').and.callThrough();
                 var body = document.getElementsByTagName('body')[0];
-                new NHModal('test', 'Test', '<p>Test</p>', [
-                    '<a data-action="close" id="close">Close</a>'
+                new NHModal('test_one', 'Test', '<p>Test</p>', [
+                    '<a data-action="close" id="close" data-target="test_one">Close</a>'
                 ], 0, body);
             });
 
@@ -641,9 +643,67 @@ describe("Event Handling", function(){
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
                 expect(NHModal.prototype.close_modal).toHaveBeenCalled();
                 expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(false);
             });
 
-            it('Captures and handles cover click', function(){
+            it('Only closes the associated modal and cover when there are two modals present and clicking on first modal cover [BUG 1284]', function(){
+                var body = document.getElementsByTagName('body')[0];
+                new NHModal('test_two', 'Test Two', '<p>Test Two</p>', [
+                    '<a data-action="close" id="close">Close</a>'
+                ], 0, body);
+
+                expect(NHModal.prototype.lock_scrolling).toHaveBeenCalled();
+                expect(body.classList.contains('no-scroll')).toBe(true);
+
+                var covers = document.getElementsByClassName('cover');
+                expect(covers.length).toBe(2);
+                var cover = covers[0];
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                cover.dispatchEvent(click_event);
+                expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+                expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
+                expect(NHModal.prototype.close_modal).toHaveBeenCalled();
+                expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(true);
+
+                var test_two = document.getElementById('test_two');
+                expect(test_two).not.toBe(null);
+                covers = document.getElementsByClassName('cover');
+                expect(covers.length).toBe(1);
+            });
+
+            it('Only closes the associated modal and cover when there are two modals present and clicking on second modal cover [BUG 1284]', function(){
+                var body = document.getElementsByTagName('body')[0];
+                new NHModal('test_two', 'Test Two', '<p>Test Two</p>', [
+                    '<a data-action="close" id="close">Close</a>'
+                ], 0, body);
+
+                var covers = document.getElementsByClassName('cover');
+                expect(covers.length).toBe(2);
+                var cover = covers[1];
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                cover.dispatchEvent(click_event);
+                expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
+                expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
+                expect(NHModal.prototype.close_modal).toHaveBeenCalled();
+                expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(true);
+
+                var test_one = document.getElementById('test_one');
+                expect(test_one).not.toBe(null);
+                covers = document.getElementsByClassName('cover');
+                expect(covers.length).toBe(1);
+            });
+
+            it('Captures and handles close button click', function(){
                 var close = document.getElementById('close');
                 var click_event = document.createEvent('CustomEvent');
                 click_event.initCustomEvent('click', false, true, false);
@@ -652,6 +712,9 @@ describe("Event Handling", function(){
                 expect(NHModal.prototype.handle_button_events.calls.count()).toBe(1);
                 expect(NHModal.prototype.close_modal).toHaveBeenCalled();
                 expect(NHModal.prototype.close_modal.calls.count()).toBe(1);
+                expect(NHModal.prototype.unlock_scrolling).toHaveBeenCalled();
+                var body = document.getElementsByTagName('body')[0];
+                expect(body.classList.contains('no-scroll')).toBe(false);
             });
         });
     });

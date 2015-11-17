@@ -19,7 +19,7 @@ class NHModal extends NHLib
     cover.setAttribute('class', 'cover')
     cover.setAttribute('id', 'cover')
     cover.setAttribute('data-action', 'close')
-    if @id is 'submit_observation'
+    if @id is 'submit_observation' or @id is 'partial_reasons'
       cover.setAttribute('data-action', 'renable')
     cover.setAttribute('data-target', @id)
     cover.style.height = (body.clientHeight)+'px'
@@ -28,6 +28,7 @@ class NHModal extends NHLib
     )
 
     # append it to the DOM
+    @lock_scrolling()
     body.appendChild(cover)
     @el.appendChild(dialog)
    
@@ -122,12 +123,15 @@ class NHModal extends NHLib
 
   # Remove a modal and it's cover from DOM
   # Takes the ID of the modal
-  close_modal: (modal_id) ->
+  close_modal: (modal_id) =>
+    self = @
     dialog_id = document.getElementById(modal_id)
-    if typeof dialog_id isnt 'undefined'
-      cover = document.getElementById('cover')
+    if typeof dialog_id isnt 'undefined' and dialog_id
+      cover = document.querySelectorAll('#cover[data-target="'+
+        modal_id+'"]')[0]
       document.getElementsByTagName('body')[0].removeChild(cover)
       dialog_id.parentNode.removeChild(dialog_id)
+      self.unlock_scrolling()
 
   # Handle events from buttons created in options array
   # Currently offers
@@ -216,6 +220,20 @@ class NHModal extends NHLib
         document.dispatchEvent reject_event
 #      event.handled = true
 
+
+  # Function to prevent scrolling via locking body size to defined height and
+  # setting overflow to none
+  lock_scrolling: () ->
+    body = document.getElementsByTagName('body')[0]
+    body.classList.add('no-scroll')
+
+  # Function to reinstate scrolling via unlocking body size and setting
+  # overflow to scroll
+  unlock_scrolling: () ->
+    body = document.getElementsByTagName('body')[0]
+    dialogs = document.getElementsByClassName('dialog')
+    if dialogs.length < 1
+      body.classList.remove('no-scroll')
 
 ### istanbul ignore if ###
 if !window.NH
