@@ -318,7 +318,7 @@ class nh_clinical_patient_observation_weight(orm.Model):
             ['patient_id', '=', activity.data_ref.patient_id.id]
         ]
         weight_monitoring_ids = activity_pool.search(cr, uid, domain, order="date_terminated desc", context=context)
-        monitoring_active = weight_monitoring_ids and activity_pool.browse(cr, uid, weight_monitoring_ids[0], context=context).data_ref.weight_monitoring
+        monitoring_active = weight_monitoring_ids and activity_pool.browse(cr, uid, weight_monitoring_ids[0], context=context).data_ref.status
         if monitoring_active:
             next_activity_id = self.create_activity(cr, SUPERUSER_ID,
                                  {'creator_id': activity_id, 'parent_id': activity.parent_id.id},

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 {
     'name': 'NH Postural Blood Pressure',
-    'version': '0.1',
+    'version': '1.0',
     'category': 'Clinical',
     'license': 'AGPL-3',
     'summary': '',

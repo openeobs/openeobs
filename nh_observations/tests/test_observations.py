@@ -166,14 +166,14 @@ class test_observations(common.SingleTransactionCase):
         
         # MRSA parameter
         mrsa_data = {
-            'mrsa': fake.random_element([True, False])
+            'status': fake.random_element([True, False])
         }        
         mrsa_activity_id = self.mrsa_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, mrsa_activity_id, mrsa_data)
         check_mrsa = self.activity_pool.browse(cr, user_id, mrsa_activity_id)
 
         self.assertTrue(check_mrsa.data_ref.patient_id.id == patient_id, msg="MRSA Parameter: Patient id not submitted correctly")
-        self.assertTrue(check_mrsa.data_ref.mrsa == mrsa_data['mrsa'], msg="MRSA Parameter: MRSA not submitted correctly")
+        self.assertTrue(check_mrsa.data_ref.status == mrsa_data['status'], msg="MRSA Parameter: MRSA not submitted correctly")
         self.activity_pool.complete(cr, user_id, mrsa_activity_id)
         check_mrsa = self.activity_pool.browse(cr, user_id, mrsa_activity_id)
         self.assertTrue(check_mrsa.state == 'completed', msg="MRSA Parameter Completed: State not updated")
@@ -181,14 +181,14 @@ class test_observations(common.SingleTransactionCase):
         
         # Diabetes parameter
         diabetes_data = {
-            'diabetes': fake.random_element([True, False])
+            'status': fake.random_element([True, False])
         }        
         diabetes_activity_id = self.diabetes_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, diabetes_activity_id, diabetes_data)
         check_diabetes = self.activity_pool.browse(cr, user_id, diabetes_activity_id)
 
         self.assertTrue(check_diabetes.data_ref.patient_id.id == patient_id, msg="Diabetes Parameter: Patient id not submitted correctly")
-        self.assertTrue(check_diabetes.data_ref.diabetes == diabetes_data['diabetes'], msg="Diabetes Parameter: Diabetes not submitted correctly")
+        self.assertTrue(check_diabetes.data_ref.status == diabetes_data['status'], msg="Diabetes Parameter: Diabetes not submitted correctly")
         self.activity_pool.complete(cr, user_id, diabetes_activity_id)
         check_diabetes = self.activity_pool.browse(cr, user_id, diabetes_activity_id)
         self.assertTrue(check_diabetes.state == 'completed', msg="Diabetes Parameter Completed: State not updated")
@@ -196,14 +196,14 @@ class test_observations(common.SingleTransactionCase):
         
         # Weight Monitoring parameter
         weight_monitoring_data = {
-            'weight_monitoring': fake.random_element([True, False])
+            'status': fake.random_element([True, False])
         }        
         weight_monitoring_activity_id = self.weight_monitoring_pool.create_activity(cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, weight_monitoring_activity_id, weight_monitoring_data)
         check_weight_monitoring = self.activity_pool.browse(cr, user_id, weight_monitoring_activity_id)
 
         self.assertTrue(check_weight_monitoring.data_ref.patient_id.id == patient_id, msg="Weight Monitoring Parameter: Patient id not submitted correctly")
-        self.assertTrue(check_weight_monitoring.data_ref.weight_monitoring == weight_monitoring_data['weight_monitoring'], msg="Weight Monitoring Parameter: Weight Monitoring not submitted correctly")
+        self.assertTrue(check_weight_monitoring.data_ref.status == weight_monitoring_data['status'], msg="Weight Monitoring Parameter: Weight Monitoring not submitted correctly")
         self.activity_pool.complete(cr, user_id, weight_monitoring_activity_id)
         check_weight_monitoring = self.activity_pool.browse(cr, user_id, weight_monitoring_activity_id)
         self.assertTrue(check_weight_monitoring.state == 'completed', msg="Weight Monitoring Parameter Completed: State not updated")

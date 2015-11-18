@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 {
     'name': 'NH Clinical Basic Observations',
-    'version': '0.1',
+    'version': '1.0',
     'category': 'Clinical',
     'license': 'AGPL-3',
     'summary': '',
