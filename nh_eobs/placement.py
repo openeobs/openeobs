@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Shows all :class:`patients<base.nh_clinical_patient>` pending a
 :class:`placement<operations.nh_clinical_patient_placement>` in a

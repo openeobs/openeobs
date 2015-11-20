@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
 """
 Shows the pending :class:`activities<activity.nh_clinical_activity>` by

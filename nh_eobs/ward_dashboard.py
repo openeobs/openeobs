@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Gives an overview of the current state of ward and bed
 :class:`locations<base.nh_clinical_location>`.

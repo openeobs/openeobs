@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Extends :class:`nh_clinical_location<base.nh_clinical_location>` for
 additional Open eObs UI.

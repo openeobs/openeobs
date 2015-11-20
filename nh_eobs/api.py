@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Defines the core methods for `Open eObs` in the taking of
 :class:`patient<base.nh_clinical_patient>` observations.

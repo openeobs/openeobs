@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
 from openerp.osv import orm
 from helpers import refresh_materialized_views

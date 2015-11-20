@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.tests.common import TransactionCase
 from mock import MagicMock
 from openerp.addons.nh_eobs.helpers import refresh_materialized_views

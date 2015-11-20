@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 __author__ = 'colinwren'
 from datetime import datetime
 import base64

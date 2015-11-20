@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Defines :class:`overdue<nh_clinical_overdue>` and
 :class:`doctors activities<nh_clinical_doctor_activities>`.

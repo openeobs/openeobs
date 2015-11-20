@@ -1,4 +1,5 @@
-from openerp.osv import orm 
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+from openerp.osv import orm
 
 
 class res_users(orm.Model):

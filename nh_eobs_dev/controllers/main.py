@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import openerp
 from openerp import http
 from openerp.http import request

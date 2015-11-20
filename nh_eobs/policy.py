@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Defines the `policy` for :mod:`operations<operations>` and
 :mod:`ADT<adt>`.
