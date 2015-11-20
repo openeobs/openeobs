@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `parameters.py` defines the blood pressure monitoring parameter which
 is directly related to the postural blood pressure observation.

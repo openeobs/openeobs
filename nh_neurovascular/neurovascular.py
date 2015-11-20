@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `neurovascular.py` defines the neurovascular observation class and its
 standard behaviour and policy triggers. There is currently no standard

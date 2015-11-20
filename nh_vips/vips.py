@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `vips.py` defines the visual infusion phlebitis score observation class
 and its standard behaviour and policy triggers.

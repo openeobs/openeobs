@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `stools.py` defines the bristol stool scale observation class and its
 standard behaviour and policy triggers. There are currently no standard

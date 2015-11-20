@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 def migrate(cr, installed_version):
     if installed_version[-3:] == "1.0":
         cr.execute(

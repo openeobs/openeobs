@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `notifications.py` define notification types necessary for the Early
 Warning Score policy triggers.

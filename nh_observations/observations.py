@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 ``observations.py`` defines a set of activity types to record basic
 medical observations. They have in common their simple logic and data as

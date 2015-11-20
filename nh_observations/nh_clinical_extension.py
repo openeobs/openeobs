@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `nh_clinical_extension.py` extends several NH Clinical classes to add
 relevant observations related functionality.

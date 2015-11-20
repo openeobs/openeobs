@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `parameters.py` define extra observation parameters related to the
 Early Warning Score observation and relevant to its policies.

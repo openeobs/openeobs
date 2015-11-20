@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `ews.py` defines the Early Warning Score observation class and its
 standard behaviour and policy triggers based on the UK NEWS standard.

@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.osv import orm
 import logging
 _logger = logging.getLogger(__name__)

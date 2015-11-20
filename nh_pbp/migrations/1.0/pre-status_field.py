@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import logging
 from psycopg2 import ProgrammingError
 

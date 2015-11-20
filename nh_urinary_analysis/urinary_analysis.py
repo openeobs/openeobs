@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `urinary_analysis.py` defines the urine analysis observation class and
 its standard behaviour and policy triggers. There are currently no
