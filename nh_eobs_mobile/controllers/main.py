@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-s
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Defines helper methods and handlers for eObs Mobile.
 """

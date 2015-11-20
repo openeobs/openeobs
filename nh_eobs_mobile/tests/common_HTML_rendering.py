@@ -1,4 +1,5 @@
 __author__ = 'lorenzo'
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import jinja2
 import os
 from lxml import etree

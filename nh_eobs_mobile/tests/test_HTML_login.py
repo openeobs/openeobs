@@ -1,4 +1,5 @@
 __author__ = 'lorenzo'
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import logging
 from lxml import etree
 from openerp.addons.nh_eobs_mobile.tests.common_HTML_rendering import MobileHTMLRenderingCase

@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import test_mobile_controller_routes
 import test_mobile_controller_methods
 

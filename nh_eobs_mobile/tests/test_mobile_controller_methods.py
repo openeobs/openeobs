@@ -1,5 +1,5 @@
 __author__ = 'lorenzo'
-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import logging
 import mock
 import re
