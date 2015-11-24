@@ -265,7 +265,7 @@ class TestWardboard(SingleTransactionCase):
             'res_id': self.wb_id,
             'view_mode': 'form',
             'view_type': 'form',
-            'target': 'inline',
+            'target': 'current',
             'context': None,
             'view_id': view_id
         })
