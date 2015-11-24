@@ -83,7 +83,8 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         :type route_endpoint: str
         :param route_arguments: arguments for a specific route's endpoint
         :type route_arguments: str
-        :param mobile: select between the 'web' or 'mobile' version of the URL (default: True)
+        :param mobile: select between the 'web' or 'mobile' version of the URL
+        (default: ``True``)
         :type mobile: bool
         :returns: full URL, ready to be reached via browser or requests
         :rtype: str
@@ -616,6 +617,27 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                 'username': self.login_name
             }
         )
+
+    def test_method_get_single_patient_returns_404_when_no_patient_is_found(self):
+        get_patient_route = [r for r in routes if r['name'] == 'single_patient']
+        self.assertEqual(len(get_patient_route), 1,
+                         "Endpoint to the 'single_patient' route not unique. Cannot run the test!")
+        get_patient_url = self._build_url(get_patient_route[0]['endpoint'], '47', mobile=True)
+
+        def mock_method_returning_empty_list(*args, **kwargs):
+            return []
+
+        # Start Odoo's patchers
+        eobs_api = self.registry['nh.eobs.api']
+        eobs_api._patch_method('get_patients', mock_method_returning_empty_list)
+
+        # Reach the route under tests
+        test_resp = requests.get(get_patient_url, cookies=self.auth_resp.cookies)
+
+        # Stop Odoo's patchers
+        eobs_api._revert_method('get_patients')
+
+        self.assertEqual(test_resp.status_code, 404)
 
     def test_method_get_share_patients(self):
         get_share_patients_route = [r for r in routes if r['name'] == 'share_patient_list']
