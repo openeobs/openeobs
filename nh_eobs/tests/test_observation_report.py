@@ -611,7 +611,7 @@ class TestObservationReport(TransactionCase):
         self.assertEqual(report_test, True, 'Unable to print Observation Report')
 
     def test_05_observation_report_without_spell_without_start_time_with_end_time(self):
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ValueError):
             report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
             report_test = test_reports.try_report(cr, uid, report_model, [], data={
                 'spell_id': None,
@@ -620,7 +620,7 @@ class TestObservationReport(TransactionCase):
             })
 
     def test_06_observation_report_without_spell_without_start_time_without_end_time(self):
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ValueError):
             report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
             report_test = test_reports.try_report(cr, uid, report_model, [], data={
                 'spell_id': None,
@@ -629,7 +629,7 @@ class TestObservationReport(TransactionCase):
             })
 
     def test_07_observation_report_without_spell_with_start_time_without_end_time(self):
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ValueError):
             report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
             report_test = test_reports.try_report(cr, uid, report_model, [], data={
                 'spell_id': None,
@@ -649,7 +649,7 @@ class TestObservationReport(TransactionCase):
 
     def test_09_observation_report_without_data(self):
         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ValueError):
             test_reports.try_report(cr, uid, report_model, [])
 
 
