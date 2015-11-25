@@ -1,0 +1,29 @@
+<openerp>
+    <data>
+        <record id="view_nhc_print_observation_report_wizard" model="ir.ui.view">
+            <field name="name">Print Observation Report Wizard Form</field>
+            <field name="model">nh.clinical.observation_report_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Print Observation Report Wizard" class= "oe_form_configuration" version="7.0">
+                    <h4>Leave fields blank to print report for entire admission.</h4>
+                    <group>
+                        <field name="start_time"/>
+                        <field name="end_time"/>
+                    </group>
+                    <footer>
+                        <button string="Print Report" type="object" name="print_report" class="oe_highlight"/>
+                        <button string="Close" special="cancel" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_nhc_print_observation_report" model="ir.actions.act_window">
+            <field name="name">Print Observation Report</field>
+            <field name="res_model">nh.clinical.observation_report_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_type">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</openerp>

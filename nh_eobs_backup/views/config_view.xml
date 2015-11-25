@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="inherit_view_general_configuration" model="ir.ui.view">
+            <field name="name">base.config.settings.nhclinical</field>
+            <field name="model">base.config.settings</field>
+            <field name="inherit_id" ref="base_setup.view_general_configuration"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group" position="after">
+                    <group>
+                        <label for="id" string="NHClinical"/>
+                        <div name="module_nh_eobs_backup">
+                            <div name="module_nh_eobs_backup">
+                                <label for="locations_to_print"/>
+                                <field name="locations_to_print" widget="many2many_tags"/>
+                            </div>
+                        </div>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

@@ -1,0 +1,18 @@
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Date of Birth</th>
+			<th>NHS Number</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each this.patients}}
+			<tr>
+				<td>{{first_name}} {{last_name}}</td>
+				<td>{{dob}}</td>
+				<td>{{nhs_number}}</td>
+			</tr>
+		{{/each}}
+	</tbody>
+</table>

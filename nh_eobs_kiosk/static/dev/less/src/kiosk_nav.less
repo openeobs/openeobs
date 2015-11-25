@@ -1,0 +1,67 @@
+/*csslint adjoining-classes: false */
+.oe_leftbar{
+  &.nh_kiosk_nav{
+    width: 100%;
+    > div{
+      height: inherit;
+      display: inline-block;;
+      width: 100%;
+
+      .oe_logo{
+        width: 10%;
+        float: left;
+      }
+
+      .oe_footer{
+        display: none;
+      }
+
+      > div {
+        display: inline-block;
+        width: 90%;
+        height: inherit;
+
+        > div {
+          height: inherit;
+          width: 100%;
+
+          div.oe_secondary_menus_container{
+            position: relative;
+            overflow-x: visible;
+            overflow-y: visible;
+
+            .oe_secondary_menu{
+
+              .oe_secondary_menu_section{
+                width: inherit;
+                float: left;
+              }
+              .oe_secondary_submenu{
+                float: left;
+
+                &:before{
+                  display: inline;
+                }
+
+                &:after{
+                  clear: none;
+                }
+
+                li{
+                  float: left;
+
+                  a{
+
+                    .oe_menu_text{
+                      max-width: inherit;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,91 @@
+
+dl {
+
+	.border-radius;
+
+	border:1px solid darken(@baseColor, 25%);
+	
+	dt {
+
+		.border-top;
+
+		background-color:darken(@baseColor, 10%);
+		padding:1%;
+
+		color:darken(@baseColor, 60%);
+		font-weight:600;
+
+		dd {
+
+		}
+
+	}
+
+}
+
+ol {
+
+	.border-radius;
+
+	border:1px solid darken(@baseColor, 5%);
+	background-color:darken(@baseColor, 10%);
+
+	li {
+
+		background-color: lighten(@baseColor, 25%);
+
+		list-style-type: upper-roman;
+		padding:1%;
+
+		border-bottom: 1px solid darken(@baseColor, 5%);
+		border-left: 1px solid darken(@baseColor, 5%);
+
+	&:last-child {
+
+		border-left: 1px solid darken(@baseColor, 5%);
+		border-bottom:none;
+
+		}
+		
+	}
+}
+
+ul {
+
+	.border-radius;
+
+	border:1px solid darken(@baseColor, 25%);
+	background-color:darken(@baseColor, 10%);
+
+	li {
+
+		background-color: lighten(@baseColor, 25%);
+		list-style-type: none;
+		padding:1%;
+
+		border-bottom: 1px solid darken(@baseColor, 25%);
+		border-left: 1px solid darken(@baseColor, 25%);
+
+	&:last-child {
+
+		border-left: 1px solid darken(@baseColor, 5%);
+		border-bottom:none;
+
+		}	
+
+	&:before {
+
+		font-family: 'FontAwesome';
+		margin-right:10px;
+		margin-top:15px;
+
+		content:"\f105";
+		font-size:1.5em;
+		color: black;
+
+	}
+
+
+	}
+
+}

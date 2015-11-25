@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Open-eObs eTake list</title>
+    <style>
+        html{
+            padding: 0;
+            margin: 0;
+        }
+        body{
+            width: 100%;
+            padding: 0;
+            margin: -1em 0 0 0;
+            background-color: white;
+            overflow: auto !important;
+            font-family: "Droid Sans", "Ubuntu", "Helvetica", sans-serif;
+        }
+
+        .leftnav{
+            width: 20%;
+            position: absolute;
+            top: 1.25em;
+            left: 2.5%;
+        }
+
+        .leftnav.active{
+            position: fixed;
+            top: 0;
+        }
+        .leftnav ul{
+            padding: 0;
+            margin-bottom: 0;
+        }
+        .leftnav li{
+            padding: 0;
+            display: block;
+            margin: 0;
+        }
+        .leftnav li.active a{
+            border-right: 3px solid rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+        .leftnav li a{
+            text-transform: capitalize;
+            text-decoration: none;
+            color: #3778e9;
+            display: block;
+            padding: 0.5em 0;
+        }
+        .main{
+            width: 75%;
+            margin-left: 20%;
+            display: table;
+            padding: 0 0 0 5%;
+        }
+        .modifiers, .example ul{
+            list-style: none;
+            padding: 0;
+
+        }
+        .main .example{
+            padding: 1em 2.5% 1em 2.5%;
+            border-radius: 5px;
+            border: 1px solid rgba(0,0,0,0.1);
+            width: 95%;
+            position: relative;
+        }
+
+        .main .example .odoo{
+            position: relative;
+            width: 100%;
+            margin-bottom: 2em;
+            float: none;
+            clear: both;
+        }
+
+        .main .example:before{
+            box-sizing: border-box;
+        }
+        .top-link{
+            width: 100%;
+            text-align: right;
+        }
+        .header, .content{
+            width: 95%;
+            position: relative;
+            float: none;
+            clear: both;
+            padding: 1em 2.5%;
+        }
+        .header .logo{
+            float: left;
+            width: 49%;
+            text-align: left;
+        }
+        .header .text{
+            float: right;
+            text-align: right;
+            width: 49%;
+        }
+
+        .main h3{
+            margin-top: 2.5em;
+            line-height: 0;
+            color: #3778e9;
+        }
+        .main h2{
+            color: #3778e9;
+            font-size: 2em;
+            text-transform: capitalize;
+        }
+        .main h4{
+            color: #3778e9;
+            line-height: 0;
+            margin-top: 3em;
+            margin-bottom: 0;
+        }
+        .mobile_preview_bg{
+            background-color: rgba(0,0,0,0.6);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .mobile_preview{
+            background-image: url('img/phone-case.png');
+            background-repeat: no-repeat;
+            position: fixed;
+            top: 3em;
+            left: calc(50% - 182px);
+            height: 792px;
+            width: 365px;
+        }
+
+        .tablet_preview{
+            position: fixed;
+            top: 3em;
+            left: calc(50% - 527px);
+            height: 798px;
+            width: 1054px;
+        }
+
+        .desktop_preview{
+            position: fixed;
+            top: 3em;
+            left: calc(50%  - 655px);
+            height: 798px;
+            width: 1310px;
+        }
+
+
+        .tablet_preview .example{
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            height: 768px;
+            width: 1024px;
+            border: 4px solid #22272d;
+            background-color: white;
+            overflow: scroll;
+            display: block;
+        }
+        .desktop_preview .example{
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            height: 768px;
+            width: 1280px;
+            border: 4px solid #22272d;
+            background-color: white;
+            overflow: scroll;
+            display: block;
+        }
+        .mobile_preview .wrapper, .tablet_preview .wrapper, .desktop_preview .wrapper{
+            position: relative;
+        }
+        .mobile_preview .example{
+            position: absolute;
+            top: 104px;
+            left: 15px;
+            width: 328px;
+            height: 576px;
+            border: 4px solid #22272d;
+            background-color: white;
+            overflow: scroll;
+            display: block;
+        }
+
+        .section .options{
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1em 0;
+        }
+        .section .options li{
+            display: inline;
+        }
+        .section .options li a{
+            background-color: #3778e9;
+            color: white;
+            text-decoration: none;
+            padding: 0.5em 3%;
+        }
+
+
+    </style>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="css/oe_base.css"/>
+    {% for css_section_title, css_section in css_sections %}
+        <link rel="stylesheet" href="css/files/{{ css_section.filename }}"/>
+    {% endfor %}
+    <script type="text/javascript">
+        {{ jquery }}
+    </script>
+    <script type="text/javascript">
+        {{ jquery_scrollspy }}
+    </script>
+</head>
+<body class="sg">
+    <div class="header">
+        <div class="logo">
+             <p><img src="img/neovahealth_logo.png"/></p>
+        </div>
+        <div class="text">
+             <h1>Style guide for NH eObs</h1>
+        </div>
+    </div>
+    <div class="content" id="top">
+        <div class="leftnav">
+            <ul>
+                <li><a href="#intro">Introduction</a></li>
+                {% for nav_section_title, nav_section in nav_sections %}
+                <li><a href="#{{ nav_section.filename.replace('.css', '') }}">{{ nav_section.filename.replace('.css', '').replace('_',' ') }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="main" id="main">
+            <div class="section" id="intro">
+                <h2>Introduction</h2>
+                <p>Here's some ground rules on using the styleguide.</p>
+                <ul>
+                    <li>Create a new Less file for each Odoo component you modify</li>
+                    <li>Make sure you increment the Styleguide attribute in the KSS header, if you reuse a section number your code won't appear</li>
+                    <li>Include an example, if it uses an Odoo shell wrap it in a container with a class of <em>odoo</em>. If you don't then your styles will be removed by the build script.</li>
+                    <li>Build often, and fix any errors the CSS Linter tells you about. By default box-model and adjoining-classes are the only ignored errors, if you want to add additional rules to ignore then raise this in Jabber before adding.</li>
+                </ul>
+
+                <h3>Installation</h3>
+                <p>It's expected you have Python, Pip, Node.js and NPM installed on your system and globally available for the build script. Additional packages are:</p>
+                <ul>
+                    <li><pre>pip install pykss</pre></li>
+                    <li><pre>pip install jinja2</pre></li>
+                    <li><pre>npm install less -g </pre></li>
+                    <li><pre>npm install csslint -g </pre></li>
+                    <li><pre>npm install uncss -g  </pre></li>
+                    <li><pre>npm install clean-css -g </pre></li>
+                </ul>
+
+                <h3>Build Script</h3>
+                <p>The build script runs in bash and handles the Node based CSS build and the Python based styleguide compilation. It's colour coded in bash to show errors. The steps are:</p>
+                <ul>
+                    <li>Use LESS compiler to compile the LESS into CSS</li>
+                    <li>Run CSSLint against the compiled CSS to make sure the CSS is good before concatenating</li>
+                    <li>Generate the StyleGuide via PyKSS and Jinja2</li>
+                    <li>Minify and clean the CSS used by the styleguide</li>
+                    <li>Run UnCSS against the styleguide to ensure the final CSS file isn't bloated</li>
+                    <li>Move the UnCSS'd file into production</li>
+                </ul>
+
+                <h3>Adding a new LESS file</h3>
+                <p>The styleguide is generated with KSS, a simple way to add structure to CSS files so they can be compiled into a styleguide. Here's how to add KSS to your CSS file for inclusion in the styleguide.</p>
+                <ul>
+                    <li>Add the KSS comment block at the start of the file</li>
+                    <li>Write a brief introduction to the file - i.e. what it covers</li>
+                    <li>Add a list of selectors - you can use .sg for element tags (as these don't get picked up by KSS for some reason)</li>
+                    <li>Add some example HTML that will be used by the styles - this will be the way that UnCSS knows those styles are in use. If you are including Odoo HTML wrap it in a div with a class of <em>odoo</em></li>
+                    <li>Add a styleguide section number - be sure not to repeat a previous section number</li>
+                    <li>Write the LESS/CSS to make it look awesome</li>
+                    <li>Save it in the /static/dev/less/src folder under a descriptive name - the build script will pick it up and add it to the styleguide</li>
+                </ul>
+                <p>Here's an example comment block:</p>
+                <pre>
+/*
+
+Buttons for clicking.
+
+.btn - A standard button
+
+Example:
+
+    &lt;a href="#" class="btn"&gt;Button&lt;/a&gt;
+
+Styleguide 1.0
+
+*/
+                </pre>
+
+                <h3>Helpers</h3>
+                <p>Little classes you can add to make the styleguide look pretty but get removed from the final CSS</p>
+                <ul class="modifiers">
+                    <li><strong>.odoo</strong> - A container for the Odoo webclient in examples, helps to make it look like it would on desktop</li>
+                    <li><strong>.sg</strong> - Use if you're redefining HTML elements as KSS doesn't pick them up otherwise</li>
+                    <li><strong>.example</strong> - Use this before any classes you want to redefine so the styleguide's example section works properly</li>
+                </ul>
+
+                <h3>Coding style</h3>
+                <p>To make the code more readable here's a simple coding style to follow:</p>
+
+                <h4>General coding style</h4>
+                <ul>
+                    <li>Use hyphens in selector names where possible (Odoo selectors use underscores)</li>
+                    <li>Indent 4 spaces / tab</li>
+                    <li>One property per line, use shorthand where available</li>
+                    <li>One line gap between bottom of a style and start of another style</li>
+                    <li>One line gap between bottom of a property declaration group and next property declaration group</li>
+                    <li>One Space between selector and brace, one space between color and property value</li>
+                    <li>Use em for vertical sizing (fonts etc)</li>
+                    <li>Use percentages for horizontal sizing (width etc)</li>
+                    <li>Pixels are allowed for borders but use calc to subtract the left and right borders from the desired width</li>
+                </ul>
+
+                <h4>Property declaration order</h4>
+                <p>Properties should be grouped into and declared in Positioning, Box Model, Typography, Visual, Misc order. Leave a line gap between each group and use a <em>//</em> comment to write the groups heading. Here's a guide to what groups common properties fit into:</p>
+                <dl>
+                    <dt>Positioning</dt>
+                    <dd><pre>
+                        bottom,
+                        left,
+                        margin (and it's child properties),
+                        position,
+                        right,
+                        top,
+                        vertical-align,
+                        z-index
+                    </pre></dd>
+                    <dt>Box Model</dt>
+                    <dd><pre>
+                        border-collapse,
+                        border-spacing,
+                        box-sizing,
+                        clear,
+                        clip,
+                        display,
+                        flex (and it's properties),
+                        float,
+                        height,
+                        justify-content,
+                        overflow (and it's properties),
+                        max-height/max-width,
+                        min-height/min-width,
+                        order,
+                        padding (and it's properties),
+                        resize,
+                        table-layout,
+                        width
+                    </pre></dd>
+                    <dt>Typography</dt>
+                    <dd><pre>
+                        @font-face,
+                        @font-feature-values,
+                        color,
+                        direction,
+                        font (and it's properties),
+                        hanging-punctuation,
+                        hyphens,
+                        letter-spacing,
+                        line-break,
+                        line-height,
+                        mark (and it's properties),
+                        marks,
+                        orphans,
+                        overflow-wrap,
+                        page-break (and it's properties),
+                        quotes,
+                        tab-size,
+                        text (and it's properties),
+                        white-space,
+                        widows,
+                        word-break,
+                        word-spacing,
+                        word-wrap,
+                        writing-mode,
+                        unicode-bidi
+                    </pre></dd>
+                    <dt>Visual</dt>
+                    <dd><pre>
+                        backface-visibility,
+                        background (and it's properties),
+                        border (and it's properties),
+                        box-decoration-break,
+                        box-shadow,
+                        counter-increment/counter-reset,
+                        filter,
+                        image (and it's properties),
+                        list-style (and it's properties),
+                        object (and it's properties),
+                        perspective (and it's properties),
+                        transform (and it's properties)
+                    </pre></dd>
+                    <dt>Misc</dt>
+                    <dd><pre>
+                        @keyframes,
+                        animation (and it's properties),
+                        break (and it's properties),
+                        column (and it's properties),
+                        content,
+                        cursor,
+                        icon,
+                        marquee (and it's properties),
+                        nav (and it's properties),
+                        opacity,
+                        outline (and it's properties),
+                        phonemes,
+                        rest (and it's properties),
+                        transition (and it's properties),
+                        voice (and it's properties),
+                    </pre></dd>
+                </dl>
+            </div>
+            {% for section_title, section in sections %}
+
+            <div class="section" id="{{ section.filename.replace('.css', '') }}">
+                <h2>{{ section.filename.replace('.css', '').replace('_',' ') }}</h2>
+                <p>{{ section.description }}</p>
+
+                <h3>Modifiers</h3>
+                <ul class="modifiers">
+                    {% for modifier in section.modifiers %}
+                    <li><strong>{{ modifier.name.replace('.sg', '') }}</strong> - {{ modifier.description }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Examples</h3>
+                <ul class="options">
+                    <li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+                    <li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'tablet_preview');">Launch tablet view</a></li>
+                    <li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'desktop_preview');">Launch desktop view</a></li>
+                </ul>
+
+                <div class="example">
+                    {{ section.modifiers[0].example }}
+                </div>
+                <p class="top-link"><a href="#top">[ TOP ]</a></p>
+            </div>
+
+            {% endfor %}
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function(){
+           $('.section').each(function(i){
+               var position = $(this).position();
+               if(i < 1){
+                   position.top = position.top + 40;
+               }
+               $(this).scrollspy({
+                   min: position.top,
+                   max: position.top + $(this).height(),
+                   onEnter: function(element, position) {
+                       $("a[href=#"+element.id+"]").parent('li').addClass('active');
+                       $('.leftnav').addClass('active');
+
+                   },
+                   onLeave: function(element, position) {
+                       $("a[href=#"+element.id+"]").parent('li').removeClass('active');
+                       if(i < 1) {
+                           $('.leftnav').removeClass('active');
+                       }
+                   }
+               });
+
+
+           });
+
+	   $('#new-ref-form .example form > div').each(function(){
+		$(this).hide();
+	   });
+
+	   $('#new-ref-form .example .ref-nav-tabs a').each(function(){
+		$(this).click(function(){
+			//e.preventDefault();
+			var item_id = $(this).attr('data-section');
+			$('#new-ref-form .example form > div').each(function(){ $(this).hide(); });
+			$(item_id).show();
+		});
+	   });
+        });
+        function mobile(object, type){
+            var clicked_obj = $(object);
+            var example_obj = clicked_obj.parents('.section').find('.example');
+            var bg = $('<div>');
+            bg.addClass('mobile_preview_bg');
+            bg.css('height', $('body').height()+'px');
+            bg.click(function(){
+                $(this).remove();
+            });
+
+            var iframe = $('<div>');
+            iframe.addClass(type);
+            var wrapper = $('<div>');
+            wrapper.addClass('wrapper');
+            wrapper.append(example_obj.clone());
+            iframe.append(wrapper);
+            bg.append(iframe);
+            $('body').append(bg);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+/*
+
+Fixes. For making little things change.
+
+.openerp - The main class used by Odoo
+.openerp .oe_webclient .oe_leftbar - The side navigation
+.openerp .oe_webclient .oe_application - This is the main application (not the navigation)
+
+Example:
+  <div class="openerp openerp_webclient_container">
+    <div class="oe_webclient">
+      <div class="oe_leftbar" style="display: none;"></div>
+      <div class="oe_application"></div>
+    </div>
+  </div>
+
+  <div aria-hidden="false" class="modal in" data-backdrop="static" role="dialog" tabindex="-1" style="display: block;">
+        <div class="modal-dialog">
+            <div class="modal-content openerp">
+                <div class="modal-header">
+                    <button aria-hidden="true" class="close" data-dismiss="modal" type="button">X</button>
+                    <h3 class="modal-title">About</h3>
+                </div>
+                <div class="modal-body oe_act_window">
+                <div class="oe_about in" aria-hidden="false">
+
+        <div class="container-fluid">
+            <div class="row">
+                <a class="oe_activate_debug_mode oe_right label label-primary" href="?debug">Activate the developer mode</a>
+            </div>
+            <div class="row">
+                <div class="col-sm-offset-2 col-md-offset-2 col-sm-8 col-md-8 user-details">
+                    <div class="user-image">
+                        <img alt="Odoo (Formerly OpenERP)" class="img-circle" src="/web/static/src/img/logo2.png" title="Odoo (Formerly OpenERP)">
+                    </div>
+                    <div class="user-info-block">
+                        <div class="user-heading">
+                            <br><span class="help-block">(Formerly OpenERP)</span>
+                            <h3>Version 8.0</h3>
+                        </div>
+
+                        <ul class="list-inline text-center navigation">
+                            <li class="active">
+                                <a data-toggle="tab" href="#settings">
+                                    <span class="glyphicon glyphicon-cog"></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a data-toggle="tab" href="#email">
+                                    <span class="glyphicon glyphicon-envelope"></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a data-toggle="tab" href="#events">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </a>
+                            </li>
+                             <li>
+                                <a data-toggle="tab" href="#social">
+                                    <span class="glyphicon glyphicon-share"></span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="user-body">
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="settings">
+                                    <h4>Copyright 2004-TODAY OpenERP SA. All Rights Reserved.</h4>
+                                    <p>Odoo is a trademark of the <a href="https://www.odoo.com" style="text-decoration: underline;" target="_blank">OpenERP SA Company</a>.</p>
+                                    <p>Licensed under the terms of <a href="http://www.gnu.org/licenses/agpl.html" style="text-decoration: underline;" target="_blank">GNU Affero General Public License</a></p>
+                                    <p>For more information visit <a href="https://www.odoo.com" style="text-decoration: underline;" target="_blank">Odoo.com</a></p>
+                                </div>
+                                <div class="tab-pane" id="email">
+                                    <h4>OpenERP S.A.</h4>
+
+
+                                    <a class="btn btn-link" href="https://www.odoo.com/web/about/contactus">Our website</a>
+                                </div>
+                                <div class="tab-pane" id="events">
+                                    <h4>Discover Events of Odoo around the world...</h4>
+                                    <a class="btn btn-link" href="https://www.odoo.com/web/about/event"> Our next Events</a>
+                                </div>
+                                <div class="tab-pane" id="social">
+                                    <h4>Follow Us...</h4>
+                                    <a href="https://www.odoo.com/web/about/facebook"><i class="fa fa-facebook-square fa-3x social-fb"></i></a>
+                                    <a href="https://www.odoo.com/web/about/twitter"><i class="fa fa-twitter-square fa-3x social-tw"></i></a>
+                                    <a href="https://www.odoo.com/web/about/googleplus"><i class="fa fa-google-plus-square fa-3x social-gp"></i></a>
+                                    <a href="https://www.odoo.com/web/about/linkedin"><i class="fa fa-linkedin-square fa-3x social-lk"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div></div><div class="modal-footer"><span class="oe_dialog_custom_buttons"></span></div>
+            </div>
+        </div>
+    </div>
+
+
+Styleguide 8.0
+*/
+
+
+@import (once) "mixin.less";
+@import (once) "typography.less";
+
+.openerp {
+  .oe_application{
+    margin: -1px 6px 0 6px;
+    background-color: #dedede;
+    background-image: url('/nh_etake_list_theme/static/src/img/repeat.png');
+    background-repeat: repeat;
+    box-shadow: 0 0 4px black inset;
+    width: ~"calc(100% - 12px)";
+    border-radius: 10px;
+
+    .oe_view_manager_header{
+      background: none;
+      box-shadow: none;
+      border-bottom: 0 solid black;
+    }
+
+    .oe_view_manager_body {
+
+      .oe_searchview_drawer_container{
+        .oe_searchview_drawer{
+
+          // remove Add to Dashboard button
+          .oe_searchview_dashboard{
+            display: none;
+          }
+        }
+      }
+    }
+  }
+  .oe_about{
+
+    // hide debug mode button
+    .oe_activate_debug_mode{
+      display: none;
+    }
+  }
+}

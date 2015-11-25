@@ -1,0 +1,258 @@
+/*
+
+Ward Dashboard Lozenge - styles of what a ward dashboard lozenge looks like.
+
+
+----
+
+.dummmy-text - dummy
+
+Example:
+
+<div class="ward-item">
+
+    <h2>Ward A</h2>
+
+    <ul class="ward-space">
+        <li><i class="bed-pat"></i></li>
+        <li>2</li>
+        <li><i class="bed-pat"></i></li>
+        <li>1</li>
+        <li><i class="bed-pat"></i></li>
+        <li>23</li>
+    </ul>
+
+    <ul class="ward-score">
+        <li class="high">H</li>
+            <li class="high-no">1</li>
+        <li class="mid">M</li>
+            <li class="mid-no">6</li>
+        <li class="low">L</li>
+            <li class="low-no">11</li>
+        <li class="none"i>N</li>
+            <li class="none-no">5</li>
+    </ul>
+
+    <ul class="man-space">
+        <li class="title">Managers</li>
+        <li>1</li>
+
+        <ul class="names">
+            <li>Charles Henderson</li>
+        </ul>
+    </ul>
+
+    <ul class="doc-space">
+        <li>Doctors</li>
+        <li>3</li>
+
+        <ul class="names">
+            <li>Dakota Fox</li>
+            <li>Watler Smith</li>
+            <li>Delilah Fletcher</li>
+        </ul>
+    </ul>
+
+    <ul class="other">
+        <li>Nurses</li>
+        <li>6</li>
+        <li>HCAs</li>
+        <li>4</li>
+    </ul>
+
+
+</div>
+
+
+Styleguide 14.0
+
+*/
+
+@import (once) "mixin.less";
+@import (once) "typography.less";
+
+.ward-item {
+
+.border-radius;
+box-shadow:0 1px 1px lighten(black,20%);
+background:#E3F2FD;
+
+border-top:1px solid white;
+border-bottom:1px solid #CAC8C8;
+
+width:33%;
+
+    h2 {
+
+    color:#7C99AE;
+    text-shadow:0 2px 1px white;
+    text-align:center;
+    margin:0;
+    padding:0.5em 0 0.5em 0;
+
+    }
+
+    ul {
+
+    margin:0;
+
+    }
+
+    .ward-space {
+
+    //border:1px solid #C4D7E6;
+
+        li {
+
+        display:inline-block;
+
+        border-right:1px solid #C4D7E6;
+        border-top: 1px solid #C4D7E6;
+        padding:0 5% 0 5%;
+
+            &:nth-child(even) {
+
+            background:white;
+            border-bottom:1px solid #cac8c8;
+
+            font-size: 1.2em;
+            line-height: 2em;
+
+            }
+
+            &:nth-child(odd) {
+
+            background:#E3F2FD;
+            border-bottom:1px solid #C4D7E6;
+
+            line-height: 2.06em;
+
+            }
+
+        }
+    }
+
+
+    .ward-score {
+
+        li {
+
+        display:inline-block;
+
+        width:11.5%;
+        text-align:center;
+        line-height:2em;
+
+        }
+
+        .high {
+
+        background:#FCA871;
+        border-top:1px solid #F6D2B3;
+        border-bottom:1px solid #C67951;
+
+            &.high-no {
+
+            background:white;
+
+            }
+
+        }
+
+        .mid {
+
+        background:#F7CD5E;
+        border-top:1px solid #FCE6A0;
+        border-bottom:1px solid #D8B454;
+
+        }
+
+        .low {
+
+        background:#4FD6A2;
+        border-top:1px solid #A0E6CE;
+        border-bottom:1px solid #31976F;
+
+        }
+
+        .none {
+
+        background:#F2F2F2;
+        border-top:1px solid #FEFEFE;
+        border-bottom:1px solid #D6D3D3;
+
+            &.none-no {
+
+            background:white;
+
+            }
+
+        }
+
+    }
+
+    .man-space {
+
+    background:#DCE1FC;
+
+        li {
+
+        display:inline-block;
+
+            .title {
+
+            border-right:1px solid #C4D7E6;
+            border-bottom:1px solid #C4D7E6;
+            border-bottom-right-radius:5px;
+            background:#BBDEFB;
+
+            padding:0.2em 10% 0.2em 10%;
+
+
+            }
+
+        }
+
+    }
+
+    .other {
+
+        li {
+
+        display:inline-block;
+
+        width:20%;
+        text-align:center;
+
+           &:nth-child(odd) {
+
+            border-right:1px solid #C4D7E6;
+            border-bottom:1px solid #C4D7E6;
+            border-bottom-right-radius:5px;
+            background:#BBDEFB;
+
+            width:20%;
+
+
+           }
+
+           &:nth-child(even) {
+
+            border-right:1px solid #C4D7E6;
+            border-bottom:1px solid #C4D7E6;
+
+            background:white;
+
+           }
+
+           &:first-child {
+
+           .border-bottom;
+
+           }
+
+       }
+
+    }
+
+}
