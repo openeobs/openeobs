@@ -1,0 +1,1113 @@
+@import "utils.less";
+@font-face {
+  .font-awesome;
+}
+
+.block{
+  width: 90%;
+  padding-left: 5%;
+  padding-right: 5%;
+  .block{
+    width: 100%;
+    padding-left: 0%;
+    padding-right: 0%;
+  }
+}
+
+
+button, .button{
+  padding: .3em 2% .3em 2%;
+  font-size: 1em;
+  line-height: 1.4;
+  height: 2.4em;
+  border-radius: 5px;
+  //box-shadow: 0px 5px 5px #444444;
+  background-color: #888888;
+  border: 1px solid #888888;
+  text-decoration: none;
+  &.alignright{
+    float: right;
+    display: inline-block;
+    clear: left;
+  }
+  &.go{
+    background-color: #22b232;
+    color: #ffffff;
+    text-shadow: 0px 1px 0px #666666;
+    border: 1px solid #40b21b;
+  }
+  &.back{
+    background-color: #4491ce;
+    color: #ffffff;
+    text-shadow: 0px 1px 0px #666666;
+    border: 1px solid #a9dbff;
+  }
+}
+
+a.patientInfo{
+  display: block;
+  position: relative;
+  .name{
+    width: 50%;
+  }
+  .obs{
+    width: 40%;
+    position: absolute;
+    right: 0;
+    top: 0em;
+    text-align: right;
+    padding: 0.3em 2%;
+    border-radius: 5px;
+    color: #ffffff;
+    text-shadow: 0px 1px 0px #666666;
+    background-color: @action-colour;
+  }
+}
+
+//header
+.header{
+  display: inline-block;
+  padding-top: 0.5em;
+  margin-bottom: 5px;
+  box-shadow: 0px 1px 3px #888888;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background-color: #ffffff;
+  width: 100%;
+  z-index: 99;
+  &.no-menu{
+    padding-bottom: 0.7em;
+  }
+  .header-main{
+    height: 42px;
+  }
+  .barcode_block{
+    height: 60px;
+  }
+  .logo{
+    float: left;
+    // replace this with fluid
+    width: 118px;
+    height: auto;
+  }
+  .header-meta{
+    float: right;
+    list-style: none;
+    margin: 0;
+    margin-top: 0.45em;
+    //width: 45%;
+    //replace with fluid
+    width: 150px;
+    padding-left: 0;
+    li{
+      display: inline;
+    }
+    .scan{
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .logout{
+        float: right;
+        .button{
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+    }
+  }
+  .urgent-badge{
+    background-color: @action-colour;
+    color: #ffffff;
+    border-radius: 5px;
+    padding-left: 2%;
+    padding-right: 2%;
+    display: inline-block;
+    line-height: 1.5;
+    font-size: 0.8em;
+    font-weight: normal;
+    text-shadow: 0px 1px 0px #000000;
+  }
+}
+.header-menu, .dialog .options, .tabs{
+  display: block;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  border-top: 1px solid #eeeeee;
+  list-style: none;
+  background-color: #ffffff;
+  li{
+    display: inline;
+    float: left;
+    background-color: #ffffff;
+    a{
+      width: 90%;
+      padding: 1em 5% 1em 5%;
+      display: block;
+      text-align: center;
+      background-color: #ffffff;
+      //background-color: #fcfcfc;
+      color: @link-colour;
+      font-weight: normal;
+      //color: #ffffff;
+      //text-shadow: 0px 1px 0px #666666;
+      &.selected, &.confirm{
+        color: @action-colour;
+        font-weight: bold;
+        //background-color: #ffffff;
+      }
+    }
+  }
+  &.two-col li, &.twocol li{
+    width: 50%;
+    &:first-child{
+      border-right: 1px solid #eeeeee;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+  }
+}
+
+.tabs{
+  border-top: 0px solid black;
+  margin-bottom: 5em;
+  li{
+    border: 1px solid #eeeeee;
+    width: 49.5% !important;
+    &:first-child{
+      border-bottom-left-radius: 5px;
+      border-top-left-radius: 5px;
+      a{
+        border-bottom-left-radius: 5px;
+        border-top-left-radius: 5px;
+      }
+    }
+    &:last-child{
+      border-left: 0px solid black;
+      border-bottom-right-radius: 5px;
+      border-top-right-radius: 5px;
+      a{
+       border-bottom-right-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+    }
+  }
+}
+
+// content
+.content{
+  margin-top: 6.5em;
+  &.no-menu{
+    margin-top: 4em;
+  }
+}
+
+// tasks.scala.html
+.tasklist{
+  margin: 0;
+  padding: 0;
+  li a{
+    display: block;
+    padding-top: 0.7em;
+    padding-bottom: 0.7em;
+    border-bottom: 1px solid #eeeeee;
+    position: relative;
+    .task-meta{
+      width: 100%;
+      clear: both;
+      float: none;
+    }
+    .task-right{
+      float: right;
+      width: 27.5%;
+      margin-left: 2.5%;
+      margin-top: 0px;
+      text-align: right;
+      font-weight: bold;
+      p{
+        margin-top: 0px;
+        margin-bottom: 1em;
+      }
+    }
+    .task-left{
+      float: left;
+      width: 67.5%;
+      margin-right: 2.5%;
+      text-align: left;
+      margin-top: 0px;
+    }
+
+
+    h2{
+      width: 65%;
+      color: #262626;
+    }
+    p{
+      color: #000000;
+      &.taskInfo{
+        text-decoration: underline;
+      }
+    }
+    &.level-one{
+      .subtle-bgcolour(@ok-colour);
+    }
+    &.level-two{
+      .not-as-subtle-bgcolour(@warning-colour);
+    }
+    &.level-three, &.urgent{
+      .subtle-bgcolour(@error-color);
+    }
+    &.level-not-set{
+      background-color: @not-set-colour;
+    }
+  }
+}
+
+//takeNEWSObs.scala.html
+#patientName{
+  margin-top: -2px;
+  position: fixed;
+  background-color: white;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  z-index: 9997;
+  box-shadow: 0px 1px 3px rgba(0,0,0,0.4);
+  a{
+    text-decoration: none;
+    color: #282828;
+    width: 100%;
+    display: block;
+  }
+  .icon-info{
+    float: right;
+  }
+}
+
+#obsForm{
+  padding-top: 3em;
+  .obsField{
+    border-bottom: 1px solid #888888;
+    padding-top: 1em;
+    padding-bottom: 0.7em;
+    height: 3.4em;
+    .input-header{
+        label{
+          width: 45%;
+          float: left;
+          font-size: 1.2em;
+          padding-top: 0.6em;
+          padding-bottom: 0.6em;
+        }
+        input{
+         width: 45%;
+         float: right;
+        }
+      }
+    &.error{
+      .subtle-bgcolour(@error-color) !important;
+      height: 4.4em;
+    }
+    &.warning{
+      .not-as-subtle-bgcolour(@warning-colour);
+      height: 4.4em;
+    }
+    &.warning.error{
+      height: 5em !important;
+    }
+
+    .input-body{
+      .errors{
+        display: block;
+      }
+      .help{
+        display: inline-block;
+        width: 43%;
+      }
+    }
+    .targetString{
+      font-style: italic;
+    }
+  }
+
+  .obsSelectField{
+    border-bottom: 1px solid #888888;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    .input-header{
+      label{
+        font-size: 1.2em;
+        padding-top: 0.6em;
+      }
+    }
+    &.error{
+      .subtle-bgcolour(@error-color);
+    }
+    &.warning{
+      .subtle-bgcolour(@warning-colour);
+    }
+  }
+  .input-body{
+      padding-top: 1em;
+      input[type="range"]{
+        -webkit-appearance: none;
+        background-color: @link-colour !important;
+        height: 0.5em;
+        padding: 0;
+        width: 100%;
+        border-radius: 20px;
+        box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
+        display: inline-block;
+        margin-top: 1em;
+      }
+      input[type="range"]::-webkit-slider-thumb{
+        -webkit-appearance: none;
+        width: 2em;
+        height: 2em;
+        border-radius: 50%;
+        background: @action-colour;
+        box-shadow: 0xp 0px 5px rgba(0,0,0,0.6);
+      }
+      select{
+        width: 100%;
+        height: 2.4em; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
+        padding: 0.3em 2% 0.3em 2%;
+        font-size: 1em;
+        line-height: 1.4;
+        border-radius: 5px;
+        border-color: @link-colour;
+        color: @action-colour;
+        font-weight: bold;
+        background-color: #ffffff;
+        margin-bottom: 1em;
+      }
+      .button{
+        background-color: @action-colour;
+        color: #ffffff;
+        text-shadow: 0px 1px 0px #666666;
+        //border: 1px solid @action-colour;
+        width: 95%;
+        display: inline-block;
+        padding-top: 1em;
+        padding-bottom: 0px;
+        text-align: center;
+      }
+    }
+  .obsSubmit{
+    padding-top: 2em;
+    /* padding-bottom: 1em; */
+    input{
+      background-color: @action-colour;
+      color: #ffffff;
+      font-weight: bold;
+      text-shadow: 0px 1px 0px #666666;
+      border: 1px solid #ff9494;
+      font-size: 1.2em;
+      height: 2.4em;
+      width: 100%;
+    }
+  }
+}
+
+.obsConfirm{
+  margin: 0px;
+  #cancelSubmit{
+     padding: 0px;
+  }
+}
+
+.obsSubmit .button{
+    background-color: @action-colour;
+    width: 100%;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 0px 1px 0px #666666;
+    font-size: 1.2em;
+    height: 2.4em;
+    text-align: center;
+    display: inline-block;
+    padding: 0px;
+    padding-top: 1em;
+}
+.obsConfirm .button{
+    background-color: @link-colour;
+    width: 100%;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 0px 1px 0px #666666;
+    font-size: 1.2em;
+    height: 2.4em;
+    text-align: center;
+    display: inline-block;
+    padding: 0px;
+    padding-top: 1em;
+}
+
+.breadcrumbs{
+  list-style: none;
+  padding: 0px;
+  margin: 0px;
+  padding-top: 0.5em;
+  li{
+    display: inline;
+    a{
+      text-decoration: none;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      padding-left: 4%;
+      &:after{
+        content: " >";
+      }
+    }
+  }
+}
+
+.dialog{
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+  border: 1px solid #888888;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0px 0px 5px #282828;
+  position: fixed;
+  top: 40%;
+  left: 0px;
+  display: none;
+  z-index: 9999;
+  &.clinicalrisk-low{
+    .subtle-bgcolour(@ok-colour);
+  }
+  &.clinicalrisk-medium{
+    .not-as-subtle-bgcolour(@warning-colour);
+  }
+  &.clinicalrisk-high{
+    .subtle-bgcolour(@error-color);
+  }
+  .dialogContent{
+    overflow-y: scroll;
+    *{
+      max-width: 100%;
+      height: auto;
+    }
+  }
+  &.obsAlert{
+    display: inline-block !important;
+  }
+  h2, p{
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+  dl{
+    padding-left: 5%;
+    padding-right: 5%;
+    dt{
+      font-weight: bold;
+      float: left;
+      margin-right: 5%;
+      width: 40%;
+      text-align: right;
+      clear: left;
+      &.twoline{
+          height: 2.2em;
+      }
+    }
+    dd{
+      width: 65%;
+      margin-right: 5%;
+      clear: right;
+      &.twoline{
+        height: 2.2em;
+      }
+    }
+  }
+  .options li:first-child, .options li:first-child a{
+    border-bottom-left-radius: 20px;
+  }
+  .options li:last-child, .options li:last-child a{
+    border-bottom-right-radius: 20px;
+  }
+  #obsSubmit, .action{
+    color: @action-colour;
+    font-weight: bold;
+  }
+  .obsError{
+    background-color: @error-color;
+    padding: 5%;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: white;
+    display: none;
+  }
+  .one-col{
+    padding: 0px;
+    margin: 0px;
+    border-top: 1px solid #eeeeee;
+     li{
+      display: inline;
+      background-color: #ffffff;
+      width: 100%;
+      a{
+        width: 100%;
+        padding: 1em 0 1em 0;
+        display: block;
+        text-align: center;
+        background-color: #ffffff;
+        &.cancel{
+          color: @link-colour;
+          font-weight: normal
+        }
+      }
+    }
+  }
+  .menu{
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0;
+    li{
+      border-top: 1px solid #eeeeee;
+       a{
+         padding: 1em 5% 1em 5%;
+         width: 90%;
+         display: inline-block;
+         color: @action-colour;
+         font-weight: bold;
+       }
+    }
+  }
+  select{
+    width: 90%;
+    height: 2.4em; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
+    padding: 0.3em 1% 0.3em 1%;
+    font-size: 1em;
+    line-height: 1.4;
+    border-radius: 5px;
+    border-color: @link-colour;
+    color: @action-colour;
+    font-weight: bold;
+    background-color: #ffffff;
+    margin-bottom: 1em;
+    margin-left: 5%;
+  }
+}
+
+.newsScoreGreen, #obsScore.green{
+  color: @ok-colour;
+}
+.newsScoreAmber, #obsScore.amber{
+  color: @warning-colour;
+}
+.newsScoreRed, #obsScore.red{
+  color: @error-color;
+}
+
+.cover{
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 9998;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+//patients.scala.html
+.patientlist{
+  margin: 0;
+  padding: 0;
+  li{
+    display: block;
+    a{
+    /*display: block;
+    padding-top: 0.7em;
+    padding-bottom: 0.7em;
+    border-bottom: 1px solid #eeeeee;
+    font-size: 1.2em;
+    color: #282828;
+    height: inherit;
+    float: none;
+    clear: both;
+    position: relative;  */
+    .patientInfo{
+      i{
+      }
+    }
+    .aside{
+      position: absolute;
+      right: 5%;
+      text-align: right;
+      /*top: -1.2em;
+      font-size: 0.8em;*/
+      width: 37%;
+    }
+    &.level-one{
+      .subtle-bgcolour(@ok-colour);
+    }
+    &.level-two{
+      .not-as-subtle-bgcolour(@warning-colour);
+    }
+    &.level-three, &.urgent{
+      .subtle-bgcolour(@error-color);
+    }
+  }
+  }
+}
+
+
+.footer{
+  height: 1.5em;
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  width: inherit;
+  padding-left: 0;
+  display: inline-block;
+  .user{
+    color: rgba(0,0,0,0.3);
+    float: right;
+    padding: 0;
+    margin: 0;
+    margin-left: 5%;
+  }
+}
+
+//patient info
+.chart{
+  margin-bottom: 1em;
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+  }
+
+  .axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+  }
+
+  .grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+  }
+
+  .grid path {
+    stroke-width: 0;
+  }
+
+  div.ui-content{
+    padding-right: 0px;
+  }
+}
+
+.table-wrapper{
+  position: relative;
+  margin-bottom: 2em;
+  .table-wrapper{
+    width: 91.5%;
+    overflow: auto;
+    #chartTable{
+      width: 100%;
+      th{
+        text-align: center;
+        font-size: 0.8em;
+        border-bottom: 1px solid #262626;
+        border-left: 1px solid #262626;
+        &:first-child{
+          text-align: left;
+          padding-left: 0px;
+          border-left: 0px solid black;
+        }
+      }
+      tr{
+        &:nth-child(even){
+          background-color: #dddddd;
+        }
+        td{
+          padding-left: 1%;
+          padding-right: 1%;
+          padding-top: 0.3em;
+          padding-bottom: 0.3em;
+          text-align: center;
+          border-left: 1px solid #262626;
+          &:first-child{
+            text-align: left;
+            padding-left: 0px;
+            border-left: 0px solid black;
+          }
+        }
+      }
+    }
+  }
+}
+
+.alert{
+  border-radius: 5px;
+  padding: 2%;
+  &.alert-error{
+    .subtle-bgcolour(@error-color);
+    color: white;
+    text-shadow: 0px 1px 1px #444444;
+  }
+}
+
+.MEWShide, .valHide{
+  display: none;
+}
+
+// icons
+i{
+  font-family: 'fontAwesome';
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+.icon-info:before{
+   content: "\f05a";
+}
+.icon-person:before{
+   content: "\f007";
+}
+.icon-alert:before{
+   content: "\f071";
+}
+.icon-left-arrow:before{
+  content: "\f060"
+}
+.icon-up-arrow:before{
+  content: "\f062"
+}
+.icon-down-arrow:before{
+  content: "\f063"
+}
+.icon-alert ~ strong{
+//  display: inline-block;
+//  text-align: right;
+}
+
+.mobDT{
+  width: 30%;
+    float: right;
+    margin-left: 2%;
+}
+
+span.alignright{
+   float: right;
+}
+
+li.rightContent{
+  position: relative;
+  span.aside{
+    position: absolute;
+    right: 5%;
+  }
+}
+
+li.popuprightContent{
+  position: relative;
+  span.aside{
+    position: absolute;
+    right: 5%;
+    width: 10%;
+    top: -0.3em;
+  }
+}
+
+
+div.contextPopup {
+  position: absolute;
+  text-align: center;
+  width: 5%;
+  height: inherit;
+  padding: 0.4em 0.25%;
+  font: 0.8em sans-serif;
+  background: rgba(0,0,0,0.7);
+  border: solid 0px rgba(0,0,0,0.7);
+  border-radius: 8px;
+  border-bottom-left-radius: 0px;
+  pointer-events: none;
+  color: white;
+}
+
+circle.contextPoint{
+  fill: black;
+  stroke-width: 5px;
+  stroke: rgba(0,0,0,0);
+}
+circle.emptyContextPoint{
+  fill: none;
+  stroke-width: 1px;
+  stroke: rgba(0,0,0,1);
+}
+
+
+rect{
+  &.red{
+    .subtle-fill(@error-color);
+  }
+  &.amber{
+    .not-as-subtle-fill(@warning-colour);
+  }
+  &.green{
+    .subtle-fill(@ok-colour);
+  }
+}
+
+.chartDates{
+  display: none;
+  height: 4em;
+  p{
+    display: inline-block;
+    float: left;
+  }
+}
+.obsChange .obsSelectField{
+  border-bottom: 0px solid black !important;
+  padding-bottom: 0px !important;
+}
+.obsChange .obsSubmit{
+  padding-bottom: 0px !important;
+}
+
+#obsButton{
+  margin-bottom: 2em;
+}
+
+.card{
+  border: 1px solid #dddddd;
+  box-shadow: 1px 0px 3px #888888;
+  border-radius: 5px;
+  margin-bottom: 2em;
+  h3{
+    background-color: @link-colour;
+    color: white;
+    display: block;
+    width: 90%;
+    padding: 0.2em 5%;
+    margin-top: 0px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+  }
+  table{
+    margin: 0 5%;
+    width: 90%;
+    tr{
+      td:first-child{
+        font-weight: bold;
+        width: 60%;
+      }
+      td{
+        vertical-align: top;
+        table{
+          width: 100%;
+          margin: 0%;
+        }
+      }
+    }
+  }
+}
+
+.patient_obs{
+  padding: 0.3em 2%;
+  border-radius: 5px;
+  color: #ffffff;
+  text-shadow: 0px 1px 0px #666666;
+  background-color: @action-colour;
+  width: 100%;
+  display: block;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.full-modal{
+  width: 100%;
+  height: 100%;
+  z-index: 999999999999999;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background-color: white;
+  p{
+    display: block;
+    width: 90%;
+    text-align: right;
+    padding: 0 5%;
+    a{
+      background-color: @link-colour;
+      color: white;
+      font-weight: bold;
+      padding: 0.2em 3%;
+      border-radius: 5px;
+    }
+  }
+  iframe{
+    width: 100%;
+    height: 100%;
+  }
+}
+
+#table-content, #graph-content{
+  display: inline-block;
+  width: 100%;
+}
+
+#table-content{
+  padding-top: 2em;
+}
+
+
+/* svg stuff */
+
+svg .axis path, svg .axis line{
+  fill: none;
+  stroke: #262626;
+  shape-rendering: crispEdges;
+}
+svg .axis text{
+  font-family: sans-serif;
+}
+svg .background .green{
+  fill: #ccffcc;
+}
+svg .background .amber{
+  fill: #ffe9c8;
+}
+svg .background .red{
+  fill: #ffcccc;
+}
+
+svg .background .normal{
+  fill: rgba(0,0,0,0.2);
+  stroke: rgba(0,0,0,0.2);
+}
+
+svg .background line{
+  fill: none;
+  stroke: rgba(0,0,0,0.15);
+  shape-rendering: crispEdges;
+}
+svg .brush{
+  fill: rgba(0,0,0,0.3);
+}
+
+svg .data path{
+  fill: none;
+  stroke: rgba(40,40,40,0.6);
+  shape-rendering: optimizeSpeed;
+}
+
+#chart_popup{
+  font-family: sans-serif;
+  background-color: rgba(0,0,0,0.6);
+  color: #ffffff;
+  display: inline-block;
+  padding: 0.5em 1%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  margin-top: -2.2em;
+  margin-left: -1.5%;
+}
+#chart_popup.hidden{
+  display: none;
+}
+
+.nhtable{
+  width: 100%;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  thead{
+    tr{
+      th{
+        text-align: center;
+        font-size: 0.8em;
+        border-bottom: 1px solid #262626;
+        border-left: 1px solid #262626;
+        &:first-child{
+          text-align: left;
+          padding-left: 0px;
+          border-left: 0px solid black;
+        }
+      }
+    }
+  }
+  tbody{
+    tr{
+      &:nth-child(even){
+        background-color: #dddddd;
+      }
+      td{
+        padding-left: 1%;
+        padding-right: 1%;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+        text-align: center;
+        border-left: 1px solid #262626;
+        &:first-child{
+          text-align: left;
+          padding-left: 0px;
+          border-left: 0px solid black;
+        }
+      }
+    }
+  }
+}
+
+text.title{
+  font-weight: bold;
+  font-size: 2em;
+}
+
+#controls{
+  position: relative;
+  width: 80%;
+  div{
+    display: inline-block;
+    float: left;
+    padding: 0px 5% 0px 0px;
+  }
+  #range{
+    position: absolute;
+    top: 0px;
+    right: -18%;
+    width: 20%;
+    padding: 0px;
+    text-align: right;
+  }
+  label{
+    display: inline-block;
+  }
+}
+
+
+@media screen and (max-width: 480px){
+  g.brush-container{
+    display: none;
+  }
+}
+
+@media screen and (min-width: 481px){
+  g.brush-container{
+    display: inherit;
+  }
+  #controls{
+    #start,#end{
+      display: none;
+    }
+    #range{
+
+    }
+  }
+}
+
+
+
+.barcode_scan{
+  margin-bottom: 1em;
+  border-radius: 5px;
+  width: 100%;
+}

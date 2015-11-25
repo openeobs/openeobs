@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Open-eObs</title>
+        <link rel="manifest" href="/mobile/src/manifest.json"/>
+        <link href="/mobile/src/css/main.css" rel="stylesheet" type="text/css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+        <script src="/mobile/src/js/routes.js" type="text/javascript"></script>
+        <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-main block">
+                <img src="/mobile/src/img/logo.png" class="logo"/>
+                <ul class="header-meta">
+                    <li><a href="/mobile/patients/share/" class="button back">Stand In</a></li>
+                    <li class="scan_parent"><a href="#" class="button scan go">Scan</a></li>
+                    <li class="logout"><a href="/mobile/logout/" class="button back">Logout</a></li>
+                </ul>
+            </div>
+            <ul class="header-menu two-col">
+                <li><a href="/mobile/tasks/" id="taskNavItem" class="selected">Tasks</a></li>
+                <li><a href="/mobile/patients/" id="patientNavItem">My Patients</a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <ul class="tasklist"></ul>
+        </div>
+        <script type="text/javascript">
+            var patient_list = document.getElementsByClassName('tasklist')[0];
+            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileShareInvite(patient_list), false);
+        </script>
+        <div class="footer block">
+            <p class="user">nadine</p>
+        </div>
+        <script type="text/javascript">
+            var trigger_button = document.getElementsByClassName('scan')[0];
+            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileBarcode(trigger_button), false);
+        </script>
+    </body>
+</html>
+

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Open-eObs</title>
+        <link rel="manifest" href="/mobile/src/manifest.json"/>
+        <link href="/mobile/src/css/main.css" rel="stylesheet" type="text/css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+        <script src="/mobile/src/js/routes.js" type="text/javascript"></script>
+        <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-main block">
+                <img src="/mobile/src/img/logo.png" class="logo"/>
+                <ul class="header-meta">
+                    <li><a href="/mobile/patients/share/" class="button back">Stand In</a></li>
+                    <li class="scan_parent"><a href="#" class="button scan go">Scan</a></li>
+                    <li class="logout"><a href="/mobile/logout/" class="button back">Logout</a></li>
+                </ul>
+            </div>
+            <ul class="header-menu two-col">
+                <li><a href="/mobile/tasks/" id="taskNavItem" class="selected">Tasks</a></li>
+                <li><a href="/mobile/patients/" id="patientNavItem">My Patients </a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <h2 id="patientName" class="block">
+                <a href="/mobile/patient/1" patient-id="1">Wren, Colin <i class="icon-info" patient-id="1"></i></a>
+            </h2>
+            <form action="/mobile/task/submit/1337" method="POST" data-type="test" task-id="1337" patient-id="1" id="obsForm" data-source="task" ajax-action="calculate_obs_score" ajax-args="test,1337">
+                <div>
+                    <div class="block obsField" id="parent_int">
+                        <div class="input-header">
+                            <label for="int">Integer</label>
+                            <input type="number" name="int" id="int" min="1" max="59" step="1"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_int_validation">
+                        <div class="input-header">
+                            <label for="int_validation">Integer Validation</label>
+                            <input type="number" name="int_validation" id="int_validation" min="1" max="59" step="1" data-validation="[{'message': {'target': 'Validation field must be more than normal field', 'value': 'Normal field must be less than validation field'}, 'condition': {'operator': '&lt;', 'target': 'int_validation', 'value': 'int'}}]"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_int_onchange">
+                        <div class="input-header">
+                            <label for="int_onchange">Integer On Change</label>
+                            <input type="number" name="int_onchange" id="int_onchange" min="1" max="59" step="1" data-onchange="[{'action': 'disable', 'fields': ['int'], 'condition': [['int_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['int'], 'condition': [['int_onchange', '==', '']]}]"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_int_exclude">
+                        <div class="input-header">
+                            <label for="int_exclude">Integer Hidden</label>
+                            <input type="number" name="int_exclude" id="int_exclude" min="1" max="59" step="1" class="exclude"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_int_reference">
+                        <div class="input-header">
+                            <label for="int_reference">Integer Reference</label>
+                            <input type="number" name="int_reference" id="int_reference" min="1" max="59" step="1"/>
+                        </div>
+                        <div class="input-body">
+                            <p>
+                                <button data-type="image" t-att-data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
+                            </p>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_int_target">
+                        <div class="input-header">
+                            <label for="int_target">Integer Target<br/>
+                                <span class="secondary-label">Target Text</span></label>
+                            <input type="number" name="int_target" id="int_target" min="1" max="59" step="1"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_float">
+                        <div class="input-header">
+                            <label for="float">Float</label>
+                            <input type="number" name="float" id="float" min="1" max="35.9" step="0.1"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_float_validation">
+                        <div class="input-header">
+                            <label for="float_validation">Float Validation</label>
+                            <input type="number" name="float_validation" id="float_validation" min="1" max="35.9" step="0.1" data-validation="[{'message': {'target': 'Validation field must be more than normal field', 'value': 'Normal field must be less than validation field'}, 'condition': {'operator': '&lt;', 'target': 'float_validation', 'value': 'float'}}]"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_float_onchange">
+                        <div class="input-header">
+                            <label for="float_onchange">Float On Change</label>
+                            <input type="number" name="float_onchange" id="float_onchange" min="1" max="35.9" step="0.1" data-onchange="[{'action': 'disable', 'fields': ['float'], 'condition': [['float_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['float'], 'condition': [['float_onchange', '==', '']]}]"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_float_exclude">
+                        <div class="input-header">
+                            <label for="float_exclude">Float Hidden</label>
+                            <input type="number" name="float_exclude" id="float_exclude" min="1" max="35.9" step="0.1" class="exclude"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_float_reference">
+                        <div class="input-header">
+                            <label for="float_reference">Float Reference</label>
+                            <input type="number" name="float_reference" id="float_reference" min="1" max="35.9" step="0.1"/>
+                        </div>
+                        <div class="input-body">
+                            <p>
+                                <button data-type="image" t-att-data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
+                            </p>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_float_target">
+                        <div class="input-header">
+                            <label for="float_target">Float Target<br/>
+                                <span class="secondary-label">Target Text</span></label>
+                            <input type="number" name="float_target" id="float_target" min="1" max="35.9" step="0.1"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_text">
+                        <div class="input-header">
+                            <label for="text">Text</label>
+                            <input type="text" name="text" id="text"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_text_validation">
+                        <div class="input-header">
+                            <label for="text_validation">Text Validation</label>
+                            <input type="text" name="text_validation" id="text_validation" data-validation="[{'message': {'target': 'Validation field must contain a value', 'value': ''}, 'condition': {'operator': '!==', 'target': 'text_validation', 'value': ''}}]"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_text_onchange">
+                        <div class="input-header">
+                            <label for="text_onchange">Text On Change</label>
+                            <input type="text" name="text_onchange" id="text_onchange" data-onchange="[{'action': 'disable', 'fields': ['text'], 'condition': [['text_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['text'], 'condition': [['text_onchange', '==', '']]}]"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField valHide" id="parent_text_exclude">
+                        <div class="input-header">
+                            <label for="text_exclude">Text Hidden</label>
+                            <input type="text" name="text_exclude" id="text_exclude" class="exclude"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_text_reference">
+                        <div class="input-header">
+                            <label for="text_reference">Text Reference</label>
+                            <input type="text" name="text_reference" id="text_reference"/>
+                        </div>
+                        <div class="input-body">
+                            <p>
+                                <button data-type="image" t-att-data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
+                            </p>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_text_target">
+                        <div class="input-header">
+                            <label for="text_target">Text Target<br/>
+                                <span class="secondary-label">Target Text</span></label>
+                            <input type="text" name="text_target" id="text_target"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsSelectField" id="parent_select">
+                        <div class="input-header">
+                            <label for="select">Select</label>
+                        </div>
+                        <div class="input-body">
+                            <select id="select" name="select">
+                                <option value="">Please Select</option>
+                                <option value="an">An</option>
+                                <option value="option">Option</option>
+                                <option value="from">From</option>
+                                <option value="the">The</option>
+                                <option value="list">List</option>
+                            </select>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsSelectField valHide" id="parent_select_exclude">
+                        <div class="input-header">
+                            <label for="select_exclude">Select</label>
+                        </div>
+                        <div class="input-body">
+                            <select id="select_exclude" name="select_exclude" class="exclude">
+                                <option value="">Please Select</option>
+                                <option value="an">An</option>
+                                <option value="option">Option</option>
+                                <option value="from">From</option>
+                                <option value="the">The</option>
+                                <option value="list">List</option>
+                            </select>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsSelectField" id="parent_select_onchange">
+                        <div class="input-header">
+                            <label for="select_onchange">Select</label>
+                        </div>
+                        <div class="input-body">
+                            <select id="select_onchange" name="select_onchange" data-onchange="[{'action': 'show', 'fields': ['select'], 'condition': [['select_onchange', '==', 'an']]}, {'action': 'hide', 'fields': ['select'], 'condition': [['select_onchange', '!=', 'an']]}]">
+                                <option value="">Please Select</option>
+                                <option value="an">An</option>
+                                <option value="option">Option</option>
+                                <option value="from">From</option>
+                                <option value="the">The</option>
+                                <option value="list">List</option>
+                            </select>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsSelectField" id="parent_select_reference">
+                        <div class="input-header">
+                            <label for="select_reference">Select</label>
+                        </div>
+                        <div class="input-body">
+                            <select id="select_reference" name="select_reference">
+                                <option value="">Please Select</option>
+                                <option value="an">An</option>
+                                <option value="option">Option</option>
+                                <option value="from">From</option>
+                                <option value="the">The</option>
+                                <option value="list">List</option>
+                            </select>
+                            <p>
+                                <button data-type="image" t-att-data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
+                            </p>
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="taskId" value="1337"/>
+                <input type="hidden" name="startTimestamp" id="startTimestamp" value="0"/>
+                <div class="block obsSubmit">
+                    <input type="submit" value="Submit" class="exclude" id="submitButton"/>
+                </div>
+            </form>
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
+            </script>
+        </div>
+        <div class="footer block">
+            <p class="user">norah</p>
+        </div>
+        <script type="text/javascript">
+            var trigger_button = document.getElementsByClassName('scan')[0];
+            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileBarcode(trigger_button), false);
+        </script>
+    </body>
+</html>
+
