@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nhmobilebarcode.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nhmobilebarcode.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHMobileBarcode
+Handles barcode scanning on MioCare devices</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHMobileBarcode</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NHMobile</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>on initalisation we need to:</p>
+<ul>
+<li>set up click event listener for trigger button</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@trigger_button</span>)</span> -&gt;</span>
+    self = @
+    <span class="hljs-property">@trigger_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      self.trigger_button_click(self)
+    <span class="hljs-keyword">super</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>On trigger button being pressed:</p>
+<ul>
+<li>Show a modal with an input box to scan</li>
+<li>Set the focus to the input in the box</li>
+<li>Add a change event listener to the input box</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">trigger_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
+    input = <span class="hljs-string">'&lt;div class="block"&gt;&lt;textarea '</span>+
+      <span class="hljs-string">'name="barcode_scan" class="barcode_scan"&gt;&lt;/textarea&gt;&lt;/div&gt;'</span>
+    cancel = <span class="hljs-string">'&lt;a href="#" data-target="patient_barcode" '</span> +
+      <span class="hljs-string">'data-action="close"&gt;Cancel&lt;/a&gt;'</span>
+    <span class="hljs-keyword">new</span> NHModal(<span class="hljs-string">'patient_barcode'</span>, <span class="hljs-string">'Scan patient wristband'</span>,
+      input, [cancel], <span class="hljs-number">0</span> ,<span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
+    self.input = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'barcode_scan'</span>)[<span class="hljs-number">0</span>]
+    self.input.addEventListener <span class="hljs-string">'keydown'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      <span class="hljs-keyword">if</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">13</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">116</span>
+        event.preventDefault()
+        setTimeout( <span class="hljs-function">-&gt;</span>
+          self.barcode_scanned(self, event)
+        , <span class="hljs-number">1000</span>)
+
+    self.input.addEventListener <span class="hljs-string">'keypress'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      <span class="hljs-keyword">if</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">13</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> event.keyCode <span class="hljs-keyword">is</span> <span class="hljs-number">116</span>
+        event.preventDefault()
+        self.barcode_scanned(self, event)
+    self.input.focus()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>On barcode being scanned:</p>
+<ul>
+<li>get the hospital number from the input</li>
+<li>MioCare devices trigger the barcode scan event twice so return when not
+ready</li>
+<li>use that hospital number to call the server</li>
+<li>on receiving data change the modal content</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">barcode_scanned</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+    event.preventDefault()
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+      input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>hosp_num = input.value</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      dialog = input.parentNode.parentNode
+      <span class="hljs-keyword">if</span> input.value <span class="hljs-keyword">is</span> <span class="hljs-string">''</span>
+        <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>process hosp_num from wristband
+hosp_num = hosp_num.split(‘,’)[1]</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      url = self.urls.json_patient_barcode(input.value.split(<span class="hljs-string">','</span>)[<span class="hljs-number">1</span>])
+      url_meth = url.method
+
+      Promise.<span class="hljs-keyword">when</span>(self.process_request(url_meth, url.url))
+      .<span class="hljs-keyword">then</span> (raw_data) -&gt;
+        server_data = raw_data[<span class="hljs-number">0</span>]
+        data = server_data.data
+        activities_string = <span class="hljs-string">""</span>
+        <span class="hljs-keyword">if</span> data.activities.length &gt; <span class="hljs-number">0</span>
+          activities_string = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>
+          <span class="hljs-keyword">for</span> activity <span class="hljs-keyword">in</span> data.activities
+            activities_string += <span class="hljs-string">'&lt;li class="rightContent"&gt;&lt;a href="'</span>+
+              self.urls.single_task(activity.id).url+<span class="hljs-string">'"&gt;'</span>+
+              activity.display_name+<span class="hljs-string">'&lt;span class="aside"&gt;'</span>+
+              activity.time+<span class="hljs-string">'&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;'</span>
+          activities_string += <span class="hljs-string">'&lt;/ul&gt;'</span>
+        content = self.render_patient_info(data, <span class="hljs-literal">false</span>, self) +
+          <span class="hljs-string">'&lt;h3&gt;Tasks&lt;/h3&gt;'</span>+activities_string
+        dialog.innerHTML = content
+        event.handled = <span class="hljs-literal">true</span>
+
+<span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+<span class="hljs-built_in">window</span>?.NH.NHMobileBarcode = NHMobileBarcode</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

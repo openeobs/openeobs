@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- vim:fdn=3:
+-->
+<openerp>
+    <data>
+
+
+        <template t-name="nh_eobs_mobile.base" name="Base layout">&lt;!DOCTYPE html&gt;
+            <html>
+                <head>
+                    <title>Open-eObs</title>
+                    <link rel="manifest" t-att-href="urls['manifest']"/>
+                    <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+                    <script src="/api/v1/routes" type="text/javascript"></script>
+                    <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="header-main block">
+                            <img t-att-src="urls['logo']" class="logo"/>
+                            <ul class="header-meta">
+                                <li><a t-att-href="urls['share_patient_list']" class="button back">Stand In</a></li>
+                                <li class="scan_parent"><a href="#" class="button scan go">Scan</a></li>
+                                <li class="logout"><a t-att-href="urls['logout']" class="button back">Logout</a></li>
+                            </ul>
+                        </div>
+                        <ul class="header-menu two-col">
+                            <t t-if="section=='task'">
+                                <li><a t-att-href="urls['task_list']" id="taskNavItem" class="selected">Tasks</a></li>
+                                <li><a t-att-href="urls['patient_list']" id="patientNavItem">My Patients <t t-if="notification_count and notification_count &gt; 0"><span class="urgent-badge"><t t-esc="notification_count"/></span></t></a></li>
+                            </t>
+                            <t t-if="section=='patient'">
+                                <li><a t-att-href="urls['task_list']" id="taskNavItem">Tasks</a></li>
+                                <li><a t-att-href="urls['patient_list']" id="patientNavItem" class="selected">My Patients <t t-if="notification_count and notification_count &gt; 0"><span class="urgent-badge"><t t-esc="notification_count"/></span></t></a></li>
+                            </t>
+                        </ul>
+                    </div>
+                    <t t-raw="0"/>
+                    <t t-if="share_list">
+                        <div class="share-footer">
+                            <p class="user"><t t-esc="username"/></p>
+                            <ul class="header-menu three-col">
+                                <li><a href="#" class="share">Share</a></li>
+                                <li><a href="#" class="claim">Claim</a></li>
+                                <li><a href="/mobile/patients/">Cancel</a></li>
+                            </ul>
+                        </div>
+                        <script type="text/javascript">
+                            var share_button = document.getElementsByClassName('share')[0];
+                            var claim_button = document.getElementsByClassName('claim')[0];
+                            var select_all_button = document.getElementsByClassName('share_all')[0];
+                            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileShare(share_button, claim_button, select_all_button), false);
+                        </script>
+                    </t>
+                    <t t-if="share_list==None">
+                        <div class="footer block">
+                            <p class="user"><t t-esc="username"/></p>
+                        </div>
+                    </t>
+                    <script type="text/javascript">
+                        var trigger_button = document.getElementsByClassName('scan')[0];
+                        document.addEventListener('DOMContentLoaded', new window.NH.NHMobileBarcode(trigger_button), false);
+                    </script>
+                </body>
+            </html>
+        </template>
+
+        <template t-name="nh_eobs_mobile.patient_task_list" name="List of Tasks or Patients">
+            <t t-call="nh_eobs_mobile.base">
+                <div class="content">
+                    <ul class="tasklist">
+                        <t t-if="notifications">
+                            <t t-foreach="notifications" t-as="notification">
+                                <li>
+                                    <a href="#" class="share_invite block" t-att-data-invite-id="notification['id']">
+                                        <div class="task-meta" t-att-data-invite-id="notification['id']">
+                                            <div class="task-right" t-att-data-invite-id="notification['id']">
+                                                <p class="aside" t-att-data-invite-id="notification['id']">Accept</p>
+                                            </div>
+                                            <div class="task-left" t-att-data-invite-id="notification['id']">
+                                                <i class="icon-alert" t-att-data-invite-id="notification['id']"></i> <t t-if="notification['message']"><t t-esc="notification['message']"/></t>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <!--<li class="block share_invite" t-att-data-invite-id="notification['id']">-->
+                                    <!--<p class="urgent icon-alert" t-att-data-invite-id="notification['id']"><t t-if="notification['message']"><t t-esc="notification['message']"/></t><br/></p>-->
+                                <!--</li>-->
+                            </t>
+                        </t>
+                        <li t-foreach="items" t-as="item">
+                            <a t-att-href="item['url']" t-att-class="item['color']+' block'">
+                                <div class="task-meta">
+                                    <div class="task-right">
+                                        <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                        <t t-if="'follower_ids' in item and user_id in item['follower_ids']">
+                                            <p class="aside">Claim</p>
+                                        </t>
+                                    </div>
+                                    <div class="task-left">
+                                        <t t-if="'notification' in item and item['notification']==True">
+                                            <i class="icon-alert"></i>
+                                        </t>
+                                        <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
+                                        <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                    </div>
+                                </div>
+                                <div class="task-meta">
+                                    <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
+                                </div>
+                            </a>
+                        </li>
+                        <t t-if="followed_items">
+                            <li><hr/></li>
+                            <li t-foreach="followed_items" t-as="item">
+                                <a t-att-href="item['url']" t-att-class="item['color']+' block'">
+                                    <div class="task-meta">
+                                        <div class="task-right">
+                                            <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                        </div>
+                                        <div class="task-left">
+                                            <t t-if="'notification' in item and item['notification']==True">
+                                                <i class="icon-alert"></i>
+                                            </t>
+                                            <strong><t t-esc="item['full_name']"/></strong> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)<br/>
+                                            <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                        </div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
+                                    </div>
+                                </a>
+                            </li>
+                        </t>
+                    </ul>
+                </div>
+                <script type="text/javascript">
+                    var patient_list = document.getElementsByClassName('tasklist')[0];
+                    document.addEventListener('DOMContentLoaded', new window.NH.NHMobileShareInvite(patient_list), false);
+                </script>
+            </t>
+        </template>
+
+        <template t-name="nh_eobs_mobile.share_patients_list" name="List of Patients to Share">
+            <t t-call="nh_eobs_mobile.base">
+                <div class="content share-content">
+                    <form id="handover_form">
+                        <ul class="tasklist sharelist">
+                            <li>
+                                <a href="#" class="share_all" mode="select">Select all</a>
+                            </li>
+                            <t t-foreach="items" t-as="item">
+                                <li>
+                                    <label t-att-class="'shared' if item.get('invited_users') else ''">
+                                        <input type="checkbox" t-att-name="'patient_share_'+str(item['id'])" t-att-value="item['id']" class="patient-share"/>
+                                        <div t-att-class="item['color']+' block'">
+                                            <div class="task-meta">
+                                                <div class="task-right">
+                                                    <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                                </div>
+                                                <div class="task-left">
+                                                    <t t-if="'notification' in item and item['notification']==True">
+                                                        <i class="icon-alert"></i>
+                                                    </t>
+                                                    <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="item['trend_icon']"></i></t>)</t><br/>
+                                                    <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                                </div>
+                                            </div>
+                                            <div class="task-meta">
+                                                <p class="taskInfo"><t t-if="item.get('invited_users')">Shared with: <t t-esc="item['invited_users']"/></t><br/>
+                                                <t t-if="item.get('followers')">Following: <t t-esc="item['followers']"/></t><br/></p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </li>
+                            </t>
+                        </ul>
+                    </form>
+                </div>
+            </t>
+        </template>
+
+         <template name="Notification Confirm/Cancel Screen" t-name="nh_eobs_mobile.notification_confirm_cancel">
+             <t t-call="nh_eobs_mobile.base">
+                 <div class="content">
+                     <h2 id="patientName" class="block">
+                         <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
+                     </h2>
+                     <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
+                         <h3>Confirm action taken?</h3>
+                         <p>Press the button below to confirm that you have completed the task <t t-esc="name"/></p>
+                         <t t-if="len(inputs) > 0">
+                            <div t-foreach="inputs" t-as="item">
+                                <t t-if="item['type']=='selection'">
+                                    <t t-call="nh_eobs_mobile.observation_data_select"/>
+                                </t>
+                                <t t-if="item['type']=='text'">
+                                    <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                                </t>
+                            </div>
+                         </t>
+
+                         <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                         <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                         <div class="block obsSubmit" id="parent_submitButton">
+                             <input type="submit" value="Confirm action" class="exclude" id="submitButton"/>
+                         </div>
+                         <t t-if="cancellable==True">
+                            <p class="obsConfirm">
+                                <input type="reset" t-att-ajax-action="form['cancel_url']" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
+                            </p>
+                         </t>
+                     </form>
+                     <script type="text/javascript">
+                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
+                     </script>
+                 </div>
+             </t>
+        </template>
+
+        <template name="Observation Data Entry Screen" t-name="nh_eobs_mobile.observation_entry">
+            <t t-call="nh_eobs_mobile.base">
+                <div class="content">
+                    <h2 id="patientName" class="block">
+                        <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
+                    </h2>
+                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])">
+                        <div t-foreach="inputs" t-as="item">
+                            <t t-if="item['name']=='systolic_sitting'">
+                                <h3 class="block">Lying/Sitting Blood Pressure</h3>
+                            </t>
+                            <t t-if="item['name']=='systolic_standing'">
+                                <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
+                            </t>
+                            <t t-if="item['type']=='number'">
+                                <t t-call="nh_eobs_mobile.observation_data_input"/>
+                            </t>
+                            <t t-if="item['type']=='text'">
+                                <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                            </t>
+                            <t t-if="item['type']=='selection'">
+                                <t t-call="nh_eobs_mobile.observation_data_select"/>
+                            </t>
+                        </div>
+                        <t t-if="section=='task'">
+                            <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                        </t>
+                        <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                        <div class="block obsSubmit" id="parent_submitButton">
+                            <input type="submit" value="Submit" class="exclude" id="submitButton"/>
+                        </div>
+                    </form>
+                    <!-- <script t-att-src="urls['jquery']" type="text/javascript"></script> -->
+                    <!-- <script t-att-src="urls['observation_form_validation']" type="text/javascript"></script>
+                    <script t-att-src="urls['observation_form_js']" type="text/javascript"></script> -->
+                    <script type="text/javascript">
+                        document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
+                    </script>
+                </div>
+            </t>
+        </template>
+
+
+        <template name="Selection box input" t-name="nh_eobs_mobile.observation_data_select">
+           <div t-att-class="'block obsSelectField valHide' if 'initially_hidden' in item and item['initially_hidden']==True else 'block obsSelectField'" t-att-id="'parent_'+item['name']">
+               <div class="input-header">
+                   <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
+               </div>
+               <div class="input-body">
+                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''">
+
+                        <option value="">Please Select</option>
+                        <t t-foreach="item['selection_options']" t-as="option">
+                            <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
+                        </t>
+                   </select>
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                   <t t-if="reference">
+                       <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                   </t>
+                   <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
+                   <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+               </div>
+           </div>
+        </template>
+
+        <template name="Input box" t-name="nh_eobs_mobile.observation_data_input">
+            <div t-att-class="'block obsField valHide' if 'initially_hidden' in item and item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
+                <div class="input-header">
+                    <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
+                        <!-- <t t-if="item['target']">
+                            <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
+                        </t> -->
+
+                    <!-- <t t-if="item['number']">-->
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
+                    <!-- </t>
+                    <t t-if="item['text']">
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
+                    </t>  -->
+                </div>
+                <div class="input-body">
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                    </t>
+                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
+                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                </div>
+            </div>
+        </template>
+
+        <template name="Input box" t-name="nh_eobs_mobile.observation_data_text_input">
+            <div t-att-class="'block obsField valHide' if item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
+                <div class="input-header">
+                    <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
+                        <!-- <t t-if="item['target']">
+                            <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
+                        </t> -->
+
+                    <!-- <t t-if="item['number']">-->
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
+                    <!-- </t>
+                    <t t-if="item['text']">
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
+                    </t>  -->
+                </div>
+                <div class="input-body">
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                    </t>
+                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
+                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                </div>
+                <!--<div class="input-body">-->
+                    <!--<span class="errors">-->
+                        <!--<t t-if="item['errors']">-->
+                            <!--<t t-esc="item['errors']"/>-->
+                        <!--</t>-->
+                    <!--</span>-->
+                    <!--<span class="help">-->
+                        <!--<t t-if="item['info']">-->
+                            <!--<t t-esc="item['info']"/>-->
+                        <!--</t>-->
+                    <!--</span>-->
+                <!--</div>-->
+            </div>
+        </template>
+
+
+
+        <template name="Error Screen" t-name="nh_eobs_mobile.error">
+            <t t-call="nh_eobs_mobile.base">
+                <div class="content">
+                    <h1>Application Error</h1>
+                    <p>There was an error while processing your request.</p>
+                    <h3>Details</h3>
+                    <p><t t-esc="error_string"></t></p>
+                </div>
+            </t>
+        </template>
+
+        <template t-name="nh_eobs_mobile.patient" name="Patient screen">
+            <t t-call="nh_eobs_mobile.base">
+                <div class="content">
+                    <div class="block">
+                        <a class="patientInfo" href="#" id="obsButton">
+                            <h3 class="name" t-att-data-id="patient['id']">
+                                <strong><t t-esc="patient['full_name']"/></strong><br/>
+                                <t t-if="'parent_location' in patient">
+                                    <t t-esc="patient['parent_location']"/>,
+                                </t>
+                                <t t-if="'location' in patient">
+                                    <t t-esc="patient['location']"/>
+                                </t>
+                            </h3>
+                            <t t-if="len(obs_list) > 0">
+                                <h3 class="obs">Take observation</h3>
+                            </t>
+                        </a>
+                        <ul t-if="len(obs_list) > 0" id="obsMenu" class="menu hidden">
+                            <t t-foreach="obs_list" t-as="ob">
+                                <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>
+                            </t>
+                        </ul>
+                        <ul class="two-col tabs">
+                            <li><a href="#graph-content" class="selected">Graph</a></li>
+                            <li><a href="#table-content">Table</a></li>
+                        </ul>
+                        <div id="graph-content" t-att-data-id="patient['id']">
+                            <div id="controls">
+                                <div id="start">
+                                    <h4>Start date</h4>
+                                    <label for="start_date">
+                                        Date: <input type="date" name="start_date" id="start_date"/>
+                                    </label>
+                                    <label for="start_time">
+                                        Time: <input type="time" name="start_time" id="start_time"/>
+                                    </label>
+                                </div>
+                                <div id="end">
+                                    <h4>End date</h4>
+                                    <label for="end_date">
+                                        Date: <input type="date" name="end_date" id="end_date"/>
+                                    </label>
+                                    <label for="end_time">
+                                        Time: <input type="time" name="end_time" id="end_time"/>
+                                    </label>
+                                </div>
+                                <div id="range">
+
+                                    <label for="rangify">
+                                        <h4>Ranged values</h4> <input type="checkbox" name="rangify" id="rangify"/>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="chart"></div>
+                        </div>
+                        <div id="table-content"></div>
+                    </div>
+                    <script t-att-src="urls['jquery']" type="text/javascript"></script>
+                    <script t-att-src="urls['data_driven_documents']" type="text/javascript"></script>
+                    <script t-att-src="urls['graph_lib']" type="text/javascript"></script>
+                    <!-- <script t-att-src="urls['patient_graph']" type="text/javascript"></script> -->
+                    <script type="text/javascript">
+                        document.addEventListener('DOMContentLoaded', new window.NH.NHMobilePatient(), false);
+                    </script>
+                </div>
+            </t>
+        </template>
+
+
+
+    </data>
+</openerp>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Open-eObs</title>
+        <link rel="manifest" href="/mobile/src/manifest.json"/>
+        <link href="/mobile/src/css/main.css" rel="stylesheet" type="text/css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+        <script src="/api/v1/routes" type="text/javascript"></script>
+        <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-main block">
+                <img src="/mobile/src/img/logo.png" class="logo"/>
+                <ul class="header-meta">
+                    <li><a href="/mobile/patients/share/" class="button back">Stand In</a></li>
+                    <li class="scan_parent"><a href="#" class="button scan go">Scan</a></li>
+                    <li class="logout"><a href="/mobile/logout/" class="button back">Logout</a></li>
+                </ul>
+            </div>
+            <ul class="header-menu two-col">
+                <li><a href="/mobile/tasks/" id="taskNavItem">Tasks</a></li>
+                <li><a href="/mobile/patients/" id="patientNavItem" class="selected">My Patients </a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="block">
+                <a class="patientInfo" href="#" id="obsButton">
+                    <h3 class="name" data-id="1">
+                        <strong>Wren, Colin</strong><br/>
+                            Ward A, Bed 01
+                    </h3>
+                    <h3 class="obs">Take observation</h3>
+                </a>
+                <ul id="obsMenu" class="menu hidden">
+                        <li class="rightContent">
+                            <a href="/mobile/patient/observation/ews/1">National Early Warning Score (NEWS)<span class="aside">04:00 hours</span></a>
+                        </li>
+                        <li>
+                            <a href="/mobile/patient/observation/gcs/1">Glasgow Coma Scale (GCS)</a>
+                        </li>
+                        <li>
+                            <a href="/mobile/patient/observation/height/1">Height</a>
+                        </li>
+                        <li>
+                            <a href="/mobile/patient/observation/weight/1">Weight</a>
+                        </li>
+                        <li>
+                            <a href="/mobile/patient/observation/blood_product/1">Blood Product</a>
+                        </li>
+                        <li>
+                            <a href="/mobile/patient/observation/blood_sugar/1">Blood Sugar</a>
+                        </li>
+                        <li>
+                            <a href="/mobile/patient/observation/stools/1">Bristol Stool Scale</a>
+                        </li>
+                        <li>
+                            <a href="/mobile/patient/observation/pbp/1">Postural Blood Pressure</a>
+                        </li>
+                </ul>
+                <ul class="two-col tabs">
+                    <li><a href="#graph-content" class="selected">Graph</a></li>
+                    <li><a href="#table-content">Table</a></li>
+                </ul>
+                <div id="graph-content" data-id="1">
+                    <div id="controls">
+                        <div id="start">
+                            <h4>Start date</h4>
+                            <label for="start_date">
+                                Date: <input type="date" name="start_date" id="start_date"/>
+                            </label>
+                            <label for="start_time">
+                                Time: <input type="time" name="start_time" id="start_time"/>
+                            </label>
+                        </div>
+                        <div id="end">
+                            <h4>End date</h4>
+                            <label for="end_date">
+                                Date: <input type="date" name="end_date" id="end_date"/>
+                            </label>
+                            <label for="end_time">
+                                Time: <input type="time" name="end_time" id="end_time"/>
+                            </label>
+                        </div>
+                        <div id="range">
+                            <label for="rangify">
+                                <h4>Ranged values</h4> <input type="checkbox" name="rangify" id="rangify"/>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="chart"></div>
+                </div>
+                <div id="table-content"></div>
+            </div>
+            <script src="/mobile/src/js/jquery.js" type="text/javascript"></script>
+            <script src="/mobile/src/js/d3.js" type="text/javascript"></script>
+            <script src="/mobile/src/js/graph_lib.js" type="text/javascript"></script>
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', new window.NH.NHMobilePatient(), false);
+            </script>
+        </div>
+        <div class="footer block">
+            <p class="user">norah</p>
+        </div>
+        <script type="text/javascript">
+            var trigger_button = document.getElementsByClassName('scan')[0];
+            document.addEventListener('DOMContentLoaded', new window.NH.NHMobileBarcode(trigger_button), false);
+        </script>
+    </body>
+</html>
+

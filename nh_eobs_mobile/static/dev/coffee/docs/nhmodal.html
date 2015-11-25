@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nhmodal.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nhmodal.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHModal creates a modal popup and handles events triggered via modal buttons</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHModal</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>creates a dialog, adds it to the DOM and resizes to fit in window
+Params:</p>
+<ul>
+<li><code>id</code> - CSS ID to use for the popup</li>
+<li><code>title</code> - HTML String to use for the popup title</li>
+<li><code>content</code> - HTML String to use for the popup message, can be any content</li>
+<li><code>options</code> - An array of HTML Strings that will act as buttons</li>
+<li><code>popupTime</code> - time it takes for popup to appear</li>
+<li>‘el’ - The element in the DOM to put popup under</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(<span class="hljs-property">@id</span>, <span class="hljs-property">@title</span>, <span class="hljs-property">@content</span>, <span class="hljs-property">@options</span>, <span class="hljs-property">@popupTime</span>, <span class="hljs-property">@el</span>)</span> -&gt;</span>
+    self = @</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>create the dialog</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    dialog = <span class="hljs-property">@create_dialog</span>(self, <span class="hljs-property">@id</span>, <span class="hljs-property">@title</span>, <span class="hljs-property">@content</span>, <span class="hljs-property">@options</span>)
+    body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+    cover = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+    cover.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'cover'</span>)
+    cover.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'cover'</span>)
+    cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'close'</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@id</span> <span class="hljs-keyword">is</span> <span class="hljs-string">'submit_observation'</span>
+      cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'renable'</span>)
+    cover.setAttribute(<span class="hljs-string">'data-target'</span>, <span class="hljs-property">@id</span>)
+    cover.style.height = (body.clientHeight)+<span class="hljs-string">'px'</span>
+    cover.addEventListener(<span class="hljs-string">'click'</span>, self.handle_button_events)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>append it to the DOM</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    body.appendChild(cover)
+    <span class="hljs-property">@el</span>.appendChild(dialog)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>calculate the size of the modal and adjust</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@calculate_dimensions</span>(dialog,
+      dialog.getElementsByClassName(<span class="hljs-string">'dialogContent'</span>)[<span class="hljs-number">0</span>], <span class="hljs-property">@el</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>helper function to create the dialog object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">create_dialog</span>: <span class="hljs-function"><span class="hljs-params">(self, popup_id, popup_title, popup_content, popup_options)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>create the dialog div</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function">    <span class="hljs-title">dialog_div</span> = <span class="hljs-params">(id)</span> -&gt;</span>
+      div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+      div.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'dialog'</span>)
+      div.setAttribute(<span class="hljs-string">'id'</span>, id)
+      <span class="hljs-keyword">return</span> div</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>create the h2 header</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function">    <span class="hljs-title">dialog_header</span> = <span class="hljs-params">(title)</span> -&gt;</span>
+      header = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'h2'</span>)
+      header.innerHTML = title
+      <span class="hljs-keyword">return</span> header</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>create the content div</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function">    <span class="hljs-title">dialog_content</span> = <span class="hljs-params">(message)</span> -&gt;</span>
+      content = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+      content.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'dialogContent'</span>)
+      content.innerHTML = message
+      <span class="hljs-keyword">return</span> content</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>create the option buttons</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function">    <span class="hljs-title">dialog_options</span> = <span class="hljs-params">(self, buttons)</span> -&gt;</span>
+      option_list = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'ul'</span>)
+      <span class="hljs-keyword">switch</span> buttons.length
+        <span class="hljs-keyword">when</span> <span class="hljs-number">1</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options one-col'</span>)
+        <span class="hljs-keyword">when</span> <span class="hljs-number">2</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options two-col'</span>)
+        <span class="hljs-keyword">when</span> <span class="hljs-number">3</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options three-col'</span>)
+      <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> buttons
+        <span class="hljs-keyword">do</span> (self) -&gt;
+          option_button = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'li'</span>)
+          option_button.innerHTML = button
+          option_button.getElementsByTagName(<span class="hljs-string">'a'</span>)?[<span class="hljs-number">0</span>].addEventListener(<span class="hljs-string">'click'</span>,
+            self.handle_button_events)
+          option_list.appendChild(option_button)
+      <span class="hljs-keyword">return</span> option_list</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>create the elements and set up DOM</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    container = dialog_div(popup_id)
+    header = dialog_header(popup_title)
+    content = dialog_content(popup_content)
+    options = dialog_options(self, popup_options)
+    container.appendChild(header)
+    container.appendChild(content)
+    container.appendChild(options)
+    <span class="hljs-keyword">return</span> container</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>calculate the correct size of the dialog
+uses clientHeight to calculate the height of objects</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">calculate_dimensions</span>: <span class="hljs-function"><span class="hljs-params">(dialog, dialog_content, el)</span> -&gt;</span>
+    margins = {
+      <span class="hljs-attribute">top</span>: <span class="hljs-number">80</span>,
+      <span class="hljs-attribute">bottom</span>: <span class="hljs-number">300</span>,
+      <span class="hljs-attribute">right</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attribute">left</span>: <span class="hljs-number">0</span>
+    }
+<span class="hljs-function">    <span class="hljs-title">available_space</span> = <span class="hljs-params">(dialog, el)</span> -&gt;</span>
+      dh = dialog.getElementsByTagName(<span class="hljs-string">'h2'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>dialog_header_height = dialog_header?[0]?.clientHeight</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      dhh = parseInt(<span class="hljs-built_in">document</span>.defaultView.getComputedStyle(dh?[<span class="hljs-number">0</span>], \
+        <span class="hljs-string">''</span>).getPropertyValue(<span class="hljs-string">'height'</span>).replace(<span class="hljs-string">'px'</span>, <span class="hljs-string">''</span>))
+      dopt = dialog.getElementsByClassName(<span class="hljs-string">'options'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>dialog_opt_first = dialog_options?[0]?.getElementsByTagName(‘li’)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      dopth = parseInt(<span class="hljs-built_in">document</span>.defaultView.getComputedStyle(dopt?[<span class="hljs-number">0</span>], \
+        <span class="hljs-string">''</span>).getPropertyValue(<span class="hljs-string">'height'</span>).replace(<span class="hljs-string">'px'</span>, <span class="hljs-string">''</span>))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>el_height = el.clientHeight</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      elh = parseInt(<span class="hljs-built_in">document</span>.defaultView.getComputedStyle(el, \
+        <span class="hljs-string">''</span>).getPropertyValue(<span class="hljs-string">'height'</span>).replace(<span class="hljs-string">'px'</span>, <span class="hljs-string">''</span>))
+      dialog_height = ((dhh + dopth) + (margins.top + margins.bottom))
+      <span class="hljs-keyword">if</span> elh &gt; <span class="hljs-built_in">window</span>.innerHeight
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>.innerHeight - dialog_height
+
+    max_height = available_space(dialog, el)
+    top_offset = el.offsetTop + margins.top
+    dialog.style.top = top_offset+<span class="hljs-string">'px'</span>
+    dialog.style.display = <span class="hljs-string">'inline-block'</span>
+    <span class="hljs-keyword">if</span> max_height
+      dialog_content.style.maxHeight = max_height+<span class="hljs-string">'px'</span>
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Remove a modal and it’s cover from DOM
+Takes the ID of the modal</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_modal</span>: <span class="hljs-function"><span class="hljs-params">(modal_id)</span> -&gt;</span>
+    dialog_id = <span class="hljs-built_in">document</span>.getElementById(modal_id)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> dialog_id <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span>
+      cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Handle events from buttons created in options array
+Currently offers</p>
+<ul>
+<li>close (closes modal)</li>
+<li>submit (submits observation)</li>
+<li>partial submit (submits partial observation)</li>
+<li>assign (assigns nurses to patients)
+NOTE: Don’t preventDefault() straight away as will disable all button clicks</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_button_events</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+      target_el = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+      data_target = target_el.getAttribute(<span class="hljs-string">'data-target'</span>)
+      data_action = target_el.getAttribute(<span class="hljs-string">'data-ajax-action'</span>)
+      <span class="hljs-keyword">switch</span> target_el.getAttribute(<span class="hljs-string">'data-action'</span>)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'close'</span>
+          event.preventDefault()
+          <span class="hljs-property">@close_modal</span>(data_target)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'renable'</span>
+          event.preventDefault()
+          forms = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)
+          <span class="hljs-keyword">for</span> form <span class="hljs-keyword">in</span> forms
+            action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form.elements \
+              <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+            <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+              button.removeAttribute(<span class="hljs-string">'disabled'</span>)
+          <span class="hljs-property">@close_modal</span>(data_target)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'submit'</span>
+          event.preventDefault()
+          submit_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          submit_detail = {
+            <span class="hljs-string">'endpoint'</span>: target_el.getAttribute(<span class="hljs-string">'data-ajax-action'</span>)
+          }
+          submit_event.initCustomEvent(<span class="hljs-string">'post_score_submit'</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>,
+            submit_detail)
+          <span class="hljs-built_in">document</span>.dispatchEvent submit_event
+          <span class="hljs-property">@close_modal</span>(data_target)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'partial_submit'</span>
+          event.preventDefault()
+          <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+            submit_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+            submit_detail = {
+              <span class="hljs-string">'action'</span>:data_action,
+              <span class="hljs-string">'target'</span>: data_target
+            }
+            submit_event.initCustomEvent(<span class="hljs-string">'partial_submit'</span>,<span class="hljs-literal">false</span>,
+              <span class="hljs-literal">true</span>,submit_detail)
+            <span class="hljs-built_in">document</span>.dispatchEvent submit_event
+            event.handled = <span class="hljs-literal">true</span>
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'assign'</span>
+          event.preventDefault()
+          dialog = <span class="hljs-built_in">document</span>.getElementById(data_target)
+          dialog_form = dialog.getElementsByTagName(<span class="hljs-string">'form'</span>)[<span class="hljs-number">0</span>]
+          nurses = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> dialog_form.elements <span class="hljs-keyword">when</span> el.checked)
+          assign_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          assign_detail = {
+            <span class="hljs-string">'action'</span>:data_action,
+            <span class="hljs-string">'target'</span>: data_target,
+            <span class="hljs-string">'nurses'</span>: nurses
+          }
+          assign_event.initCustomEvent(<span class="hljs-string">'assign_nurse'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+            assign_detail)
+          <span class="hljs-built_in">document</span>.dispatchEvent assign_event
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'claim'</span>
+          event.preventDefault()
+          claim_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          claim_event.initCustomEvent(<span class="hljs-string">'claim_patients'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>)
+          <span class="hljs-built_in">document</span>.dispatchEvent claim_event
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'accept'</span>
+          event.preventDefault()
+          accept_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          accept_detail = {
+            <span class="hljs-string">'invite_id'</span>: target_el.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
+          }
+          accept_event.initCustomEvent(<span class="hljs-string">'accept_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+            accept_detail)
+          <span class="hljs-built_in">document</span>.dispatchEvent accept_event
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'reject'</span>
+          event.preventDefault()
+          reject_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          reject_detail = {
+            <span class="hljs-string">'invite_id'</span>: target_el.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
+          }
+          reject_event.initCustomEvent(<span class="hljs-string">'reject_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+            reject_detail)
+          <span class="hljs-built_in">document</span>.dispatchEvent reject_event
+      event.handled = <span class="hljs-literal">true</span>
+      <span class="hljs-keyword">return</span>
+
+<span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+
+<span class="hljs-built_in">window</span>?.NH.NHModal = NHModal</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "lang": "en",
+  "name": "Open Source Electronic Observations",
+  "short_name": "Open eObs",
+  "icons": [{
+    "src": "/mobile/src/icon/hd_small.png",
+    "sizes": "64x64"
+  }, {
+    "src": "/mobile/src/icon/hd_small.png",
+    "sizes": "64x64"
+  }, {
+    "src": "/mobile/src/icon/hd_hi.png",
+    "sizes": "128x128",
+    "density": 2
+  }],
+  "scope": "/mobile/",
+  "start_url": "/mobile/login",
+  "display": "fullscreen"
+}
