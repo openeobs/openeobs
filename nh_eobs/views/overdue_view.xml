@@ -1,0 +1,58 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_nh_clinical_overdue_search">
+            <field name="name">NHC Overdue Activities Search</field>
+            <field name="model">nh.clinical.overdue</field>
+            <field name="arch" type="xml">
+                <search string="NHC Overdue Activities">
+                    <field name="patient_name"/>
+                    <field name="parent_location"/>
+                    <field name="location"/>
+                    <field name="nhs_number"/>
+                    <field name="name"/>
+                    <field name="groups"/>
+                    <group expand="1" string="Group By...">
+                        <filter name="patient" string="Patient" domain="[]" context="{'group_by':'patient_name'}"/>
+                        <filter name="ward" string="Parent Location" domain="[]" context="{'group_by':'parent_location'}"/>
+                        <filter name="activity" string="Activity" domain="[]" context="{'group_by':'name'}"/>
+                        <filter name="user" string="Assigned to..." domain="[]" context="{'group_by':'user_name'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_nh_clinical_overdue_tree">
+            <field name="name">NH Clinical Overdue Activities Tree</field>
+            <field name="model">nh.clinical.overdue</field>
+            <field name="arch" type="xml">
+                <tree string="NH Clinical Overdue Activities Tree" version="7.0" create="0" class="nh_eobs_overdue">
+                    <field name="patient_name"/>
+                    <field name="parent_location"/>
+                    <field name="location"/>
+                    <field name="nhs_number"/>
+                    <field name="delay_string" string="Overdue Time (hh:mm)"/>
+                    <field name="name"/>
+                    <field name="user_name"/>
+                    <field name="groups"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_overdue" >
+            <field name="name">Overdue Tasks</field>
+            <field name="res_model">nh.clinical.overdue</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="domain">[('delay','>',0),('user_ids','in',uid)]</field>
+            <field name="view_id" ref="view_nh_clinical_overdue_tree"/>
+            <field name="search_view_id" ref="view_nh_clinical_overdue_search"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_view_overdue_tree">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_nh_clinical_overdue_tree"/>
+            <field name="act_window_id" ref="action_show_overdue"/>
+        </record>
+    </data>
+</openerp>

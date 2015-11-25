@@ -1,0 +1,13 @@
+<openerp>
+    <data>
+        <report id="nh_clinical_observation_report"
+                model="nh.clinical.observation_report_wizard"
+                string="Observation Report"
+                report_type="qweb-pdf"
+                name="nh.clinical.observation_report"
+                file="nh.clinical.observation_report"
+                attachment_use="True"
+                attachment="((time.strftime('%Y%m%d'))+'_observation_report.pdf')"
+                />
+    </data>
+</openerp>

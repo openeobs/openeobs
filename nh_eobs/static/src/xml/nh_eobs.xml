@@ -1,0 +1,227 @@
+<templates>
+
+    <t t-extend="UserMenu">
+        <t t-jquery=".dropdown-menu" t-operation="replace">
+            <ul class="dropdown-menu">
+                <li><a href="#" data-menu="settings">Preferences</a></li>
+                <li><a href="#" data-menu="about">About Odoo</a></li>
+                <li><a href="#" data-menu="help">Help</a></li>
+                <li><a href="#" data-menu="logout">Log out</a></li>
+            </ul>
+        </t>
+    </t>
+
+    <t t-extend="WebClient.announcement_bar">
+        <t t-jquery=".announcement_bar" t-operation="replace">
+            <td colspan="2" class="announcement_bar">
+                <span>Your Open e-Obs is not supported.</span>
+                <span>
+                    <a href="http://www.neovahealth.co.uk/" target="_blank"></a>
+                </span>
+                <span class="close"></span>
+            </td>
+        </t>
+    </t>
+
+    <button t-name="nh.ListView.row.button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
+            t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
+        <img t-if="widget.nh_icon" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/#{widget.nh_icon}.png" t-att-alt="widget.string"/>
+        <img t-if="widget.icon" t-attf-src="#{prefix}/web/static/src/img/icons/#{widget.icon}.png" t-att-alt="widget.string"/>
+    </button>
+
+    <button t-name="nh.ListView.row.act_button" type="button" t-att-title="widget.string" t-att-disabled="disabled || undefined"
+            t-att-class="disabled ? 'oe_list_button_disabled' : undefined">
+        <img t-if="active" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/times.png" t-att-alt="widget.string"/>
+        <img t-if="inactive" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/check.png" t-att-alt="widget.string"/>
+    </button>
+
+    <t t-name="nh_maleCell"
+        ><img t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="nh_femaleCell"
+        ><img t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="nh_genderCell"
+        ><img t-if="male" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/male.png" t-att-alt="widget.string"/>
+        <img t-if="female" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/female.png" t-att-alt="widget.string"/>
+    </t>
+
+    <t t-name="nh_trendCell"
+        ><img t-if="up" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/level-up.png" t-att-alt="widget.string"/>
+        <img t-if="down" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/level-down.png" t-att-alt="widget.string"/>
+        <img t-if="same" t-attf-src="#{prefix}/nh_eobs/static/src/img/icons/level-same.png" t-att-alt="widget.string"/>
+    </t>
+
+    <div t-name="nh_ewschart" class="nh_ewschart">
+        <div id="controls">
+            <div id="range">
+                <label for="rangify">
+                    <h4>Ranged values</h4> <input type="checkbox" name="rangify" id="rangify"/>
+                </label>
+            </div>
+        </div>
+        <div id="chart"></div>
+    </div>
+
+    <div t-name="nh_prescribe" class="nh_prescribe">
+        <iframe t-att-src="url" height="800px" width="100%"></iframe>
+    </div>
+
+    <div t-name="nh_bschart" class="nh_bschart">
+        <h3 id="chartTitle">Blood Sugar</h3>
+        <div id="chart" class="chart"></div>
+    </div>
+
+    <div t-name="nh_weightchart" class="nh_weightchart">
+        <h3 id="chartTitle">Weight</h3>
+        <div id="chart" class="chart"></div>
+    </div>
+
+    <table t-name="ListViewPBP" class="oe_list_content">
+        <t t-set="columns_count" t-value="visible_columns.length + (options.selectable ? 1 : 0) + (options.deletable ? 1 : 0)"/>
+        <thead>
+            <tr t-if="(!!options.action_buttons and !options.$buttons) or (!!options.pager and !options.$pager)">
+                <th t-att-colspan="columns_count">
+                    <div class="oe_list_buttons"/>
+                    <div class="oe_list_sidebar"/>
+                    <div class="oe_list_pager"/>
+                </th>
+            </tr>
+            <tr t-if="options.header" class="oe_list_header_columns">
+                <t t-foreach="columns" t-as="column">
+                    <th t-if="!column.meta and column.invisible !== '1' and column.id !== 'systolic_standing' and column.id !== 'systolic_sitting' and column.id !== 'diastolic_sitting' and column.id !== 'diastolic_standing'" t-att-data-id="column.id"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)} nhskr_pbp"><div>
+                        <t t-if="column.tag !== 'button'"/>
+                    </div></th>
+                    <th t-if="!column.meta and column.invisible !== '1' and column.id == 'systolic_sitting'" t-att-data-id="column.id" t-att-colspan="2"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)} nhskr_pbp"><div>
+                        <t t-if="column.tag !== 'button'">Sitting/Lying</t>
+                    </div></th>
+                    <th t-if="!column.meta and column.invisible !== '1' and column.id == 'systolic_standing'" t-att-data-id="column.id" t-att-colspan="2"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)} nh  skr_pbp"><div>
+                        <t t-if="column.tag !== 'button'">Standing</t>
+                    </div></th>
+                </t>
+            </tr>
+            <tr t-if="options.header" class="oe_list_header_columns">
+                <t t-foreach="columns" t-as="column">
+                    <th t-if="column.meta">
+                        <t t-esc="column.string"/>
+                    </th>
+                </t>
+                <th t-if="options.selectable" width="1"  >
+                    <input type="checkbox" class="oe_list_record_selector"/>
+                </th>
+                <t t-foreach="columns" t-as="column">
+                    <th t-if="!column.meta and column.invisible !== '1'" t-att-data-id="column.id"
+                        t-attf-class="oe_list_header_#{column.widget or column.type} #{((options.sortable and column.tag !== 'button') ? 'oe_sortable' : null)}"><div>
+                        <t t-if="column.tag !== 'button'"><t t-esc="column.string"/></t>
+                    </div></th>
+                </t>
+                <th t-if="options.deletable" class="oe_list_record_delete" width="13px"/>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <td t-if="options.selectable"/>
+                <td t-foreach="aggregate_columns" t-as="column" class="oe_list_footer oe_number"
+                    t-att-data-field="column.id" t-att-title="column.label">
+                </td>
+                <td t-if="options.deletable" class="oe_list_record_delete"/>
+            </tr>
+        </tfoot>
+    </table>
+
+
+    <t t-name="PagedFormOpenViewManager" t-extend="ViewManager">
+        <t t-jquery=".oe_view_manager > .oe_view_manager_header" t-operation="replace">
+            <table class="oe_view_manager_header">
+                <col width="20%"/>
+                <col width="35%"/>
+                <col width="15%"/>
+                <col width="30%"/>
+                <tr class="oe_header_row oe_header_row_top">
+                    <td colspan="2" class="paged_form_view_title">
+                            <h2 class="oe_view_title paged_form_view_title" t-if="widget.flags.display_title !== false">
+                                <span class="oe_view_title_text oe_breadcrumb_title"/>
+                            </h2>
+                    </td>
+                    <td colspan="2" class="paged_form_view_pager">
+                            <div class="oe_view_manager_pager oe_right"/>
+                    </td>
+                </tr>
+                <!--<tr class="oe_header_row">-->
+                    <!--<td>-->
+                        <!--&lt;!&ndash;<ul>&ndash;&gt;-->
+                            <!--&lt;!&ndash;&lt;!&ndash; removed the default buttons &ndash;&gt;&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="nh_view_patient_age"></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="nh_view_patient_sex"></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="nh_view_patient_location"></li>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<li class="nh_view_patient_clinical_risk"></li>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+                    <!--</td>-->
+                    <!--<td colspan="2">-->
+                            <!--<div class="oe_view_manager_sidebar"/>-->
+                    <!--</td>-->
+                    <!--<td>-->
+                        <!--<ul class="oe_view_manager_switch oe_button_group oe_right">-->
+                            <!--<t t-if="widget.views_src.length > 1" t-foreach="widget.views_src" t-as="view">-->
+                              <!--<li class="oe_e">-->
+                                <!--<a t-attf-class="oe_vm_switch_#{view.view_type}" t-att-data-view-type="view.view_type"-->
+                                   <!--t-att-title="view.button_label"/>-->
+                              <!--</li>-->
+                            <!--</t>-->
+                        <!--</ul>-->
+                        <!---->
+                    <!--</td>-->
+                <!--</tr>-->
+            </table>
+        </t>
+    </t>
+
+    <t t-name="PagedFormOpenViewManager2" t-extend="ViewManager">
+        <t t-jquery=".oe_view_manager > .oe_view_manager_header" t-operation="replace">
+            <table class="oe_view_manager_header">
+                <col width="20%"/>
+                <col width="35%"/>
+                <col width="15%"/>
+                <col width="30%"/>
+                <tr class="oe_header_row oe_header_row_top">
+                    <td colspan="2" class="paged_form_view_title">
+                            <h2 class="oe_view_title paged_form_view_title" t-if="widget.flags.display_title !== false">
+                                <span class="oe_view_title_text oe_breadcrumb_title"/>
+                            </h2>
+                    </td>
+                    <td colspan="2" class="paged_form_view_pager">
+                            <div class="oe_view_manager_pager oe_right"/>
+                    </td>
+                </tr>
+                <tr class="oe_header_row">
+                    <td colspan="2">
+                        <div class="oe_view_manager_sidebar"/>
+                    </td>
+                    <td>
+                        <ul class="oe_view_manager_switch oe_button_group oe_right">
+                            <t t-if="widget.views_src.length > 1" t-foreach="widget.views_src" t-as="view">
+                              <li class="oe_e">
+                                <a t-attf-class="oe_vm_switch_#{view.view_type}" t-att-data-view-type="view.view_type"
+                                   t-att-title="view.button_label"/>
+                              </li>
+                            </t>
+                        </ul>
+                        <div class="oe_view_manager_pager oe_right"/>
+                    </td>
+                    <td>
+
+                    </td>
+                </tr>
+            </table>
+        </t>
+        <t t-jquery=".oe_view_manager > .oe_view_manager_wrapper" t-operation="after">
+            <div style="padding: 15px 0 15px 15px;" class="oe_view_manager_buttons"/>
+        </t>
+    </t>
+
+</templates>
