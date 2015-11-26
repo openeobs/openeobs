@@ -1,0 +1,848 @@
+<openerp>
+    <data>
+
+        <template id="observation_report_footer">
+            <div class="row footer col-xs-12">
+                <div class="col-xs-9">
+                        <p>
+                            <img src="/nh_eobs/static/src/img/open_eobs_logo.png" alt="Open-eObs" style="height: 16px;"/>
+                            <t t-esc="user_name"/> -
+                            <t t-esc="time_generated"/> -
+                            <t t-esc="company_name"/> -
+                            <t t-esc="patient['other_identifier']"/>
+                        </p>
+                </div>
+                <div class="col-xs-3 pull-right">
+                    <p>Page: <span class="page"/>/<span class="topage"/></p>
+                </div>
+            </div>
+        </template>
+
+        <template id="observation_report_header">
+            <div class="header">
+                <div class="row">
+                    <div class="col-xs-9">
+                        <h2><t t-esc="patient['full_name']"/></h2>
+                    </div>
+                    <div class="col-xs-3 pull-right">
+                        <img t-if="company_logo" t-att-src="'data:image/png;base64,{0}'.format(company_logo)" t-att-alt="company_name" style="max-height: 45px;" class="col-xs-12"/>
+                    </div>
+                </div>
+                <div class="row zero_min_height">
+                    <div class="col-xs-12">
+                        <div style="border-bottom: 1px solid black;"></div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+
+        <template id="observation_report_layout">
+            <t t-call="nh_eobs.observation_report_header"/>
+            <t t-raw="0"/>
+            <t t-call="nh_eobs.observation_report_footer"/>
+        </template>
+
+        <template id="observation_report_header_override" inherit_id="report.layout" primary="True">
+            <xpath expr="//head" position="inside">
+                <style>
+                    h1 {
+                        font-size: 22px;
+                        margin-top: 0px;
+                        margin-bottom: 5px;
+                    }
+
+                    h2 {
+                        font-size: 18px;
+                        margin-top: 0px;
+                    }
+
+                    h3{
+                        margin-top: 40px;
+                    }
+
+                    h4{
+                        display: inline-block;
+                        margin-top: 40px;
+                    }
+
+                    svg .title, h1{
+                        font-weight: bold;
+                    }
+
+                    svg .axis path,
+                    svg .axis line {
+                        fill: none;
+                        stroke: #262626;
+                        shape-rendering: crispEdges;
+                    }
+                    svg .axis text {
+                        font-family: sans-serif;
+                    }
+                    svg .y.axis text{
+                        font-size: 8px;
+                    }
+                    svg .background .green {
+                        fill: #ccffcc;
+                    }
+                    svg .background .amber {
+                        fill: #ffe9c8;
+                    }
+                    svg .background .red {
+                        fill: #ffcccc;
+                    }
+                    svg .background .normal {
+                        fill: rgba(0, 0, 0, 0.2);
+                        stroke: rgba(0, 0, 0, 0.2);
+                    }
+                    svg .background line {
+                        fill: none;
+                        stroke: rgba(0, 0, 0, 0.15);
+                        shape-rendering: crispEdges;
+                    }
+                    svg .brush {
+                        fill: rgba(0, 0, 0, 0.3);
+                    }
+                    svg .data path {
+                        fill: none;
+                        stroke: rgba(40, 40, 40, 0.6);
+                        shape-rendering: optimizeSpeed;
+                    }
+
+                    table td{
+                        padding-top: 0.5em;
+                        padding-bottom: 0.5em;
+                        vertical-align: top;
+                    }
+
+                    .first-page table td{
+                        padding-top: 0;
+                        padding-bottom: 0;
+                    }
+
+                    .striped>tbody>tr:nth-child(even){
+                        background-color: rgb(239, 239, 239);
+                        page-break-after: always;
+                        page-break-inside: avoid;
+                    }
+                    .striped tr{
+                        page-break-inside: avoid;
+                        page-break-before: always;
+                    }
+
+                    .pre-pre-compact-data{
+                        padding-right: 0;
+                    }
+
+                    .pre-compact-data td{
+                        padding-bottom: 0px !important;
+                    }
+                    .compact-data{
+                        border: 0px solid #282828 !important;
+                        margin-bottom: 1em;
+                        background-color: white;
+                    }
+                    .pre-compact-data tr:last-child .compact-data{
+                        margin-bottom: 0px;
+                    }
+                    /*.compact-data td {
+                        padding: 0.5em 3% !important;
+                    }*/
+                    .compact-data td.header{
+                        background-color: black;
+                    }
+                    .compact-data td.header h4 {
+                        color: white;
+                        margin-bottom: 12px;
+                    }
+
+                    .pbp-data{
+                        border-left: 0px solid black;
+                    }
+
+                    .pbp-data th{
+                        background-color: black;
+                    }
+                    .pbp-data td{
+                        border-left: 1px solid black !important;
+                        padding-top: 0.5em !important;
+                        padding-bottom: 0.5em !important;
+                    }
+                    /*.pbp-data td:first-child{
+                        padding-left: 5%;
+                    }*/
+
+                    .small-header th{
+                        font-size: 10px;
+                    }
+
+                    circle .point{
+                        fill: black;
+                        stroke: black;
+                        stroke-width: 1px;
+                    }
+                    circle .empty_point{
+                        fill: white;
+                        stroke: black;
+                        stroke-width: 1px;
+                    }
+                </style>
+            </xpath>
+        </template>
+
+        <template id="html_container">
+            <t t-set="body_classname" t-value="'container'"/>
+            <t t-call="nh_eobs.observation_report_header_override">
+                <t t-call="nh_eobs.observation_report_layout">
+                    <t t-raw="0"/>
+                </t>
+            </t>
+        </template>
+
+
+        <template id="observation_report">
+            <t t-call="nh_eobs.html_container">
+                <div class="page">
+                    <div class="col-xs-12 row">
+                        <h1>Patient Observation Report</h1>
+                    </div>
+                    <div class="col-xs-12 row first-page">
+                        <table class="col-xs-12 row">
+                            <tr>
+                                <td class="col-xs-4">
+                                    <h2>Patient</h2>
+                                    <table class="col-xs-12">
+                                        <tr>
+                                            <td><strong>Hospital No:</strong></td><td><t t-esc="patient['other_identifier']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>DOB:</strong></td><td><t t-esc="patient['dob']"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Gender:</strong></td><td><t t-esc="patient['gender']"/></td>
+                                        </tr>
+                                        <t t-if="patient['patient_identifier']">
+                                            <tr>
+                                                <td><strong>NHS No:</strong></td><td><t t-esc="patient['patient_identifier']"/></td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="patient['height']">
+                                            <tr>
+                                                <td><strong>Height:</strong></td><td><t t-esc="patient['height']"/>m</td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="not patient['height']">
+                                            <tr>
+                                                <td></td><td></td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="patient['weight']">
+                                            <tr>
+                                                <td><strong>Weight:</strong></td><td><t t-esc="patient['weight']"/>kg</td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="not patient['weight']">
+                                            <tr>
+                                                <td></td><td></td>
+                                            </tr>
+                                        </t>
+                                    </table>
+                                </td>
+                                <td class="col-xs-8">
+                                    <h2>Hospital Visit</h2>
+                                    <table class="col-xs-12 row">
+                                        <tr>
+                                            <td class="col-xs-4"><strong>Location:</strong></td>
+                                            <td class="col-xs-8">
+                                                <t t-if="'bed' in patient">
+                                                    <t t-esc="patient['bed']"/>,
+                                                </t>
+                                                <t t-if="'ward' in patient">
+                                                    <t t-esc="patient['ward']"/>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <t t-if="transfer_history and len(transfer_history) &gt; 1">
+                                            <tr>
+                                                <td class="col-xs-4"><strong>Transfer History:</strong></td><td class="col-xs-8">See additional pages</td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="transfer_history and len(transfer_history) &lt; 2">
+                                            <tr>
+                                                <td class="col-xs-4"></td><td class="col-xs-8"></td>
+                                            </tr>
+                                        </t>
+                                        <tr>
+                                            <td class="col-xs-4"><strong>Report Period:</strong></td><td class="col-xs-8"><t t-esc="report_start"/> - <t t-esc="report_end"/></td>
+                                        </tr>
+                                        <t t-if="spell['consultants']">
+                                            <tr>
+                                                <td class="col-xs-4"><strong>Consulting Doctor(s):</strong></td><td class="col-xs-8"><ul><li t-foreach="spell['consultants']" t-as="doctor"><t t-esc="doctor['name']"/></li></ul></td>
+                                            </tr>
+                                        </t>
+                                        <t t-if="not spell['consultants']">
+                                            <tr>
+                                                <td class="col-xs-4"></td><td class="col-xs-8"></td>
+                                            </tr>
+                                        </t>
+                                        <tr>
+                                            <td class="col-xs-4"><strong>Admission:</strong></td><td class="col-xs-8"><t t-esc="spell['code']"/> - <t t-esc="spell_start"/></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-xs-12 row">
+                        <div id="chart" style="width: 825px; height: 885px;"></div>
+                        <script type="text/javascript" src="/nh_graphs/static/lib/js/d3.js"></script>
+                        <script type="text/javascript" src="/nh_graphs/static/src/js/nh_graphlib.js"></script>
+                        <script type="text/javascript">var obs_data = <t t-raw="ews_data"/>;</script>
+                        <script type="text/javascript" t-att-src="draw_graph_js"></script>
+                    </div>
+                    <t t-if="table_ews">
+                        <div class="col-xs-12 row">
+                            <h3>NEWS Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead class="small-header">
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-1">Respiration<br/>Rate</th>
+                                        <th class="col-xs-1">O2<br/>Saturation</th>
+                                        <th class="col-xs-1">Body<br/>Temperature</th>
+                                        <th class="col-xs-1">Blood<br/>Pressure<br/>Systolic</th>
+                                        <th class="col-xs-1">Blood<br/>Pressure<br/>Diastolic</th>
+                                        <th class="col-xs-1">Pulse<br/>Rate</th>
+                                        <th class="col-xs-1">AVPU</th>
+                                        <th class="col-xs-1">Supplemental O2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="table_ews" t-as="ew">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="ew['date_terminated']"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew['respiration_rate']"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew['indirect_oxymetry_spo2']"/><t t-if="'o2_target' in ew and ew['o2_target']"><br/><strong>Target:</strong> <t t-esc="ew['o2_target']"/></t></td>
+                                            <td class="col-xs-1"><t t-esc="ew['body_temperature']"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew['blood_pressure_systolic']"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew['blood_pressure_diastolic']"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew['pulse_rate']"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew['avpu_text']"/></td>
+                                            <td class="col-xs-1">
+                                                <t t-if="ew['oxygen_administration_flag']">
+                                                    See table
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <h4>NEWS Values - Supplementary O2 Values</h4>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-3">Device</th>
+                                        <th class="col-xs-6">Values</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="table_ews" t-as="ew">
+                                        <t t-if="ew['oxygen_administration_flag']">
+                                            <tr>
+                                                <td class="col-xs-3"><t t-esc="ew['date_terminated']"/></td>
+                                                <td class="col-xs-3"><t t-if="ew['device_id'] and len(ew['device_id']) > 1"><t t-esc="ew['device_id'][1]"/></t></td>
+                                                <td class="col-xs-6">
+                                                    <table class="col-xs-12 row">
+                                                        <t t-if="ew['flow_rate']">
+                                                            <tr>
+                                                                <td class="col-xs-6"><strong>Flow Rate:</strong></td>
+                                                                <td class="col-xs-6"><t t-esc="ew['flow_rate']"/></td>
+                                                            </tr>
+                                                        </t>
+                                                        <t t-if="ew['concentration']">
+                                                            <tr>
+                                                                <td class="col-xs-6"><strong>Concentration:</strong></td>
+                                                                <td class="col-xs-6"><t t-esc="ew['concentration']"/></td>
+                                                            </tr>
+                                                        </t>
+                                                        <t t-if="ew['cpap_peep']">
+                                                            <tr>
+                                                                <td class="col-xs-6"><strong>CPAP PEEP (cmH2O):</strong></td>
+                                                                <td class="col-xs-6"><t t-esc="ew['cpap_peep']"/></td>
+                                                            </tr>
+                                                        </t>
+                                                        <t t-if="ew['niv_backup']">
+                                                            <tr>
+                                                                <td class="col-xs-6"><strong>NIV Back-up rate (br/min):</strong></td>
+                                                                <td class="col-xs-6"><t t-esc="ew['niv_backup']"/></td>
+                                                            </tr>
+                                                        </t>
+                                                        <t t-if="ew['niv_ipap']">
+                                                            <tr>
+                                                                <td class="col-xs-6"><strong>NIV IPAP (cmH2O):</strong></td>
+                                                                <td class="col-xs-6"><t t-esc="ew['niv_ipap']"/></td>
+                                                            </tr>
+                                                        </t>
+                                                        <t t-if="ew['niv_epap']">
+                                                            <tr>
+                                                                <td class="col-xs-6"><strong>NIV EPAP (cmH2O):</strong></td>
+                                                                <td class="col-xs-6"><t t-esc="ew['niv_epap']"/></td>
+                                                            </tr>
+                                                        </t>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(weights) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Weight Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-9">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="weights" t-as="weight">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="weight['values']['date_terminated']"/></td>
+                                            <td class="col-xs-9"><t t-esc="weight['values']['weight']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <p></p>
+                        </div>
+                    </t>
+
+                    <t t-if="len(gcs) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>GCS Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-3">Eyes</th>
+                                        <th class="col-xs-3">Verbal</th>
+                                        <th class="col-xs-3">Motor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="gcs" t-as="gcs_score">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['eyes']"/></td>
+                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['verbal']"/></td>
+                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['motor']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(bs) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Blood Sugar Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-9">Blood Sugar (mmol/L)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="bs" t-as="bs_score">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="bs_score['values']['date_terminated']"/></td>
+                                            <td class="col-xs-9"><t t-esc="bs_score['values']['blood_sugar']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(pains) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Pain Score Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-4">Resting Score</th>
+                                        <th class="col-xs-4">Movement Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="pains" t-as="pain">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="pain['values']['date_terminated']"/></td>
+                                            <td class="col-xs-4"><t t-if="pain['values']['rest_score']"><t t-esc="pain['values']['rest_score']"/></t></td>
+                                            <td class="col-xs-4"><t t-if="pain['values']['movement_score']"><t t-esc="pain['values']['movement_score']"/></t></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(blood_products) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Blood Product Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-3">Vol (ml)</th>
+                                        <th class="col-xs-6">Blood Product</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="blood_products" t-as="blood_product">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="blood_product['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="blood_product['values']['vol']"/></td>
+                                            <td class="col-xs-6"><t t-esc="blood_product['values']['product']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(bristol_stools) > 0">
+                        <div class="col-xs-12 row">
+                            <h3>Bristol Stools Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-1">Date</th>
+                                        <th class="col-xs-1">Bowel Open</th>
+                                        <th class="col-xs-1">Nausea</th>
+                                        <th class="col-xs-1">Vomiting</th>
+                                        <th class="col-xs-1">Quantity</th>
+                                        <th class="col-xs-1">Colour</th>
+                                        <th class="col-xs-1">Bristol Type</th>
+                                        <th class="col-xs-1">Offensive</th>
+                                        <th class="col-xs-1">Strain</th>
+                                        <th class="col-xs-1">Laxatives</th>
+                                        <th class="col-xs-1">Samples</th>
+                                        <th class="col-xs-1">Rectal Exam</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="bristol_stools" t-as="bristol_stool">
+                                        <tr>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['date_terminated']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['bowel_open']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['nausea']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['vomiting']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['quantity']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['colour']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['bristol_type']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['offensive']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['strain']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['laxatives']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['samples']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['rectal_exam']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                    <t t-if="len(pbps) > 0 ">
+                        <div class="col-xs-12 row">
+                            <h3>Postural Blood Pressure Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-2">User</th>
+                                        <th class="col-xs-2">Dehydrated</th>
+                                        <th class="col-xs-5">Values</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="pbps" t-as="pbp_ob">
+                                        <tr>
+                                            <td class="col-xs-3"><t t-esc="pbp_ob['date_terminated']"/></td>
+                                            <td class="col-xs-2"><t t-esc="pbp_ob['terminate_uid'][1]"/></td>
+                                            <td class="col-xs-2"><t t-esc="pbp_ob['values']['result']"/></td>
+                                            <td class="col-xs-5 pre-pre-compact-data">
+                                                <table class="pre-compact-data striped col-xs-12 row">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="col-xs-4">Position</th>
+                                                            <th class="col-xs-4">Systolic</th>
+                                                            <th class="col-xs-4">Diastolic</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="col-xs-4">Sitting</td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['systolic_sitting']"/></td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['diastolic_sitting']"/></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="col-xs-4">Standing</td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['systolic_standing']"/></td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['diastolic_standing']"/></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <p></p>
+                        </div>
+                    </t>
+
+                    <t t-if="len(targeto2) > 0">
+                        <div class="row col-xs-12">
+                            <h3>O2 Target Values</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-3">Target</th>
+                                        <th class="col-xs-6">User</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="targeto2" t-as="o2">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="o2['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="o2['values']['level_id'][1]"/></td>
+                                            <td class="col-xs-6"><t t-esc="o2['write_uid'][1]"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <p></p>
+                        </div>
+                    </t>
+
+                    <t t-if="len(device_session_history) > 0">
+                        <div class="row col-xs-12">
+                            <h3>Active Device Sessions</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Device</th>
+                                        <th class="col-xs-3">Type</th>
+                                        <th class="col-xs-3">Location</th>
+                                        <th class="col-xs-3">Inserted</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="device_session_history" t-as="device_session">
+                                        <t t-if="'values' in device_session and device_session['values']">
+                                            <t t-if="'date_terminated' in device_session['values'] and not device_session['values']['date_terminated']">
+                                                <tr class="main-entry">
+                                                    <td class="col-xs-3"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
+                                                    <td class="col-xs-3"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
+                                                    <td class="col-xs-3"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
+                                                    <td class="col-xs-3"><t t-esc="device_session['values']['date_started']"/></td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <p></p>
+                        </div>
+                    </t>
+
+                    <t t-if="len(device_session_history) > 0">
+                        <div class="row col-xs-12">
+                            <h3>Device Session History</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-1">Device</th>
+                                        <th class="col-xs-1">Type</th>
+                                        <th class="col-xs-1">Location</th>
+                                        <th class="col-xs-1">Inserted</th>
+                                        <th class="col-xs-1">Removed</th>
+                                        <th class="col-xs-1">Planned</th>
+                                        <th class="col-xs-1">Removal Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="device_session_history" t-as="device_session">
+                                        <t t-if="'values' in device_session and device_session['values']">
+                                            <t t-if="'date_terminated' in device_session['values'] and device_session['values']['date_terminated']">
+                                                <tr class="main-entry">
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session['values']['date_started']"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session['values']['date_terminated']"/></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['planned']"><t t-esc="device_session['values']['planned']"/></t></td>
+                                                    <td class="col-xs-1"><t t-if="device_session['values']['removal_reason']"><t t-esc="device_session['values']['removal_reason']"/></t></td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <p></p>
+                        </div>
+                    </t>
+
+                    <t t-if="len(transfer_history) > 0">
+                        <div class="row col-xs-12">
+                            <h3>Transfer History</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-2">Bed</th>
+                                        <th class="col-xs-7">Ward</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="transfer_history" t-as="transfer">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="transfer['date_terminated']"/></td>
+                                            <td class="col-xs-2"><t t-esc="transfer['bed']"/></td>
+                                            <td class="col-xs-7"><t t-esc="transfer['ward']"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <p></p>
+                        </div>
+                    </t>
+
+                    <div class="row col-xs-12">
+                        <h3>Patient Monitoring Exceptions</h3>
+                        <table class="striped col-xs-12 row">
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-3">Date</th>
+                                    <th class="col-xs-3">Flag</th>
+                                    <th class="col-xs-3">Action</th>
+                                    <th class="col-xs-3">User</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="mrsa_history" t-as="mrsa">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="mrsa['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">MRSA</td>
+                                        <td class="col-xs-3"><t t-esc="mrsa['values']['mrsa']"/></td>
+                                        <td class="col-xs-3"><t t-esc="mrsa['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="diabetes_history" t-as="diabetes">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="diabetes['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Diabetes</td>
+                                        <td class="col-xs-3"><t t-esc="diabetes['values']['diabetes']"/></td>
+                                        <td class="col-xs-3"><t t-esc="diabetes['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="palliative_care_history" t-as="palliative_care">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Palliative Care</td>
+                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['palliative_care']"/></td>
+                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="post_surgery_history" t-as="post_surgery">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Post Surgery</td>
+                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['post_surgery']"/></td>
+                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                                <t t-foreach="critical_care_history" t-as="critical_care">
+                                    <tr class="main-entry">
+                                        <td class="col-xs-3"><t t-esc="critical_care['values']['date_terminated']"/></td>
+                                        <td class="col-xs-3">Critical Care</td>
+                                        <td class="col-xs-3"><t t-esc="critical_care['values']['critical_care']"/></td>
+                                        <td class="col-xs-3"><t t-esc="critical_care['values']['terminate_uid'][1]"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <p></p>
+                    </div>
+
+                    <t t-if="len(ews) > 0">
+                        <div class="row col-xs-12">
+                            <h3>Actions Triggered</h3>
+                            <table class="striped col-xs-12 row">
+                                <thead>
+                                    <tr>
+                                        <th class="col-xs-3">Date</th>
+                                        <th class="col-xs-2">EWS Score</th>
+                                        <th class="col-xs-2">Clinical Risk</th>
+                                        <th class="col-xs-5">Action Taken</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="ews" t-as="observation">
+                                        <t t-if="not observation['values']['is_partial']">
+                                            <tr class="main-entry">
+                                                <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                                                <td class="col-xs-2"><t t-esc="observation['values']['score']"/></td>
+                                                <td class="col-xs-2"><t t-esc="observation['values']['clinical_risk']"/></td>
+                                                <td class="col-xs-5 pre-pre-compact-data">
+                                                    <table class="pre-compact-data col-xs-12 row">
+                                                        <t t-foreach="observation['triggered_actions']" t-as="task">
+                                                            <tr>
+                                                                <td class="col-xs-12">
+                                                                    <table class="compact-data col-xs-12">
+                                                                        <tr>
+                                                                            <td colspan="2" class="header col-xs-12">
+                                                                                <h4><t t-esc="task['summary']"/></h4>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <t t-if="task['notes']">
+                                                                            <tr>
+                                                                                <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
+                                                                            </tr>
+                                                                        </t>
+                                                                        <tr>
+                                                                            <td class="col-xs-6"><t t-if="task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
+                                                                            <td class="col-xs-6"><t t-if="task['date_terminated']"><strong>Date:</strong> <t t-esc="task['date_terminated']"/></t><br/>
+                                                                                <t t-if="task['date_terminated']==False">
+                                                                                        Task still in progress
+                                                                                </t>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+    </data>
+</openerp>

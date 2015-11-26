@@ -1,0 +1,897 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--Charts-->
+        <record model="ir.ui.view" id="view_wardboard_chart_form">
+            <field name="name">Wardboard Chart Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard EWS Chart Form View" version="7.0" edit="0" create="0">
+                    <header>
+                        <ul class="paged_form_view_header">
+                            <li><strong>Age:</strong> <field name="age" readonly="1"/></li>
+                            <li><strong>Sex: </strong> <field name="sex" readonly="1"/></li>
+                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score" readonly="1"/></li>
+                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk" readonly="1"/></li>
+                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend" readonly="1"/></li>
+                        </ul>
+                    </header>
+                    <sheet>
+                        <field name="ews_ids" widget="nh_ewschart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_ewslist_form">
+            <field name="name">Wardboard EWS List Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard EWS List Form View" version="7.0" edit="0" create="0" class="paged_table">
+                    <header>
+                        <ul class="paged_form_view_header">
+                            <li><strong>Age:</strong> <field name="age" readonly="1"/></li>
+                            <li><strong>Sex: </strong> <field name="sex" readonly="1"/></li>
+                            <li><strong>Latest NEWS Score:</strong> <field name="ews_score_string" string="Latest NEWS Score" readonly="1"/></li>
+                            <li><strong>Clinical Risk:</strong> <field name="clinical_risk" readonly="1"/></li>
+                            <li><strong>Score Trend:</strong> <field name="ews_trend_string" string="Score Trend" readonly="1"/></li>
+                        </ul>
+                    </header>
+                    <sheet>
+                        <field name="ews_ids" no_open="1"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_chart">
+            <field name="name">Observation Chart</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_chart_form"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_ews">
+            <field name="name">Observation List</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_ewslist_form"/>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_swap_beds_form">
+            <field name="name">Wardboard Swap Beds</field>
+            <field name="model">wardboard.swap_beds</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Patient swap_beds">
+                    <!-- <field name="patient_id" readonly="1"/> -->
+                    <h1><field name="ward_location_id" readonly="1" widget="selection"/></h1>
+                    <group colspan="3" col="3">
+                    	<group string="Patient 1" colspan="1" col="2">
+							<field name="patient1_id" readonly="1"/>
+	                       	<field name="location1_id" readonly="1" widget="selection" width="70" />
+						</group>
+						<group colspan="1" col="1">
+							<div align="center">
+								<button name="do_swap" type="object" string="Swap"/>
+							</div>	
+						</group>
+	                    <group string="Patient 2" colspan="1" col="2">
+	                        <field name="patient2_id" readonly="1"/>
+	                        <field name="location2_id"
+		                        domain="[('id','child_of',ward_location_id),
+			                        ('usage','=','bed'),
+			                        ('id','!=',location1_id),
+			                        ('is_available','=',False)]"
+			                    widget="selection" width="70" 
+			                    required="1"
+			                    on_change="onchange_location2(location2_id)"/>
+	                    </group>
+	                </group>
+                    
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_wardboard_patient_placement_form">
+            <field name="name">Wardboard Patient Placement</field>
+            <field name="model">wardboard.patient.placement</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Patient Placement">
+                    <group string="From" colspan="4" col="2">
+                        <field name="ward_location_id" readonly="1"/>
+                        <field name="bed_src_location_id" readonly="1" />
+                    </group>
+                    <group string="To" colspan="4" col="2">
+                        <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
+                                                                             ('usage','=','bed'),
+                                                                             ('is_available','=',True),
+                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"
+                                required="1"/>
+                    </group>
+                    <button name="do_move" type="object" string="Move"/>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_wardboard_device_session_start_form">
+            <field name="name">Wardboard Device Session Start</field>
+            <field name="model">wardboard.device.session.start</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Device Session">
+                    <group string="Device Details">
+                        <field name="patient_id" readonly="1"/>
+                        <field name="location"/>
+                        <field name="device_category_id" on_change="onchange_device_category_id(device_category_id)" widget="nh_many2one"/>
+                        <field name="device_type_id" on_change="onchange_device_type_id(device_type_id)" required="1" widget="nh_many2one"/>
+                        <field name="device_id" invisible="1" domain="[('is_available','=',1)]" on_change="onchange_device_id(device_id)" widget="nh_many2one"/>
+                    </group>
+                    <footer>
+                        <button name="do_start" type="object" string="Start"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_wardboard_device_session_complete_form">
+            <field name="name">Wardboard Device Session Complete</field>
+            <field name="model">wardboard.device.session.complete</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Device Session Complete" version="7.0">
+                    <label for="session_id" string="You are about to complete session: "/>
+                    <field name="session_id" readonly="1"/>
+                    <group>
+                        <field name="removal_reason"/>
+                        <field name="planned"/>
+                    </group>
+                    <footer>
+                        <button name="do_complete" type="object" string="Complete"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!--WARDBOARD VIEWS-->
+        <record model="ir.ui.view" id="view_wardboard_search">
+            <field name="name">Wardboard Search View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <search string="Wardboard Search View">
+                    <field name="ward_id"/>
+                    <field name="ews_trend" />
+                    <field name="full_name"/>
+                    <field name="hospital_number"/>
+                    <field name="nhs_number"/>
+                    <group expand="1" string="Filters">
+                        <filter name="no_risk" string="No Risk" domain="[('clinical_risk','=','None')]"/>
+                        <filter name="low_risk" string="Low Risk" domain="[('clinical_risk','=','Low')]"/>
+                        <filter name="medium_risk" string="Medium Risk" domain="[('clinical_risk','=','Medium')]"/>
+                        <filter name="high_risk" string="High Risk" domain="[('clinical_risk','=','High')]"/>
+                        <filter name="ews_trend_down" string="Deteriorating Trend" domain="[('ews_trend','&gt;',0)]"/>
+                        <filter name="ews_trend_up" string="Improving Trend" domain="[('ews_trend','&lt;',0)]"/>
+                        <filter name="ews_trend_same" string="Unchanged Trend" domain="[('ews_trend','=',0)]"/>
+                    </group>
+                    <group expand="1" string="Group By...">
+                        <!--<filter name="age" string="Age" domain="[]" context="{'group_by':'age'}" help="Age"/>-->
+                        <filter name="clinical_risk" string="Clinical Risk" domain="[]" context="{'group_by':'clinical_risk'}" help="Clinical Risk"/>
+                        <filter name="group_by_ward" string="Ward" domain="[]" context="{'group_by':'ward_id'}" help="Group by Ward"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_tree">
+            <field name="name">Wardboard Tree View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <tree string="Wardboard Tree View" class="nhc_wardboard" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
+                   <button name="%(action_wardboard_chart)d" string="Chart" type="action" class="oe_highlight" nh_icon="chart"/>
+                   <button name="%(action_wardboard_ews)d" string="EWS" type="action" class="oe_highlight" nh_icon="observation"/>
+                   <field name="sex" widget="nh_gender" string=""/>
+                   <field name="full_name" string="Patient"/>
+                   <field name="location"/>
+                   <field name="next_diff"/>
+                   <field name="frequency" string="NEWS Frequency"/>
+                   <field name="ews_score_string" string="Latest NEWS Score"/>
+                   <field name="clinical_risk" invisible="1"/>
+                   <field name="ews_trend_string"  widget="nh_scoretrend" string="Score Trend"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_form">
+            <field name="name">Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Form View" version="7.0" create="0" delete="0">
+                    <header>
+                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <!--<button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>-->
+                        <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user"/>
+                        <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object" groups="base.group_user"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group string="Early Warning Score">
+                                <field name="ews_score" readonly="1"/>
+                                <field name="ews_trend_string" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
+                                <field name="next_diff" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Admission Details">
+                                <group>
+                                    <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
+                                    <field name="location_full_name" readonly="1" string="Current Point of Care"/>
+                                    <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
+                                    <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
+                                </group>
+                                <group string="Movements History">
+                                    <field name="move_ids" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="location_name" />
+                                            <field name="date_terminated" widget="nhc_datetime" string="Date In"/>
+                                        </tree>
+                                        <form>
+                                            <field name="location_id" />
+                                            <field name="patient_id" />
+                                        </form>
+                                   </field>
+                                </group>
+                            </page>
+                            <page string="Demographics">
+                                <group>
+                                    <field name="hospital_number" readonly="True" string="Hospital Number"/>
+                                    <field name="nhs_number" readonly="True" string="NHS Number"/>
+                                    <field name="family_name" readonly="True"/>
+                                    <field name="given_name" readonly="True"/>
+                                    <field name="middle_names" readonly="True"/>
+                                    <field name="dob" readonly="True" widget="date"/>
+                                    <field name="age" readonly="True"/>
+                                    <field name="sex" readonly="True"/>
+                                </group>
+                            </page>
+                            <page string="Other Obs">
+                                <group>
+                                    <field name="height" string="Height (m)" readonly="1"/>
+                                    <field name="mrsa"/>
+                                    <field name="diabetes"/>
+                                </group>
+                                <group string="Weight">
+
+                                    <field name="weight_ids" class="nhc_obs" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="weight" string="Weight (Kg)"/>
+                                        </tree>
+                                        <form>
+                                            <field name="weight" string="Weight (Kg)"/>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                        </form>
+                                    </field>
+                                </group>
+                                <group string="Blood Sugar">
+                                    <field name="blood_sugar_ids" class="nhc_obs" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="blood_sugar"/>
+                                        </tree>
+                                        <form>
+                                            <field name="blood_sugar"/>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                        </form>
+                                    </field>
+                                </group>
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="systolic_sitting" string="Systolic"/>
+                                            <field name="diastolic_sitting" string="Diastolic"/>
+                                            <field name="systolic_standing" string="Systolic"/>
+                                            <field name="diastolic_standing" string="Diastolic"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="result"/>
+                                        </tree>
+                                        <form>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
+                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
+                                            <field name="systolic_standing" string="Standing Systolic"/>
+                                            <field name="diastolic_standing" string="Standing Diastolic"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="result"/>
+                                        </form>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Devices">
+                                    <group string="Active Device Sessions">
+                                    <div>
+                                        <group>
+                                            <button name="device_session_start" type="object" string="Start Device Session" groups="base.group_user"/>
+                                        </group>
+                                        <newline/>
+                                        <field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
+                                            <tree>
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
+                                                <button name="device_session_complete" type="object" icon="gtk-cancel" string="Complete Device Session"/>
+                                            </tree>
+                                        </field>
+                                    </div>
+                                    </group>
+                                    <newline/>
+                                    <group string="Device Sessions History">
+                                        <field name="terminated_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','completed')]">
+                                            <tree>
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
+                                                <field name="date_terminated" widget="nhc_datetime" string="Removed"/>
+                                                <field name="planned"/>
+                                                <field name="removal_reason"/>
+                                            </tree>
+                                        </field>
+                                    </group>
+                            </page>
+                            <page string="Monitoring">
+                                <group string="Special Circumstances">
+                                    <field name="palliative_care"/>
+                                    <field name="palliative_care_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid" string="Changed By"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_monitoring" string="Active"/>
+                                    <field name="pbp_monitoring_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Weight">
+                                    <field name="weight_monitoring" string="Active"/>
+                                    <field name="weight_monitoring_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="O2 Saturation Target">
+                                    <field name="o2target" widget="selection" string="Current Target"/>
+                                    <field name="o2target_ids" nolabel="1" colspan="2" readonly="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="level_id" string="Value"/>
+                                            <field name="terminate_uid"/>
+                                        </tree>
+                                   </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_wardboard_prescribe_form">
+            <field name="name">Wardboard Prescribe Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Prescribe Form View" version="7.0" create="0">
+                    <field name="nhs_number" widget="nh_prescribe"/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_weight_chart_form">
+            <field name="name">Wardboard Weight Chart Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Weight Chart Form View" version="7.0" create="0">
+                    <sheet>
+                        <field name="weight_ids" widget="nh_weightchart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_bs_chart_form">
+            <field name="name">Wardboard Blood Sugar Chart Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Blood Sugar Chart Form View" version="7.0" create="0">
+                    <sheet>
+                        <field name="blood_sugar_ids" widget="nh_bschart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wardboard Kanban View -->
+        <record model="ir.ui.view" id="view_wardboard_kanban">
+            <field name="name">nh.clinical.wardboard.kanban</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <kanban edit="false" quick_create="false" create="false">
+                    <field name="full_name" />
+                    <field name="location" />
+                    <field name="location_full_name"/>
+                    <field name="sex"/>
+                    <field name="dob"/>
+                    <field name="age" />
+                    <field name="date_scheduled"/>
+                    <field name="frequency" />
+                    <field name="ews_score_string"/>
+                    <field name="ews_trend_string"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user">
+                                    <span class="oe_e">í</span>
+                                    <ul class="oe_dropdown_menu">
+                                        <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
+                                        <li><a name="wardboard_ews" type="object">NEWS List</a></li>
+                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Move Patient</a></li>
+                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Swap Beds</a></li>
+                                    </ul>
+                                </div>
+                                <div class="oe_kanban_content">
+                                    <div><field name="location_full_name"/></div>
+                                    <div><b><field name="full_name"/></b> (<field name="age"/>)
+                                        <t t-if="record.sex.raw_value === 'M'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/male.png" t-att-alt="Male"/>
+                                        </t>
+                                        <t t-if="record.sex.raw_value === 'F'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/female.png" t-att-alt="Female"/>
+                                        </t>
+                                    </div>
+                                    <div>Score: <field name="ews_score_string"/>
+                                        <t t-if="record.ews_trend_string.raw_value === 'up'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-up.png" t-att-alt="up"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'down'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-down.png" t-att-alt="down"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'same'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-same.png" t-att-alt="same"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'one'">
+                                            n/a
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'none'">
+                                            n/a
+                                        </t>
+                                    </div>
+                                    <li>Time to next observation: <field name="next_diff"/></li>
+                                    <t t-if="record.hospital_number.raw_value != ''">
+                                        <div>Hospital Number: <field name="hospital_number"/></div>
+                                    </t>
+                                    <t t-if="record.nhs_number.raw_value != ''">
+                                        <div>NHS Number: <field name="nhs_number"/></div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Kiosk Patient Board Kanban View -->
+        <record model="ir.ui.view" id="view_kiosk_wardboard_kanban">
+            <field name="name">nh.clinical.kiosk.wardboard.kanban</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <kanban edit="false" quick_create="false" create="false">
+                    <field name="initial" />
+                    <field name="family_name" />
+                    <field name="location" />
+                    <field name="location_full_name"/>
+                    <field name="date_scheduled" />
+                    <field name="frequency" />
+                    <field name="ews_score_string"/>
+                    <field name="ews_trend_string"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user">
+                                    <span class="oe_e">í</span>
+                                    <ul class="oe_dropdown_menu">
+                                        <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
+                                        <li><a name="wardboard_ews" type="object">NEWS List</a></li>
+                                    </ul>
+                                </div>
+                                <div class="oe_kanban_content">
+                                    <div><field name="location_full_name"/></div>
+                                    <div><b><field name="initial"/> <field name="family_name"/></b>
+                                    </div>
+                                    <div>Score: <field name="ews_score_string"/>
+                                        <t t-if="record.ews_trend_string.raw_value === 'up'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-up.png" t-att-alt="up"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'down'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-down.png" t-att-alt="down"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'same'">
+                                            <img t-attf-src="/nh_eobs/static/src/img/icons/level-same.png" t-att-alt="same"/>
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'one'">
+                                            n/a
+                                        </t>
+                                        <t t-if="record.ews_trend_string.raw_value === 'none'">
+                                            n/a
+                                        </t>
+                                    </div>
+                                    <li>Time to next observation:<field name="next_diff"/></li>
+                                    <t t-if="record.hospital_number.raw_value != ''">
+                                        <div>Hospital Number: <field name="hospital_number"/></div>
+                                    </t>
+                                    <t t-if="record.nhs_number.raw_value != ''">
+                                        <div>NHS Number: <field name="nhs_number"/></div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!--RECENTLY DISCHARGED PATIENTS VIEW-->
+        <record model="ir.ui.view" id="view_wardboard_tree_discharged">
+            <field name="name">Wardboard Discharged Patients Tree View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <tree string="Wardboard Discharged Patients Tree View" class="nhc_wardboard" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
+                    <field name="full_name" string="Patient"/>
+                    <field name="sex" widget="nh_gender" string=""/>
+                    <field name="age"/>
+                    <field name="dob" widget="date"/>
+                    <field name="nhs_number"/>
+                    <field name="spell_date_started" string="Admission Date" widget="nhc_datetime"/>
+                    <field name="spell_date_terminated" string="Discharge Date" widget="nhc_datetime"/>
+                    <field name="location"/>
+                    <field name="ews_score_string" string="Last NEWS Score"/>
+                    <field name="clinical_risk" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_form_discharged">
+            <field name="name">Wardboard Discharged Patients Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="priority">15</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Form View" version="7.0" create="0" delete="0">
+                    <header>
+                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user"/>
+                        <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user"/>
+                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object" groups="base.group_user"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group string="Early Warning Score">
+                                <field name="ews_score" readonly="1"/>
+                                <field name="ews_trend_string" readonly="1"/>
+                                <field name="frequency" readonly="1"/>
+                                <field name="next_diff" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Admission Details">
+                                <group>
+                                    <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
+                                    <field name="location_full_name" readonly="1" string="Current Point of Care"/>
+                                    <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
+                                    <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
+                                </group>
+                                <group string="Movements History">
+                                    <field name="move_ids" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="location_name" />
+                                            <field name="date_terminated" widget="nhc_datetime" string="Date In"/>
+                                        </tree>
+                                        <form>
+                                            <field name="location_id" />
+                                            <field name="patient_id" />
+                                        </form>
+                                   </field>
+                                </group>
+                            </page>
+                            <page string="Demographics">
+                                <group>
+                                    <field name="hospital_number" readonly="True" string="Hospital Number"/>
+                                    <field name="nhs_number" readonly="True" string="NHS Number"/>
+                                    <field name="family_name" readonly="True"/>
+                                    <field name="given_name" readonly="True"/>
+                                    <field name="middle_names" readonly="True"/>
+                                    <field name="dob" readonly="True" widget="date"/>
+                                    <field name="age" readonly="True"/>
+                                    <field name="sex" readonly="True"/>
+                                </group>
+                            </page>
+                            <page string="Other Obs">
+                                <group>
+                                    <field name="height" string="Height (m)" readonly="1"/>
+                                    <field name="mrsa" readonly="1"/>
+                                    <field name="diabetes" readonly="1"/>
+                                </group>
+                                <group string="Weight">
+                                    <field name="weight_ids" class="nhc_obs" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="weight" string="Weight (Kg)"/>
+                                        </tree>
+                                        <form>
+                                            <field name="weight" string="Weight (Kg)"/>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                        </form>
+                                    </field>
+                                </group>
+                                <group string="Blood Sugar">
+                                    <field name="blood_sugar_ids" class="nhc_obs" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="blood_sugar"/>
+                                        </tree>
+                                        <form>
+                                            <field name="blood_sugar"/>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="terminate_uid"/>
+                                        </form>
+                                    </field>
+                                </group>
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="systolic_sitting" string="Systolic"/>
+                                            <field name="diastolic_sitting" string="Diastolic"/>
+                                            <field name="systolic_standing" string="Systolic"/>
+                                            <field name="diastolic_standing" string="Diastolic"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="result"/>
+                                        </tree>
+                                        <form>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="systolic_sitting" string="Sitting/Lying Systolic"/>
+                                            <field name="diastolic_sitting" string="Sitting/Lying Diastolic"/>
+                                            <field name="systolic_standing" string="Standing Systolic"/>
+                                            <field name="diastolic_standing" string="Standing Diastolic"/>
+                                            <field name="terminate_uid"/>
+                                            <field name="result"/>
+                                        </form>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Devices">
+                                    <group string="Active Device Sessions">
+                                    <div>
+                                        <field name="started_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','started')]">
+                                            <tree>
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
+                                            </tree>
+                                        </field>
+                                    </div>
+                                    </group>
+                                    <newline/>
+                                    <group string="Device Sessions History">
+                                        <field name="terminated_device_session_ids" readonly="1" nolabel="1" domain="[('state','=','completed')]">
+                                            <tree>
+                                                <field name="device_type_id" string="Device"/>
+                                                <field name="device_category_id" string="Type"/>
+                                                <field name="location"/>
+                                                <field name="date_started" widget="nhc_datetime" string="Inserted"/>
+                                                <field name="date_terminated" widget="nhc_datetime" string="Removed"/>
+                                                <field name="planned"/>
+                                                <field name="removal_reason"/>
+                                            </tree>
+                                        </field>
+                                    </group>
+                            </page>
+                            <page string="Monitoring">
+                                <group string="Special Circumstances">
+                                    <field name="palliative_care" readonly="1"/>
+                                    <field name="palliative_care_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid" string="Changed By"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Postural Blood Pressure">
+                                    <field name="pbp_monitoring" string="Active" readonly="1"/>
+                                    <field name="pbp_monitoring_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Weight">
+                                    <field name="weight_monitoring" string="Active" readonly="1"/>
+                                    <field name="weight_monitoring_ids" colspan="2" readonly="True" nolabel="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="value" string="Value"/>
+                                            <field name="terminate_uid"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="O2 Saturation Target">
+                                    <field name="o2target" widget="selection" string="Current Target" readonly="1"/>
+                                    <field name="o2target_ids" nolabel="1" colspan="2" readonly="1">
+                                        <tree>
+                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                            <field name="level_id" string="Value"/>
+                                            <field name="terminate_uid"/>
+                                        </tree>
+                                   </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard" >
+            <field name="name">Acuity Board</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('spell_state','=','started'),('spell_activity_id.user_ids','in',uid),
+                ('location_id.usage','=','bed')]</field>
+            <field name="context">{'search_default_clinical_risk':1}</field>
+            <field name="search_view_id" ref="view_wardboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_tree">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_wardboard_tree"/>
+            <field name="act_window_id" ref="action_wardboard"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_form">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_form"/>
+            <field name="act_window_id" ref="action_wardboard"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_kanban">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_wardboard_kanban"/>
+            <field name="act_window_id" ref="action_wardboard"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_patients_by_ward">
+            <field name="name">Patients by Ward</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,kanban</field>
+            <field name="domain">[('spell_state','=','started'),('spell_activity_id.user_ids','in',uid),
+                ('location_id.usage','=','bed')]</field>
+            <field name="context">{'search_default_group_by_ward':1}</field>
+            <field name="search_view_id" ref="view_wardboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_patients_by_ward_tree">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_wardboard_tree"/>
+            <field name="act_window_id" ref="action_patients_by_ward"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_patients_by_ward_form">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_form"/>
+            <field name="act_window_id" ref="action_patients_by_ward"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_patients_by_ward_kanban">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_wardboard_kanban"/>
+            <field name="act_window_id" ref="action_patients_by_ward"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_discharged" >
+            <field name="name">Discharged in the last 72 hours</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('spell_state','=','completed'),('recently_discharged','=',True),
+                ('recently_discharged_uids','in',uid)]</field>
+            <field name="context">{'search_default_clinical_risk':0,'search_default_group_by_ward':0}</field>
+            <field name="search_view_id" ref="view_wardboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_discharged_tree">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_wardboard_tree_discharged"/>
+            <field name="act_window_id" ref="action_wardboard_discharged"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_discharged_form">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_form_discharged"/>
+            <field name="act_window_id" ref="action_wardboard_discharged"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_transferred">
+            <field name="name">Transferred in the last 72 hours</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('spell_state','=','started'),('transferred_user_ids','in',uid)]</field>
+            <field name="search_view_id" ref="view_wardboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_tree_transferred">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_wardboard_tree"/>
+            <field name="act_window_id" ref="action_wardboard_transferred"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_form_transferred">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_form"/>
+            <field name="act_window_id" ref="action_wardboard_transferred"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_kiosk_patients_board">
+            <field name="name">Kiosk Board</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban</field>
+            <field name="domain">[('spell_state','=','started'),('spell_activity_id.user_ids','in',uid),
+                ('location_id.usage','=','bed')]</field>
+            <field name="context">{'search_default_clinical_risk':1}</field>
+            <field name="search_view_id" ref="view_wardboard_search"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_view_wardboard_kiosk">
+            <field eval="0" name="sequence"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="view_kiosk_wardboard_kanban"/>
+            <field name="act_window_id" ref="action_kiosk_patients_board"/>
+        </record>
+
+
+    </data>
+</openerp>

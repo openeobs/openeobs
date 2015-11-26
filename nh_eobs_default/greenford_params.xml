@@ -1,0 +1,23 @@
+<openerp>
+    <data>
+
+        <!-- O2 Saturation Levels -->
+        <record id="nhc_sat_level_1" model="nh.clinical.o2level">
+            <field name="min">88</field>
+            <field name="max">92</field>
+        </record>
+        <record id="nhc_sat_level_2" model="nh.clinical.o2level">
+            <field name="min">92</field>
+            <field name="max">96</field>
+        </record>
+        <record id="nhc_sat_level_3" model="nh.clinical.o2level">
+            <field name="min">90</field>
+            <field name="max">94</field>
+        </record>
+        <record id="nhc_sat_level_4" model="nh.clinical.o2level">
+            <field name="min">86</field>
+            <field name="max">90</field>
+        </record>
+        
+    </data>
+</openerp>

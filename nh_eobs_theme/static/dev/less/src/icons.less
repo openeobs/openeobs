@@ -1,0 +1,249 @@
+/*
+
+Iconography - a list of the icons used and how to call them
+
+.time, .time-overdue - Clock icons
+
+.male, .female - Gender Icons
+
+.score-up, .score-down, score-same - Score Icons
+
+.bed-pat, .bed-move - Bed Icons
+
+Example:
+
+        <p> Time Till - "time" <i class="time"></i> </br>
+        Time Overdue - "time-overdue" <i class="time-overdue"></i></p>
+
+
+        <p>Male - "male" <i class="male"></i> </br>
+       Female - "female" <i class="female"></i></p>
+
+
+        <p> Trend Up - "score-up" <i class="score-up"></i></br>
+        Trend Down - "score-down" <i class="score-down"></i></br>
+        Trend Same - "score-same" <i class="score-same"></i></p>
+
+
+        <p>Patient in Bed - "bed-pat" <i class="bed-pat"></i></br>
+        Bed Movement - "bed-move" <i class="bed-move"></i></p>
+
+
+        <p>Alert - "red-alert" <i class="red-alert"></i></br>
+
+
+        <p>Close - "close-pop" <i class="close-pop"></i></br>
+
+
+
+        <p>List View - "list-view" <i class="list-view"></i>
+
+
+        <p>Plus  - "plus" <i class="plus"></i>
+
+        <p>Calender  - "cal" <i class="cal"></i>
+
+        <p> Arrow Up - "arrow-up" <i class="arrow-up"></i></br>
+        Arrow Down - "arrow-down" <i class="arrow-down"></i></br>
+        Arrow Both - "arrow-all" <i class="arrow-all"></i></p>
+
+
+
+Styleguide 11.0
+
+*/
+
+
+
+/* All Font Awesome icons used */
+@import (once) "mixin.less";
+@import (once) "typography.less";
+
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('/nh_etake_list_theme/static/src/fonts/fontawesome-webfont.eot?v=4.0.3');
+  src: url('/nh_etake_list_theme/static/src/fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'),
+  url('/nh_etake_list_theme/static/src/fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'),
+  url('/nh_etake_list_theme/static/src/fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'),
+  url('/nh_etake_list_theme/static/src/fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+i {
+  font-family: 'fontAwesome';
+  font-style: normal;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+//Clocks
+
+.time:before, .time-overdue:before {
+
+content: "\f017";
+color:#1565BF;
+font-size:1.5em;
+font-weight:500;
+
+}
+
+.time-overdue:before {
+
+color:#C71923;
+
+}
+
+//Genders
+
+.male:before {
+
+content: "\f222";
+color:#1CA7E9;
+margin-left:5px;
+margin-right:5px;
+font-size:1.6em;
+text-shadow: 0 1px 1px lighten(black, 30%);
+
+}
+
+.female:before {
+
+content: "\f221";
+color:#EA2774;
+margin-left:5px;
+margin-right:5px;
+font-size:1.6em;
+text-shadow: 0 1px 1px lighten(black, 30%);
+}
+
+//Arrows - Score
+
+.score-up:before, .score-down:before, .score-same:before {
+
+content: "\f102";
+color:#333;
+margin-left:10px;
+font-size:1.5em;
+font-weight:600;
+
+}
+
+.score-down:before {
+
+content: "\f103";
+
+}
+
+.score-same:before {
+
+content: "\f141";
+font-weight:500;
+
+}
+
+
+//Arrows - Misc
+
+.bed-pat:before {
+
+content: "\f236";
+color:#333;
+font-size:1.8em;
+//margin-left:5px;
+//margin-right:5px;
+
+}
+
+.bed-move:before {
+
+content: "\f178";
+font-size:2.5em;
+margin-left:5px;
+margin-right:5px;
+.background-gradient(#AAAAAA, #282828);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+
+}
+
+//Alert
+
+.red-alert:before {
+
+content: "\f071";
+font-size:3em;
+color: darken(red, 20%);
+text-shadow: 0 1px 1px lighten(black, 30%);
+
+}
+
+//Close
+
+.close-pop:before {
+
+content:"\f00d";
+font-size:1em;
+color:lighten(black, 85%);
+text-shadow: 0 1px 1px lighten(black, 70%);
+
+}
+
+//List View
+
+.list-view:before {
+
+content:"\f0c9";
+font-size:1.2em;
+color:lighten(black, 25%);
+text-shadow: 0 1px 1px lighten(black, 70%);
+
+}
+
+//Plus
+
+.plus:before {
+
+
+//top:10px;
+content:"\f067";
+font-size:1.2em;
+color:lighten(black, 25%);
+text-shadow: 0 1px 1px white inset;
+
+}
+
+//Calendar
+
+.cal:before {
+
+content:"\f073";
+font-size:1.6em;
+color:lighten(black, 45%);
+text-shadow: 0 1px 1px white inset;
+
+}
+
+//arrows
+
+
+.arrow-up:before, arrow-down:before, arrow-all:before {
+
+content:"\f0d8";
+font-size:1.3em;
+color:#333;
+
+}
+
+.arrow-down:before {
+
+content:"\f0d7";
+
+}
+
+.arrow-all:before {
+
+content:"\f07d";
+
+}

@@ -1,0 +1,14 @@
+<openerp>
+    <data>
+        <record model="ir.cron" id="eobs_shift_management_cron">
+            <field name="name">Automatic Shift Generation</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="True"/>
+            <field name="model" eval="'nh.clinical.shift'"/>
+            <field name="function" eval="'generate_all_shifts'"/>
+            <field name="args" eval="'()'" />
+        </record>
+    </data>
+</openerp>

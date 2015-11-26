@@ -1,0 +1,8 @@
+{
+    "name":  "NHMockupSkeleton",
+    "version": "0.0.1",
+    "dependencies": {
+        "jquery": "latest",
+        "normalize.css": "latest"
+    }
+}
