@@ -29,11 +29,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         :param group_name: name of the group from which retrieve a user (belonging to it)
         :type group_name: str
-        :return: A dictionary with 2 key-value couples:
+        :returns: A dictionary with 2 key-value couples:
             - 'login': the login name of the retrieved user (belonging to the group passed as argument)
             - 'id': the id of the retrieved user (belonging to the group passed as argument)
         :rtype: dict
-        :return: None if there isn't any user belonging to that group
+        :returns: ``None`` if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
         users_login_list = users_pool.search_read(self.cr, self.uid,
@@ -50,7 +50,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         :param user_name: username of the user to be authenticated as
         :type user_name: str
-        :return: A Response object
+        :returns: A Response object
         """
         auth_response = requests.post(route_manager.BASE_URL + '/web/login',
                                       {'login': user_name,
@@ -67,7 +67,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         :param title: The title to be shown on the popup on Frontend
         :param description: The description to be used in the popup on Frontend
         :param data: Data the be sent to the Frontend to show in popup
-        :return: True cos the tests will cause the thing to fail anyways
+        :returns: ``True`` cos the tests will cause the thing to fail anyways
         """
         returned_json = json.loads(resp.text)
         for k in self.json_response_structure_keys:
@@ -89,7 +89,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             - the method to be patched (string)
             - the function that will substitute the method to be patched (the actual name of the function)
         :type methods_patching: tuple
-        :return: True (if no errors were raised during the patching)
+        :returns: ``True`` (if no errors were raised during the patching)
         :rtype: bool
         """
         for method_to_patch, substituting_function in methods_patching:
@@ -99,10 +99,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     def _revert_bulk_patch_odoo_model_method(self, odoo_model, methods_to_be_reverted):
         """Revert the Odoo's patching of a list of methods.
 
-        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
-        :param methods_to_be_reverted: A list of model's 'original' methods to be reactivated back (string)
+        :param odoo_model: A valid Odoo's model instance
+        (e.g. fetched by 'self.registry()')
+        :param methods_to_be_reverted: A list of model's 'original' methods
+        to be reactivated back (string)
         :type methods_to_be_reverted: list of str
-        :return: True (if no errors were raised during the patching)
+        :returns: ``True`` (if no errors were raised during the patching)
         :rtype: bool
         """
         for m in methods_to_be_reverted:
@@ -205,21 +207,32 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
     @staticmethod
     def mock_method_returning_osv_exception(*args, **kwargs):
-        raise osv.except_osv('Expected exception!', 'Expected exception raised during the test.')
+        raise osv.except_osv('Expected exception!',
+                             'Expected exception raised during the test.')
 
     def setUp(self):
-        """Get an authenticated response from the server so we can half-inch the session cookie for subsequent calls."""
+        """
+        Get an authenticated response from the server so we can reuse
+        the session cookie for subsequent calls.
+        """
         super(TestOdooRouteDecoratorIntegration, self).setUp()
-        self.session_resp = requests.post(route_manager.BASE_URL + '/web', {'db': DB_NAME})
+        self.session_resp = requests.post(route_manager.BASE_URL + '/web',
+                                          {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
-            self.fail('Cannot retrieve a valid session to be used for the tests!')
+            self.skipTest('Cannot retrieve a valid session '
+                          'to be used for the tests!')
 
         # Authenticate as a 'nurse' user and check the login was successful
         user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
-        self.login_name = user_data.get('login')
+        if user_data:
+            self.login_name = user_data.get('login')
+        else:
+            self.skipTest('Cannot find any user for authentication before '
+                          'running the test. This test will be skipped.')
         self.user_id = user_data.get('id')
-        self.assertNotEqual(self.login_name, False,
-                            "Cannot find any 'nurse' user for authentication before running the test!")
+        if not self.login_name:
+            self.skipTest('Cannot find any user for authentication before '
+                          'running the test. This test will be skipped.')
         self.auth_resp = self._get_authenticated_response(self.login_name)
         self.assertEqual(self.auth_resp.status_code, 200)
 
@@ -229,7 +242,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         Test the EWS score route, send EWS parameters to route
         and make sure it sends back score.
         """
-        # check if the route under test is actually present in the Route Manager
+        # Check if the route under test is actually present in the Route Manager
         route_under_test = route_manager.get_route('calculate_obs_score')
         self.assertIsInstance(route_under_test, Route)
 
@@ -348,7 +361,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertIsInstance(route_under_test, Route)
 
         # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
+                                 cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
@@ -487,7 +501,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool._patch_method('get_share_users', mock_get_share_users)
 
         # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_share_users')
@@ -943,8 +958,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/submit_ajax/ews/1605'
 
         # Test demo for EWS observation.
-        # (Supplying specific data which result in an EWS total score less than 4 (according to the default EWS policy).
-        # This way, no related tasks are created - does not really matter, due to mocking every Odoo's models calling).
+        # (Supplying specific data which result in an EWS total score
+        # less than 4 (according to the default EWS policy).
+        # This way, no related tasks are created - does not really matter,
+        # due to mocking every Odoo's models calling.
         demo_data = {
             'respiration_rate': 18,
             'indirect_oxymetry_spo2': 100,
@@ -959,7 +976,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
 
         def mock_method_returning_converter_function(*args, **kwargs):
-            """The converter function just returns the same data dictionary sent via POST request to the route."""
+            """
+            The converter function just returns the same data dictionary
+            sent via POST request to the route.
+            """
             def converter(*args, **kwargs):
                 return demo_data
             return converter
@@ -1138,7 +1158,9 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_route_cancel_notification_manages_exception_while_cancelling_notification(self):
-        """Test if the route for cancelling notifications manages exceptions."""
+        """
+        Test if the route for cancelling notifications manages exceptions.
+        """
         route_under_test = route_manager.get_route('cancel_clinical_notification')
         self.assertIsInstance(route_under_test, Route)
         url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_clinical/5061'
@@ -1220,9 +1242,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     # Test Patient routes
 
     def test_route_patient_info(self):
-        """Test the route to get patient information.
+        """
+        Test the route to get patient information.
 
-        The method under test should return a dictionary with information on the patient.
+        The method under test should return a dictionary
+        with information on the patient.
         """
         route_under_test = route_manager.get_route('json_patient_info')
         self.assertIsInstance(route_under_test, Route)
@@ -1285,9 +1309,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_route_patient_barcode(self):
-        """Test the route to get patient information when sending a hospital number from a barcode.
+        """
+        Test the route to get patient info when sending a hospital number
+        from a barcode.
 
-        The method under test should return a dictionary with information on the patient.
+        The method under test should return a dictionary
+        with information on the patient.
         """
         route_under_test = route_manager.get_route('json_patient_barcode')
         self.assertIsInstance(route_under_test, Route)
@@ -1336,7 +1363,9 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_patient_barcode_route_with_invalid_hospital_number(self):
-        """Test the route to get patient information when sending an invalid hospital number from a barcode.
+        """
+        Test the route to get patient information when sending an invalid
+        hospital number from a barcode.
 
         To simulate an invalid hospital number,
         the method that returns the patient info is replaced
@@ -1371,9 +1400,11 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_route_patient_obs(self):
-        """Test the route to get the observation data for a patient.
+        """
+        Test the route to get the observation data for a patient.
 
-        The method under test should return an array of dictionaries with the observations.
+        The method under test should return an array of dictionaries
+        with the observations.
         """
         route_under_test = route_manager.get_route('ajax_get_patient_obs')
         self.assertIsInstance(route_under_test, Route)
@@ -1428,7 +1459,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_route_patient_form_action(self):
-        """Test the route to submit an observation via the patient form.
+        """
+        Test the route to submit an observation via the patient form.
 
         The method under test should return a successful message
         and a list of IDs of other activities to carry out.
@@ -1453,7 +1485,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
 
         def mock_method_returning_converter_function(*args, **kwargs):
-            """The converter function just returns the same data dictionary sent via POST request to the route."""
+            """
+            The converter function just returns the same data dictionary
+            sent via POST request to the route.
+            """
             def converter(*args, **kwargs):
                 return demo_data
             return converter
