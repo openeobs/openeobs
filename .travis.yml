@@ -35,7 +35,7 @@ virtualenv:
 before_install:
   - git clone --depth=50 https://${CIUSER}:${CIPASSWORD}@github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
   - cd NeovaHealth/nhclinical
-  - git fetch
+  - git fetch --all
   - git checkout develop
   - cd ${HOME}
 
