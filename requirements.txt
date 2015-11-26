@@ -1,0 +1,5 @@
+ERPPeek==1.6.1
+mock==1.3.0
+pylint==1.4.4
+coverage==4.0.3
+fake-factory==0.5.1
