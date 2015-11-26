@@ -37,6 +37,7 @@ before_install:
   - cd NeovaHealth/nhclinical
   - mkdir -p ${HOME}/dependencies
   - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
+  - cd ${TRAVIS_BUILD_DIR}
 install:
   - pip install --upgrade pip
   - pip install -r requirements.txt
