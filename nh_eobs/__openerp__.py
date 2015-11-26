@@ -19,7 +19,6 @@
              'views/placement_view.xml',
              'views/overdue_view.xml',
              'views/views.xml',
-             'views/kamishibai_view.xml',
              'views/spell_management_views.xml',
              'views/ward_dashboard_view.xml',
              'views/locations_view.xml',
