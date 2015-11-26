@@ -27,7 +27,7 @@ env:
   # Test Observations
   - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # Test eObs
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs_mobile" INCLUDE="nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs_mobile" INCLUDE="nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # Test Graphs
   - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" INCLUDE="nh_graphs" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # Test Mobile
