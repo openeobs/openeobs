@@ -564,6 +564,7 @@ class TestObservationReport(TransactionCase):
         self.move_pool._revert_method('read')
         self.device_session_pool._revert_method('read')
         self.location_pool._revert_method('read')
+        super(TestObservationReport, self).tearDown()
 
     def test_01_observation_report_with_spell_without_start_time_without_end_time(self):
         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
