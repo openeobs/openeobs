@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nhlib.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nhlib.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHLib includes utilities that make working with Odoo easier by default</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHLib</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>date format taken from Odoo</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-property">@date_format</span> = <span class="hljs-string">'%Y-%m-%d H:M:S'</span>
+
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    <span class="hljs-property">@version</span> = <span class="hljs-string">'0.0.1'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Certain browsers will use a space instead of the T between date and time
+hacky fix to normalise this</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">date_from_string</span>: <span class="hljs-function"><span class="hljs-params">(date_string)</span> -&gt;</span>
+    date = <span class="hljs-keyword">new</span> Date(date_string)
+    <span class="hljs-keyword">if</span> isNaN(date.getTime())
+      date = <span class="hljs-keyword">new</span> Date(date_string.replace(<span class="hljs-string">' '</span>, <span class="hljs-string">'T'</span>))
+    <span class="hljs-keyword">if</span> isNaN(date.getTime())
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">"Invalid date format"</span>)
+    <span class="hljs-keyword">return</span> date
+
+  <span class="hljs-attribute">date_to_string</span>: <span class="hljs-function"><span class="hljs-params">(date)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> isNaN(date.getTime())
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">"Invalid date format"</span>)
+    <span class="hljs-keyword">return</span> date.getFullYear() + <span class="hljs-string">"-"</span> +  <span class="hljs-property">@leading_zero</span>(date.getMonth() + <span class="hljs-number">1</span>) +
+      <span class="hljs-string">"-"</span> + <span class="hljs-property">@leading_zero</span>(date.getDate()) + <span class="hljs-string">" "</span> +
+      <span class="hljs-property">@leading_zero</span>(date.getHours()) +
+      <span class="hljs-string">":"</span> + <span class="hljs-property">@leading_zero</span>(date.getMinutes()) +
+      <span class="hljs-string">":"</span> + <span class="hljs-property">@leading_zero</span>(date.getSeconds())</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Date of Birth doesn’t include Time so this returns string in such a way</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">date_to_dob_string</span>: <span class="hljs-function"><span class="hljs-params">(date)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> isNaN(date.getTime())
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">"Invalid date format"</span>)
+    <span class="hljs-keyword">return</span> date.getFullYear() + <span class="hljs-string">"-"</span> +
+      <span class="hljs-property">@leading_zero</span>(date.getMonth() + <span class="hljs-number">1</span>) +
+      <span class="hljs-string">"-"</span> + <span class="hljs-property">@leading_zero</span>(date.getDate())</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>return proper seconds based unix timestamp
+instead of milliseconds based one which is JS default</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">get_timestamp</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    <span class="hljs-keyword">return</span> Math.round(<span class="hljs-keyword">new</span> Date().getTime()/<span class="hljs-number">1000</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>add a zero string to the date and get the last two digits -
+if date_element is double digit then will return them else it
+with leading zero</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">leading_zero</span>: <span class="hljs-function"><span class="hljs-params">(date_element)</span> -&gt;</span>
+    <span class="hljs-keyword">return</span> (<span class="hljs-string">"0"</span> + date_element).slice(-<span class="hljs-number">2</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>A utility for handling events</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_event</span>: <span class="hljs-function"><span class="hljs-params">(raw_e, func, pref_dev, raw_args)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> raw_e.handled
+      raw_e.src_el = <span class="hljs-keyword">if</span> raw_e.srcElement <span class="hljs-keyword">then</span> raw_e.srcElement <span class="hljs-keyword">else</span> raw_e.target
+      <span class="hljs-keyword">if</span> pref_dev
+        raw_e.preventDefault()
+      args = [raw_e]
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span>(raw_args) <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> Array.isArray(raw_args)
+          raw_args = [raw_args]
+        <span class="hljs-keyword">for</span> arg <span class="hljs-keyword">in</span> raw_args
+          args.push arg
+      func.apply func, args
+      raw_e.handled = <span class="hljs-literal">true</span>
+
+<span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+<span class="hljs-built_in">window</span>.NH.NHLib = NHLib</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

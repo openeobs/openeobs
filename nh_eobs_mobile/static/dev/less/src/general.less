@@ -1,0 +1,427 @@
+/*
+
+CSS
+
+General Style components such as typography, grids, buttons etc
+
+Styleguide 1.0
+*/
+/*
+
+Components
+
+Component pieces for UI such as modals, menus, data visualisation
+
+Styleguide 2.0
+*/
+/*
+
+General Styling
+
+Style components used for main UI
+
+.header - Top level menu container
+.content - Main content, is offset to accommodate top level menu
+.content.no-menu - Restores the offset as menu isn't present
+.share-content - Adds another offset to the bottom to accommodate for the stand-in screens floating footer
+.footer - Footer, contains logged in user details
+.footer .user - User details in footer
+.share-footer - Container for footer used in stand-in screen
+.share-footer .user - User details in stand-in screen
+
+Markup:
+<div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+</div>
+<div class="content no-menu">
+  <p class="block">Content without menu</p>
+</div>
+<!-- Normal footer -->
+<div class="footer">
+  <p class="user">Test User</p>
+</div>
+<div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+  <ul class="header-menu two-col">
+    <li><a class="selected">Option one</a></li>
+    <li><a>Option two <span class="urgent-badge">3</a></li>
+  </ul>
+</div>
+<div class="content share-content">
+  <div class="block">
+    <a class="patientInfo" id="obsButton">
+      <h3 class="name">
+        <strong>Test Patient </strong><br>
+        Ward A, Bed 01
+      </h3>
+      <h3 class="obs button do-it">Take observation</h3>
+    </a>
+  </div>
+</div>
+<!-- Stand-in footer -->
+<div class="share-footer">
+  <p class="user">Test User</p>
+  <ul class="header-menu three-col">
+    <li><a>Share</a></li>
+    <li><a>Claim</a></li>
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+
+Styleguide 1.1
+*/
+@import "utils.less";
+.content{
+  margin-top: 6.5em;
+  &.no-menu{
+    margin-top: 4em;
+  }
+}
+
+.share-content{
+  margin-bottom: 3.3em;
+}
+
+.footer{
+  height: 1.5em;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: inherit;
+  padding-left: 0;
+  display: inline-block;
+  .user{
+    color: rgba(0,0,0,0.3);
+    float: right;
+    padding: 0;
+    margin: 0;
+    margin-left: 5%;
+  }
+}
+
+.share-footer{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 101%;
+  .user{
+    text-align: right;
+    margin-right: 6%;
+    color: rgba(0,0,0,0.3);
+  }
+}
+
+// Patient Info Screen
+a.patientInfo{
+  display: block;
+  position: relative;
+  .name{
+    width: 50%;
+  }
+  .obs{
+    width: 40%;
+    position: absolute;
+    right: 0;
+    top: 0em;
+    text-align: right;
+    //padding: 0.3em 2%;
+    //border-radius: 5px;
+    //color: #ffffff;
+    //text-shadow: 0px 1px 0px #666666;
+    //background-color: @action-colour;
+    margin-top: -1px;
+  }
+}
+
+#obsButton{
+  margin-bottom: 2em;
+}
+
+span.alignright{
+   float: right;
+}
+
+li.rightContent{
+  position: relative;
+  span.aside{
+    position: absolute;
+    right: 5%;
+  }
+}
+
+li.popuprightContent{
+  position: relative;
+  span.aside{
+    position: absolute;
+    right: 5%;
+    width: 10%;
+    top: -0.3em;
+  }
+}
+
+
+/*
+Menu
+
+Styling for the main menu
+
+.header - Defines the navigation as floating at the top of the page
+.header-main - Contains utility items such as logo, logout etc
+.header-main .logo - Logo (floated left)
+.header-main .header-meta - Contains utility buttons (floated right)
+.header-menu - Contains the main navigation items used in conjuction with inline button style
+.header-menu li .urgent-badge - Used to show notifications for stand-in
+
+Markup:
+<div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+  <ul class="header-menu two-col">
+    <li><a class="selected">Option one</a></li>
+    <li><a>Option two <span class="urgent-badge">3</a></li>
+  </ul>
+</div>
+
+Styleguide 2.1
+*/
+
+.header{
+  display: inline-block;
+  padding-top: 0.5em;
+  margin-bottom: 5px;
+  box-shadow: 0px 1px 3px #888888;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background-color: #ffffff;
+  width: 100%;
+  z-index: 99;
+  &.no-menu{
+    padding-bottom: 0.7em;
+  }
+  .header-main{
+    height: 42px;
+  }
+  .barcode_block{
+    height: 60px;
+  }
+  .logo{
+    float: left;
+    // replace this with fluid
+    width: 118px;
+    height: auto;
+  }
+  .header-meta{
+    float: right;
+    list-style: none;
+    margin: 0;
+    //margin-top: 0.45em;
+    width: 200px;
+    padding-left: 0;
+    li{
+      display: inline;
+    }
+    .scan{
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .logout{
+        float: right;
+        .button{
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+    }
+  }
+  .urgent-badge{
+    background-color: @action-colour;
+    color: #ffffff;
+    border-radius: 5px;
+    padding-left: 2%;
+    padding-right: 2%;
+    display: inline-block;
+    line-height: 1.5;
+    font-size: 0.8em;
+    font-weight: normal;
+    text-shadow: 0px 1px 0px #000000;
+  }
+}
+.header-menu, .dialog .options, .tabs{
+  display: block;
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  border-top: 1px solid #eeeeee;
+  list-style: none;
+  background-color: #ffffff;
+  li{
+    display: inline;
+    float: left;
+    background-color: #ffffff;
+    a{
+      width: 90%;
+      padding: 1em 5% 1em 5%;
+      display: block;
+      text-align: center;
+      background-color: #ffffff;
+      //background-color: #fcfcfc;
+      color: @link-colour;
+      font-weight: normal;
+      //color: #ffffff;
+      //text-shadow: 0px 1px 0px #666666;
+      &.selected, &.confirm{
+        color: @action-colour;
+        font-weight: bold;
+        //background-color: #ffffff;
+      }
+    }
+  }
+  &.two-col li, &.twocol li{
+    width: 50%;
+    &:first-child{
+      border-right: 1px solid #eeeeee;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+  }
+  &.three-col li, &.threecol li{
+    width: 33%;
+    &:first-child{
+      border-right: 1px solid #eeeeee;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+  }
+}
+
+/*
+
+Iconography
+
+Icons used to display information
+
+i - Element used for icons
+.icon-info - A 'i' in a circle, used for patient information
+.icon-alert - An exclamation mark in a triangle, used for alerts
+.icon-left-arrow - A left pointing arrow, used to indicate a clinical risk trend that hasn't changed
+.icon-same-arrow - An alias for the icon-left-arrow class
+.icon-up-arrow - An upwards pointing arrow, used to indicate a clinical risk that has increased
+.icon-down-arrow - A downwards pointing arrow, used to indicate a clinical risk that has decreased
+
+Markup:
+<ul>
+  <li><strong>Info</strong> <i class="icon-info"></i></li>
+  <li><strong>Alert</strong> <i class="icon-alert"></i></li>
+  <li><strong>Left Arrow</strong> <i class="icon-left-arrow"></i></li>
+  <li><strong>Up Arrow</strong> <i class="icon-up-arrow"></i></li>
+  <li><strong>Down Arrow</strong> <i class="icon-down-arrow"></i></li>
+</ul>
+
+Styleguide 1.5
+*/
+
+
+@font-face {
+  .font-awesome;
+}
+
+i{
+  font-family: 'fontAwesome';
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+.icon-info:before{
+   content: "\f05a";
+}
+.icon-alert:before{
+   content: "\f071";
+}
+.icon-left-arrow, .icon-same-arrow {
+  &:before {
+    content: "\f060";
+  }
+}
+.icon-up-arrow:before{
+  content: "\f062"
+}
+.icon-down-arrow:before{
+  content: "\f063"
+}
+
+  /*
+
+  Grid
+
+  Styles for aligning elements, basically everything on the page clears the edge of the browser by 5% (ideal for proper scrolling space)
+
+  .block - Adds 5% padding
+  .block .block - Removes the 5% padding from a nested block class
+
+  Markup:
+  <div class="block">
+    <p>This is a single block</p>
+    <div class="block">
+      <p>This is inside a double block</p>
+    </div>
+  </div>
+
+  Styleguide 1.2
+  */
+.block{
+  width: 90%;
+  padding-left: 5%;
+  padding-right: 5%;
+  .block{
+    width: 100%;
+    padding-left: 0%;
+    padding-right: 0%;
+  }
+}
+
+
+/*
+
+Colour Palette
+
+Colours used in Open-eObs
+
+@header-colour - 282828, Used in the header as a less harsh tone of black
+@body-colour - 000000, Used in main body for high contrast
+@action-colour -  ea3172, Main colour from Open-eObs branding, used as a call to action
+@link-colour -  4491ce, Secondary colour from Open-eObs branding, used as a dismissive action
+@error-color -  red, Used in a less harsh form throughout the app via a LESS transformation, Used to dictate high clinical risk
+@warning-colour - ffd5b4, Used to dictate medium clinical risk
+@ok-colour -  green, Used in a less hard form throughout the app via a LESS transformation, Used to dictate low clinical risk
+@not-set-colour -  e5dfff, Used to dictate an unknown clinical risk
+
+Markup:
+<ul class="element-list">
+  <li><a class="button" style="background-color: #282828;">@header-colour</a></li>
+  <li><a class="button" style="background-color: #000000;">@body-colour</a></li>
+  <li><a class="button" style="background-color: #ea3172;">@action-colour</a></li>
+  <li><a class="button" style="background-color: #4491ce;">@link-colour</a></li>
+  <li><a class="button" style="background-color: red;">@error-colour</a></li>
+  <li><a class="button" style="background-color: #ffd5b4;">@warning-colour</a></li>
+  <li><a class="button" style="background-color: green;">@ok-colour</a></li>
+  <li><a class="button" style="background-color: #e5dfff;">@not-set-colour</a></li>
+</ul>
+
+Styleguide 1.4
+*/

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nhmobileform.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nhmobileform.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHMobileForm contains utilities for working with the nh_eobs_mobile
+observation form</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHMobileForm</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NHMobile</span></span>
+
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>find the form on the page</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@form</span> = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)?[<span class="hljs-number">0</span>]
+    <span class="hljs-property">@form_timeout</span> = <span class="hljs-number">240</span>*<span class="hljs-number">1000</span>
+    ptn_name = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'patientName'</span>)
+    <span class="hljs-property">@patient_name_el</span> = ptn_name.getElementsByTagName(<span class="hljs-string">'a'</span>)[<span class="hljs-number">0</span>]
+    <span class="hljs-property">@patient_name</span> = <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+      <span class="hljs-property">@patient_name_el</span>.text
+    self = @
+    <span class="hljs-property">@setup_event_listeners</span>(self)
+    <span class="hljs-keyword">super</span>()
+
+  <span class="hljs-attribute">setup_event_listeners</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>for each input in the form set up the event listeners</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> input <span class="hljs-keyword">in</span> self.form.elements
+      <span class="hljs-keyword">do</span> () -&gt;
+        <span class="hljs-keyword">switch</span> input.localName
+          <span class="hljs-keyword">when</span> <span class="hljs-string">'input'</span>
+            <span class="hljs-keyword">switch</span> input.getAttribute(<span class="hljs-string">'type'</span>)
+              <span class="hljs-keyword">when</span> <span class="hljs-string">'number'</span>
+                input.addEventListener(<span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">(e)</span> -&gt;</span>
+                  self.handle_event(e, self.validate, <span class="hljs-literal">true</span>)
+                  e.handled = <span class="hljs-literal">false</span>
+                  self.handle_event(e, self.trigger_actions, <span class="hljs-literal">true</span>)
+                )</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <pre><code>           input.addEventListener(<span class="hljs-string">'change'</span>, self.trigger_actions)
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>              <span class="hljs-keyword">when</span> <span class="hljs-string">'submit'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(e)</span> -&gt;</span>
+                self.handle_event(e, self.submit, <span class="hljs-literal">true</span>)
+              )
+              <span class="hljs-keyword">when</span> <span class="hljs-string">'reset'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(e)</span> -&gt;</span>
+                self.handle_event(e, self.cancel_notification, <span class="hljs-literal">true</span>)
+              )
+              <span class="hljs-keyword">when</span> <span class="hljs-string">'radio'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(e)</span> -&gt;</span>
+                self.handle_event(e, self.trigger_actions, <span class="hljs-literal">true</span>)
+              )
+              <span class="hljs-keyword">when</span> <span class="hljs-string">'text'</span>
+                input.addEventListener(<span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">(e)</span> -&gt;</span>
+                  self.handle_event(e, self.validate, <span class="hljs-literal">true</span>)
+                  e.handled = <span class="hljs-literal">false</span>
+                  self.handle_event(e, self.trigger_actions, <span class="hljs-literal">true</span>)
+                )
+          <span class="hljs-keyword">when</span> <span class="hljs-string">'select'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'change'</span>, <span class="hljs-function"><span class="hljs-params">(e)</span> -&gt;</span>
+            self.handle_event(e, self.trigger_actions, <span class="hljs-literal">true</span>)
+          )
+          <span class="hljs-keyword">when</span> <span class="hljs-string">'button'</span> <span class="hljs-keyword">then</span> input.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(e)</span> -&gt;</span>
+            self.handle_event(e, self.show_reference, <span class="hljs-literal">true</span>)
+          )</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Set up form timeout so that the task is put back in the task list after
+a certain time</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'form_timeout'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      task_id = self.form.getAttribute(<span class="hljs-string">'task-id'</span>)
+      <span class="hljs-keyword">if</span> task_id
+        self.handle_timeout(self, task_id)
+    <span class="hljs-built_in">window</span>.timeout_func = <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+      timeout = <span class="hljs-built_in">document</span>.createEvent(<span class="hljs-string">'CustomEvent'</span>)
+      timeout.initCustomEvent(<span class="hljs-string">'form_timeout'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+        {<span class="hljs-string">'detail'</span>: <span class="hljs-string">'form timed out'</span>})
+      <span class="hljs-built_in">document</span>.dispatchEvent(timeout)
+    <span class="hljs-built_in">window</span>.form_timeout = setTimeout(<span class="hljs-built_in">window</span>.timeout_func, self.form_timeout)
+
+    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'post_score_submit'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      self.handle_event(event, self.process_post_score_submit, <span class="hljs-literal">true</span>, self)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <pre><code> <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+   self.process_post_score_submit(self, event)
+   event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'partial_submit'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      self.handle_event(event, self.process_partial_submit, <span class="hljs-literal">true</span>, self)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <pre><code> <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+   self.process_partial_submit(self,event)
+   event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+    <span class="hljs-property">@patient_name_el</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      event.preventDefault()
+      input = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+      patient_id = input.getAttribute(<span class="hljs-string">'patient-id'</span>)
+      <span class="hljs-keyword">if</span> patient_id
+        self.get_patient_info(patient_id, self)
+      <span class="hljs-keyword">else</span>
+        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
+          <span class="hljs-string">'data-target="patient_info_error"&gt;Cancel&lt;/a&gt;'</span>
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'patient_info_error'</span>,
+        <span class="hljs-string">'Error getting patient information'</span>,
+        <span class="hljs-string">''</span>,
+        [can_btn],
+        <span class="hljs-number">0</span>, <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Validate the form - need to add basic validation messages to DOM so set
+by server
+inputs with a data-validation attribute already do this
+TODO: Currently only caters for number inputs</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">validate</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>   event.preventDefault()</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @.reset_form_timeout(@)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>   input = if event.srcElement then event.srcElement else event.target</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    input = event.src_el
+    input_type = input.getAttribute(<span class="hljs-string">'type'</span>)
+    value = <span class="hljs-keyword">if</span> input_type <span class="hljs-keyword">is</span> <span class="hljs-string">'number'</span> <span class="hljs-keyword">then</span> parseFloat(input.value) <span class="hljs-keyword">else</span>
+      input.value
+    <span class="hljs-property">@reset_input_errors</span>(input)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span>(value) <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span> value <span class="hljs-keyword">isnt</span> <span class="hljs-string">''</span>
+      <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'number'</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> isNaN(value)
+        <span class="hljs-property">@validate_number_input</span>(input)
+        <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'data-validation'</span>)
+          criterias = eval(input.getAttribute(<span class="hljs-string">'data-validation'</span>))
+          <span class="hljs-keyword">for</span> criteria <span class="hljs-keyword">in</span> criterias
+            crit_target = criteria[<span class="hljs-string">'condition'</span>][<span class="hljs-string">'target'</span>]
+            crit_val = criteria[<span class="hljs-string">'condition'</span>][<span class="hljs-string">'value'</span>]
+            target_input = <span class="hljs-built_in">document</span>.getElementById(crit_target)
+            target_input_value = target_input?.value
+            other_input = <span class="hljs-built_in">document</span>.getElementById(crit_val)
+            other_input_value = other_input?.value
+            operator = criteria[<span class="hljs-string">'condition'</span>][<span class="hljs-string">'operator'</span>]
+            <span class="hljs-keyword">if</span> target_input?.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'number'</span>
+              other_input_value = parseFloat(other_input_value)
+            cond = target_input_value + <span class="hljs-string">' '</span> + operator + <span class="hljs-string">' '</span> + other_input_value
+            <span class="hljs-keyword">if</span> eval(cond)
+              @.reset_input_errors(other_input)
+            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span>(other_input_value) <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span>
+            <span class="hljs-keyword">not</span> isNaN(other_input_value) <span class="hljs-keyword">and</span> other_input_value <span class="hljs-keyword">isnt</span> <span class="hljs-string">''</span>
+              @.add_input_errors(target_input, criteria[<span class="hljs-string">'message'</span>][<span class="hljs-string">'target'</span>])
+              @.add_input_errors(other_input, criteria[<span class="hljs-string">'message'</span>][<span class="hljs-string">'value'</span>])
+            <span class="hljs-keyword">else</span>
+              @.add_input_errors(target_input, criteria[<span class="hljs-string">'message'</span>][<span class="hljs-string">'target'</span>])
+              @.add_input_errors(other_input, <span class="hljs-string">'Please enter a value'</span>)
+          <span class="hljs-property">@validate_number_input</span>(other_input)
+          <span class="hljs-property">@validate_number_input</span>(target_input)
+      <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'text'</span>
+        <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'pattern'</span>)
+          regex_res = input.validity.patternMismatch
+          <span class="hljs-keyword">if</span> regex_res
+            @.add_input_errors(input, <span class="hljs-string">'Invalid value'</span>)
+            <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Validate number input to make sure it fits within the defined range and is
+float or int</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">validate_number_input</span>: <span class="hljs-function"><span class="hljs-params">(input)</span> =&gt;</span>
+    min = parseFloat(input.getAttribute(<span class="hljs-string">'min'</span>))
+    max = parseFloat(input.getAttribute(<span class="hljs-string">'max'</span>))
+    value = parseFloat(input.value)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span>(value) <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span> <span class="hljs-keyword">and</span> value <span class="hljs-keyword">isnt</span> <span class="hljs-string">''</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> isNaN(value)
+      <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'step'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'1'</span> <span class="hljs-keyword">and</span> value % <span class="hljs-number">1</span> <span class="hljs-keyword">isnt</span> <span class="hljs-number">0</span>
+        @.add_input_errors(input, <span class="hljs-string">'Must be whole number'</span>)
+        <span class="hljs-keyword">return</span>
+      <span class="hljs-keyword">if</span> value &lt; min
+        @.add_input_errors(input, <span class="hljs-string">'Input too low'</span>)
+        <span class="hljs-keyword">return</span>
+      <span class="hljs-keyword">if</span> value &gt; max
+        @.add_input_errors(input, <span class="hljs-string">'Input too high'</span>)
+        <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Certain inputs will affect other inputs, this function takes the JSON string
+in the input’s data-onchange attribute and does the appropriate action</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">trigger_actions</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
+    @.reset_form_timeout(@)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>   input = if event.srcElement then event.srcElement else event.target</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    input = event.src_el
+    value = input.value
+    <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">'radio'</span>
+      <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> <span class="hljs-built_in">document</span>.getElementsByName(input.name)
+        <span class="hljs-keyword">if</span> el.value <span class="hljs-keyword">isnt</span> value
+          el.classList.add(<span class="hljs-string">'exclude'</span>)
+        <span class="hljs-keyword">else</span>
+          el.classList.remove(<span class="hljs-string">'exclude'</span>)
+    <span class="hljs-keyword">if</span> value <span class="hljs-keyword">is</span> <span class="hljs-string">''</span>
+      value = <span class="hljs-string">'Default'</span>
+    <span class="hljs-keyword">if</span> input.getAttribute(<span class="hljs-string">'data-onchange'</span>)
+      actions = eval(input.getAttribute(<span class="hljs-string">'data-onchange'</span>))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>TODO: needs a refactor if passing over a select value that is string
+this blows up</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">for</span> action <span class="hljs-keyword">in</span> actions
+        <span class="hljs-keyword">for</span> condition <span class="hljs-keyword">in</span> action[<span class="hljs-string">'condition'</span>]
+          <span class="hljs-keyword">if</span> condition[<span class="hljs-number">0</span>] <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> [<span class="hljs-string">'True'</span>, <span class="hljs-string">'False'</span>] <span class="hljs-keyword">and</span>
+          <span class="hljs-keyword">typeof</span> condition[<span class="hljs-number">0</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'string'</span>
+            condition[<span class="hljs-number">0</span>] = <span class="hljs-string">'document.getElementById("'</span>+condition[<span class="hljs-number">0</span>]+<span class="hljs-string">'").value'</span>
+          <span class="hljs-keyword">if</span> condition[<span class="hljs-number">2</span>] <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> [<span class="hljs-string">'True'</span>, <span class="hljs-string">'False'</span>] <span class="hljs-keyword">and</span>
+          <span class="hljs-keyword">typeof</span> condition[<span class="hljs-number">2</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'string'</span> <span class="hljs-keyword">and</span> condition[<span class="hljs-number">2</span>] <span class="hljs-keyword">isnt</span> <span class="hljs-string">''</span>
+            condition[<span class="hljs-number">2</span>] = <span class="hljs-string">'document.getElementById("'</span>+condition[<span class="hljs-number">2</span>]+<span class="hljs-string">'").value'</span>
+          <span class="hljs-keyword">if</span> condition[<span class="hljs-number">2</span>] <span class="hljs-keyword">in</span> [<span class="hljs-string">'True'</span>, <span class="hljs-string">'False'</span>, <span class="hljs-string">''</span>]
+            condition[<span class="hljs-number">2</span>] = <span class="hljs-string">"'"</span>+condition[<span class="hljs-number">2</span>]+<span class="hljs-string">"'"</span>
+        mode = <span class="hljs-string">' &amp;&amp; '</span>
+        conditions = []
+        <span class="hljs-keyword">for</span> condition <span class="hljs-keyword">in</span> action[<span class="hljs-string">'condition'</span>]
+          <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> condition <span class="hljs-keyword">is</span> <span class="hljs-string">'object'</span>
+            conditions.push(condition.join(<span class="hljs-string">' '</span>))
+          <span class="hljs-keyword">else</span>
+            mode = condition
+        conditions = conditions.join(mode)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>TODO: doesn’t work with comparative number inputs i.e. a &gt; b</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> eval(conditions)
+          <span class="hljs-keyword">if</span> action[<span class="hljs-string">'action'</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'hide'</span>
+            <span class="hljs-keyword">for</span> field <span class="hljs-keyword">in</span> action[<span class="hljs-string">'fields'</span>]
+              @.hide_triggered_elements(field)
+          <span class="hljs-keyword">if</span> action[<span class="hljs-string">'action'</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'show'</span>
+            <span class="hljs-keyword">for</span> field <span class="hljs-keyword">in</span> action[<span class="hljs-string">'fields'</span>]
+              @.show_triggered_elements(field)
+          <span class="hljs-keyword">if</span> action[<span class="hljs-string">'action'</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'disable'</span>
+            <span class="hljs-keyword">for</span> field <span class="hljs-keyword">in</span> action[<span class="hljs-string">'fields'</span>]
+              @.disable_triggered_elements(field)
+          <span class="hljs-keyword">if</span> action[<span class="hljs-string">'action'</span>] <span class="hljs-keyword">is</span> <span class="hljs-string">'enable'</span>
+            <span class="hljs-keyword">for</span> field <span class="hljs-keyword">in</span> action[<span class="hljs-string">'fields'</span>]
+              @.enable_triggered_elements(field)
+    <span class="hljs-keyword">return</span>
+   
+  <span class="hljs-attribute">submit</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>   event.preventDefault()</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @.reset_form_timeout(@)
+    ajax_act = <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-action'</span>)
+    form_elements =
+      (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> <span class="hljs-property">@form</span>.elements \
+        <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> element.classList.contains(<span class="hljs-string">'exclude'</span>))
+    invalid_elements =
+      (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form_elements \
+        <span class="hljs-keyword">when</span> element.classList.contains(<span class="hljs-string">'error'</span>))
+    empty_elements =
+      (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form_elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> element.value <span class="hljs-keyword">or</span> \
+      element.value <span class="hljs-keyword">is</span> <span class="hljs-string">''</span>)
+    <span class="hljs-keyword">if</span> invalid_elements.length&lt;<span class="hljs-number">1</span> <span class="hljs-keyword">and</span> empty_elements.length&lt;<span class="hljs-number">1</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>do something with the form</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> <span class="hljs-property">@form</span>.elements \
+        <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+      <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+        button.setAttribute(<span class="hljs-string">'disabled'</span>, <span class="hljs-string">'disabled'</span>)
+      <span class="hljs-property">@submit_observation</span>(@, form_elements, <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-action'</span>),
+        <span class="hljs-property">@form</span>.getAttribute(<span class="hljs-string">'ajax-args'</span>))
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> empty_elements.length&gt;<span class="hljs-number">0</span> <span class="hljs-keyword">and</span> ajax_act.indexOf(<span class="hljs-string">'notification'</span>) &gt; <span class="hljs-number">0</span>
+      msg = <span class="hljs-string">'&lt;p&gt;The form contains empty fields, please enter '</span>+
+        <span class="hljs-string">'data into these fields and resubmit&lt;/p&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invalid_form'</span>, <span class="hljs-string">'Form contains empty fields'</span>,
+        msg, [btn], <span class="hljs-number">0</span>, @.form)
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> invalid_elements.length&gt;<span class="hljs-number">0</span>
+      msg = <span class="hljs-string">'&lt;p&gt;The form contains errors, please correct '</span>+
+        <span class="hljs-string">'the errors and resubmit&lt;/p&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="invalid_form"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'invalid_form'</span>, <span class="hljs-string">'Form contains errors'</span>,
+        msg, [btn], <span class="hljs-number">0</span>, @.form)
+    <span class="hljs-keyword">else</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>display the partial obs dialog</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> <span class="hljs-property">@form</span>.elements \
+        <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+      <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+        button.setAttribute(<span class="hljs-string">'disabled'</span>, <span class="hljs-string">'disabled'</span>)
+      <span class="hljs-property">@display_partial_reasons</span>(@)
+
+  <span class="hljs-attribute">show_reference</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>   event.preventDefault()</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @.reset_form_timeout(@)
+    input = event.src_el</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>   input = if event.srcElement then event.srcElement else event.target</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    ref_type = input.getAttribute(<span class="hljs-string">'data-type'</span>)
+    ref_url = input.getAttribute(<span class="hljs-string">'data-url'</span>)
+    ref_title = input.getAttribute(<span class="hljs-string">'data-title'</span>)
+    <span class="hljs-keyword">if</span> ref_type <span class="hljs-keyword">is</span> <span class="hljs-string">'image'</span>
+      img = <span class="hljs-string">'&lt;img src="'</span> + ref_url + <span class="hljs-string">'"/&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="popup_image"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'popup_image'</span>, ref_title, img, [btn], <span class="hljs-number">0</span>, @.form)
+    <span class="hljs-keyword">if</span> ref_type <span class="hljs-keyword">is</span> <span class="hljs-string">'iframe'</span>
+      iframe = <span class="hljs-string">'&lt;iframe src="'</span>+ ref_url + <span class="hljs-string">'"&gt;&lt;/iframe&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="#" data-action="close" data-target="popup_iframe"&gt;'</span>+
+        <span class="hljs-string">'Cancel&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'popup_iframe'</span>, ref_title, iframe, [btn], <span class="hljs-number">0</span>, @.form)
+
+
+  <span class="hljs-attribute">display_partial_reasons</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> =&gt;</span>
+    form_type = self.form.getAttribute(<span class="hljs-string">'data-source'</span>)
+    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(@.urls.json_partial_reasons())).<span class="hljs-keyword">then</span> (rdata) -&gt;
+      server_data = rdata[<span class="hljs-number">0</span>]
+      data = server_data.data
+      options = <span class="hljs-string">''</span>
+      <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> data
+        option_val = option[<span class="hljs-number">0</span>]
+        option_name = option[<span class="hljs-number">1</span>]
+        options += <span class="hljs-string">'&lt;option value="'</span>+option_val+<span class="hljs-string">'"&gt;'</span>+option_name+<span class="hljs-string">'&lt;/option&gt;'</span>
+      select = <span class="hljs-string">'&lt;select name="partial_reason"&gt;'</span>+options+<span class="hljs-string">'&lt;/select&gt;'</span>
+      con_btn = <span class="hljs-keyword">if</span> form_type <span class="hljs-keyword">is</span> <span class="hljs-string">'task'</span> <span class="hljs-keyword">then</span> <span class="hljs-string">'&lt;a href="#" '</span> +
+        <span class="hljs-string">'data-target="partial_reasons" data-action="partial_submit" '</span>+
+        <span class="hljs-string">'data-ajax-action="json_task_form_action"&gt;Confirm&lt;/a&gt;'</span>
+        <span class="hljs-keyword">else</span> <span class="hljs-string">'&lt;a href="#" data-target="partial_reasons" '</span>+
+        <span class="hljs-string">'data-action="partial_submit" '</span>+
+        <span class="hljs-string">'data-ajax-action="json_patient_form_action"&gt;Confirm&lt;/a&gt;'</span>
+      can_btn = <span class="hljs-string">'&lt;a href="#" data-action="renable" '</span>+
+        <span class="hljs-string">'data-target="partial_reasons"&gt;Cancel&lt;/a&gt;'</span>
+      msg = <span class="hljs-string">'&lt;p&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'partial_reasons'</span>, server_data.title,
+        msg+select, [can_btn, con_btn], <span class="hljs-number">0</span>, self.form)
+
+  <span class="hljs-attribute">submit_observation</span>: <span class="hljs-function"><span class="hljs-params">(self, elements, endpoint, args)</span> =&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>turn form data in to serialised string and ping off to server</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    serialised_string = (el.name+<span class="hljs-string">'='</span>+el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> elements).join(<span class="hljs-string">"&amp;"</span>)
+    url = @.urls[endpoint].apply(<span class="hljs-keyword">this</span>, args.split(<span class="hljs-string">','</span>))</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Disable the action buttons</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(url, serialised_string)).<span class="hljs-keyword">then</span> (raw_data) -&gt;
+      server_data = raw_data[<span class="hljs-number">0</span>]
+      data = server_data.data
+      body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+      <span class="hljs-keyword">if</span> server_data.status <span class="hljs-keyword">is</span> <span class="hljs-string">'success'</span> <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">3</span>
+        can_btn = <span class="hljs-string">'&lt;a href="#" data-action="renable" '</span>+
+          <span class="hljs-string">'data-target="submit_observation"&gt;Cancel&lt;/a&gt;'</span>
+        act_btn = <span class="hljs-string">'&lt;a href="#" data-target="submit_observation" '</span>+
+          <span class="hljs-string">'data-action="submit" data-ajax-action="'</span>+
+          data.next_action+<span class="hljs-string">'"&gt;Submit&lt;/a&gt;'</span>
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_observation'</span>,
+          server_data.title + <span class="hljs-string">' for '</span> + self.patient_name() + <span class="hljs-string">'?'</span>,
+          server_data.desc,
+          [can_btn, act_btn], <span class="hljs-number">0</span>, body)
+        <span class="hljs-keyword">if</span> <span class="hljs-string">'clinical_risk'</span> <span class="hljs-keyword">of</span> data.score
+          sub_ob = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'submit_observation'</span>)
+          cls = <span class="hljs-string">'clinicalrisk-'</span>+data.score.clinical_risk.toLowerCase()
+          sub_ob.classList.add(cls)
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> server_data.status <span class="hljs-keyword">is</span> <span class="hljs-string">'success'</span> <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">1</span>
+        triggered_tasks = <span class="hljs-string">''</span>
+        buttons = [<span class="hljs-string">'&lt;a href="'</span>+self.urls[<span class="hljs-string">'task_list'</span>]().url+
+          <span class="hljs-string">'" data-action="confirm"&gt;Go to My Tasks&lt;/a&gt;'</span>]
+        <span class="hljs-keyword">if</span> data.related_tasks.length <span class="hljs-keyword">is</span> <span class="hljs-number">1</span>
+          triggered_tasks = <span class="hljs-string">'&lt;p&gt;'</span> + data.related_tasks[<span class="hljs-number">0</span>].summary + <span class="hljs-string">'&lt;/p&gt;'</span>
+          rt_url = self.urls[<span class="hljs-string">'single_task'</span>](data.related_tasks[<span class="hljs-number">0</span>].id).url
+          buttons.push(<span class="hljs-string">'&lt;a href="'</span>+rt_url+<span class="hljs-string">'"&gt;Confirm&lt;/a&gt;'</span>)
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> data.related_tasks.length &gt; <span class="hljs-number">1</span>
+          tasks = <span class="hljs-string">''</span>
+          <span class="hljs-keyword">for</span> task <span class="hljs-keyword">in</span> data.related_tasks
+            st_url = self.urls[<span class="hljs-string">'single_task'</span>](task.id).url
+            tasks += <span class="hljs-string">'&lt;li&gt;&lt;a href="'</span>+st_url+<span class="hljs-string">'"&gt;'</span>+task.summary+<span class="hljs-string">'&lt;/a&gt;&lt;/li&gt;'</span>
+          triggered_tasks = <span class="hljs-string">'&lt;ul class="menu"&gt;'</span>+tasks+<span class="hljs-string">'&lt;/ul&gt;'</span>
+        pos = <span class="hljs-string">'&lt;p&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>
+        os = <span class="hljs-string">'Observation successfully submitted'</span>
+        task_list = <span class="hljs-keyword">if</span> triggered_tasks <span class="hljs-keyword">then</span> triggered_tasks <span class="hljs-keyword">else</span> pos
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_success'</span>, server_data.title ,
+          task_list, buttons, <span class="hljs-number">0</span>, body)
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> server_data.status <span class="hljs-keyword">is</span> <span class="hljs-string">'success'</span> <span class="hljs-keyword">and</span> data.status <span class="hljs-keyword">is</span> <span class="hljs-number">4</span>
+        btn = <span class="hljs-string">'&lt;a href="'</span>+self.urls[<span class="hljs-string">'task_list'</span>]().url+
+          <span class="hljs-string">'" data-action="confirm" data-target="cancel_success"&gt;'</span>+
+          <span class="hljs-string">'Go to My Tasks&lt;/a&gt;'</span>
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_success'</span>, server_data.title,
+          <span class="hljs-string">'&lt;p&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>, [btn], <span class="hljs-number">0</span>, self.form)
+      <span class="hljs-keyword">else</span>
+        action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements \
+          <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+        <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+          button.removeAttribute(<span class="hljs-string">'disabled'</span>)
+        btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
+          <span class="hljs-string">'data-target="submit_error"&gt;Cancel&lt;/a&gt;'</span>
+        <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'submit_error'</span>, <span class="hljs-string">'Error submitting observation'</span>,
+          <span class="hljs-string">'Server returned an error'</span>, [btn], <span class="hljs-number">0</span>, body)
+
+  <span class="hljs-attribute">handle_timeout</span>: <span class="hljs-function"><span class="hljs-params">(self, id)</span> -&gt;</span>
+    can_id = self.urls[<span class="hljs-string">'json_cancel_take_task'</span>](id)
+    Promise.<span class="hljs-keyword">when</span>(self.call_resource(can_id)).<span class="hljs-keyword">then</span> (server_data) -&gt;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <h2 id="should-be-checking-server-data">Should be checking server data</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      msg = <span class="hljs-string">'&lt;p&gt;Please pick the task again from the task list '</span>+
+        <span class="hljs-string">'if you wish to complete it&lt;/p&gt;'</span>
+      btn = <span class="hljs-string">'&lt;a href="'</span>+self.urls[<span class="hljs-string">'task_list'</span>]().url+
+        <span class="hljs-string">'" data-action="confirm"&gt;Go to My Tasks&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'form_timeout'</span>, <span class="hljs-string">'Task window expired'</span>, msg,
+        [btn], <span class="hljs-number">0</span>, <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
+
+  <span class="hljs-attribute">cancel_notification</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> =&gt;</span>
+    opts = @.urls.ajax_task_cancellation_options()
+    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@call_resource</span>(opts)).<span class="hljs-keyword">then</span> (raw_data) -&gt;
+      server_data = raw_data[<span class="hljs-number">0</span>]
+      data = server_data.data
+      options = <span class="hljs-string">''</span>
+      <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> data
+        option_val = option.id
+        option_name = option.name
+        options += <span class="hljs-string">'&lt;option value="'</span>+option_val+<span class="hljs-string">'"&gt;'</span>+option_name+<span class="hljs-string">'&lt;/option&gt;'</span>
+      select = <span class="hljs-string">'&lt;select name="reason"&gt;'</span>+options+<span class="hljs-string">'&lt;/select&gt;'</span>
+      msg = <span class="hljs-string">'&lt;p&gt;'</span> + server_data.desc + <span class="hljs-string">'&lt;/p&gt;'</span>
+      can_btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span>+
+        <span class="hljs-string">'data-target="cancel_reasons"&gt;Cancel&lt;/a&gt;'</span>
+      con_btn = <span class="hljs-string">'&lt;a href="#" data-target="cancel_reasons" '</span>+
+        <span class="hljs-string">'data-action="partial_submit" '</span>+
+        <span class="hljs-string">'data-ajax-action="cancel_clinical_notification"&gt;Confirm&lt;/a&gt;'</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">window</span>.NH.NHModal(<span class="hljs-string">'cancel_reasons'</span>, server_data.title, msg+select,
+        [can_btn, con_btn], <span class="hljs-number">0</span>, <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)[<span class="hljs-number">0</span>])
+
+  <span class="hljs-attribute">reset_form_timeout</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
+    clearTimeout(<span class="hljs-built_in">window</span>.form_timeout)
+    <span class="hljs-built_in">window</span>.form_timeout = setTimeout(<span class="hljs-built_in">window</span>.timeout_func, self.form_timeout)
+
+  <span class="hljs-attribute">reset_input_errors</span>: <span class="hljs-function"><span class="hljs-params">(input)</span> -&gt;</span>
+    container_el = input.parentNode.parentNode
+    error_el = container_el.getElementsByClassName(<span class="hljs-string">'errors'</span>)[<span class="hljs-number">0</span>]
+    container_el.classList.remove(<span class="hljs-string">'error'</span>)
+    input.classList.remove(<span class="hljs-string">'error'</span>)
+    error_el.innerHTML = <span class="hljs-string">''</span>
+
+  <span class="hljs-attribute">add_input_errors</span>: <span class="hljs-function"><span class="hljs-params">(input, error_string)</span> -&gt;</span>
+    container_el = input.parentNode.parentNode
+    error_el = container_el.getElementsByClassName(<span class="hljs-string">'errors'</span>)[<span class="hljs-number">0</span>]
+    container_el.classList.add(<span class="hljs-string">'error'</span>)
+    input.classList.add(<span class="hljs-string">'error'</span>)
+    error_el.innerHTML = <span class="hljs-string">'&lt;label for="'</span>+input.name+<span class="hljs-string">'" class="error"&gt;'</span>+
+      error_string+<span class="hljs-string">'&lt;/label&gt;'</span>
+
+  <span class="hljs-attribute">hide_triggered_elements</span>: <span class="hljs-function"><span class="hljs-params">(field)</span> -&gt;</span>
+    el = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'parent_'</span>+field)
+    el.style.display = <span class="hljs-string">'none'</span>
+    inp = <span class="hljs-built_in">document</span>.getElementById(field)
+    inp.classList.add(<span class="hljs-string">'exclude'</span>)
+
+  <span class="hljs-attribute">show_triggered_elements</span>: <span class="hljs-function"><span class="hljs-params">(field)</span> -&gt;</span>
+    el = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'parent_'</span>+field)
+    el.style.display = <span class="hljs-string">'block'</span>
+    inp = <span class="hljs-built_in">document</span>.getElementById(field)
+    inp.classList.remove(<span class="hljs-string">'exclude'</span>)
+
+  <span class="hljs-attribute">disable_triggered_elements</span>: <span class="hljs-function"><span class="hljs-params">(field)</span> -&gt;</span>
+    inp = <span class="hljs-built_in">document</span>.getElementById(field)
+    inp.classList.add(<span class="hljs-string">'exclude'</span>)
+    inp.disabled = <span class="hljs-literal">true</span>
+
+  <span class="hljs-attribute">enable_triggered_elements</span>: <span class="hljs-function"><span class="hljs-params">(field)</span> -&gt;</span>
+    inp = <span class="hljs-built_in">document</span>.getElementById(field)
+    inp.classList.remove(<span class="hljs-string">'exclude'</span>)
+    inp.disabled = <span class="hljs-literal">false</span>
+
+  <span class="hljs-attribute">process_partial_submit</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
+    form_elements = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> self.form.elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span>
+      element.classList.contains(<span class="hljs-string">'exclude'</span>))
+    reason_to_use = <span class="hljs-literal">false</span>
+    reason = <span class="hljs-built_in">document</span>.getElementsByName(<span class="hljs-string">'partial_reason'</span>)[<span class="hljs-number">0</span>]
+    cancel_reason = <span class="hljs-built_in">document</span>.getElementsByName(<span class="hljs-string">'reason'</span>)[<span class="hljs-number">0</span>]
+    <span class="hljs-keyword">if</span> reason
+      reason_to_use = reason
+    <span class="hljs-keyword">if</span> cancel_reason
+      reason_to_use = cancel_reason</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>TODO: Add an error catch if no value entered</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> reason_to_use
+      form_elements.push(reason_to_use)
+      self.submit_observation(self, form_elements, event.detail.action,
+        self.form.getAttribute(<span class="hljs-string">'ajax-args'</span>))
+      dialog_id = <span class="hljs-built_in">document</span>.getElementById(event.detail.target)
+      cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)
+
+  <span class="hljs-attribute">process_post_score_submit</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
+    form  = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)?[<span class="hljs-number">0</span>]
+    form_elements = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form.elements <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span>
+      element.classList.contains(<span class="hljs-string">'exclude'</span>))
+    endpoint = event.detail.endpoint
+    self.submit_observation(self,
+      form_elements, endpoint, self.form.getAttribute(<span class="hljs-string">'ajax-args'</span>))
+
+<span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+
+<span class="hljs-built_in">window</span>?.NH.NHMobileForm = NHMobileForm</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
