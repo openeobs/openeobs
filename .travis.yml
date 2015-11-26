@@ -1,0 +1,47 @@
+language: python
+sudo: false
+cache:
+  apt: true
+  directories:
+    - $HOME/.cache/pip
+
+python:
+  - "2.7"
+
+addons:
+  apt:
+    packages:
+      - expect-dev  # provides unbuffer utility
+      - python-lxml  # because pip installation is slow
+      - python-simplejson
+      - python-serial
+      - python-yaml
+  postgresql: "9.3"
+
+env:
+  global:
+  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+
+  matrix:
+  # - LINT_CHECK="1" TESTS="0"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" INCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  # - ODOO_REPO='NeovaHealth/odoo" TESTS="1" INCLUDE="nh_odoo_fixes,nh_activity,nh_clinical" VERSION="8.0"
+  # - ODOO_REPO="odoo/odoo" TESTS="1" INCLUDE="nh_odoo_fixes,nh_clinical,nh_activity"
+
+virtualenv:
+  system_site_packages: true
+
+# install dependencies
+
+install:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+  - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
+  - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
+  - travis_install_nightly
+
+script:
+  - travis_run_tests
+
+after_script:
+  - coverage report -m
