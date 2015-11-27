@@ -210,6 +210,32 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         raise osv.except_osv('Expected exception!',
                              'Expected exception raised during the test.')
 
+    def _safely_exit_test_during_setup(self, exit_type='skip', message=''):
+        """
+        Provide a safe way to skip a test or make it fail
+        during the ``setUp()`` phase.
+
+        Rationale:
+        Calling ``TestCase.skipTest()`` or ``TestCase.fail()`` from the
+        ``setUp()``method, abort the test and prevent the ``tearDown()``
+        method to be run.
+        This make every following test fail, because Odoo test cases rely on
+        the ``tearDown()`` to properly close the DB test cursor and set the
+        test mode flag as ``False``.
+
+        :param exit_type: type of exit for the test method
+        (can be 'skip' or 'fail')
+        :type exit_type: str
+        :param message: message to be passed to the exiting function
+        (default to empty string)
+        :type message: str
+        """
+        super(self.__class__, self).tearDown()
+        if exit_type.lower() == 'skip':
+            self.skipTest(message)
+        elif exit_type.lower() == 'fail':
+            self.fail(message)
+
     def setUp(self):
         """
         Get an authenticated response from the server so we can reuse
@@ -219,20 +245,29 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.session_resp = requests.post(route_manager.BASE_URL + '/web',
                                           {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
-            self.skipTest('Cannot retrieve a valid session '
-                          'to be used for the tests!')
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                message='Cannot retrieve a valid session to be used '
+                        'for the tests!'
+            )
 
         # Authenticate as a 'nurse' user and check the login was successful
         user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
         if user_data:
             self.login_name = user_data.get('login')
         else:
-            self.skipTest('Cannot find any user for authentication before '
-                          'running the test. This test will be skipped.')
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                message='Cannot retrieve a valid session to be used '
+                        'for the tests!'
+            )
         self.user_id = user_data.get('id')
         if not self.login_name:
-            self.skipTest('Cannot find any user for authentication before '
-                          'running the test. This test will be skipped.')
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                message='Cannot retrieve a valid session to be used '
+                        'for the tests!'
+            )
         self.auth_resp = self._get_authenticated_response(self.login_name)
         self.assertEqual(self.auth_resp.status_code, 200)
 
