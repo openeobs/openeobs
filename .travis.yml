@@ -16,6 +16,7 @@ addons:
       - python-simplejson
       - python-serial
       - python-yaml
+      - sshpass
   postgresql: "9.3"
 
 env:
