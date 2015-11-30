@@ -4,7 +4,9 @@ def migrate(cr, installed_version):
         cr.execute(
             """
             ALTER TABLE nh_clinical_patient_mrsa RENAME COLUMN status TO mrsa;
-            ALTER TABLE nh_clinical_patient_diabetes RENAME COLUMN status TO diabetes;
-            ALTER TABLE nh_clinical_patient_weight_monitoring RENAME COLUMN status to weight_monitoring;
+            ALTER TABLE nh_clinical_patient_diabetes
+            RENAME COLUMN status TO diabetes;
+            ALTER TABLE nh_clinical_patient_weight_monitoring
+            RENAME COLUMN status to weight_monitoring;
             """
         )

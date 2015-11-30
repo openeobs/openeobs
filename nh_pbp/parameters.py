@@ -33,8 +33,10 @@ class nh_clinical_patient_pbp_monitoring(orm.Model):
 
     _columns = {
         'status': fields.boolean('Postural Blood Presssure Monitoring'),
-        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'value': fields.function(_get_value, type='char', size=3,
+                                 string='String Value'),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
 
     def complete(self, cr, uid, activity_id, context=None):
@@ -42,11 +44,17 @@ class nh_clinical_patient_pbp_monitoring(orm.Model):
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         pbp_pool = self.pool['nh.clinical.patient.observation.pbp']
         if activity.data_ref.status:
-            activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, pbp_pool._name, context=context)
-            pbp_activity_id = pbp_pool.create_activity(cr, SUPERUSER_ID,
-                                 {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
-                                 {'patient_id': activity.data_ref.patient_id.id})
+            activity_pool.cancel_open_activities(
+                cr, uid, activity.parent_id.id, pbp_pool._name,
+                context=context)
+            pbp_activity_id = pbp_pool.create_activity(
+                cr, SUPERUSER_ID,
+                {'creator_id': activity_id,
+                 'parent_id': activity.parent_id.id},
+                {'patient_id': activity.data_ref.patient_id.id})
             date_schedule = dt.now().replace(minute=0, second=0, microsecond=0)
-            activity_pool.schedule(cr, SUPERUSER_ID, pbp_activity_id, date_schedule, context=context)
-
-        return super(nh_clinical_patient_pbp_monitoring, self).complete(cr, uid, activity_id, context=context)
+            activity_pool.schedule(
+                cr, SUPERUSER_ID, pbp_activity_id, date_schedule,
+                context=context)
+        return super(nh_clinical_patient_pbp_monitoring, self).complete(
+            cr, uid, activity_id, context=context)

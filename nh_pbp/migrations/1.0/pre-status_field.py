@@ -12,7 +12,8 @@ def migrate(cr, installed_version):
         ]
         for t in tables:
             try:
-                query = "ALTER TABLE %s RENAME COLUMN %s TO status" % (t[0], t[1])
+                query = "ALTER TABLE %s RENAME COLUMN %s TO status" \
+                        % (t[0], t[1])
                 cr.execute(query)
             except ProgrammingError as e:
                 cr.rollback()
