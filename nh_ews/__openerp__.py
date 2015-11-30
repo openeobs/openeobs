@@ -14,7 +14,8 @@
         'views/views.xml',
         'security/notif/ir.model.access.csv',
         'security/params/ir.model.access.csv',
-        'security/ir.model.access.csv',],
+        'security/ir.model.access.csv'
+    ],
     'demo': [],
     'css': [],
     'js': [],
