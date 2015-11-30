@@ -210,7 +210,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         raise osv.except_osv('Expected exception!',
                              'Expected exception raised during the test.')
 
-    def _safely_exit_test_during_setup(self, exit_type='skip', message=''):
+    def _safely_exit_test_during_setup(self, exit_type='skip', reason=''):
         """
         Provide a safe way to skip a test or make it fail
         during the ``setUp()`` phase.
@@ -224,17 +224,17 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         test mode flag as ``False``.
 
         :param exit_type: type of exit for the test method
-        (can be 'skip' or 'fail')
+        (can be 'skip' or 'fail' - the default value is 'skip')
         :type exit_type: str
-        :param message: message to be passed to the exiting function
-        (default to empty string)
-        :type message: str
+        :param reason: reason for skipping the test (or making it fail).
+        It will be passed to the exiting function (default to empty string)
+        :type reason: str
         """
         super(self.__class__, self).tearDown()
         if exit_type.lower() == 'skip':
-            self.skipTest(message)
+            self.skipTest(reason)
         elif exit_type.lower() == 'fail':
-            self.fail(message)
+            self.fail(reason)
 
     def setUp(self):
         """
@@ -247,8 +247,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         if 'session_id' not in self.session_resp.cookies:
             self._safely_exit_test_during_setup(
                 exit_type='skip',
-                message='Cannot retrieve a valid session to be used '
-                        'for the tests!'
+                reason='Cannot retrieve a valid session to be used '
+                       'for the test.'
             )
 
         # Authenticate as a 'nurse' user and check the login was successful
@@ -258,15 +258,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         else:
             self._safely_exit_test_during_setup(
                 exit_type='skip',
-                message='Cannot retrieve a valid session to be used '
-                        'for the tests!'
+                reason='Cannot retrieve any user for authentication '
+                       'before running the test.'
             )
         self.user_id = user_data.get('id')
         if not self.login_name:
             self._safely_exit_test_during_setup(
                 exit_type='skip',
-                message='Cannot retrieve a valid session to be used '
-                        'for the tests!'
+                reason='Cannot retrieve the login name for authentication '
+                       'before running the test.'
             )
         self.auth_resp = self._get_authenticated_response(self.login_name)
         self.assertEqual(self.auth_resp.status_code, 200)
