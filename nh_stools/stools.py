@@ -23,12 +23,17 @@ class nh_clinical_patient_observation_stools(orm.Model):
     _required = []
     _description = "Bristol Stool Scale Observation"
     _boolean_selection = [[True, 'Yes'], [False, 'No']]
-    _quantity_selection = [['large', 'Large'], ['medium', 'Medium'], ['small', 'Small']]
-    _colour_selection = [['brown', 'Brown'], ['yellow', 'Yellow'], ['green', 'Green'], ['black', 'Black/Tarry'],
+    _quantity_selection = [['large', 'Large'],
+                           ['medium', 'Medium'],
+                           ['small', 'Small']]
+    _colour_selection = [['brown', 'Brown'], ['yellow', 'Yellow'],
+                         ['green', 'Green'], ['black', 'Black/Tarry'],
                          ['red', 'Red (fresh blood)'], ['clay', 'Clay']]
-    _bristol_selection = [['1', 'Type 1'], ['2', 'Type 2'], ['3', 'Type 3'], ['4', 'Type 4'], ['5', 'Type 5'],
+    _bristol_selection = [['1', 'Type 1'], ['2', 'Type 2'], ['3', 'Type 3'],
+                          ['4', 'Type 4'], ['5', 'Type 5'],
                           ['6', 'Type 6'], ['7', 'Type 7']]
-    _samples_selection = [['none', 'None'], ['micro', 'Micro'], ['virol', 'Virol'], ['m+v', 'M+V']]
+    _samples_selection = [['none', 'None'], ['micro', 'Micro'],
+                          ['virol', 'Virol'], ['m+v', 'M+V']]
     _columns = {
         'bowel_open': fields.boolean('Bowel Open'),
         'nausea': fields.boolean('Nausea'),
