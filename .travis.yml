@@ -16,24 +16,28 @@ addons:
       - python-simplejson
       - python-serial
       - python-yaml
+      - sshpass
   postgresql: "9.3"
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0" OPTIONS="--test-report-directory=${HOME}/tests"
+  - secure: 2owOpjqqjcCKrEY9/XHfKlcC8C7R2lpNnwFR0OsMpm7ER5KML0Co7FETJvnxDmiMJzQmceI9wxeXYzgoRzkTr2QiuQtA9t9b74O1d51Ct3IaEO2sJehRM1TwvNamC1071l9mmhwvufEpIF3KPABVBnRgGapXVOOkiyXz88fIxDxhuce/p6gdu/Uny8oX+DeBwVGltMYwR6oykJKHFCEo8hcOOBXJ+LmqNhu+NiSqJfWsNa32DExZokcyJZesGdWC7kO55W8aXoB/AkcPU94RY2XWPohNZZrQWf4KXpcjwl5hmrVj3ueQCNNRnUugGBw5YJ+3r9p63lPgKQiJ61oHVsYl79dg8lxiv3rejaZuue4YswdfbSHb8I99c3lKPJmMZOfa4LuEIV8fw1qWCjvbEWDDQ1WIIzY1CxfawC80eFpM90oBVG+0cfjeZUAD22FV5M5YX+i4aBcM82wD96cBcszXQ5aI1Nj65JGCbQ1nFpwxeE524/38uPm397ixo58I8t5Uhu2ZCTNXHtefDzg4OcYlkZtiqNqmwQ6TTrGw13LvXcpeLw9UVySHwefwSXgvr7tYYXiZ62/ewx3G1r1cXfNYibN13JoX7ecWY0yN/6xbHMokEysOOBl4Zii1uYCW1kN/KN/CwQgVZZhCho3LUUHwP2qtg/QYnYyHlX39zRA=
+  - secure: fVes6CNxjUfhh2dgjv3p+sVQ1vFy4Fmnv4qG5lbgSKzNtMO/208BDNVBq4ffWIkK9LXwnkctCrzfXeuyyqSII7TWBuzvyYpDFkuSg79GwVQt3gjBv5UGzfEEi6lmX3rBlPxQ5u6wnMQ6hve4QS11PeQbf7YLNfu+YlCxKKiIZJNWed3OVohG5+MrZ+8yRMPUEjTNN7/wkPSd30glX0iFjTCg4bNam8M/RqlZxQvA24JptKXH7VWFqPw67vDfNNPhinp4cTTJ3m82tdnDhPYOaQwUckOckxQPLeZby/rwdgI0S0gqhSWVyVBFXX8MG8sKKkmrPrVyfSrRnWgqaCko5LZ0EdDFPv9Q9wu+Tday/kJXZF7D24mfcNX7M8TSjj5iI+j7P351fRe5ImKrkxdKGksQRd3OFtx3wijVBsOxKjfTtCGYlxdLry3ExXW6+AVmM7TtK9qXHGHxsNJHUxp5HzlabWfLIEnhASuYY4JULeykNcLgul+2KQxZ0D5YuM1V1aD1b0xYf3q2/ZRmnNgmei6rFFnn0kQGes+Eyy6VYv0vp/n+FG735cUgp+maAcCzYMFMiJsF9dt3D7KVbgK17KW2cAKvb3HfzzGygnkMGX+eWu2ItaZauCgYgoJUSlBG+6SCyelxu/sTP7wNuhdgoWdHL4e/PY5BpWq/s+HcRcE=
+  - secure: cl+rttR5BPjcCoEXtMXB1g3OGmYd13S7YvP1YmxrINtioUXSFOnUKNIQAnNigMkK8iCGI1IzKmW6QFkMfvZln/J4zW0Ywb6f/RACcPnDD1EG671eqaSwk55biRp3F/3N/gFqaxIVNqRFOOVc0f6R3j9GJLUK/bIn0i8w3P9E7YQFqsW8sD9VPkX0j7tsMoAEYhRVNE2IFL4+R0XMD4mOW/FX4EHBpj/kOQyzP8Xv2hhBrW9V2uo3whmE1yevVMev8h1klw5zi7wL0qwHRqI+QxmelQ30k9Y/VJRtaxFscTqJrJfyYZvFiSCDAcb9wE0Qcd0SovYTYoDN2dKkbTF6y+tJedF1Y/UbcozboaEEVIaWZBqN+/MVi3ZD+5S5E+geFSwyzPrIvW2BUBL7anOFPn0c8LZJ+THc3iHX5Gp4CLMgrGmqMX3R0VKIpfy0LqN9KUjvYyVRn/WLt7z+x/Hy6kFbLXYywzmWxQ9fmkqLm5G7yy6gsJU7PIZntyc/Ipt35Owia6T/BiCb5ZD5/kqXDINjrRaLfvb06EnZYqywdLkGmmTvLuZopVpF8JApNxjNqtV1qQbSHvXKMnoYzClRJpzbWkDlDCAJzimzn0cG5OV4tffN+qxy9IaeY1vjZVAOzC1XR+KVBMLiLbBVZTdm8EcRywOi7mQ2Okja9CC5hr8=
 
   matrix:
   # - LINT_CHECK="1" TESTS="0"
   # Test Observations
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output" INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # Test eObs
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs_mobile" INCLUDE="nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs_mobile,xml_test_output" INCLUDE="nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # Test Graphs
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" INCLUDE="nh_graphs" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output" INCLUDE="nh_graphs" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # Test Mobile
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,web" INCLUDE="nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,web,xml_test_output" INCLUDE="nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # Test All
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical" INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output" INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
   # - ODOO_REPO='NeovaHealth/odoo" TESTS="1" INCLUDE="nh_odoo_fixes,nh_activity,nh_clinical" VERSION="8.0"
   # - ODOO_REPO="odoo/odoo" TESTS="1" INCLUDE="nh_odoo_fixes,nh_clinical,nh_activity"
 
@@ -42,10 +46,20 @@ virtualenv:
 
 # install dependencies
 before_install:
+  - wget http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
+  - unzip sonar-runner-dist-2.4.zip
+  - mv sonar-runner-2.4 ${HOME}/sonar-runner-2.4
+  - rm ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
+  - echo -e "sonar.host.url=${SONAR_URL}\nsonar.jdbc.username=${SONAR_USER}\nsonar.jdbc.password=${SONAR_PASSWORD}\nsonar.jdbc.url=${SONAR_DBURL}" >> ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
   - git clone --depth=50 --branch=develop https://${CIUSER}:${CIPASSWORD}@github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
   - cd NeovaHealth/nhclinical
   - mkdir -p ${HOME}/dependencies
   - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
+  - cd ../..
+  - git clone --depth=50 https://github.com/Gimpneek/odoo_xml_test_output.git odoo_xml_test_output
+  - cd odoo_xml_test_output
+  - pip install -r requirements.txt
+  - mv xml_test_output ${HOME}/dependencies/xml_test_output
   - cd ${TRAVIS_BUILD_DIR}
 install:
   - pip install --upgrade pip
@@ -58,4 +72,12 @@ script:
   - travis_run_tests
 
 after_script:
-  - coverage report -m
+  - coverage xml -o ${HOME}/build/NeovaHealth/nhclinical/coverage.xml
+  - cd ${HOME}/build/NeovaHealth/nhclinical
+  - echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>" > test_report.xml
+  - for rep in ${HOME}/tests/*.xml; do cat "$rep" | grep -v "<?xml " >> test_report.xml; done
+  - echo "</testsuites>" >> test_report.xml
+  - echo -e "\nsonar.python.coverage.reportPath=coverage.xml" >> sonar-project.properties
+  - echo -e "\nsonar.python.xunit.reportPath=test_report.xml" >> sonar-project.properties
+  - ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST -L 2000:localhost:2000 -L 6432:localhost:5432 -fN
+  - "${HOME}/sonar-runner-2.4/bin/sonar-runner"
