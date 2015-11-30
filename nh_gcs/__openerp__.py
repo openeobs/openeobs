@@ -11,7 +11,8 @@
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_observations'],
     'data': [
-             'security/ir.model.access.csv',],
+             'security/ir.model.access.csv'
+    ],
     'demo': [],
     'css': [],
     'js': [],
