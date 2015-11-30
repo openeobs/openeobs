@@ -20,8 +20,10 @@ class nh_clinical_patient_observation_neurovascular(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = []
     _description = "Neurovascular Observation"
+    _limb_selection = [['la', 'Left Arm'], ['ra', 'Right Arm'],
+                       ['ll', 'Left Leg'], ['rl', 'Right Leg']]
     _columns = {
-        'limb': fields.selection([['la', 'Left Arm'], ['ra', 'Right Arm'], ['ll', 'Left Leg'], ['rl', 'Right Leg']], 'Limb'),
+        'limb': fields.selection(_limb_selection, 'Limb'),
         'colour': fields.char('Colour', size=20),
         'warmth': fields.char('Warmth', size=20),
         'movement': fields.char('Movement', size=50),
@@ -33,7 +35,7 @@ class nh_clinical_patient_observation_neurovascular(orm.Model):
             'name': 'limb',
             'type': 'selection',
             'label': 'Limb',
-            'selection': [['la', 'Left Arm'], ['ra', 'Right Arm'], ['ll', 'Left Leg'], ['rl', 'Right Leg']],
+            'selection': _limb_selection,
             'initially_hidden': False
         },
         {
