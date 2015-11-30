@@ -34,16 +34,26 @@ class nh_clinical_patient_observation_vips(orm.Model):
         case 0: No phlebitis
         case 1: Early stage of plebitis --> Resite cannula
         case 2: Advanced stage of plebitis --> Consider plebitis treatment
-        case 3: Advanced stage of thrombophlebitis --> Initiate phlebitis treatment
+        case 3: Advanced stage of thrombophlebitis --> Initiate phlebitis
+        treatment
     """
-    _POLICY = {'ranges': [1, 2, 4], 'case': '0123', 'frequencies': [1440, 1440, 1440, 1440],
+    _POLICY = {'ranges': [1, 2, 4],
+               'case': '0123',
+               'frequencies': [1440, 1440, 1440, 1440],
                'notifications': [
                    [],
-                   [{'model': 'nurse', 'summary': 'Resite Cannula', 'groups': ['nurse', 'hca']}],
-                   [{'model': 'nurse', 'summary': 'Resite Cannula', 'groups': ['nurse', 'hca']},
-                    {'model': 'nurse', 'summary': 'Consider plebitis treatment', 'groups': ['nurse', 'hca']}],
-                   [{'model': 'nurse', 'summary': 'Resite Cannula', 'groups': ['nurse', 'hca']},
-                    {'model': 'nurse', 'summary': 'Initiate plebitis treatment', 'groups': ['nurse', 'hca']}]
+                   [{'model': 'nurse', 'summary': 'Resite Cannula',
+                     'groups': ['nurse', 'hca']}],
+                   [{'model': 'nurse', 'summary': 'Resite Cannula',
+                     'groups': ['nurse', 'hca']},
+                    {'model': 'nurse',
+                     'summary': 'Consider plebitis treatment',
+                     'groups': ['nurse', 'hca']}],
+                   [{'model': 'nurse', 'summary': 'Resite Cannula',
+                     'groups': ['nurse', 'hca']},
+                    {'model': 'nurse',
+                     'summary': 'Initiate plebitis treatment',
+                     'groups': ['nurse', 'hca']}]
                ]}
 
     def calculate_score(self, vips_data):
@@ -69,7 +79,8 @@ class nh_clinical_patient_observation_vips(orm.Model):
             score = 4
         elif all([pain, redness, swelling]):
             score = 3
-        elif all([pain, redness]) or all([pain, swelling]) or all([redness, swelling]):
+        elif all([pain, redness]) or all([pain, swelling]) or all(
+                [redness, swelling]):
             score = 2
         elif any([pain, redness]):
             score = 1
@@ -80,13 +91,17 @@ class nh_clinical_patient_observation_vips(orm.Model):
         res = {}
         for vips in self.browse(cr, uid, ids, context):
             res[vips.id] = self.calculate_score(vips)
-            _logger.debug("Observation VIPS activity_id=%s vips_id=%s score: %s" % (vips.activity_id.id, vips.id, res[vips.id]))
+            _logger.debug(
+                "Observation VIPS activity_id=%s vips_id=%s score: %s"
+                % (vips.activity_id.id, vips.id, res[vips.id]))
         return res
 
     _columns = {
-        'score': fields.function(_get_score, type='integer', multi='score', string='Score', store={
-                       'nh.clinical.patient.observation.vips': (lambda self,cr,uid,ids,ctx: ids, [], 10) # all fields of self
-        }),
+        'score': fields.function(
+            _get_score, type='integer', multi='score', string='Score', store={
+                'nh.clinical.patient.observation.vips': (
+                    lambda self, cr, uid, ids, ctx: ids, [], 10)
+            }),
         'pain': fields.selection(_selection, 'Pain'),
         'redness': fields.selection(_selection, 'Redness'),
         'swelling': fields.selection(_selection, 'Swelling'),
@@ -158,9 +173,14 @@ class nh_clinical_patient_observation_vips(orm.Model):
         api_pool = self.pool['nh.clinical.api']
         groups_pool = self.pool['res.groups']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
-        case = int(self._POLICY['case'][bisect.bisect_left(self._POLICY['ranges'], activity.data_ref.score)])
-        hcagroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'NH Clinical HCA Group')])
-        nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'NH Clinical Nurse Group')])
+        case = int(self._POLICY['case'][bisect.bisect_left(
+            self._POLICY['ranges'], activity.data_ref.score)])
+        hcagroup_ids = groups_pool.search(
+            cr, uid,
+            [('users', 'in', [uid]), ('name', '=', 'NH Clinical HCA Group')])
+        nursegroup_ids = groups_pool.search(
+            cr, uid,
+            [('users', 'in', [uid]), ('name', '=', 'NH Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
 
         # TRIGGER NOTIFICATIONS
@@ -173,14 +193,15 @@ class nh_clinical_patient_observation_vips(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(nh_clinical_patient_observation_vips, self).complete(cr, uid, activity_id, context)
+        res = super(nh_clinical_patient_observation_vips, self).complete(
+            cr, uid, activity_id, context)
 
         # create next VIPS
-        next_activity_id = self.create_activity(cr, SUPERUSER_ID,
-                             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
-                             {'patient_id': activity.data_ref.patient_id.id})
-        api_pool.change_activity_frequency(cr, SUPERUSER_ID,
-                                           activity.data_ref.patient_id.id,
-                                           self._name,
-                                           self._POLICY['frequencies'][case], context=context)
+        next_activity_id = self.create_activity(
+            cr, SUPERUSER_ID,
+            {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
+            {'patient_id': activity.data_ref.patient_id.id})
+        api_pool.change_activity_frequency(
+            cr, SUPERUSER_ID, activity.data_ref.patient_id.id, self._name,
+            self._POLICY['frequencies'][case], context=context)
         return res
