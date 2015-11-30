@@ -665,5 +665,6 @@ class TestObservationReport(TransactionCase):
         test_date = datetime.strptime('1988-01-12 06:00:00', '%Y-%m-%d %H:%M:%S')
         report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
         rep = self.registry(self.report_model)
-        convert_date = obs_report.convert_db_date_to_context_date(rep, cr, uid, test_date, None)
-        self.assertEqual(str(convert_date), '1988-01-12 06:00:00+00:00', 'Converted date is not in the right format')
+        # Need to supply the timezone so can ensure will use UTC instead of Odoo default
+        convert_date = obs_report.convert_db_date_to_context_date(rep, cr, uid, test_date, {'tz': 'UTC'})
+        self.assertEqual(str(convert_date), '1988-01-12 07:00:00+01:00', 'Converted date is not in the right format')
