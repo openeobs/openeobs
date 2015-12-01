@@ -10,6 +10,8 @@ python:
 
 addons:
   apt:
+    sources:
+      - pov-wkhtmltopdf
     packages:
       - expect-dev  # provides unbuffer utility
       - python-lxml  # because pip installation is slow
@@ -17,6 +19,7 @@ addons:
       - python-serial
       - python-yaml
       - sshpass
+      - wkhtmltopdf
   postgresql: "9.3"
 
 env:
