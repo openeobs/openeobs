@@ -74,8 +74,8 @@ install:
 script:
 - travis_run_tests
 after_script:
-- coverage xml -o ${HOME}/build/NeovaHealth/nhclinical/coverage.xml
-- cd ${HOME}/build/NeovaHealth/nhclinical
+- coverage xml -o ${HOME}/build/NeovaHealth/openeobs/coverage.xml
+- cd ${HOME}/build/NeovaHealth/openeobs
 - echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>" > test_report.xml
 - for rep in ${HOME}/tests/*.xml; do cat "$rep" | grep -v "<?xml " >> test_report.xml;
   done
