@@ -811,7 +811,6 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         res = self.pool['nh.clinical.api'].admit(cr, uid, patient_id, data, context=context)
-        self.pool['nh.clinical.spell.timespan'].start_patient_timespan(cr, uid, patient_id, context=context)
         return res
     
     def admit_update(self, cr, uid, patient_id, data, context=None):
@@ -844,7 +843,6 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: bool
         """
 
-        self.pool['nh.clinical.spell.timespan'].delete_patient_timespans(cr, uid, patient_id, context=context)
         return self.pool['nh.clinical.api'].cancel_admit(cr, uid, patient_id, context=context)
 
     def discharge(self, cr, uid, patient_id, data, context=None):
@@ -862,7 +860,6 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: bool
         """
 
-        self.pool['nh.clinical.spell.timespan'].end_patient_timespan(cr, uid, patient_id, context=context)
         return self.pool['nh.clinical.api'].discharge(cr, uid, patient_id, data, context=context)
 
     def cancel_discharge(self, cr, uid, patient_id, context=None):
@@ -878,7 +875,6 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         res = self.pool['nh.clinical.api'].cancel_discharge(cr, uid, patient_id, context=context)
-        self.pool['nh.clinical.spell.timespan'].cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
         return res
 
     def merge(self, cr, uid, patient_id, data, context=None):
@@ -916,10 +912,7 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: bool
         """
 
-        spell_timespan_pool = self.pool['nh.clinical.spell.timespan']
         res = self.pool['nh.clinical.api'].transfer(cr, uid, patient_id, data, context=context)
-        spell_timespan_pool.end_patient_timespan(cr, uid, patient_id, context=context)
-        spell_timespan_pool.start_patient_timespan(cr, uid, patient_id, start=dt.now().strftime(DTF), context=context)
         return res
 
     def cancel_transfer(self, cr, uid, patient_id, context=None):
@@ -937,7 +930,6 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         res = self.pool['nh.clinical.api'].cancel_transfer(cr, uid, patient_id, context=context)
-        self.pool['nh.clinical.spell.timespan'].cancel_changes_patient_timespan(cr, uid, patient_id, context=context)
         return res
 
     def check_patient_responsibility(self, cr, uid, patient_id, context=None):
