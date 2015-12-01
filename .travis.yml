@@ -3,85 +3,85 @@ sudo: false
 cache:
   apt: true
   directories:
-    - $HOME/.cache/pip
-
+  - "$HOME/.cache/pip"
 python:
-  - "2.7"
-
+- '2.7'
 addons:
   apt:
     sources:
-      - pov-wkhtmltopdf
+    - pov-wkhtmltopdf
     packages:
-      - expect-dev  # provides unbuffer utility
-      - python-lxml  # because pip installation is slow
-      - python-simplejson
-      - python-serial
-      - python-yaml
-      - sshpass
-      - wkhtmltopdf
-  postgresql: "9.3"
-
+    - expect-dev
+    - python-lxml
+    - python-simplejson
+    - python-serial
+    - python-yaml
+    - sshpass
+    - wkhtmltopdf
+  postgresql: '9.3'
 env:
   global:
   - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
-  - secure: 2owOpjqqjcCKrEY9/XHfKlcC8C7R2lpNnwFR0OsMpm7ER5KML0Co7FETJvnxDmiMJzQmceI9wxeXYzgoRzkTr2QiuQtA9t9b74O1d51Ct3IaEO2sJehRM1TwvNamC1071l9mmhwvufEpIF3KPABVBnRgGapXVOOkiyXz88fIxDxhuce/p6gdu/Uny8oX+DeBwVGltMYwR6oykJKHFCEo8hcOOBXJ+LmqNhu+NiSqJfWsNa32DExZokcyJZesGdWC7kO55W8aXoB/AkcPU94RY2XWPohNZZrQWf4KXpcjwl5hmrVj3ueQCNNRnUugGBw5YJ+3r9p63lPgKQiJ61oHVsYl79dg8lxiv3rejaZuue4YswdfbSHb8I99c3lKPJmMZOfa4LuEIV8fw1qWCjvbEWDDQ1WIIzY1CxfawC80eFpM90oBVG+0cfjeZUAD22FV5M5YX+i4aBcM82wD96cBcszXQ5aI1Nj65JGCbQ1nFpwxeE524/38uPm397ixo58I8t5Uhu2ZCTNXHtefDzg4OcYlkZtiqNqmwQ6TTrGw13LvXcpeLw9UVySHwefwSXgvr7tYYXiZ62/ewx3G1r1cXfNYibN13JoX7ecWY0yN/6xbHMokEysOOBl4Zii1uYCW1kN/KN/CwQgVZZhCho3LUUHwP2qtg/QYnYyHlX39zRA=
-  - secure: fVes6CNxjUfhh2dgjv3p+sVQ1vFy4Fmnv4qG5lbgSKzNtMO/208BDNVBq4ffWIkK9LXwnkctCrzfXeuyyqSII7TWBuzvyYpDFkuSg79GwVQt3gjBv5UGzfEEi6lmX3rBlPxQ5u6wnMQ6hve4QS11PeQbf7YLNfu+YlCxKKiIZJNWed3OVohG5+MrZ+8yRMPUEjTNN7/wkPSd30glX0iFjTCg4bNam8M/RqlZxQvA24JptKXH7VWFqPw67vDfNNPhinp4cTTJ3m82tdnDhPYOaQwUckOckxQPLeZby/rwdgI0S0gqhSWVyVBFXX8MG8sKKkmrPrVyfSrRnWgqaCko5LZ0EdDFPv9Q9wu+Tday/kJXZF7D24mfcNX7M8TSjj5iI+j7P351fRe5ImKrkxdKGksQRd3OFtx3wijVBsOxKjfTtCGYlxdLry3ExXW6+AVmM7TtK9qXHGHxsNJHUxp5HzlabWfLIEnhASuYY4JULeykNcLgul+2KQxZ0D5YuM1V1aD1b0xYf3q2/ZRmnNgmei6rFFnn0kQGes+Eyy6VYv0vp/n+FG735cUgp+maAcCzYMFMiJsF9dt3D7KVbgK17KW2cAKvb3HfzzGygnkMGX+eWu2ItaZauCgYgoJUSlBG+6SCyelxu/sTP7wNuhdgoWdHL4e/PY5BpWq/s+HcRcE=
-  - secure: cl+rttR5BPjcCoEXtMXB1g3OGmYd13S7YvP1YmxrINtioUXSFOnUKNIQAnNigMkK8iCGI1IzKmW6QFkMfvZln/J4zW0Ywb6f/RACcPnDD1EG671eqaSwk55biRp3F/3N/gFqaxIVNqRFOOVc0f6R3j9GJLUK/bIn0i8w3P9E7YQFqsW8sD9VPkX0j7tsMoAEYhRVNE2IFL4+R0XMD4mOW/FX4EHBpj/kOQyzP8Xv2hhBrW9V2uo3whmE1yevVMev8h1klw5zi7wL0qwHRqI+QxmelQ30k9Y/VJRtaxFscTqJrJfyYZvFiSCDAcb9wE0Qcd0SovYTYoDN2dKkbTF6y+tJedF1Y/UbcozboaEEVIaWZBqN+/MVi3ZD+5S5E+geFSwyzPrIvW2BUBL7anOFPn0c8LZJ+THc3iHX5Gp4CLMgrGmqMX3R0VKIpfy0LqN9KUjvYyVRn/WLt7z+x/Hy6kFbLXYywzmWxQ9fmkqLm5G7yy6gsJU7PIZntyc/Ipt35Owia6T/BiCb5ZD5/kqXDINjrRaLfvb06EnZYqywdLkGmmTvLuZopVpF8JApNxjNqtV1qQbSHvXKMnoYzClRJpzbWkDlDCAJzimzn0cG5OV4tffN+qxy9IaeY1vjZVAOzC1XR+KVBMLiLbBVZTdm8EcRywOi7mQ2Okja9CC5hr8=
-
+  - secure: hLSEgpda/hMpGsBwNopPxh2J49+6vHb5gaASa2G7hYJwsI3RfDX38HBA9l4H2uyu24TYeOAmc2LVur9zjTTaRHpP2vOiId8rHmf8hyeZ57PKQdv/SyYVlnjxwMAJGqq9mELnA8rCThI127BQan2OBYPWBRpg0kUutonAeZNFaKkKiBjWj4wHw5lvS8ZIRu4K/LbFI1wYc9/TyshUuDiBb8HnfQihpJUqILW1fzSFK8KoLWM5n6lI0dn0uxRxz4PRQHutoYbVhsHyGnOHGwtDmTmb8oC/znn7WOEn+j/Q/kabH2CBITsFMslgOQgRIG/bTF5hQ1DxihEgHb128qiy3t7kgqm4L4D+S/PzR4si6DTXmYH11N8DDqcdPcNrR6FnY99zgZlpDnAeXmAdPdh7lew1ASXmIztutaIP3/xoF2ibqZ6rBAtefQk5IExLn0GrOkSE8vUodAgk16ct8DEU2TAwZAiVu5N6hH4K9IFgJsY01pf+akYk67uUdnm7IooS3CIEdcgSQJVn3IKHAEnmskr+Abq7EcLVXH9lEc+Oyk3vI08fjaf68r9onT9BjSLNc51KB8NHgl6FxBjIUriR1dGpwEnkn/qAH2KSNj5Wj785OuX88FeNn+GIjyNPdHzqwyx83Adt6BEv7rwbHPJPLybjKy+1NZqnSZC44Izip2U=
+  - secure: KpRFokBuE4y4+NtFk67S/JkPeIhWCfVZbE1FsWSaLSwle0wA/FPqVjR92HcF/NsA/HfAiGILc59CylI6cKYa1WqijgnWuccprFfu2ma+GXiHN+A93o7euR6j6JkzjhdxJUO+0fUwG94vwu34h5d4ylDzx0jwIhOj0JLqP8EK2bEEHfbey8TZK4TtaLVBf5FVGp1qGJeXAs6YTSwPJx4mtXF5pYFT/BGUBPQoQteoXl+GcsE83w8iQo1M07KZVcralnf5z1jOk9QrEp1YBo9chlmWyNTRh/4zZhkvyKRX6eajF5LzBmVP4YNYWMAKm3y5XnEqpaVBsQCCjs1QKmikaOVTNkr4u/fw8dO6rM0P36hl4mavqb4ZKK+9mnc3fap69pU+kdVpxuZ2CH3X5ztTvfVVevkHTauz2TOsau2DHTXfd8r3+zksBzvy8ERfRZkhqme6skyYOQirPKd4HaMR3eYsTRmIR2k6ewFZOZBqvrqJpvxivMcwCL7qBiUrCYt9Ntw0U4rKAZRkESFOo3+NJSzQmIzmgG87EGIUZzuIJqf7xg6+L8juunvexBkPFQ7GDCKXygJ3lGr7RMSzHFjHOegbVk1JM+aK5LAyEVC0NW+kEVWqJ9X5cll9xYezDU1g/QJ+Q52980rd4U5JWcqo+q7uUfaGkqlqgkKu+vsdqNU=
+  - secure: swE5fcLGXQRI3v9N1HUwr7BvcyNIZIN0Ao7NNCwAtxmbW+M78HSC3H1KqeoJ/OM/VppgodwYe0InAsL/ciBLXrXLT1Vd+cEzchkuMmq/2cx8+X7WG2hL6h+HS+ibcg0mxf/awNxynMoEdU5oWHRCwyPf79MJo5H7UhPtKtApsBgy/9uiqfylKTgtrqd3WFPzcWEkCJZA6cgIV7FLVPMaTapuMgVaWki21xIIKdTLkYFJbhwyB2S+1zaZ686y+iNNEe8cEYgS2CceWO7B0Akf9mZeuuxjh/0cnf9v4w5sYqIeXyNExd6aJ/0uVx25fziwEpQCETnaSamPgzmRtOmH04jBFv64Vg5s5JgbolUGD/8eSfzZbdJIEokvzPNzuSj8oEcyq0ny+tAHS/ECAUxLdL/t6SZBqryezeqUQsxrLB7ZyStEJy0dYrkS7fNS9XWka+uVOXA+7+Ao84XQKfpd7uGKEdu1RcFgFk0Bos1R/EC+7J54oJey7wzEqYkgc3UZJLKybEIVjJI47cYrNY9m3YhA7FFA0wf6Sek6rIiKWYWFQAeFbZnB3V9/tyvG+2IRYHof1bsCn/NVBMlYSrQf2N1kcOhqMVSJUpO9pCBBGmD9opZjKtdQJezhtNlgBOhEAkbqLtjLR2j+09x98DTq0uiSDDl6w7MSbiSNI/LDVkY=
+  - secure: q/mdEUy6Cvhb5jdJZgkvNDM6GxiAdJWAaSYHU2NhcqqdUaV+sxGP0llfPHBDl+dOzuA5c3NQGg0xc5EUpHBLo/lA2uy7A6Jpu6qGlWM0WgsUfnBiX3tr+ujohGLp7wEDmiB9ASn9AhqamwnGYfDKA9JDHlE3CjIQgqA0OblTuHsiQPZS6zp5HEyvF73IVxg5AG4m3XRl4dugr41Jc4mcxEuzW7f/F2TGdBkkglozM7NQe6BQrT9zBzQXE5/VSsAK2OH8733wfPpBF9zcEIXvSrAieIn4QeWqb7GimIQVj0WVFhp77TaMXMlY5AfCfk2GgrTXoFv9JOro+X9XCqbHLGtQZYeLGPdjAZuKKstMlkUJew/qKb9dh5DV6uONrgWmEvotosYjICebo1kPOBswgRtLukOUmTyEAw9pZCOsg75FMgo4Ouo1h6inLwc8nCkP4WVIs3Ffu6p9CAafDchCqeu8IvUjhSrIsiP6cENEmfNM19xI13BWq4ppoFnXMhxDPxIb/IoruyYV2VqHLp5BalNmnqoASWLSGcnVlah5aPyRDdfviAoSQWN9bUjC2yO6hTknH0+jxH5301QKTFlUjHLUPEtUxZ5Faxkqpdias/Jsh27/skPRdWMsVAaZEMB7RiPIWnPZDxOt1xQmgjw49MRlCrGgPMNaS+mNmpFsdR8=
+  - secure: W23YC9TEOLsBjpkDIyhsVH5PI5QL/EaMY9DduYOe3IFxT+qNla8abcN6EHVHmge8ZL0dor+01KokGob1k2iBJqeKhVxhrb/Qp/jNlh/WqylieO3/7sSnzZJznnmor6xC/P3Q4onEe0AFh0Fm7Y4WE26he5/0Cqv2X/PvvZ99umk4KpgK1JeCK7QUDRMaL/v6MR0Dv6PNFK4RuzHy8nJAMJOeDpRwXJ4in/E8XqzkQfTwwMu2Ni9D6p1vMVT33sUvu3FVAyuvPzPAWZ7RQF4mNkHn6nMxoFgF9iQcpb6Zt9E4bfDF4kGmyLFvdTbYWvka4rYu6XNwOf7UNEa6XzywgZm/6OKsl/MbgaBDmtfP8UGW29LxRz9J2LkPKwdoGZ49hLX3qJkTd24ecdxioB/4nM+g9ZvRb1CjXLAfU8YZRjYoBJbUgFj6BNEMnDF/Z3dieoWAidU9oDGCYU+483EEGbQ1i4KzSwesc+IzRIfMK8UeV2FpJVzrmGfmgiaFk59b7jjJDBPMUbnTHeq8BSW6Q9yUVSSgE1Y3PLKTisK16R8GnHqJN3O+NlrxRJ7viA6u2AV7dGQ+5Q2lB8Ze6nbV86rA1zg5IHyBLZWuDEyjUiykiL2zt7IxPBpy4UJ1fTZi0DnQWhhBjAapEYbqnDkYIdNau737Va9sl5Ot7IZCvCI=
+  - secure: ho5Ikpfh5pp9/mdeU5APtBVWodeEqQaRB82+bAyPejtEcp8DCYgj0EWvq3wCiCC9PD+RMmZXZIECEfXDrH8puFCr6FssRUTTFMuxycDMFuqewtYyhbHiSVk7OeeYq0YQVbUZZ3SZtiAx8qGuDMQhd9i5GB7AZQafX+hW8sccx+5V8yq2lJApOy1zz5ZTkwnXpXtY8Ud/KSM+EkFU6Rl2RqyKvkO42bsRNRVqw9s8Mn+0XHBs2wAdWKdSuNCGXyReaRAJK+e2y6yvvoihSd5C0C/fTqjX8TVq0ECwC1X7qS0QLigr8TpDp1wgmaEJAboU1QSxq6cPrdX9a5NHeX62Tr2IwYWHqKNYsTKCSOHpcEEBmlg8oNGgVak1Ddx9KC/CjHC08Yg0Yu0sUryvcX0Gfmhhoi/w2LdCFGsDwhNff6FAr94ttPTgEPgCS2v5hdOlxKuUar+yN/F7Qsb/KI5+kSEkLeXVVhefC3eowEjzHuTKgSQBRiQ6IWhVtJAu3RUjmihCIXvLR3+mtI+7HP6pDfM4Vr6D7wCmzP0qvujAsZCCfqlCrvCYisuES4bMHJQGIJnWmEzcd171waf0DP9+7SuwTaQw1m6s/7XzvJI4hXBOQsESFD+OoPZuq19YUc5Tu1aUrfdDdZkOYF/GaUK+7V5im/5stFBY0BarSLsnVqA=
+  - secure: kgH58HbKrQMB4qUDwRyIelJH+6qZNCfqZrlL0yZq2IrMDYNny2Ky/4SKsRMyWjGf1ktXREo1uL9mq4FFziFJ0iHK32oU4womRGEf7uAJ3Xh9IuGHue2PpH+E6JCLo3+1rqouXE3rn7yRumfPKeKxGRehDvp2rbKxQtWAK7WJ6SdUeNlXwl1EtHCKe02td/NhJsyegTD3XVGJCHXnlvm+Z9E0H8n5UcTIz6lCTM4SrWx7Bppk+aFAujJYOp6H+DAptrMlSUR/SvZFAZRi5TOEtDkYaogJh21f53LTaQn7NjfiDw6cgVpjpTAeVkIhexYd6mxuoRVd5/Ny04eM1VHz3h/ppnGFjv/SeQuq38RwwjG15b2n0n2U0ENqNIh96dFMlV18WsJkRWdyTBUSlfelN67NCpAotAXwJjzurZbYMurMaD/RNJYQzAp80fnpd1si/R3grRJq0tvbmIHDWSF2o5iQ/b9OFzJ80Jmlv4Fn1VraOT/Jfnl77xPxqpxCIK7yqRqETo4M1Td1CQkoqCF0YhgEGixGwrYZB8y7mr9qPPPaep4adwZEzUOjqTGgvSufCaA6vyFkepq/hybuIx81DWmvCnyJXQcIEwKDfkJDi8C4ryfi8Sw8Ni2caAZwenGuZiVu/oq7vQAXG5d/qcnIqKbJO8MoKK4AvopX52HTve0=
+  - secure: W3w8hVplBM3sKIOqKO6r9kE1rgv4WmIMPFq7xU9sUu5kovi+zWucNFLYO/NvgP05jR7PREbEdt1Zy6n7l2zddf3BEgFsEmSNkS+f++T5wuN9FMKjF88i2H7AD7cZEtG02oqk9bYrlED+FHVc0XutgHL8q0qlPZ5kqJZ7LjZNESpABFC183rr5WyQEDZIQ7BcnLTczAi4oN0vam3j+XWQ0T0dmKoWyxXnEdfebZgkQn47jPP23kMaIp2w15bDWdnoJERScYomA3U3ssK1/CMbl4nS+hLk/TS7qVGYX9p+7FkaPIts9F8qXCHyHZ2JLYLOlb+5yxeW86Z6nAYQYAGcp0mhHx3FFu/zq+XQmn5MJVuujgsuhR0uZ80uIXBOwBNqhADOf5f8yfV3UGipv2ezLcZGB6jwUsOwy/wKCKNdgW926WP4Ml6M/nB6ELOg8u657JJwSnsetP/yltAlJ5bT176Elxs2MsY0e2jA8EjQzTvaMRbR6VYOwTH2I72bNrmtoFXxzC0RVCWN94iOtE9StB8FaDL7QLiBac5aMaPCaq0ez0Igf8gBQqU6aurVaKgqQl9P0kbvoSywSU8Yn+Z5b9aFWh4+bvVgUXyUSX6koP45ZGtJTuDlzGwB4pjnBPagaMgDVBZ8MQQuiAoqEsEnvaYHOrRoq7Y16k2u+pWLY5E=
   matrix:
-  # - LINT_CHECK="1" TESTS="0"
-  # Test Observations
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output" INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
-  # Test eObs
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs_mobile,xml_test_output" INCLUDE="nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
-  # Test Graphs
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output" INCLUDE="nh_graphs" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
-  # Test Mobile
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,web,xml_test_output" INCLUDE="nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
-  # Test All
-  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output" INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
-  # - ODOO_REPO='NeovaHealth/odoo" TESTS="1" INCLUDE="nh_odoo_fixes,nh_activity,nh_clinical" VERSION="8.0"
-  # - ODOO_REPO="odoo/odoo" TESTS="1" INCLUDE="nh_odoo_fixes,nh_clinical,nh_activity"
-
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
+    INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips"
+    VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs_mobile,xml_test_output"
+    INCLUDE="nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme"
+    VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
+    INCLUDE="nh_graphs" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,web,xml_test_output"
+    INCLUDE="nh_eobs_mobile" VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" EXCLUDE="nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output"
+    INCLUDE="nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile"
+    VERSION="openeobs-8-12" SERVER_EXPECTED_ERRORS="1"
 virtualenv:
   system_site_packages: true
-
-# install dependencies
 before_install:
-  - export TZ=UTC
-  - wget http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
-  - unzip sonar-runner-dist-2.4.zip
-  - mv sonar-runner-2.4 ${HOME}/sonar-runner-2.4
-  - rm ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
-  - echo -e "sonar.host.url=${SONAR_URL}\nsonar.jdbc.username=${SONAR_USER}\nsonar.jdbc.password=${SONAR_PASSWORD}\nsonar.jdbc.url=${SONAR_DBURL}" >> ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
-  - git clone --depth=50 --branch=develop https://${CIUSER}:${CIPASSWORD}@github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
-  - cd NeovaHealth/nhclinical
-  - mkdir -p ${HOME}/dependencies
-  - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
-  - cd ../..
-  - git clone --depth=50 https://github.com/Gimpneek/odoo_xml_test_output.git odoo_xml_test_output
-  - cd odoo_xml_test_output
-  - pip install -r requirements.txt
-  - mv xml_test_output ${HOME}/dependencies/xml_test_output
-  - cd ${TRAVIS_BUILD_DIR}
+- export TZ=UTC
+- wget http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
+- unzip sonar-runner-dist-2.4.zip
+- mv sonar-runner-2.4 ${HOME}/sonar-runner-2.4
+- rm ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
+- echo -e "sonar.host.url=${SONAR_URL}\nsonar.jdbc.username=${SONAR_USER}\nsonar.jdbc.password=${SONAR_PASSWORD}\nsonar.jdbc.url=${SONAR_DBURL}"
+  >> ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
+- git clone --depth=50 --branch=develop https://${CIUSER}:${CIPASSWORD}@github.com/NeovaHealth/nhclinical.git
+  NeovaHealth/nhclinical
+- cd NeovaHealth/nhclinical
+- mkdir -p ${HOME}/dependencies
+- for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
+- cd ../..
+- git clone --depth=50 https://github.com/Gimpneek/odoo_xml_test_output.git odoo_xml_test_output
+- cd odoo_xml_test_output
+- pip install -r requirements.txt
+- mv xml_test_output ${HOME}/dependencies/xml_test_output
+- cd ${TRAVIS_BUILD_DIR}
 install:
-  - pip install --upgrade pip
-  - pip install -r requirements.txt
-  - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
-  - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - travis_install_nightly
-
+- pip install --upgrade pip
+- pip install -r requirements.txt
+- git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
+- export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
+- travis_install_nightly
 script:
-  - travis_run_tests
-
+- travis_run_tests
 after_script:
-  - coverage xml -o ${HOME}/build/NeovaHealth/nhclinical/coverage.xml
-  - cd ${HOME}/build/NeovaHealth/nhclinical
-  - echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>" > test_report.xml
-  - for rep in ${HOME}/tests/*.xml; do cat "$rep" | grep -v "<?xml " >> test_report.xml; done
-  - echo "</testsuites>" >> test_report.xml
-  - echo -e "\nsonar.python.coverage.reportPath=coverage.xml" >> sonar-project.properties
-  - echo -e "\nsonar.python.xunit.reportPath=test_report.xml" >> sonar-project.properties
-  - ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST -L 2000:localhost:2000 -L 6432:localhost:5432 -fN
-  - "${HOME}/sonar-runner-2.4/bin/sonar-runner"
+- coverage xml -o ${HOME}/build/NeovaHealth/nhclinical/coverage.xml
+- cd ${HOME}/build/NeovaHealth/nhclinical
+- echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites>" > test_report.xml
+- for rep in ${HOME}/tests/*.xml; do cat "$rep" | grep -v "<?xml " >> test_report.xml;
+  done
+- echo "</testsuites>" >> test_report.xml
+- echo -e "\nsonar.python.coverage.reportPath=coverage.xml" >> sonar-project.properties
+- echo -e "\nsonar.python.xunit.reportPath=test_report.xml" >> sonar-project.properties
+- ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST -L 2000:localhost:2000
+  -L 6432:localhost:5432 -fN
+- "${HOME}/sonar-runner-2.4/bin/sonar-runner"
