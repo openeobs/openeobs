@@ -158,20 +158,72 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             odoo_model._revert_method(m)
         return True
 
+    def _safely_exit_test_during_setup(self, exit_type='skip', reason=''):
+        """
+        Provide a safe way to skip a test or make it fail
+        during the ``setUp()`` phase.
+
+        Rationale:
+        Calling ``TestCase.skipTest()`` or ``TestCase.fail()`` from the
+        ``setUp()``method, abort the test and prevent the ``tearDown()``
+        method to be run.
+        This make every following test fail, because Odoo test cases rely on
+        the ``tearDown()`` to properly close the DB test cursor and set the
+        test mode flag as ``False``.
+
+        :param exit_type: type of exit for the test method
+        (can be 'skip' or 'fail' - the default value is 'skip')
+        :type exit_type: str
+        :param reason: reason for skipping the test (or making it fail).
+        It will be passed to the exiting function (default to empty string)
+        :type reason: str
+        """
+        super(self.__class__, self).tearDown()
+        if exit_type.lower() == 'skip':
+            self.skipTest(reason)
+        elif exit_type.lower() == 'fail':
+            self.fail(reason)
+
     def setUp(self):
         super(TestMobileControllerMethods, self).setUp()
         self.session_resp = requests.post(BASE_URL + 'web', {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
-            self.fail('Cannot retrieve a valid session to be used for the tests!')
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                reason='Cannot retrieve a valid session to be used '
+                       'for the test.'
+            )
 
         user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
-        self.login_name = user_data.get('login')
+        if user_data:
+            self.login_name = user_data.get('login')
+        else:
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                reason='Cannot retrieve any user for authentication '
+                       'before running the test.'
+            )
+        if not self.login_name:
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                reason='Cannot retrieve the login name for authentication '
+                       'before running the test.'
+            )
         self.user_id = user_data.get('id')
-        self.assertNotEqual(self.login_name, False,
-                            "Cannot find any 'nurse' user for authentication before running the test!")
+
         self.auth_resp = self._get_authenticated_response(self.login_name)
-        self.assertEqual(self.auth_resp.status_code, 200)
-        self.assertIn('class="tasklist"', self.auth_resp.content)
+        if not self.auth_resp.status_code == 200:
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                reason='Cannot retrieve an authenticated session '
+                       'to be used for the test.'
+            )
+        if 'class="tasklist"' not in self.auth_resp.content:
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                reason="Cannot reach the 'task list' page after "
+                       "the authentication (during test set up)."
+            )
 
     def test_method_get_font(self):
         font_url = self._build_url('src/fonts/{}'.format('non-existing-font'), None, mobile=True)
@@ -1010,7 +1062,12 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         self.auth_resp = self._get_authenticated_response(self.login_name)
 
         # Check the right page was reached successfully
-        self.assertEqual(self.auth_resp.status_code, 200)
+        if not self.auth_resp.status_code == 200:
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                reason='Cannot retrieve an authenticated session '
+                       'to be used for the test.'
+            )
 
         task_list_route = [r for r in routes if r['name'] == 'task_list']
         if len(task_list_route) != 1:
@@ -1021,7 +1078,12 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
             )
         self.task_list_url = self._build_url(task_list_route[0]['endpoint'],
                                              None)
-        self.assertIn(self.task_list_url, self.auth_resp.url)
+        if self.task_list_url not in self.auth_resp.url:
+            self._safely_exit_test_during_setup(
+                exit_type='skip',
+                reason="Cannot reach the 'task list' page after "
+                       "the authentication (during test set up)."
+            )
 
         get_task_route = [r for r in routes if r['name'] == 'single_task']
         if len(get_task_route) != 1:
