@@ -396,16 +396,6 @@ class nh_clinical_wardboard(orm.Model):
         user_ids = self._get_recently_discharged_uids(cr, uid, all_ids, 'recently_discharged_uids', None, context=context)
         wb_ids = [k for k, v in user_ids.items() if set(v or []) & set(arg2 or [])]
         return [('id', 'in', wb_ids)]
-
-    def _is_placed(self, cr, uid, ids, field_names, arg, context=None):
-        res = {}
-        for wb in self.browse(cr, uid, ids, context=context):
-            placement_ids = self.pool['nh.activity'].search(cr, uid, [
-                ['parent_id', '=', wb.spell_activity_id.id],
-                ['state', '=', 'completed']
-            ], context=context)
-            res[wb.id] = len(placement_ids) > 0
-        return res
     
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=1, ondelete='restrict'),

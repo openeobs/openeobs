@@ -374,13 +374,7 @@ class TestWardboard(SingleTransactionCase):
             cr, uid, 'nh.clinical.wardboard', 'transferred_user_ids', [['transferred_user_ids', 'in', [self.wm_uid]]])
         self.assertListEqual(res, [('id', 'in', [self.wb_id2])])
 
-    def test_16_is_placed(self):
-        cr, uid = self.cr, self.uid
-
-        res = self.wardboard_pool._is_placed(cr, self.wm_uid, [self.wb_id], 'is_placed', None)
-        self.assertTrue(res[self.wb_id])
-
-    def test_17_prescribe_action(self):
+    def test_16_prescribe_action(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.wardboard_prescribe(cr, self.wm_uid, [self.wb_id])
@@ -398,7 +392,7 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_18_news_chart_action(self):
+    def test_17_news_chart_action(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.wardboard_chart(cr, self.wm_uid, [self.wb_id])
@@ -416,7 +410,7 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_19_weight_chart_action(self):
+    def test_18_weight_chart_action(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.wardboard_weight_chart(cr, self.wm_uid, [self.wb_id], {})
@@ -434,7 +428,7 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_20_blood_sugar_chart_action(self):
+    def test_19_blood_sugar_chart_action(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.wardboard_bs_chart(cr, self.wm_uid, [self.wb_id])
@@ -452,7 +446,7 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_21_news_list_action(self):
+    def test_20_news_list_action(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.wardboard_ews(cr, self.wm_uid, [self.wb_id])
@@ -468,7 +462,7 @@ class TestWardboard(SingleTransactionCase):
             'context': None
         })
 
-    def test_22_placement_action(self):
+    def test_21_placement_action(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool.wardboard_place(cr, self.wm_uid, [self.wb_id3], {})
@@ -490,7 +484,7 @@ class TestWardboard(SingleTransactionCase):
             'view_id': view_id
         })
 
-    def test_23_write(self):
+    def test_22_write(self):
         cr, uid = self.cr, self.uid
 
         # Scenario 1: Write MRSA parameter
@@ -535,7 +529,7 @@ class TestWardboard(SingleTransactionCase):
             ['data_model', '=', 'nh.clinical.patient.palliative_care']])
         self.assertTrue(activity_ids)
 
-    def test_24_get_cr_groups(self):
+    def test_23_get_cr_groups(self):
         cr, uid = self.cr, self.uid
 
         res, fold = self.wardboard_pool._get_cr_groups(cr, self.wm_uid, [self.wb_id], [])
@@ -544,7 +538,7 @@ class TestWardboard(SingleTransactionCase):
         self.assertListEqual(res, groups)
         self.assertDictEqual(fold, {g[0]: False for g in groups})
 
-    def test_25_open_previous_spell_action(self):
+    def test_24_open_previous_spell_action(self):
         cr, uid = self.cr, self.uid
 
         # Scenario 1: Trigger action to open previous spell
@@ -572,7 +566,7 @@ class TestWardboard(SingleTransactionCase):
         with self.assertRaises(except_orm):
             self.wardboard_pool.open_previous_spell(cr, self.wm_uid, [self.wb_id])
 
-    def test_26_get_recently_discharged_uids(self):
+    def test_25_get_recently_discharged_uids(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool._get_recently_discharged_uids(cr, self.wm_uid, [self.wb_disc_id, self.wb_id3],
@@ -581,7 +575,7 @@ class TestWardboard(SingleTransactionCase):
         self.assertListEqual(sorted(res[self.wb_disc_id]), sorted([self.wm_uid, self.dr_uid]))
         self.assertFalse(res[self.wb_id3])
 
-    def test_27_recently_discharged_uids_search(self):
+    def test_26_recently_discharged_uids_search(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool._recently_discharged_uids_search(
