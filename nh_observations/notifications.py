@@ -89,6 +89,7 @@ class nh_clinical_notification_frequency(orm.Model):
     }
     _notifications = [{'model': 'medical_team', 'groups': ['nurse']}]
 
+    # This code depends on EWS being installed... wrong place to have it.
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         review_frequency = activity_pool.browse(
@@ -109,8 +110,10 @@ class nh_clinical_notification_frequency(orm.Model):
             context=context)
         creator = review_frequency.creator_id
         creator_type = creator.data_ref._name
-        parent_type = creator.creator_id.data_ref._name
-        clinical_risk = creator.creator_id.data_ref.clinical_risk
+        parent_type = creator.creator_id.data_ref._name \
+            if creator.creator_id else False
+        clinical_risk = creator.creator_id.data_ref.clinical_risk \
+            if parent_type == 'nh.clinical.patient.observation.ews' else False
 
         trigger = creator_type == 'nh.clinical.notification.assessment' and \
                   parent_type == 'nh.clinical.patient.observation.ews' and \
