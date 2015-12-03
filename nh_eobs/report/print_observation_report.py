@@ -50,6 +50,15 @@ class ObservationReport(models.AbstractModel):
         ews_only = data_dict['ews_only'] if 'ews_only' in data_dict and data_dict['ews_only'] else None
         return DataObj(spell_id, start, end, ews_only)
 
+    def get_activity_data(self, spell_id, model, start_time, end_time):
+        cr, uid = self._cr, self._uid
+        act_pool = self.pool['nh.activity']
+        activity_ids = act_pool.search(cr, uid,
+                                       self.create_search_filter(
+                                           spell_id,
+                                           model, start_time, end_time))
+        return act_pool.read(cr, uid, activity_ids)
+
     @api.multi
     def render_html(self, data=None):
         cr, uid = self._cr, self._uid
@@ -128,8 +137,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get ews observations for patient
             # # - search ews model with parent_id of spell id (maybe dates for refined foo) - activity: search with data_model of ews
-            ews_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.ews', start_time, end_time))
-            ews = activity_pool.read(cr, uid, ews_ids)
+            ews = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.ews',
+                                         start_time, end_time)
 
             # get triggered actions from ews
             # - search activity with ews ids as creator_id filter out EWS tasks
@@ -168,8 +178,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get height observations
             # # - search height model with parent_id of spell - dates
-            height_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.height', start_time, end_time))
-            heights = activity_pool.read(cr, uid, height_ids)
+            heights = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.height',
+                                         start_time, end_time)
             for observation in heights:
                 observation['values'] = height_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -179,8 +190,9 @@ class ObservationReport(models.AbstractModel):
 
             # get weight observations
             # - search weight model with parent_id of spell - dates
-            weight_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.weight', start_time, end_time))
-            weights = activity_pool.read(cr, uid, weight_ids)
+            weights = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.weight',
+                                         start_time, end_time)
             for observation in weights:
                 observation['values'] = weight_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -227,8 +239,9 @@ class ObservationReport(models.AbstractModel):
 
             # get pain observations
             # - search pain model with parent_id of spell - dates
-            pain_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.pain', start_time, end_time))
-            pains = activity_pool.read(cr, uid, pain_ids)
+            pains = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.pain',
+                                         start_time, end_time)
             for observation in pains:
                 observation['values'] = pain_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -236,8 +249,9 @@ class ObservationReport(models.AbstractModel):
                     observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             # get blood_product observations
             # - search blood_product model with parent_id of spell - dates
-            blood_product_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.blood_product', start_time, end_time))
-            blood_products = activity_pool.read(cr, uid, blood_product_ids)
+            blood_products = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.blood_product',
+                                         start_time, end_time)
             for observation in blood_products:
                 observation['values'] = blood_product_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -245,8 +259,9 @@ class ObservationReport(models.AbstractModel):
                     observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             # get bristol_stool observations
             # - search bristol_stool model with parent_id of spell - dates
-            bristol_stool_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.stools', start_time, end_time))
-            bristol_stools = activity_pool.read(cr, uid, bristol_stool_ids)
+            bristol_stools = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.stools',
+                                         start_time, end_time)
             for observation in bristol_stools:
                 observation['values'] = bristol_stool_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -263,8 +278,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get PBP observations
             # # - search pbp model with parent_id of spell - dates
-            pbp_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.pbp', start_time, end_time))
-            pbps = activity_pool.read(cr, uid, pbp_ids)
+            pbps = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.pbp',
+                                         start_time, end_time)
             for observation in pbps:
                 observation['values'] = pbp_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -273,8 +289,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get GCS observations
             # # - search gcs model with parent_id of spell - dates
-            gcs_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.gcs', start_time, end_time))
-            gcss = activity_pool.read(cr, uid, gcs_ids)
+            gcss = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.gcs',
+                                         start_time, end_time)
             for observation in gcss:
                 observation['values'] = gcs_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -283,8 +300,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get BS observations
             # # - search bs model with parent_id of spell - dates
-            bs_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.blood_sugar', start_time, end_time))
-            bss = activity_pool.read(cr, uid, bs_ids)
+            bss = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.observation.blood_sugar',
+                                         start_time, end_time)
             for observation in bss:
                 observation['values'] = bs_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -293,8 +311,10 @@ class ObservationReport(models.AbstractModel):
             #
             # # get o2 target history
             # # - search o2target model on patient with parent_id of spell - dates
-            oxygen_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.o2target', start_time, end_time))
-            oxygen_history = activity_pool.read(cr, uid, oxygen_history_ids)
+            oxygen_history = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.o2target',
+                                         start_time, end_time)
+            device_session_history = copy.deepcopy(oxygen_history)
             for observation in oxygen_history:
                 observation['values'] = oxygen_target_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
@@ -303,8 +323,6 @@ class ObservationReport(models.AbstractModel):
             #
             # # get Device Session history
             # # - search device session model on patient with parent_id of spell - dates
-            device_session_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.o2target', start_time, end_time))
-            device_session_history = activity_pool.read(cr, uid, device_session_history_ids)
             for device_session in device_session_history:
                 device_session['values'] = device_session_pool.read(cr, uid, int(device_session['data_ref'].split(',')[1]), [])
                 if device_session['values']:
@@ -313,8 +331,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get MRSA flag history
             # # - search mrsa model on patient with parent_id of spell - dates
-            mrsa_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.mrsa', start_time, end_time))
-            mrsa_history = activity_pool.read(cr, uid, mrsa_history_ids)
+            mrsa_history = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.mrsa',
+                                         start_time, end_time)
             for mrsa in mrsa_history:
                 mrsa['values'] = mrsa_pool.read(cr, uid, int(mrsa['data_ref'].split(',')[1]), [])
                 if mrsa['values']:
@@ -324,8 +343,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get diabetes flag history
             # # - search diabetes model on patient with parent_id of spell - dates
-            diabetes_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.diabetes', start_time, end_time))
-            diabetes_history = activity_pool.read(cr, uid, diabetes_history_ids)
+            diabetes_history = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.diabetes',
+                                         start_time, end_time)
             for diabetes in diabetes_history:
                 diabetes['values'] = diabetes_pool.read(cr, uid, int(diabetes['data_ref'].split(',')[1]), [])
                 if diabetes['values']:
@@ -335,8 +355,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get palliative_care flag history
             # # - search palliative_care model on patient with parent_id of spell - dates
-            palliative_care_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.palliative_care', start_time, end_time))
-            palliative_care_history = activity_pool.read(cr, uid, palliative_care_history_ids)
+            palliative_care_history = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.palliative_care',
+                                         start_time, end_time)
             for palliative_care in palliative_care_history:
                 palliative_care['values'] = palliative_care_pool.read(cr, uid, int(palliative_care['data_ref'].split(',')[1]), [])
                 if palliative_care['values']:
@@ -346,8 +367,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get post_surgery flag history
             # # - search post_surgery model on patient with parent_id of spell - dates
-            post_surgery_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.post_surgery', start_time, end_time))
-            post_surgery_history = activity_pool.read(cr, uid, post_surgery_history_ids)
+            post_surgery_history = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.post_surgery',
+                                         start_time, end_time)
             for post_surgery in post_surgery_history:
                 post_surgery['values'] = post_surgery_pool.read(cr, uid, int(post_surgery['data_ref'].split(',')[1]), [])
                 if post_surgery['values']:
@@ -357,8 +379,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get critical_care flag history
             # # - search critical_care model on patient with parent_id of spell - dates
-            critical_care_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.critical_care', start_time, end_time))
-            critical_care_history = activity_pool.read(cr, uid, critical_care_history_ids)
+            critical_care_history = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.critical_care',
+                                         start_time, end_time)
             for critical_care in critical_care_history:
                 critical_care['values'] = critical_care_pool.read(cr, uid, int(critical_care['data_ref'].split(',')[1]), [])
                 if critical_care['values']:
@@ -368,8 +391,9 @@ class ObservationReport(models.AbstractModel):
             #
             # # get transfer history
             # # - search move on patient with parent_id of spell - dates
-            transfer_history_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.move', start_time, end_time))
-            transfer_history = activity_pool.read(cr, uid, transfer_history_ids)
+            transfer_history = self.get_activity_data(spell_activity_id,
+                                         'nh.clinical.patient.move',
+                                         start_time, end_time)
             for observation in transfer_history:
                 observation['values'] = transfer_history_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
