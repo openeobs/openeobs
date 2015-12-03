@@ -105,10 +105,8 @@ class ObservationReport(models.AbstractModel):
         activity_pool = self.pool['nh.activity']
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
-        bristol_stool_pool = self.pool['nh.clinical.patient.observation.stools']
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
         oxygen_target_pool = self.pool['nh.clinical.patient.o2target']
-        transfer_history_pool = self.pool['nh.clinical.patient.move']
         company_pool = self.pool['res.company']
         partner_pool = self.pool['res.partner']
         user_pool = self.pool['res.users']
@@ -249,23 +247,17 @@ class ObservationReport(models.AbstractModel):
                                          'nh.clinical.patient.observation.blood_product',
                                          start_time, end_time)
             # get bristol_stool observations
-            bristol_stools = self.get_activity_data(spell_activity_id,
+            bristol_stools = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.observation.stools',
                                          start_time, end_time)
             for observation in bristol_stools:
-                observation['values'] = bristol_stool_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    observation['values']['bowel_open'] = 'Yes' if observation['values']['bowel_open'] else 'No'
-                    observation['values']['vomiting'] = 'Yes' if observation['values']['vomiting'] else 'No'
-                    observation['values']['nausea'] = 'Yes' if observation['values']['nausea'] else 'No'
-                    observation['values']['strain'] = 'Yes' if observation['values']['strain'] else 'No'
-                    observation['values']['offensive'] = 'Yes' if observation['values']['offensive'] else 'No'
-                    observation['values']['laxatives'] = 'Yes' if observation['values']['laxatives'] else 'No'
-                    observation['values']['rectal_exam'] = 'Yes' if observation['values']['rectal_exam'] else 'No'
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
-
-            #
+                observation['values']['bowel_open'] = 'Yes' if observation['values']['bowel_open'] else 'No'
+                observation['values']['vomiting'] = 'Yes' if observation['values']['vomiting'] else 'No'
+                observation['values']['nausea'] = 'Yes' if observation['values']['nausea'] else 'No'
+                observation['values']['strain'] = 'Yes' if observation['values']['strain'] else 'No'
+                observation['values']['offensive'] = 'Yes' if observation['values']['offensive'] else 'No'
+                observation['values']['laxatives'] = 'Yes' if observation['values']['laxatives'] else 'No'
+                observation['values']['rectal_exam'] = 'Yes' if observation['values']['rectal_exam'] else 'No'
             # # get PBP observations
             pbps = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.observation.pbp',
@@ -279,18 +271,14 @@ class ObservationReport(models.AbstractModel):
                                          'nh.clinical.patient.observation.blood_sugar',
                                          start_time, end_time)
             # # get o2 target history
-            oxygen_history = self.get_activity_data(spell_activity_id,
+
+            oxygen_history = self.get_model_data(spell_activity_id,
+                                                 'nh.clinical.patient.o2target',
+                                                 start_time, end_time)
+            # # get Device Session history
+            device_session_history = self.get_activity_data(spell_activity_id,
                                          'nh.clinical.patient.o2target',
                                          start_time, end_time)
-            device_session_history = copy.deepcopy(oxygen_history)
-            for observation in oxygen_history:
-                observation['values'] = oxygen_target_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
-            #
-            # # get Device Session history
-            # # - search device session model on patient with parent_id of spell - dates
             for device_session in device_session_history:
                 device_session['values'] = device_session_pool.read(cr, uid, int(device_session['data_ref'].split(',')[1]), [])
                 if device_session['values']:
@@ -318,18 +306,14 @@ class ObservationReport(models.AbstractModel):
                                          'nh.clinical.patient.critical_care',
                                          start_time, end_time)
             # # get transfer history
-            transfer_history = self.get_activity_data(spell_activity_id,
+            transfer_history = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.move',
                                          start_time, end_time)
             for observation in transfer_history:
-                observation['values'] = transfer_history_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
-                    patient_location = location_pool.read(cr, uid, observation['values']['location_id'][0], [])
-                    if patient_location:
-                        observation['bed'] = patient_location['name'] if patient_location['name'] else False
-                        observation['ward'] = patient_location['parent_id'][1] if patient_location['parent_id'] else False
+                patient_location = location_pool.read(cr, uid, observation['values']['location_id'][0], [])
+                if patient_location:
+                    observation['bed'] = patient_location['name'] if patient_location['name'] else False
+                    observation['ward'] = patient_location['parent_id'][1] if patient_location['parent_id'] else False
             if len(transfer_history) > 0:
                 patient['bed'] = transfer_history[-1]['bed'] if transfer_history[-1]['bed'] else False
                 patient['ward'] = transfer_history[-1]['ward'] if transfer_history[-1]['ward'] else False
