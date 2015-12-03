@@ -66,16 +66,22 @@ class ObservationReport(models.AbstractModel):
         model_pool = self.pool[model]
         act_data = self.get_activity_data(spell_id, model, start, end)
         for act in act_data:
-            act['values'] = model_pool.read(cr, uid,
-                                            int(act['data_ref'].split(',')[1]),
-                                            [])
-            if act['values']:
-                act['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid,
-                                                                                     datetime.strptime(act['values']['date_started'], dtf),
-                                                                                     self.pretty_date_format) if act['values']['date_started'] else False
-                act['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid,
-                                                                                        datetime.strptime(act['values']['date_terminated'], dtf),
-                                                                                        self.pretty_date_format) if act['values']['date_terminated'] else False
+            model_data = model_pool.read(cr, uid,
+                                         int(act['data_ref'].split(',')[1]),
+                                         [])
+            if model_data:
+                ds = model_data['date_started'] if 'data_started' in model_data and model_data['date_started'] else False
+                dt = model_data['date_terminated'] if 'date_terminated' in model_data and model_data['date_terminated'] else False
+                model_data['status'] = 'Yes' if 'status' in model_data and model_data['status'] else 'No'
+                if ds:
+                    ds = self.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(ds, dtf),
+                        self.pretty_date_format)
+                if dt:
+                    dt = self.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(dt, dtf),
+                        self.pretty_date_format)
+            act['values'] = model_data
         return act_data
 
 
@@ -99,15 +105,8 @@ class ObservationReport(models.AbstractModel):
         activity_pool = self.pool['nh.activity']
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
-        pain_pool = self.pool['nh.clinical.patient.observation.pain']
-        blood_product_pool = self.pool['nh.clinical.patient.observation.blood_product']
         bristol_stool_pool = self.pool['nh.clinical.patient.observation.stools']
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
-        weight_pool = self.pool['nh.clinical.patient.observation.weight']
-        height_pool = self.pool['nh.clinical.patient.observation.height']
-        pbp_pool = self.pool['nh.clinical.patient.observation.pbp']
-        gcs_pool = self.pool['nh.clinical.patient.observation.gcs']
-        bs_pool = self.pool['nh.clinical.patient.observation.blood_sugar']
         oxygen_target_pool = self.pool['nh.clinical.patient.o2target']
         transfer_history_pool = self.pool['nh.clinical.patient.move']
         company_pool = self.pool['res.company']
@@ -116,11 +115,6 @@ class ObservationReport(models.AbstractModel):
         location_pool = self.pool['nh.clinical.location']
         o2_level_pool = self.pool['nh.clinical.o2level']
         device_session_pool = self.pool['nh.clinical.device.session']
-        mrsa_pool = self.pool['nh.clinical.patient.mrsa']
-        diabetes_pool = self.pool['nh.clinical.patient.diabetes']
-        palliative_care_pool = self.pool['nh.clinical.patient.palliative_care']
-        post_surgery_pool = self.pool['nh.clinical.patient.post_surgery']
-        critical_care_pool = self.pool['nh.clinical.patient.critical_care']
 
         # get user data
         #user_id = user_pool.search(cr, uid, [('login', '=', request.session['login'])],context=context)[0]
@@ -304,67 +298,26 @@ class ObservationReport(models.AbstractModel):
                     device_session['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(device_session['values']['date_terminated'], dtf), pretty_date_format) if device_session['values']['date_terminated'] else False
             #
             # # get MRSA flag history
-            # # - search mrsa model on patient with parent_id of spell - dates
-            mrsa_history = self.get_activity_data(spell_activity_id,
+            mrsa_history = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.mrsa',
                                          start_time, end_time)
-            for mrsa in mrsa_history:
-                mrsa['values'] = mrsa_pool.read(cr, uid, int(mrsa['data_ref'].split(',')[1]), [])
-                if mrsa['values']:
-                    mrsa['values']['mrsa'] = 'Yes' if mrsa['values']['status'] else 'No'
-                    mrsa['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(mrsa['values']['date_started'], dtf), pretty_date_format) if mrsa['values']['date_started'] else False
-                    mrsa['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(mrsa['values']['date_terminated'], dtf), pretty_date_format) if mrsa['values']['date_terminated'] else False
-            #
             # # get diabetes flag history
-            # # - search diabetes model on patient with parent_id of spell - dates
-            diabetes_history = self.get_activity_data(spell_activity_id,
+            diabetes_history = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.diabetes',
                                          start_time, end_time)
-            for diabetes in diabetes_history:
-                diabetes['values'] = diabetes_pool.read(cr, uid, int(diabetes['data_ref'].split(',')[1]), [])
-                if diabetes['values']:
-                    diabetes['values']['diabetes'] = 'Yes' if diabetes['values']['status'] else 'No'
-                    diabetes['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(diabetes['values']['date_started'], dtf), pretty_date_format) if diabetes['values']['date_started'] else False
-                    diabetes['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(diabetes['values']['date_terminated'], dtf), pretty_date_format) if diabetes['values']['date_terminated'] else False
-            #
             # # get palliative_care flag history
-            # # - search palliative_care model on patient with parent_id of spell - dates
-            palliative_care_history = self.get_activity_data(spell_activity_id,
+            palliative_care_history = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.palliative_care',
                                          start_time, end_time)
-            for palliative_care in palliative_care_history:
-                palliative_care['values'] = palliative_care_pool.read(cr, uid, int(palliative_care['data_ref'].split(',')[1]), [])
-                if palliative_care['values']:
-                    palliative_care['values']['palliative_care'] = 'Yes' if palliative_care['values']['status'] else 'No'
-                    palliative_care['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(palliative_care['values']['date_started'], dtf), pretty_date_format) if palliative_care['values']['date_started'] else False
-                    palliative_care['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(palliative_care['values']['date_terminated'], dtf), pretty_date_format) if palliative_care['values']['date_terminated'] else False
-            #
             # # get post_surgery flag history
-            # # - search post_surgery model on patient with parent_id of spell - dates
-            post_surgery_history = self.get_activity_data(spell_activity_id,
+            post_surgery_history = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.post_surgery',
                                          start_time, end_time)
-            for post_surgery in post_surgery_history:
-                post_surgery['values'] = post_surgery_pool.read(cr, uid, int(post_surgery['data_ref'].split(',')[1]), [])
-                if post_surgery['values']:
-                    post_surgery['values']['post_surgery'] = 'Yes' if post_surgery['values']['status'] else 'No'
-                    post_surgery['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(post_surgery['values']['date_started'], dtf), pretty_date_format) if post_surgery['values']['date_started'] else False
-                    post_surgery['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(post_surgery['values']['date_terminated'], dtf), pretty_date_format) if post_surgery['values']['date_terminated'] else False
-            #
             # # get critical_care flag history
-            # # - search critical_care model on patient with parent_id of spell - dates
-            critical_care_history = self.get_activity_data(spell_activity_id,
+            critical_care_history = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.critical_care',
                                          start_time, end_time)
-            for critical_care in critical_care_history:
-                critical_care['values'] = critical_care_pool.read(cr, uid, int(critical_care['data_ref'].split(',')[1]), [])
-                if critical_care['values']:
-                    critical_care['values']['critical_care'] = 'Yes' if critical_care['values']['status'] else 'No'
-                    critical_care['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(critical_care['values']['date_started'], dtf), pretty_date_format) if critical_care['values']['date_started'] else False
-                    critical_care['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(critical_care['values']['date_terminated'], dtf), pretty_date_format) if critical_care['values']['date_terminated'] else False
-            #
             # # get transfer history
-            # # - search move on patient with parent_id of spell - dates
             transfer_history = self.get_activity_data(spell_activity_id,
                                          'nh.clinical.patient.move',
                                          start_time, end_time)

@@ -744,7 +744,7 @@
                                     <tr class="main-entry">
                                         <td class="col-xs-3"><t t-esc="mrsa['values']['date_terminated']"/></td>
                                         <td class="col-xs-3">MRSA</td>
-                                        <td class="col-xs-3"><t t-esc="mrsa['values']['mrsa']"/></td>
+                                        <td class="col-xs-3"><t t-esc="mrsa['values']['status']"/></td>
                                         <td class="col-xs-3"><t t-esc="mrsa['values']['terminate_uid'][1]"/></td>
                                     </tr>
                                 </t>
@@ -752,7 +752,7 @@
                                     <tr class="main-entry">
                                         <td class="col-xs-3"><t t-esc="diabetes['values']['date_terminated']"/></td>
                                         <td class="col-xs-3">Diabetes</td>
-                                        <td class="col-xs-3"><t t-esc="diabetes['values']['diabetes']"/></td>
+                                        <td class="col-xs-3"><t t-esc="diabetes['values']['status']"/></td>
                                         <td class="col-xs-3"><t t-esc="diabetes['values']['terminate_uid'][1]"/></td>
                                     </tr>
                                 </t>
@@ -760,7 +760,7 @@
                                     <tr class="main-entry">
                                         <td class="col-xs-3"><t t-esc="palliative_care['values']['date_terminated']"/></td>
                                         <td class="col-xs-3">Palliative Care</td>
-                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['palliative_care']"/></td>
+                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['status']"/></td>
                                         <td class="col-xs-3"><t t-esc="palliative_care['values']['terminate_uid'][1]"/></td>
                                     </tr>
                                 </t>
@@ -768,7 +768,7 @@
                                     <tr class="main-entry">
                                         <td class="col-xs-3"><t t-esc="post_surgery['values']['date_terminated']"/></td>
                                         <td class="col-xs-3">Post Surgery</td>
-                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['post_surgery']"/></td>
+                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['status']"/></td>
                                         <td class="col-xs-3"><t t-esc="post_surgery['values']['terminate_uid'][1]"/></td>
                                     </tr>
                                 </t>
@@ -776,7 +776,7 @@
                                     <tr class="main-entry">
                                         <td class="col-xs-3"><t t-esc="critical_care['values']['date_terminated']"/></td>
                                         <td class="col-xs-3">Critical Care</td>
-                                        <td class="col-xs-3"><t t-esc="critical_care['values']['critical_care']"/></td>
+                                        <td class="col-xs-3"><t t-esc="critical_care['values']['status']"/></td>
                                         <td class="col-xs-3"><t t-esc="critical_care['values']['terminate_uid'][1]"/></td>
                                     </tr>
                                 </t>
