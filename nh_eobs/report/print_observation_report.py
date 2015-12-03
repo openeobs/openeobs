@@ -108,13 +108,13 @@ class ObservationReport(models.AbstractModel):
             spell_id = int(data.spell_id)
             spell = spell_pool.read(cr, uid, [spell_id])[0]
             # - get the start and end date of spell
-            spell_start = self.convert_db_date_to_context_date(datetime.strptime(spell['date_started'], dtf), pretty_date_format, context=None)
+            spell_start = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(spell['date_started'], dtf), pretty_date_format, context=None)
             spell_end = spell['date_terminated']
             report_start = start_time.strftime(pretty_date_format) if start_time else spell_start
             if end_time:
                 report_end = end_time.strftime(pretty_date_format)
             else:
-                report_end = self.convert_db_date_to_context_date(datetime.strptime(spell_end, dtf), pretty_date_format, context=None) if spell_end else time_generated
+                report_end = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(spell_end, dtf), pretty_date_format, context=None) if spell_end else time_generated
             #
             spell_activity_id = spell['activity_id'][0]
             spell['consultants'] = partner_pool.read(cr, uid, spell['con_doctor_ids']) if len(spell['con_doctor_ids']) > 0 else False
@@ -124,7 +124,7 @@ class ObservationReport(models.AbstractModel):
             #
             # get patient information
             patient = patient_pool.read(cr, uid, [patient_id])[0]
-            patient['dob'] = self.convert_db_date_to_context_date(datetime.strptime(patient['dob'], dtf), '%d/%m/%Y', context=None)
+            patient['dob'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(patient['dob'], dtf), '%d/%m/%Y', context=None)
             #
             # # get ews observations for patient
             # # - search ews model with parent_id of spell id (maybe dates for refined foo) - activity: search with data_model of ews
@@ -134,19 +134,19 @@ class ObservationReport(models.AbstractModel):
             # get triggered actions from ews
             # - search activity with ews ids as creator_id filter out EWS tasks
             for observation in ews:
-                observation['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format)
-                observation['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
+                observation['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format)
+                observation['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
                 triggered_actions_ids = activity_pool.search(cr, uid, [['creator_id', '=', observation['id']]])
                 observation['values'] = ews_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 o2_level_id = oxygen_target_pool.get_last(cr, uid, patient_id, observation['values']['date_terminated'])
                 o2_level = o2_level_pool.browse(cr, uid, o2_level_id) if o2_level_id else False
                 observation['values']['o2_target'] = o2_level.name if o2_level else False
-                observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), dtf) if observation['values']['date_started'] else False
-                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), dtf) if observation['values']['date_terminated'] else False
+                observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), dtf) if observation['values']['date_started'] else False
+                observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), dtf) if observation['values']['date_terminated'] else False
                 observation['triggered_actions'] = [v for v in activity_pool.read(cr, uid, triggered_actions_ids) if v['data_model'] != 'nh.clinical.patient.observation.ews']
                 for t in observation['triggered_actions']:
-                    t['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(t['date_started'], dtf), pretty_date_format) if t['date_started'] else False
-                    t['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(t['date_terminated'], dtf), pretty_date_format) if t['date_terminated'] else False
+                    t['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(t['date_started'], dtf), pretty_date_format) if t['date_started'] else False
+                    t['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(t['date_terminated'], dtf), pretty_date_format) if t['date_terminated'] else False
 
             #
             # # convert the obs into usable obs for table & report
@@ -173,8 +173,8 @@ class ObservationReport(models.AbstractModel):
             for observation in heights:
                 observation['values'] = height_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             patient['height'] = heights[-1]['values']['height'] if len(heights) > 0 else False
 
             # get weight observations
@@ -184,8 +184,8 @@ class ObservationReport(models.AbstractModel):
             for observation in weights:
                 observation['values'] = weight_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             patient['weight'] = weights[-1]['values']['weight'] if len(weights) > 0 else False
 
             if hasattr(data, 'ews_only') and data.ews_only:
@@ -232,8 +232,8 @@ class ObservationReport(models.AbstractModel):
             for observation in pains:
                 observation['values'] = pain_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             # get blood_product observations
             # - search blood_product model with parent_id of spell - dates
             blood_product_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.blood_product', start_time, end_time))
@@ -241,8 +241,8 @@ class ObservationReport(models.AbstractModel):
             for observation in blood_products:
                 observation['values'] = blood_product_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             # get bristol_stool observations
             # - search bristol_stool model with parent_id of spell - dates
             bristol_stool_ids = activity_pool.search(cr, uid, self.create_search_filter(spell_activity_id, 'nh.clinical.patient.observation.stools', start_time, end_time))
@@ -257,8 +257,8 @@ class ObservationReport(models.AbstractModel):
                     observation['values']['offensive'] = 'Yes' if observation['values']['offensive'] else 'No'
                     observation['values']['laxatives'] = 'Yes' if observation['values']['laxatives'] else 'No'
                     observation['values']['rectal_exam'] = 'Yes' if observation['values']['rectal_exam'] else 'No'
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
 
             #
             # # get PBP observations
@@ -268,8 +268,8 @@ class ObservationReport(models.AbstractModel):
             for observation in pbps:
                 observation['values'] = pbp_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
             #
             # # get GCS observations
             # # - search gcs model with parent_id of spell - dates
@@ -278,8 +278,8 @@ class ObservationReport(models.AbstractModel):
             for observation in gcss:
                 observation['values'] = gcs_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
             #
             # # get BS observations
             # # - search bs model with parent_id of spell - dates
@@ -288,8 +288,8 @@ class ObservationReport(models.AbstractModel):
             for observation in bss:
                 observation['values'] = bs_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
             #
             # # get o2 target history
             # # - search o2target model on patient with parent_id of spell - dates
@@ -298,8 +298,8 @@ class ObservationReport(models.AbstractModel):
             for observation in oxygen_history:
                 observation['values'] = oxygen_target_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_started'], dtf), pretty_date_format) if observation['values']['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['values']['date_terminated'], dtf), pretty_date_format) if observation['values']['date_terminated'] else False
             #
             # # get Device Session history
             # # - search device session model on patient with parent_id of spell - dates
@@ -308,8 +308,8 @@ class ObservationReport(models.AbstractModel):
             for device_session in device_session_history:
                 device_session['values'] = device_session_pool.read(cr, uid, int(device_session['data_ref'].split(',')[1]), [])
                 if device_session['values']:
-                    device_session['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(device_session['values']['date_started'], dtf), pretty_date_format) if device_session['values']['date_started'] else False
-                    device_session['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(device_session['values']['date_terminated'], dtf), pretty_date_format) if device_session['values']['date_terminated'] else False
+                    device_session['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(device_session['values']['date_started'], dtf), pretty_date_format) if device_session['values']['date_started'] else False
+                    device_session['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(device_session['values']['date_terminated'], dtf), pretty_date_format) if device_session['values']['date_terminated'] else False
             #
             # # get MRSA flag history
             # # - search mrsa model on patient with parent_id of spell - dates
@@ -319,8 +319,8 @@ class ObservationReport(models.AbstractModel):
                 mrsa['values'] = mrsa_pool.read(cr, uid, int(mrsa['data_ref'].split(',')[1]), [])
                 if mrsa['values']:
                     mrsa['values']['mrsa'] = 'Yes' if mrsa['values']['status'] else 'No'
-                    mrsa['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_started'], dtf), pretty_date_format) if mrsa['values']['date_started'] else False
-                    mrsa['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(mrsa['values']['date_terminated'], dtf), pretty_date_format) if mrsa['values']['date_terminated'] else False
+                    mrsa['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(mrsa['values']['date_started'], dtf), pretty_date_format) if mrsa['values']['date_started'] else False
+                    mrsa['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(mrsa['values']['date_terminated'], dtf), pretty_date_format) if mrsa['values']['date_terminated'] else False
             #
             # # get diabetes flag history
             # # - search diabetes model on patient with parent_id of spell - dates
@@ -330,8 +330,8 @@ class ObservationReport(models.AbstractModel):
                 diabetes['values'] = diabetes_pool.read(cr, uid, int(diabetes['data_ref'].split(',')[1]), [])
                 if diabetes['values']:
                     diabetes['values']['diabetes'] = 'Yes' if diabetes['values']['status'] else 'No'
-                    diabetes['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_started'], dtf), pretty_date_format) if diabetes['values']['date_started'] else False
-                    diabetes['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(diabetes['values']['date_terminated'], dtf), pretty_date_format) if diabetes['values']['date_terminated'] else False
+                    diabetes['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(diabetes['values']['date_started'], dtf), pretty_date_format) if diabetes['values']['date_started'] else False
+                    diabetes['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(diabetes['values']['date_terminated'], dtf), pretty_date_format) if diabetes['values']['date_terminated'] else False
             #
             # # get palliative_care flag history
             # # - search palliative_care model on patient with parent_id of spell - dates
@@ -341,8 +341,8 @@ class ObservationReport(models.AbstractModel):
                 palliative_care['values'] = palliative_care_pool.read(cr, uid, int(palliative_care['data_ref'].split(',')[1]), [])
                 if palliative_care['values']:
                     palliative_care['values']['palliative_care'] = 'Yes' if palliative_care['values']['status'] else 'No'
-                    palliative_care['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_started'], dtf), pretty_date_format) if palliative_care['values']['date_started'] else False
-                    palliative_care['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(palliative_care['values']['date_terminated'], dtf), pretty_date_format) if palliative_care['values']['date_terminated'] else False
+                    palliative_care['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(palliative_care['values']['date_started'], dtf), pretty_date_format) if palliative_care['values']['date_started'] else False
+                    palliative_care['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(palliative_care['values']['date_terminated'], dtf), pretty_date_format) if palliative_care['values']['date_terminated'] else False
             #
             # # get post_surgery flag history
             # # - search post_surgery model on patient with parent_id of spell - dates
@@ -352,8 +352,8 @@ class ObservationReport(models.AbstractModel):
                 post_surgery['values'] = post_surgery_pool.read(cr, uid, int(post_surgery['data_ref'].split(',')[1]), [])
                 if post_surgery['values']:
                     post_surgery['values']['post_surgery'] = 'Yes' if post_surgery['values']['status'] else 'No'
-                    post_surgery['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(post_surgery['values']['date_started'], dtf), pretty_date_format) if post_surgery['values']['date_started'] else False
-                    post_surgery['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(post_surgery['values']['date_terminated'], dtf), pretty_date_format) if post_surgery['values']['date_terminated'] else False
+                    post_surgery['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(post_surgery['values']['date_started'], dtf), pretty_date_format) if post_surgery['values']['date_started'] else False
+                    post_surgery['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(post_surgery['values']['date_terminated'], dtf), pretty_date_format) if post_surgery['values']['date_terminated'] else False
             #
             # # get critical_care flag history
             # # - search critical_care model on patient with parent_id of spell - dates
@@ -363,8 +363,8 @@ class ObservationReport(models.AbstractModel):
                 critical_care['values'] = critical_care_pool.read(cr, uid, int(critical_care['data_ref'].split(',')[1]), [])
                 if critical_care['values']:
                     critical_care['values']['critical_care'] = 'Yes' if critical_care['values']['status'] else 'No'
-                    critical_care['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(critical_care['values']['date_started'], dtf), pretty_date_format) if critical_care['values']['date_started'] else False
-                    critical_care['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(critical_care['values']['date_terminated'], dtf), pretty_date_format) if critical_care['values']['date_terminated'] else False
+                    critical_care['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(critical_care['values']['date_started'], dtf), pretty_date_format) if critical_care['values']['date_started'] else False
+                    critical_care['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(critical_care['values']['date_terminated'], dtf), pretty_date_format) if critical_care['values']['date_terminated'] else False
             #
             # # get transfer history
             # # - search move on patient with parent_id of spell - dates
@@ -373,8 +373,8 @@ class ObservationReport(models.AbstractModel):
             for observation in transfer_history:
                 observation['values'] = transfer_history_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
                 if observation['values']:
-                    observation['values']['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
-                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
+                    observation['values']['date_started'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
+                    observation['values']['date_terminated'] = self.convert_db_date_to_context_date(cr, uid, datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
                     patient_location = location_pool.read(cr, uid, observation['values']['location_id'][0], [])
                     if patient_location:
                         observation['bed'] = patient_location['name'] if patient_location['name'] else False
