@@ -296,60 +296,35 @@ class ObservationReport(models.AbstractModel):
                 patient['bed'] = transfer_history[-1]['bed'] if transfer_history[-1]['bed'] else False
                 patient['ward'] = transfer_history[-1]['ward'] if transfer_history[-1]['ward'] else False
 
+            basic_obs = {
+                'pbps': 'nh.clinical.patient.observation.pbp',
+                'gcs': 'nh.clinical.patient.observation.gcs',
+                'bs': 'nh.clinical.patient.observation.blood_sugar',
+                'pains': 'nh.clinical.patient.observation.pain',
+                'blood_products': 'nh.clinical.patient.observation.blood_product',
+                'targeto2': 'nh.clinical.patient.o2target',
+                'mrsa_history': 'nh.clinical.patient.mrsa',
+                'diabetes_history': 'nh.clinical.patient.diabetes',
+                'palliative_care_history': 'nh.clinical.patient.palliative_care',
+                'post_surgery_history': 'nh.clinical.patient.post_surgery',
+                'critical_care_history': 'nh.clinical.patient.critical_care',
+            }
 
-            full_report = {
-                'pbps': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.pbp',
-                    start_time, end_time),
-                'gcs': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.gcs',
-                    start_time, end_time),
-                'bs': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.blood_sugar',
-                    start_time, end_time),
+            for k, v in basic_obs.iteritems():
+                basic_obs[k] = self.get_model_data(
+                    spell_activity_id, v, start_time, end_time)
+
+            non_basic_obs = {
                 'bristol_stools': bristol_stools,
-                'pains': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.pain',
-                    start_time, end_time),
-                'blood_products': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.blood_product',
-                    start_time, end_time),
-                'targeto2': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.o2target',
-                    start_time, end_time),
                 'device_session_history': self.get_multi_model_data(
                     spell_activity_id,
                     'nh.clinical.patient.o2target',
                     'nh.clinical.device.session',
                     start_time, end_time),
-                'mrsa_history':self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.mrsa',
-                    start_time, end_time),
-                'diabetes_history': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.diabetes',
-                    start_time, end_time),
-                'palliative_care_history': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.palliative_care',
-                    start_time, end_time),
-                'post_surgery_history': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.post_surgery',
-                    start_time, end_time),
-                'critical_care_history': self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.critical_care',
-                    start_time, end_time),
                 'transfer_history': transfer_history,
             }
+            full_report = basic_obs.copy()
+            full_report.update(non_basic_obs)
             rep_data = ews_only.copy()
             rep_data.update(full_report)
             return report_obj.render(
