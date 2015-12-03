@@ -352,11 +352,12 @@ class nh_clinical_wardboard(orm.Model):
 
     def _get_recently_discharged_uids(self, cr, uid, ids, field_name, arg, context=None):
         res = {}.fromkeys(ids, False)
-        sql = """select spell_id, user_ids, ward_user_ids
-                    from last_discharge_users
-                    where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
-        cr.execute(sql)
-        res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
+        if ids:
+            sql = """select spell_id, user_ids, ward_user_ids
+                        from last_discharge_users
+                        where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
+            cr.execute(sql)
+            res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
         return res
 
     def _get_data_ids_multi(self, cr, uid, ids, field_names, arg, context=None):
@@ -373,11 +374,12 @@ class nh_clinical_wardboard(orm.Model):
 
     def _get_transferred_user_ids(self, cr, uid, ids, field_names, arg, context=None):
         res = {}.fromkeys(ids, False)
-        sql = """select spell_id, user_ids, ward_user_ids
-                    from last_transfer_users
-                    where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
-        cr.execute(sql)
-        res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
+        if ids:
+            sql = """select spell_id, user_ids, ward_user_ids
+                        from last_transfer_users
+                        where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
+            cr.execute(sql)
+            res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
         return res
 
     def _transferred_user_ids_search(self, cr, uid, obj, name, args, domain=None, context=None):
