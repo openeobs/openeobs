@@ -224,6 +224,8 @@ class ObservationReport(models.AbstractModel):
                                           start_time, end_time)
             patient['weight'] = weights[-1]['values']['weight'] if len(weights) > 0 else False
 
+
+
             if hasattr(data, 'ews_only') and data.ews_only:
                 docargs = {
                     'doc_ids': self._ids,
@@ -260,15 +262,6 @@ class ObservationReport(models.AbstractModel):
                 }
                 return report_obj.render('nh_eobs.observation_report', docargs)
 
-
-            # get pain observations
-            pains = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.observation.pain',
-                                         start_time, end_time)
-            # get blood_product observations
-            blood_products = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.observation.blood_product',
-                                         start_time, end_time)
             # get bristol_stool observations
             bristol_stools = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.observation.stools',
@@ -281,49 +274,6 @@ class ObservationReport(models.AbstractModel):
                 observation['values']['offensive'] = 'Yes' if observation['values']['offensive'] else 'No'
                 observation['values']['laxatives'] = 'Yes' if observation['values']['laxatives'] else 'No'
                 observation['values']['rectal_exam'] = 'Yes' if observation['values']['rectal_exam'] else 'No'
-            # # get PBP observations
-            pbps = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.observation.pbp',
-                                         start_time, end_time)
-            # # get GCS observations
-            gcss = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.observation.gcs',
-                                         start_time, end_time)
-            # # get BS observations
-            bss = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.observation.blood_sugar',
-                                         start_time, end_time)
-            # # get o2 target history
-
-            oxygen_history = self.get_model_data(spell_activity_id,
-                                                 'nh.clinical.patient.o2target',
-                                                 start_time, end_time)
-            # # get Device Session history
-            device_session_history = self.get_multi_model_data(spell_activity_id,
-                                                               'nh.clinical.patient.o2target',
-                                                               'nh.clinical.device.session',
-                                                               start_time, end_time)
-              #
-            # # get MRSA flag history
-            mrsa_history = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.mrsa',
-                                         start_time, end_time)
-            # # get diabetes flag history
-            diabetes_history = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.diabetes',
-                                         start_time, end_time)
-            # # get palliative_care flag history
-            palliative_care_history = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.palliative_care',
-                                         start_time, end_time)
-            # # get post_surgery flag history
-            post_surgery_history = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.post_surgery',
-                                         start_time, end_time)
-            # # get critical_care flag history
-            critical_care_history = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.critical_care',
-                                         start_time, end_time)
             # # get transfer history
             transfer_history = self.get_model_data(spell_activity_id,
                                          'nh.clinical.patient.move',
@@ -347,19 +297,55 @@ class ObservationReport(models.AbstractModel):
                 'ews': ews,
                 'table_ews': table_ews,
                 'weights': weights,
-                'pbps': pbps,
-                'gcs': gcss,
-                'bs': bss,
+                'pbps': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.observation.pbp',
+                    start_time, end_time),
+                'gcs': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.observation.gcs',
+                    start_time, end_time),
+                'bs': self.get_model_data(
+                    spell_activity_id,'nh.clinical.patient.observation.blood_sugar',
+                    start_time, end_time),
                 'bristol_stools': bristol_stools,
-                'pains': pains,
-                'blood_products': blood_products,
-                'targeto2': oxygen_history,
-                'device_session_history': device_session_history,
-                'mrsa_history': mrsa_history,
-                'diabetes_history': diabetes_history,
-                'palliative_care_history': palliative_care_history,
-                'post_surgery_history': post_surgery_history,
-                'critical_care_history': critical_care_history,
+                'pains': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.observation.pain',
+                    start_time, end_time),
+                'blood_products': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.observation.blood_product',
+                    start_time, end_time),
+                'targeto2': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.o2target',
+                    start_time, end_time),
+                'device_session_history': self.get_multi_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.o2target',
+                    'nh.clinical.device.session',
+                    start_time, end_time),
+                'mrsa_history':self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.mrsa',
+                    start_time, end_time),
+                'diabetes_history': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.diabetes',
+                    start_time, end_time),
+                'palliative_care_history': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.palliative_care',
+                    start_time, end_time),
+                'post_surgery_history': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.post_surgery',
+                    start_time, end_time),
+                'critical_care_history': self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.critical_care',
+                    start_time, end_time),
                 'transfer_history': transfer_history,
                 'report_start': report_start,
                 'report_end': report_end,
