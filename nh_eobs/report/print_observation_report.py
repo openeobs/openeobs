@@ -35,7 +35,8 @@ class ObservationReport(models.AbstractModel):
             filter.append(['date_terminated', '<=', end_date.strftime(dtf)])
         return filter
 
-    def convert_db_date_to_context_date(self, cr, uid, date_string, format, context=None):
+    @staticmethod
+    def convert_db_date_to_context_date(cr, uid, date_string, format, context=None):
         if format:
             return fields.datetime.context_timestamp(cr, uid, date_string, context=context).strftime(format)
         else:
