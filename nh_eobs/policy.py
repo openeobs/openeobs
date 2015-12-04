@@ -48,7 +48,8 @@ class nh_clinical_patient_admission(orm.Model):
                                'cancel_others': True,
                                'context': 'eobs',
                                'create_data': {
-                                   'suggested_location_id': 'activity.data_ref.location_id.id'
+                                   'suggested_location_id':
+                                       'activity.data_ref.location_id.id'
                                }}]}
 
 
@@ -71,7 +72,8 @@ class nh_clinical_patient_transfer(orm.Model):
                                'context': 'eobs',
                                'cancel_others': True,
                                'create_data': {
-                                   'suggested_location_id': 'activity.data_ref.location_id.id'
+                                   'suggested_location_id':
+                                       'activity.data_ref.location_id.id'
                                },
                                'case': 1
                                }
@@ -80,11 +82,14 @@ class nh_clinical_patient_transfer(orm.Model):
                                  'context': 'eobs',
                                  'cancel_others': True,
                                  'create_data': {
-                                    'suggested_location_id':
-                                       "location_pool.get_closest_parent_id(cr, uid, 'ward', "
-                                       "activity.data_ref.origin_loc_id.id, context=context) if "
-                                       "activity.data_ref.origin_loc_id.usage != 'ward' else "
-                                       "activity.data_ref.origin_loc_id.id"
+                                     'suggested_location_id':
+                                         "location_pool.get_closest_parent_id("
+                                         "cr, uid, 'ward', "
+                                         "activity.data_ref.origin_loc_id.id, "
+                                         "context=context) if "
+                                         "activity.data_ref.origin_loc_id."
+                                         "usage != 'ward' else "
+                                         "activity.data_ref.origin_loc_id.id"
                                  },
                                  'case': 2
                                  }
@@ -111,7 +116,8 @@ class nh_clinical_adt_spell_update(orm.Model):
                                'context': 'eobs',
                                'cancel_others': True,
                                'create_data': {
-                                   'suggested_location_id': 'activity.data_ref.location_id.id'
+                                   'suggested_location_id':
+                                       'activity.data_ref.location_id.id'
                                }
                                }]}
     
@@ -136,9 +142,12 @@ class nh_clinical_patient_discharge(orm.Model):
                                'cancel_others': True,
                                'create_data': {
                                    'suggested_location_id':
-                                       "location_pool.get_closest_parent_id(cr, uid, 'ward', "
-                                       "activity.data_ref.location_id.id, context=context) if "
-                                       "activity.data_ref.location_id.usage != 'ward' else "
+                                       "location_pool.get_closest_parent_id("
+                                       "cr, uid, 'ward', "
+                                       "activity.data_ref.location_id.id, "
+                                       "context=context) if "
+                                       "activity.data_ref.location_id.usage "
+                                       "!= 'ward' else "
                                        "activity.data_ref.location_id.id"
                                }
                                }]}
