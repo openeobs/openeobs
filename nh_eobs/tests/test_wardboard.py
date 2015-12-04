@@ -414,52 +414,61 @@ class TestWardboard(SingleTransactionCase):
     def test_12_get_terminated_device_session_ids(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool._get_terminated_device_session_ids(cr, self.wm_uid, [self.wb_id],
-                                                                  'terminated_device_session_ids', None)
+        res = self.wardboard_pool._get_terminated_device_session_ids(
+            cr, self.wm_uid, [self.wb_id],
+            'terminated_device_session_ids', None)
         ids = self.dev_session_pool.search(cr, uid, [
-            ['patient_id', '=', self.patients[0]], ['activity_id.state', 'in', ['completed', 'cancelled']]])
+            ['patient_id', '=', self.patients[0]],
+            ['activity_id.state', 'in', ['completed', 'cancelled']]])
         self.assertListEqual(res[self.wb_id], ids)
 
     def test_13_get_data_ids_multi(self):
         cr, uid = self.cr, self.uid
 
-        fields = ['spell_ids', 'move_ids', 'o2target_ids', 'uotarget_ids', 'weight_ids', 'blood_sugar_ids', 'mrsa_ids',
-                  'diabetes_ids', 'pbp_monitoring_ids', 'weight_monitoring_ids', 'palliative_care_ids',
-                  'post_surgery_ids', 'critical_care_ids', 'pbp_ids', 'ews_ids', 'gcs_ids', 'pain_ids',
-                  'urine_output_ids', 'ews_list_ids']
-        res = self.wardboard_pool._get_data_ids_multi(cr, self.wm_uid, [self.wb_id], fields, None)
+        fields = ['spell_ids', 'move_ids', 'o2target_ids', 'uotarget_ids',
+                  'weight_ids', 'blood_sugar_ids', 'mrsa_ids', 'diabetes_ids',
+                  'pbp_monitoring_ids', 'weight_monitoring_ids',
+                  'palliative_care_ids', 'post_surgery_ids',
+                  'critical_care_ids', 'pbp_ids', 'ews_ids', 'gcs_ids',
+                  'pain_ids', 'urine_output_ids', 'ews_list_ids']
+        res = self.wardboard_pool._get_data_ids_multi(
+            cr, self.wm_uid, [self.wb_id], fields, None)
 
         self.assertListEqual(res[self.wb_id]['spell_ids'], [])
-        ids = self.move_pool.search(cr, uid, [['patient_id', '=', self.patients[0]],
-                                              ['activity_id.state', '=', 'completed']])
+        ids = self.move_pool.search(
+            cr, uid, [['patient_id', '=', self.patients[0]],
+                      ['activity_id.state', '=', 'completed']])
         self.assertListEqual(res[self.wb_id]['move_ids'], ids)
 
     def test_14_get_transferred_user_ids(self):
         cr, uid = self.cr, self.uid
 
         # Scenario 1: Get result for transferred patient
-        res = self.wardboard_pool._get_transferred_user_ids(cr, self.wm_uid, [self.wb_id2],
-                                                            'transferred_user_ids', None)
+        res = self.wardboard_pool._get_transferred_user_ids(
+            cr, self.wm_uid, [self.wb_id2], 'transferred_user_ids', None)
         self.assertSetEqual(set(res[self.wb_id2]), {self.wm_uid, self.dr_uid})
 
         # Scenario 2: Get result for NOT transferred patient
-        res = self.wardboard_pool._get_transferred_user_ids(cr, self.wm_uid, [self.wb_id],
-                                                            'transferred_user_ids', None)
+        res = self.wardboard_pool._get_transferred_user_ids(
+            cr, self.wm_uid, [self.wb_id], 'transferred_user_ids', None)
         self.assertFalse(res[self.wb_id])
 
     def test_15_get_transferred_user_ids_search(self):
         cr, uid = self.cr, self.uid
 
         res = self.wardboard_pool._transferred_user_ids_search(
-            cr, uid, 'nh.clinical.wardboard', 'transferred_user_ids', [['transferred_user_ids', 'in', [self.wm_uid]]])
+            cr, uid, 'nh.clinical.wardboard', 'transferred_user_ids',
+            [['transferred_user_ids', 'in', [self.wm_uid]]])
         self.assertListEqual(res, [('id', 'in', [self.wb_id2])])
 
     def test_16_prescribe_action(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool.wardboard_prescribe(cr, self.wm_uid, [self.wb_id])
+        res = self.wardboard_pool.wardboard_prescribe(
+            cr, self.wm_uid, [self.wb_id])
         wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
-        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_prescribe_form')[1]
+        view_id = self.model_data.get_object_reference(
+            cr, uid, 'nh_eobs', 'view_wardboard_prescribe_form')[1]
         self.assertDictEqual(res, {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -475,9 +484,11 @@ class TestWardboard(SingleTransactionCase):
     def test_17_news_chart_action(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool.wardboard_chart(cr, self.wm_uid, [self.wb_id])
+        res = self.wardboard_pool.wardboard_chart(
+            cr, self.wm_uid, [self.wb_id])
         wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
-        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_chart_form')[1]
+        view_id = self.model_data.get_object_reference(
+            cr, uid, 'nh_eobs', 'view_wardboard_chart_form')[1]
         self.assertDictEqual(res, {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -493,9 +504,11 @@ class TestWardboard(SingleTransactionCase):
     def test_18_weight_chart_action(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool.wardboard_weight_chart(cr, self.wm_uid, [self.wb_id], {})
+        res = self.wardboard_pool.wardboard_weight_chart(
+            cr, self.wm_uid, [self.wb_id], {})
         wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
-        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_weight_chart_form')[1]
+        view_id = self.model_data.get_object_reference(
+            cr, uid, 'nh_eobs', 'view_wardboard_weight_chart_form')[1]
         self.assertDictEqual(res, {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -511,9 +524,11 @@ class TestWardboard(SingleTransactionCase):
     def test_19_blood_sugar_chart_action(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool.wardboard_bs_chart(cr, self.wm_uid, [self.wb_id])
+        res = self.wardboard_pool.wardboard_bs_chart(
+            cr, self.wm_uid, [self.wb_id])
         wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
-        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_bs_chart_form')[1]
+        view_id = self.model_data.get_object_reference(
+            cr, uid, 'nh_eobs', 'view_wardboard_bs_chart_form')[1]
         self.assertDictEqual(res, {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -538,20 +553,23 @@ class TestWardboard(SingleTransactionCase):
             'view_mode': 'tree',
             'view_type': 'tree',
             'target': 'new',
-            'domain': [('patient_id', '=', wardboard.patient_id.id), ('state', '=', 'completed')],
+            'domain': [('patient_id', '=', wardboard.patient_id.id),
+                       ('state', '=', 'completed')],
             'context': None
         })
 
     def test_21_placement_action(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool.wardboard_place(cr, self.wm_uid, [self.wb_id3], {})
+        res = self.wardboard_pool.wardboard_place(
+            cr, self.wm_uid, [self.wb_id3], {})
         wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id3)
         placement_id = self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[2]], ['state', '=', 'scheduled'],
             ['data_model', '=', 'nh.clinical.patient.placement']])[0]
         res_id = self.activity_pool.browse(cr, uid, placement_id).data_ref.id
-        view_id = self.model_data.get_object_reference(cr, uid, 'nh_clinical', 'view_patient_placement_complete')[1]
+        view_id = self.model_data.get_object_reference(
+            cr, uid, 'nh_clinical', 'view_patient_placement_complete')[1]
         self.assertDictEqual(res, {
             'name': wardboard.full_name + ' Placement',
             'type': 'ir.actions.act_window',
@@ -568,42 +586,48 @@ class TestWardboard(SingleTransactionCase):
         cr, uid = self.cr, self.uid
 
         # Scenario 1: Write MRSA parameter
-        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'mrsa': 'no'}))
+        self.assertTrue(self.wardboard_pool.write(
+            cr, self.wm_uid, [self.wb_id], {'mrsa': 'no'}))
         activity_ids = self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
             ['data_model', '=', 'nh.clinical.patient.mrsa']])
         self.assertTrue(activity_ids)
 
         # Scenario 2: Write Diabetes parameter
-        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'diabetes': 'no'}))
+        self.assertTrue(self.wardboard_pool.write(
+            cr, self.wm_uid, [self.wb_id], {'diabetes': 'no'}))
         activity_ids = self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
             ['data_model', '=', 'nh.clinical.patient.diabetes']])
         self.assertTrue(activity_ids)
 
         # Scenario 3: Write PBP Monitoring parameter
-        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'pbp_monitoring': 'no'}))
+        self.assertTrue(self.wardboard_pool.write(
+            cr, self.wm_uid, [self.wb_id], {'pbp_monitoring': 'no'}))
         activity_ids = self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
             ['data_model', '=', 'nh.clinical.patient.pbp_monitoring']])
         self.assertTrue(activity_ids)
 
         # Scenario 4: Write Weight Monitoring parameter
-        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'weight_monitoring': 'no'}))
+        self.assertTrue(self.wardboard_pool.write(
+            cr, self.wm_uid, [self.wb_id], {'weight_monitoring': 'no'}))
         activity_ids = self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
             ['data_model', '=', 'nh.clinical.patient.weight_monitoring']])
         self.assertTrue(activity_ids)
 
         # Scenario 5: Write O2 Target parameter
-        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'o2target': False}))
+        self.assertTrue(self.wardboard_pool.write(
+            cr, self.wm_uid, [self.wb_id], {'o2target': False}))
         activity_ids = self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
             ['data_model', '=', 'nh.clinical.patient.o2target']])
         self.assertTrue(activity_ids)
 
         # Scenario 6: Write Palliative Care parameter
-        self.assertTrue(self.wardboard_pool.write(cr, self.wm_uid, [self.wb_id], {'palliative_care': 'no'}))
+        self.assertTrue(self.wardboard_pool.write(
+            cr, self.wm_uid, [self.wb_id], {'palliative_care': 'no'}))
         activity_ids = self.activity_pool.search(cr, uid, [
             ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
             ['data_model', '=', 'nh.clinical.patient.palliative_care']])
@@ -612,8 +636,10 @@ class TestWardboard(SingleTransactionCase):
     def test_23_get_cr_groups(self):
         cr, uid = self.cr, self.uid
 
-        res, fold = self.wardboard_pool._get_cr_groups(cr, self.wm_uid, [self.wb_id], [])
-        groups = [['NoScore', 'No Score Yet'], ['High', 'High Risk'], ['Medium', 'Medium Risk'], ['Low', 'Low Risk'],
+        res, fold = self.wardboard_pool._get_cr_groups(
+            cr, self.wm_uid, [self.wb_id], [])
+        groups = [['NoScore', 'No Score Yet'], ['High', 'High Risk'],
+                  ['Medium', 'Medium Risk'], ['Low', 'Low Risk'],
                   ['None', 'No Risk']]
         self.assertListEqual(res, groups)
         self.assertDictEqual(fold, {g[0]: False for g in groups})
@@ -622,14 +648,19 @@ class TestWardboard(SingleTransactionCase):
         cr, uid = self.cr, self.uid
 
         # Scenario 1: Trigger action to open previous spell
-        res = self.wardboard_pool.open_previous_spell(cr, self.wm_uid, [self.wb_id2])
+        res = self.wardboard_pool.open_previous_spell(
+            cr, self.wm_uid, [self.wb_id2])
         wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id2)
-        view_id = self.model_data.get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_form_discharged')[1]
+        view_id = self.model_data.get_object_reference(
+            cr, uid, 'nh_eobs', 'view_wardboard_form_discharged')[1]
         activity_ids = self.activity_pool.search(cr, uid, [
-            ['data_model', '=', 'nh.clinical.spell'], ['patient_id', '=', self.patients[1]],
-            ['sequence', '<', wardboard.spell_activity_id.sequence], ['state', '=', 'completed']
+            ['data_model', '=', 'nh.clinical.spell'],
+            ['patient_id', '=', self.patients[1]],
+            ['sequence', '<', wardboard.spell_activity_id.sequence],
+            ['state', '=', 'completed']
         ], order='sequence desc')
-        res_id = self.activity_pool.browse(cr, uid, activity_ids[0]).data_ref.id
+        res_id = self.activity_pool.browse(
+            cr, uid, activity_ids[0]).data_ref.id
         self.assertDictEqual(res, {
             'name': 'Previous Spell',
             'type': 'ir.actions.act_window',
@@ -644,15 +675,18 @@ class TestWardboard(SingleTransactionCase):
 
         # Scenario 2: Attempt to trigger action without previous spell
         with self.assertRaises(except_orm):
-            self.wardboard_pool.open_previous_spell(cr, self.wm_uid, [self.wb_id])
+            self.wardboard_pool.open_previous_spell(
+                cr, self.wm_uid, [self.wb_id])
 
     def test_25_get_recently_discharged_uids(self):
         cr, uid = self.cr, self.uid
 
-        res = self.wardboard_pool._get_recently_discharged_uids(cr, self.wm_uid, [self.wb_disc_id, self.wb_id3],
-                                                                'recently_discharged_uids', None)
+        res = self.wardboard_pool._get_recently_discharged_uids(
+            cr, self.wm_uid, [self.wb_disc_id, self.wb_id3],
+            'recently_discharged_uids', None)
 
-        self.assertListEqual(sorted(res[self.wb_disc_id]), sorted([self.wm_uid, self.dr_uid]))
+        self.assertListEqual(sorted(res[self.wb_disc_id]), sorted(
+            [self.wm_uid, self.dr_uid]))
         self.assertFalse(res[self.wb_id3])
 
     def test_26_recently_discharged_uids_search(self):

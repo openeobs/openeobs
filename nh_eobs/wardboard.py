@@ -1601,9 +1601,6 @@ nh_clinical_wardboard as(
         ews0.next_diff_polarity ||
         case
             when ews0.date_scheduled is not null then
-              -- case when greatest(now() at time zone 'UTC',
-              ews0.date_scheduled) != ews0.date_scheduled then 'overdue: '
-              else '' end ||
               case when extract(days from (greatest(now() at time zone 'UTC',
                 ews0.date_scheduled) - least(now() at time zone 'UTC',
                 ews0.date_scheduled))) > 0
