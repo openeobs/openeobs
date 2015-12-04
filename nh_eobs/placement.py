@@ -26,7 +26,8 @@ class nh_clinical_placement(orm.Model):
     _auto = False
     _table = "nh_clinical_placement"
     _columns = {
-        'activity_id': fields.many2one('nh.activity', 'Activity', required=1, ondelete='restrict'),
+        'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
+                                       ondelete='restrict'),
         'location_id': fields.many2one('nh.clinical.location', 'Ward'),
         'pos_id': fields.many2one('nh.clinical.pos', 'POS'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
@@ -48,8 +49,10 @@ class nh_clinical_placement(orm.Model):
                         patient.other_identifier as hospital_number,
                         patient.patient_identifier as nhs_number
                     from nh_activity activity
-                    inner join nh_clinical_patient patient on activity.patient_id = patient.id
-                    where activity.data_model = 'nh.clinical.patient.placement' and activity.state not in ('completed','cancelled')
+                    inner join nh_clinical_patient patient
+                        on activity.patient_id = patient.id
+                    where activity.data_model = 'nh.clinical.patient.placement'
+                    and activity.state not in ('completed','cancelled')
                 )
         """ % (self._table, self._table))
 
@@ -67,13 +70,14 @@ class nh_clinical_placement(orm.Model):
         """
 
         placement = self.browse(cr, uid, ids[0], context=context)
-
         model_data_pool = self.pool['ir.model.data']
-        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_patient_placement_complete')], context=context)
+        model_data_ids = model_data_pool.search(
+            cr, uid, [('name', '=', 'view_patient_placement_complete')],
+            context=context)
         if not model_data_ids:
-            pass # view doesnt exist
-        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
-
+            pass
+        view_id = model_data_pool.read(
+            cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
         return {
             'name': 'Patient Placement',
             'type': 'ir.actions.act_window',
