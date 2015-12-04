@@ -6,15 +6,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.osv import fields
 import json
 import copy
-
-
-class DataObj(object):
-    def __init__(self, spell_id=None, start_time=None, end_time=None,
-                 ews_only=None):
-        self.spell_id = spell_id
-        self.start_time = start_time
-        self.end_time = end_time
-        self.ews_only = ews_only
+import helpers
 
 class ObservationReport(models.AbstractModel):
     _name = 'report.nh.clinical.observation_report'
@@ -22,49 +14,11 @@ class ObservationReport(models.AbstractModel):
     pretty_date_format = '%H:%M %d/%m/%y'
     wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
 
-    @staticmethod
-    def create_search_filter(spell_activity_id, model, start_date, end_date):
-        if not spell_activity_id:
-            raise ValueError('No spell activity id supplied')
-        if not model:
-            raise ValueError('No model supplied')
-        filter = []
-        if model in ['nh.clinical.patient.o2target',
-                     'nh.clinical.patient.move']:
-            filter = [['parent_id', '=', spell_activity_id],
-                      ['data_model', '=', model]]
-        else:
-            filter = [['parent_id', '=', spell_activity_id],
-                      ['data_model', '=', model], ['state', '=', 'completed']]
-        if start_date:
-            filter.append(['date_started', '>=', start_date.strftime(dtf)])
-        if end_date:
-            filter.append(['date_terminated', '<=', end_date.strftime(dtf)])
-        return filter
-
-    @staticmethod
-    def convert_db_date_to_context_date(cr, uid, date_string, format,
-                                        context=None):
-        if format:
-            return fields.datetime.context_timestamp(
-                cr, uid, date_string,context=context).strftime(format)
-        else:
-            return fields.datetime.context_timestamp(
-                cr, uid, date_string, context=context)
-
-    @staticmethod
-    def data_dict_to_obj(data_dict):
-        spell_id = data_dict['spell_id'] if 'spell_id' in data_dict and data_dict['spell_id'] else None
-        start = data_dict['start_time'] if 'start_time' in data_dict and data_dict['start_time'] else None
-        end = data_dict['end_time'] if 'end_time' in data_dict and data_dict['end_time'] else None
-        ews_only = data_dict['ews_only'] if 'ews_only' in data_dict and data_dict['ews_only'] else None
-        return DataObj(spell_id, start, end, ews_only)
-
     def get_activity_data(self, spell_id, model, start_time, end_time):
         cr, uid = self._cr, self._uid
         act_pool = self.pool['nh.activity']
         activity_ids = act_pool.search(cr, uid,
-                                       self.create_search_filter(
+                                       helpers.create_search_filter(
                                            spell_id,
                                            model, start_time, end_time))
         return act_pool.read(cr, uid, activity_ids)
@@ -77,11 +31,11 @@ class ObservationReport(models.AbstractModel):
             ds = act_data['date_started'] if 'data_started' in act_data and act_data['date_started'] else False
             dt = act_data['date_terminated'] if 'date_terminated' in act_data and act_data['date_terminated'] else False
             if ds:
-                ds = self.convert_db_date_to_context_date(
+                ds = helpers.convert_db_date_to_context_date(
                     cr, uid, datetime.strptime(ds, dtf),
                     self.pretty_date_format)
             if dt:
-                dt = self.convert_db_date_to_context_date(
+                dt = helpers.convert_db_date_to_context_date(
                     cr, uid, datetime.strptime(dt, dtf),
                     self.pretty_date_format)
         return self.get_model_values(model, act_data)
@@ -98,11 +52,11 @@ class ObservationReport(models.AbstractModel):
                 dt = model_data['date_terminated'] if 'date_terminated' in model_data and model_data['date_terminated'] else False
                 model_data['status'] = 'Yes' if 'status' in model_data and model_data['status'] else 'No'
                 if ds:
-                    ds = self.convert_db_date_to_context_date(
+                    ds = helpers.convert_db_date_to_context_date(
                         cr, uid, datetime.strptime(ds, dtf),
                         self.pretty_date_format)
                 if dt:
-                    dt = self.convert_db_date_to_context_date(
+                    dt = helpers.convert_db_date_to_context_date(
                         cr, uid, datetime.strptime(dt, dtf),
                         self.pretty_date_format)
             act['values'] = model_data
@@ -138,7 +92,7 @@ class ObservationReport(models.AbstractModel):
         pretty_date_format = self.pretty_date_format
 
         if isinstance(data, dict):
-            data = self.data_dict_to_obj(data)
+            data = helpers.data_dict_to_obj(data)
 
         # set up data
         start_time = datetime.strptime(data.start_time, dtf) if data and data.start_time else False
@@ -170,7 +124,7 @@ class ObservationReport(models.AbstractModel):
             spell_id = int(data.spell_id)
             spell = spell_pool.read(cr, uid, [spell_id])[0]
             # - get the start and end date of spell
-            spell_start = self.convert_db_date_to_context_date(
+            spell_start = helpers.convert_db_date_to_context_date(
                 cr, uid, datetime.strptime(spell['date_started'], dtf),
                 pretty_date_format, context=None)
             spell_end = spell['date_terminated']
@@ -178,7 +132,7 @@ class ObservationReport(models.AbstractModel):
             if end_time:
                 report_end = end_time.strftime(pretty_date_format)
             else:
-                report_end = self.convert_db_date_to_context_date(
+                report_end = helpers.convert_db_date_to_context_date(
                     cr, uid, datetime.strptime(spell_end, dtf),
                     pretty_date_format,
                     context=None) if spell_end else time_generated
@@ -193,7 +147,7 @@ class ObservationReport(models.AbstractModel):
             #
             # get patient information
             patient = patient_pool.read(cr, uid, [patient_id])[0]
-            patient['dob'] = self.convert_db_date_to_context_date(
+            patient['dob'] = helpers.convert_db_date_to_context_date(
                 cr, uid, datetime.strptime(patient['dob'], dtf),
                 '%d/%m/%Y', context=None)
             #
@@ -214,10 +168,10 @@ class ObservationReport(models.AbstractModel):
                 observation['values']['o2_target'] = o2_level.name if o2_level else False
                 observation['triggered_actions'] = [v for v in activity_pool.read(cr, uid, triggered_actions_ids) if v['data_model'] != 'nh.clinical.patient.observation.ews']
                 for t in observation['triggered_actions']:
-                    t['date_started'] = self.convert_db_date_to_context_date(
+                    t['date_started'] = helpers.convert_db_date_to_context_date(
                         cr, uid, datetime.strptime(t['date_started'], dtf),
                         pretty_date_format) if t['date_started'] else False
-                    t['date_terminated'] = self.convert_db_date_to_context_date(
+                    t['date_terminated'] = helpers.convert_db_date_to_context_date(
                         cr, uid, datetime.strptime(t['date_terminated'], dtf),
                         pretty_date_format) if t['date_terminated'] else False
 
@@ -323,10 +277,7 @@ class ObservationReport(models.AbstractModel):
                     start_time, end_time),
                 'transfer_history': transfer_history,
             }
-            full_report = basic_obs.copy()
-            full_report.update(non_basic_obs)
-            rep_data = ews_only.copy()
-            rep_data.update(full_report)
+            rep_data = helpers.merge_dicts(basic_obs, non_basic_obs, ews_only)
             return report_obj.render(
                 'nh_eobs.observation_report',
                 rep_data)
