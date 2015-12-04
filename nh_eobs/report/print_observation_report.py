@@ -48,16 +48,14 @@ class ObservationReport(models.AbstractModel):
                                          int(act['data_ref'].split(',')[1]),
                                          [])
             if model_data:
-                ds = model_data['date_started'] if 'data_started' in model_data and model_data['date_started'] else False
-                dt = model_data['date_terminated'] if 'date_terminated' in model_data and model_data['date_terminated'] else False
                 model_data['status'] = 'Yes' if 'status' in model_data and model_data['status'] else 'No'
-                if ds:
-                    ds = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(ds, dtf),
+                if 'data_started' in model_data and model_data['date_started']:
+                    model_data['date_started'] = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(model_data['date_started'], dtf),
                         self.pretty_date_format)
-                if dt:
-                    dt = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(dt, dtf),
+                if 'date_terminated' in model_data and model_data['date_terminated']:
+                    model_data['date_terminated'] = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(model_data['date_terminated'], dtf),
                         self.pretty_date_format)
             act['values'] = model_data
         return act_data
