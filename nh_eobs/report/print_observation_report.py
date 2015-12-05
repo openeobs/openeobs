@@ -76,7 +76,7 @@ class ObservationReport(models.AbstractModel):
                 datetime.strptime(data['date_started'], dtf),
                 self.wkhtmltopdf_format)
             data['date_terminated'] = datetime.strftime(
-                datetime.strptime(data['date_terminated'], dtf),
+                datetime.strptime(data['date_terminated'], self.pretty_date_format),
                 self.wkhtmltopdf_format)
         return json.dumps(model_data)
 
@@ -179,7 +179,7 @@ class ObservationReport(models.AbstractModel):
             table_ews = [v['values'] for v in ews]
             for table_ob in table_ews:
                 table_ob['date_terminated'] = datetime.strftime(
-                    datetime.strptime(table_ob['date_terminated'], dtf),
+                    datetime.strptime(table_ob['date_terminated'], self.pretty_date_format),
                     pretty_date_format)
 
 
