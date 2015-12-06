@@ -5,7 +5,7 @@ from openerp.tests.common import TransactionCase
 from datetime import datetime, timedelta
 import logging
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp.addons.nh_eobs.report.print_observation_report import ObservationReport as obs_report
+from openerp.addons.nh_eobs.report.helpers import data_dict_to_obj
 
 _logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, self.start_time, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -37,7 +37,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': False
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, self.start_time, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -50,7 +50,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, self.start_time, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -63,7 +63,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': False
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, self.start_time, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -76,7 +76,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -89,7 +89,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': False
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -102,7 +102,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -115,7 +115,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': False
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, self.spell_id, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -128,7 +128,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -141,7 +141,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': False
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -154,14 +154,14 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': None
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
         self.assertEqual(test_data_obj.ews_only, None, 'Created data obj ews_only does not match')
 
     def test_12_data_obj_with_empty_dictionary(self):
-        test_data_obj = obs_report.data_dict_to_obj({})
+        test_data_obj = data_dict_to_obj({})
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -174,7 +174,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, self.start_time, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -187,7 +187,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': None
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, self.start_time, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -200,7 +200,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': None
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, self.start_time, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
@@ -213,7 +213,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -226,7 +226,7 @@ class TestObservationReport(TransactionCase):
             'end_time': self.end_time,
             'ews_only': None
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, self.end_time, 'Created data obj end_time attr does not match')
@@ -239,7 +239,7 @@ class TestObservationReport(TransactionCase):
             'end_time': None,
             'ews_only': True
         }
-        test_data_obj = obs_report.data_dict_to_obj(test_dict)
+        test_data_obj = data_dict_to_obj(test_dict)
         self.assertEqual(test_data_obj.spell_id, None, 'Created Data Obj spell_id attribute does not match')
         self.assertEqual(test_data_obj.start_time, None, 'Created Data Obj start_time attr does not match')
         self.assertEqual(test_data_obj.end_time, None, 'Created data obj end_time attr does not match')
