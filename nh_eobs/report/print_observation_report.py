@@ -80,28 +80,14 @@ class ObservationReport(models.AbstractModel):
                 self.wkhtmltopdf_format)
         return json.dumps(model_data)
 
-
-    @api.multi
-    def render_html(self, data=None):
+    def create_report_data(self, data):
         cr, uid = self._cr, self._uid
-        report_obj = self.env['report']
-        report = report_obj._get_report_from_name(
-            'nh.clinical.observation_report')
         pretty_date_format = self.pretty_date_format
 
-        if isinstance(data, dict):
-            data = helpers.data_dict_to_obj(data)
-
         # set up pools
-        activity_pool = self.pool['nh.activity']
-        spell_pool = self.pool['nh.clinical.spell']
-        patient_pool = self.pool['nh.clinical.patient']
-        oxygen_target_pool = self.pool['nh.clinical.patient.o2target']
         company_pool = self.pool['res.company']
         partner_pool = self.pool['res.partner']
         user_pool = self.pool['res.users']
-        location_pool = self.pool['nh.clinical.location']
-        o2_level_pool = self.pool['nh.clinical.o2level']
 
         # get user data
         user = user_pool.read(cr, uid, uid, ['name'], context=None)['name']
@@ -113,6 +99,28 @@ class ObservationReport(models.AbstractModel):
         # generate report timestamp
         time_generated = fields.datetime.context_timestamp(
             cr, uid, datetime.now(), context=None).strftime(pretty_date_format)
+        return helpers.BaseReport(user, company_name, company_logo, time_generated)
+
+    @api.multi
+    def render_html(self, data=None):
+        cr, uid = self._cr, self._uid
+        pretty_date_format = self.pretty_date_format
+
+        # set up pools
+        activity_pool = self.pool['nh.activity']
+        spell_pool = self.pool['nh.clinical.spell']
+        patient_pool = self.pool['nh.clinical.patient']
+        oxygen_target_pool = self.pool['nh.clinical.patient.o2target']
+        partner_pool = self.pool['res.partner']
+        location_pool = self.pool['nh.clinical.location']
+        o2_level_pool = self.pool['nh.clinical.o2level']
+        report_obj = self.env['report']
+        report = report_obj._get_report_from_name('nh.clinical.observation_report')
+
+        if isinstance(data, dict):
+            data = helpers.data_dict_to_obj(data)
+
+        base_report = self.create_report_data(data)
 
         if data and data.spell_id:
             start_time = False
@@ -129,7 +137,7 @@ class ObservationReport(models.AbstractModel):
                 pretty_date_format, context=None)
             spell_end = spell['date_terminated']
             report_start = spell_start
-            report_end = time_generated
+            report_end = base_report.time_generated
             if start_time:
                 report_start = start_time.strftime(pretty_date_format)
             if end_time:
@@ -142,6 +150,7 @@ class ObservationReport(models.AbstractModel):
                         context=None)
             #
             spell_activity_id = spell['activity_id'][0]
+
             spell_docs = spell['con_doctor_ids']
             spell['consultants'] = False
             if len(spell_docs) > 0:
@@ -238,16 +247,14 @@ class ObservationReport(models.AbstractModel):
                 'report_start': report_start,
                 'report_end': report_end,
                 'spell_start': spell_start,
-                'company_logo': company_logo,
-                'time_generated': time_generated,
-                'hospital_name': company_name,
-                'user_name': user,
                 'ews_data': json_ews,
                 'draw_graph_js': observation_report
             }
 
+            ews_report = helpers.merge_dicts(ews_only, base_report.footer_values)
+
             if hasattr(data, 'ews_only') and data.ews_only:
-                return report_obj.render('nh_eobs.observation_report', ews_only)
+                return report_obj.render('nh_eobs.observation_report', ews_report)
 
             # get bristol_stool observations
             bristol_stools = self.get_model_data(spell_activity_id,

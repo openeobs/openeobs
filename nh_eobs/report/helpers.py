@@ -22,6 +22,16 @@ class DataObj(object):
         self.end_time = end_time
         self.ews_only = ews_only
 
+class BaseReport(object):
+    def __init__(self, user, company_name, company_logo, time_generated):
+        self.time_generated = time_generated
+        self.footer_values = {
+            'company_logo': company_logo,
+            'time_generated': time_generated,
+            'hospital_name': company_name,
+            'user_name': user
+        }
+
 def create_search_filter(spell_activity_id, model, start_date, end_date):
     if not spell_activity_id:
         raise ValueError('No spell activity id supplied')
