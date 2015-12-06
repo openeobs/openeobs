@@ -92,10 +92,6 @@ class ObservationReport(models.AbstractModel):
         if isinstance(data, dict):
             data = helpers.data_dict_to_obj(data)
 
-        # set up data
-        start_time = datetime.strptime(data.start_time, dtf) if data and data.start_time else False
-        end_time = datetime.strptime(data.end_time, dtf) if data and data.end_time else False
-
         # set up pools
         activity_pool = self.pool['nh.activity']
         spell_pool = self.pool['nh.clinical.spell']
@@ -119,26 +115,37 @@ class ObservationReport(models.AbstractModel):
             cr, uid, datetime.now(), context=None).strftime(pretty_date_format)
 
         if data and data.spell_id:
+            start_time = False
+            end_time = False
             spell_id = int(data.spell_id)
+            if data.start_time:
+                start_time = datetime.strptime(data.start_time, dtf)
+            if data.end_time:
+                end_time = datetime.strptime(data.end_time, dtf)
             spell = spell_pool.read(cr, uid, [spell_id])[0]
             # - get the start and end date of spell
             spell_start = helpers.convert_db_date_to_context_date(
                 cr, uid, datetime.strptime(spell['date_started'], dtf),
                 pretty_date_format, context=None)
             spell_end = spell['date_terminated']
-            report_start = start_time.strftime(pretty_date_format) if start_time else spell_start
+            report_start = spell_start
+            report_end = time_generated
+            if start_time:
+                report_start = start_time.strftime(pretty_date_format)
             if end_time:
                 report_end = end_time.strftime(pretty_date_format)
             else:
-                report_end = helpers.convert_db_date_to_context_date(
-                    cr, uid, datetime.strptime(spell_end, dtf),
-                    pretty_date_format,
-                    context=None) if spell_end else time_generated
+                if spell_end:
+                    report_end = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(spell_end, dtf),
+                        pretty_date_format,
+                        context=None)
             #
             spell_activity_id = spell['activity_id'][0]
-            spell['consultants'] = partner_pool.read(
-                cr, uid, spell['con_doctor_ids']) if len(
-                spell['con_doctor_ids']) > 0 else False
+            spell_docs = spell['con_doctor_ids']
+            spell['consultants'] = False
+            if len(spell_docs) > 0:
+                spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
             #
             # # - get patient id
             patient_id = spell['patient_id'][0]
@@ -161,21 +168,35 @@ class ObservationReport(models.AbstractModel):
                 o2_level_id = oxygen_target_pool.get_last(
                     cr, uid, patient_id,
                     observation['values']['date_terminated'])
-                o2_level = o2_level_pool.browse(
-                    cr, uid, o2_level_id) if o2_level_id else False
-                observation['values']['o2_target'] = o2_level.name if o2_level else False
-                observation['triggered_actions'] = [v for v in activity_pool.read(cr, uid, triggered_actions_ids) if v['data_model'] != 'nh.clinical.patient.observation.ews']
+                o2_level = False
+                if o2_level_id:
+                    o2_level = o2_level_pool.browse(cr, uid, o2_level_id)
+                observation['values']['o2_target'] = False
+                if o2_level:
+                    observation['values']['o2_target'] = o2_level.name
+                triggered_actions = []
+                for activity in activity_pool.read(cr, uid, triggered_actions_ids):
+                    if activity['data_model'] != 'nh.clinical.patient.observation.ews':
+                        triggered_actions.append(activity)
+                observation['triggered_actions'] = triggered_actions
                 for t in observation['triggered_actions']:
-                    t['date_started'] = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(t['date_started'], dtf),
-                        pretty_date_format) if t['date_started'] else False
-                    t['date_terminated'] = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(t['date_terminated'], dtf),
-                        pretty_date_format) if t['date_terminated'] else False
+                    ds = t.get('date_started', False)
+                    dt = t.get('date_terminated', False)
+                    if ds:
+                        t['date_started'] = helpers.convert_db_date_to_context_date(
+                            cr, uid, datetime.strptime(t['date_started'], dtf),
+                            pretty_date_format)
+                    if t['date_terminated']:
+                        t['date_terminated'] = helpers.convert_db_date_to_context_date(
+                            cr, uid, datetime.strptime(t['date_terminated'], dtf),
+                            pretty_date_format)
 
             #
             # # convert the obs into usable obs for table & report
-            json_ews = self.get_model_data_as_json([v['values'] for v in copy.deepcopy(ews)])
+            json_data = []
+            for activity in copy.deepcopy(ews):
+                json_data.append(activity['values'])
+            json_ews = self.get_model_data_as_json(json_data)
             table_ews = [v['values'] for v in ews]
             for table_ob in table_ews:
                 table_ob['date_terminated'] = datetime.strftime(
@@ -191,13 +212,19 @@ class ObservationReport(models.AbstractModel):
             heights = self.get_model_data(spell_activity_id,
                                           'nh.clinical.patient.observation.height',
                                           start_time, end_time)
-            patient['height'] = heights[-1]['values']['height'] if len(heights) > 0 else False
+            height = False
+            if len(heights) > 0:
+                height = heights[-1]['values']['height']
+            patient['height'] = height
 
             # get weight observations
             weights = self.get_model_data(spell_activity_id,
                                           'nh.clinical.patient.observation.weight',
                                           start_time, end_time)
-            patient['weight'] = weights[-1]['values']['weight'] if len(weights) > 0 else False
+            weight = False
+            if len(weights) > 0:
+                weight = weights[-1]['values']['weight']
+            patient['weight'] = weight
 
             ews_only = {
                 'doc_ids': self._ids,
@@ -227,26 +254,25 @@ class ObservationReport(models.AbstractModel):
                                          'nh.clinical.patient.observation.stools',
                                          start_time, end_time)
             for observation in bristol_stools:
-                observation['values']['bowel_open'] = 'Yes' if observation['values']['bowel_open'] else 'No'
-                observation['values']['vomiting'] = 'Yes' if observation['values']['vomiting'] else 'No'
-                observation['values']['nausea'] = 'Yes' if observation['values']['nausea'] else 'No'
-                observation['values']['strain'] = 'Yes' if observation['values']['strain'] else 'No'
-                observation['values']['offensive'] = 'Yes' if observation['values']['offensive'] else 'No'
-                observation['values']['laxatives'] = 'Yes' if observation['values']['laxatives'] else 'No'
-                observation['values']['rectal_exam'] = 'Yes' if observation['values']['rectal_exam'] else 'No'
+                observation['values']['bowel_open'] = helpers.boolean_to_text(observation['values']['bowel_open'])
+                observation['values']['vomiting'] = helpers.boolean_to_text(observation['values']['vomiting'])
+                observation['values']['nausea'] = helpers.boolean_to_text(observation['values']['nausea'])
+                observation['values']['strain'] = helpers.boolean_to_text(observation['values']['strain'])
+                observation['values']['offensive'] = helpers.boolean_to_text(observation['values']['offensive'])
+                observation['values']['laxatives'] = helpers.boolean_to_text(observation['values']['laxatives'])
+                observation['values']['rectal_exam'] = helpers.boolean_to_text(observation['values']['rectal_exam'])
             # # get transfer history
-            transfer_history = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.move',
-                                         start_time, end_time)
+            transfer_history = self.get_model_data(spell_activity_id, 'nh.clinical.patient.move', start_time, end_time)
             for observation in transfer_history:
                 patient_location = location_pool.read(
                     cr, uid, observation['values']['location_id'][0], [])
                 if patient_location:
-                    observation['bed'] = patient_location['name'] if patient_location['name'] else False
-                    observation['ward'] = patient_location['parent_id'][1] if patient_location['parent_id'] else False
+                    observation['bed'] = patient_location.get('name', False)
+                    observation['ward'] = patient_location.get('parent_id', False)
             if transfer_history:
-                patient['bed'] = transfer_history[-1]['bed'] if transfer_history[-1]['bed'] else False
-                patient['ward'] = transfer_history[-1]['ward'] if transfer_history[-1]['ward'] else False
+                th = transfer_history[-1]
+                patient['bed'] = th.get('bed',  False)
+                patient['ward'] = th.get('ward',  False)
 
             basic_obs = {
                 'pbps': 'nh.clinical.patient.observation.pbp',

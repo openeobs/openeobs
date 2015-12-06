@@ -56,3 +56,9 @@ def data_dict_to_obj(data_dict):
     end = data_dict['end_time'] if 'end_time' in data_dict and data_dict['end_time'] else None
     ews_only = data_dict['ews_only'] if 'ews_only' in data_dict and data_dict['ews_only'] else None
     return DataObj(spell_id, start, end, ews_only)
+
+def boolean_to_text(value):
+    value_as_text = 'No'
+    if value:
+        value_as_text = 'Yes'
+    value = value_as_text
