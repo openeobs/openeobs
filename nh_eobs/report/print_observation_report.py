@@ -164,54 +164,59 @@ class ObservationReport(models.AbstractModel):
                         'parent_id', False)
         return model_data
 
+    def process_report_dates(self, data, spell, base_report):
+        start_time = False
+        end_time = False
+        if data.start_time:
+            start_time = datetime.strptime(data.start_time, dtf)
+            data.start_time = start_time
+        if data.end_time:
+            end_time = datetime.strptime(data.end_time, dtf)
+            data.end_time = end_time
+
+        # - get the start and end date of spell
+        spell_start = helpers.convert_db_date_to_context_date(
+            self._cr, self._uid, datetime.strptime(spell['date_started'], dtf),
+            self.pretty_date_format, context=None)
+        spell_end = spell['date_terminated']
+        report_start = spell_start
+        report_end = base_report.time_generated
+        if start_time:
+            report_start = start_time.strftime(self.pretty_date_format)
+        if end_time:
+            report_end = end_time.strftime(self.pretty_date_format)
+        else:
+            if spell_end:
+                report_end = helpers.convert_db_date_to_context_date(
+                    self._cr, self._uid, datetime.strptime(spell_end, dtf),
+                    self.pretty_date_format,
+                    context=None)
+        return helpers.ReportDates(
+            report_start,
+            report_end,
+            spell_start,
+            spell_end
+        )
+
     @api.multi
     def render_html(self, data=None):
-        cr, uid = self._cr, self._uid
-        pretty_date_format = self.pretty_date_format
-
-        # set up pools
-        spell_pool = self.pool['nh.clinical.spell']
-        patient_pool = self.pool['nh.clinical.patient']
-        partner_pool = self.pool['res.partner']
-        location_pool = self.pool['nh.clinical.location']
-        report_obj = self.env['report']
-        report = report_obj._get_report_from_name(
-            'nh.clinical.observation_report')
 
         if isinstance(data, dict):
             data = helpers.data_dict_to_obj(data)
 
-        base_report = self.create_report_data(data)
-
         if data and data.spell_id:
-            start_time = False
-            end_time = False
+            cr, uid = self._cr, self._uid
+            # set up pools
+            spell_pool = self.pool['nh.clinical.spell']
+            patient_pool = self.pool['nh.clinical.patient']
+            partner_pool = self.pool['res.partner']
+            report_obj = self.env['report']
+            report = report_obj._get_report_from_name(
+                'nh.clinical.observation_report')
+            base_report = self.create_report_data(data)
             spell_id = int(data.spell_id)
-            if data.start_time:
-                start_time = datetime.strptime(data.start_time, dtf)
-                data.start_time = start_time
-            if data.end_time:
-                end_time = datetime.strptime(data.end_time, dtf)
-                data.end_time = end_time
             spell = spell_pool.read(cr, uid, [spell_id])[0]
-            # - get the start and end date of spell
-            spell_start = helpers.convert_db_date_to_context_date(
-                cr, uid, datetime.strptime(spell['date_started'], dtf),
-                pretty_date_format, context=None)
-            spell_end = spell['date_terminated']
-            report_start = spell_start
-            report_end = base_report.time_generated
-            if start_time:
-                report_start = start_time.strftime(pretty_date_format)
-            if end_time:
-                report_end = end_time.strftime(pretty_date_format)
-            else:
-                if spell_end:
-                    report_end = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(spell_end, dtf),
-                        pretty_date_format,
-                        context=None)
-            #
+            dates = self.process_report_dates(data, spell, base_report)
             spell_activity_id = spell['activity_id'][0]
 
             spell_docs = spell['con_doctor_ids']
@@ -234,13 +239,6 @@ class ObservationReport(models.AbstractModel):
                 json_data.append(activity['values'])
             json_ews = self.get_model_data_as_json(json_data)
             table_ews = [v['values'] for v in ews]
-            for table_ob in table_ews:
-                table_ob['date_terminated'] = datetime.strftime(
-                    datetime.strptime(
-                        table_ob['date_terminated'],
-                        self.pretty_date_format),
-                    pretty_date_format)
-
 
             # Get the script files to load
             observation_report = '/nh_eobs/static/src/js/observation_report.js'
@@ -250,7 +248,7 @@ class ObservationReport(models.AbstractModel):
             heights = self.get_model_data(
                 spell_activity_id,
                 'nh.clinical.patient.observation.height',
-                start_time, end_time)
+                data.start_time, data.end_time)
             height = False
             if len(heights) > 0:
                 height = heights[-1]['values']['height']
@@ -260,7 +258,7 @@ class ObservationReport(models.AbstractModel):
             weights = self.get_model_data(
                 spell_activity_id,
                 'nh.clinical.patient.observation.weight',
-                start_time, end_time)
+                data.start_time, data.end_time)
             weight = False
             if len(weights) > 0:
                 weight = weights[-1]['values']['weight']
@@ -275,9 +273,9 @@ class ObservationReport(models.AbstractModel):
                 'ews': ews,
                 'table_ews': table_ews,
                 'weights': weights,
-                'report_start': report_start,
-                'report_end': report_end,
-                'spell_start': spell_start,
+                'report_start': dates.report_start,
+                'report_end': dates.report_end,
+                'spell_start': dates.spell_start,
                 'ews_data': json_ews,
                 'draw_graph_js': observation_report
             }
@@ -294,14 +292,14 @@ class ObservationReport(models.AbstractModel):
                 self.get_model_data(
                     spell_activity_id,
                     'nh.clinical.patient.observation.stools',
-                    start_time, end_time))
+                    data.start_time, data.end_time))
 
             # # get transfer history
             transfer_history = self.process_transfer_history(
                 self.get_model_data(
                     spell_activity_id,
                     'nh.clinical.patient.move',
-                    start_time, end_time)
+                    data.start_time, data.end_time)
             )
             if transfer_history:
                 th = transfer_history[-1]
@@ -324,13 +322,13 @@ class ObservationReport(models.AbstractModel):
 
             for k, v in basic_obs.iteritems():
                 basic_obs[k] = self.get_model_data(
-                    spell_activity_id, v, start_time, end_time)
+                    spell_activity_id, v, data.start_time, data.end_time)
 
             device_session_history = self.get_multi_model_data(
                     spell_activity_id,
                     'nh.clinical.patient.o2target',
                     'nh.clinical.device.session',
-                    start_time, end_time)
+                    data.start_time, data.end_time)
 
             non_basic_obs = {
                 'bristol_stools': bristol_stools,

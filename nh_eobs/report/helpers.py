@@ -14,6 +14,7 @@ def merge_dicts(*dict_args):
         result.update(dictionary)
     return result
 
+
 class DataObj(object):
     def __init__(self, spell_id=None, start_time=None, end_time=None,
                  ews_only=None):
@@ -21,6 +22,7 @@ class DataObj(object):
         self.start_time = start_time
         self.end_time = end_time
         self.ews_only = ews_only
+
 
 class BaseReport(object):
     def __init__(self, user, company_name, company_logo, time_generated):
@@ -31,6 +33,15 @@ class BaseReport(object):
             'hospital_name': company_name,
             'user_name': user
         }
+
+
+class ReportDates(object):
+    def __init__(self, report_start, report_end, spell_start, spell_end):
+        self.report_start = report_start
+        self.report_end = report_end
+        self.spell_start = spell_start
+        self.spell_end = spell_end
+
 
 def create_search_filter(spell_activity_id, model, start_date, end_date):
     if not spell_activity_id:
