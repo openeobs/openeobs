@@ -140,19 +140,43 @@ class ObservationReport(models.AbstractModel):
                         self.pretty_date_format)
         return ews
 
+    def convert_bristol_stools_booleans(self, model_data):
+        for ob in model_data:
+            vals = ob['values']
+            vals['bowel_open'] = helpers.boolean_to_text(vals['bowel_open'])
+            vals['vomiting'] = helpers.boolean_to_text(vals['vomiting'])
+            vals['nausea'] = helpers.boolean_to_text(vals['nausea'])
+            vals['strain'] = helpers.boolean_to_text(vals['strain'])
+            vals['offensive'] = helpers.boolean_to_text(vals['offensive'])
+            vals['laxatives'] = helpers.boolean_to_text(vals['laxatives'])
+            vals['rectal_exam'] = helpers.boolean_to_text(vals['rectal_exam'])
+        return model_data
+
+    def process_transfer_history(self, model_data):
+        for observation in model_data:
+                patient_location = self.pool['nh.clinical.location'].read(
+                    self._cr,
+                    self._uid,
+                    observation['values']['location_id'][0], [])
+                if patient_location:
+                    observation['bed'] = patient_location.get('name', False)
+                    observation['ward'] = patient_location.get(
+                        'parent_id', False)
+        return model_data
+
     @api.multi
     def render_html(self, data=None):
         cr, uid = self._cr, self._uid
         pretty_date_format = self.pretty_date_format
 
         # set up pools
-
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
         partner_pool = self.pool['res.partner']
         location_pool = self.pool['nh.clinical.location']
         report_obj = self.env['report']
-        report = report_obj._get_report_from_name('nh.clinical.observation_report')
+        report = report_obj._get_report_from_name(
+            'nh.clinical.observation_report')
 
         if isinstance(data, dict):
             data = helpers.data_dict_to_obj(data)
@@ -212,7 +236,9 @@ class ObservationReport(models.AbstractModel):
             table_ews = [v['values'] for v in ews]
             for table_ob in table_ews:
                 table_ob['date_terminated'] = datetime.strftime(
-                    datetime.strptime(table_ob['date_terminated'], self.pretty_date_format),
+                    datetime.strptime(
+                        table_ob['date_terminated'],
+                        self.pretty_date_format),
                     pretty_date_format)
 
 
@@ -221,18 +247,20 @@ class ObservationReport(models.AbstractModel):
 
             #
             # # get height observations
-            heights = self.get_model_data(spell_activity_id,
-                                          'nh.clinical.patient.observation.height',
-                                          start_time, end_time)
+            heights = self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.height',
+                start_time, end_time)
             height = False
             if len(heights) > 0:
                 height = heights[-1]['values']['height']
             patient['height'] = height
 
             # get weight observations
-            weights = self.get_model_data(spell_activity_id,
-                                          'nh.clinical.patient.observation.weight',
-                                          start_time, end_time)
+            weights = self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.weight',
+                start_time, end_time)
             weight = False
             if len(weights) > 0:
                 weight = weights[-1]['values']['weight']
@@ -254,31 +282,27 @@ class ObservationReport(models.AbstractModel):
                 'draw_graph_js': observation_report
             }
 
-            ews_report = helpers.merge_dicts(ews_only, base_report.footer_values)
+            ews_report = helpers.merge_dicts(ews_only,
+                                             base_report.footer_values)
 
             if hasattr(data, 'ews_only') and data.ews_only:
-                return report_obj.render('nh_eobs.observation_report', ews_report)
+                return report_obj.render('nh_eobs.observation_report',
+                                         ews_report)
 
             # get bristol_stool observations
-            bristol_stools = self.get_model_data(spell_activity_id,
-                                         'nh.clinical.patient.observation.stools',
-                                         start_time, end_time)
-            for observation in bristol_stools:
-                observation['values']['bowel_open'] = helpers.boolean_to_text(observation['values']['bowel_open'])
-                observation['values']['vomiting'] = helpers.boolean_to_text(observation['values']['vomiting'])
-                observation['values']['nausea'] = helpers.boolean_to_text(observation['values']['nausea'])
-                observation['values']['strain'] = helpers.boolean_to_text(observation['values']['strain'])
-                observation['values']['offensive'] = helpers.boolean_to_text(observation['values']['offensive'])
-                observation['values']['laxatives'] = helpers.boolean_to_text(observation['values']['laxatives'])
-                observation['values']['rectal_exam'] = helpers.boolean_to_text(observation['values']['rectal_exam'])
+            bristol_stools = self.convert_bristol_stools_booleans(
+                self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.observation.stools',
+                    start_time, end_time))
+
             # # get transfer history
-            transfer_history = self.get_model_data(spell_activity_id, 'nh.clinical.patient.move', start_time, end_time)
-            for observation in transfer_history:
-                patient_location = location_pool.read(
-                    cr, uid, observation['values']['location_id'][0], [])
-                if patient_location:
-                    observation['bed'] = patient_location.get('name', False)
-                    observation['ward'] = patient_location.get('parent_id', False)
+            transfer_history = self.process_transfer_history(
+                self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.move',
+                    start_time, end_time)
+            )
             if transfer_history:
                 th = transfer_history[-1]
                 patient['bed'] = th.get('bed',  False)
@@ -302,13 +326,15 @@ class ObservationReport(models.AbstractModel):
                 basic_obs[k] = self.get_model_data(
                     spell_activity_id, v, start_time, end_time)
 
-            non_basic_obs = {
-                'bristol_stools': bristol_stools,
-                'device_session_history': self.get_multi_model_data(
+            device_session_history = self.get_multi_model_data(
                     spell_activity_id,
                     'nh.clinical.patient.o2target',
                     'nh.clinical.device.session',
-                    start_time, end_time),
+                    start_time, end_time)
+
+            non_basic_obs = {
+                'bristol_stools': bristol_stools,
+                'device_session_history': device_session_history,
                 'transfer_history': transfer_history,
             }
             rep_data = helpers.merge_dicts(basic_obs, non_basic_obs, ews_only)
