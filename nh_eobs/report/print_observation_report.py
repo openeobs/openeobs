@@ -198,6 +198,12 @@ class ObservationReport(models.AbstractModel):
             spell_end
         )
 
+    def get_activity_data_from_dict(self, dict, spell_id, data):
+        for k, v in dict.iteritems():
+            dict[k] = self.get_model_data(
+                spell_id, v, data.start_time, data.end_time)
+        return dict
+
     @api.multi
     def render_html(self, data=None):
 
@@ -235,30 +241,32 @@ class ObservationReport(models.AbstractModel):
                 '%d/%m/%Y', context=None)
             ews = self.get_ews_observations(data)
             json_data = []
+            table_ews = []
             for activity in copy.deepcopy(ews):
                 json_data.append(activity['values'])
+                table_ews.append(activity['values'])
             json_ews = self.get_model_data_as_json(json_data)
-            table_ews = [v['values'] for v in ews]
 
             # Get the script files to load
             observation_report = '/nh_eobs/static/src/js/observation_report.js'
 
-            #
-            # # get height observations
-            heights = self.get_model_data(
+            height_weight_dict = {
+                'height': 'nh.clinical.patient.observation.height',
+                'weight': 'nh.clinical.patient.observation.weight'
+            }
+            height_weight = self.get_activity_data_from_dict(
+                height_weight_dict,
                 spell_activity_id,
-                'nh.clinical.patient.observation.height',
-                data.start_time, data.end_time)
+                data
+            )
+            heights = height_weight['height']
             height = False
             if len(heights) > 0:
                 height = heights[-1]['values']['height']
             patient['height'] = height
 
             # get weight observations
-            weights = self.get_model_data(
-                spell_activity_id,
-                'nh.clinical.patient.observation.weight',
-                data.start_time, data.end_time)
+            weights = height_weight['weight']
             weight = False
             if len(weights) > 0:
                 weight = weights[-1]['values']['weight']
@@ -287,26 +295,7 @@ class ObservationReport(models.AbstractModel):
                 return report_obj.render('nh_eobs.observation_report',
                                          ews_report)
 
-            # get bristol_stool observations
-            bristol_stools = self.convert_bristol_stools_booleans(
-                self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.stools',
-                    data.start_time, data.end_time))
-
-            # # get transfer history
-            transfer_history = self.process_transfer_history(
-                self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.move',
-                    data.start_time, data.end_time)
-            )
-            if transfer_history:
-                th = transfer_history[-1]
-                patient['bed'] = th.get('bed',  False)
-                patient['ward'] = th.get('ward',  False)
-
-            basic_obs = {
+            basic_obs_dict = {
                 'pbps': 'nh.clinical.patient.observation.pbp',
                 'gcs': 'nh.clinical.patient.observation.gcs',
                 'bs': 'nh.clinical.patient.observation.blood_sugar',
@@ -320,9 +309,28 @@ class ObservationReport(models.AbstractModel):
                 'critical_care_history': 'nh.clinical.patient.critical_care',
             }
 
-            for k, v in basic_obs.iteritems():
-                basic_obs[k] = self.get_model_data(
-                    spell_activity_id, v, data.start_time, data.end_time)
+            basic_obs = self.get_activity_data_from_dict(
+                basic_obs_dict,
+                spell_activity_id,
+                data
+            )
+
+            bristol_stools = self.convert_bristol_stools_booleans(
+                self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.observation.stools',
+                    data.start_time, data.end_time))
+
+            transfer_history = self.process_transfer_history(
+                self.get_model_data(
+                    spell_activity_id,
+                    'nh.clinical.patient.move',
+                    data.start_time, data.end_time)
+            )
+            if transfer_history:
+                th = transfer_history[-1]
+                patient['bed'] = th.get('bed',  False)
+                patient['ward'] = th.get('ward',  False)
 
             device_session_history = self.get_multi_model_data(
                     spell_activity_id,
