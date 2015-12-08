@@ -13,6 +13,7 @@ class ObservationReport(models.AbstractModel):
 
     pretty_date_format = '%H:%M %d/%m/%y'
     wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
+    patient_id = None
 
     def get_activity_data(self, spell_id, model, start_time, end_time):
         cr, uid = self._cr, self._uid
@@ -101,19 +102,55 @@ class ObservationReport(models.AbstractModel):
             cr, uid, datetime.now(), context=None).strftime(pretty_date_format)
         return helpers.BaseReport(user, company_name, company_logo, time_generated)
 
+    def get_ews_observations(self, data):
+        cr, uid = self._cr, self._uid
+        ews_model = 'nh.clinical.patient.observation.ews'
+        ews = self.get_model_data(data.spell_id,
+                                  ews_model,
+                                  data.start_time, data.end_time)
+        for observation in ews:
+            triggered_actions_ids = self.pool['nh.activity'].search(
+                cr, uid, [['creator_id', '=', observation['id']]])
+            o2_level_id = self.pool['nh.clinical.patient.o2target'].get_last(
+                cr, uid, self.patient_id,
+                observation['values']['date_terminated'])
+            o2_level = False
+            if o2_level_id:
+                o2_level = self.pool['nh.clinical.o2level'].browse(
+                    cr, uid, o2_level_id)
+            observation['values']['o2_target'] = False
+            if o2_level:
+                observation['values']['o2_target'] = o2_level.name
+            triggered_actions = []
+            for activity in self.pool['nh.activity'].read(
+                    cr, uid, triggered_actions_ids):
+                if activity['data_model'] != ews_model:
+                    triggered_actions.append(activity)
+            observation['triggered_actions'] = triggered_actions
+            for t in observation['triggered_actions']:
+                ds = t.get('date_started', False)
+                dt = t.get('date_terminated', False)
+                if ds:
+                    t['date_started'] = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(t['date_started'], dtf),
+                        self.pretty_date_format)
+                if t['date_terminated']:
+                    t['date_terminated'] = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(t['date_terminated'], dtf),
+                        self.pretty_date_format)
+        return ews
+
     @api.multi
     def render_html(self, data=None):
         cr, uid = self._cr, self._uid
         pretty_date_format = self.pretty_date_format
 
         # set up pools
-        activity_pool = self.pool['nh.activity']
+
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
-        oxygen_target_pool = self.pool['nh.clinical.patient.o2target']
         partner_pool = self.pool['res.partner']
         location_pool = self.pool['nh.clinical.location']
-        o2_level_pool = self.pool['nh.clinical.o2level']
         report_obj = self.env['report']
         report = report_obj._get_report_from_name('nh.clinical.observation_report')
 
@@ -128,8 +165,10 @@ class ObservationReport(models.AbstractModel):
             spell_id = int(data.spell_id)
             if data.start_time:
                 start_time = datetime.strptime(data.start_time, dtf)
+                data.start_time = start_time
             if data.end_time:
                 end_time = datetime.strptime(data.end_time, dtf)
+                data.end_time = end_time
             spell = spell_pool.read(cr, uid, [spell_id])[0]
             # - get the start and end date of spell
             spell_start = helpers.convert_db_date_to_context_date(
@@ -157,51 +196,15 @@ class ObservationReport(models.AbstractModel):
                 spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
             #
             # # - get patient id
-            patient_id = spell['patient_id'][0]
+            self.patient_id = spell['patient_id'][0]
+            patient_id = self.patient_id
             #
             # get patient information
             patient = patient_pool.read(cr, uid, [patient_id])[0]
             patient['dob'] = helpers.convert_db_date_to_context_date(
                 cr, uid, datetime.strptime(patient['dob'], dtf),
                 '%d/%m/%Y', context=None)
-            #
-            # # get ews observations for patient
-            ews = self.get_model_data(
-                spell_activity_id, 'nh.clinical.patient.observation.ews',
-                start_time, end_time)
-
-            # get triggered actions from ews
-            for observation in ews:
-                triggered_actions_ids = activity_pool.search(
-                    cr, uid, [['creator_id', '=', observation['id']]])
-                o2_level_id = oxygen_target_pool.get_last(
-                    cr, uid, patient_id,
-                    observation['values']['date_terminated'])
-                o2_level = False
-                if o2_level_id:
-                    o2_level = o2_level_pool.browse(cr, uid, o2_level_id)
-                observation['values']['o2_target'] = False
-                if o2_level:
-                    observation['values']['o2_target'] = o2_level.name
-                triggered_actions = []
-                for activity in activity_pool.read(cr, uid, triggered_actions_ids):
-                    if activity['data_model'] != 'nh.clinical.patient.observation.ews':
-                        triggered_actions.append(activity)
-                observation['triggered_actions'] = triggered_actions
-                for t in observation['triggered_actions']:
-                    ds = t.get('date_started', False)
-                    dt = t.get('date_terminated', False)
-                    if ds:
-                        t['date_started'] = helpers.convert_db_date_to_context_date(
-                            cr, uid, datetime.strptime(t['date_started'], dtf),
-                            pretty_date_format)
-                    if t['date_terminated']:
-                        t['date_terminated'] = helpers.convert_db_date_to_context_date(
-                            cr, uid, datetime.strptime(t['date_terminated'], dtf),
-                            pretty_date_format)
-
-            #
-            # # convert the obs into usable obs for table & report
+            ews = self.get_ews_observations(data)
             json_data = []
             for activity in copy.deepcopy(ews):
                 json_data.append(activity['values'])
