@@ -220,6 +220,130 @@ class ObservationReport(models.AbstractModel):
         patient['weight'] = weight
         return patient
 
+    def get_report_data(self,data, ews_only=False):
+        cr, uid = self._cr, self._uid
+        # set up pools
+        report = self.env['report']._get_report_from_name(
+            'nh.clinical.observation_report')
+        spell_pool = self.pool['nh.clinical.spell']
+        patient_pool = self.pool['nh.clinical.patient']
+        partner_pool = self.pool['res.partner']
+        base_report = self.create_report_data(data)
+        spell_id = int(data.spell_id)
+        spell = spell_pool.read(cr, uid, [spell_id])[0]
+        dates = self.process_report_dates(data, spell, base_report)
+        spell_activity_id = spell['activity_id'][0]
+
+        spell_docs = spell['con_doctor_ids']
+        spell['consultants'] = False
+        if len(spell_docs) > 0:
+            spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
+        #
+        # # - get patient id
+        self.patient_id = spell['patient_id'][0]
+        patient_id = self.patient_id
+        #
+        # get patient information
+        patient = patient_pool.read(cr, uid, [patient_id])[0]
+        patient['dob'] = helpers.convert_db_date_to_context_date(
+            cr, uid, datetime.strptime(patient['dob'], dtf),
+            '%d/%m/%Y', context=None)
+        ews = self.get_ews_observations(data)
+        json_data = []
+        table_ews = []
+        for activity in copy.deepcopy(ews):
+            json_data.append(activity['values'])
+            table_ews.append(activity['values'])
+        json_ews = self.get_model_data_as_json(json_data)
+
+        # Get the script files to load
+        observation_report = '/nh_eobs/static/src/js/observation_report.js'
+
+        height_weight_dict = {
+            'height': 'nh.clinical.patient.observation.height',
+            'weight': 'nh.clinical.patient.observation.weight'
+        }
+        height_weight = self.get_activity_data_from_dict(
+            height_weight_dict,
+            spell_activity_id,
+            data
+        )
+        patient = self.process_patient_height_weight(patient, height_weight)
+        weights = height_weight['weight']
+
+        ews_only = {
+            'doc_ids': self._ids,
+            'doc_model': report.model,
+            'docs': self,
+            'spell': spell,
+            'patient': patient,
+            'ews': ews,
+            'table_ews': table_ews,
+            'weights': weights,
+            'report_start': dates.report_start,
+            'report_end': dates.report_end,
+            'spell_start': dates.spell_start,
+            'ews_data': json_ews,
+            'draw_graph_js': observation_report
+        }
+
+        ews_report = helpers.merge_dicts(ews_only,
+                                         base_report.footer_values)
+        if ews_only:
+            return ews_report
+
+        basic_obs_dict = {
+            'pbps': 'nh.clinical.patient.observation.pbp',
+            'gcs': 'nh.clinical.patient.observation.gcs',
+            'bs': 'nh.clinical.patient.observation.blood_sugar',
+            'pains': 'nh.clinical.patient.observation.pain',
+            'blood_products': 'nh.clinical.patient.observation.blood_product',
+            'targeto2': 'nh.clinical.patient.o2target',
+            'mrsa_history': 'nh.clinical.patient.mrsa',
+            'diabetes_history': 'nh.clinical.patient.diabetes',
+            'palliative_care_history': 'nh.clinical.patient.palliative_care',
+            'post_surgery_history': 'nh.clinical.patient.post_surgery',
+            'critical_care_history': 'nh.clinical.patient.critical_care',
+        }
+
+        basic_obs = self.get_activity_data_from_dict(
+            basic_obs_dict,
+            spell_activity_id,
+            data
+        )
+
+        bristol_stools = self.convert_bristol_stools_booleans(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.stools',
+                data.start_time, data.end_time))
+
+        transfer_history = self.process_transfer_history(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.move',
+                data.start_time, data.end_time)
+        )
+        if transfer_history:
+            th = transfer_history[-1]
+            patient['bed'] = th.get('bed',  False)
+            patient['ward'] = th.get('ward',  False)
+
+        device_session_history = self.get_multi_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.o2target',
+                'nh.clinical.device.session',
+                data.start_time, data.end_time)
+
+        non_basic_obs = {
+            'bristol_stools': bristol_stools,
+            'device_session_history': device_session_history,
+            'transfer_history': transfer_history,
+        }
+        rep_data = helpers.merge_dicts(basic_obs, non_basic_obs, ews_only)
+        return rep_data
+
+
     @api.multi
     def render_html(self, data=None):
 
@@ -227,129 +351,14 @@ class ObservationReport(models.AbstractModel):
             data = helpers.data_dict_to_obj(data)
 
         if data and data.spell_id:
-            cr, uid = self._cr, self._uid
-            # set up pools
-            spell_pool = self.pool['nh.clinical.spell']
-            patient_pool = self.pool['nh.clinical.patient']
-            partner_pool = self.pool['res.partner']
             report_obj = self.env['report']
             report = report_obj._get_report_from_name(
-                'nh.clinical.observation_report')
-            base_report = self.create_report_data(data)
-            spell_id = int(data.spell_id)
-            spell = spell_pool.read(cr, uid, [spell_id])[0]
-            dates = self.process_report_dates(data, spell, base_report)
-            spell_activity_id = spell['activity_id'][0]
-
-            spell_docs = spell['con_doctor_ids']
-            spell['consultants'] = False
-            if len(spell_docs) > 0:
-                spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
-            #
-            # # - get patient id
-            self.patient_id = spell['patient_id'][0]
-            patient_id = self.patient_id
-            #
-            # get patient information
-            patient = patient_pool.read(cr, uid, [patient_id])[0]
-            patient['dob'] = helpers.convert_db_date_to_context_date(
-                cr, uid, datetime.strptime(patient['dob'], dtf),
-                '%d/%m/%Y', context=None)
-            ews = self.get_ews_observations(data)
-            json_data = []
-            table_ews = []
-            for activity in copy.deepcopy(ews):
-                json_data.append(activity['values'])
-                table_ews.append(activity['values'])
-            json_ews = self.get_model_data_as_json(json_data)
-
-            # Get the script files to load
-            observation_report = '/nh_eobs/static/src/js/observation_report.js'
-
-            height_weight_dict = {
-                'height': 'nh.clinical.patient.observation.height',
-                'weight': 'nh.clinical.patient.observation.weight'
-            }
-            height_weight = self.get_activity_data_from_dict(
-                height_weight_dict,
-                spell_activity_id,
-                data
-            )
-            patient = self.process_patient_height_weight(patient, height_weight)
-            weights = height_weight['weight']
-
-            ews_only = {
-                'doc_ids': self._ids,
-                'doc_model': report.model,
-                'docs': self,
-                'spell': spell,
-                'patient': patient,
-                'ews': ews,
-                'table_ews': table_ews,
-                'weights': weights,
-                'report_start': dates.report_start,
-                'report_end': dates.report_end,
-                'spell_start': dates.spell_start,
-                'ews_data': json_ews,
-                'draw_graph_js': observation_report
-            }
-
-            ews_report = helpers.merge_dicts(ews_only,
-                                             base_report.footer_values)
-
+            'nh.clinical.observation_report')
             if hasattr(data, 'ews_only') and data.ews_only:
+                ews_report = self.get_report_data(data, ews_only=True)
                 return report_obj.render('nh_eobs.observation_report',
                                          ews_report)
-
-            basic_obs_dict = {
-                'pbps': 'nh.clinical.patient.observation.pbp',
-                'gcs': 'nh.clinical.patient.observation.gcs',
-                'bs': 'nh.clinical.patient.observation.blood_sugar',
-                'pains': 'nh.clinical.patient.observation.pain',
-                'blood_products': 'nh.clinical.patient.observation.blood_product',
-                'targeto2': 'nh.clinical.patient.o2target',
-                'mrsa_history': 'nh.clinical.patient.mrsa',
-                'diabetes_history': 'nh.clinical.patient.diabetes',
-                'palliative_care_history': 'nh.clinical.patient.palliative_care',
-                'post_surgery_history': 'nh.clinical.patient.post_surgery',
-                'critical_care_history': 'nh.clinical.patient.critical_care',
-            }
-
-            basic_obs = self.get_activity_data_from_dict(
-                basic_obs_dict,
-                spell_activity_id,
-                data
-            )
-
-            bristol_stools = self.convert_bristol_stools_booleans(
-                self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.stools',
-                    data.start_time, data.end_time))
-
-            transfer_history = self.process_transfer_history(
-                self.get_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.move',
-                    data.start_time, data.end_time)
-            )
-            if transfer_history:
-                th = transfer_history[-1]
-                patient['bed'] = th.get('bed',  False)
-                patient['ward'] = th.get('ward',  False)
-
-            device_session_history = self.get_multi_model_data(
-                    spell_activity_id,
-                    'nh.clinical.patient.o2target',
-                    'nh.clinical.device.session',
-                    data.start_time, data.end_time)
-
-            non_basic_obs = {
-                'bristol_stools': bristol_stools,
-                'device_session_history': device_session_history,
-                'transfer_history': transfer_history,
-            }
-            rep_data = helpers.merge_dicts(basic_obs, non_basic_obs, ews_only)
+            rep_data = self.get_report_data(data)
             return report_obj.render(
                 'nh_eobs.observation_report',
                 rep_data)
