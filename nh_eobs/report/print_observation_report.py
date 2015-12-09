@@ -204,6 +204,22 @@ class ObservationReport(models.AbstractModel):
                 spell_id, v, data.start_time, data.end_time)
         return dict
 
+    @staticmethod
+    def process_patient_height_weight(patient, height_weight):
+        heights = height_weight['height']
+        height = False
+        if len(heights) > 0:
+            height = heights[-1]['values']['height']
+        patient['height'] = height
+
+        # get weight observations
+        weights = height_weight['weight']
+        weight = False
+        if len(weights) > 0:
+            weight = weights[-1]['values']['weight']
+        patient['weight'] = weight
+        return patient
+
     @api.multi
     def render_html(self, data=None):
 
@@ -259,18 +275,8 @@ class ObservationReport(models.AbstractModel):
                 spell_activity_id,
                 data
             )
-            heights = height_weight['height']
-            height = False
-            if len(heights) > 0:
-                height = heights[-1]['values']['height']
-            patient['height'] = height
-
-            # get weight observations
+            patient = self.process_patient_height_weight(patient, height_weight)
             weights = height_weight['weight']
-            weight = False
-            if len(weights) > 0:
-                weight = weights[-1]['values']['weight']
-            patient['weight'] = weight
 
             ews_only = {
                 'doc_ids': self._ids,
