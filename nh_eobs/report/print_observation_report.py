@@ -140,7 +140,8 @@ class ObservationReport(models.AbstractModel):
                         self.pretty_date_format)
         return ews
 
-    def convert_bristol_stools_booleans(self, model_data):
+    @staticmethod
+    def convert_bristol_stools_booleans(model_data):
         for ob in model_data:
             vals = ob['values']
             vals['bowel_open'] = helpers.boolean_to_text(vals['bowel_open'])
