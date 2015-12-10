@@ -1,7 +1,5 @@
-__author__ = 'lorenzo'
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import logging
-import re
 import requests
 from random import choice as random_choice
 
@@ -82,7 +80,13 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         """
         users_pool = self.registry['res.users']
         users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', group_name)],
+                                                  domain=[
+                                                      (
+                                                          'groups_id.name',
+                                                          '=',
+                                                          group_name
+                                                      )
+                                                  ],
                                                   fields=['login'])
         login_name = random_choice(users_login_list).get('login')
         return login_name
@@ -117,7 +121,8 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         super(TestMobileControllerRouting, self).setUp()
         self.session_resp = requests.post(BASE_URL + 'web', {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
-            self.fail('Cannot retrieve a valid session to be used for the tests!')
+            self.fail(
+                'Cannot retrieve a valid session to be used for the tests!')
 
     def test_login_endpoint_is_reachable_as_not_authenticated_user(self):
         login_route = self.routes_dictionary['login']
@@ -126,7 +131,7 @@ class TestMobileControllerRouting(tests.common.HttpCase):
                                          cookies=self.session_resp.cookies)
         self._check_response_status(test_resp, redirection_expected=False)
 
-    def test_patient_list_endpoint_is_not_reachable_as_not_authenticated_user(self):
+    def test_patient_list_endpoint_not_reachable_not_authenticated_user(self):
         patient_list_route = self.routes_dictionary['patient_list']
         url_to_reach = self._build_url(patient_list_route['endpoint'])
         test_resp = self._reach_endpoint(url_to_reach, 'GET',
@@ -155,7 +160,7 @@ class TestMobileControllerRouting(tests.common.HttpCase):
                                              cookies=auth_resp.cookies)
             self._check_response_status(test_resp, redirection_expected=False)
 
-    def test_task_list_endpoint_is_not_reachable_as_not_authenticated_user(self):
+    def test_task_list_endpoint_is_not_reachable_not_authenticated_user(self):
         task_list_route = self.routes_dictionary['task_list']
         url_to_reach = self._build_url(task_list_route['endpoint'])
         test_resp = self._reach_endpoint(url_to_reach, 'GET',
@@ -184,14 +189,14 @@ class TestMobileControllerRouting(tests.common.HttpCase):
                                              cookies=auth_resp.cookies)
             self._check_response_status(test_resp, redirection_expected=False)
 
-    def test_share_patient_list_endpoint_is_not_reachable_as_not_authenticated_user(self):
+    def test_share_patient_list_endpoint_not_reachable_not_authd_user(self):
         share_patients_route = self.routes_dictionary['share_patient_list']
         url_to_reach = self._build_url(share_patients_route['endpoint'])
         test_resp = self._reach_endpoint(url_to_reach, 'GET',
                                          cookies=self.session_resp.cookies)
         self._check_response_status(test_resp, redirection_expected=True)
 
-    def test_share_patient_list_endpoint_is_reachable_as_authenticated_user(self):
+    def test_share_patient_list_endpoint_is_reachable_as_authd_user(self):
         share_patients_route = self.routes_dictionary['share_patient_list']
         url_to_reach = self._build_url(share_patients_route['endpoint'])
         users_to_test = []
@@ -213,28 +218,28 @@ class TestMobileControllerRouting(tests.common.HttpCase):
                                              cookies=auth_resp.cookies)
             self._check_response_status(test_resp, redirection_expected=False)
 
-    def test_single_patient_endpoint_is_not_reachable_as_not_authenticated_user(self):
+    def test_single_patient_endpoint_is_not_reachable_as_not_authd_user(self):
         single_patient_route = self.routes_dictionary['single_patient']
         url_to_reach = self._build_url(single_patient_route['endpoint'], '1')
         test_resp = self._reach_endpoint(url_to_reach, 'GET',
                                          cookies=self.session_resp.cookies)
         self._check_response_status(test_resp, redirection_expected=True)
 
-    def test_single_task_endpoint_is_not_reachable_as_not_authenticated_user(self):
+    def test_single_task_endpoint_is_not_reachable_as_not_authd_user(self):
         single_task_route = self.routes_dictionary['single_task']
         url_to_reach = self._build_url(single_task_route['endpoint'], '1')
         test_resp = self._reach_endpoint(url_to_reach, 'GET',
                                          cookies=self.session_resp.cookies)
         self._check_response_status(test_resp, redirection_expected=True)
 
-    def test_task_form_action_endpoint_is_not_reachable_as_not_authenticated_user(self):
+    def test_task_form_action_endpoint_is_not_reachable_not_authd_user(self):
         task_form_action_route = self.routes_dictionary['task_form_action']
         url_to_reach = self._build_url(task_form_action_route['endpoint'], '1')
         test_resp = self._reach_endpoint(url_to_reach, 'GET',
                                          cookies=self.session_resp.cookies)
         self._check_response_status(test_resp, redirection_expected=True)
 
-    def test_patient_ob_endpoint_is_not_reachable_as_not_authenticated_user(self):
+    def test_patient_ob_endpoint_is_not_reachable_as_not_authd_user(self):
         patient_ob_route = self.routes_dictionary['patient_ob']
         url_to_reach = self._build_url(patient_ob_route['endpoint'],
                                        'ews/1')
