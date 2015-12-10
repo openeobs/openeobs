@@ -570,12 +570,12 @@ class TestRouteManagerJavascriptGeneration(openerp.tests.HttpCase):
         self.phantom_js('/', javascript_code)
 
     def test_get_javascript_routes_passing_two_url_prefixes(self):
-        diff_prefix_route = Route(
+        diffr_prefix_route = Route(
             'prefix',
             '/prefix/',
             url_prefix='/test/url/'
         )
-        self.route_manager.add_route(diff_prefix_route)
+        self.route_manager.add_route(diffr_prefix_route)
         r_list = self.all_route_list
         js_string = self.route_manager.get_javascript_routes(
             self.name_of_template,
@@ -685,7 +685,7 @@ class TestResponseJSON(openerp.tests.SingleTransactionCase):
         self.assertIn('data', python_data)
         self.assertIn('status', python_data)
         self.assertIsInstance(python_data['status'], basestring)
-         # Test that the DEFAULT STATUS is 'error'
+        # Test that the DEFAULT STATUS is 'error'
         self.assertEqual(
             python_data['status'],
             self.response_json.STATUS_ERROR
@@ -762,51 +762,65 @@ route_manager_test.add_route(diff_prefix_route)
 
 class ControllerForTesting(http.Controller):
 
-    @http.route(**route_manager_test.expose_route(
-        'no_args_route',
-        url_prefix=MOBILE_URL_PREFIX)
-                )
+    @http.route(
+        **route_manager_test.expose_route(
+            'no_args_route',
+            url_prefix=MOBILE_URL_PREFIX
+        )
+    )
     def route_with_no_arguments(self, *args, **kwargs):
         return http.request.make_response(
             'Successfully reached the "route without arguments" page.'
         )
 
-    @http.route(**route_manager_test.expose_route(
-        'no_args_route_auth_as_user',
-        url_prefix=MOBILE_URL_PREFIX)
-                )
+    @http.route(
+        **route_manager_test.expose_route(
+            'no_args_route_auth_as_user',
+            url_prefix=MOBILE_URL_PREFIX
+        )
+    )
     def route_with_no_arguments_auth_as_user(self, *args, **kwargs):
         return http.request.make_response(
             'Successfully reached the "route without'
-            ' arguments" page as an authenticated user.')
+            ' arguments" page as an authenticated user.'
+        )
 
-    @http.route(**route_manager_test.expose_route(
-        'no_args_route_only_post',
-        url_prefix=MOBILE_URL_PREFIX)
-                )
+    @http.route(
+        **route_manager_test.expose_route(
+            'no_args_route_only_post',
+            url_prefix=MOBILE_URL_PREFIX
+        )
+    )
     def route_with_no_arguments_only_post(self, *args, **kwargs):
         return http.request.make_response(
             'Successfully reached the "route without '
-            'arguments (only POST)" page.')
+            'arguments (only POST)" page.'
+        )
 
-    @http.route(**route_manager_test.expose_route(
-        'single_arg_route',
-        url_prefix=MOBILE_URL_PREFIX)
-                )
+    @http.route(
+        **route_manager_test.expose_route(
+            'single_arg_route',
+            url_prefix=MOBILE_URL_PREFIX
+        )
+    )
     def route_with_single_argument(self, *args, **kwargs):
         passed_arg = kwargs.get('arg_id', 'Argument not found!')
         return http.request.make_response(
-            'This page has received this argument: {}'.format(passed_arg))
+            'This page has received this argument: {}'.format(passed_arg)
+        )
 
-    @http.route(**route_manager_test.expose_route(
-        'single_arg_route_only_post',
-        url_prefix=MOBILE_URL_PREFIX)
-                )
+    @http.route(
+        **route_manager_test.expose_route(
+            'single_arg_route_only_post',
+            url_prefix=MOBILE_URL_PREFIX
+        )
+    )
     def route_with_single_argument_only_post(self, *args, **kwargs):
         passed_arg = kwargs.get('arg_id', 'Argument not found!')
         return http.request.make_response(
             'This page (accessible only by POST requests)'
-            ' has received this argument: {}'.format(passed_arg))
+            ' has received this argument: {}'.format(passed_arg)
+        )
 
     @http.route(
         foo='bar',
@@ -826,10 +840,12 @@ class ControllerForTesting(http.Controller):
         return http.request.make_response(
             'Received with url prefix defined on route not route manager')
 
-    @http.route(**route_manager_test.expose_route(
-        'prefix',
-        url_prefix=MOBILE_URL_PREFIX)
-                )
+    @http.route(
+        **route_manager_test.expose_route(
+            'prefix',
+            url_prefix=MOBILE_URL_PREFIX
+        )
+    )
     def route_with_prefix_on_expose_route(self, *args, **kwargs):
         return http.request.make_response(
             'Received with url prefix defined on '
