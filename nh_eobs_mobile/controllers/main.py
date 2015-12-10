@@ -15,7 +15,7 @@ from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from openerp.addons.nh_eobs_api.routing import Route as EobsRoute
 import openerp
 import re
-import openerp.addons.nh_eobs_mobile.controllers.urls
+import openerp.addons.nh_eobs_mobile.controllers.urls as urls
 import jinja2
 import os
 import logging
