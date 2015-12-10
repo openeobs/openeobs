@@ -1,7 +1,8 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.tests import common
 
-import logging        
+import logging
+
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
@@ -32,7 +33,8 @@ class TestBristolStools(common.SingleTransactionCase):
         cls.spell_pool = cls.registry('nh.clinical.spell')
 
         cls.placement_pool = cls.registry('nh.clinical.patient.placement')
-        cls.stools_pool = cls.registry('nh.clinical.patient.observation.stools')
+        cls.stools_pool = cls.registry(
+            'nh.clinical.patient.observation.stools')
 
         cls.apidemo = cls.registry('nh.clinical.api.demo')
 

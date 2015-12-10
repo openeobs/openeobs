@@ -6,6 +6,7 @@ _logger = logging.getLogger(__name__)
 from faker import Faker
 fake = Faker()
 
+
 class nh_clinical_api_demo(orm.AbstractModel):
     _name = 'nh.clinical.api.demo'
     _inherit = 'nh.clinical.api.demo'
@@ -147,14 +148,14 @@ class nh_clinical_api_demo(orm.AbstractModel):
             adt_register_pool = self.pool['nh.clinical.adt.patient.register']
             adt_admit_pool = self.pool['nh.clinical.adt.patient.admit']
             reg_activity_ids = [adt_register_pool.create_activity(
-                cr, adt_uid, {}, {'other_identifier': 'hn_'+wcode+str(i)})
-                                for i in range(patient_admit_count)]
+                cr, adt_uid, {}, {'other_identifier': 'hn_'+wcode+str(j)}
+            ) for j in range(patient_admit_count)]
             [activity_pool.complete(cr, adt_uid, register_act_id)
              for register_act_id in reg_activity_ids]
             admit_activity_ids = [adt_admit_pool.create_activity(
-                cr, adt_uid, {}, {'other_identifier': 'hn_'+wcode+str(i),
+                cr, adt_uid, {}, {'other_identifier': 'hn_'+wcode+str(j),
                                   'location': wcode})
-                                  for i in range(patient_admit_count)]
+                                  for j in range(patient_admit_count)]
             [activity_pool.complete(cr, adt_uid, admit_act_id)
              for admit_act_id in admit_activity_ids]
 
@@ -173,7 +174,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                     cr, uid, admit_ids)]
             if not admit_activity_ids:
                 continue
-            for i in range(patient_placement_count):
+            for j in range(patient_placement_count):
                 admit_activity_id = fake.random_element(admit_activity_ids)
                 admission = activity_pool.browse(cr, uid, admit_activity_id)
                 bed_location_id = fake.random_element(bed_ids[code])

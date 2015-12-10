@@ -4,7 +4,7 @@
 `ews.py` defines the Early Warning Score observation class and its
 standard behaviour and policy triggers based on the UK NEWS standard.
 """
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 import logging
 import bisect
 from openerp import SUPERUSER_ID
@@ -32,7 +32,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
     _num_fields = ['respiration_rate', 'indirect_oxymetry_spo2',
                    'body_temperature', 'blood_pressure_systolic',
                    'blood_pressure_diastolic', 'pulse_rate', 'flow_rate',
-                   'concentration', 'cpap_peep', 'niv_backup','niv_ipap',
+                   'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap',
                    'niv_epap']
     _description = "NEWS Observation"
 
@@ -74,8 +74,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                      'groups': ['hca'], 'assign': 1},
                     {'model': 'nurse',
                      'summary': 'Informed about patient status (NEWS)',
-                     'groups': ['hca']}]
-               ],
+                     'groups': ['hca']}]],
                'risk': ['None', 'Low', 'Medium', 'High']}
 
     def calculate_score(self, ews_data):
@@ -183,8 +182,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
             if not ews.blood_pressure_systolic:
                 res[ews.id] = '- / -'
             else:
-                res[ews.id] = str(ews.blood_pressure_systolic) + \
-                              ' / ' + str(ews.blood_pressure_diastolic)
+                res[ews.id] = str(
+                    ews.blood_pressure_systolic
+                ) + ' / ' + str(ews.blood_pressure_diastolic)
         return res
 
     def _data2ews_ids(self, cr, uid, ids, context=None):
@@ -305,7 +305,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'max': 280,
             'validation': [
                 {
-                    'condition':{
+                    'condition': {
                         'target': 'blood_pressure_diastolic',
                         'operator': '<',
                         'value': 'blood_pressure_systolic'

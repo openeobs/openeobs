@@ -93,8 +93,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         'score': fields.function(
             _get_score, type='integer', multi='score', string='Score', store={
                 'nh.clinical.patient.observation.gcs':
-                    (lambda self, cr, uid, ids, ctx: ids, [], 10)
-        }),
+                    (lambda self, cr, uid, ids, ctx: ids, [], 10)}),
         'eyes': fields.selection(_eyes, 'Eyes'),
         'verbal': fields.selection(_verbal, 'Verbal'),
         'motor': fields.selection(_motor, 'Motor')

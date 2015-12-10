@@ -143,7 +143,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         activity_vals.update({'parent_id': spell.activity_id.id})
         return super(nh_clinical_patient_observation, self).create_activity(
             cr, uid, activity_vals, data_vals, context=context)
-                
+
     def write(self, cr, uid, ids, vals, context=None):
         """
         Checks for ``null`` numeric values before writing to the
