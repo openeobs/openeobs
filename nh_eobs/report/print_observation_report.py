@@ -31,8 +31,10 @@ class ObservationReport(models.AbstractModel):
             raise ValueError('No model supplied')
         if model in ['nh.clinical.patient.o2target',
                      'nh.clinical.patient.move']:
-            sfilter = [['parent_id', '=', spell_activity_id],
-                      ['data_model', '=', model]]
+            sfilter = [
+                ['parent_id', '=', spell_activity_id],
+                ['data_model', '=', model]
+            ]
         else:
             sfilter = [
                 ['parent_id', '=', spell_activity_id],
@@ -83,7 +85,7 @@ class ObservationReport(models.AbstractModel):
         end_time = False
         if data and data.start_time:
             start_time = datetime.strptime(data.start_time, dtf)
-        if data and data.end_time
+        if data and data.end_time:
             end_time = datetime.strptime(data.end_time, dtf)
 
         # set up pools
@@ -232,8 +234,8 @@ class ObservationReport(models.AbstractModel):
                         tdt = self.convert_db_date_to_context_date(
                             datetime.strptime(t['date_terminated'], dtf),
                             pretty_date_format)
-                    t['date_started'] =  tds
-                    t['date_terminated'] =  tdt
+                    t['date_started'] = tds
+                    t['date_terminated'] = tdt
 
             # convert the obs into usable obs for table & report
             ews_for_json = copy.deepcopy(ews)
@@ -340,7 +342,7 @@ class ObservationReport(models.AbstractModel):
                     'gcs': [],
                     'bs': [],
                     'bristol_stools': [],
-                    'pains':[],
+                    'pains': [],
                     'blood_products': [],
                     'targeto2': [],
                     'device_session_history': [],
@@ -361,7 +363,6 @@ class ObservationReport(models.AbstractModel):
                     'draw_graph_js': observation_report
                 }
                 return report_obj.render('nh_eobs.observation_report', docargs)
-
 
             # get pain observations
             # - search pain model with parent_id of spell - dates
@@ -797,7 +798,6 @@ class ObservationReport(models.AbstractModel):
                 th = transfer_history[-1]
                 patient['bed'] = th['bed'] if th['bed'] else False
                 patient['ward'] = th['ward'] if th['ward'] else False
-
 
             docargs = {
                 'doc_ids': self._ids,
