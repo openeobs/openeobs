@@ -99,8 +99,9 @@ class RouteManager(object):
         if not server_port:
             self.SERVER_PORT = '{}'.format(config['xmlrpc_port'])
         self.URL_PREFIX = url_prefix
-        self.BASE_URL = self.SERVER_PROTOCOL + '://' + \
-                        self.SERVER_ADDRESS + ':' + self.SERVER_PORT
+        self.BASE_URL = '{0}://{1}:{2}'.format(self.SERVER_PROTOCOL,
+                                               self.SERVER_ADDRESS,
+                                               self.SERVER_PORT)
         self.BASE_URL_WITH_PREFIX = self.BASE_URL + self.URL_PREFIX
 
         self.ROUTES = {}

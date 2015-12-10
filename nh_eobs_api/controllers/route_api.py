@@ -82,7 +82,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         api = request.registry['nh.eobs.api']
         user_api = request.registry['res.users']
         kw_copy = kw.copy() if kw else {}
-        user_ids = [int(uid) for uid in kw_copy['user_ids'].split(',')]
+        user_ids = [int(usid) for usid in kw_copy['user_ids'].split(',')]
         patient_ids = [int(pid) for pid in kw_copy['patient_ids'].split(',')]
         users = user_api.read(cr, uid, user_ids, ['display_name'],
                               context=context)
@@ -578,7 +578,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     @http.route(**route_manager.expose_route('cancel_clinical_notification'))
     def cancel_clinical(self, *args, **kw):
         task_id = kw.get('task_id')  # TODO: add a check if is None (?)
-        cr, uid, context = request.cr, request.uid, request.context
+        cr, uid = request.cr, request.uid
         api_pool = request.registry('nh.eobs.api')
         kw_copy = kw.copy() if kw else {}
 
