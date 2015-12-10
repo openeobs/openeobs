@@ -1,22 +1,18 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'lorenzo'
+from openerp.addons.nh_eobs_api.routing import Route
+from openerp.addons.nh_eobs_api.routing import RouteManager
+from openerp.addons.nh_eobs_api.routing import ResponseJSON
+from openerp.modules.module import get_module_path
+from unittest import skip
+from random import choice as random_choice
+from openerp import http
+from openerp.tests import DB as DB_NAME
+from openerp.tools import config
 import jinja2
 import json
 import logging
 import openerp.tests
 import requests
-
-from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
-from openerp.modules.module import get_module_path
-from unittest import skip, SkipTest
-
-# IMPORTS for @route TEST
-from random import choice as random_choice
-
-from openerp import http
-from openerp.tests import DB as DB_NAME
-from openerp.tools import config
-##
 
 test_logger = logging.getLogger(__name__)
 
@@ -29,7 +25,10 @@ def _generate_route_objects(number=1):
     """
     route_list = []
     for n in range(int(number)):
-        r = Route('test_route_{}'.format(n), 'api/v1/test/resource_{}'.format(n))
+        r = Route(
+            'test_route_{}'.format(n),
+            'api/v1/test/resource_{}'.format(n)
+        )
         route_list.append(r)
     return route_list  # TODO: return a generator instead ?
 
@@ -77,8 +76,18 @@ class TestRouteObjectCreation(openerp.tests.TransactionCase):
     def test_custom_route_object_creation(self):
         test_methods = ['POST', 'HEAD', 'FOO', 'BAR']
         test_response_type = 'foobar'
-        test_headers = {'Content-Type': 'text/html', 'Foo-Bar': 'not-even-exist'}
-        route = Route(self.route_name, self.route_url, response_type=test_response_type, headers=test_headers, methods=test_methods, url_prefix='/test')
+        test_headers = {
+            'Content-Type': 'text/html',
+            'Foo-Bar': 'not-even-exist'
+        }
+        route = Route(
+            self.route_name,
+            self.route_url,
+            response_type=test_response_type,
+            headers=test_headers,
+            methods=test_methods,
+            url_prefix='/test'
+        )
         self.assertEqual(route.name, self.route_name)
         self.assertEqual(route.url, self.route_url)
         self.assertEqual(route.response_type, test_response_type)
@@ -132,7 +141,7 @@ class TestRouteObjectInternalMethodSplitURL(openerp.tests.TransactionCase):
         url = 56
         self.assertIsInstance(url, int)
         with self.assertRaises(ValueError):
-            split_url = self.route._split_url(url)
+            self.route._split_url(url)
 
 
 class TestRouteObjectGetURLComponents(openerp.tests.TransactionCase):
@@ -144,7 +153,8 @@ class TestRouteObjectGetURLComponents(openerp.tests.TransactionCase):
     def test_get_url_components_from_url_with_no_argument(self):
         url = '/api/v1/patients/'
 
-        # Create a generator to check each different components of the URL in the assertions below
+        # Create a generator to check each different components of
+        # the URL in the assertions below
         name_check_generator = (t for t in ['api', 'v1', 'patients'])
 
         # Fetch the components list from the method under test
@@ -162,8 +172,12 @@ class TestRouteObjectGetURLComponents(openerp.tests.TransactionCase):
     def test_get_url_components_from_url_with_single_argument(self):
         url = '/api/v1/patients/<id>'
 
-        # Create generators to check each different components of the URL in the assertions below
-        type_check_generator = (t for t in ['string', 'string', 'string', 'func'])
+        # Create generators to check each different components of
+        # the URL in the assertions below
+        type_check_generator = (t for t in ['string',
+                                            'string',
+                                            'string',
+                                            'func'])
         name_check_generator = (n for n in ['api', 'v1', 'patients', 'id'])
 
         # Fetch the components list from the method under test
@@ -181,9 +195,18 @@ class TestRouteObjectGetURLComponents(openerp.tests.TransactionCase):
     def test_get_url_components_from_url_with_multiple_arguments(self):
         url = '/api/<version_number>/location/<ward_code>/<bed_number>/'
 
-        # Create generators to check each different components of the URL in the assertions below
-        type_check_generator = (t for t in ['string', 'func', 'string', 'func', 'func'])
-        name_check_generator = (n for n in ['api', 'version_number', 'location', 'ward_code', 'bed_number'])
+        # Create generators to check each different components of the
+        # URL in the assertions below
+        type_check_generator = (t for t in ['string',
+                                            'func',
+                                            'string',
+                                            'func',
+                                            'func'])
+        name_check_generator = (n for n in ['api',
+                                            'version_number',
+                                            'location',
+                                            'ward_code',
+                                            'bed_number'])
 
         # Fetch the components list from the method under test
         components_list = self.route._get_url_components(url)
@@ -200,9 +223,18 @@ class TestRouteObjectGetURLComponents(openerp.tests.TransactionCase):
     def test_get_url_components_from_url_with_multiple_slashes(self):
         url = 'api///<version_number>/location/<ward_code>///<bed_number>//'
 
-        # Create generators to check each different components of the URL in the assertions below
-        type_check_generator = (t for t in ['string', 'func', 'string', 'func', 'func'])
-        name_check_generator = (n for n in ['api', 'version_number', 'location', 'ward_code', 'bed_number'])
+        # Create generators to check each different components of the URL
+        # in the assertions below
+        type_check_generator = (t for t in ['string',
+                                            'func',
+                                            'string',
+                                            'func',
+                                            'func'])
+        name_check_generator = (n for n in ['api',
+                                            'version_number',
+                                            'location',
+                                            'ward_code',
+                                            'bed_number'])
 
         # Fetch the components list from the method under test
         components_list = self.route._get_url_components(url)
@@ -255,7 +287,8 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
         self.assertNotIn('<observation_type>', args)
 
     def test_get_args_from_url_with_multiple_consecutive_arguments(self):
-        url = '/api/v1/<multiple>/<consecutive_parameters>/<in_this>/<url>/test/'
+        url = '/api/v1/<multiple>/<consecutive_parameters>/' \
+              '<in_this>/<url>/test/'
         args = self.route._get_args(url)
         self.assertEqual(len(args), 4)
         self.assertIn('multiple', args)
@@ -288,7 +321,7 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
         self.assertNotIsInstance(args, list)
         self.assertEqual(args, False)
 
-    def test_get_args_from_url_with_arguments_having_underscores_and_hyphens(self):
+    def test_get_args_from_url_with_args_having_underscores_and_hyphens(self):
         url = '/api/v1/patients/<patient_id>/observation/<observation-id>/'
         args = self.route._get_args(url)
         self.assertEqual(len(args), 2)
@@ -297,7 +330,7 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
         self.assertIn('observation-id', args)
         self.assertNotIn('<observation-id>', args)
 
-    def test_get_args_from_url_with_arguments_having_underscores_and_hyphens_but_no_chevrons(self):
+    def test_get_args_from_url_with_args_having___and_hyphens_no_chevron(self):
         url = '/api/v1/patients/patient_id/observation/observation-id/'
         args = self.route._get_args(url)
         self.assertNotIsInstance(args, list)
@@ -312,8 +345,9 @@ class TestGetArgumentsFromRouteURL(openerp.tests.TransactionCase):
         self.assertIn('observation_id', args)
         self.assertNotIn('<observation_id>', args)
 
-    def test_get_args_from_url_with_every_possible_VALID_combination(self):
-        url = '/api/v1/patients/<Patient_strange-ID>/observation/<obSERvation_typE>/<obserVATion-very_Strange_Id>'
+    def test_get_args_from_url_with_every_possible_valid_combination(self):
+        url = '/api/v1/patients/<Patient_strange-ID>/' \
+              'observation/<obSERvation_typE>/<obserVATion-very_Strange_Id>'
         args = self.route._get_args(url)
         self.assertEqual(len(args), 3)
         self.assertIn('obSERvation_typE', args)
@@ -395,7 +429,8 @@ class TestRouteManagerMethods(openerp.tests.TransactionCase):
         for r in route_manager.ROUTES.values():
             self.assertIsInstance(r, Route)
 
-        # Check that a specific Route actually is in the RouteManager and then remove it (and check the removal)
+        # Check that a specific Route actually is in the RouteManager and
+        # then remove it (and check the removal)
         self.assertIn('test_route_3', route_manager.ROUTES)
         route_manager.remove_route('test_route_3')
         self.assertNotIn('test_route_3', route_manager.ROUTES)
@@ -449,51 +484,112 @@ class TestRouteManagerJavascriptGeneration(openerp.tests.HttpCase):
         template = jinja2.Template("Crazy little thing called {{ thing }}")
         rendered_template = template.render(thing="Love")
         expected_string = "Crazy little thing called Love"
-        self.assertEqual(rendered_template, expected_string, 'Jinja is not working as expected.')
+        self.assertEqual(
+            rendered_template,
+            expected_string,
+            'Jinja is not working as expected.'
+        )
 
     def test_get_javascript_routes_with_only_template_arguments(self):
-        js_string = self.route_manager.get_javascript_routes(self.name_of_template, self.path_to_template)
+        js_string = self.route_manager.get_javascript_routes(
+            self.name_of_template,
+            self.path_to_template
+        )
         for r in self.all_route_list:
-            self.assertIn(r.name, js_string, 'Route object "{}" was not rendered in the template.'.format(r.name))
+            self.assertIn(
+                r.name,
+                js_string,
+                'Route object "{}" was not rendered in the template.'.format(
+                    r.name
+                )
+            )
 
     def test_get_javascript_routes_passing_full_list_of_routes(self):
         r_list = self.all_route_list
-        js_string = self.route_manager.get_javascript_routes(self.name_of_template, self.path_to_template, route_list=r_list)
+        js_string = self.route_manager.get_javascript_routes(
+            self.name_of_template,
+            self.path_to_template,
+            route_list=r_list
+        )
         for r in r_list:
-            self.assertIn(r.name, js_string, 'Route object "{}" was not rendered in the template.'.format(r.name))
+            self.assertIn(
+                r.name,
+                js_string,
+                'Route object "{}" was not rendered in the template.'.format(
+                    r.name
+                )
+            )
 
     def test_get_javascript_routes_passing_partial_list_of_routes(self):
         r_list = self.all_route_list[2:self.objects_number]
         self.assertLess(len(r_list), len(self.all_route_list))
-        js_string = self.route_manager.get_javascript_routes(self.name_of_template, self.path_to_template, route_list=r_list)
+        js_string = self.route_manager.get_javascript_routes(
+            self.name_of_template,
+            self.path_to_template,
+            route_list=r_list
+        )
         for r in r_list:
-            self.assertIn(r.name, js_string, 'Route object "{}" was not rendered in the template.'.format(r.name))
+            self.assertIn(
+                r.name,
+                js_string,
+                'Route object "{}" was not rendered in the template.'.format(
+                    r.name
+                )
+            )
 
     def test_get_javascript_routes_passing_additional_context(self):
         add_ctx = {'foo': 'BAR'}
-        js_string = self.route_manager.get_javascript_routes(self.name_of_template, self.path_to_template, additional_context=add_ctx)
+        js_string = self.route_manager.get_javascript_routes(
+            self.name_of_template,
+            self.path_to_template,
+            additional_context=add_ctx
+        )
         for k in add_ctx:
-            self.assertIn(add_ctx[k], js_string, 'The key "{}" of the additional context was not rendered in the template'.format(k))
+            self.assertIn(
+                add_ctx[k],
+                js_string,
+                'The key "{}" of the additional context was not '
+                'rendered in the template'.format(k)
+            )
 
     def test_get_javascript_routes_passing_wrong_template_name(self):
         with self.assertRaises(jinja2.exceptions.TemplateNotFound):
-            self.route_manager.get_javascript_routes('fake_template.js', self.path_to_template)
+            self.route_manager.get_javascript_routes(
+                'fake_template.js',
+                self.path_to_template
+            )
 
     def test_injection_of_javascript_generated_from_rendered_template(self):
         route_name_list = [r.name for r in self.all_route_list]
-        javascript_code = self.route_manager.get_javascript_routes('template_script_test.js',
-                                                                   self.path_to_template,
-                                                                   additional_context={'route_name_list': route_name_list})
-        self.phantom_js('/', javascript_code)  # the actual test and assertions are inside the injected Javascript code!
+        javascript_code = self.route_manager.get_javascript_routes(
+            'template_script_test.js',
+            self.path_to_template,
+            additional_context={'route_name_list': route_name_list})
+        # the actual test and assertions are inside the injected
+        # Javascript code!
+        self.phantom_js('/', javascript_code)
 
     def test_get_javascript_routes_passing_two_url_prefixes(self):
-        diff_prefix_route = Route('prefix', '/prefix/', url_prefix='/test/url/')
+        diff_prefix_route = Route(
+            'prefix',
+            '/prefix/',
+            url_prefix='/test/url/'
+        )
         self.route_manager.add_route(diff_prefix_route)
         r_list = self.all_route_list
-        js_string = self.route_manager.get_javascript_routes(self.name_of_template, self.path_to_template, route_list=r_list)
+        js_string = self.route_manager.get_javascript_routes(
+            self.name_of_template,
+            self.path_to_template, route_list=r_list
+        )
         # need to make sure url prefix is done properly
         for r in r_list:
-            self.assertIn(r.name, js_string, 'Route object "{}" was not rendered in the template.'.format(r.name))
+            self.assertIn(
+                r.name,
+                js_string,
+                'Route object "{}" was not rendered in the template.'.format(
+                    r.name
+                )
+            )
 
 
 class TestResponseJSON(openerp.tests.SingleTransactionCase):
@@ -519,7 +615,12 @@ class TestResponseJSON(openerp.tests.SingleTransactionCase):
                 'discharge'
             ]
         }
-        json_data = self.response_json.get_json_data(status, title=title, description=description, data=data)
+        json_data = self.response_json.get_json_data(
+            status,
+            title=title,
+            description=description,
+            data=data
+        )
 
         self.assertIn(status, json_data)
         self.assertIn(title, json_data)
@@ -562,7 +663,8 @@ class TestResponseJSON(openerp.tests.SingleTransactionCase):
         self.assertIsInstance(python_data['status'], basestring)
         self.assertEqual(python_data['status'], status)
 
-        ## Test that the DEFAULT value for ALL THE KEYS (except 'status') is 'False'
+        # Test that the DEFAULT value for
+        # ALL THE KEYS (except 'status') is 'False'
         self.assertIn('title', python_data)
         self.assertEqual(python_data['title'], False)
         self.assertIn('description', python_data)
@@ -583,7 +685,11 @@ class TestResponseJSON(openerp.tests.SingleTransactionCase):
         self.assertIn('data', python_data)
         self.assertIn('status', python_data)
         self.assertIsInstance(python_data['status'], basestring)
-        self.assertEqual(python_data['status'], self.response_json.STATUS_ERROR)  # Test that the DEFAULT STATUS is 'error'
+         # Test that the DEFAULT STATUS is 'error'
+        self.assertEqual(
+            python_data['status'],
+            self.response_json.STATUS_ERROR
+        )
 
 ######################
 # ROUTING SYSTEM TESTS
@@ -601,18 +707,46 @@ BASE_MOBILE_URL = BASE_URL + MOBILE_URL_PREFIX
 route_manager_test = RouteManager()
 
 no_args_route = Route('no_args_route', '/no/args/route/', auth='none')
-no_args_route_only_post = Route('no_args_route_only_post', '/no/args/route/post/', auth='none', methods=['POST'])
-no_args_route_auth_as_user = Route('no_args_route_auth_as_user', '/no/args/route/auth/user/', auth='user')
+no_args_route_only_post = Route(
+    'no_args_route_only_post',
+    '/no/args/route/post/',
+    auth='none',
+    methods=['POST']
+)
+no_args_route_auth_as_user = Route(
+    'no_args_route_auth_as_user',
+    '/no/args/route/auth/user/',
+    auth='user'
+)
 
-single_arg_route = Route('single_arg_route', '/single/arg/<arg_id>/', auth='none')
-single_arg_route_only_post = Route('single_arg_route_only_post', '/single/arg/<arg_id>/post/', auth='none', methods=['POST'])
+single_arg_route = Route(
+    'single_arg_route',
+    '/single/arg/<arg_id>/',
+    auth='none'
+)
+single_arg_route_only_post = Route(
+    'single_arg_route_only_post',
+    '/single/arg/<arg_id>/post/',
+    auth='none',
+    methods=['POST']
+)
 
-custom_keywords_route = Route('custom_keywords_route', '/custom/keywords/route/', auth='none')
+custom_keywords_route = Route(
+    'custom_keywords_route',
+    '/custom/keywords/route/',
+    auth='none'
+)
 
 expose_route_2 = Route('expose_route_2', '/expose/route2/', auth='none')
-diff_prefix_route = Route('prefix', '/prefix/', url_prefix='/test/url', auth='none')
+diff_prefix_route = Route(
+    'prefix',
+    '/prefix/',
+    url_prefix='/test/url',
+    auth='none'
+)
 
-# Add the Route objects to the RouteManager (mandatory to them being considered by the routing workflow)
+# Add the Route objects to the RouteManager
+# (mandatory to them being considered by the routing workflow)
 route_manager_test.add_route(no_args_route)
 route_manager_test.add_route(no_args_route_auth_as_user)
 route_manager_test.add_route(no_args_route_only_post)
@@ -628,44 +762,93 @@ route_manager_test.add_route(diff_prefix_route)
 
 class ControllerForTesting(http.Controller):
 
-    @http.route(**route_manager_test.expose_route('no_args_route', url_prefix=MOBILE_URL_PREFIX))
+    @http.route(**route_manager_test.expose_route(
+        'no_args_route',
+        url_prefix=MOBILE_URL_PREFIX)
+                )
     def route_with_no_arguments(self, *args, **kwargs):
-        return http.request.make_response('Successfully reached the "route without arguments" page.')
+        return http.request.make_response(
+            'Successfully reached the "route without arguments" page.'
+        )
 
-    @http.route(**route_manager_test.expose_route('no_args_route_auth_as_user', url_prefix=MOBILE_URL_PREFIX))
+    @http.route(**route_manager_test.expose_route(
+        'no_args_route_auth_as_user',
+        url_prefix=MOBILE_URL_PREFIX)
+                )
     def route_with_no_arguments_auth_as_user(self, *args, **kwargs):
-        return http.request.make_response('Successfully reached the "route without arguments" page as an authenticated user.')
+        return http.request.make_response(
+            'Successfully reached the "route without'
+            ' arguments" page as an authenticated user.')
 
-    @http.route(**route_manager_test.expose_route('no_args_route_only_post', url_prefix=MOBILE_URL_PREFIX))
+    @http.route(**route_manager_test.expose_route(
+        'no_args_route_only_post',
+        url_prefix=MOBILE_URL_PREFIX)
+                )
     def route_with_no_arguments_only_post(self, *args, **kwargs):
-        return http.request.make_response('Successfully reached the "route without arguments (only POST)" page.')
+        return http.request.make_response(
+            'Successfully reached the "route without '
+            'arguments (only POST)" page.')
 
-    @http.route(**route_manager_test.expose_route('single_arg_route', url_prefix=MOBILE_URL_PREFIX))
+    @http.route(**route_manager_test.expose_route(
+        'single_arg_route',
+        url_prefix=MOBILE_URL_PREFIX)
+                )
     def route_with_single_argument(self, *args, **kwargs):
         passed_arg = kwargs.get('arg_id', 'Argument not found!')
-        return http.request.make_response('This page has received this argument: {}'.format(passed_arg))
+        return http.request.make_response(
+            'This page has received this argument: {}'.format(passed_arg))
 
-    @http.route(**route_manager_test.expose_route('single_arg_route_only_post', url_prefix=MOBILE_URL_PREFIX))
+    @http.route(**route_manager_test.expose_route(
+        'single_arg_route_only_post',
+        url_prefix=MOBILE_URL_PREFIX)
+                )
     def route_with_single_argument_only_post(self, *args, **kwargs):
         passed_arg = kwargs.get('arg_id', 'Argument not found!')
-        return http.request.make_response('This page (accessible only by POST requests) has received this argument: {}'.format(passed_arg))
+        return http.request.make_response(
+            'This page (accessible only by POST requests)'
+            ' has received this argument: {}'.format(passed_arg))
 
-    @http.route(foo='bar', spam='eggs', **route_manager_test.expose_route('custom_keywords_route', url_prefix=MOBILE_URL_PREFIX))
+    @http.route(
+        foo='bar',
+        spam='eggs',
+        **route_manager_test.expose_route(
+            'custom_keywords_route',
+            url_prefix=MOBILE_URL_PREFIX
+        )
+    )
     def route_with_custom_keywords(self, *args, **kwargs):
-        return http.request.make_response('Received from the @http.route decorator these keywords: {}'.format(http.request.endpoint.routing))
+        return http.request.make_response(
+            'Received from the @http.route decorator '
+            'these keywords: {}'.format(http.request.endpoint.routing))
 
     @http.route(**route_manager_test.expose_route('prefix'))
     def route_with_prefix_on_route(self, *args, **kwargs):
-        return http.request.make_response('Received with url prefix defined on route not route manager')
+        return http.request.make_response(
+            'Received with url prefix defined on route not route manager')
 
-    @http.route(**route_manager_test.expose_route('prefix', url_prefix=MOBILE_URL_PREFIX))
+    @http.route(**route_manager_test.expose_route(
+        'prefix',
+        url_prefix=MOBILE_URL_PREFIX)
+                )
     def route_with_prefix_on_expose_route(self, *args, **kwargs):
-        return http.request.make_response('Received with url prefix defined on expose_route not route manager')
+        return http.request.make_response(
+            'Received with url prefix defined on '
+            'expose_route not route manager')
 
     # TODO: is this useful ???
-    @http.route(**route_manager_test.expose_route2('expose_route_2', url_prefix=MOBILE_URL_PREFIX, additional_parameters={'baz': 'ham'}))
+    @http.route(
+        **route_manager_test.expose_route2(
+            'expose_route_2',
+            url_prefix=MOBILE_URL_PREFIX,
+            additional_parameters={'baz': 'ham'}
+        )
+    )
     def expose_route_2(self, *args, **kwargs):
-        return http.request.make_response('Expose route 2 has received these keywords: {}'.format(http.request.endpoint.routing))
+        return http.request.make_response(
+            'Expose route 2 has received these keywords: {}'.format(
+                http.request.endpoint.routing
+            )
+        )
 
 
 class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
@@ -673,16 +856,21 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     def _get_user_belonging_to_group(self, group_name):
         """Get the 'login' name of a user belonging to a specific group.
 
-        :param group_name: name of the group from which retrieve a user (belonging to it)
+        :param group_name: name of the group from which retrieve a user
+        (belonging to it)
         :type group_name: str
-        :return: the login name of the retrieved user (belonging to the group passed as argument)
+        :return: the login name of the retrieved user (belonging to the
+        group passed as argument)
         :rtype: str
         :return: None if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
-        users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', group_name)],
-                                                  fields=['login'])
+        users_login_list = users_pool.search_read(
+            self.cr,
+            self.uid,
+            domain=[('groups_id.name', '=', group_name)],
+            fields=['login']
+        )
         # The search result is a list of dictionaries,
         # so if at least one of them exists in the list,
         # just its 'login' value must be returned
@@ -696,7 +884,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return login_name.get('login', None)
 
     def _get_authenticated_response(self, user_name):
-        """Get a Response object with an authenticated session within its cookies.
+        """Get a Response object with an authenticated session within
+        its cookies.
 
         :param user_name: username of the user to be authenticated as
         :type user_name: str
@@ -720,16 +909,28 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         super(TestOdooRouteDecoratorIntegration, self).setUp()
         self.session_resp = requests.post(BASE_URL + '/web', {'db': DB_NAME})
         if 'session_id' not in self.session_resp.cookies:
-            self.fail('Cannot retrieve a valid session to be used for the tests!')
+            self.fail(
+                'Cannot retrieve a valid session to be used for the tests!'
+            )
 
     def test_route_with_no_arguments(self):
-        test_resp = requests.get(BASE_MOBILE_URL + no_args_route.url, cookies=self.session_resp.cookies)
+        test_resp = requests.get(
+            BASE_MOBILE_URL + no_args_route.url,
+            cookies=self.session_resp.cookies
+        )
         self.assertEqual(test_resp.status_code, 200)
-        self.assertIn('Successfully reached the "route without arguments" page.', test_resp.text)
+        self.assertIn(
+            'Successfully reached the "route without arguments" page.',
+            test_resp.text
+        )
 
     def test_route_with_no_arguments_auth_as_user(self):
-        # Try to access the route as an unauthenticated user, expecting a redirection to the login page.
-        test_resp = requests.get(BASE_MOBILE_URL + no_args_route_auth_as_user.url, cookies=self.session_resp.cookies)
+        # Try to access the route as an unauthenticated user,
+        # expecting a redirection to the login page.
+        test_resp = requests.get(
+            BASE_MOBILE_URL + no_args_route_auth_as_user.url,
+            cookies=self.session_resp.cookies
+        )
         self.assertEqual(len(test_resp.history), 1)
         self.assertEqual(test_resp.history[0].status_code, 302)
         self.assertIn('web/login?redirect=', test_resp.url)
@@ -737,46 +938,76 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         # To correctly execute this test,
         # the route under test must be accessed as an authenticated user.
         # Hence, this test will be skipped if the authentication fails.
-        login_name = self._get_user_belonging_to_group('NH Clinical Nurse Group')
-        self.assertIsNotNone(login_name, "Cannot find any 'nurse' user for authentication!")
+        login_name = self._get_user_belonging_to_group(
+            'NH Clinical Nurse Group'
+        )
+        self.assertIsNotNone(
+            login_name,
+            "Cannot find any 'nurse' user for authentication!"
+        )
         auth_resp = self._get_authenticated_response(login_name)
         if auth_resp.status_code != 200:
-            self.skipTest('Error during the authenticating (status code: {}).'.format(auth_resp.status_code))
+            self.skipTest(
+                'Error during the authenticating (status code: {}).'.format(
+                    auth_resp.status_code
+                )
+            )
 
         # Try again to access the route using cookies
         # from an authenticated session, this time expecting a success.
-        test_resp = requests.get(BASE_MOBILE_URL + no_args_route_auth_as_user.url, cookies=auth_resp.cookies)
+        test_resp = requests.get(
+            BASE_MOBILE_URL + no_args_route_auth_as_user.url,
+            cookies=auth_resp.cookies
+        )
         self.assertEqual(test_resp.status_code, 200)
-        self.assertIn('Successfully reached the "route without arguments" page as an authenticated user.', test_resp.text)
+        self.assertIn(
+            'Successfully reached the "route without arguments" '
+            'page as an authenticated user.', test_resp.text)
 
     def test_route_with_no_arguments_only_post(self):
-        test_resp_get = requests.get(BASE_MOBILE_URL + no_args_route_only_post.url, cookies=self.session_resp.cookies)
+        test_resp_get = requests.get(
+            BASE_MOBILE_URL + no_args_route_only_post.url,
+            cookies=self.session_resp.cookies)
         self.assertNotEqual(test_resp_get.status_code, 200)
         self.assertEqual(test_resp_get.status_code, 405)
 
-        test_resp_post = requests.post(BASE_MOBILE_URL + no_args_route_only_post.url, cookies=self.session_resp.cookies)
+        test_resp_post = requests.post(
+            BASE_MOBILE_URL + no_args_route_only_post.url,
+            cookies=self.session_resp.cookies)
         self.assertEqual(test_resp_post.status_code, 200)
-        self.assertIn('Successfully reached the "route without arguments (only POST)" page.', test_resp_post.text)
+        self.assertIn('Successfully reached the "route without '
+                      'arguments (only POST)" page.', test_resp_post.text)
 
     def test_route_with_single_argument(self):
-        test_resp = requests.get(BASE_MOBILE_URL + '/single/arg/47/', cookies=self.session_resp.cookies)
+        test_resp = requests.get(
+            BASE_MOBILE_URL + '/single/arg/47/',
+            cookies=self.session_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
-        self.assertIn('This page has received this argument: 47', test_resp.text)
+        self.assertIn('This page has received this argument: 47',
+                      test_resp.text)
         self.assertNotIn('Argument not found!', test_resp.text)
 
     def test_route_with_single_argument_only_post(self):
-        test_resp_get = requests.get(BASE_MOBILE_URL + '/single/arg/314/post/', cookies=self.session_resp.cookies)
+        test_resp_get = requests.get(
+            BASE_MOBILE_URL + '/single/arg/314/post/',
+            cookies=self.session_resp.cookies)
         self.assertNotEqual(test_resp_get.status_code, 200)
         self.assertEqual(test_resp_get.status_code, 405)
 
-        test_resp_post = requests.post(BASE_MOBILE_URL + '/single/arg/314/post/', cookies=self.session_resp.cookies)
+        test_resp_post = requests.post(
+            BASE_MOBILE_URL + '/single/arg/314/post/',
+            cookies=self.session_resp.cookies)
         self.assertEqual(test_resp_post.status_code, 200)
-        self.assertIn('This page (accessible only by POST requests) has received this argument: 314', test_resp_post.text)
+        self.assertIn('This page (accessible only by POST requests) '
+                      'has received this argument: 314', test_resp_post.text)
         self.assertNotIn('Argument not found!', test_resp_post.text)
 
     def test_route_with_custom_keywords(self):
-        """Test hacking the @http.route decorator by passing custom keywords to it."""
-        test_resp = requests.get(BASE_MOBILE_URL + custom_keywords_route.url, cookies=self.session_resp.cookies)
+        """Test hacking the @http.route decorator by passing custom
+        keywords to it."""
+        test_resp = requests.get(
+            BASE_MOBILE_URL + custom_keywords_route.url,
+            cookies=self.session_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
         self.assertIn('@http.route', test_resp.text)
         self.assertIn('foo', test_resp.text)
@@ -785,21 +1016,35 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertIn('eggs', test_resp.text)
 
     def test_expose_route_2(self):  # TODO: is this useful ???
-        """Test an alternative version of the 'expose_route' method that accepts custom keywords."""
-        test_resp = requests.get(BASE_MOBILE_URL + expose_route_2.url, cookies=self.session_resp.cookies)
+        """Test an alternative version of the 'expose_route' method
+        that accepts custom keywords."""
+        test_resp = requests.get(
+            BASE_MOBILE_URL + expose_route_2.url,
+            cookies=self.session_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
         self.assertIn('Expose route 2', test_resp.text)
         self.assertIn('baz', test_resp.text)
         self.assertIn('ham', test_resp.text)
 
     def test_route_with_url_prefix_on_route(self):
-        test_resp = requests.get(BASE_URL + '/test/url/prefix/', cookies=self.session_resp.cookies)
+        test_resp = requests.get(
+            BASE_URL + '/test/url/prefix/',
+            cookies=self.session_resp.cookies)
         self.assertEqual(test_resp.status_code, 200)
-        self.assertIn('Received with url prefix defined on route not route manager', test_resp.text)
+        self.assertIn(
+            'Received with url prefix defined on route not route manager',
+            test_resp.text
+        )
         self.assertNotIn('URL Prefix did not work on route!', test_resp.text)
 
     def test_route_with_url_prefix_on_expose_route(self):
-        test_resp = requests.get(BASE_MOBILE_URL + '/prefix/', cookies=self.session_resp.cookies)
+        test_resp = requests.get(
+            BASE_MOBILE_URL + '/prefix/',
+            cookies=self.session_resp.cookies
+        )
         self.assertEqual(test_resp.status_code, 200)
-        self.assertIn('Received with url prefix defined on expose_route not route manager', test_resp.text)
-        self.assertNotIn('URL Prefix did not work expose_route!', test_resp.text)
+        self.assertIn(
+            'Received with url prefix defined on '
+            'expose_route not route manager', test_resp.text)
+        self.assertNotIn('URL Prefix did not work expose_route!',
+                         test_resp.text)
