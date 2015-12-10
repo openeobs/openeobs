@@ -706,18 +706,16 @@ class TestObservationReport(TransactionCase):
                          'Unable to print Observation Report')
 
     def test_09_observation_report_without_data(self):
-        report_model, registry, cr, uid = self.report_model, \
-                                          self.registry, self.cr, self.uid
+        report_model, cr, uid = self.report_model, self.cr, self.uid
         with self.assertRaises(ValueError):
             test_reports.try_report(cr, uid, report_model, [])
-
 
     def test_10_convert_db_date_to_context_date_with_format(self):
         test_date = datetime.strptime(
             '1988-01-12 06:00:00',
             '%Y-%m-%d %H:%M:%S'
         )
-        report_model, cr, uid = self.report_model, self.cr, self.uid
+        cr, uid = self.cr, self.uid
         rep = self.registry(self.report_model)
         convert_date = obs_report.convert_db_date_to_context_date(
             rep, cr, uid, test_date, '%Y')
@@ -729,7 +727,7 @@ class TestObservationReport(TransactionCase):
             '1988-01-12 06:00:00',
             '%Y-%m-%d %H:%M:%S'
         )
-        report_model, cr, uid = self.report_model, self.cr, self.uid
+        cr, uid = self.cr, self.uid
         rep = self.registry(self.report_model)
         # Need to supply the timezone so can ensure will
         # use UTC instead of Odoo default
