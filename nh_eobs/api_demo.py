@@ -337,9 +337,10 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         for patient_id in patient_ids:
             patient = patient_pool.browse(cr, uid, patient_id)
-            spell_activity_id = activity_pool.search(cr, uid, [
-                ('data_model', '=', 'nh.clinical.spell'),
-                ('patient_id', '=', patient.id)])
+            spell_activity_id = activity_pool.search(
+                cr, uid,
+                [('data_model', '=', 'nh.clinical.spell'),
+                 ('patient_id', '=', patient.id)])
 
             if not spell_activity_id:
                 if api.admit(
@@ -670,14 +671,14 @@ class nh_clinical_api_demo(orm.AbstractModel):
             adt_admit_pool = self.pool['nh.clinical.adt.patient.admit']
             reg_activity_ids = [adt_register_pool.create_activity(
                 cr, adt_uid, {},
-                {'other_identifier': 'hn_'+wcode+str(i)}
-            ) for i in range(patient_admit_count)]
+                {'other_identifier': 'hn_'+wcode+str(j)}
+            ) for j in range(patient_admit_count)]
             [activity_pool.complete(
                 cr, adt_uid, rid) for rid in reg_activity_ids]
             admit_activity_ids = [adt_admit_pool.create_activity(
                 cr, adt_uid, {},
-                {'other_identifier': 'hn_'+wcode+str(i), 'location': wcode}
-            ) for i in range(patient_admit_count)]
+                {'other_identifier': 'hn_'+wcode+str(k), 'location': wcode}
+            ) for k in range(patient_admit_count)]
             [activity_pool.complete(
                 cr, adt_uid, id) for id in admit_activity_ids]
 
@@ -694,7 +695,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 ('user_ids', 'in', [wmuid])])
             if not placement_activity_ids:
                 continue
-            for i in range(patient_placement_count):
+            for n in range(patient_placement_count):
                 placement_activity_id = fake.random_element(
                     placement_activity_ids)
                 bed_location_id = fake.random_element(bed_ids[code])
@@ -705,7 +706,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 placement_activity_ids.remove(placement_activity_id)
                 bed_ids[code].remove(bed_location_id)
 
-        for i in range(ews_count):
+        for m in range(ews_count):
             ews_activity_ids = []
             for wid in ward_ids:
                 ews_activity_ids += activity_pool.search(
@@ -995,9 +996,10 @@ class nh_clinical_api_demo(orm.AbstractModel):
                     cr, uid, triggered_ews_id[0], context=context)
                 activity_pool.write(
                     cr, uid, triggered_ews_id[0],
-                    {'date_scheduled': (complete_date + td(
-                        minutes=triggered_ews.data_ref.frequency)
-                                        ).strftime(dtf)
+                    {'date_scheduled': (
+                        complete_date + td(
+                            minutes=triggered_ews.data_ref.frequency
+                        )).strftime(dtf)
                      }, context=context)
                 if not nearest_date or complete_date + td(
                         minutes=triggered_ews.data_ref.frequency

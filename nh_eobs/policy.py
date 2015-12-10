@@ -90,7 +90,7 @@ class nh_clinical_patient_transfer(orm.Model):
                                        "activity.data_ref.origin_loc_id."
                                        "usage != 'ward' else "
                                        "activity.data_ref.origin_loc_id.id"
-                                 }, 'case': 2}
+                               }, 'case': 2}
                               ]
                }
 
