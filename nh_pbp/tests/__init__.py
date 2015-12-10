@@ -1,2 +1,2 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import openerp.addons.nh_pbp.tests.test_pbp
+from . import test_pbp

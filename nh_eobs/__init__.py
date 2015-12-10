@@ -1,15 +1,15 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import openerp.addons.nh_eobs.wardboard
-import openerp.addons.nh_eobs.workload
-import openerp.addons.nh_eobs.placement
-import openerp.addons.nh_eobs.base_extension
-import openerp.addons.nh_eobs.wizard
-import openerp.addons.nh_eobs.overdue
-import openerp.addons.nh_eobs.api
-import openerp.addons.nh_eobs.policy
-import openerp.addons.nh_eobs.api_demo
-import openerp.addons.nh_eobs.spell_management
-import openerp.addons.nh_eobs.report
-import openerp.addons.nh_eobs.ward_dashboard
-import openerp.addons.nh_eobs.observation_extension
-import openerp.addons.nh_eobs.helpers
+from . import wardboard
+from . import workload
+from . import placement
+from . import base_extension
+from . import wizard
+from . import overdue
+from . import api
+from . import policy
+from . import api_demo
+from . import spell_management
+from . import report
+from . import ward_dashboard
+from . import observation_extension
+from . import helpers

@@ -1,2 +1,2 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import openerp.addons.nh_eobs_backup.backup_procedure
+from . import backup_procedure
