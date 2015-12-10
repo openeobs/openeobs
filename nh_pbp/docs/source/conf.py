@@ -3,7 +3,8 @@
 # nh_pbp documentation build configuration file
 #
 
-import sys, os
+import sys
+import os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -73,7 +74,8 @@ language = None
 # directories to ignore when looking for source files.
 exclude_patterns = []
 
-# The reST default role (used for this markup: `text`) to use for all documents.
+# The reST default role (used for this markup: `text`) to use for all
+# documents.
 # default_role = None
 
 # If true, '()' will be appended to :func: etc. cross-reference text.

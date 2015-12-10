@@ -544,7 +544,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 activity_pool.start(
                     cr, uid, device_activity_id, context=context)
 
-    def submit(self, cr, uid, activity_id, data_vals={}, context=None):
+    def submit(self, cr, uid, activity_id, data_vals=None, context=None):
+        if not data_vals:
+            data_vals = {}
         vals = data_vals.copy()
         if vals.get('oxygen_administration'):
             vals.update(
@@ -632,7 +634,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 self._name, self._POLICY['frequencies'][case], context=context)
         return res
 
-    def create_activity(self, cr, uid, vals_activity={}, vals_data={},
+    def create_activity(self, cr, uid, vals_activity=None, vals_data=None,
                         context=None):
         """
         When creating a new activity of this type every other not
@@ -642,6 +644,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :returns: :class:`activity<activity.nh_activity>` id.
         :rtype: int
         """
+        if not vals_activity:
+            vals_activity = {}
+        if not vals_data:
+            vals_data = {}
         activity_pool = self.pool['nh.activity']
         domain = [['patient_id', '=', vals_data['patient_id']],
                   ['data_model', '=', self._name],

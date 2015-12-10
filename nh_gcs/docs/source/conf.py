@@ -3,7 +3,8 @@
 # nh_gcs documentation build configuration file
 #
 
-import sys, os
+import sys
+import os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -197,7 +198,8 @@ latex_elements = {}
 
 
 # Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, documentclass [howto/manual]).
+# (source start file, target name, title, author, documentclass
+# [howto/manual]).
 latex_documents = [
     (master_doc, 'nh_gcs.tex', u'nh\\_gcs Documentation',
      u'Neova Health', 'manual'),

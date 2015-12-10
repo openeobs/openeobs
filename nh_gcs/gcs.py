@@ -168,7 +168,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         return super(nh_clinical_patient_observation_gcs, self).complete(
             cr, SUPERUSER_ID, activity_id, context)
 
-    def create_activity(self, cr, uid, vals_activity={}, vals_data={},
+    def create_activity(self, cr, uid, vals_activity=None, vals_data=None,
                         context=None):
         """
         When creating a new activity of this type, an exception will be
@@ -178,6 +178,10 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         :returns: :class:`activity<activity.nh_activity>` id.
         :rtype: int
         """
+        if not vals_activity:
+            vals_activity = {}
+        if not vals_data:
+            vals_data = {}
         assert vals_data.get('patient_id'), "patient_id is a required field!"
         activity_pool = self.pool['nh.activity']
         domain = [['patient_id', '=', vals_data['patient_id']],

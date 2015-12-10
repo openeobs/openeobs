@@ -128,8 +128,12 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return super(nh_clinical_patient_observation, self).create(
             cr, uid, vals, context)
 
-    def create_activity(self, cr, uid, activity_vals={},
-                        data_vals={}, context=None):
+    def create_activity(self, cr, uid, activity_vals=None,
+                        data_vals=None, context=None):
+        if not activity_vals:
+            activity_vals = {}
+        if not data_vals:
+            data_vals = {}
         assert data_vals.get('patient_id'), "patient_id is a required field!"
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(

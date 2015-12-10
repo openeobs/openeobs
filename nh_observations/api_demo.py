@@ -154,8 +154,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
              for register_act_id in reg_activity_ids]
             admit_activity_ids = [adt_admit_pool.create_activity(
                 cr, adt_uid, {}, {'other_identifier': 'hn_'+wcode+str(j),
-                                  'location': wcode})
-                                  for j in range(patient_admit_count)]
+                                  'location': wcode}
+            ) for j in range(patient_admit_count)]
             [activity_pool.complete(cr, adt_uid, admit_act_id)
              for admit_act_id in admit_activity_ids]
 
