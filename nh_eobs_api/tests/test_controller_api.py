@@ -929,8 +929,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool._patch_method('read', mock_nh_activity_read)
         api_pool._patch_method(
             'assign',
-            TestOdooRouteDecoratorIntegration.
-                mock_method_returning_osv_exception
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
         )
 
         # Access the route
@@ -1048,7 +1048,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'back into the task pool',
                                  expected_json)
 
-    def test_cancel_take_task_route_with_exception_while_unassigning_task(self):
+    def test_cancel_take_task_route_with_except_while_unassigning_task(self):
         """Test the 'json_cancel_take_task' route, when an exception
         is raised while unassigning the task.
 
@@ -1077,8 +1077,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool._patch_method('read', mock_nh_activity_read)
         api_pool._patch_method(
             'unassign',
-            TestOdooRouteDecoratorIntegration.
-                mock_method_returning_osv_exception
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
         )
 
         # Access the route
@@ -1426,8 +1426,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool = self.registry('nh.eobs.api')
         api_pool._patch_method(
             'cancel',
-            TestOdooRouteDecoratorIntegration.
-                mock_method_returning_osv_exception
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
         )
 
         test_resp = requests.post(url_under_test,
@@ -1670,8 +1670,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool = self.registry('nh.eobs.api')
         api_pool._patch_method(
             'get_patient_info',
-            TestOdooRouteDecoratorIntegration.
-                mock_method_returning_osv_exception
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
         )
 
         # Access the route
