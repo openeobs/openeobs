@@ -683,9 +683,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             api_reg.assign(cr, uid, task_id, {'user_id': uid}, context=context)
         except orm.except_orm as e:
             except_message = 'Opening the task (id: {task_id}) ' \
-                                'and trying to assign it to the current ' \
-                                'user (id: {user_id}) raises this ' \
-                                'exception: {exception}'
+                             'and trying to assign it to the current ' \
+                             'user (id: {user_id}) raises this ' \
+                             'exception: {exception}'
             exception_message = except_message.format(
                 task_id=task_id,
                 user_id=uid,
