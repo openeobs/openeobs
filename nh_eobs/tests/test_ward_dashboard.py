@@ -2,7 +2,6 @@
 import logging
 
 from openerp.tests.common import SingleTransactionCase
-from openerp.osv.orm import except_orm
 
 _logger = logging.getLogger(__name__)
 
@@ -84,11 +83,11 @@ class TestWardDashboard(SingleTransactionCase):
                       'location_ids': [[4, cls.ward_id]]})
         cls.patients = [cls.patient_pool.create(
             cr, uid, {'other_identifier': 'HN00'+str(i)}) for i in range(3)]
-        
+
         cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
         cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
         cls.api.admit(cr, cls.adt_uid, 'HN002', {'location': 'W0'})
-        
+
         placement_id = cls.activity_pool.search(
             cr, uid, [['patient_id', '=', cls.patients[0]],
                       ['data_model', '=', 'nh.clinical.patient.placement'],
@@ -110,7 +109,7 @@ class TestWardDashboard(SingleTransactionCase):
         cls.activity_pool.submit(
             cr, uid, placement_id, {'location_id': cls.beds[2]})
         cls.activity_pool.complete(cr, uid, placement_id)
-        
+
         cls.user_pool.write(
             cr, uid, [cls.nurse_uid, cls.hca_uid],
             {'following_ids': [[4, cls.patients[2]]]})
@@ -141,7 +140,7 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertTrue(isinstance(res, dict))
         self.assertListEqual(res[self.ward_id], [self.dr_uid])
         self.assertFalse(res[self.ward_id2])
-        
+
     def test_04_get_hca_ids(self):
         cr, uid = self.cr, self.uid
 
@@ -151,7 +150,7 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertListEqual(res[self.beds[0]], [self.hca_uid])
         self.assertFalse(res[self.beds[1]])
         self.assertFalse(res[self.beds[2]])
-    
+
     def test_05_get_nurse_ids(self):
         cr, uid = self.cr, self.uid
 
@@ -161,7 +160,7 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertListEqual(res[self.beds[1]], [self.nurse_uid])
         self.assertFalse(res[self.beds[0]])
         self.assertFalse(res[self.beds[2]])
-    
+
     def test_06_get_patient_ids(self):
         cr, uid = self.cr, self.uid
 
@@ -171,7 +170,7 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertListEqual(res[self.beds[0]], [self.patients[0]])
         self.assertListEqual(res[self.beds[1]], [self.patients[1]])
         self.assertListEqual(res[self.beds[2]], [self.patients[2]])
-    
+
     def test_07_get_nurse_follower_ids(self):
         cr, uid = self.cr, self.uid
 
@@ -181,7 +180,7 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertFalse(res[self.beds[0]])
         self.assertFalse(res[self.beds[1]])
         self.assertListEqual(res[self.beds[2]], [self.nurse_uid])
-        
+
     def test_08_get_hca_follower_ids(self):
         cr, uid = self.cr, self.uid
 
@@ -193,7 +192,7 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertListEqual(res[self.beds[2]], [self.hca_uid])
 
     def test_09_ward_dashboard_data(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         ward = self.ward_pool.browse(cr, self.wm_uid, self.ward_id)
         self.assertEqual(ward.location_id.id, self.ward_id,

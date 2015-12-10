@@ -3,7 +3,7 @@
 Defines :class:`overdue<nh_clinical_overdue>` and
 :class:`doctors activities<nh_clinical_doctor_activities>`.
 """
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class nh_clinical_overdue(orm.Model):
         cr.execute("""
                 drop view if exists %s;
                 create or replace view %s as (
-                with activity as (    
+                with activity as (
                     select
                         activity.id as id,
                         case
@@ -107,14 +107,14 @@ class nh_clinical_overdue(orm.Model):
                         user_name,
                         state,
                         case when extract(epoch from delay_interval) > 0 then
-                            case when extract(days from delay_interval) > 0 
+                            case when extract(days from delay_interval) > 0
                                 then  extract(days from delay_interval)
                                 || ' day(s) ' else ''
                             end || to_char(delay_interval, 'HH24:MI')
                         else '' end as delay_string,
-                        case when extract(epoch from delay_interval) > 0 
-                            then(extract(epoch from delay_interval)/60)::int 
-                        else 0 end as delay,         
+                        case when extract(epoch from delay_interval) > 0
+                            then(extract(epoch from delay_interval)/60)::int
+                        else 0 end as delay,
                         groups
                     from activity
                     order by delay

@@ -4,7 +4,7 @@ Shows all :class:`patients<base.nh_clinical_patient>` pending a
 :class:`placement<operations.nh_clinical_patient_placement>` in a
 :class:`bed location<base.nh_clinical_location>`.
 """
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 import logging
 
 _logger = logging.getLogger(__name__)
