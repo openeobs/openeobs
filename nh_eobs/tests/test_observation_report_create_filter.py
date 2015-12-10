@@ -96,7 +96,7 @@ class TestObservationReport(TransactionCase):
 
     def test_03_without_model_with_end_date_with_start_date(self):
         with self.assertRaises(ValueError):
-            test_filter = obs_report.create_search_filter(
+            obs_report.create_search_filter(
                 None, self.normal_model, self.start_date, self.end_date)
 
     def test_04_with_normal_model_without_end_date_with_start_date(self):
@@ -232,25 +232,25 @@ class TestObservationReport(TransactionCase):
 
     def test_10_without_model_without_end_date_with_start_date(self):
         with self.assertRaises(ValueError):
-            test_filter = obs_report.create_search_filter(
+            obs_report.create_search_filter(
                 self.spell_id, None, self.start_date, None)
 
     def test_11_without_model_without_end_date_without_start_date(self):
         with self.assertRaises(ValueError):
-            test_filter = obs_report.create_search_filter(
+            obs_report.create_search_filter(
                 self.spell_id, None, None, None)
 
     def test_12_without_model_with_end_date_without_start_date(self):
         with self.assertRaises(ValueError):
-            test_filter = obs_report.create_search_filter(
+            obs_report.create_search_filter(
                 self.spell_id, None, None, self.end_date)
 
     def test_13_without_model_with_end_date_with_start_date(self):
         with self.assertRaises(ValueError):
-            test_filter = obs_report.create_search_filter(
+            obs_report.create_search_filter(
                 self.spell_id, None, self.start_date, self.end_date)
 
     def test_14_without_spell_activity_id(self):
         with self.assertRaises(ValueError):
-            test_filter = obs_report.create_search_filter(
+            obs_report.create_search_filter(
                 None, None, None, None)

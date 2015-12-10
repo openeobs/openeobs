@@ -586,24 +586,30 @@ class TestObservationReport(TransactionCase):
         super(TestObservationReport, self).tearDown()
 
     def test_01_obs_report_with_spell_wout_start_time_wout_end_time(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, \
-                                          self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': None,
-            'end_time': None
-        })
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': None,
+                'end_time': None
+            }
+        )
         self.assertEqual(report_test, True,
                          'Unable to print Observation Report')
 
     def test_02_obs_report_with_spell_with_start_time_wout_end_time(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, \
-                                          self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': self.start_time,
-            'end_time': None
-        })
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': self.start_time,
+                'end_time': None
+            }
+        )
         self.assertEqual(report_test, True,
                          'Unable to print Observation Report')
 
@@ -616,34 +622,39 @@ class TestObservationReport(TransactionCase):
         }
         old_move_data = copy.deepcopy(self.move_data)
         self.move_data = False
-        report_model, registry, cr, uid = self.report_model, self.registry, \
-                                          self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': self.start_time,
-            'end_time': self.end_time
-        })
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': self.start_time,
+                'end_time': self.end_time
+            }
+        )
         self.assertEqual(report_test, True,
                          'Unable to print Observation Report')
         self.triggered_ews_data = old_triggered_ews_data
         self.move_data = old_move_data
 
     def test_04_obs_report_with_spell_wout_start_time_with_end_time(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, \
-                                          self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': None,
-            'end_time': self.end_time
-        })
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': None,
+                'end_time': self.end_time
+            }
+        )
         self.assertEqual(report_test, True,
                          'Unable to print Observation Report')
 
     def test_05_obs_report_without_spell_wout_start_time_with_end_time(self):
         with self.assertRaises(ValueError):
-            report_model, registry, cr, uid = self.report_model, \
-                                              self.registry, self.cr, self.uid
-            report_test = test_reports.try_report(
+            report_model, cr, uid = self.report_model, self.cr, self.uid
+            test_reports.try_report(
                 cr, uid,
                 report_model, [],
                 data={
@@ -655,9 +666,8 @@ class TestObservationReport(TransactionCase):
 
     def test_06_obs_report_without_spell_wout_start_time_wout_end_time(self):
         with self.assertRaises(ValueError):
-            report_model, registry, cr, uid = self.report_model, \
-                                              self.registry, self.cr, self.uid
-            report_test = test_reports.try_report(
+            report_model, cr, uid = self.report_model, self.cr, self.uid
+            test_reports.try_report(
                 cr, uid,
                 report_model, [],
                 data={
@@ -669,9 +679,8 @@ class TestObservationReport(TransactionCase):
 
     def test_07_obs_report_wout_spell_with_start_time_wout_end_time(self):
         with self.assertRaises(ValueError):
-            report_model, registry, cr, uid = self.report_model, \
-                                              self.registry, self.cr, self.uid
-            report_test = test_reports.try_report(
+            report_model, cr, uid = self.report_model, self.cr, self.uid
+            test_reports.try_report(
                 cr, uid,
                 report_model, [],
                 data={
@@ -682,14 +691,17 @@ class TestObservationReport(TransactionCase):
             )
 
     def test_08_obs_report_with_spell_start_time_end_time_ews_only(self):
-        report_model, registry, cr, uid = self.report_model, \
-                                          self.registry, self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
-            'ews_only': True
-        })
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': self.start_time,
+                'end_time': self.end_time,
+                'ews_only': True
+            }
+        )
         self.assertEqual(report_test, True,
                          'Unable to print Observation Report')
 
@@ -705,8 +717,7 @@ class TestObservationReport(TransactionCase):
             '1988-01-12 06:00:00',
             '%Y-%m-%d %H:%M:%S'
         )
-        report_model, registry, cr, uid = self.report_model, \
-                                          self.registry, self.cr, self.uid
+        report_model, cr, uid = self.report_model, self.cr, self.uid
         rep = self.registry(self.report_model)
         convert_date = obs_report.convert_db_date_to_context_date(
             rep, cr, uid, test_date, '%Y')
@@ -718,8 +729,7 @@ class TestObservationReport(TransactionCase):
             '1988-01-12 06:00:00',
             '%Y-%m-%d %H:%M:%S'
         )
-        report_model, registry, cr, uid = self.report_model, \
-                                          self.registry, self.cr, self.uid
+        report_model, cr, uid = self.report_model, self.cr, self.uid
         rep = self.registry(self.report_model)
         # Need to supply the timezone so can ensure will
         # use UTC instead of Odoo default
