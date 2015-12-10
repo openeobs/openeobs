@@ -1,2 +1,2 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import route_api
+import openerp.addons.nh_eobs_api.controllers.route_api

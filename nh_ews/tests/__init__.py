@@ -1,2 +1,2 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import test_ews
+import openerp.addons.nh_ews.tests.test_ews

@@ -1,3 +1,3 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import cancel_notifications
-import print_observation_report
+import openerp.addons.nh_eobs.wizard.cancel_notifications
+import openerp.addons.nh_eobs.wizard.print_observation_report
