@@ -3,21 +3,22 @@
 """
 Defines helper methods and handlers for eObs Mobile.
 """
-import openerp
-import re
-import urls
-import jinja2
-import os
-import logging
 from openerp import http
 from openerp.modules.module import get_module_path
 from datetime import datetime
 from openerp.http import request
-from werkzeug import utils, exceptions
+from werkzeug import utils
+from werkzeug import exceptions
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.osv import orm
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from openerp.addons.nh_eobs_api.routing import Route as EobsRoute
+import openerp
+import re
+import openerp.addons.nh_eobs_mobile.controllers.urls
+import jinja2
+import os
+import logging
 
 _logger = logging.getLogger(__name__)
 
