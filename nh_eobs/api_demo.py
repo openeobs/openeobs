@@ -204,7 +204,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return identifiers
 
-    def generate_users(self, cr, uid, location_ids, data=dict()):
+    def generate_users(self, cr, uid, location_ids, data=None):
         """
         Generates a ward manager, nurse, HCA, junior doctor, consultant,
         registrar, receptionist, admin and ADT user. Nurses and HCAs are
@@ -212,6 +212,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
         :param location_ids: ['ward_id', 'bed_id_1', 'bed_id_2'...]
         :return: Dictionary { 'adt' : [id], 'nurse': [id, id], ... }
         """
+        if not data:
+            data = dict()
         identifiers = dict()
         user_pool = self.pool['res.users']
         group_pool = self.pool['res.groups']

@@ -9,17 +9,17 @@ from openerp.tools import config
 class Route(object):
     """Class storing all the data for a single route."""
     def __init__(self, name, url, request_type='http',
-                 auth='user', methods=['GET'], response_type='json',
-                 headers={}, cors=None, url_prefix=None):
+                 auth='user', methods=None, response_type='json',
+                 headers=None, cors=None, url_prefix=None):
         self.name = name
         self.url = url
         self.request_type = request_type
         self.auth = auth
-        self.methods = methods
+        self.methods = methods if methods else ['GET']
         # TODO: get this from the URL parameter?
         # (ex: adding ?_format=json to the URL)
         self.response_type = response_type
-        self.headers = headers
+        self.headers = headers if headers else {}
         self.cors = cors  # TODO: is this really needed?
         self.url_prefix = url_prefix
 
