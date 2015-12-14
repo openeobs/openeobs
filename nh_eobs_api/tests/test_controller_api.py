@@ -124,7 +124,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                 'user': 'Nurse Nadine',
                 'count': 3,
                 'patient_ids': [1, 2, 3],
-                'message': 'You have been invited to follow 3'
+                'message': 'You have been invited to follow 3 '
                            'patients from Nurse Nadine'
             }
         ]
@@ -406,7 +406,7 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         # Access the route
         test_resp = requests.post(
-            '/{0}{1}observation/score/weight/'.format(
+            '{0}{1}/observation/score/weight/'.format(
                 route_manager.BASE_URL,
                 route_manager.URL_PREFIX
             ),
