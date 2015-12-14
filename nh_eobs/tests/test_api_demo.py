@@ -193,20 +193,37 @@ class TestApiDemo(TransactionCase):
     # Integration Tests #
     #####################
 
-    def test_09_generate_locations(self):
-        cr, uid = self.cr, self.uid
+    def test_generate_locations_with_wards_and_beds_arguments(self):
 
-        identifiers = self.api_demo.generate_locations(
-            cr, uid, wards=2, beds=2)
+        def patch_location_search(*args, **kwargs):
+            hospital_id_list = [1]
+            return hospital_id_list
+
+        cr, uid = self.cr, self.uid
+        location_pool = self.registry('nh.clinical.location')
+        location_pool._patch_method('search', patch_location_search)
+        identifiers = self.api_demo.generate_locations(cr, uid, wards=2,
+                                                       beds=2)
+        location_pool._revert_method('search')
         # test number of wards created
         self.assertEquals(2, len(identifiers))
-        # test number of beds created. Length of list is 3 because first
-        # element is Ward ID.
+        # Test number of beds created.
+        # Length of list is 3 because first element is Ward ID.
         self.assertEquals(3, len(identifiers['Ward 1']))
         self.assertEquals(3, len(identifiers['Ward 2']))
 
-        # test number of wards/beds is 0 when nothing is passed
+    def test_generate_locations_with_no_arguments(self):
+
+        def patch_location_search(*args, **kwargs):
+            hospital_id_list = [1]
+            return hospital_id_list
+
+        cr, uid = self.cr, self.uid
+        location_pool = self.registry('nh.clinical.location')
+        location_pool._patch_method('search', patch_location_search)
         identifiers = self.api_demo.generate_locations(cr, uid)
+        location_pool._revert_method('search')
+        # test number of wards/beds is 0 when nothing is passed
         self.assertEquals(0, len(identifiers))
 
     def test_10_generate_users(self):
