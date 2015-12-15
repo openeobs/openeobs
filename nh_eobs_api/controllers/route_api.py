@@ -678,7 +678,9 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             response_json = ResponseJSON.get_json_data(
                 status=ResponseJSON.STATUS_SUCCESS,
                 title='{0}'.format(patient[0]['full_name']),
-                description='Observations for {0}'.format(patient[0]['full_name']),
+                description='Observations for {0}'.format(
+                    patient[0]['full_name']
+                ),
                 data=response_data
             )
         else:
