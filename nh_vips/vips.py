@@ -47,12 +47,12 @@ class nh_clinical_patient_observation_vips(orm.Model):
                    [{'model': 'nurse', 'summary': 'Resite Cannula',
                      'groups': ['nurse', 'hca']},
                     {'model': 'nurse',
-                     'summary': 'Consider plebitis treatment',
+                     'summary': 'Consider phlebitis treatment',
                      'groups': ['nurse', 'hca']}],
                    [{'model': 'nurse', 'summary': 'Resite Cannula',
                      'groups': ['nurse', 'hca']},
                     {'model': 'nurse',
-                     'summary': 'Initiate plebitis treatment',
+                     'summary': 'Initiate phlebitis treatment',
                      'groups': ['nurse', 'hca']}]]}
 
     def calculate_score(self, vips_data):
