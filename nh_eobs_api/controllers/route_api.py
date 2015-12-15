@@ -511,18 +511,23 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             patient_info = api_pool.get_patient_info(cr, uid,
                                                      hospital_number,
                                                      context=context)
-            response_json = ResponseJSON.get_json_data(
-                status=ResponseJSON.STATUS_SUCCESS,
-                title=patient_info[0]['full_name'],
-                description='Information on {0}'.format(
-                    patient_info[0]['full_name']
-                ),
-                data=patient_info[0]
-            )
-            return request.make_response(
-                response_json,
-                headers=ResponseJSON.HEADER_CONTENT_TYPE
-            )
+            if len(patient_info) > 0:
+                response_json = ResponseJSON.get_json_data(
+                    status=ResponseJSON.STATUS_SUCCESS,
+                    title=patient_info[0]['full_name'],
+                    description='Information on {0}'.format(
+                        patient_info[0]['full_name']
+                    ),
+                    data=patient_info[0]
+                )
+            else:
+                response_data = {'error': 'Patient not found.'}
+                response_json = ResponseJSON.get_json_data(
+                    status=ResponseJSON.STATUS_ERROR,
+                    title='Patient not found',
+                    description='Unable to get patient with ID provided',
+                    data=response_data
+                )
         except osv.except_osv:
             response_data = {'error': 'Patient not found.'}
             response_json = ResponseJSON.get_json_data(
@@ -531,10 +536,10 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 description='Unable to get patient with ID provided',
                 data=response_data
             )
-            return request.make_response(
-                response_json,
-                headers=ResponseJSON.HEADER_CONTENT_TYPE
-            )
+        return request.make_response(
+            response_json,
+            headers=ResponseJSON.HEADER_CONTENT_TYPE
+        )
 
     @http.route(**route_manager.expose_route('confirm_clinical_notification'))
     def confirm_clinical(self, *args, **kw):
@@ -649,33 +654,41 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         patient_id = kw.get('patient_id')  # TODO: add a check if is None (?)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
-        patient = api_pool.get_patients(cr, uid, [int(patient_id)])[0]
-        ews = api_pool.get_activities_for_patient(
-            cr, uid,
-            patient_id=int(patient_id),
-            activity_type='ews'
-        )
-        for ew in ews:
-            for e in ew:
-                if e in ['date_terminated',
-                         'create_date',
-                         'write_date',
-                         'date_started']:
-                    ew[e] = fields.datetime.context_timestamp(
-                        cr, uid,
-                        datetime.strptime(ew[e], DTF),
-                        context=context).strftime(DTF)
-
-        response_data = {
-            'obs': ews,
-            'obsType': 'ews'
-        }
-        response_json = ResponseJSON.get_json_data(
-            status=ResponseJSON.STATUS_SUCCESS,
-            title='{0}'.format(patient['full_name']),
-            description='Observations for {0}'.format(patient['full_name']),
-            data=response_data
-        )
+        patient = api_pool.get_patients(cr, uid, [int(patient_id)])
+        if len(patient) > 0:
+            ews = api_pool.get_activities_for_patient(
+                cr, uid,
+                patient_id=int(patient_id),
+                activity_type='ews'
+            )
+            for ew in ews:
+                for e in ew:
+                    if e in ['date_terminated',
+                             'create_date',
+                             'write_date',
+                             'date_started']:
+                        ew[e] = fields.datetime.context_timestamp(
+                            cr, uid,
+                            datetime.strptime(ew[e], DTF),
+                            context=context).strftime(DTF)
+            response_data = {
+                'obs': ews,
+                'obsType': 'ews'
+            }
+            response_json = ResponseJSON.get_json_data(
+                status=ResponseJSON.STATUS_SUCCESS,
+                title='{0}'.format(patient[0]['full_name']),
+                description='Observations for {0}'.format(patient[0]['full_name']),
+                data=response_data
+            )
+        else:
+            response_data = {'error': 'Patient not found.'}
+            response_json = ResponseJSON.get_json_data(
+                status=ResponseJSON.STATUS_ERROR,
+                title='Patient not found',
+                description='Unable to find patient with ID provided',
+                data=response_data
+            )
         return request.make_response(
             response_json,
             headers=ResponseJSON.HEADER_CONTENT_TYPE

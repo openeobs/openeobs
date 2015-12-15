@@ -692,9 +692,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             )
             _logger.debug(exception_message)
             return utils.redirect(URLS['task_list'], 303)
-        is_not = 'notification' in task['data_model']
-        is_place = 'placement' in task['data_model']
-        if is_not or is_place:
+        is_notification = 'notification' in task['data_model']
+        is_placement = 'placement' in task['data_model']
+        if is_notification or is_placement:
             # load notification foo
             obs_reg = request.registry['nh.eobs.api']
             form_desc = obs_reg.get_form_description(
