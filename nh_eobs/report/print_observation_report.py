@@ -29,16 +29,22 @@ class ObservationReport(models.AbstractModel):
         model_pool = self.pool[model]
         act_data = self.get_activity_data(spell_id, model, start, end)
         if act_data:
-            ds = act_data['date_started'] if 'data_started' in act_data and act_data['date_started'] else False
-            dt = act_data['date_terminated'] if 'date_terminated' in act_data and act_data['date_terminated'] else False
+            ds = False
+            dt = False
+            if 'data_started' in act_data and act_data['date_started']:
+                ds = act_data['date_started']
+            if 'date_terminated' in act_data and act_data['date_terminated']:
+                dt = act_data['date_terminated']
             if ds:
                 ds = helpers.convert_db_date_to_context_date(
                     cr, uid, datetime.strptime(ds, dtf),
                     self.pretty_date_format)
+                act_data['date_started'] = ds
             if dt:
                 dt = helpers.convert_db_date_to_context_date(
                     cr, uid, datetime.strptime(dt, dtf),
                     self.pretty_date_format)
+                act_data['date_terminated'] = dt
         return self.get_model_values(model, act_data)
 
     def get_model_values(self, model, act_data):
@@ -49,19 +55,35 @@ class ObservationReport(models.AbstractModel):
                                          int(act['data_ref'].split(',')[1]),
                                          [])
             if model_data:
-                model_data['status'] = 'Yes' if 'status' in model_data and model_data['status'] else 'No'
+                stat = 'No'
+                dt = 'date_terminated'
+                if 'status' in model_data and model_data['status']:
+                    model_data['status'] = 'Yes'
                 if 'data_started' in model_data and model_data['date_started']:
-                    model_data['date_started'] = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(model_data['date_started'], dtf),
-                        self.pretty_date_format)
-                if 'date_terminated' in model_data and model_data['date_terminated']:
-                    model_data['date_terminated'] = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(model_data['date_terminated'], dtf),
-                        self.pretty_date_format)
+                    model_data['date_started'] = \
+                        helpers.convert_db_date_to_context_date(
+                                cr, uid,
+                                datetime.strptime(
+                                        model_data['date_started'],
+                                        dtf
+                                ),
+                                self.pretty_date_format
+                        )
+                if dt in model_data and model_data[dt]:
+                    model_data['date_terminated'] = \
+                        helpers.convert_db_date_to_context_date(
+                                cr, uid,
+                                datetime.strptime(
+                                        model_data['date_terminated'],
+                                        dtf
+                                ),
+                                self.pretty_date_format
+                        )
             act['values'] = model_data
         return act_data
 
-    def get_multi_model_data(self, spell_id, model_one, model_two,  start, end):
+    def get_multi_model_data(self, spell_id,
+                             model_one, model_two,  start, end):
         act_data = self.get_activity_data(spell_id, model_one, start, end)
         return self.get_model_values(model_two, act_data)
 
@@ -77,7 +99,10 @@ class ObservationReport(models.AbstractModel):
                 datetime.strptime(data['date_started'], dtf),
                 self.wkhtmltopdf_format)
             data['date_terminated'] = datetime.strftime(
-                datetime.strptime(data['date_terminated'], self.pretty_date_format),
+                datetime.strptime(
+                        data['date_terminated'],
+                        self.pretty_date_format
+                ),
                 self.wkhtmltopdf_format)
         return json.dumps(model_data)
 
@@ -99,8 +124,16 @@ class ObservationReport(models.AbstractModel):
 
         # generate report timestamp
         time_generated = fields.datetime.context_timestamp(
-            cr, uid, datetime.now(), context=None).strftime(pretty_date_format)
-        return helpers.BaseReport(user, company_name, company_logo, time_generated)
+                cr, uid,
+                datetime.now(),
+                context=None
+        ).strftime(pretty_date_format)
+        return helpers.BaseReport(
+                user,
+                company_name,
+                company_logo,
+                time_generated
+        )
 
     def get_ews_observations(self, data):
         cr, uid = self._cr, self._uid
@@ -131,13 +164,19 @@ class ObservationReport(models.AbstractModel):
                 ds = t.get('date_started', False)
                 dt = t.get('date_terminated', False)
                 if ds:
-                    t['date_started'] = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(t['date_started'], dtf),
-                        self.pretty_date_format)
+                    t['date_started'] = \
+                        helpers.convert_db_date_to_context_date(
+                                cr, uid,
+                                datetime.strptime(t['date_started'], dtf),
+                                self.pretty_date_format
+                        )
                 if t['date_terminated']:
-                    t['date_terminated'] = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(t['date_terminated'], dtf),
-                        self.pretty_date_format)
+                    t['date_terminated'] = \
+                        helpers.convert_db_date_to_context_date(
+                                cr, uid,
+                                datetime.strptime(t['date_terminated'], dtf),
+                                self.pretty_date_format
+                        )
         return ews
 
     @staticmethod
