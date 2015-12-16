@@ -6,7 +6,8 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.osv import fields
 import json
 import copy
-import helpers
+from . import helpers
+
 
 class ObservationReport(models.AbstractModel):
     _name = 'report.nh.clinical.observation_report'
@@ -26,7 +27,6 @@ class ObservationReport(models.AbstractModel):
 
     def get_model_data(self, spell_id, model, start, end):
         cr, uid = self._cr, self._uid
-        model_pool = self.pool[model]
         act_data = self.get_activity_data(spell_id, model, start, end)
         if act_data:
             ds = False
@@ -58,15 +58,14 @@ class ObservationReport(models.AbstractModel):
                 stat = 'No'
                 dt = 'date_terminated'
                 if 'status' in model_data and model_data['status']:
-                    model_data['status'] = 'Yes'
+                    stat = 'Yes'
+                    model_data['status'] = stat
                 if 'data_started' in model_data and model_data['date_started']:
                     model_data['date_started'] = \
                         helpers.convert_db_date_to_context_date(
                                 cr, uid,
-                                datetime.strptime(
-                                        model_data['date_started'],
-                                        dtf
-                                ),
+                                datetime.strptime(model_data['date_started'],
+                                                  dtf),
                                 self.pretty_date_format
                         )
                 if dt in model_data and model_data[dt]:
@@ -170,7 +169,7 @@ class ObservationReport(models.AbstractModel):
                                 datetime.strptime(t['date_started'], dtf),
                                 self.pretty_date_format
                         )
-                if t['date_terminated']:
+                if dt:
                     t['date_terminated'] = \
                         helpers.convert_db_date_to_context_date(
                                 cr, uid,
@@ -260,7 +259,7 @@ class ObservationReport(models.AbstractModel):
         patient['weight'] = weight
         return patient
 
-    def get_report_data(self,data, ews_only=False):
+    def get_report_data(self, data, ews_only=False):
         cr, uid = self._cr, self._uid
         # set up pools
         report = self.env['report']._get_report_from_name(
@@ -383,7 +382,6 @@ class ObservationReport(models.AbstractModel):
         rep_data = helpers.merge_dicts(basic_obs, non_basic_obs, ews_only)
         return rep_data
 
-
     @api.multi
     def render_html(self, data=None):
 
@@ -392,8 +390,6 @@ class ObservationReport(models.AbstractModel):
 
         if data and data.spell_id:
             report_obj = self.env['report']
-            report = report_obj._get_report_from_name(
-            'nh.clinical.observation_report')
             if hasattr(data, 'ews_only') and data.ews_only:
                 ews_report = self.get_report_data(data, ews_only=True)
                 return report_obj.render('nh_eobs.observation_report',
