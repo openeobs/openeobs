@@ -128,8 +128,12 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return super(nh_clinical_patient_observation, self).create(
             cr, uid, vals, context)
 
-    def create_activity(self, cr, uid, activity_vals={},
-                        data_vals={}, context=None):
+    def create_activity(self, cr, uid, activity_vals=None,
+                        data_vals=None, context=None):
+        if not activity_vals:
+            activity_vals = {}
+        if not data_vals:
+            data_vals = {}
         assert data_vals.get('patient_id'), "patient_id is a required field!"
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(
@@ -143,7 +147,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         activity_vals.update({'parent_id': spell.activity_id.id})
         return super(nh_clinical_patient_observation, self).create_activity(
             cr, uid, activity_vals, data_vals, context=context)
-                
+
     def write(self, cr, uid, ids, vals, context=None):
         """
         Checks for ``null`` numeric values before writing to the

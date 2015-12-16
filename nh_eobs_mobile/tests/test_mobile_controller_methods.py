@@ -1,18 +1,16 @@
-__author__ = 'lorenzo'
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import logging
-import mock
-import re
-import requests
-from random import choice as random_choice
-
 from openerp import tests
-from openerp.addons.nh_eobs_mobile.controllers.urls import routes, URLS
+from openerp.addons.nh_eobs_mobile.controllers.urls import routes
+from openerp.addons.nh_eobs_mobile.controllers.urls import URLS
 from openerp.http import HttpRequest
 from openerp.osv.orm import except_orm
 from openerp.tests import DB as DB_NAME
 from openerp.tools import config
-
+from random import choice as random_choice
+import logging
+import mock
+import re
+import requests
 
 SERVER_PROTOCOL = "http"
 SERVER_ADDRESS = "localhost"
@@ -51,7 +49,8 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
         :param route: all the necessary route data
         :type route: dict
-        :returns: a URL-formatted string with a value for each argument, or None if the route doesn't required any argument
+        :returns: a URL-formatted string with a value for each argument,
+        or None if the route doesn't required any argument
         :rtype: str
         """
         # Regex and variables for managing the route's arguments
@@ -59,7 +58,9 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         observation_argument_regex = re.compile(r'^observation$')
 
         # Use only observation's types present in both the sets
-        usable_observation_types = list(self.model_observation_types & self.active_observation_types)
+        usable_observation_types = list(
+            self.model_observation_types & self.active_observation_types
+        )
 
         # Parse the route's arguments
         route_arguments = None
@@ -67,7 +68,8 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             argument_list = []
             for arg in route['args']:
                 if observation_argument_regex.search(arg):
-                    argument_list.append(random_choice(usable_observation_types))
+                    argument_list.append(random_choice(
+                        usable_observation_types))
                 elif index_argument_regex.search(arg):
                     argument_list.append('1')
             if len(argument_list) == 1:
@@ -93,10 +95,14 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             base_url = BASE_MOBILE_URL
         else:
             base_url = BASE_URL
-        return '{0}{1}{2}'.format(base_url, route_endpoint, (route_arguments if route_arguments else ''))
+        return '{0}{1}{2}'.format(base_url,
+                                  route_endpoint,
+                                  (route_arguments if route_arguments else '')
+                                  )
 
     def _get_authenticated_response(self, user_name):
-        """Get a Response object with an authenticated session within its cookies.
+        """Get a Response object with an authenticated session within its
+         cookies.
 
         :param user_name: username of the user to be authenticated as
         :type user_name: str
@@ -110,20 +116,25 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         return auth_response
 
     def _get_user_belonging_to_group(self, group_name):
-        """Get the 'id' and the 'login' name of a user belonging to a specific group.
+        """Get the 'id' and the 'login' name of a user belonging to a
+        specific group.
 
-        :param group_name: name of the group from which retrieving a user (belonging to it)
+        :param group_name: name of the group from which retrieving a user
+        (belonging to it)
         :type group_name: str
         :returns: a dictionary with 2 key-value couples:
-            - 'login': the login name of the retrieved user (belonging to the group passed as argument)
-            - 'id': the id of the retrieved user (belonging to the group passed as argument)
+            - 'login': the login name of the retrieved user
+            (belonging to the group passed as argument)
+            - 'id': the id of the retrieved user
+            (belonging to the group passed as argument)
         :rtype: dict
         :returns: None if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
-        users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', group_name)],
-                                                  fields=['login', 'id'])
+        users_login_list = users_pool.search_read(
+            self.cr, self.uid,
+            domain=[('groups_id.name', '=', group_name)],
+            fields=['login', 'id'])
         try:
             user_data = random_choice(users_login_list)
         except IndexError:
@@ -133,10 +144,12 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
         """Patch a list of methods related to an Odoo's model.
 
-        :param odoo_model: a valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param odoo_model: a valid Odoo's model instance
+        (e.g. fetched by 'self.registry()')
         :param methods_patching: list of two-values tuples, each containing:
             - the method to be patched (string)
-            - the function that will substitute the method to be patched (the actual name of the function)
+            - the function that will substitute the method to be
+            patched (the actual name of the function)
         :type methods_patching: list
         :return: True (if no errors were raised during the patching)
         :rtype: bool
@@ -145,11 +158,15 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             odoo_model._patch_method(method_to_patch, substituting_function)
         return True
 
-    def _revert_bulk_patch_odoo_model_method(self, odoo_model, methods_to_be_reverted):
+    def _revert_bulk_patch_odoo_model_method(self,
+                                             odoo_model,
+                                             methods_to_be_reverted):
         """Revert the Odoo's patching of a list of methods.
 
-        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
-        :param methods_to_be_reverted: list of model's 'original' methods to be reactivated back (string)
+        :param odoo_model: A valid Odoo's model instance
+        (e.g. fetched by 'self.registry()')
+        :param methods_to_be_reverted: list of model's 'original'
+        methods to be reactivated back (string)
         :type methods_to_be_reverted: list
         :return: True (if no errors were raised during the patching)
         :rtype: bool
@@ -194,7 +211,9 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                        'for the test.'
             )
 
-        user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        user_data = self._get_user_belonging_to_group(
+            'NH Clinical Nurse Group'
+        )
         if user_data:
             self.login_name = user_data.get('login')
         else:
@@ -226,24 +245,35 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             )
 
     def test_method_get_font(self):
-        font_url = self._build_url('src/fonts/{}'.format('non-existing-font'), None, mobile=True)
+        font_url = self._build_url(
+            'src/fonts/{}'.format('non-existing-font'), None, mobile=True)
         test_resp = requests.get(font_url, cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 404)
 
     def test_method_take_patient_observation(self):
-        take_patient_obs_route = [r for r in routes if r['name'] == 'patient_ob']
-        self.assertEqual(len(take_patient_obs_route), 1,
-                         "Endpoint to the 'patient_ob' route not unique. Cannot run the test!")
+        pob = 'patient_ob'
+        take_patient_obs_route = [r for r in routes if r['name'] == pob]
+        self.assertEqual(
+            len(take_patient_obs_route), 1,
+            "Endpoint to the 'patient_ob' route not unique. "
+            "Cannot run the test!")
 
-        # Retrieve only observations existing as model, but not as active observations
-        non_active_observation_types = list(self.model_observation_types - self.active_observation_types)
+        # Retrieve only observations existing as model, but not as
+        # active observations
+        non_active_observation_types = list(
+            self.model_observation_types - self.active_observation_types
+        )
         test_observation = random_choice(non_active_observation_types)
 
-        patient_obs_url = self._build_url(take_patient_obs_route[0]['endpoint'], '{}/1'.format(test_observation))
-        test_resp = requests.get(patient_obs_url, cookies=self.auth_resp.cookies)
+        patient_obs_url = self._build_url(
+            take_patient_obs_route[0]['endpoint'],
+            '{}/1'.format(test_observation)
+        )
+        test_resp = requests.get(patient_obs_url,
+                                 cookies=self.auth_resp.cookies)
         self.assertEqual(test_resp.status_code, 404)
 
-    def test_method_take_patient_observation_returns_404_when_list_of_related_patients_is_empty(self):
+    def test_method_take_patient_observation_returns_404_when_no_rel_pat(self):
         """
         Test that the method returns a '404 Not Found' response,
         if the list of patients (internally fetched) is empty.
@@ -267,15 +297,21 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         def mock_get_patients(*args, **kwargs):
             empty_list = []
             return empty_list
+        pob = 'patient_ob'
+        take_patient_obs_route = [r for r in routes if r['name'] == pob]
+        self.assertEqual(
+            len(take_patient_obs_route), 1,
+            "Endpoint to the 'patient_ob' route not unique. "
+            "Cannot run the test!")
 
-        take_patient_obs_route = [r for r in routes if r['name'] == 'patient_ob']
-        self.assertEqual(len(take_patient_obs_route), 1,
-                         "Endpoint to the 'patient_ob' route not unique. Cannot run the test!")
-
-        # Retrieve only observations existing as model, but not as active observations
+        # Retrieve only observations existing as model, but not as
+        # active observations
         test_observation = random_choice(list(self.active_observation_types))
 
-        patient_obs_url = self._build_url(take_patient_obs_route[0]['endpoint'], '{}/1'.format(test_observation))
+        patient_obs_url = self._build_url(
+            take_patient_obs_route[0]['endpoint'],
+            '{}/1'.format(test_observation)
+        )
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
@@ -287,28 +323,35 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
         # Actually reach the 'single task' page
         try:
-            test_resp = requests.get(patient_obs_url, cookies=self.auth_resp.cookies)
+            test_resp = requests.get(patient_obs_url,
+                                     cookies=self.auth_resp.cookies)
         finally:
-            # Just the first element of every tuple is needed for reverting the patchers
+            # Just the first element of every tuple is needed for
+            # reverting the patchers
             methods_to_revert = [m[0] for m in methods_patching_list]
 
             # Stop Odoo's patchers
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(
+                eobs_api, methods_to_revert)
 
         self.assertEqual(test_resp.status_code, 404)
 
     def test_method_mobile_logout_redirects_to_login_page(self):
         # Retrieve the 'logout' route and build the complete URL for it
         logout_route = [r for r in routes if r['name'] == 'logout']
-        self.assertEqual(len(logout_route), 1,
-                         "Endpoint to the 'logout' route not unique. Cannot run the test!")
-        logout_url = self._build_url(logout_route[0]['endpoint'], None, mobile=True)
+        self.assertEqual(
+            len(logout_route), 1,
+            "Endpoint to the 'logout' route not unique. Cannot run the test!")
+        logout_url = self._build_url(
+            logout_route[0]['endpoint'], None, mobile=True)
 
         # Retrieve the 'login' route and build the complete URL for it
         login_route = [r for r in routes if r['name'] == 'login']
-        self.assertEqual(len(login_route), 1,
-                         "Endpoint to the 'login' route not unique. Cannot run the test!")
-        login_url = self._build_url(login_route[0]['endpoint'], None, mobile=True)
+        self.assertEqual(
+            len(login_route), 1,
+            "Endpoint to the 'login' route not unique. Cannot run the test!")
+        login_url = self._build_url(
+            login_route[0]['endpoint'], None, mobile=True)
 
         # Actually logout and test the response
         test_resp = requests.get(logout_url, cookies=self.auth_resp.cookies)
@@ -317,23 +360,28 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
     def test_method_get_patients_list(self):
         get_patients_route = [r for r in routes if r['name'] == 'patient_list']
-        self.assertEqual(len(get_patients_route), 1,
-                         "Endpoint to the 'patient_list' route not unique. Cannot run the test!")
-        get_patients_url = self._build_url(get_patients_route[0]['endpoint'], None, mobile=True)
+        self.assertEqual(
+            len(get_patients_route), 1,
+            "Endpoint to the 'patient_list' route not unique. "
+            "Cannot run the test!")
+        get_patients_url = self._build_url(
+            get_patients_route[0]['endpoint'], None, mobile=True)
 
         # Odoo-patch models' methods to make them returning test data
         def mock_unassign_my_activities(*args, **kwargs):
             return True
 
         def mock_get_assigned_activities(*args, **kwargs):
-            """Return a list of dictionaries (one for each assigned activity)."""
+            """Return a list of dictionaries
+            (one for each assigned activity)."""
             assigned_activities_list = [
                 {
                     'id': 1,
                     'user': 'Nurse Nadine',
                     'count': 2,
                     'patient_ids': [47, 49],
-                    'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+                    'message': 'You have been invited to follow 2 '
+                               'patients from Nurse Nadine'
                 }
             ]
             return assigned_activities_list
@@ -371,7 +419,8 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             return True
 
         def mock_get_followed_patients(*args, **kwargs):
-            """Return a list of dictionaries (one for each patient 'followed' by the user)."""
+            """Return a list of dictionaries
+            (one for each patient 'followed' by the user)."""
             followed_patients_list = []
             return followed_patients_list
 
@@ -389,18 +438,26 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
-            test_resp = requests.get(get_patients_url, cookies=self.auth_resp.cookies)
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
+            requests.get(get_patients_url,
+                         cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for
+        # reverting the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
-        self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+        self._revert_bulk_patch_odoo_model_method(
+            eobs_api, methods_to_revert)
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the
+        # rightly processed arguments
         mocked_method.assert_called_once_with(
             'nh_eobs_mobile.patient_task_list',
             qcontext={
@@ -410,7 +467,8 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                         'user': 'Nurse Nadine',
                         'count': 2,
                         'patient_ids': [47, 49],
-                        'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+                        'message': 'You have been invited to follow 2 '
+                                   'patients from Nurse Nadine'
                     }
                 ],
                 'items': [
@@ -453,23 +511,28 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
     def test_method_get_tasks_list(self):
         get_tasks_route = [r for r in routes if r['name'] == 'task_list']
-        self.assertEqual(len(get_tasks_route), 1,
-                         "Endpoint to the 'task_list' route not unique. Cannot run the test!")
-        get_tasks_url = self._build_url(get_tasks_route[0]['endpoint'], None, mobile=True)
+        self.assertEqual(
+            len(get_tasks_route), 1,
+            "Endpoint to the 'task_list' route not unique. "
+            "Cannot run the test!")
+        get_tasks_url = self._build_url(
+            get_tasks_route[0]['endpoint'], None, mobile=True)
 
         # Odoo-patch models' methods to make them returning test data
         def mock_unassign_my_activities(*args, **kwargs):
             return True
 
         def mock_get_assigned_activities(*args, **kwargs):
-            """Return a list of dictionaries (one for each assigned activity)."""
+            """Return a list of dictionaries
+            (one for each assigned activity)."""
             assigned_activities_list = [
                 {
                     'id': 1,
                     'user': 'Nurse Nadine',
                     'count': 2,
                     'patient_ids': [47, 49],
-                    'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+                    'message': 'You have been invited to follow 2 '
+                               'patients from Nurse Nadine'
                 }
             ]
             return assigned_activities_list
@@ -506,18 +569,26 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() '
+                'method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
-            test_resp = requests.get(get_tasks_url, cookies=self.auth_resp.cookies)
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
+            requests.get(get_tasks_url,
+                         cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for
+        # reverting the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the rightly
+        # processed arguments
         mocked_method.assert_called_once_with(
             'nh_eobs_mobile.patient_task_list',
             qcontext={
@@ -548,21 +619,27 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         )
 
     def test_method_get_single_patient_data(self):
-        get_patient_route = [r for r in routes if r['name'] == 'single_patient']
-        self.assertEqual(len(get_patient_route), 1,
-                         "Endpoint to the 'single_patient' route not unique. Cannot run the test!")
-        get_patient_url = self._build_url(get_patient_route[0]['endpoint'], '2', mobile=True)
+        spt = 'single_patient'
+        get_patient_route = [r for r in routes if r['name'] == spt]
+        self.assertEqual(
+            len(get_patient_route), 1,
+            "Endpoint to the 'single_patient' route not unique. "
+            "Cannot run the test!")
+        get_patient_url = self._build_url(
+            get_patient_route[0]['endpoint'], '2', mobile=True)
 
         # Odoo-patch models' methods to make them returning test data
         def mock_get_assigned_activities(*args, **kwargs):
-            """Return a list of dictionaries (one for each assigned activity)."""
+            """Return a list of dictionaries (one for each
+             assigned activity)."""
             assigned_activities_list = [
                 {
                     'id': 1,
                     'user': 'Nurse Nadine',
                     'count': 2,
                     'patient_ids': [47, 49],
-                    'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+                    'message': 'You have been invited to follow 2'
+                               ' patients from Nurse Nadine'
                 }
             ]
             return assigned_activities_list
@@ -618,18 +695,26 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() '
+                'method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
-            test_resp = requests.get(get_patient_url, cookies=self.auth_resp.cookies)
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
+            requests.get(get_patient_url,
+                         cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for
+        # reverting the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the
+        # rightly processed arguments
         mocked_method.assert_called_once_with(
             'nh_eobs_mobile.patient',
             qcontext={
@@ -651,7 +736,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                 },
                 'urls': URLS,
                 'section': 'patient',
-                'obs_list': [  # the observations list was sorted by the controller's method under test
+                'obs_list': [
                     {
                         'name': 'NEWS',
                         'type': 'ews'
@@ -670,21 +755,27 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             }
         )
 
-    def test_method_get_single_patient_returns_404_when_no_patient_is_found(self):
-        get_patient_route = [r for r in routes if r['name'] == 'single_patient']
-        self.assertEqual(len(get_patient_route), 1,
-                         "Endpoint to the 'single_patient' route not unique. Cannot run the test!")
-        get_patient_url = self._build_url(get_patient_route[0]['endpoint'], '47', mobile=True)
+    def test_method_get_single_patient_returns_404_when_no_patient(self):
+        spt = 'single_patient'
+        get_patient_route = [r for r in routes if r['name'] == spt]
+        self.assertEqual(
+            len(get_patient_route), 1,
+            "Endpoint to the 'single_patient' route not unique. "
+            "Cannot run the test!")
+        get_patient_url = self._build_url(
+            get_patient_route[0]['endpoint'], '47', mobile=True)
 
         def mock_method_returning_empty_list(*args, **kwargs):
             return []
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
-        eobs_api._patch_method('get_patients', mock_method_returning_empty_list)
+        eobs_api._patch_method(
+            'get_patients', mock_method_returning_empty_list)
 
         # Reach the route under tests
-        test_resp = requests.get(get_patient_url, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(get_patient_url,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         eobs_api._revert_method('get_patients')
@@ -692,10 +783,14 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 404)
 
     def test_method_get_share_patients(self):
-        get_share_patients_route = [r for r in routes if r['name'] == 'share_patient_list']
-        self.assertEqual(len(get_share_patients_route), 1,
-                         "Endpoint to the 'share_patient_list' route not unique. Cannot run the test!")
-        get_share_patients_url = self._build_url(get_share_patients_route[0]['endpoint'], None, mobile=True)
+        ptl = 'share_patient_list'
+        get_share_patients_route = [r for r in routes if r['name'] == ptl]
+        self.assertEqual(
+            len(get_share_patients_route), 1,
+            "Endpoint to the 'share_patient_list' route not unique. "
+            "Cannot run the test!")
+        get_share_patients_url = self._build_url(
+            get_share_patients_route[0]['endpoint'], None, mobile=True)
 
         # Odoo-patch models' methods to make them returning test data
         def mock_unassign_my_activities(*args, **kwargs):
@@ -744,14 +839,16 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             return True
 
         def mock_get_assigned_activities(*args, **kwargs):
-            """Return a list of dictionaries (one for each assigned activity)."""
+            """Return a list of dictionaries
+            (one for each assigned activity)."""
             assigned_activities_list = [
                 {
                     'id': 1,
                     'user': 'Nurse Nadine',
                     'count': 2,
                     'patient_ids': [47, 49],
-                    'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+                    'message': 'You have been invited to follow 2 '
+                               'patients from Nurse Nadine'
                 }
             ]
             return assigned_activities_list
@@ -769,18 +866,25 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
-            test_resp = requests.get(get_share_patients_url, cookies=self.auth_resp.cookies)
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
+            requests.get(get_share_patients_url,
+                         cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for
+        # reverting the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the rightly
+        # processed arguments
         mocked_method.assert_called_once_with(
             'nh_eobs_mobile.share_patients_list',
             qcontext={
@@ -829,7 +933,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         :type route_endpoint: str
         :param route_arguments: arguments for a specific route's endpoint
         :type route_arguments: str
-        :param mobile: select between the 'web' or 'mobile' version of the URL (default: True)
+        :param mobile: select between the 'web' or 'mobile' version of the
+        URL (default: True)
         :type mobile: bool
         :returns: full URL, ready to be reached via browser or requests
         :rtype: str
@@ -838,10 +943,15 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
             base_url = BASE_MOBILE_URL
         else:
             base_url = BASE_URL
-        return '{0}{1}{2}'.format(base_url, route_endpoint, (route_arguments if route_arguments else ''))
+        return '{0}{1}{2}'.format(
+            base_url,
+            route_endpoint,
+            (route_arguments if route_arguments else '')
+        )
 
     def _get_authenticated_response(self, user_name):
-        """Get a Response object with an authenticated session within its cookies.
+        """Get a Response object with an authenticated session
+        within its cookies.
 
         :param user_name: username of the user to be authenticated as
         :type user_name: str
@@ -855,20 +965,25 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         return auth_response
 
     def _get_user_belonging_to_group(self, group_name):
-        """Get the 'id' and the 'login' name of a user belonging to a specific group.
+        """Get the 'id' and the 'login' name of a user belonging to
+        a specific group.
 
-        :param group_name: name of the group from which retrieving a user (belonging to it)
+        :param group_name: name of the group from which retrieving a
+        user (belonging to it)
         :type group_name: str
         :returns: a dictionary with 2 key-value couples:
-            - 'login': the login name of the retrieved user (belonging to the group passed as argument)
-            - 'id': the id of the retrieved user (belonging to the group passed as argument)
+            - 'login': the login name of the retrieved user
+            (belonging to the group passed as argument)
+            - 'id': the id of the retrieved user
+            (belonging to the group passed as argument)
         :rtype: dict
         :returns: None if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
-        users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', group_name)],
-                                                  fields=['login', 'id'])
+        users_login_list = users_pool.search_read(
+            self.cr, self.uid,
+            domain=[('groups_id.name', '=', group_name)],
+            fields=['login', 'id'])
         try:
             user_data = random_choice(users_login_list)
         except IndexError:
@@ -878,10 +993,12 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
     def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
         """Patch a list of methods related to an Odoo's model.
 
-        :param odoo_model: a valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param odoo_model: a valid Odoo's model instance
+        (e.g. fetched by 'self.registry()')
         :param methods_patching: list of two-values tuples, each containing:
             - the method to be patched (string)
-            - the function that will substitute the method to be patched (the actual name of the function)
+            - the function that will substitute the method
+            to be patched (the actual name of the function)
         :type methods_patching: list
         :return: True (if no errors were raised during the patching)
         :rtype: bool
@@ -890,11 +1007,14 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
             odoo_model._patch_method(method_to_patch, substituting_function)
         return True
 
-    def _revert_bulk_patch_odoo_model_method(self, odoo_model, methods_to_be_reverted):
+    def _revert_bulk_patch_odoo_model_method(
+            self, odoo_model, methods_to_be_reverted):
         """Revert the Odoo's patching of a list of methods.
 
-        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
-        :param methods_to_be_reverted: list of model's 'original' methods to be reactivated back (string)
+        :param odoo_model: A valid Odoo's model instance
+        (e.g. fetched by 'self.registry()')
+        :param methods_to_be_reverted: list of model's
+        'original' methods to be reactivated back (string)
         :type methods_to_be_reverted: list
         :return: True (if no errors were raised during the patching)
         :rtype: bool
@@ -913,7 +1033,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'user': 'Nurse Nadine',
                 'count': 2,
                 'patient_ids': [47, 49],
-                'message': 'You have been invited to follow 2 patients from Nurse Nadine'
+                'message': 'You have been invited to follow 2 '
+                           'patients from Nurse Nadine'
             }
         ]
         return assigned_activities_list
@@ -1044,7 +1165,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                        'for the test.'
             )
 
-        user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        user_data = self._get_user_belonging_to_group(
+            'NH Clinical Nurse Group')
         if user_data:
             self.login_name = user_data.get('login')
         else:
@@ -1091,43 +1213,72 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 exit_type='skip',
                 reason="Endpoint to the 'single_task' route not unique."
             )
-        self.get_task_url = self._build_url(get_task_route[0]['endpoint'], '1942', mobile=True)
+        self.get_task_url = self._build_url(
+            get_task_route[0]['endpoint'], '1942', mobile=True)
 
     def test_method_get_single_task_of_type_observation(self):
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
-            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
-            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
-            ('get_form_description', TestGetSingleTaskMethod.mock_nh_eobs_api_get_form_description),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                TestGetSingleTaskMethod.mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                TestGetSingleTaskMethod.mock_unassign_my_activities
+            ),
+            (
+                'assign',
+                TestGetSingleTaskMethod.mock_nh_eobs_api_assign
+            ),
+            (
+                'get_form_description',
+                TestGetSingleTaskMethod.mock_nh_eobs_api_get_form_description
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', TestGetSingleTaskMethod.mock_nh_activity_read)
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
             # Mock the 'datetime' class to force it to return a constant value.
-            # N.B. the 'datetime' class MUST BE the one imported from the code under test, otherwise the mocking process won't work
-            # datetime.now() and datetime.strftime() are the methods actually used in the code under test, hence they must be mocked.
-            with mock.patch('openerp.addons.nh_eobs_mobile.controllers.main.datetime') as patched_datetime:
+            # N.B. the 'datetime' class MUST BE the one imported from the
+            # code under test, otherwise the mocking process won't work
+            # datetime.now() and datetime.strftime() are the methods actually
+            # used in the code under test, hence they must be mocked.
+            with mock.patch(
+                    'openerp.addons.nh_eobs_mobile.controllers.main.datetime'
+            ) as patched_datetime:
                 patched_now_method = patched_datetime.now.return_value
                 patched_now_method.strftime.return_value = '1400000000'
 
-                test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+                requests.get(
+                    self.get_task_url,
+                    cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for
+        # reverting the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
         self.registry['nh.activity']._revert_method('read')
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the rightly
+        # processed arguments
         expected_form = {
             'action': '/mobile/task/submit/1942',
             'type': 'ews',
@@ -1287,38 +1438,71 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
-            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
-            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
-            ('get_form_description', mock_nh_eobs_api_get_form_description),
-            ('is_cancellable', mock_nh_eobs_api_is_cancellable),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                TestGetSingleTaskMethod.mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                TestGetSingleTaskMethod.mock_unassign_my_activities
+            ),
+            (
+                'assign',
+                TestGetSingleTaskMethod.mock_nh_eobs_api_assign
+            ),
+            (
+                'get_form_description',
+                mock_nh_eobs_api_get_form_description
+            ),
+            (
+                'is_cancellable',
+                mock_nh_eobs_api_is_cancellable
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', mock_nh_activity_read)
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
             # Mock the 'datetime' class to force it to return a constant value.
-            # N.B. the 'datetime' class MUST BE the one imported from the code under test, otherwise the mocking process won't work
-            # datetime.now() and datetime.strftime() are the methods actually used in the code under test, hence they must be mocked.
-            with mock.patch('openerp.addons.nh_eobs_mobile.controllers.main.datetime') as patched_datetime:
+            # N.B. the 'datetime' class MUST BE the one imported
+            # from the code under test, otherwise the mocking process
+            # won't work
+            # datetime.now() and datetime.strftime() are the
+            # methods actually used in the code under test,
+            # hence they must be mocked.
+            with mock.patch(
+                    'openerp.addons.nh_eobs_mobile.controllers.main.datetime'
+            ) as patched_datetime:
                 patched_now_method = patched_datetime.now.return_value
                 patched_now_method.strftime.return_value = '1400000000'
 
-                test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+                requests.get(
+                    self.get_task_url,
+                    cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for
+        # reverting the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
         self.registry['nh.activity']._revert_method('read')
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the
+        # rightly processed arguments
         expected_form = {
             'action': '/mobile/tasks/confirm_clinical/1942',
             'type': 'placement',
@@ -1471,38 +1655,69 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
-            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
-            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
-            ('get_form_description', mock_nh_eobs_api_get_form_description),
-            ('is_cancellable', mock_nh_eobs_api_is_cancellable),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                TestGetSingleTaskMethod.mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                TestGetSingleTaskMethod.mock_unassign_my_activities
+            ),
+            (
+                'assign',
+                TestGetSingleTaskMethod.mock_nh_eobs_api_assign
+            ),
+            (
+                'get_form_description',
+                mock_nh_eobs_api_get_form_description
+            ),
+            (
+                'is_cancellable',
+                mock_nh_eobs_api_is_cancellable
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', mock_nh_activity_read)
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
             # Mock the 'datetime' class to force it to return a constant value.
-            # N.B. the 'datetime' class MUST BE the one imported from the code under test, otherwise the mocking process won't work
-            # datetime.now() and datetime.strftime() are the methods actually used in the code under test, hence they must be mocked.
-            with mock.patch('openerp.addons.nh_eobs_mobile.controllers.main.datetime') as patched_datetime:
+            # N.B. the 'datetime' class MUST BE the one imported
+            # from the code under test, otherwise the mocking process
+            # won't work
+            # datetime.now() and datetime.strftime() are the methods
+            # actually used in the code under test, hence they must be mocked.
+            with mock.patch(
+                    'openerp.addons.nh_eobs_mobile.controllers.main.datetime'
+            ) as patched_datetime:
                 patched_now_method = patched_datetime.now.return_value
                 patched_now_method.strftime.return_value = '1400000000'
 
-                test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+                requests.get(
+                    self.get_task_url, cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for reverting
+        # the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
         self.registry['nh.activity']._revert_method('read')
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the rightly
+        # processed arguments
         expected_form = {
             'action': '/mobile/tasks/confirm_clinical/1942',
             'type': 'medical_team',
@@ -1598,7 +1813,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         )
 
     def test_method_get_single_task_of_not_valid_type(self):
-        # Override the class' static method to make it return an invalid observation type
+        # Override the class' static method to make it
+        #  return an invalid observation type
         def mock_nh_activity_read(*args, **kwargs):
             task_data = {
                 'id': 1942,
@@ -1612,113 +1828,179 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
-            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
-            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                TestGetSingleTaskMethod.mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                TestGetSingleTaskMethod.mock_unassign_my_activities
+            ),
+            (
+                'assign',
+                TestGetSingleTaskMethod.mock_nh_eobs_api_assign
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', mock_nh_activity_read)
 
         # Setup and use a mocked version of the render() method
         def mock_httprequest_render(*args, **kwargs):
-            test_logger.debug('Mock of HttpRequest.render() method called during the test.')
+            test_logger.debug(
+                'Mock of HttpRequest.render() method called during the test.')
 
-        with mock.patch.object(HttpRequest, 'render', side_effect=mock_httprequest_render) as mocked_method:
-            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+        with mock.patch.object(
+                HttpRequest,
+                'render',
+                side_effect=mock_httprequest_render) as mocked_method:
+            requests.get(
+                self.get_task_url, cookies=self.auth_resp.cookies)
 
-        # Just the first element of every tuple is needed for reverting the patchers
+        # Just the first element of every tuple is needed for reverting
+        # the patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
 
         # Stop Odoo's patchers
         self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
         self.registry['nh.activity']._revert_method('read')
 
-        # Test the render() method was called with the rightly processed arguments
+        # Test the render() method was called with the rightly
+        # processed arguments
         mocked_method.assert_called_once_with(
             'nh_eobs_mobile.error',
             qcontext={
-                'error_string': 'Task is neither a notification nor an observation',
+                'error_string': 'Task is neither a notification '
+                                'nor an observation',
                 'section': 'task',
                 'username': self.login_name,
                 'urls': URLS
             }
         )
 
-    def test_method_get_single_task_manages_specific_exception_while_assigning_task(self):
+    def test_method_get_single_task_manages_spec_except_assigning_task(self):
         # Override the class' static method to make it raise an exception
         def mock_nh_eobs_api_assign(*args, **kwargs):
-            raise except_orm('Expected exception!', 'Expected exception raised during the test.')
+            raise except_orm('Expected exception!',
+                             'Expected exception raised during the test.')
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
-            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
-            ('assign', mock_nh_eobs_api_assign),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                TestGetSingleTaskMethod.mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                TestGetSingleTaskMethod.mock_unassign_my_activities
+            ),
+            (
+                'assign',
+                mock_nh_eobs_api_assign
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', TestGetSingleTaskMethod.mock_nh_activity_read)
 
         try:
-            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+            test_resp = requests.get(self.get_task_url,
+                                     cookies=self.auth_resp.cookies)
         except except_orm:
-            self.fail('Method under test raised an exception it is supposed to manage!')
+            self.fail(
+                'Method under test raised an exception it is '
+                'supposed to manage!')
         finally:
-            # Just the first element of every tuple is needed for reverting the patchers
+            # Just the first element of every tuple is needed for
+            # reverting the patchers
             methods_to_revert = [m[0] for m in methods_patching_list]
 
             # Stop Odoo's patchers
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(
+                eobs_api, methods_to_revert)
             self.registry['nh.activity']._revert_method('read')
 
-        self.assertEqual(len(test_resp.history), 1, 'Method under test did not redirect after the exception.')
-        self.assertEqual(test_resp.history[0].status_code, 303,
-                         'HTTP code during the redirection was not the expected one.')
+        self.assertEqual(
+            len(test_resp.history), 1,
+            'Method under test did not redirect after the exception.')
+        self.assertEqual(
+            test_resp.history[0].status_code, 303,
+            'HTTP code during the redirection was not the expected one.')
         self.assertIn('tasks', test_resp.url)
-        self.assertIn(self.task_list_url, test_resp.url, 'Method under test did not redirect to the expected page.')
+        self.assertIn(
+            self.task_list_url,
+            test_resp.url,
+            'Method under test did not redirect to the expected page.')
 
     def test_method_get_task_first_unassign_and_then_try_assigning_task(self):
         mocked_method_calling_list = []
 
         # Two different mocking methods are needed, despite they are identical:
-        # in fact, if two different methods are being mocked by one single function,
-        # the system cannot understand which one is meant to be called, and could raise errors.
+        # in fact, if two different methods are being mocked by
+        # one single function,
+        # the system cannot understand which one is meant to be
+        # called, and could raise errors.
         def register_mock_unassign_calling(*args, **kwargs):
-            mocked_method_calling_list.append(('ARGS = {}'.format(args), 'KWARGS = {}'.format(kwargs)))
+            mocked_method_calling_list.append(
+                ('ARGS = {}'.format(args), 'KWARGS = {}'.format(kwargs)))
             return True
 
         def register_mock_assign_calling(*args, **kwargs):
-            mocked_method_calling_list.append(('ARGS = {}'.format(args), 'KWARGS = {}'.format(kwargs)))
+            mocked_method_calling_list.append(
+                ('ARGS = {}'.format(args), 'KWARGS = {}'.format(kwargs)))
             return True
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
-            ('unassign_my_activities', register_mock_unassign_calling),
-            ('assign', register_mock_assign_calling),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                TestGetSingleTaskMethod.mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                register_mock_unassign_calling
+            ),
+            (
+                'assign',
+                register_mock_assign_calling
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', TestGetSingleTaskMethod.mock_nh_activity_read)
 
         # Actually reach the 'single task' page
         try:
-            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+            test_resp = requests.get(
+                self.get_task_url, cookies=self.auth_resp.cookies)
         finally:
-            # Just the first element of every tuple is needed for reverting the patchers
+            # Just the first element of every tuple is needed for
+            #  reverting the patchers
             methods_to_revert = [m[0] for m in methods_patching_list]
 
             # Stop Odoo's patchers
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(
+                eobs_api, methods_to_revert)
             self.registry['nh.activity']._revert_method('read')
 
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(len(mocked_method_calling_list), 2)
 
-    def test_method_single_task_returns_404_when_task_has_no_patient_related_to_it(self):
+    def test_method_single_task_404_when_has_no_patient_related_to_it(self):
         """
         Test that the method returns a '404 Not Found' response
         if the task doesn't have a patient related to it.
@@ -1733,28 +2015,44 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', TestGetSingleTaskMethod.mock_get_patients),
-            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
-            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                TestGetSingleTaskMethod.mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                TestGetSingleTaskMethod.mock_unassign_my_activities
+            ),
+            (
+                'assign',
+                TestGetSingleTaskMethod.mock_nh_eobs_api_assign
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', mock_nh_activity_read)
 
         # Actually reach the 'single task' page
         try:
-            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+            test_resp = requests.get(
+                self.get_task_url, cookies=self.auth_resp.cookies)
         finally:
-            # Just the first element of every tuple is needed for reverting the patchers
+            # Just the first element of every tuple is needed for reverting
+            #  the patchers
             methods_to_revert = [m[0] for m in methods_patching_list]
 
             # Stop Odoo's patchers
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(
+                eobs_api, methods_to_revert)
             self.registry['nh.activity']._revert_method('read')
 
         self.assertEqual(test_resp.status_code, 404)
 
-    def test_method_single_task_returns_404_when_list_of_related_patients_is_empty(self):
+    def test_method_single_task_404_when_list_of_rel_patients_is_empty(self):
         """
         Test that the method returns a '404 Not Found' response,
         if the list of patients related to the task is empty.
@@ -1770,23 +2068,39 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestGetSingleTaskMethod.mock_get_assigned_activities),
-            ('get_patients', mock_get_patients),
-            ('unassign_my_activities', TestGetSingleTaskMethod.mock_unassign_my_activities),
-            ('assign', TestGetSingleTaskMethod.mock_nh_eobs_api_assign),
+            (
+                'get_assigned_activities',
+                TestGetSingleTaskMethod.mock_get_assigned_activities
+            ),
+            (
+                'get_patients',
+                mock_get_patients
+            ),
+            (
+                'unassign_my_activities',
+                TestGetSingleTaskMethod.mock_unassign_my_activities
+            ),
+            (
+                'assign',
+                TestGetSingleTaskMethod.mock_nh_eobs_api_assign
+            ),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
-        self.registry['nh.activity']._patch_method('read', TestGetSingleTaskMethod.mock_nh_activity_read)
+        self.registry['nh.activity']._patch_method(
+            'read', TestGetSingleTaskMethod.mock_nh_activity_read)
 
         # Actually reach the 'single task' page
         try:
-            test_resp = requests.get(self.get_task_url, cookies=self.auth_resp.cookies)
+            test_resp = requests.get(
+                self.get_task_url, cookies=self.auth_resp.cookies)
         finally:
-            # Just the first element of every tuple is needed for reverting the patchers
+            # Just the first element of every tuple is needed
+            # for reverting the patchers
             methods_to_revert = [m[0] for m in methods_patching_list]
 
             # Stop Odoo's patchers
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(
+                eobs_api, methods_to_revert)
             self.registry['nh.activity']._revert_method('read')
 
         self.assertEqual(test_resp.status_code, 404)

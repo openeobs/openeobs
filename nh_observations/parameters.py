@@ -58,7 +58,7 @@ class nh_clinical_patient_diabetes(orm.Model):
     not.
     """
     _name = 'nh.clinical.patient.diabetes'
-    _inherit = ['nh.activity.data'] 
+    _inherit = ['nh.activity.data']
     _columns = {
         'status': fields.boolean('Diabetes'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient',

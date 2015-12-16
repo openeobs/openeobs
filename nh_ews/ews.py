@@ -4,7 +4,7 @@
 `ews.py` defines the Early Warning Score observation class and its
 standard behaviour and policy triggers based on the UK NEWS standard.
 """
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 import logging
 import bisect
 from openerp import SUPERUSER_ID
@@ -32,7 +32,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
     _num_fields = ['respiration_rate', 'indirect_oxymetry_spo2',
                    'body_temperature', 'blood_pressure_systolic',
                    'blood_pressure_diastolic', 'pulse_rate', 'flow_rate',
-                   'concentration', 'cpap_peep', 'niv_backup','niv_ipap',
+                   'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap',
                    'niv_epap']
     _description = "NEWS Observation"
 
@@ -74,8 +74,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                      'groups': ['hca'], 'assign': 1},
                     {'model': 'nurse',
                      'summary': 'Informed about patient status (NEWS)',
-                     'groups': ['hca']}]
-               ],
+                     'groups': ['hca']}]],
                'risk': ['None', 'Low', 'Medium', 'High']}
 
     def calculate_score(self, ews_data):
@@ -183,8 +182,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
             if not ews.blood_pressure_systolic:
                 res[ews.id] = '- / -'
             else:
-                res[ews.id] = str(ews.blood_pressure_systolic) + \
-                              ' / ' + str(ews.blood_pressure_diastolic)
+                res[ews.id] = str(
+                    ews.blood_pressure_systolic
+                ) + ' / ' + str(ews.blood_pressure_diastolic)
         return res
 
     def _data2ews_ids(self, cr, uid, ids, context=None):
@@ -305,7 +305,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             'max': 280,
             'validation': [
                 {
-                    'condition':{
+                    'condition': {
                         'target': 'blood_pressure_diastolic',
                         'operator': '<',
                         'value': 'blood_pressure_systolic'
@@ -544,7 +544,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 activity_pool.start(
                     cr, uid, device_activity_id, context=context)
 
-    def submit(self, cr, uid, activity_id, data_vals={}, context=None):
+    def submit(self, cr, uid, activity_id, data_vals=None, context=None):
+        if not data_vals:
+            data_vals = {}
         vals = data_vals.copy()
         if vals.get('oxygen_administration'):
             vals.update(
@@ -632,7 +634,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 self._name, self._POLICY['frequencies'][case], context=context)
         return res
 
-    def create_activity(self, cr, uid, vals_activity={}, vals_data={},
+    def create_activity(self, cr, uid, vals_activity=None, vals_data=None,
                         context=None):
         """
         When creating a new activity of this type every other not
@@ -642,6 +644,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :returns: :class:`activity<activity.nh_activity>` id.
         :rtype: int
         """
+        if not vals_activity:
+            vals_activity = {}
+        if not vals_data:
+            vals_data = {}
         activity_pool = self.pool['nh.activity']
         domain = [['patient_id', '=', vals_data['patient_id']],
                   ['data_model', '=', self._name],

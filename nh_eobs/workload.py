@@ -4,8 +4,8 @@
 Shows the pending :class:`activities<activity.nh_clinical_activity>` by
 proximity interval.
 """
-from openerp.osv import orm, fields, osv
-import logging        
+from openerp.osv import orm, fields
+import logging
 _logger = logging.getLogger(__name__)
 from openerp import tools
 
@@ -29,8 +29,10 @@ class nh_clinical_workload(orm.Model):
                             (50, '1-15 minutes late'),
                             (60, '16+ minutes late')]
     _columns = {
-        'activity_id': fields.many2one('nh.activity', 'Activity', required=1, ondelete='restrict'),
-        'proximity_interval': fields.selection(_proximity_intervals, 'Proximity Interval', readonly=True),
+        'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
+                                       ondelete='restrict'),
+        'proximity_interval': fields.selection(
+            _proximity_intervals, 'Proximity Interval', readonly=True),
         'summary': fields.text('Summary'),
         'state': fields.text('State'),
         'user_id': fields.many2one('res.users', 'Assigned to'),
@@ -52,26 +54,37 @@ class nh_clinical_workload(orm.Model):
                         select
                             activity.id as id,
                             spell.id as activity_id,
-                            extract (epoch from  (now() at time zone 'UTC' - coalesce(activity.date_scheduled, activity.date_deadline)))::int/60 as proximity,
+                            extract (epoch from  (now() at time zone 'UTC' -
+                                coalesce(activity.date_scheduled,
+                                activity.date_deadline)))::int/60 as proximity,
                             activity.summary as summary,
                             activity.state as state,
                             activity.user_id as user_id,
-                            coalesce(activity.date_scheduled, activity.date_deadline) as date_scheduled,
+                            coalesce(activity.date_scheduled,
+                                activity.date_deadline) as date_scheduled,
                             activity.data_model as data_model,
                             patient.other_identifier as patient_other_id,
                             patient.patient_identifier as nhs_number,
                             patient.family_name as family_name,
                             case
                                 when patient.given_name is null then ''
-                                else upper(substring(patient.given_name from 1 for 1))
+                                else upper(substring(patient.given_name
+                                    from 1 for 1))
                             end as initial,
                             ward.id as ward_id
                         from nh_activity activity
-                        inner join nh_clinical_patient patient on activity.patient_id = patient.id
-                        inner join nh_clinical_location bed on activity.location_id = bed.id
-                        inner join nh_clinical_location ward on bed.parent_id = ward.id
-                        inner join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
-                        where activity.state != 'completed' and activity.state != 'cancelled' and spell.state = 'started'
+                        inner join nh_clinical_patient patient
+                            on activity.patient_id = patient.id
+                        inner join nh_clinical_location bed
+                            on activity.location_id = bed.id
+                        inner join nh_clinical_location ward
+                            on bed.parent_id = ward.id
+                        inner join nh_activity spell
+                            on spell.data_model = 'nh.clinical.spell'
+                            and spell.patient_id = activity.patient_id
+                        where activity.state != 'completed'
+                        and activity.state != 'cancelled'
+                        and spell.state = 'started'
                         )
                         select
                             id,
@@ -98,11 +111,12 @@ class nh_clinical_workload(orm.Model):
                 )
         """ % (self._table, self._table))
 
-    def _get_groups(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
-        pi_copy =  [(pi[0],pi[1]) for pi in self._proximity_intervals]
+    def _get_groups(self, cr, uid, ids, domain, read_group_order=None,
+                    access_rights_uid=None, context=None):
+        pi_copy = [(pi[0], pi[1]) for pi in self._proximity_intervals]
         groups = pi_copy
         groups.reverse()
         fold = {pi[0]: False for pi in pi_copy}
         return groups, fold
-       
-    _group_by_full = {'proximity_interval': _get_groups}  
+
+    _group_by_full = {'proximity_interval': _get_groups}

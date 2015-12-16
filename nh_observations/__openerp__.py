@@ -10,10 +10,9 @@
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_clinical'],
-    'data': [
-             'security/notif/ir.model.access.csv',
+    'data': ['security/notif/ir.model.access.csv',
              'security/obs/ir.model.access.csv',
-             'security/params/ir.model.access.csv',],
+             'security/params/ir.model.access.csv'],
     'demo': [],
     'css': [],
     'js': [],

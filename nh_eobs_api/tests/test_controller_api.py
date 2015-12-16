@@ -1,21 +1,14 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'lorenzo'
-
+from random import choice as random_choice
+from openerp.addons.nh_eobs_api.routing import Route
+from openerp.addons.nh_eobs_api.routing import ResponseJSON
+from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
+from openerp.tests import DB as DB_NAME
+from openerp.osv import osv
 import json
 import logging
 import openerp.tests
 import requests
-
-from datetime import datetime
-from random import choice as random_choice
-from unittest import skip
-
-from openerp.addons.nh_eobs_api.routing import Route, RouteManager, ResponseJSON
-from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
-from openerp.tests import DB as DB_NAME
-from openerp.osv import fields, osv
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-
 
 test_logger = logging.getLogger(__name__)
 
@@ -25,20 +18,25 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     json_response_structure_keys = ['status', 'title', 'description', 'data']
 
     def _get_user_belonging_to_group(self, group_name):
-        """Get the 'id' and the 'login' name of a user belonging to a specific group.
+        """Get the 'id' and the 'login' name of a user belonging to a
+        specific group.
 
-        :param group_name: name of the group from which retrieve a user (belonging to it)
+        :param group_name: name of the group from which retrieve a user
+        (belonging to it)
         :type group_name: str
         :returns: A dictionary with 2 key-value couples:
-            - 'login': the login name of the retrieved user (belonging to the group passed as argument)
-            - 'id': the id of the retrieved user (belonging to the group passed as argument)
+            - 'login': the login name of the retrieved user
+            (belonging to the group passed as argument)
+            - 'id': the id of the retrieved user
+            (belonging to the group passed as argument)
         :rtype: dict
         :returns: ``None`` if there isn't any user belonging to that group
         """
         users_pool = self.registry['res.users']
-        users_login_list = users_pool.search_read(self.cr, self.uid,
-                                                  domain=[('groups_id.name', '=', group_name)],
-                                                  fields=['login', 'id'])
+        users_login_list = users_pool.search_read(
+            self.cr, self.uid,
+            domain=[('groups_id.name', '=', group_name)],
+            fields=['login', 'id'])
         try:
             user_data = random_choice(users_login_list)
         except IndexError:
@@ -46,7 +44,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return user_data
 
     def _get_authenticated_response(self, user_name):
-        """Get a Response object with an authenticated session within its cookies.
+        """Get a Response object with an authenticated session
+        within its cookies.
 
         :param user_name: username of the user to be authenticated as
         :type user_name: str
@@ -60,7 +59,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         return auth_response
 
     def check_response_json(self, resp, status, title, description, data):
-        """Test the response JSON for correct status, title, desc and data values.
+        """Test the response JSON for correct status, title, desc and
+        data values.
 
         :param resp: Raw response from requests
         :param status: The expected status code for the response
@@ -84,10 +84,12 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     def _bulk_patch_odoo_model_method(self, odoo_model, methods_patching):
         """Patch a list of methods related to an Odoo's model.
 
-        :param odoo_model: A valid Odoo's model instance (e.g. fetched by 'self.registry()')
+        :param odoo_model: A valid Odoo's model instance
+        (e.g. fetched by 'self.registry()')
         :param methods_patching: A list of two-values tuples, each containing:
             - the method to be patched (string)
-            - the function that will substitute the method to be patched (the actual name of the function)
+            - the function that will substitute the method to be patched
+            (the actual name of the function)
         :type methods_patching: tuple
         :returns: ``True`` (if no errors were raised during the patching)
         :rtype: bool
@@ -96,7 +98,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             odoo_model._patch_method(method_to_patch, substituting_function)
         return True
 
-    def _revert_bulk_patch_odoo_model_method(self, odoo_model, methods_to_be_reverted):
+    def _revert_bulk_patch_odoo_model_method(self, odoo_model,
+                                             methods_to_be_reverted):
         """Revert the Odoo's patching of a list of methods.
 
         :param odoo_model: A valid Odoo's model instance
@@ -121,7 +124,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                 'user': 'Nurse Nadine',
                 'count': 3,
                 'patient_ids': [1, 2, 3],
-                'message': 'You have been invited to follow 3 patients from Nurse Nadine'
+                'message': 'You have been invited to follow 3'
+                           'patients from Nurse Nadine'
             }
         ]
         return assigned_activities_list
@@ -252,7 +256,9 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             )
 
         # Authenticate as a 'nurse' user and check the login was successful
-        user_data = self._get_user_belonging_to_group('NH Clinical Nurse Group')
+        user_data = self._get_user_belonging_to_group(
+            'NH Clinical Nurse Group'
+        )
         if user_data:
             self.login_name = user_data.get('login')
         else:
@@ -277,7 +283,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         Test the EWS score route, send EWS parameters to route
         and make sure it sends back score.
         """
-        # Check if the route under test is actually present in the Route Manager
+        # Check if the route under test is actually present in the
+        # Route Manager
         route_under_test = route_manager.get_route('calculate_obs_score')
         self.assertIsInstance(route_under_test, Route)
 
@@ -296,9 +303,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/observation/score/ews/',
-                                  data=demo_data,
-                                  cookies=self.auth_resp.cookies)
+        test_resp = requests.post(
+            '{0}{1}/observation/score/ews/'.format(
+                route_manager.BASE_URL,
+                route_manager.URL_PREFIX
+            ),
+            data=demo_data,
+            cookies=self.auth_resp.cookies
+        )
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
@@ -311,14 +323,18 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'modal_vals': {
                 'next_action': 'json_task_form_action',
                 'title': 'Submit NEWS score of 3',
-                'content': '<p><strong>Clinical risk: Medium</strong></p><p>Please confirm you want to submit this score</p>'
+                'content': '<p><strong>Clinical risk: Medium</strong>'
+                           '</p><p>Please confirm you want to '
+                           'submit this score</p>'
             },
             'status': 3,
             'next_action': 'json_task_form_action',
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Submit NEWS score of 3',
-                                 '<p><strong>Clinical risk: Medium</strong></p><p>Please confirm you want to submit this score</p>',
+                                 '<p><strong>Clinical risk: Medium</strong>'
+                                 '</p><p>Please confirm you want to '
+                                 'submit this score</p>',
                                  expected_json)
 
     def test_route_calculate_gcs_score(self):
@@ -326,7 +342,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         Test the GCS score route, send GCS parameters to route
         and make sure it sends back score but not clinical risk.
         """
-        # check if the route under test is actually present in the Route Manager
+        # check if the route under test is actually present in the
+        # Route Manager
         route_under_test = route_manager.get_route('calculate_obs_score')
         self.assertIsInstance(route_under_test, Route)
 
@@ -339,9 +356,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/observation/score/gcs/',
-                                  data=demo_data,
-                                  cookies=self.auth_resp.cookies)
+        test_resp = requests.post(
+            '{0}{1}/observation/score/gcs/'.format(
+                route_manager.BASE_URL,
+                route_manager.URL_PREFIX
+            ),
+            data=demo_data,
+            cookies=self.auth_resp.cookies
+        )
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
@@ -352,14 +374,16 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'modal_vals': {
                 'next_action': 'json_patient_form_action',
                 'title': 'Submit GCS score of 15',
-                'content': '<p>Please confirm you want to submit this score</p>'
+                'content': '<p>Please confirm you want to submit '
+                           'this score</p>'
             },
             'status': 3,
             'next_action': 'json_patient_form_action'
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Submit GCS score of 15',
-                                 '<p>Please confirm you want to submit this score</p>',
+                                 '<p>Please confirm you want to '
+                                 'submit this score</p>',
                                  expected_json)
 
     def test_route_calculate_non_scoring_observation_score(self):
@@ -369,7 +393,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         The route under test should return a 400 response.
         """
-        # check if the route under test is actually present in the Route Manager
+        # check if the route under test is actually present in the
+        # Route Manager
         route_under_test = route_manager.get_route('calculate_obs_score')
         self.assertIsInstance(route_under_test, Route)
 
@@ -380,9 +405,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + '/observation/score/weight/',
-                                  data=demo_data,
-                                  cookies=self.auth_resp.cookies)
+        test_resp = requests.post(
+            '/{0}{1}observation/score/weight/'.format(
+                route_manager.BASE_URL,
+                route_manager.URL_PREFIX
+            ),
+            data=demo_data,
+            cookies=self.auth_resp.cookies
+        )
         self.assertEqual(test_resp.status_code, 400)
         self.assertEqual(test_resp.headers['content-type'], 'text/html')
 
@@ -391,21 +421,30 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         Test the partial reasons route attribute of the EWS class
         (set in nh_observations).
         """
-        # Check if the route under test is actually present into the Route Manager
+        # Check if the route under test is actually present into the
+        # Route Manager
         route_under_test = route_manager.get_route('json_partial_reasons')
         self.assertIsInstance(route_under_test, Route)
 
         # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
-                                 cookies=self.auth_resp.cookies)
+        test_resp = requests.get(
+            '{0}{1}{2}'.format(
+                route_manager.BASE_URL,
+                route_manager.URL_PREFIX,
+                route_under_test.url
+            ),
+            cookies=self.auth_resp.cookies
+        )
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         # Check the returned JSON data against the expected ones
-        expected_json = self.registry('nh.clinical.patient.observation.ews')._partial_reasons
+        ews_reg = self.registry('nh.clinical.patient.observation.ews')
+        expected_json = ews_reg._partial_reasons
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Reason for partial observation',
-                                 'Please state reason for submitting partial observation',
+                                 'Please state reason for submitting '
+                                 'partial observation',
                                  expected_json)
 
     # Test Stand-in routes
@@ -421,7 +460,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             return 2001
 
         # Get list of users to share with
-        users_login_list = TestOdooRouteDecoratorIntegration.mock_res_users_read()
+        users_login_list = \
+            TestOdooRouteDecoratorIntegration.mock_res_users_read()
 
         # Get a list of patients to share
         patient_list = TestOdooRouteDecoratorIntegration.mock_get_patients()
@@ -437,28 +477,40 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         users_pool = self.registry('res.users')
 
         api_pool._patch_method('follow_invite', mock_nh_eobs_api_follow_invite)
-        users_pool._patch_method('read', TestOdooRouteDecoratorIntegration.mock_res_users_read)
+        users_pool._patch_method(
+            'read',
+            TestOdooRouteDecoratorIntegration.mock_res_users_read
+        )
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
-                                  data=demo_data,
-                                  cookies=self.auth_resp.cookies)
+        test_resp = requests.post(
+            '{0}{1}{2}'.format(
+                route_manager.BASE_URL,
+                route_manager.URL_PREFIX,
+                route_under_test.url
+            ),
+            data=demo_data,
+            cookies=self.auth_resp.cookies
+        )
 
         # Stop Odoo's patchers
         api_pool._revert_method('follow_invite')
         users_pool._revert_method('read')
 
         self.assertEqual(test_resp.status_code, 200)
-        self.assertEqual(test_resp.headers['content-type'], 'application/json')
+        self.assertEqual(test_resp.headers['content-type'],
+                         'application/json')
 
         # Actual test
         expected_json = {
-            'reason': 'An invite has been sent to follow the selected patients.',
+            'reason': 'An invite has been sent to follow the '
+                      'selected patients.',
             'shared_with': ['John Smith', 'Jane Doe', 'Joe Average']
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Invitation sent',
-                                 'An invite has been sent to follow the selected patients to: ',
+                                 'An invite has been sent to follow '
+                                 'the selected patients to: ',
                                  expected_json)
 
     def test_route_claim_patients(self):
@@ -481,12 +533,21 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
-        api_pool._patch_method('remove_followers', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        api_pool._patch_method(
+            'remove_followers',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
 
         # Access the route
-        test_resp = requests.post(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
-                                  data=demo_data,
-                                  cookies=self.auth_resp.cookies)
+        test_resp = requests.post(
+            '{0}{1}{2}'.format(
+                route_manager.BASE_URL,
+                route_manager.URL_PREFIX,
+                route_under_test.url
+            ),
+            data=demo_data,
+            cookies=self.auth_resp.cookies
+        )
 
         # Stop Odoo's patchers
         api_pool._revert_method('remove_followers')
@@ -536,8 +597,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool._patch_method('get_share_users', mock_get_share_users)
 
         # Access the route
-        test_resp = requests.get(route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url,
-                                 cookies=self.auth_resp.cookies)
+        test_resp = requests.get(
+            '{0}{1}{2}'.format(
+                route_manager.BASE_URL,
+                route_manager.URL_PREFIX,
+                route_under_test.url
+            ),
+            cookies=self.auth_resp.cookies
+        )
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_share_users')
@@ -557,22 +624,29 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     def test_route_invite_user(self):
         """
         Test patients you're invited to follow route,
-        The method under test should return a list of patients and their activities.
+        The method under test should return a list of patients and
+        their activities.
         """
         route_under_test = route_manager.get_route('json_invite_patients')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/invite/2001'
+        url_under_test = '{0}{1}/staff/invite/2001'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('get_patients', TestOdooRouteDecoratorIntegration.mock_get_patients),
+            ('get_assigned_activities',
+             TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('get_patients',
+             TestOdooRouteDecoratorIntegration.mock_get_patients),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
         # Access the url under test
-        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
@@ -585,28 +659,36 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         expected_json = TestOdooRouteDecoratorIntegration.mock_get_patients()
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Patients shared with you',
-                                 'These patients have been shared for you to follow',
+                                 'These patients have been '
+                                 'shared for you to follow',
                                  expected_json)
 
     def test_route_accept_user(self):
         """Test the route for accepting invitation to follow patient.
 
-        The method under test should return the id of an activity and a 'true' status.
+        The method under test should return the id of an activity and a 'true'
+        status.
         """
         route_under_test = route_manager.get_route('json_accept_patients')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/accept/2001'
+        url_under_test = '{0}{1}/staff/accept/2001'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_true),
+            ('get_assigned_activities',
+             TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('complete',
+             TestOdooRouteDecoratorIntegration.mock_method_returning_true),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
         # Access the url under test
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
@@ -621,31 +703,43 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'user': 'Nurse Nadine',
             'count': 3,
             'patient_ids': [1, 2, 3],
-            'message': 'You have been invited to follow 3 patients from Nurse Nadine',
+            'message': 'You have been invited to follow 3 patients '
+                       'from Nurse Nadine',
             'status': True
             }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully accepted stand-in invite',
-                                 'You are following 3 patient(s) from Nurse Nadine',
+                                 'You are following 3 patient(s) from '
+                                 'Nurse Nadine',
                                  expected_json)
 
-    def test_accept_user_route_manages_exception_while_completing_activity(self):
-        """Test if the route for accepting invitation to follow patient manages exceptions."""
+    def test_accept_user_route_manages_exceptn_while_completing_activity(self):
+        """
+        Test if the route for accepting invitation to follow
+        patient manages exceptions.
+        """
         route_under_test = route_manager.get_route('json_accept_patients')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/accept/2001'
+        url_under_test = '{0}{1}/staff/accept/2001'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception),
+            ('get_assigned_activities',
+             TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('complete',
+             TestOdooRouteDecoratorIntegration.
+             mock_method_returning_osv_exception),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
         # Access the url under test
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
@@ -659,28 +753,36 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
                                  'Unable to accept stand-in invite',
-                                 'An error occurred when trying to accept the stand-in invite',
+                                 'An error occurred when trying to '
+                                 'accept the stand-in invite',
                                  expected_json)
 
     def test_route_reject_user(self):
         """Test the route for rejecting invitation to follow patient.
 
-        The method under test should return the id of an activity and a 'true' status.
+        The method under test should return the id of an activity
+        and a 'true' status.
         """
         route_under_test = route_manager.get_route('json_reject_patients')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/reject/2001'
+        url_under_test = '{0}{1}/staff/reject/2001'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('cancel', TestOdooRouteDecoratorIntegration.mock_method_returning_true),
+            ('get_assigned_activities',
+             TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('cancel',
+             TestOdooRouteDecoratorIntegration.mock_method_returning_true),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
         # Access the url under test
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
@@ -695,31 +797,43 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
             'user': 'Nurse Nadine',
             'count': 3,
             'patient_ids': [1, 2, 3],
-            'message': 'You have been invited to follow 3 patients from Nurse Nadine',
+            'message': 'You have been invited to follow 3 patients from '
+                       'Nurse Nadine',
             'status': True
             }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully rejected stand-in invite',
-                                 'You are not following 3 patient(s) from Nurse Nadine',
+                                 'You are not following 3 patient(s) from '
+                                 'Nurse Nadine',
                                  expected_json)
 
-    def test_reject_user_route_manages_exception_while_cancelling_activity(self):
-        """Test if the route for rejecting invitation to follow patient manages exceptions."""
+    def test_reject_user_route_manages_except_while_cancelling_activity(self):
+        """
+        Test if the route for rejecting invitation to follow patient
+        manages exceptions.
+        """
         route_under_test = route_manager.get_route('json_reject_patients')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/staff/reject/2001'
+        url_under_test = '{0}{1}/staff/reject/2001'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
-            ('get_assigned_activities', TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
-            ('cancel', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception),
+            ('get_assigned_activities',
+             TestOdooRouteDecoratorIntegration.mock_get_assigned_activities),
+            ('cancel',
+             TestOdooRouteDecoratorIntegration.
+             mock_method_returning_osv_exception),
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
         # Access the url under test
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         methods_to_revert = [m[0] for m in methods_patching_list]
@@ -733,7 +847,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
                                  'Unable to reject stand-in invite',
-                                 'An error occurred when trying to reject the stand-in invite',
+                                 'An error occurred when trying to reject '
+                                 'the stand-in invite',
                                  expected_json)
 
     # Test Task routes
@@ -745,7 +860,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_take_task')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/1002'
+        url_under_test = '{0}{1}/tasks/take_ajax/1002'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
         auth_user_id = self.user_id
 
         def mock_nh_activity_read(*args, **kwargs):
@@ -759,10 +877,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool = self.registry('nh.activity')
         api_pool = self.registry('nh.eobs.api')
         activity_pool._patch_method('read', mock_nh_activity_read)
-        api_pool._patch_method('assign', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        api_pool._patch_method(
+            'assign',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
 
         # Access the route
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('read')
@@ -781,13 +903,17 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  expected_json)
 
     def test_take_task_route_with_exception_while_assigning_task(self):
-        """Test the 'json_take_task' route, when an exception is raised while assigning the task.
+        """Test the 'json_take_task' route, when an exception is raised
+        while assigning the task.
 
         The method under test should return an error message.
         """
         route_under_test = route_manager.get_route('json_take_task')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/1002'
+        url_under_test = '{0}{1}/tasks/take_ajax/1002'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
         auth_user_id = self.user_id
 
         def mock_nh_activity_read(*args, **kwargs):
@@ -801,10 +927,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool = self.registry('nh.activity')
         api_pool = self.registry('nh.eobs.api')
         activity_pool._patch_method('read', mock_nh_activity_read)
-        api_pool._patch_method('assign', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception)
+        api_pool._patch_method(
+            'assign',
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
+        )
 
         # Access the route
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('read')
@@ -818,17 +949,22 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
                                  'Unable to take task',
-                                 'An error occurred when trying to take the task',
+                                 'An error occurred when trying '
+                                 'to take the task',
                                  expected_json)
 
-    def test_take_task_route_with_task_already_assigned_to_different_user(self):
-        """Test the 'json_take_task' route, when the task is already assigned to a different user.
+    def test_take_task_route_w_task_already_assigned_to_different_user(self):
+        """Test the 'json_take_task' route, when the task is already
+        assigned to a different user.
 
         The method under test should return a fail message.
         """
         route_under_test = route_manager.get_route('json_take_task')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/take_ajax/1002'
+        url_under_test = '{0}{1}/tasks/take_ajax/1002'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
         different_user_id = int(self.user_id) + 1
 
         def mock_nh_activity_read(*args, **kwargs):
@@ -843,7 +979,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool._patch_method('read', mock_nh_activity_read)
 
         # Access the route
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('read')
@@ -856,7 +993,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_FAIL,
                                  'Unable to take task',
-                                 'This task is already assigned to another user',
+                                 'This task is already assigned to '
+                                 'another user',
                                  expected_json)
 
     def test_cancel_take_task_route(self):
@@ -867,7 +1005,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_cancel_take_task')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_take_ajax/2001'
+        url_under_test = '{0}{1}/tasks/cancel_take_ajax/2001'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
         auth_user_id = self.user_id
 
         def mock_nh_activity_read(*args, **kwargs):
@@ -881,10 +1022,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool = self.registry('nh.activity')
         api_pool = self.registry('nh.eobs.api')
         activity_pool._patch_method('read', mock_nh_activity_read)
-        api_pool._patch_method('unassign', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        api_pool._patch_method(
+            'unassign',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
 
         # Access the route
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('read')
@@ -899,18 +1044,24 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         # Check the returned JSON data against the expected one
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully released task',
-                                 'The task has now been released back into the task pool',
+                                 'The task has now been released '
+                                 'back into the task pool',
                                  expected_json)
 
-    def test_cancel_take_task_route_with_exception_while_unassigning_task(self):
-        """Test the 'json_cancel_take_task' route, when an exception is raised while unassigning the task.
+    def test_cancel_take_task_route_with_except_while_unassigning_task(self):
+        """Test the 'json_cancel_take_task' route, when an exception
+        is raised while unassigning the task.
 
-        This case occurs, for example, when trying to unassign a task that is already unassigned.
+        This case occurs, for example, when trying to unassign a
+        task that is already unassigned.
         The method under test should return an error message.
         """
         route_under_test = route_manager.get_route('json_cancel_take_task')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_take_ajax/2001'
+        url_under_test = '{0}{1}/tasks/cancel_take_ajax/2001'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
         auth_user_id = self.user_id
 
         def mock_nh_activity_read(*args, **kwargs):
@@ -924,10 +1075,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool = self.registry('nh.activity')
         api_pool = self.registry('nh.eobs.api')
         activity_pool._patch_method('read', mock_nh_activity_read)
-        api_pool._patch_method('unassign', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception)
+        api_pool._patch_method(
+            'unassign',
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
+        )
 
         # Access the route
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('read')
@@ -941,17 +1097,22 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
                                  'Unable to release task',
-                                 'An error occurred when trying to release the task back into the task pool',
+                                 'An error occurred when trying to '
+                                 'release the task back into the task pool',
                                  expected_json)
 
     def test_cancel_take_route_with_task_assigned_to_different_user(self):
-        """Test the 'json_cancel_take_task' route when the task is assigned to a different user.
+        """Test the 'json_cancel_take_task' route when the task is
+        assigned to a different user.
 
         The method under test should return a fail message.
         """
         route_under_test = route_manager.get_route('json_cancel_take_task')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_take_ajax/1002'
+        url_under_test = '{0}{1}/tasks/cancel_take_ajax/1002'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
         different_user_id = int(self.user_id) + 1
 
         def mock_nh_activity_read(*args, **kwargs):
@@ -966,7 +1127,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         activity_pool._patch_method('read', mock_nh_activity_read)
 
         # Access the route
-        test_resp = requests.post(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('read')
@@ -979,7 +1141,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         }
         self.check_response_json(test_resp, ResponseJSON.STATUS_FAIL,
                                  'Unable to release task',
-                                 'The task you are trying to release is being carried out by another user',
+                                 'The task you are trying to release '
+                                 'is being carried out by another user',
                                  expected_json)
 
     def test_route_task_form_action(self):
@@ -990,7 +1153,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_task_form_action')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/submit_ajax/ews/1605'
+        url_under_test = '{0}{1}/tasks/submit_ajax/ews/1605'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Test demo for EWS observation.
         # (Supplying specific data which result in an EWS total score
@@ -1047,14 +1213,30 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool = self.registry('nh.eobs.api')
         ir_fields_converter = self.registry('ir.fields.converter')
 
-        activity_pool._patch_method('search', mock_method_returning_list_of_ids)
-        activity_pool._patch_method('read', mock_method_returning_list_of_activities)
-        api_pool._patch_method('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
-        api_pool._patch_method('check_activity_access', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
-        ir_fields_converter._patch_method('for_model', mock_method_returning_converter_function)
+        activity_pool._patch_method(
+            'search',
+            mock_method_returning_list_of_ids
+        )
+        activity_pool._patch_method('read',
+                                    mock_method_returning_list_of_activities)
+        api_pool._patch_method(
+            'complete',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
+        api_pool._patch_method(
+            'check_activity_access',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
+        ir_fields_converter._patch_method(
+            'for_model',
+            mock_method_returning_converter_function
+        )
 
         # Access the route
-        test_resp = requests.post(url_under_test, data=demo_data, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  data=demo_data,
+                                  cookies=self.auth_resp.cookies
+                                  )
 
         # Stop Odoo's patchers
         activity_pool._revert_method('search')
@@ -1079,7 +1261,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully Submitted NEWS Observation',
-                                 'Here are related tasks based on the observation',
+                                 'Here are related tasks based on the '
+                                 'observation',
                                  expected_json)
 
     def test_route_confirm_notification(self):
@@ -1088,9 +1271,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         The method under test should return a successful status
         and a list of activities to carry out.
         """
-        route_under_test = route_manager.get_route('confirm_clinical_notification')
+        route_under_test = route_manager.get_route(
+            'confirm_clinical_notification'
+        )
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/confirm_clinical/5061'
+        url_under_test = '{0}{1}/tasks/confirm_clinical/5061'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Access the route
         demo_data = {
@@ -1121,12 +1309,26 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool = self.registry('nh.eobs.api')
         activity_pool = self.registry('nh.activity')
 
-        activity_pool._patch_method('search', mock_method_returning_list_of_ids)
-        activity_pool._patch_method('read', mock_method_returning_list_of_activities)
-        api_pool._patch_method('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
-        api_pool._patch_method('check_activity_access', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        activity_pool._patch_method(
+            'search',
+            mock_method_returning_list_of_ids
+        )
+        activity_pool._patch_method(
+            'read',
+            mock_method_returning_list_of_activities
+        )
+        api_pool._patch_method(
+            'complete',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
+        api_pool._patch_method(
+            'check_activity_access',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
 
-        test_resp = requests.post(url_under_test, data=demo_data, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  data=demo_data,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('search')
@@ -1162,9 +1364,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         The method under test should return a successful status
         without any other activities to carry out.
         """
-        route_under_test = route_manager.get_route('cancel_clinical_notification')
+        route_under_test = route_manager.get_route(
+            'cancel_clinical_notification'
+        )
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_clinical/5061'
+        url_under_test = '{0}{1}/tasks/cancel_clinical/5061'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         demo_data = {
             'reason': 1
@@ -1172,9 +1379,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
-        api_pool._patch_method('cancel', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
+        api_pool._patch_method(
+            'cancel',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
 
-        test_resp = requests.post(url_under_test, data=demo_data, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  data=demo_data,
+                                  cookies=self.auth_resp.cookies
+                                  )
 
         # Stop Odoo's patchers
         api_pool._revert_method('cancel')
@@ -1192,13 +1405,18 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
                                  'The notification was successfully cancelled',
                                  expected_json)
 
-    def test_route_cancel_notification_manages_exception_while_cancelling_notification(self):
+    def test_route_cancel_notification_manages_exceptn_while_cancelling(self):
         """
         Test if the route for cancelling notifications manages exceptions.
         """
-        route_under_test = route_manager.get_route('cancel_clinical_notification')
+        route_under_test = route_manager.get_route(
+            'cancel_clinical_notification'
+        )
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/tasks/cancel_clinical/5061'
+        url_under_test = '{0}{1}/tasks/cancel_clinical/5061'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         demo_data = {
             'reason': 1
@@ -1206,9 +1424,15 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
-        api_pool._patch_method('cancel', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception)
+        api_pool._patch_method(
+            'cancel',
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
+        )
 
-        test_resp = requests.post(url_under_test, data=demo_data, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  data=demo_data,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('cancel')
@@ -1217,7 +1441,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
         expected_json = {
-            'error': 'The server returned an error while trying to cancel the task.'
+            'error': 'The server returned an error while trying '
+                     'to cancel the task.'
         }
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_ERROR,
@@ -1228,11 +1453,17 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
     def test_route_task_cancellation_options(self):
         """Test the route to get the task cancellation options.
 
-        The method under test should return a list of task cancellation options.
+        The method under test should return a list of task cancellation options
         """
-        route_under_test = route_manager.get_route('ajax_task_cancellation_options')
+        route_under_test = route_manager.get_route(
+            'ajax_task_cancellation_options'
+        )
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + route_under_test.url
+        url_under_test = '{0}{1}{2}'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX,
+            route_under_test.url
+        )
 
         def mock_method_returning_cancel_reasons_list(*args, **kwargs):
             cancel_reasons_list = [
@@ -1257,9 +1488,13 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
-        api_pool._patch_method('get_cancel_reasons', mock_method_returning_cancel_reasons_list)
+        api_pool._patch_method(
+            'get_cancel_reasons',
+            mock_method_returning_cancel_reasons_list
+        )
 
-        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_cancel_reasons')
@@ -1285,13 +1520,20 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_patient_info')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/2'
+        url_under_test = '{0}{1}/patient/info/2'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
-        api_pool._patch_method('get_patients', TestOdooRouteDecoratorIntegration.mock_get_patients)
+        api_pool._patch_method(
+            'get_patients',
+            TestOdooRouteDecoratorIntegration.mock_get_patients
+        )
 
-        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_patients')
@@ -1299,7 +1541,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
-        expected_json = TestOdooRouteDecoratorIntegration.mock_get_patients()[0]
+        expected_json = \
+            TestOdooRouteDecoratorIntegration.mock_get_patients()[0]
 
         # Check the returned JSON data against the expected ones
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
@@ -1317,7 +1560,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_patient_info')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/info/4'
+        url_under_test = '{0}{1}/patient/info/4'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         def mock_get_empty_patients_list(*args, **kwargs):
             return []
@@ -1326,7 +1572,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool = self.registry('nh.eobs.api')
         api_pool._patch_method('get_patients', mock_get_empty_patients_list)
 
-        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_patients')
@@ -1353,7 +1600,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_patient_barcode')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/barcode/1234567'
+        url_under_test = '{0}{1}/patient/barcode/1234567'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         def mock_get_patient_info(*args, **kwargs):
             patient_info = [
@@ -1381,7 +1631,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool = self.registry('nh.eobs.api')
         api_pool._patch_method('get_patient_info', mock_get_patient_info)
 
-        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_patient_info')
@@ -1410,14 +1661,22 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_patient_barcode')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/barcode/1234567'
+        url_under_test = '{0}{1}/patient/barcode/1234567'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
-        api_pool._patch_method('get_patient_info', TestOdooRouteDecoratorIntegration.mock_method_returning_osv_exception)
+        api_pool._patch_method(
+            'get_patient_info',
+            TestOdooRouteDecoratorIntegration
+                .mock_method_returning_osv_exception
+        )
 
         # Access the route
-        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_patient_info')
@@ -1443,7 +1702,10 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('ajax_get_patient_obs')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/ajax_obs/2'
+        url_under_test = '{0}{1}/patient/ajax_obs/2'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         def mock_get_activities_for_patient(*args, **kwargs):
             activities_list = [
@@ -1469,11 +1731,18 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
-        api_pool._patch_method('get_patients', TestOdooRouteDecoratorIntegration.mock_get_patients)
-        api_pool._patch_method('get_activities_for_patient', mock_get_activities_for_patient)
+        api_pool._patch_method(
+            'get_patients',
+            TestOdooRouteDecoratorIntegration.mock_get_patients
+        )
+        api_pool._patch_method(
+            'get_activities_for_patient',
+            mock_get_activities_for_patient
+        )
 
         # Access the route
-        test_resp = requests.get(url_under_test, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(url_under_test,
+                                 cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         api_pool._revert_method('get_patients')
@@ -1502,10 +1771,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         """
         route_under_test = route_manager.get_route('json_patient_form_action')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = route_manager.BASE_URL + route_manager.URL_PREFIX + '/patient/submit_ajax/ews/2'
+        url_under_test = '{0}{1}/patient/submit_ajax/ews/2'.format(
+            route_manager.BASE_URL,
+            route_manager.URL_PREFIX
+        )
 
         # test demo for ews observation
-        # supplying specific data which result in an EWS total score less than 4 (according to the default EWS policy)
+        # supplying specific data which result in an EWS total score less
+        # than 4 (according to the default EWS policy)
         # this way, no related tasks are created
         demo_data = {
             'respiration_rate': 18,
@@ -1559,15 +1832,35 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         api_pool = self.registry('nh.eobs.api')
         ir_fields_converter = self.registry('ir.fields.converter')
 
-        activity_pool._patch_method('search', mock_method_returning_list_of_ids)
-        activity_pool._patch_method('read', mock_method_returning_list_of_activities)
-        api_pool._patch_method('complete', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
-        api_pool._patch_method('create_activity_for_patient', mock_create_activity_for_patient)
-        api_pool._patch_method('check_activity_access', TestOdooRouteDecoratorIntegration.mock_method_returning_true)
-        ir_fields_converter._patch_method('for_model', mock_method_returning_converter_function)
+        activity_pool._patch_method(
+            'search',
+            mock_method_returning_list_of_ids
+        )
+        activity_pool._patch_method(
+            'read',
+            mock_method_returning_list_of_activities
+        )
+        api_pool._patch_method(
+            'complete',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
+        api_pool._patch_method(
+            'create_activity_for_patient',
+            mock_create_activity_for_patient
+        )
+        api_pool._patch_method(
+            'check_activity_access',
+            TestOdooRouteDecoratorIntegration.mock_method_returning_true
+        )
+        ir_fields_converter._patch_method(
+            'for_model',
+            mock_method_returning_converter_function
+        )
 
         # Access the route
-        test_resp = requests.post(url_under_test, data=demo_data, cookies=self.auth_resp.cookies)
+        test_resp = requests.post(url_under_test,
+                                  data=demo_data,
+                                  cookies=self.auth_resp.cookies)
 
         # Stop Odoo's patchers
         activity_pool._revert_method('search')
@@ -1593,5 +1886,6 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
 
         self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
                                  'Successfully Submitted NEWS Observation',
-                                 'Here are related tasks based on the observation',
+                                 'Here are related tasks based on the '
+                                 'observation',
                                  expected_json)
