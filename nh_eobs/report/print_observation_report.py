@@ -63,20 +63,22 @@ class ObservationReport(models.AbstractModel):
                 if 'data_started' in model_data and model_data['date_started']:
                     model_data['date_started'] = \
                         helpers.convert_db_date_to_context_date(
-                                cr, uid,
-                                datetime.strptime(model_data['date_started'],
-                                                  dtf),
-                                self.pretty_date_format
+                            cr, uid,
+                            datetime.strptime(
+                                model_data['date_started'],
+                                dtf
+                            ),
+                            self.pretty_date_format
                         )
                 if dt in model_data and model_data[dt]:
                     model_data['date_terminated'] = \
                         helpers.convert_db_date_to_context_date(
-                                cr, uid,
-                                datetime.strptime(
-                                        model_data['date_terminated'],
-                                        dtf
-                                ),
-                                self.pretty_date_format
+                            cr, uid,
+                            datetime.strptime(
+                                model_data['date_terminated'],
+                                dtf
+                            ),
+                            self.pretty_date_format
                         )
             act['values'] = model_data
         return act_data
@@ -90,19 +92,21 @@ class ObservationReport(models.AbstractModel):
         for data in model_data:
             data['write_date'] = datetime.strftime(
                 datetime.strptime(data['write_date'], dtf),
-                self.wkhtmltopdf_format)
+                self.wkhtmltopdf_format
+            )
             data['create_date'] = datetime.strftime(
                 datetime.strptime(data['create_date'], dtf),
-                self.wkhtmltopdf_format)
+                self.wkhtmltopdf_format
+            )
             data['date_started'] = datetime.strftime(
                 datetime.strptime(data['date_started'], dtf),
-                self.wkhtmltopdf_format)
+                self.wkhtmltopdf_format
+            )
             data['date_terminated'] = datetime.strftime(
-                datetime.strptime(
-                        data['date_terminated'],
-                        self.pretty_date_format
-                ),
-                self.wkhtmltopdf_format)
+                datetime.strptime(data['date_terminated'],
+                    self.pretty_date_format),
+                self.wkhtmltopdf_format
+            )
         return json.dumps(model_data)
 
     def create_report_data(self, data):
@@ -123,15 +127,15 @@ class ObservationReport(models.AbstractModel):
 
         # generate report timestamp
         time_generated = fields.datetime.context_timestamp(
-                cr, uid,
-                datetime.now(),
-                context=None
+            cr, uid,
+            datetime.now(),
+            context=None
         ).strftime(pretty_date_format)
         return helpers.BaseReport(
-                user,
-                company_name,
-                company_logo,
-                time_generated
+            user,
+            company_name,
+            company_logo,
+            time_generated
         )
 
     def get_ews_observations(self, data):
@@ -165,16 +169,16 @@ class ObservationReport(models.AbstractModel):
                 if ds:
                     t['date_started'] = \
                         helpers.convert_db_date_to_context_date(
-                                cr, uid,
-                                datetime.strptime(t['date_started'], dtf),
-                                self.pretty_date_format
+                            cr, uid,
+                            datetime.strptime(t['date_started'], dtf),
+                            self.pretty_date_format
                         )
                 if dt:
                     t['date_terminated'] = \
                         helpers.convert_db_date_to_context_date(
-                                cr, uid,
-                                datetime.strptime(t['date_terminated'], dtf),
-                                self.pretty_date_format
+                            cr, uid,
+                            datetime.strptime(t['date_terminated'], dtf),
+                            self.pretty_date_format
                         )
         return ews
 
@@ -369,10 +373,10 @@ class ObservationReport(models.AbstractModel):
             patient['ward'] = th.get('ward',  False)
 
         device_session_history = self.get_multi_model_data(
-                spell_activity_id,
-                'nh.clinical.patient.o2target',
-                'nh.clinical.device.session',
-                data.start_time, data.end_time)
+            spell_activity_id,
+            'nh.clinical.patient.o2target',
+            'nh.clinical.device.session',
+            data.start_time, data.end_time)
 
         non_basic_obs = {
             'bristol_stools': bristol_stools,

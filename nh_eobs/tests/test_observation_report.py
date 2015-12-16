@@ -5,8 +5,6 @@ from openerp.tools import test_reports
 from datetime import datetime, timedelta
 import logging
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp.addons.nh_eobs.report.print_observation_report \
-    import ObservationReport as obs_report
 from openerp.addons.nh_eobs.report.helpers \
     import convert_db_date_to_context_date
 import copy
@@ -556,12 +554,12 @@ class TestObservationReport(TransactionCase):
         self.spell_id = 1
 
         self.start_time = datetime.strftime(
-                datetime.now() + timedelta(days=5),
-                dtf
+            datetime.now() + timedelta(days=5),
+            dtf
         )
         self.end_time = datetime.strftime(
-                datetime.now() + timedelta(days=5),
-                dtf
+            datetime.now() + timedelta(days=5),
+            dtf
         )
 
     def tearDown(self):
@@ -642,25 +640,25 @@ class TestObservationReport(TransactionCase):
         with self.assertRaises(ValueError):
             report_model, cr, uid = self.report_model, self.cr, self.uid
             test_reports.try_report(
-                    cr, uid, report_model, [],
-                    data={
-                        'spell_id': None,
-                        'start_time': None,
-                        'end_time': self.end_time
-                    }
+                cr, uid, report_model, [],
+                data={
+                    'spell_id': None,
+                    'start_time': None,
+                    'end_time': self.end_time
+                }
             )
 
     def test_06_report_without_spell_without_start_time_without_end_time(self):
         with self.assertRaises(ValueError):
             report_model, cr, uid = self.report_model, self.cr, self.uid
             test_reports.try_report(
-                    cr, uid,
-                    report_model, [],
-                    data={
-                        'spell_id': None,
-                        'start_time': None,
-                        'end_time': None
-                    }
+                cr, uid,
+                report_model, [],
+                data={
+                    'spell_id': None,
+                    'start_time': None,
+                    'end_time': None
+                }
             )
 
     def test_07_report_without_spell_with_start_time_without_end_time(self):
@@ -690,25 +688,30 @@ class TestObservationReport(TransactionCase):
 
     def test_10_convert_db_date_to_context_date_with_format(self):
         test_date = datetime.strptime(
-                '1988-01-12 06:00:00',
-                '%Y-%m-%d %H:%M:%S'
+            '1988-01-12 06:00:00',
+            '%Y-%m-%d %H:%M:%S'
         )
-        report_model, cr, uid = self.report_model, self.cr, self.uid
+        cr, uid = self.cr, self.uid
         convert_date = convert_db_date_to_context_date(
-                cr, uid, test_date, '%Y')
-        self.assertEqual(convert_date, '1988',
-                         'Converted date is not in the right format')
+            cr, uid, test_date, '%Y')
+        self.assertEqual(
+            convert_date,
+            '1988',
+            'Converted date is not in the right format'
+        )
 
     def test_11_convert_db_date_to_context_date_without_format(self):
         test_date = datetime.strptime(
-                '1988-01-12 06:00:00',
-                '%Y-%m-%d %H:%M:%S'
+            '1988-01-12 06:00:00',
+            '%Y-%m-%d %H:%M:%S'
         )
-        report_model, cr, uid = self.report_model, self.cr, self.uid
+        cr, uid = self.cr, self.uid
         # Need to supply the timezone so can ensure will use UTC
         # instead of Odoo default
         convert_date = convert_db_date_to_context_date(
-                cr, uid, test_date, None, {'tz': 'UTC'})
-        self.assertEqual(str(convert_date), '1988-01-12 06:00:00+00:00',
-                         'Converted date is not in the right format')
-
+            cr, uid, test_date, None, {'tz': 'UTC'})
+        self.assertEqual(
+            str(convert_date),
+            '1988-01-12 06:00:00+00:00',
+            'Converted date is not in the right format'
+        )
