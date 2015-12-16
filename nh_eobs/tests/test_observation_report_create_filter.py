@@ -22,8 +22,8 @@ class TestObservationReport(TransactionCase):
 
     def test_01_filter_with_normal_model_with_end_date_with_start_date(self):
         test_filter = create_search_filter(
-                self.spell_id, self.normal_model,
-                self.start_date, self.end_date
+            self.spell_id, self.normal_model,
+            self.start_date, self.end_date
         )
         self.assertEqual(len(test_filter), 5,
                          'Incorrect number of items in filter')
@@ -64,8 +64,8 @@ class TestObservationReport(TransactionCase):
 
     def test_02_filter_with_exception_model_w_end_date_w_start_date(self):
         test_filter = create_search_filter(
-                self.spell_id, self.exception_model,
-                self.start_date, self.end_date
+            self.spell_id, self.exception_model,
+            self.start_date, self.end_date
         )
         self.assertEqual(len(test_filter), 4,
                          'Incorrect number of items in filter')

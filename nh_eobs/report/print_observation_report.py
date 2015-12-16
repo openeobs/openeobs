@@ -103,8 +103,10 @@ class ObservationReport(models.AbstractModel):
                 self.wkhtmltopdf_format
             )
             data['date_terminated'] = datetime.strftime(
-                datetime.strptime(data['date_terminated'],
-                    self.pretty_date_format),
+                datetime.strptime(
+                    data['date_terminated'],
+                    self.pretty_date_format
+                ),
                 self.wkhtmltopdf_format
             )
         return json.dumps(model_data)

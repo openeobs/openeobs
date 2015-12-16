@@ -1,6 +1,5 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.osv import fields
-from datetime import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 
