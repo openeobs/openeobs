@@ -314,7 +314,7 @@ class ObservationReport(models.AbstractModel):
             data
         )
         patient = self.process_patient_height_weight(patient, height_weight)
-        weights = height_weight['weight']
+
 
         ews_only = {
             'doc_ids': self._ids,
@@ -324,7 +324,6 @@ class ObservationReport(models.AbstractModel):
             'patient': patient,
             'ews': ews,
             'table_ews': table_ews,
-            'weights': weights,
             'report_start': dates.report_start,
             'report_end': dates.report_end,
             'spell_start': dates.spell_start,
@@ -385,7 +384,17 @@ class ObservationReport(models.AbstractModel):
             'device_session_history': device_session_history,
             'transfer_history': transfer_history,
         }
-        rep_data = helpers.merge_dicts(basic_obs, non_basic_obs, ews_only)
+
+        weights = height_weight['weight']
+        weight_dict = {
+            'weights': weights
+        }
+        rep_data = helpers.merge_dicts(
+            weight_dict,
+            basic_obs,
+            non_basic_obs,
+            ews_only
+        )
         return rep_data
 
     @api.multi

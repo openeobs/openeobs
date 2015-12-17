@@ -186,3 +186,43 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
             '/nh_eobs/static/src/js/observation_report.js',
             'Incorrect Observation Report JavaScript'
         )
+
+    def test_06_ews_only_shows_only_ews_table(self):
+        """
+        Test that the EWS only chart shows only EWS data in the table and no
+        other observations
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        table_section_headers = beautiful_report.select('h3')
+        self.assertEqual(
+            len(table_section_headers),
+            3,
+            'Incorrect number of tables'
+        )
+        ews_values_header = table_section_headers[0]
+        monitoring_header = table_section_headers[1]
+        actions_header = table_section_headers[2]
+        self.assertEqual(
+            ews_values_header.text,
+            'NEWS Values',
+            'Incorrect NEWS table header'
+        )
+        self.assertEqual(
+            monitoring_header.text,
+            'Patient Monitoring Exceptions',
+            'Incorrect Monitoring table header'
+        )
+        self.assertEqual(
+            actions_header.text,
+            'Actions Triggered',
+            'Incorrect Actions table header'
+        )
