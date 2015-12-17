@@ -347,7 +347,7 @@ class ObservationReport(models.AbstractModel):
             'nh.clinical.device.session',
             data.start_time, data.end_time)
 
-        ews_only = {
+        ews_dict = {
             'doc_ids': self._ids,
             'doc_model': report.model,
             'docs': self,
@@ -364,7 +364,7 @@ class ObservationReport(models.AbstractModel):
             'transfer_history': transfer_history,
         }
 
-        ews_report = helpers.merge_dicts(ews_only,
+        ews_report = helpers.merge_dicts(ews_dict,
                                          base_report.footer_values,
                                          monitoring)
         if ews_only:
@@ -400,7 +400,7 @@ class ObservationReport(models.AbstractModel):
         rep_data = helpers.merge_dicts(
             basic_obs,
             non_basic_obs,
-            ews_only
+            ews_report
         )
         return rep_data
 
