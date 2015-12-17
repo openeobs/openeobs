@@ -121,7 +121,7 @@ class ObservationReport(models.AbstractModel):
         user_pool = self.pool['res.users']
 
         # get user data
-        user = user_pool.read(cr, uid, uid, ['name'], context=None)['name']
+        user = user_pool.read(cr, uid, uid, ['name'])['name']
 
         # get company data
         company_name = company_pool.read(cr, uid, 1, ['name'])['name']

@@ -331,9 +331,9 @@ class ObservationReportHelpers(TransactionCase):
         'image': test_logo
     }
 
-    partner_name_values = {
+    company_name_values = {
         'id': 1,
-        'name': 'Test User'
+        'name': 'Test Hospital'
     }
 
     def setUp(self):
@@ -404,10 +404,10 @@ class ObservationReportHelpers(TransactionCase):
             return [{
                 'dob': '1988-01-12 06:00:00',
                 'id': 1,
-                'other_identifier': '1234123412',
+                'other_identifier': 'NHS1234123',
                 'gender': 'Male',
                 'full_name': 'Test Patient',
-                'patient_identifier': '1234123412'
+                'patient_identifier': 'HOS1234123'
             }]
 
         def activity_pool_mock_search(*args, **kwargs):
@@ -531,10 +531,15 @@ class ObservationReportHelpers(TransactionCase):
 
         def partner_pool_mock_read(*args, **kwargs):
             if len(args) == 2:
-                return partner_pool_mock_read.origin(args[0], args[1], kwargs)
-            if len(args) == 5 and args[4] == ['image']:
-                return copy.deepcopy(self.company_logo_values)
-            return None
+                return partner_pool_mock_read.origin(
+                    args[0],
+                    args[1],
+                    kwargs
+                )
+            return copy.deepcopy(self.company_logo_values)
+
+        def company_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.company_name_values)
 
         self.spell_pool._patch_method('read', spell_pool_mock_spell)
         self.patient_pool._patch_method('read', patient_pool_mock_patient)
@@ -567,6 +572,7 @@ class ObservationReportHelpers(TransactionCase):
                                                device_session_pool_mock_read)
         self.location_pool._patch_method('read', location_pool_mock_read)
         self.partner_pool._patch_method('read', partner_pool_mock_read)
+        self.company_pool._patch_method('read', company_pool_mock_read)
         self.spell_id = 1
 
         self.start_time = datetime.strftime(
@@ -603,4 +609,5 @@ class ObservationReportHelpers(TransactionCase):
         self.device_session_pool._revert_method('read')
         self.location_pool._revert_method('read')
         self.partner_pool._revert_method('read')
+        self.company_pool._revert_method('read')
         super(ObservationReportHelpers, self).tearDown()
