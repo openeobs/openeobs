@@ -205,16 +205,40 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
         table_section_headers = beautiful_report.select('h3')
         self.assertEqual(
             len(table_section_headers),
-            3,
+            7,
             'Incorrect number of tables'
         )
         ews_values_header = table_section_headers[0]
-        monitoring_header = table_section_headers[1]
-        actions_header = table_section_headers[2]
+        target_header = table_section_headers[1]
+        active_device_header = table_section_headers[2]
+        device_history_header = table_section_headers[3]
+        transfer_header = table_section_headers[4]
+        monitoring_header = table_section_headers[5]
+        actions_header = table_section_headers[6]
         self.assertEqual(
             ews_values_header.text,
             'NEWS Values',
             'Incorrect NEWS table header'
+        )
+        self.assertEqual(
+            target_header.text,
+            'O2 Target Values',
+            'Incorrect O2 Target table header'
+        )
+        self.assertEqual(
+            active_device_header.text,
+            'Active Device Sessions',
+            'Incorrect active device table header'
+        )
+        self.assertEqual(
+            device_history_header.text,
+            'Device Session History',
+            'Incorrect device history table header'
+        )
+        self.assertEqual(
+            transfer_header.text,
+            'Transfer History',
+            'Incorrect transfer history table header'
         )
         self.assertEqual(
             monitoring_header.text,

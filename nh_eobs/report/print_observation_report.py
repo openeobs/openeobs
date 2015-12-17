@@ -315,51 +315,20 @@ class ObservationReport(models.AbstractModel):
         )
         patient = self.process_patient_height_weight(patient, height_weight)
 
-        ews_only = {
-            'doc_ids': self._ids,
-            'doc_model': report.model,
-            'docs': self,
-            'spell': spell,
-            'patient': patient,
-            'ews': ews,
-            'table_ews': table_ews,
-            'report_start': dates.report_start,
-            'report_end': dates.report_end,
-            'spell_start': dates.spell_start,
-            'ews_data': json_ews,
-            'draw_graph_js': observation_report
-        }
-
-        ews_report = helpers.merge_dicts(ews_only,
-                                         base_report.footer_values)
-        if ews_only:
-            return ews_report
-
-        basic_obs_dict = {
-            'pbps': 'nh.clinical.patient.observation.pbp',
-            'gcs': 'nh.clinical.patient.observation.gcs',
-            'bs': 'nh.clinical.patient.observation.blood_sugar',
-            'pains': 'nh.clinical.patient.observation.pain',
-            'blood_products': 'nh.clinical.patient.observation.blood_product',
+        monitoring_dict = {
             'targeto2': 'nh.clinical.patient.o2target',
             'mrsa_history': 'nh.clinical.patient.mrsa',
             'diabetes_history': 'nh.clinical.patient.diabetes',
             'palliative_care_history': 'nh.clinical.patient.palliative_care',
             'post_surgery_history': 'nh.clinical.patient.post_surgery',
-            'critical_care_history': 'nh.clinical.patient.critical_care',
+            'critical_care_history': 'nh.clinical.patient.critical_care'
         }
 
-        basic_obs = self.get_activity_data_from_dict(
-            basic_obs_dict,
+        monitoring = self.get_activity_data_from_dict(
+            monitoring_dict,
             spell_activity_id,
             data
         )
-
-        bristol_stools = self.convert_bristol_stools_booleans(
-            self.get_model_data(
-                spell_activity_id,
-                'nh.clinical.patient.observation.stools',
-                data.start_time, data.end_time))
 
         transfer_history = self.process_transfer_history(
             self.get_model_data(
@@ -378,18 +347,57 @@ class ObservationReport(models.AbstractModel):
             'nh.clinical.device.session',
             data.start_time, data.end_time)
 
-        non_basic_obs = {
-            'bristol_stools': bristol_stools,
+        ews_only = {
+            'doc_ids': self._ids,
+            'doc_model': report.model,
+            'docs': self,
+            'spell': spell,
+            'patient': patient,
+            'ews': ews,
+            'table_ews': table_ews,
+            'report_start': dates.report_start,
+            'report_end': dates.report_end,
+            'spell_start': dates.spell_start,
+            'ews_data': json_ews,
+            'draw_graph_js': observation_report,
             'device_session_history': device_session_history,
             'transfer_history': transfer_history,
         }
 
+        ews_report = helpers.merge_dicts(ews_only,
+                                         base_report.footer_values,
+                                         monitoring)
+        if ews_only:
+            return ews_report
+
+        basic_obs_dict = {
+            'pbps': 'nh.clinical.patient.observation.pbp',
+            'gcs': 'nh.clinical.patient.observation.gcs',
+            'bs': 'nh.clinical.patient.observation.blood_sugar',
+            'pains': 'nh.clinical.patient.observation.pain',
+            'blood_products': 'nh.clinical.patient.observation.blood_product'
+        }
+
+        basic_obs = self.get_activity_data_from_dict(
+            basic_obs_dict,
+            spell_activity_id,
+            data
+        )
+
+        bristol_stools = self.convert_bristol_stools_booleans(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.stools',
+                data.start_time, data.end_time))
+
         weights = height_weight['weight']
-        weight_dict = {
+
+        non_basic_obs = {
+            'bristol_stools': bristol_stools,
             'weights': weights
         }
+
         rep_data = helpers.merge_dicts(
-            weight_dict,
             basic_obs,
             non_basic_obs,
             ews_only
