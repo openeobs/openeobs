@@ -315,7 +315,6 @@ class ObservationReport(models.AbstractModel):
         )
         patient = self.process_patient_height_weight(patient, height_weight)
 
-
         ews_only = {
             'doc_ids': self._ids,
             'doc_model': report.model,
