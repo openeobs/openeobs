@@ -320,6 +320,22 @@ class ObservationReportHelpers(TransactionCase):
         'parent_id': [2, 'Test Location Parent']
     }
 
+    test_logo = 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAs' \
+                'TAAALEwEAmpwYAAAAB3RJTUUH3wwRCyIdyggcuQAAAFZJREFUKM/dkksKAD' \
+                'EIQ5PB+185XRREWjPQTRfNTp8/VEoCQBIAgGlWLSimK+MSpyqSFA47hRvAl' \
+                'Tju8OFQLyRwP82+6BpweaTl3q0/JDnclvj70/ZlBnbIORjQZ6obAAAAAElF' \
+                'TkSuQmCC'
+
+    company_logo_values = {
+        'id': 1,
+        'image': test_logo
+    }
+
+    partner_name_values = {
+        'id': 1,
+        'name': 'Test User'
+    }
+
     def setUp(self):
         super(ObservationReportHelpers, self).setUp()
         registry, cr, uid = self.registry, self.cr, self.uid
@@ -513,6 +529,13 @@ class ObservationReportHelpers(TransactionCase):
         def location_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.location_values)
 
+        def partner_pool_mock_read(*args, **kwargs):
+            if len(args) == 2:
+                return partner_pool_mock_read.origin(args[0], args[1], kwargs)
+            if len(args) == 5 and args[4] == ['image']:
+                return copy.deepcopy(self.company_logo_values)
+            return None
+
         self.spell_pool._patch_method('read', spell_pool_mock_spell)
         self.patient_pool._patch_method('read', patient_pool_mock_patient)
         self.activity_pool._patch_method('search', activity_pool_mock_search)
@@ -543,6 +566,7 @@ class ObservationReportHelpers(TransactionCase):
         self.device_session_pool._patch_method('read',
                                                device_session_pool_mock_read)
         self.location_pool._patch_method('read', location_pool_mock_read)
+        self.partner_pool._patch_method('read', partner_pool_mock_read)
         self.spell_id = 1
 
         self.start_time = datetime.strftime(
@@ -578,4 +602,5 @@ class ObservationReportHelpers(TransactionCase):
         self.move_pool._revert_method('read')
         self.device_session_pool._revert_method('read')
         self.location_pool._revert_method('read')
+        self.partner_pool._revert_method('read')
         super(ObservationReportHelpers, self).tearDown()
