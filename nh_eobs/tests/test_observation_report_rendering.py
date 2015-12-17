@@ -1,7 +1,6 @@
 from . import observation_report_helpers as helpers
-from openerp.addons.nh_eobs.report.print_observation_report \
-    import ObservationReport
 from bs4 import BeautifulSoup
+
 
 class TestObservationReportRendering(helpers.ObservationReportHelpers):
 
