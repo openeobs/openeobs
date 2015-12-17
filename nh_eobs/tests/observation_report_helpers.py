@@ -16,7 +16,7 @@ class ObservationReportHelpers(TransactionCase):
         'pulse_rate': 65,
         'avpu_text': 'A',
         'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
+        'date_terminated': '1988-01-12 06:01:00',
         'create_date': '1988-01-12 06:00:00',
         'write_date': '1988-01-12 06:00:00',
         'score': '1',
