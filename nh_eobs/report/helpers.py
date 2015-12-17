@@ -93,4 +93,3 @@ def boolean_to_text(value):
     if value:
         value_as_text = 'Yes'
     return value_as_text
-
