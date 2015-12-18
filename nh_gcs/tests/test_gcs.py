@@ -1,7 +1,7 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.tests import common
 
-import logging        
+import logging
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
@@ -36,7 +36,7 @@ class TestGCS(common.SingleTransactionCase):
 
         cls.apidemo = cls.registry('nh.clinical.api.demo')
 
-        cls.apidemo.build_unit_test_env(cr, uid, bed_count=4, 
+        cls.apidemo.build_unit_test_env(cr, uid, bed_count=4,
                                         patient_placement_count=2)
 
         cls.wu_id = cls.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
@@ -51,7 +51,7 @@ class TestGCS(common.SingleTransactionCase):
         cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
         cls.adt_id = cls.users_pool.search(
-            cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), 
+            cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']),
                       ('pos_id', '=', cls.pos_id)])[0]
 
     def test_gcs_observations_policy_static(self):
@@ -62,12 +62,12 @@ class TestGCS(common.SingleTransactionCase):
             'CASE':     [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4],
             'EYES':     ['1', 'C', '2', '2', '3', '3', '3', '4', '4', '4', '4',
                          '4', '4'],
-            'VERBAL':   ['1', 'T', '1', '2', '2', '3', '3', '3', '4', '4', '5', 
+            'VERBAL':   ['1', 'T', '1', '2', '2', '3', '3', '3', '4', '4', '5',
                          '5', '5'],
             'MOTOR':    ['1', '2', '2', '2', '2', '2', '3', '3', '3', '4', '4',
                          '5', '6'],
         }
-        
+
         gcs_policy = {
             'frequencies': [30, 60, 120, 240, 720],
             'notifications': [
@@ -129,7 +129,7 @@ class TestGCS(common.SingleTransactionCase):
             _logger.info("TEST - observation GCS: expecting score %s, "
                          "frequency %s"
                          % (gcs_test_data['SCORE'][i], frequency))
-            
+
             # # # # # # # # # # # # # # # # #
             # Check the score and frequency #
             # # # # # # # # # # # # # # # # #

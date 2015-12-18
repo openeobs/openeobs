@@ -3,7 +3,7 @@
 Gives an overview of the current state of ward and bed
 :class:`locations<base.nh_clinical_location>`.
 """
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 import logging
 _logger = logging.getLogger(__name__)
 

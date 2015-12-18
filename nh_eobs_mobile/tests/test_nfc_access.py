@@ -1,8 +1,7 @@
-__author__ = 'lorenzo'
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+from openerp import tests
 import logging
 import requests
-from openerp import tests
 
 test_logger = logging.getLogger(__name__)
 

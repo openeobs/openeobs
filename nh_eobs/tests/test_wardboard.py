@@ -293,7 +293,6 @@ class TestWardboard(SingleTransactionCase):
         view_id = self.model_data.get_object_reference(
             cr, uid, 'nh_eobs',
             'view_wardboard_device_session_start_form')[1]
-        patient = self.patient_pool.browse(cr, uid, self.patients[0])
         self.assertDictEqual(res, {
             'name': 'Start Device Session: ,  ',
             'type': 'ir.actions.act_window',
@@ -441,7 +440,7 @@ class TestWardboard(SingleTransactionCase):
         self.assertListEqual(res[self.wb_id]['move_ids'], ids)
 
     def test_14_get_transferred_user_ids(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         # Scenario 1: Get result for transferred patient
         res = self.wardboard_pool._get_transferred_user_ids(
@@ -634,7 +633,7 @@ class TestWardboard(SingleTransactionCase):
         self.assertTrue(activity_ids)
 
     def test_23_get_cr_groups(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         res, fold = self.wardboard_pool._get_cr_groups(
             cr, self.wm_uid, [self.wb_id], [])
@@ -679,7 +678,7 @@ class TestWardboard(SingleTransactionCase):
                 cr, self.wm_uid, [self.wb_id])
 
     def test_25_get_recently_discharged_uids(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         res = self.wardboard_pool._get_recently_discharged_uids(
             cr, self.wm_uid, [self.wb_disc_id, self.wb_id3],

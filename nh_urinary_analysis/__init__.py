@@ -1,2 +1,2 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import urinary_analysis
+from . import urinary_analysis

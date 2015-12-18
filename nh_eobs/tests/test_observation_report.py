@@ -1,14 +1,16 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'colinwren'
 from openerp.tests.common import TransactionCase
 from openerp.tools import test_reports
 from datetime import datetime, timedelta
-import logging
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp.addons.nh_eobs.report.print_observation_report import ObservationReport as obs_report
+from openerp.addons.nh_eobs.report.print_observation_report import \
+    ObservationReport as obs_report
 import copy
+import logging
+
 
 _logger = logging.getLogger(__name__)
+
 
 class TestObservationReport(TransactionCase):
 
@@ -351,23 +353,31 @@ class TestObservationReport(TransactionCase):
         self.patient_pool = self.registry('nh.clinical.patient')
         self.context_pool = self.registry('nh.clinical.context')
         self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
-        self.height_pool = self.registry('nh.clinical.patient.observation.height')
-        self.weight_pool = self.registry('nh.clinical.patient.observation.weight')
+        self.height_pool = \
+            self.registry('nh.clinical.patient.observation.height')
+        self.weight_pool = \
+            self.registry('nh.clinical.patient.observation.weight')
         self.api_pool = self.registry('nh.eobs.api')
         self.o2level_pool = self.registry('nh.clinical.o2level')
         self.o2target_pool = self.registry('nh.clinical.patient.o2target')
         self.spell_pool = self.registry('nh.clinical.spell')
         self.pain_pool = self.registry('nh.clinical.patient.observation.pain')
-        self.blood_product_pool = self.registry('nh.clinical.patient.observation.blood_product')
-        self.stools_pool = self.registry('nh.clinical.patient.observation.stools')
+        self.blood_product_pool = \
+            self.registry('nh.clinical.patient.observation.blood_product')
+        self.stools_pool = \
+            self.registry('nh.clinical.patient.observation.stools')
         self.pbp_pool = self.registry('nh.clinical.patient.observation.pbp')
         self.gcs_pool = self.registry('nh.clinical.patient.observation.gcs')
-        self.blood_sugar_pool = self.registry('nh.clinical.patient.observation.blood_sugar')
+        self.blood_sugar_pool = \
+            self.registry('nh.clinical.patient.observation.blood_sugar')
         self.mrsa_pool = self.registry('nh.clinical.patient.mrsa')
         self.diabetes_pool = self.registry('nh.clinical.patient.diabetes')
-        self.palliative_care_pool = self.registry('nh.clinical.patient.palliative_care')
-        self.post_surgery_pool = self.registry('nh.clinical.patient.post_surgery')
-        self.critical_care_pool = self.registry('nh.clinical.patient.critical_care')
+        self.palliative_care_pool = \
+            self.registry('nh.clinical.patient.palliative_care')
+        self.post_surgery_pool = \
+            self.registry('nh.clinical.patient.post_surgery')
+        self.critical_care_pool = \
+            self.registry('nh.clinical.patient.critical_care')
         self.move_pool = self.registry('nh.clinical.patient.move')
         self.device_session_pool = self.registry('nh.clinical.device.session')
 
@@ -396,7 +406,8 @@ class TestObservationReport(TransactionCase):
             search_filter = args[3] if len(args) > 3 else False
             model = search_filter[1][2] if len(search_filter) > 1 else False
             if not model:
-                # If no model defined then we should be using a creator_id search
+                # If no model defined then we should be using a
+                # creator_id search
                 if search_filter[0][0] == 'creator_id':
                     creator_id = search_filter[0][2]
                     ids = [
@@ -517,11 +528,13 @@ class TestObservationReport(TransactionCase):
         self.activity_pool._patch_method('search', activity_pool_mock_search)
         self.activity_pool._patch_method('read', activity_pool_mock_read)
         self.ews_pool._patch_method('read', ews_pool_mock_read)
-        self.o2target_pool._patch_method('get_last', o2target_pool_mock_get_last)
+        self.o2target_pool._patch_method('get_last',
+                                         o2target_pool_mock_get_last)
         self.height_pool._patch_method('read', height_pool_mock_read)
         self.weight_pool._patch_method('read', weight_pool_mock_read)
         self.pain_pool._patch_method('read', pain_pool_mock_read)
-        self.blood_product_pool._patch_method('read', blood_product_pool_mock_read)
+        self.blood_product_pool._patch_method('read',
+                                              blood_product_pool_mock_read)
         self.stools_pool._patch_method('read', stools_pool_mock_read)
         self.pbp_pool._patch_method('read', pbp_pool_mock_read)
         self.gcs_pool._patch_method('read', gcs_pool_mock_read)
@@ -529,16 +542,22 @@ class TestObservationReport(TransactionCase):
         self.o2target_pool._patch_method('read', o2target_pool_mock_read)
         self.mrsa_pool._patch_method('read', mrsa_pool_mock_read)
         self.diabetes_pool._patch_method('read', diabetes_pool_mock_read)
-        self.palliative_care_pool._patch_method('read', palliative_care_pool_mock_read)
-        self.post_surgery_pool._patch_method('read', post_surgery_pool_mock_read)
-        self.critical_care_pool._patch_method('read', critical_care_pool_mock_read)
+        self.palliative_care_pool._patch_method('read',
+                                                palliative_care_pool_mock_read)
+        self.post_surgery_pool._patch_method('read',
+                                             post_surgery_pool_mock_read)
+        self.critical_care_pool._patch_method('read',
+                                              critical_care_pool_mock_read)
         self.move_pool._patch_method('read', move_pool_mock_read)
-        self.device_session_pool._patch_method('read', device_session_pool_mock_read)
+        self.device_session_pool._patch_method('read',
+                                               device_session_pool_mock_read)
         self.location_pool._patch_method('read', location_pool_mock_read)
         self.spell_id = 1
 
-        self.start_time = datetime.strftime(datetime.now() + timedelta(days=5), dtf)
-        self.end_time = datetime.strftime(datetime.now() + timedelta(days=5), dtf)
+        self.start_time = datetime.strftime(datetime.now() + timedelta(days=5),
+                                            dtf)
+        self.end_time = datetime.strftime(datetime.now() + timedelta(days=5),
+                                          dtf)
 
     def tearDown(self):
         self.spell_pool._revert_method('read')
@@ -566,105 +585,156 @@ class TestObservationReport(TransactionCase):
         self.location_pool._revert_method('read')
         super(TestObservationReport, self).tearDown()
 
-    def test_01_observation_report_with_spell_without_start_time_without_end_time(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': None,
-            'end_time': None
-        })
-        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+    def test_01_obs_report_with_spell_wout_start_time_wout_end_time(self):
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': None,
+                'end_time': None
+            }
+        )
+        self.assertEqual(report_test, True,
+                         'Unable to print Observation Report')
 
-    def test_02_observation_report_with_spell_with_start_time_without_end_time(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': self.start_time,
-            'end_time': None
-        })
-        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+    def test_02_obs_report_with_spell_with_start_time_wout_end_time(self):
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': self.start_time,
+                'end_time': None
+            }
+        )
+        self.assertEqual(report_test, True,
+                         'Unable to print Observation Report')
 
-    def test_03_observation_report_with_spell_with_start_time_with_end_time(self):
-        # Special case - no triggered actions or transfer history to hit branches
+    def test_03_obs_report_with_spell_with_start_time_with_end_time(self):
+        # Special case - no triggered actions or transfer history
+        # to hit branches
         old_triggered_ews_data = copy.deepcopy(self.triggered_ews_data)
         self.triggered_ews_data = {
             'data_model': 'nh.clinical.patient.observation.ews',
         }
         old_move_data = copy.deepcopy(self.move_data)
         self.move_data = False
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': self.start_time,
-            'end_time': self.end_time
-        })
-        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': self.start_time,
+                'end_time': self.end_time
+            }
+        )
+        self.assertEqual(report_test, True,
+                         'Unable to print Observation Report')
         self.triggered_ews_data = old_triggered_ews_data
         self.move_data = old_move_data
 
-    def test_04_observation_report_with_spell_without_start_time_with_end_time(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': None,
-            'end_time': self.end_time
-        })
-        self.assertEqual(report_test, True, 'Unable to print Observation Report')
-
-    def test_05_observation_report_without_spell_without_start_time_with_end_time(self):
-        with self.assertRaises(ValueError):
-            report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-            report_test = test_reports.try_report(cr, uid, report_model, [], data={
-                'spell_id': None,
+    def test_04_obs_report_with_spell_wout_start_time_with_end_time(self):
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
                 'start_time': None,
                 'end_time': self.end_time
-            })
+            }
+        )
+        self.assertEqual(report_test, True,
+                         'Unable to print Observation Report')
 
-    def test_06_observation_report_without_spell_without_start_time_without_end_time(self):
+    def test_05_obs_report_without_spell_wout_start_time_with_end_time(self):
         with self.assertRaises(ValueError):
-            report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-            report_test = test_reports.try_report(cr, uid, report_model, [], data={
-                'spell_id': None,
-                'start_time': None,
-                'end_time': None
-            })
+            report_model, cr, uid = self.report_model, self.cr, self.uid
+            test_reports.try_report(
+                cr, uid,
+                report_model, [],
+                data={
+                    'spell_id': None,
+                    'start_time': None,
+                    'end_time': self.end_time
+                }
+            )
 
-    def test_07_observation_report_without_spell_with_start_time_without_end_time(self):
+    def test_06_obs_report_without_spell_wout_start_time_wout_end_time(self):
         with self.assertRaises(ValueError):
-            report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-            report_test = test_reports.try_report(cr, uid, report_model, [], data={
-                'spell_id': None,
+            report_model, cr, uid = self.report_model, self.cr, self.uid
+            test_reports.try_report(
+                cr, uid,
+                report_model, [],
+                data={
+                    'spell_id': None,
+                    'start_time': None,
+                    'end_time': None
+                }
+            )
+
+    def test_07_obs_report_wout_spell_with_start_time_wout_end_time(self):
+        with self.assertRaises(ValueError):
+            report_model, cr, uid = self.report_model, self.cr, self.uid
+            test_reports.try_report(
+                cr, uid,
+                report_model, [],
+                data={
+                    'spell_id': None,
+                    'start_time': self.start_time,
+                    'end_time': None
+                }
+            )
+
+    def test_08_obs_report_with_spell_start_time_end_time_ews_only(self):
+        report_model, cr, uid = self.report_model, self.cr, self.uid
+        report_test = test_reports.try_report(
+            cr, uid,
+            report_model, [],
+            data={
+                'spell_id': self.spell_id,
                 'start_time': self.start_time,
-                'end_time': None
-            })
-
-    def test_08_observation_report_with_spell_with_start_time_with_end_time_with_ews_only(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [], data={
-            'spell_id': self.spell_id,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
-            'ews_only': True
-        })
-        self.assertEqual(report_test, True, 'Unable to print Observation Report')
+                'end_time': self.end_time,
+                'ews_only': True
+            }
+        )
+        self.assertEqual(report_test, True,
+                         'Unable to print Observation Report')
 
     def test_09_observation_report_without_data(self):
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+        report_model, cr, uid = self.report_model, self.cr, self.uid
         with self.assertRaises(ValueError):
             test_reports.try_report(cr, uid, report_model, [])
 
-
     def test_10_convert_db_date_to_context_date_with_format(self):
-        test_date = datetime.strptime('1988-01-12 06:00:00', '%Y-%m-%d %H:%M:%S')
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+        test_date = datetime.strptime(
+            '1988-01-12 06:00:00',
+            '%Y-%m-%d %H:%M:%S'
+        )
+        cr, uid = self.cr, self.uid
         rep = self.registry(self.report_model)
-        convert_date = obs_report.convert_db_date_to_context_date(rep, cr, uid, test_date, '%Y')
-        self.assertEqual(convert_date, '1988', 'Converted date is not in the right format')
+        convert_date = obs_report.convert_db_date_to_context_date(
+            rep, cr, uid, test_date, '%Y')
+        self.assertEqual(convert_date,
+                         '1988', 'Converted date is not in the right format')
 
     def test_11_convert_db_date_to_context_date_without_format(self):
-        test_date = datetime.strptime('1988-01-12 06:00:00', '%Y-%m-%d %H:%M:%S')
-        report_model, registry, cr, uid = self.report_model, self.registry, self.cr, self.uid
+        test_date = datetime.strptime(
+            '1988-01-12 06:00:00',
+            '%Y-%m-%d %H:%M:%S'
+        )
+        cr, uid = self.cr, self.uid
         rep = self.registry(self.report_model)
-        # Need to supply the timezone so can ensure will use UTC instead of Odoo default
-        convert_date = obs_report.convert_db_date_to_context_date(rep, cr, uid, test_date, None, {'tz': 'UTC'})
-        self.assertEqual(str(convert_date), '1988-01-12 06:00:00+00:00', 'Converted date is not in the right format')
+        # Need to supply the timezone so can ensure will
+        # use UTC instead of Odoo default
+        convert_date = obs_report.convert_db_date_to_context_date(
+            rep, cr, uid, test_date, None, {'tz': 'UTC'})
+        self.assertEqual(
+            str(convert_date),
+            '1988-01-12 06:00:00+00:00',
+            'Converted date is not in the right format'
+        )

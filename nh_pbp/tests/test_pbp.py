@@ -122,14 +122,14 @@ class TestPBP(common.SingleTransactionCase):
         self.assertTrue(
             pbp_activity_ids,
             msg="PBP activity not scheduled after setting monitoring ON")
-        
+
         pbp_data = {
             'systolic_sitting': 120,
             'systolic_standing': 118,
             'diastolic_sitting': 80,
             'diastolic_standing': 79,
         }
-        
+
         self.activity_pool.submit(cr, user_id, pbp_activity_ids[0], pbp_data)
         check_pbp = self.activity_pool.browse(cr, uid, pbp_activity_ids[0])
         self.assertTrue(

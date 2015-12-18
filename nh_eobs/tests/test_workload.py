@@ -57,7 +57,7 @@ class TestWorkload(SingleTransactionCase):
         cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
 
     def test_01_get_groups(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         res, fold = self.workload_pool._get_groups(cr, self.wm_uid, [], [])
         groups = [(10, '46- minutes'), (20, '45-31 minutes remain'),

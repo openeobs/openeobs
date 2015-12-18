@@ -1,7 +1,7 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
 from openerp.osv import orm
-from helpers import refresh_materialized_views
+from openerp.addons.nh_eobs.helpers import refresh_materialized_views
 
 
 class nh_clinical_patient_observation_ews(orm.Model):

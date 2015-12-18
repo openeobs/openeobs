@@ -195,9 +195,8 @@ class nh_eobs_api(orm.AbstractModel):
         user = user_pool.browse(cr, SUPERUSER_ID, uid, context=context)
         groups = [g.name for g in user.groups_id]
         wards = list(set([location_pool.get_closest_parent_id(
-            cr, uid, loc.id, 'ward', context=context)
-                          if loc.usage != 'ward' else loc.id
-                          for loc in user.location_ids]))
+            cr, uid, loc.id, 'ward', context=context
+        ) if loc.usage != 'ward' else loc.id for loc in user.location_ids]))
         location_ids = []
         for ward_id in wards:
             location_ids += location_pool.search(
@@ -959,7 +958,7 @@ class nh_eobs_api(orm.AbstractModel):
         res = self.pool['nh.clinical.api'].admit(
             cr, uid, patient_id, data, context=context)
         return res
-    
+
     def admit_update(self, cr, uid, patient_id, data, context=None):
         """
         Wraps :meth:`admit_update()<api.nh_clinical_api.admit_update>`,
@@ -977,7 +976,7 @@ class nh_eobs_api(orm.AbstractModel):
 
         return self.pool['nh.clinical.api'].admit_update(
             cr, uid, patient_id, data, context=context)
-        
+
     def cancel_admit(self, cr, uid, patient_id, context=None):
         """
         Extends
@@ -1124,8 +1123,8 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         if not all([self.check_patient_responsibility(
-                cr, uid, patient_id, context=context)
-                    for patient_id in patient_ids]):
+                cr, uid, patient_id, context=context
+        ) for patient_id in patient_ids]):
             raise osv.except_osv(
                 'Error!', 'You are not responsible for this patient.')
         follow_pool = self.pool['nh.clinical.patient.follow']
@@ -1148,8 +1147,8 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         if not all([self.check_patient_responsibility(
-                cr, uid, patient_id, context=context)
-                    for patient_id in patient_ids]):
+                cr, uid, patient_id, context=context
+        ) for patient_id in patient_ids]):
             raise osv.except_osv(
                 'Error!', 'You are not responsible for this patient.')
         activity_pool = self.pool['nh.activity']
@@ -1160,7 +1159,7 @@ class nh_eobs_api(orm.AbstractModel):
         return True
 
     def get_activities_for_patient(self, cr, uid, patient_id, activity_type,
-                                   start_date=None,end_date=None,
+                                   start_date=None, end_date=None,
                                    context=None):
         """
         Returns a list of
@@ -1246,7 +1245,7 @@ class nh_eobs_api(orm.AbstractModel):
         spell_activity_id = spell_pool.browse(
             cr, uid, spell_id, context=context).activity_id.id
         activity_ids = activity_pool.search(
-            cr, SUPERUSER_ID,[
+            cr, SUPERUSER_ID, [
                 ('parent_id', '=', spell_activity_id),
                 ('patient_id', '=', patient_id),
                 ('state', 'not in', ['completed', 'cancelled']),

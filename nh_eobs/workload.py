@@ -4,8 +4,8 @@
 Shows the pending :class:`activities<activity.nh_clinical_activity>` by
 proximity interval.
 """
-from openerp.osv import orm, fields, osv
-import logging        
+from openerp.osv import orm, fields
+import logging
 _logger = logging.getLogger(__name__)
 from openerp import tools
 
@@ -118,5 +118,5 @@ class nh_clinical_workload(orm.Model):
         groups.reverse()
         fold = {pi[0]: False for pi in pi_copy}
         return groups, fold
-       
+
     _group_by_full = {'proximity_interval': _get_groups}

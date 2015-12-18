@@ -10,13 +10,14 @@ _logger = logging.getLogger(__name__)
 
 from openerp import SUPERUSER_ID
 
+
 class wardboard_swap_beds(orm.TransientModel):
     """
     Allows a :class:`patient<base.nh_clinical_patient>` to swap beds
     with another patient on the same ward.
     """
     _name = 'wardboard.swap_beds'
-    
+
     _columns = {
         'patient1_id': fields.many2one('nh.clinical.patient',
                                        'Current Patient'),
@@ -50,7 +51,7 @@ class wardboard_swap_beds(orm.TransientModel):
         swap_id = swap_pool.create_activity(
             cr, uid, {}, values, context=context)
         activity_pool.complete(cr, uid, swap_id, context=context)
-    
+
     def onchange_location2(self, cr, uid, ids, location2_id, context=None):
         """
         Returns dictionary containing the
@@ -229,6 +230,7 @@ class wardboard_device_session_start(orm.TransientModel):
             cr, uid, device_activity_id, {'location': wiz.location},
             context=context)
 
+
 class wardboard_device_session_complete(orm.TransientModel):
     """
     Completes a :class:`session<devices.nh_clinical_device_session>` for
@@ -242,8 +244,8 @@ class wardboard_device_session_complete(orm.TransientModel):
         'removal_reason': fields.char('Removal reason', size=100),
         'planned': fields.selection((('planned', 'Planned'),
                                      ('unplanned', 'Unplanned')), 'Planned?')
-    }   
-    
+    }
+
     def do_complete(self, cr, uid, ids, context=None):
         """
         Completed a :class:`session<devices.nh_clinical_device_session>`
@@ -374,21 +376,21 @@ class nh_clinical_wardboard(orm.Model):
     def _get_started_device_session_ids(self, cr, uid, ids, field_name, arg,
                                         context=None):
         res = {}.fromkeys(ids, False)
-        sql = """select spell_id, ids 
-                    from wb_activity_data 
-                    where data_model='nh.clinical.device.session' 
+        sql = """select spell_id, ids
+                    from wb_activity_data
+                    where data_model='nh.clinical.device.session'
                         and state in ('started') and spell_id in (%s)""" \
               % ", ".join([str(spell_id) for spell_id in ids])
         cr.execute(sql)
         res.update({r['spell_id']: r['ids'] for r in cr.dictfetchall()})
-        return res 
+        return res
 
     def _get_terminated_device_session_ids(self, cr, uid, ids, field_name, arg,
                                            context=None):
         res = {}.fromkeys(ids, False)
-        sql = """select spell_id, ids 
-                    from wb_activity_data 
-                    where data_model='nh.clinical.device.session' 
+        sql = """select spell_id, ids
+                    from wb_activity_data
+                    where data_model='nh.clinical.device.session'
                         and state in ('completed', 'cancelled') and spell_id
                         in (%s)""" % ", ".join(
             [str(spell_id) for spell_id in ids])
@@ -464,7 +466,7 @@ class nh_clinical_wardboard(orm.Model):
         wb_ids = [k for k, v in user_ids.items() if set(
             v or []) & set(arg2 or [])]
         return [('id', 'in', wb_ids)]
-    
+
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
                                       required=1, ondelete='restrict'),
@@ -536,10 +538,10 @@ class nh_clinical_wardboard(orm.Model):
             _get_data_ids_multi, multi='move_ids', type='many2many',
             relation='nh.clinical.patient.move', string='Patient Moves'),
         'o2target_ids': fields.function(
-            _get_data_ids_multi, multi='o2target_ids',type='many2many',
+            _get_data_ids_multi, multi='o2target_ids', type='many2many',
             relation='nh.clinical.patient.o2target', string='O2 Targets'),
         'uotarget_ids': fields.function(
-            _get_data_ids_multi, multi='uotarget_ids',type='many2many',
+            _get_data_ids_multi, multi='uotarget_ids', type='many2many',
             relation='nh.clinical.patient.uotarget',
             string='Urine Output Targets'),
         'weight_ids': fields.function(
@@ -733,7 +735,7 @@ class nh_clinical_wardboard(orm.Model):
             }
             return res
         return res
-    
+
     def device_session_start(self, cr, uid, ids, context=None):
         """
         Returns an Odoo form window action for
@@ -858,28 +860,28 @@ class nh_clinical_wardboard(orm.Model):
                 "Patient Board Error!",
                 "Patient must be placed to bed before moving!")
         sql = """
-        with 
+        with
             recursive route(level, path, parent_id, id) as (
-                    select 0, id::text, parent_id, id 
-                    from nh_clinical_location 
+                    select 0, id::text, parent_id, id
+                    from nh_clinical_location
                     where parent_id is null
                 union
                     select level + 1, path||','||location.id,
                         location.parent_id, location.id
-                    from nh_clinical_location location 
+                    from nh_clinical_location location
                     join route on location.parent_id = route.id
             )
-            select 
-                route.id as location_id, 
-                ('{'||path||'}')::int[] as parent_ids 
+            select
+                route.id as location_id,
+                ('{'||path||'}')::int[] as parent_ids
             from route
-            where id = %s 
+            where id = %s
             order by path
         """ % wardboard.location_id.id
         cr.execute(sql)
         parent_ids = (cr.dictfetchone() or {}).get('parent_ids')
         ward_location_ids = self.pool['nh.clinical.location'].search(
-            cr, uid, [['id','in',parent_ids], ['usage','=','ward']])
+            cr, uid, [['id', 'in', parent_ids], ['usage', '=', 'ward']])
         ward_location_id = ward_location_ids and ward_location_ids[0] or False
         res_id = self.pool['wardboard.patient.placement'].create(
             cr, uid,
@@ -934,7 +936,7 @@ class nh_clinical_wardboard(orm.Model):
             'context': context,
             'view_id': int(view_id)
         }
-        
+
     def wardboard_chart(self, cr, uid, ids, context=None):
         """
         Returns an Odoo form window action for
@@ -1183,7 +1185,7 @@ drop materialized view if exists pbp cascade;
 create or replace view
 -- activity per spell, data_model, state
 wb_activity_ranked as(
-        select 
+        select
             spell.id as spell_id,
             activity.*,
             split_part(activity.data_ref, ',', 2)::int as data_id,
@@ -1285,9 +1287,9 @@ ward_locations as(
 
 create or replace view
 wb_activity_latest as(
-    with 
+    with
     max_sequence as(
-        select 
+        select
             spell.id as spell_id,
             activity.data_model,
             activity.state,
@@ -1297,7 +1299,7 @@ wb_activity_latest as(
             on activity.patient_id = spell.patient_id
         group by spell_id, activity.data_model, activity.state
     )
-    select 
+    select
         max_sequence.spell_id,
         activity.state,
         array_agg(activity.id) as ids
@@ -1311,10 +1313,10 @@ wb_activity_latest as(
 create or replace view
 -- activity data ids per spell/patient_id, data_model, state
 wb_activity_data as(
-        select 
+        select
             spell.id as spell_id,
             spell.patient_id,
-            activity.data_model, 
+            activity.data_model,
             activity.state,
             array_agg(split_part(activity.data_ref, ',', 2)::int
                 order by split_part(activity.data_ref, ',', 2)::int desc)
@@ -1661,7 +1663,7 @@ nh_clinical_wardboard as(
                 and spell_activity.state = 'completed' then true
             else false
         end as recently_discharged
-        
+
     from nh_clinical_spell spell
     inner join nh_activity spell_activity
         on spell_activity.id = spell.activity_id

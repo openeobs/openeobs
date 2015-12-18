@@ -2,16 +2,15 @@
 from openerp.tests.common import SingleTransactionCase
 from openerp.osv.orm import except_orm
 from datetime import datetime as dt, timedelta as td
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestAPI(SingleTransactionCase):
-    
+
     @classmethod
     def setUpClass(cls):
         super(TestAPI, cls).setUpClass()
         cr, uid = cls.cr, cls.uid
-        
+
         cls.user_pool = cls.registry('res.users')
         cls.groups_pool = cls.registry('res.groups')
         cls.partner_pool = cls.registry('res.partner')
@@ -132,7 +131,7 @@ class TestAPI(SingleTransactionCase):
         self.activity_pool.write(cr, uid, activity_ids[0], {'user_id': False})
 
     def test_03_create_activity(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         activity_id = self.eobs_api._create_activity(
             cr, self.nurse_uid, 'nh.clinical.patient.move', {}, {})
@@ -278,7 +277,7 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(activity_ids)
 
     def test_09_get_invited_users(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         patients = self.eobs_api.get_patients(cr, self.nurse_uid, [])
         self.assertTrue(self.eobs_api.get_invited_users(
@@ -288,7 +287,7 @@ class TestAPI(SingleTransactionCase):
         self.assertEqual(patients[0]['invited_users'][0]['name'], 'HCA0')
 
     def test_10_get_assigned_activities(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         # Scenario 1: get specific type activities
         res = self.eobs_api.get_assigned_activities(
@@ -315,7 +314,7 @@ class TestAPI(SingleTransactionCase):
         self.assertEqual(patients[0]['followers'][0]['name'], 'HCA0')
 
     def test_12_get_followed_patients(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         # Scenario 1: followed patients returns data
         res = self.eobs_api.get_followed_patients(cr, self.hca_uid)
@@ -326,7 +325,7 @@ class TestAPI(SingleTransactionCase):
         self.assertEqual(len(res), 0)
 
     def test_13_remove_followers(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         # Scenario 1: attempt to remove followers for a patient you are not
         # responsible for
@@ -389,14 +388,14 @@ class TestAPI(SingleTransactionCase):
         self.assertTrue(reason_returned)
 
     def test_17_get_form_description(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.get_form_description(
             cr, self.nurse_uid, self.patients[0],
             'nh.clinical.patient.observation.ews'))
 
     def test_18_is_cancellable(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.is_cancellable(
             cr, self.nurse_uid, 'nh.clinical.notification.medical_team'))
@@ -404,7 +403,7 @@ class TestAPI(SingleTransactionCase):
             cr, self.nurse_uid, 'nh.clinical.patient.observation.ews'))
 
     def test_19_get_activity_score(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         data = {
             'respiration_rate': 35,
@@ -424,7 +423,7 @@ class TestAPI(SingleTransactionCase):
                 'score': 3, 'clinical_risk': 'Medium', 'three_in_one': True})
 
     def test_20_get_active_observations(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         active_observations = [
             {
@@ -467,7 +466,7 @@ class TestAPI(SingleTransactionCase):
             cr, self.nurse_uid, self.patients[2]))
 
     def test_21_get_patient_info(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         res = self.eobs_api.get_patient_info(cr, self.nurse_uid, 'HN000')
         self.assertEqual(len(res), 1)
@@ -475,7 +474,7 @@ class TestAPI(SingleTransactionCase):
         self.assertEqual(len(res[0]['activities']), 2)
 
     def test_22_get_patients(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         # Scenario 1: get specific patient data
         res = self.eobs_api.get_patients(
@@ -493,7 +492,7 @@ class TestAPI(SingleTransactionCase):
         self.assertFalse(res)
 
     def test_23_check_patient_responsibility(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.check_patient_responsibility(
             cr, self.nurse_uid, self.patients[0]))
@@ -501,7 +500,7 @@ class TestAPI(SingleTransactionCase):
             cr, self.nurse_uid, self.patients[1]))
 
     def test_24_get_activities_for_patient(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         # Scenario 1: get activities
         res = self.eobs_api.get_activities_for_patient(
@@ -576,14 +575,14 @@ class TestAPI(SingleTransactionCase):
             cr, self.nurse_uid, self.patients[0], 'weight'))
 
     def test_27_register(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.register(
             cr, self.adt_uid, 'HN009', {'family_name': 'test26',
                                         'given_name': '26test'}))
 
     def test_28_update(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.update(
             cr, self.adt_uid, 'HN009',
@@ -591,55 +590,55 @@ class TestAPI(SingleTransactionCase):
              'patient_identifier': 'NHS009'}))
 
     def test_29_admit(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.admit(
             cr, self.adt_uid, 'HN009', {'location': 'W0'}))
 
     def test_30_admit_update(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.admit_update(
             cr, self.adt_uid, 'HN009', {'location': 'W1'}))
 
     def test_31_cancel_admit(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.cancel_admit(cr, self.adt_uid, 'HN009'))
 
     def test_32_transfer(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.eobs_api.admit(cr, self.adt_uid, 'HN009', {'location': 'W0'})
         self.assertTrue(self.eobs_api.transfer(
             cr, self.adt_uid, 'HN009', {'location': 'W1'}))
 
     def test_33_cancel_transfer(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.cancel_transfer(
             cr, self.adt_uid, 'HN009'))
 
     def test_34_discharge(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.discharge(cr, self.adt_uid, 'HN009', {}))
 
     def test_35_cancel_discharge(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         self.assertTrue(self.eobs_api.cancel_discharge(
             cr, self.adt_uid, 'HN009'))
 
     def test_36_merge(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
         self.eobs_api.register(
             cr, self.adt_uid, 'HN010', {'family_name': 'test35'})
         self.assertTrue(self.eobs_api.merge(
             cr, self.adt_uid, 'HN010', {'from_identifier': 'HN009'}))
 
     def test_37_get_share_users(self):
-        cr, uid = self.cr, self.uid
+        cr = self.cr
 
         res = self.eobs_api.get_share_users(cr, self.nurse_uid)
         self.assertEqual(len(res), 1)
