@@ -7,8 +7,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
 
     def test_01_ews_table_structure(self):
         """
-        Test that the report header is rendering correctly with the patient
-        name on the left and the hospital logo on the right
+        Test that the EWS table is rendering correctly when all data present
         """
         report_data = {
             'spell_id': 1,
@@ -66,8 +65,10 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(ox_sat_header.text,
                          'O2Saturation',
                          'Incorrect o2 saturation table header')
+        ox_sat = self.ews_values['indirect_oxymetry_spo2']
+        ox_target = 'Target: 0-100'
         self.assertEqual(ox_sat_column.text,
-                         '%s' % self.ews_values['indirect_oxymetry_spo2'],
+                         '{0}{1}'.format(ox_sat, ox_target),
                          'Incorrect o2 saturation table column')
         self.assertEqual(temp_header.text,
                          'BodyTemperature',
@@ -102,6 +103,55 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(sup_ox_header.text,
                          'Supplemental O2',
                          'Incorrect supplemental oxygen table header')
+        self.assertEqual(sup_ox_column.text.strip(),
+                         'See table',
+                         'Incorrect supplemental oxygen table column')
+
+    def test_02_ews_table_structure_no_target(self):
+        """
+        Test that the EWS table is rendering correctly when all data present
+        """
+
+        self.o2target_id = []
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[0]
+        table = header.parent.findNext('table')
+        table_columns = table.select('td')
+        ox_sat_column = table_columns[2]
+        ox_sat = self.ews_values['indirect_oxymetry_spo2']
+        self.assertEqual(ox_sat_column.text,
+                         '{0}'.format(ox_sat),
+                         'Incorrect o2 saturation table column')
+
+    def test_03_ews_table_structure_no_supplement_oxygen(self):
+        """
+        Test that the EWS table is rendering correctly when all data present
+        """
+
+        self.ews_values['oxygen_administration_flag'] = 0
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[0]
+        table = header.parent.findNext('table')
+        table_columns = table.select('td')
+        sup_ox_column = table_columns[8]
         self.assertEqual(sup_ox_column.text,
                          '\n',
                          'Incorrect supplemental oxygen table column')

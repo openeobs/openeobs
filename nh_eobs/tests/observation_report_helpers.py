@@ -5,6 +5,14 @@ from datetime import datetime
 import copy
 
 
+class OxygenLevel(object):
+    def __init__(self, name, omin, omax, active):
+        self.name = name
+        self.min = omin
+        self.max = omax
+        self.active = active
+
+
 class ObservationReportHelpers(TransactionCase):
 
     pretty_date_format = '%H:%M %d/%m/%y'
@@ -14,7 +22,7 @@ class ObservationReportHelpers(TransactionCase):
     ews_values = {
         'respiration_rate': 18,
         'indirect_oxymetry_spo2': 99,
-        'oxygen_administration_flag': 0,
+        'oxygen_administration_flag': True,
         'body_temperature': 37.5,
         'blood_pressure_systolic': 120,
         'blood_pressure_diastolic': 80,
@@ -26,7 +34,14 @@ class ObservationReportHelpers(TransactionCase):
         'write_date': '1988-01-12 06:00:00',
         'score': '1',
         'clinical_risk': 'Medium',
-        'is_partial': False
+        'is_partial': False,
+        'device_id': [1, 'Test Device'],
+        'flow_rate': 5,
+        'concentration': 0,
+        'cpap_peep': 0,
+        'niv_backup': 0,
+        'niv_ipap': 0,
+        'niv_epap': 0
     }
 
     ews_data = {
@@ -106,6 +121,15 @@ class ObservationReportHelpers(TransactionCase):
         'date_terminated': '1988-01-12 06:00:01',
         'id': 1,
         'data_ref': 'O2TARGET,1',
+        'terminate_uid': [1, 'Test'],
+        'write_uid': [1, 'Test']
+    }
+
+    o2level_data = {
+        'data_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'O2LEVEL,1',
         'terminate_uid': [1, 'Test'],
         'write_uid': [1, 'Test']
     }
@@ -252,6 +276,8 @@ class ObservationReportHelpers(TransactionCase):
         'write_uid': [1, 'Test']
     }
 
+    o2level_values = OxygenLevel('0-100', 0, 100, True)
+
     mrsa_values = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -340,6 +366,8 @@ class ObservationReportHelpers(TransactionCase):
         'id': 1,
         'name': 'Test Hospital'
     }
+
+    o2target_id = [1]
 
     def setUp(self):
         super(ObservationReportHelpers, self).setUp()
@@ -481,7 +509,10 @@ class ObservationReportHelpers(TransactionCase):
             return copy.deepcopy(self.ews_values)
 
         def o2target_pool_mock_get_last(*args, **kwargs):
-            return []
+            return self.o2target_id
+
+        def o2level_pool_mock_browse(*args, **kwargs):
+            return copy.deepcopy(self.o2level_values)
 
         def height_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.height_values)
@@ -564,6 +595,7 @@ class ObservationReportHelpers(TransactionCase):
         self.blood_sugar_pool._patch_method('read',
                                             blood_sugar_pool_mock_read)
         self.o2target_pool._patch_method('read', o2target_pool_mock_read)
+        self.o2level_pool._patch_method('browse', o2level_pool_mock_browse)
         self.mrsa_pool._patch_method('read', mrsa_pool_mock_read)
         self.diabetes_pool._patch_method('read', diabetes_pool_mock_read)
         self.palliative_care_pool._patch_method('read',
@@ -615,4 +647,5 @@ class ObservationReportHelpers(TransactionCase):
         self.location_pool._revert_method('read')
         self.partner_pool._revert_method('read')
         self.company_pool._revert_method('read')
+        self.o2level_pool._revert_method('browse')
         super(ObservationReportHelpers, self).tearDown()
