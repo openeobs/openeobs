@@ -917,3 +917,211 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(standing_diastolic.text,
                          '%s' % self.pbp_values['diastolic_standing'],
                          'Incorrect standing diastolic value table column')
+
+    def test_18_target_oxygen_table_structure(self):
+        """
+        Test that the target oxygen table is rendering correctly
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[1]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        table_columns = table.select('td')
+        self.assertEqual(len(table_headers),
+                         3,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         3,
+                         'Incorrect number of table columns')
+        date_header = table_headers[0]
+        target_header = table_headers[1]
+        user_header = table_headers[2]
+        date_column = table_columns[0]
+        target_column = table_columns[1]
+        user_column = table_columns[2]
+        self.assertEqual(date_header.text,
+                         'Date',
+                         'Incorrect date table header')
+        date_term = self.o2target_values['date_terminated']
+        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(date_column.text,
+                         test_date_term,
+                         'Incorrect date table column')
+        self.assertEqual(target_header.text,
+                         'Target',
+                         'Incorrect target table header')
+        self.assertEqual(target_column.text,
+                         self.o2target_values['level_id'][1],
+                         'Incorrect target table column')
+        self.assertEqual(user_header.text,
+                         'User',
+                         'Incorrect user table header')
+        self.assertEqual(user_column.text,
+                         self.o2target_data['write_uid'][1],
+                         'Incorrect user table column')
+
+    def test_19_active_devices_table_structure(self):
+        """
+        Test that the active device session table is rendering correctly
+        """
+        self.device_session_values['date_terminated'] = None
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[2]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        table_columns = table.select('td')
+        self.assertEqual(len(table_headers),
+                         4,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         4,
+                         'Incorrect number of table columns')
+        device_header = table_headers[0]
+        type_header = table_headers[1]
+        location_header = table_headers[2]
+        inserted_header = table_headers[3]
+        device_column = table_columns[0]
+        type_column = table_columns[1]
+        location_column = table_columns[2]
+        inserted_column = table_columns[3]
+        self.assertEqual(device_header.text,
+                         'Device',
+                         'Incorrect device table header')
+        self.assertEqual(device_column.text,
+                         self.device_session_values['device_type_id'][1],
+                         'Incorrect device table column')
+        self.assertEqual(type_header.text,
+                         'Type',
+                         'Incorrect type table header')
+        self.assertEqual(type_column.text,
+                         self.device_session_values['device_category_id'][1],
+                         'Incorrect type table column')
+        self.assertEqual(location_header.text,
+                         'Location',
+                         'Incorrect location table header')
+        self.assertEqual(location_column.text,
+                         self.device_session_values['location'],
+                         'Incorrect location table column')
+        self.assertEqual(inserted_header.text,
+                         'Inserted',
+                         'Incorrect inserted table header')
+        date_start = self.o2target_values['date_started']
+        test_date_start = datetime.strptime(date_start, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(inserted_column.text,
+                         test_date_start,
+                         'Incorrect inserted table column')
+
+    def test_20_device_session_history_table_structure(self):
+        """
+        Test that the device session history table is rendering correctly
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[3]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        table_columns = table.select('td')
+        self.assertEqual(len(table_headers),
+                         7,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         7,
+                         'Incorrect number of table columns')
+        device_header = table_headers[0]
+        type_header = table_headers[1]
+        location_header = table_headers[2]
+        inserted_header = table_headers[3]
+        removed_header = table_headers[4]
+        planned_header = table_headers[5]
+        reason_header = table_headers[6]
+        device_column = table_columns[0]
+        type_column = table_columns[1]
+        location_column = table_columns[2]
+        inserted_column = table_columns[3]
+        removed_column = table_columns[4]
+        planned_column = table_columns[5]
+        reason_column = table_columns[6]
+        self.assertEqual(device_header.text,
+                         'Device',
+                         'Incorrect device table header')
+        self.assertEqual(device_column.text,
+                         self.device_session_values['device_type_id'][1],
+                         'Incorrect device table column')
+        self.assertEqual(type_header.text,
+                         'Type',
+                         'Incorrect type table header')
+        self.assertEqual(type_column.text,
+                         self.device_session_values['device_category_id'][1],
+                         'Incorrect type table column')
+        self.assertEqual(location_header.text,
+                         'Location',
+                         'Incorrect location table header')
+        self.assertEqual(location_column.text,
+                         self.device_session_values['location'],
+                         'Incorrect location table column')
+        self.assertEqual(inserted_header.text,
+                         'Inserted',
+                         'Incorrect inserted table header')
+        date_start = self.o2target_values['date_started']
+        test_date_start = datetime.strptime(date_start, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(inserted_column.text,
+                         test_date_start,
+                         'Incorrect inserted table column')
+        self.assertEqual(removed_header.text,
+                         'Removed',
+                         'Incorrect removed table header')
+        date_term = self.o2target_values['date_terminated']
+        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(removed_column.text,
+                         test_date_term,
+                         'Incorrect removed table column')
+        self.assertEqual(planned_header.text,
+                         'Planned',
+                         'Incorrect planned table header')
+        self.assertEqual(planned_column.text,
+                         self.boolean_to_text(
+                            self.device_session_values['planned']
+                         ),
+                         'Incorrect planned table column')
+        self.assertEqual(reason_header.text,
+                         'Removal Reason',
+                         'Incorrect reason table header')
+        self.assertEqual(reason_column.text,
+                         self.device_session_values['removal_reason'],
+                         'Incorrect reason table column')
+
+    def tearDown(self):
+        self.device_session_values['date_terminated'] = '1988-01-12 06:00:01'
+        self.ews_values['oxygen_administration_flag'] = 0
+        self.o2target_id = [1]
+        super(TestObservationTableRendering, self).tearDown()

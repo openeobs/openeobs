@@ -61,7 +61,7 @@ class ObservationReport(models.AbstractModel):
                 if 'status' in model_data and model_data['status']:
                     stat = 'Yes'
                     model_data['status'] = stat
-                if 'data_started' in model_data and model_data['date_started']:
+                if 'date_started' in model_data and model_data['date_started']:
                     model_data['date_started'] = \
                         helpers.convert_db_date_to_context_date(
                             cr, uid,
@@ -100,7 +100,10 @@ class ObservationReport(models.AbstractModel):
                 self.wkhtmltopdf_format
             )
             data['date_started'] = datetime.strftime(
-                datetime.strptime(data['date_started'], dtf),
+                datetime.strptime(
+                    data['date_started'],
+                    self.pretty_date_format
+                ),
                 self.wkhtmltopdf_format
             )
             data['date_terminated'] = datetime.strftime(
@@ -203,6 +206,13 @@ class ObservationReport(models.AbstractModel):
         for ob in model_data:
             vals = ob['values']
             vals['result'] = helpers.boolean_to_text(vals['result'])
+        return model_data
+
+    @staticmethod
+    def convert_device_session_booleans(model_data):
+        for ob in model_data:
+            vals = ob['values']
+            vals['planned'] = helpers.boolean_to_text(vals['planned'])
         return model_data
 
     def process_transfer_history(self, model_data):
@@ -349,11 +359,14 @@ class ObservationReport(models.AbstractModel):
             patient['bed'] = th.get('bed',  False)
             patient['ward'] = th.get('ward',  False)
 
-        device_session_history = self.get_multi_model_data(
-            spell_activity_id,
-            'nh.clinical.patient.o2target',
-            'nh.clinical.device.session',
-            data.start_time, data.end_time)
+        device_session_history = self.convert_device_session_booleans(
+            self.get_multi_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.o2target',
+                'nh.clinical.device.session',
+                data.start_time, data.end_time
+            )
+        )
 
         ews_dict = {
             'doc_ids': self._ids,
