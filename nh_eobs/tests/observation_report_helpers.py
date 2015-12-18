@@ -19,6 +19,13 @@ class ObservationReportHelpers(TransactionCase):
     wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
     odoo_date_format = '%Y-%m-%d %H:%M:%S'
 
+    @staticmethod
+    def boolean_to_text(value):
+        value_as_text = 'No'
+        if value:
+            value_as_text = 'Yes'
+        return value_as_text
+
     ews_values = {
         'respiration_rate': 18,
         'indirect_oxymetry_spo2': 99,
