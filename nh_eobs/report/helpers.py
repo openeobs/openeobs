@@ -1,6 +1,5 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.osv import fields
-from datetime import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 
@@ -62,24 +61,35 @@ def create_search_filter(spell_activity_id, model, start_date, end_date):
         filter.append(['date_terminated', '<=', end_date.strftime(dtf)])
     return filter
 
-def convert_db_date_to_context_date(cr, uid, date_string, format,
+
+def convert_db_date_to_context_date(cr, uid, date_string, dformat,
                                     context=None):
-    if format:
+    if dformat:
         return fields.datetime.context_timestamp(
-            cr, uid, date_string,context=context).strftime(format)
+            cr, uid, date_string, context=context).strftime(dformat)
     else:
         return fields.datetime.context_timestamp(
             cr, uid, date_string, context=context)
 
+
 def data_dict_to_obj(data_dict):
-    spell_id = data_dict['spell_id'] if 'spell_id' in data_dict and data_dict['spell_id'] else None
-    start = data_dict['start_time'] if 'start_time' in data_dict and data_dict['start_time'] else None
-    end = data_dict['end_time'] if 'end_time' in data_dict and data_dict['end_time'] else None
-    ews_only = data_dict['ews_only'] if 'ews_only' in data_dict and data_dict['ews_only'] else None
+    spell_id = None
+    start = None
+    end = None
+    ews_only = None
+    if 'spell_id' in data_dict and data_dict['spell_id']:
+        spell_id = data_dict['spell_id']
+    if 'start_time' in data_dict and data_dict['start_time']:
+        start = data_dict['start_time']
+    if 'end_time' in data_dict and data_dict['end_time']:
+        end = data_dict['end_time']
+    if 'ews_only' in data_dict and data_dict['ews_only']:
+        ews_only = data_dict['ews_only']
     return DataObj(spell_id, start, end, ews_only)
+
 
 def boolean_to_text(value):
     value_as_text = 'No'
     if value:
         value_as_text = 'Yes'
-    value = value_as_text
+    return value_as_text

@@ -8,7 +8,7 @@
                             <img src="/nh_eobs/static/src/img/open_eobs_logo.png" alt="Open-eObs" style="height: 16px;"/>
                             <t t-esc="user_name"/> -
                             <t t-esc="time_generated"/> -
-                            <t t-esc="company_name"/> -
+                            <t t-esc="hospital_name"/> -
                             <t t-if="'other_identifier' in patient">
                                 <t t-esc="patient['other_identifier']"/>
                             </t>
@@ -405,7 +405,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(weights) > 0">
+                    <t t-if="weights and len(weights) > 0">
                         <div class="col-xs-12 row">
                             <h3>Weight Values</h3>
                             <table class="striped col-xs-12 row">

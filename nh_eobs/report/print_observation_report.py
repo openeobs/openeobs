@@ -6,119 +6,126 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.osv import fields
 import json
 import copy
-
-
-class DataObj(object):
-    def __init__(self,
-                 spell_id=None,
-                 start_time=None,
-                 end_time=None,
-                 ews_only=None):
-        self.spell_id = spell_id
-        self.start_time = start_time
-        self.end_time = end_time
-        self.ews_only = ews_only
+from . import helpers
 
 
 class ObservationReport(models.AbstractModel):
     _name = 'report.nh.clinical.observation_report'
 
-    @staticmethod
-    def create_search_filter(spell_activity_id, model, start_date, end_date):
-        if not spell_activity_id:
-            raise ValueError('No spell activity id supplied')
-        if not model:
-            raise ValueError('No model supplied')
-        if model in ['nh.clinical.patient.o2target',
-                     'nh.clinical.patient.move']:
-            sfilter = [
-                ['parent_id', '=', spell_activity_id],
-                ['data_model', '=', model]
-            ]
-        else:
-            sfilter = [
-                ['parent_id', '=', spell_activity_id],
-                ['data_model', '=', model],
-                ['state', '=', 'completed']
-            ]
-        if start_date:
-            sfilter.append(['date_started', '>=', start_date.strftime(dtf)])
-        if end_date:
-            sfilter.append(['date_terminated', '<=', end_date.strftime(dtf)])
-        return sfilter
+    pretty_date_format = '%H:%M %d/%m/%y'
+    wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
+    patient_id = None
 
-    def convert_db_date_to_context_date(self, cr, uid, date_string, format,
-                                        context=None):
-        if format:
-            return fields.datetime.context_timestamp(
-                cr, uid, date_string, context=context).strftime(format)
-        else:
-            return fields.datetime.context_timestamp(
-                cr, uid, date_string, context=context)
-
-    @staticmethod
-    def data_dict_to_obj(data_dict):
-        has_spell = 'spell_id' in data_dict and data_dict['spell_id']
-        has_start = 'start_time' in data_dict and data_dict['start_time']
-        has_end = 'end_time' in data_dict and data_dict['end_time']
-        has_ews = 'ews_only' in data_dict and data_dict['ews_only']
-        spell_id = data_dict['spell_id'] if has_spell else None
-        start = data_dict['start_time'] if has_start else None
-        end = data_dict['end_time'] if has_end else None
-        ews_only = data_dict['ews_only'] if has_ews else None
-        return DataObj(spell_id, start, end, ews_only)
-
-    @api.multi
-    def render_html(self, data=None):
+    def get_activity_data(self, spell_id, model, start_time, end_time):
         cr, uid = self._cr, self._uid
-        report_obj = self.env['report']
-        report = report_obj._get_report_from_name(
-            'nh.clinical.observation_report')
-        pretty_date_format = '%H:%M %d/%m/%y'
-        wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
+        act_pool = self.pool['nh.activity']
+        activity_ids = act_pool.search(cr, uid,
+                                       helpers.create_search_filter(
+                                           spell_id,
+                                           model, start_time, end_time))
+        return act_pool.read(cr, uid, activity_ids)
 
-        if isinstance(data, dict):
-            data = self.data_dict_to_obj(data)
+    def get_model_data(self, spell_id, model, start, end):
+        cr, uid = self._cr, self._uid
+        act_data = self.get_activity_data(spell_id, model, start, end)
+        if act_data:
+            for act in act_data:
+                ds = False
+                dt = False
+                if 'date_started' in act and act['date_started']:
+                    ds = act['date_started']
+                if 'date_terminated' in act and act['date_terminated']:
+                    dt = act['date_terminated']
+                if ds:
+                    ds = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(ds, dtf),
+                        self.pretty_date_format)
+                    act['date_started'] = ds
+                if dt:
+                    dt = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(dt, dtf),
+                        self.pretty_date_format)
+                    act['date_terminated'] = dt
+        return self.get_model_values(model, act_data)
 
-        # set up data
-        start_time = False
-        end_time = False
-        if data and data.start_time:
-            start_time = datetime.strptime(data.start_time, dtf)
-        if data and data.end_time:
-            end_time = datetime.strptime(data.end_time, dtf)
+    def get_model_values(self, model, act_data):
+        cr, uid = self._cr, self._uid
+        model_pool = self.pool[model]
+        for act in act_data:
+            model_data = model_pool.read(cr, uid,
+                                         int(act['data_ref'].split(',')[1]),
+                                         [])
+            if model_data:
+                stat = 'No'
+                dt = 'date_terminated'
+                if 'status' in model_data and model_data['status']:
+                    stat = 'Yes'
+                    model_data['status'] = stat
+                if 'date_started' in model_data and model_data['date_started']:
+                    model_data['date_started'] = \
+                        helpers.convert_db_date_to_context_date(
+                            cr, uid,
+                            datetime.strptime(
+                                model_data['date_started'],
+                                dtf
+                            ),
+                            self.pretty_date_format
+                        )
+                if dt in model_data and model_data[dt]:
+                    model_data['date_terminated'] = \
+                        helpers.convert_db_date_to_context_date(
+                            cr, uid,
+                            datetime.strptime(
+                                model_data['date_terminated'],
+                                dtf
+                            ),
+                            self.pretty_date_format
+                        )
+            act['values'] = model_data
+        return act_data
+
+    def get_multi_model_data(self, spell_id,
+                             model_one, model_two,  start, end):
+        act_data = self.get_activity_data(spell_id, model_one, start, end)
+        return self.get_model_values(model_two, act_data)
+
+    def get_model_data_as_json(self, model_data):
+        for data in model_data:
+            data['write_date'] = datetime.strftime(
+                datetime.strptime(data['write_date'], dtf),
+                self.wkhtmltopdf_format
+            )
+            data['create_date'] = datetime.strftime(
+                datetime.strptime(data['create_date'], dtf),
+                self.wkhtmltopdf_format
+            )
+            data['date_started'] = datetime.strftime(
+                datetime.strptime(
+                    data['date_started'],
+                    self.pretty_date_format
+                ),
+                self.wkhtmltopdf_format
+            )
+            data['date_terminated'] = datetime.strftime(
+                datetime.strptime(
+                    data['date_terminated'],
+                    self.pretty_date_format
+                ),
+                self.wkhtmltopdf_format
+            )
+        return json.dumps(model_data)
+
+    def create_report_data(self, data):
+        cr, uid = self._cr, self._uid
+        pretty_date_format = self.pretty_date_format
 
         # set up pools
-        activity_pool = self.pool['nh.activity']
-        spell_pool = self.pool['nh.clinical.spell']
-        patient_pool = self.pool['nh.clinical.patient']
-        pain_pool = self.pool['nh.clinical.patient.observation.pain']
-        blood_product_pool = \
-            self.pool['nh.clinical.patient.observation.blood_product']
-        bristol_stool_pool = \
-            self.pool['nh.clinical.patient.observation.stools']
-        ews_pool = self.pool['nh.clinical.patient.observation.ews']
-        weight_pool = self.pool['nh.clinical.patient.observation.weight']
-        height_pool = self.pool['nh.clinical.patient.observation.height']
-        pbp_pool = self.pool['nh.clinical.patient.observation.pbp']
-        gcs_pool = self.pool['nh.clinical.patient.observation.gcs']
-        bs_pool = self.pool['nh.clinical.patient.observation.blood_sugar']
-        oxygen_target_pool = self.pool['nh.clinical.patient.o2target']
-        transfer_history_pool = self.pool['nh.clinical.patient.move']
         company_pool = self.pool['res.company']
         partner_pool = self.pool['res.partner']
         user_pool = self.pool['res.users']
-        location_pool = self.pool['nh.clinical.location']
-        o2_level_pool = self.pool['nh.clinical.o2level']
-        device_session_pool = self.pool['nh.clinical.device.session']
-        mrsa_pool = self.pool['nh.clinical.patient.mrsa']
-        diabetes_pool = self.pool['nh.clinical.patient.diabetes']
-        palliative_care_pool = self.pool['nh.clinical.patient.palliative_care']
-        post_surgery_pool = self.pool['nh.clinical.patient.post_surgery']
-        critical_care_pool = self.pool['nh.clinical.patient.critical_care']
 
         # get user data
-        user = user_pool.read(cr, uid, uid, ['name'], context=None)['name']
+        user = user_pool.read(cr, uid, uid, ['name'])['name']
 
         # get company data
         company_name = company_pool.read(cr, uid, 1, ['name'])['name']
@@ -126,712 +133,320 @@ class ObservationReport(models.AbstractModel):
 
         # generate report timestamp
         time_generated = fields.datetime.context_timestamp(
-            cr, uid, datetime.now(), context=None).strftime(pretty_date_format)
+            cr, uid,
+            datetime.now(),
+            context=None
+        ).strftime(pretty_date_format)
+        return helpers.BaseReport(
+            user,
+            company_name,
+            company_logo,
+            time_generated
+        )
+
+    def get_ews_observations(self, data):
+        cr, uid = self._cr, self._uid
+        ews_model = 'nh.clinical.patient.observation.ews'
+        ews = self.get_model_data(data.spell_id,
+                                  ews_model,
+                                  data.start_time, data.end_time)
+        for observation in ews:
+            triggered_actions_ids = self.pool['nh.activity'].search(
+                cr, uid, [['creator_id', '=', observation['id']]])
+            o2_level_id = self.pool['nh.clinical.patient.o2target'].get_last(
+                cr, uid, self.patient_id,
+                observation['values']['date_terminated'])
+            o2_level = False
+            if o2_level_id:
+                o2_level = self.pool['nh.clinical.o2level'].browse(
+                    cr, uid, o2_level_id)
+            observation['values']['o2_target'] = False
+            if o2_level:
+                observation['values']['o2_target'] = o2_level.name
+            triggered_actions = []
+            for activity in self.pool['nh.activity'].read(
+                    cr, uid, triggered_actions_ids):
+                if activity['data_model'] != ews_model:
+                    triggered_actions.append(activity)
+            observation['triggered_actions'] = triggered_actions
+            for t in observation['triggered_actions']:
+                ds = t.get('date_started', False)
+                dt = t.get('date_terminated', False)
+                if ds:
+                    t['date_started'] = \
+                        helpers.convert_db_date_to_context_date(
+                            cr, uid,
+                            datetime.strptime(t['date_started'], dtf),
+                            self.pretty_date_format
+                        )
+                if dt:
+                    t['date_terminated'] = \
+                        helpers.convert_db_date_to_context_date(
+                            cr, uid,
+                            datetime.strptime(t['date_terminated'], dtf),
+                            self.pretty_date_format
+                        )
+        return ews
+
+    @staticmethod
+    def convert_bristol_stools_booleans(model_data):
+        for ob in model_data:
+            vals = ob['values']
+            vals['bowel_open'] = helpers.boolean_to_text(vals['bowel_open'])
+            vals['vomiting'] = helpers.boolean_to_text(vals['vomiting'])
+            vals['nausea'] = helpers.boolean_to_text(vals['nausea'])
+            vals['strain'] = helpers.boolean_to_text(vals['strain'])
+            vals['offensive'] = helpers.boolean_to_text(vals['offensive'])
+            vals['laxatives'] = helpers.boolean_to_text(vals['laxatives'])
+            vals['rectal_exam'] = helpers.boolean_to_text(vals['rectal_exam'])
+        return model_data
+
+    @staticmethod
+    def convert_pbp_booleans(model_data):
+        for ob in model_data:
+            vals = ob['values']
+            vals['result'] = helpers.boolean_to_text(vals['result'])
+        return model_data
+
+    @staticmethod
+    def convert_device_session_booleans(model_data):
+        for ob in model_data:
+            vals = ob['values']
+            vals['planned'] = helpers.boolean_to_text(vals['planned'])
+        return model_data
+
+    def process_transfer_history(self, model_data):
+        for observation in model_data:
+                patient_location = self.pool['nh.clinical.location'].read(
+                    self._cr,
+                    self._uid,
+                    observation['values']['location_id'][0], [])
+                if patient_location:
+                    observation['bed'] = patient_location.get('name', False)
+                    observation['ward'] = patient_location.get(
+                        'parent_id', False)
+        return model_data
+
+    def process_report_dates(self, data, spell, base_report):
+        start_time = False
+        end_time = False
+        if data.start_time:
+            start_time = datetime.strptime(data.start_time, dtf)
+            data.start_time = start_time
+        if data.end_time:
+            end_time = datetime.strptime(data.end_time, dtf)
+            data.end_time = end_time
+
+        # - get the start and end date of spell
+        spell_start = helpers.convert_db_date_to_context_date(
+            self._cr, self._uid, datetime.strptime(spell['date_started'], dtf),
+            self.pretty_date_format, context=None)
+        spell_end = spell['date_terminated']
+        report_start = spell_start
+        report_end = base_report.time_generated
+        if start_time:
+            report_start = start_time.strftime(self.pretty_date_format)
+        if end_time:
+            report_end = end_time.strftime(self.pretty_date_format)
+        else:
+            if spell_end:
+                report_end = helpers.convert_db_date_to_context_date(
+                    self._cr, self._uid, datetime.strptime(spell_end, dtf),
+                    self.pretty_date_format,
+                    context=None)
+        return helpers.ReportDates(
+            report_start,
+            report_end,
+            spell_start,
+            spell_end
+        )
+
+    def get_activity_data_from_dict(self, dict, spell_id, data):
+        for k, v in dict.iteritems():
+            dict[k] = self.get_model_data(
+                spell_id, v, data.start_time, data.end_time)
+        return dict
+
+    @staticmethod
+    def process_patient_height_weight(patient, height_weight):
+        heights = height_weight['height']
+        height = False
+        if len(heights) > 0:
+            height = heights[-1]['values']['height']
+        patient['height'] = height
+
+        # get weight observations
+        weights = height_weight['weight']
+        weight = False
+        if len(weights) > 0:
+            weight = weights[-1]['values']['weight']
+        patient['weight'] = weight
+        return patient
+
+    def get_report_data(self, data, ews_only=False):
+        cr, uid = self._cr, self._uid
+        # set up pools
+        report = self.env['report']._get_report_from_name(
+            'nh.clinical.observation_report')
+        spell_pool = self.pool['nh.clinical.spell']
+        patient_pool = self.pool['nh.clinical.patient']
+        partner_pool = self.pool['res.partner']
+        base_report = self.create_report_data(data)
+        spell_id = int(data.spell_id)
+        spell = spell_pool.read(cr, uid, [spell_id])[0]
+        dates = self.process_report_dates(data, spell, base_report)
+        spell_activity_id = spell['activity_id'][0]
+
+        spell_docs = spell['con_doctor_ids']
+        spell['consultants'] = False
+        if len(spell_docs) > 0:
+            spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
+        #
+        # # - get patient id
+        self.patient_id = spell['patient_id'][0]
+        patient_id = self.patient_id
+        #
+        # get patient information
+        patient = patient_pool.read(cr, uid, [patient_id])[0]
+        patient['dob'] = helpers.convert_db_date_to_context_date(
+            cr, uid, datetime.strptime(patient['dob'], dtf),
+            '%d/%m/%Y', context=None)
+        ews = self.get_ews_observations(data)
+        json_data = []
+        table_ews = []
+        for activity in ews:
+            json_data.append(copy.deepcopy(activity['values']))
+            table_ews.append(copy.deepcopy(activity['values']))
+        json_ews = self.get_model_data_as_json(json_data)
+
+        # Get the script files to load
+        observation_report = '/nh_eobs/static/src/js/observation_report.js'
+
+        height_weight_dict = {
+            'height': 'nh.clinical.patient.observation.height',
+            'weight': 'nh.clinical.patient.observation.weight'
+        }
+        height_weight = self.get_activity_data_from_dict(
+            height_weight_dict,
+            spell_activity_id,
+            data
+        )
+        patient = self.process_patient_height_weight(patient, height_weight)
+
+        monitoring_dict = {
+            'targeto2': 'nh.clinical.patient.o2target',
+            'mrsa_history': 'nh.clinical.patient.mrsa',
+            'diabetes_history': 'nh.clinical.patient.diabetes',
+            'palliative_care_history': 'nh.clinical.patient.palliative_care',
+            'post_surgery_history': 'nh.clinical.patient.post_surgery',
+            'critical_care_history': 'nh.clinical.patient.critical_care'
+        }
+
+        monitoring = self.get_activity_data_from_dict(
+            monitoring_dict,
+            spell_activity_id,
+            data
+        )
+
+        transfer_history = self.process_transfer_history(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.move',
+                data.start_time, data.end_time)
+        )
+        if transfer_history:
+            th = transfer_history[-1]
+            patient['bed'] = th.get('bed',  False)
+            patient['ward'] = th.get('ward',  False)
+
+        device_session_history = self.convert_device_session_booleans(
+            self.get_multi_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.o2target',
+                'nh.clinical.device.session',
+                data.start_time, data.end_time
+            )
+        )
+
+        ews_dict = {
+            'doc_ids': self._ids,
+            'doc_model': report.model,
+            'docs': self,
+            'spell': spell,
+            'patient': patient,
+            'ews': ews,
+            'table_ews': table_ews,
+            'report_start': dates.report_start,
+            'report_end': dates.report_end,
+            'spell_start': dates.spell_start,
+            'ews_data': json_ews,
+            'draw_graph_js': observation_report,
+            'device_session_history': device_session_history,
+            'transfer_history': transfer_history,
+        }
+
+        ews_report = helpers.merge_dicts(ews_dict,
+                                         base_report.footer_values,
+                                         monitoring)
+        if ews_only:
+            return ews_report
+
+        basic_obs_dict = {
+            'gcs': 'nh.clinical.patient.observation.gcs',
+            'bs': 'nh.clinical.patient.observation.blood_sugar',
+            'pains': 'nh.clinical.patient.observation.pain',
+            'blood_products': 'nh.clinical.patient.observation.blood_product'
+        }
+
+        basic_obs = self.get_activity_data_from_dict(
+            basic_obs_dict,
+            spell_activity_id,
+            data
+        )
+
+        pbps = self.convert_pbp_booleans(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.pbp',
+                data.start_time, data.end_time)
+        )
+
+        bristol_stools = self.convert_bristol_stools_booleans(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.stools',
+                data.start_time, data.end_time))
+
+        weights = height_weight['weight']
+
+        non_basic_obs = {
+            'bristol_stools': bristol_stools,
+            'weights': weights,
+            'pbps': pbps
+        }
+
+        rep_data = helpers.merge_dicts(
+            basic_obs,
+            non_basic_obs,
+            ews_report
+        )
+        return rep_data
+
+    @api.multi
+    def render_html(self, data=None):
+
+        if isinstance(data, dict):
+            data = helpers.data_dict_to_obj(data)
 
         if data and data.spell_id:
-            spell_id = int(data.spell_id)
-            spell = spell_pool.read(cr, uid, [spell_id])[0]
-            # - get the start and end date of spell
-            spell_start = self.convert_db_date_to_context_date(
-                datetime.strptime(spell['date_started'], dtf),
-                pretty_date_format, context=None)
-            spell_end = spell['date_terminated']
-            report_start = spell_start
-            report_end = time_generated
-            if start_time:
-                report_start = start_time.strftime(pretty_date_format)
-            if end_time:
-                report_end = end_time.strftime(pretty_date_format)
-            else:
-                if spell_end:
-                    report_end = self.convert_db_date_to_context_date(
-                        datetime.strptime(spell_end, dtf),
-                        pretty_date_format, context=None)
-            spell_activity_id = spell['activity_id'][0]
-            consults = False
-            if len(spell['con_doctor_ids']) > 0:
-                consults = partner_pool.read(
-                    cr, uid, spell['con_doctor_ids'])
-            spell['consultants'] = consults
-            # - get patient id
-            patient_id = spell['patient_id'][0]
-            # get patient information
-            patient = patient_pool.read(cr, uid, [patient_id])[0]
-            patient['dob'] = self.convert_db_date_to_context_date(
-                datetime.strptime(patient['dob'], dtf),
-                '%d/%m/%Y', context=None)
-            # get ews observations for patient
-            # search ews model with parent_id of spell id
-            # (maybe dates for refined foo) - activity: search
-            # with data_model of ews
-            ews_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.ews',
-                    start_time, end_time
-                )
-            )
-            ews = activity_pool.read(cr, uid, ews_ids)
-
-            # get triggered actions from ews
-            # - search activity with ews ids as creator_id filter out EWS tasks
-            for observation in ews:
-                observation['date_started'] = \
-                    self.convert_db_date_to_context_date(
-                        datetime.strptime(
-                            observation['date_started'], dtf
-                        ), pretty_date_format
-                    )
-                dt = False
-                if observation['date_terminated']:
-                    dt = self.convert_db_date_to_context_date(
-                        datetime.strptime(
-                            observation['date_terminated'], dtf
-                        ), pretty_date_format
-                    )
-                observation['date_terminated'] = dt
-                triggered_actions_ids = activity_pool.search(
-                    cr, uid, [['creator_id', '=', observation['id']]])
-                observation['values'] = ews_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                o2_level_id = oxygen_target_pool.get_last(
-                    cr, uid, patient_id,
-                    observation['values']['date_terminated'])
-                o2_level = False
-                if o2_level_id:
-                    o2_level = o2_level_pool.browse(cr, uid, o2_level_id)
-                o2_target = False
-                if o2_level:
-                    o2_target = o2_level.name
-                ob_vals = observation['values']
-                ob_vals['o2_target'] = o2_target
-                ds = False
-                dt = False
-                if ob_vals['date_started']:
-                    ds = self.convert_db_date_to_context_date(
-                        datetime.strptime(ob_vals['date_started'], dtf), dtf)
-                ob_vals['date_started'] = ds
-                if ob_vals['date_terminated']:
-                    dt = self.convert_db_date_to_context_date(
-                        datetime.strptime(ob_vals['date_terminated'], dtf),
-                        dtf)
-                ob_vals['date_terminated'] = dt
-                observation['values'] = ob_vals
-                trig = []
-                for act in activity_pool.read(cr, uid, triggered_actions_ids):
-                    dm = act['data_model']
-                    if dm != 'nh.clinical.patient.observation.ews':
-                        trig.append(act)
-                observation['triggered_actions'] = trig
-                for t in observation['triggered_actions']:
-                    tds = False
-                    if t['date_started']:
-                        tds = self.convert_db_date_to_context_date(
-                            datetime.strptime(t['date_started'], dtf),
-                            pretty_date_format)
-                    tdt = False
-                    if t['date_terminated']:
-                        tdt = self.convert_db_date_to_context_date(
-                            datetime.strptime(t['date_terminated'], dtf),
-                            pretty_date_format)
-                    t['date_started'] = tds
-                    t['date_terminated'] = tdt
-
-            # convert the obs into usable obs for table & report
-            ews_for_json = copy.deepcopy(ews)
-            json_obs = [v['values'] for v in ews_for_json]
-            table_ews = [v['values'] for v in ews]
-            for table_ob in table_ews:
-                table_ob['date_terminated'] = datetime.strftime(
-                    datetime.strptime(table_ob['date_terminated'], dtf),
-                    pretty_date_format)
-            for json_ob in json_obs:
-                json_ob['write_date'] = datetime.strftime(
-                    datetime.strptime(json_ob['write_date'], dtf),
-                    wkhtmltopdf_format)
-                json_ob['create_date'] = datetime.strftime(
-                    datetime.strptime(json_ob['create_date'], dtf),
-                    wkhtmltopdf_format)
-                json_ob['date_started'] = datetime.strftime(
-                    datetime.strptime(json_ob['date_started'], dtf),
-                    wkhtmltopdf_format)
-                json_ob['date_terminated'] = datetime.strftime(
-                    datetime.strptime(json_ob['date_terminated'], dtf),
-                    wkhtmltopdf_format)
-            json_ews = json.dumps(json_obs)
-
-            # Get the script files to load
-            observation_report = '/nh_eobs/static/src/js/observation_report.js'
-
-            # get height observations
-            # search height model with parent_id of spell - dates
-            height_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.height',
-                    start_time, end_time
-                )
-            )
-            heights = activity_pool.read(cr, uid, height_ids)
-            for observation in heights:
-                observation['values'] = height_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    ob_vals['date_started'] = ds
-                    ob_vals['date_terminated'] = dt
-                    observation['values'] = ob_vals
-            ph = False
-            if len(heights) > 0:
-                ph = heights[-1]['values']['height']
-            patient['height'] = ph
-
-            # get weight observations
-            # - search weight model with parent_id of spell - dates
-            weight_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.weight',
-                    start_time, end_time
-                )
-            )
-            weights = activity_pool.read(cr, uid, weight_ids)
-            for observation in weights:
-                observation['values'] = weight_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            pw = False
-            if len(weights) > 0:
-                pw = weights[-1]['values']['weight']
-            patient['weight'] = pw
-
+            report_obj = self.env['report']
             if hasattr(data, 'ews_only') and data.ews_only:
-                docargs = {
-                    'doc_ids': self._ids,
-                    'doc_model': report.model,
-                    'docs': self,
-                    'spell': spell,
-                    'patient': patient,
-                    'ews': ews,
-                    'table_ews': table_ews,
-                    'weights': weights,
-                    'pbps': [],
-                    'gcs': [],
-                    'bs': [],
-                    'bristol_stools': [],
-                    'pains': [],
-                    'blood_products': [],
-                    'targeto2': [],
-                    'device_session_history': [],
-                    'mrsa_history': [],
-                    'diabetes_history': [],
-                    'palliative_care_history': [],
-                    'post_surgery_history': [],
-                    'critical_care_history': [],
-                    'transfer_history': [],
-                    'report_start': report_start,
-                    'report_end': report_end,
-                    'spell_start': spell_start,
-                    'company_logo': company_logo,
-                    'time_generated': time_generated,
-                    'hospital_name': company_name,
-                    'user_name': user,
-                    'ews_data': json_ews,
-                    'draw_graph_js': observation_report
-                }
-                return report_obj.render('nh_eobs.observation_report', docargs)
-
-            # get pain observations
-            # - search pain model with parent_id of spell - dates
-            pain_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.pain',
-                    start_time, end_time
-
-                ))
-            pains = activity_pool.read(cr, uid, pain_ids)
-            for observation in pains:
-                observation['values'] = pain_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get blood_product observations
-            # - search blood_product model with parent_id of spell - dates
-            blood_product_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.blood_product',
-                    start_time, end_time
-                )
-            )
-            blood_products = activity_pool.read(cr, uid, blood_product_ids)
-            for observation in blood_products:
-                observation['values'] = blood_product_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get bristol_stool observations
-            # - search bristol_stool model with parent_id of spell - dates
-            bristol_stool_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.stools',
-                    start_time, end_time
-                )
-            )
-            bristol_stools = activity_pool.read(cr, uid, bristol_stool_ids)
-            for observation in bristol_stools:
-                observation['values'] = bristol_stool_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    bo = 'bowel_open'
-                    vom = 'vomiting'
-                    off = 'offensive'
-                    lax = 'laxatives'
-                    rect = 'rectal_exam'
-                    ob_vals[bo] = 'Yes' if ob_vals[bo] else 'No'
-                    ob_vals[vom] = 'Yes' if ob_vals[vom] else 'No'
-                    ob_vals['nausea'] = 'Yes' if ob_vals['nausea'] else 'No'
-                    ob_vals['strain'] = 'Yes' if ob_vals['strain'] else 'No'
-                    ob_vals[off] = 'Yes' if ob_vals[off] else 'No'
-                    ob_vals[lax] = 'Yes' if ob_vals[lax] else 'No'
-                    ob_vals[rect] = 'Yes' if ob_vals[rect] else 'No'
-                    observation['values'] = ob_vals
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-
-            # get PBP observations
-            # search pbp model with parent_id of spell - dates
-            pbp_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.pbp',
-                    start_time, end_time
-                )
-            )
-            pbps = activity_pool.read(cr, uid, pbp_ids)
-            for observation in pbps:
-                observation['values'] = pbp_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get GCS observations
-            # search gcs model with parent_id of spell - dates
-            gcs_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.gcs',
-                    start_time, end_time
-                )
-            )
-            gcss = activity_pool.read(cr, uid, gcs_ids)
-            for observation in gcss:
-                observation['values'] = gcs_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get BS observations
-            # search bs model with parent_id of spell - dates
-            bs_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.observation.blood_sugar',
-                    start_time, end_time
-                )
-            )
-            bss = activity_pool.read(cr, uid, bs_ids)
-            for observation in bss:
-                observation['values'] = bs_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get o2 target history
-            # search o2target model on patient with parent_id of
-            # spell - dates
-            oxygen_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.o2target',
-                    start_time, end_time
-                )
-            )
-            oxygen_history = activity_pool.read(cr, uid, oxygen_history_ids)
-            for observation in oxygen_history:
-                observation['values'] = oxygen_target_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get Device Session history
-            # search device session model on patient with parent_id of
-            # spell - dates
-            device_session_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.o2target',
-                    start_time, end_time
-                )
-            )
-            device_session_history = activity_pool.read(
-                cr, uid, device_session_history_ids)
-            for observation in device_session_history:
-                observation['values'] = device_session_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get MRSA flag history
-            # search mrsa model on patient with parent_id of spell - dates
-            mrsa_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.mrsa',
-                    start_time, end_time
-                )
-            )
-            mrsa_history = activity_pool.read(cr, uid, mrsa_history_ids)
-            for observation in mrsa_history:
-                observation['values'] = mrsa_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    stat = ob_vals['status']
-                    observation['values']['mrsa'] = 'Yes' if stat else 'No'
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get diabetes flag history
-            # search diabetes model on patient with parent_id of spell
-            # dates
-            diabetes_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.diabetes',
-                    start_time, end_time
-                )
-            )
-            diabetes_history = activity_pool.read(
-                cr, uid, diabetes_history_ids)
-            for observation in diabetes_history:
-                observation['values'] = diabetes_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    stat = ob_vals['status']
-                    observation['values']['diabetes'] = 'Yes' if stat else 'No'
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get palliative_care flag history
-            # search palliative_care model on patient with parent_id of spell
-            # dates
-            palliative_care_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.palliative_care',
-                    start_time, end_time
-                )
-            )
-            palliative_care_history = activity_pool.read(
-                cr, uid, palliative_care_history_ids)
-            for observation in palliative_care_history:
-                observation['values'] = palliative_care_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]),
-                    [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    stat = ob_vals['status']
-                    observation['values']['palliative_care'] = \
-                        'Yes' if stat else 'No'
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get post_surgery flag history
-            # search post_surgery model on patient with parent_id of spel
-            #  dates
-            post_surgery_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.post_surgery',
-                    start_time, end_time
-                )
-            )
-            post_surgery_history = activity_pool.read(
-                cr, uid, post_surgery_history_ids)
-            for observation in post_surgery_history:
-                observation['values'] = post_surgery_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    stat = ob_vals['status']
-                    observation['values']['post_surgery'] = \
-                        'Yes' if stat else 'No'
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            # get critical_care flag history
-            # search critical_care model on patient with parent_id of spell
-            # dates
-            critical_care_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.critical_care',
-                    start_time, end_time
-                )
-            )
-            critical_care_history = activity_pool.read(
-                cr, uid, critical_care_history_ids)
-            for observation in critical_care_history:
-                observation['values'] = critical_care_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    stat = ob_vals['status']
-                    observation['values']['critical_care'] = \
-                        'Yes' if stat else 'No'
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-            #
-            # get transfer history
-            # search move on patient with parent_id of spell - dates
-            transfer_history_ids = activity_pool.search(
-                cr, uid, self.create_search_filter(
-                    spell_activity_id,
-                    'nh.clinical.patient.move',
-                    start_time, end_time
-                )
-            )
-            transfer_history = activity_pool.read(
-                cr, uid, transfer_history_ids)
-            for observation in transfer_history:
-                observation['values'] = transfer_history_pool.read(
-                    cr, uid, int(observation['data_ref'].split(',')[1]), [])
-                if observation['values']:
-                    ob_vals = observation['values']
-                    ds = False
-                    dt = False
-                    if ob_vals['date_started']:
-                        ds = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_started'], dtf),
-                            pretty_date_format)
-                    if ob_vals['date_terminated']:
-                        dt = self.convert_db_date_to_context_date(
-                            datetime.strptime(ob_vals['date_terminated'], dtf),
-                            pretty_date_format)
-                    observation['values']['date_started'] = ds
-                    observation['values']['date_terminated'] = dt
-                    patient_location = location_pool.read(
-                        cr, uid, observation['values']['location_id'][0], [])
-                    if patient_location:
-                        pln = False
-                        plp = False
-                        if patient_location['name']:
-                            pln = patient_location['name']
-                        if patient_location['parent_id'][1]:
-                            plp = patient_location['parent_id'][1]
-                        observation['bed'] = pln
-                        observation['ward'] = plp
-            if len(transfer_history) > 0:
-                th = transfer_history[-1]
-                patient['bed'] = th['bed'] if th['bed'] else False
-                patient['ward'] = th['ward'] if th['ward'] else False
-
-            docargs = {
-                'doc_ids': self._ids,
-                'doc_model': report.model,
-                'docs': self,
-                'spell': spell,
-                'patient': patient,
-                'ews': ews,
-                'table_ews': table_ews,
-                'weights': weights,
-                'pbps': pbps,
-                'gcs': gcss,
-                'bs': bss,
-                'bristol_stools': bristol_stools,
-                'pains': pains,
-                'blood_products': blood_products,
-                'targeto2': oxygen_history,
-                'device_session_history': device_session_history,
-                'mrsa_history': mrsa_history,
-                'diabetes_history': diabetes_history,
-                'palliative_care_history': palliative_care_history,
-                'post_surgery_history': post_surgery_history,
-                'critical_care_history': critical_care_history,
-                'transfer_history': transfer_history,
-                'report_start': report_start,
-                'report_end': report_end,
-                'spell_start': spell_start,
-                'company_logo': company_logo,
-                'time_generated': time_generated,
-                'hospital_name': company_name,
-                'user_name': user,
-                'ews_data': json_ews,
-                'draw_graph_js': observation_report
-            }
-            return report_obj.render('nh_eobs.observation_report', docargs)
+                ews_report = self.get_report_data(data, ews_only=True)
+                return report_obj.render('nh_eobs.observation_report',
+                                         ews_report)
+            rep_data = self.get_report_data(data)
+            return report_obj.render(
+                'nh_eobs.observation_report',
+                rep_data)
         else:
             return None
