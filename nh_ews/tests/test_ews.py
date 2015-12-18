@@ -4,7 +4,6 @@ from openerp.tests import common
 import logging
 from mock import MagicMock
 
-from pprint import pprint as pp
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
@@ -37,7 +36,7 @@ class TestEWS(common.SingleTransactionCase):
         cls.placement_pool = cls.registry('nh.clinical.patient.placement')
         cls.placement_pool._POLICY = {
             'activities': [
-                {'model': 'nh.clinical.patient.observation.ews', 
+                {'model': 'nh.clinical.patient.observation.ews',
                  'type': 'recurring'}]}
         cls.ews_pool = cls.registry('nh.clinical.patient.observation.ews')
 
@@ -58,28 +57,28 @@ class TestEWS(common.SingleTransactionCase):
         cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
         cls.adt_id = cls.users_pool.search(
-            cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), 
+            cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']),
                       ('pos_id', '=', cls.pos_id)])[0]
 
     def test_ews_observations_policy_static(self):
         cr, uid = self.cr, self.uid
         ews_test_data = {
-            'SCORE': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+            'SCORE': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
                       17, 3, 4, 20],
-            'CASE': [0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 
+            'CASE': [0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2,
                      2, 3],
-            'RR': [18, 11, 11, 11, 11, 11, 24, 24, 24, 24, 25, 25, 25, 25, 25, 
+            'RR': [18, 11, 11, 11, 11, 11, 24, 24, 24, 24, 25, 25, 25, 25, 25,
                    25, 24, 25, 18, 11, 25],
-            'O2': [99, 97, 95, 95, 95, 95, 95, 93, 93, 93, 93, 91, 91, 91, 91, 
+            'O2': [99, 97, 95, 95, 95, 95, 95, 93, 93, 93, 93, 91, 91, 91, 91,
                    91, 91, 91, 99, 99, 91],
-            'O2_flag': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 
+            'O2_flag': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
                         0, 0, 1],
-            'BT': [37.5, 36.5, 36.5, 36.0, 36.0, 36.0, 38.5, 38.5, 38.5, 38.5, 
-                   38.5, 35.5, 39.5, 35.0, 35.0, 35.0, 35.0, 35.0, 37.5, 37.5, 
+            'BT': [37.5, 36.5, 36.5, 36.0, 36.0, 36.0, 38.5, 38.5, 38.5, 38.5,
+                   38.5, 35.5, 39.5, 35.0, 35.0, 35.0, 35.0, 35.0, 37.5, 37.5,
                    35.0],
-            'BPS': [120, 115, 115, 115, 110, 110, 110, 110, 100, 100, 100, 100, 
+            'BPS': [120, 115, 115, 115, 110, 110, 110, 110, 100, 100, 100, 100,
                     100, 100,  90, 220, 220, 220, 120, 120, 220],
-            'BPD': [80, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 
+            'BPD': [80, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70,
                     70, 70, 70, 80, 80, 70],
             'PR': [65, 55, 55, 55, 55, 50, 110, 50, 50, 130, 130, 130, 130,
                    130, 130, 135, 135, 135, 65, 65, 135],
@@ -139,7 +138,8 @@ class TestEWS(common.SingleTransactionCase):
                 'avpu_text': ews_test_data['AVPU'][i]
             }
 
-            # completion must be made as nurse user, otherwise notifications are not created
+            # completion must be made as nurse user, otherwise notifications
+            # are not created
             self.activity_pool.assign(cr, uid, ews_activity_id, user_id)
             self.activity_pool.submit(cr, user_id, ews_activity_id, data)
             self.activity_pool.complete(cr, user_id, ews_activity_id)
@@ -262,7 +262,8 @@ class TestEWS(common.SingleTransactionCase):
         self.assertEquals(result.get(1), '')
         del ews_mock, self.ews_pool.browse
 
-    def test_get_score_display_when_ews_is_not_partial_returns_score_as_string(self):
+    def test_get_score_display_when_ews_is_not_partial_returns_score_as_string(
+            self):
         cr, uid = self.cr, self.uid
         ews_mock = MagicMock(spec=self.ews_pool.__class__.__name__)
         return_value = [

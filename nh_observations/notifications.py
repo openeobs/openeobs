@@ -11,10 +11,10 @@ it refers to was done.
 The abstract definition of a notification from which all other
 notifications inherit is also included here.
 """
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 from openerp.addons.nh_observations.parameters import frequencies
 import logging
-import copy
+
 _logger = logging.getLogger(__name__)
 
 
@@ -55,8 +55,8 @@ class nh_clinical_notification(orm.AbstractModel):
         :rtype: bool
         """
         return False
-    
-    
+
+
 class nh_clinical_notification_hca(orm.Model):
     """
     Represents a generic notification meant to be addressed only for
@@ -116,8 +116,8 @@ class nh_clinical_notification_frequency(orm.Model):
             if parent_type == 'nh.clinical.patient.observation.ews' else False
 
         trigger = creator_type == 'nh.clinical.notification.assessment' and \
-                  parent_type == 'nh.clinical.patient.observation.ews' and \
-                  clinical_risk == 'Low'
+            parent_type == 'nh.clinical.patient.observation.ews' and \
+            clinical_risk == 'Low'
         if trigger:
             api_pool = self.pool['nh.clinical.api']
             api_pool.trigger_notifications(cr, uid, {

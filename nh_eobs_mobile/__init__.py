@@ -1,3 +1,3 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import controllers
-import nfc_models
+from . import controllers
+from . import nfc_models

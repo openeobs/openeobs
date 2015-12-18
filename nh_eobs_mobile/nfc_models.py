@@ -3,9 +3,11 @@
 """
 Adds functionality for NFC (`Near Field Communication`) user cards.
 """
-__author__ = 'lorenzo'
+from openerp.osv import orm
+from openerp.osv import fields
+from openerp.osv import osv
 import logging
-from openerp.osv import orm, fields, osv
+
 
 _logger = logging.getLogger(__name__)
 
@@ -36,9 +38,11 @@ class nh_eobs_mobile_nfc(orm.Model):
         :rtype: int
         """
 
-        user_id = self.search(cr, uid, [('card_pin', '=', card_pin)], context=context)
+        user_id = self.search(
+            cr, uid, [('card_pin', '=', card_pin)], context=context)
         if not user_id:
-            _logger.debug('Cannot find a user ID related to the card PIN passed.')
+            _logger.debug(
+                'Cannot find a user ID related to the card PIN passed.')
             return False
         else:
             if len(user_id) > 1:
@@ -59,7 +63,12 @@ class nh_eobs_mobile_nfc(orm.Model):
         :returns: ``login`` of user
         :rtype: int
         """
-        user_login = self.search_read(cr, uid, domain=[('id', '=', user_id)], fields=['login'], context=context)
+        user_login = self.search_read(
+            cr, uid,
+            domain=[('id', '=', user_id)],
+            fields=['login'],
+            context=context
+        )
         if not user_login:
             _logger.debug('Cannot find a user related to the user ID passed.')
             return False

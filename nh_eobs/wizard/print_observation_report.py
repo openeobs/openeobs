@@ -24,9 +24,9 @@ class print_observation_report_wizard(osv.TransientModel):
         patient_pool = self.pool['nh.clinical.patient']
         # get PDF version of the report
         report_pool = self.pool['report']
-        report_pdf = report_pool.get_pdf(cr, uid, ids,
-                                         'nh.clinical.observation_report',
-                                         data=data, context=context)
+        report_pdf = report_pool.get_pdf(
+            cr, uid, ids, 'nh.clinical.observation_report',
+            data=data, context=context)
         attachment_id = None
         #
         # save it as an attachment in the Database
@@ -38,17 +38,22 @@ class print_observation_report_wizard(osv.TransientModel):
         attachment = {
             'name': 'nh.clinical.observation_report',
             'datas': base64.encodestring(report_pdf),
-            'datas_fname': '{nhs}_{date}_observation_report.pdf'.format(nhs=patient_nhs, date=datetime.strftime(datetime.now(), '%Y%m%d')),
+            'datas_fname': '{nhs}_{date}_observation_report.pdf'.format(
+                nhs=patient_nhs, date=datetime.strftime(
+                    datetime.now(), '%Y%m%d')),
             'res_model': 'nh.clinical.observation_report_wizard',
             'res_id': ids[0],
         }
         try:
-            attachment_id = self.pool['ir.attachment'].create(cr, uid, attachment)
+            attachment_id = self.pool['ir.attachment'].create(
+                cr, uid, attachment)
         except AccessError:
-            _logger.warning('Cannot save PDF report %r as attachment', attachment['name'])
+            _logger.warning(
+                'Cannot save PDF report %r as attachment', attachment['name'])
         else:
-            _logger.info('The PDF document %s is now saved in the database', attachment['name'])
-
+            _logger.info(
+                'The PDF document %s is now saved in the database',
+                attachment['name'])
         return {
             'type': 'ir_actions_action_nh_clinical_download_report',
             'id': attachment_id,

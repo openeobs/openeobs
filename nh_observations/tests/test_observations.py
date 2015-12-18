@@ -1,8 +1,8 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.tests import common
 
-import logging        
-from pprint import pprint as pp
+import logging
+
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
@@ -69,7 +69,7 @@ class test_observations(common.SingleTransactionCase):
 
     def test_basic_observations(self):
         cr, uid = self.cr, self.uid
-        
+
         patient_ids = self.patient_pool.search(
             cr, uid, [['current_location_id.usage', '=', 'bed'],
                       ['current_location_id.parent_id', 'in',
@@ -89,17 +89,17 @@ class test_observations(common.SingleTransactionCase):
             user_id = self.nu_id
         else:
             user_id = self.nt_id
-        
+
         # Height Observation
         height_data = {
             'height': float(fake.random_int(min=100, max=220))/100.0
-        }        
+        }
         height_activity_id = self.height_pool.create_activity(
             cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, height_activity_id, height_data)
         check_height = self.activity_pool.browse(
             cr, user_id, height_activity_id)
-        
+
         self.assertTrue(
             check_height.summary == self.height_pool._description,
             msg="Height Observation: Activity summary not submitted correctly")
@@ -124,17 +124,17 @@ class test_observations(common.SingleTransactionCase):
         self.assertFalse(
             check_height.data_ref.is_partial,
             msg="Height Observation Completed: Partial status incorrect")
-        
+
         # Weight Observation
         weight_data = {
             'weight': float(fake.random_int(min=400, max=1200))/10.0
-        }        
+        }
         weight_activity_id = self.weight_pool.create_activity(
             cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, weight_activity_id, weight_data)
         check_weight = self.activity_pool.browse(
             cr, user_id, weight_activity_id)
-        
+
         self.assertTrue(
             check_weight.summary == self.weight_pool._description,
             msg="Weight Observation: Activity summary not submitted correctly")
@@ -159,11 +159,11 @@ class test_observations(common.SingleTransactionCase):
         self.assertFalse(
             check_weight.data_ref.is_partial,
             msg="Weight Observation Completed: Partial status incorrect")
-        
+
         # Blood Sugar Observation
         blood_sugar_data = {
             'blood_sugar': float(fake.random_int(min=10, max=999))/10.0
-        }        
+        }
         blood_sugar_activity_id = self.blood_sugar_pool.create_activity(
             cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(
@@ -198,20 +198,20 @@ class test_observations(common.SingleTransactionCase):
         self.assertFalse(
             check_blood_sugar.data_ref.is_partial,
             msg="Blood Sugar Observation Completed: Partial status incorrect")
-        
+
         # Blood Product Observation
         blood_product_data = {
             'vol': float(fake.random_int(min=1, max=100000))/10.0,
             'product': fake.random_element(
                 self.blood_product_pool._blood_product_values)[0]
-        }        
+        }
         blood_product_activity_id = self.blood_product_pool.create_activity(
             cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(
             cr, user_id, blood_product_activity_id, blood_product_data)
         check_blood_product = self.activity_pool.browse(
             cr, user_id, blood_product_activity_id)
-        
+
         self.assertTrue(
             check_blood_product.summary ==
             self.blood_product_pool._description,
@@ -247,10 +247,9 @@ class test_observations(common.SingleTransactionCase):
             check_blood_product.data_ref.is_partial,
             msg="Blood Product Observation Completed: Partial status "
                 "incorrect")
-            
+
     def test_parameters(self):
         cr, uid = self.cr, self.uid
-        
         patient_ids = self.patient_pool.search(
             cr, uid, [
                 ['current_location_id.usage', '=', 'bed'],
@@ -271,11 +270,10 @@ class test_observations(common.SingleTransactionCase):
             user_id = self.wmu_id
         else:
             user_id = self.wmt_id
-        
         # MRSA parameter
         mrsa_data = {
             'status': fake.random_element([True, False])
-        }        
+        }
         mrsa_activity_id = self.mrsa_pool.create_activity(
             cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(cr, user_id, mrsa_activity_id, mrsa_data)
@@ -295,11 +293,10 @@ class test_observations(common.SingleTransactionCase):
         self.assertTrue(
             check_mrsa.date_terminated,
             msg="MRSA Parameter Completed: Date terminated not updated")
-        
         # Diabetes parameter
         diabetes_data = {
             'status': fake.random_element([True, False])
-        }        
+        }
         diabetes_activity_id = self.diabetes_pool.create_activity(
             cr, uid, {}, {'patient_id': patient_id})
         self.activity_pool.submit(
@@ -322,11 +319,10 @@ class test_observations(common.SingleTransactionCase):
         self.assertTrue(
             check_diabetes.date_terminated,
             msg="Diabetes Parameter Completed: Date terminated not updated")
-        
         # Weight Monitoring parameter
         weight_monitoring_data = {
             'status': fake.random_element([True, False])
-        }        
+        }
         weight_monitoring_activity_id = \
             self.weight_monitoring_pool.create_activity(
                 cr, uid, {}, {'patient_id': patient_id})
@@ -354,7 +350,3 @@ class test_observations(common.SingleTransactionCase):
             check_weight_monitoring.date_terminated,
             msg="Weight Monitoring Parameter Completed: Date terminated not "
                 "updated")
-        scheduled_weight_ids = self.activity_pool.search(
-            cr, uid,
-            [['data_model', '=', 'nh.clinical.patient.observation.weight'],
-             ['patient_id', '=', patient_id], ['state', '=', 'scheduled']])

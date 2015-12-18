@@ -47,14 +47,13 @@ class nh_clinical_patient_observation_vips(orm.Model):
                    [{'model': 'nurse', 'summary': 'Resite Cannula',
                      'groups': ['nurse', 'hca']},
                     {'model': 'nurse',
-                     'summary': 'Consider plebitis treatment',
+                     'summary': 'Consider phlebitis treatment',
                      'groups': ['nurse', 'hca']}],
                    [{'model': 'nurse', 'summary': 'Resite Cannula',
                      'groups': ['nurse', 'hca']},
                     {'model': 'nurse',
-                     'summary': 'Initiate plebitis treatment',
-                     'groups': ['nurse', 'hca']}]
-               ]}
+                     'summary': 'Initiate phlebitis treatment',
+                     'groups': ['nurse', 'hca']}]]}
 
     def calculate_score(self, vips_data):
         """
@@ -197,7 +196,7 @@ class nh_clinical_patient_observation_vips(orm.Model):
             cr, uid, activity_id, context)
 
         # create next VIPS
-        next_activity_id = self.create_activity(
+        self.create_activity(
             cr, SUPERUSER_ID,
             {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
             {'patient_id': activity.data_ref.patient_id.id})
