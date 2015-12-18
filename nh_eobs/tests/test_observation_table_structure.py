@@ -419,3 +419,107 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
             '(br/min):4NIV IPAP (cmH2O):5',
             'Incorrect value table column'
         )
+
+    def test_11_weight_table_structure(self):
+        """
+        Test that the weight table is rendering correctly
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': False
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[1]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        table_columns = table.select('td')
+        self.assertEqual(len(table_headers),
+                         2,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         2,
+                         'Incorrect number of table columns')
+        date_header = table_headers[0]
+        weight_header = table_headers[1]
+        date_column = table_columns[0]
+        weight_column = table_columns[1]
+        self.assertEqual(date_header.text,
+                         'Date',
+                         'Incorrect date table header')
+        date_term = self.weight_values['date_terminated']
+        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(date_column.text,
+                         test_date_term,
+                         'Incorrect date table column')
+        self.assertEqual(weight_header.text,
+                         'Value',
+                         'Incorrect weight table header')
+        self.assertEqual(weight_column.text,
+                         '%s' % self.weight_values['weight'],
+                         'Incorrect weight table column')
+
+    def test_12_gcs_table_structure(self):
+        """
+        Test that the gcs table is rendering correctly
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': False
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[2]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        table_columns = table.select('td')
+        self.assertEqual(len(table_headers),
+                         4,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         4,
+                         'Incorrect number of table columns')
+        date_header = table_headers[0]
+        eyes_header = table_headers[1]
+        verbal_header = table_headers[2]
+        motor_header = table_headers[3]
+        date_column = table_columns[0]
+        eyes_column = table_columns[1]
+        verbal_column = table_columns[2]
+        motor_column = table_columns[3]
+        self.assertEqual(date_header.text,
+                         'Date',
+                         'Incorrect date table header')
+        date_term = self.weight_values['date_terminated']
+        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(date_column.text,
+                         test_date_term,
+                         'Incorrect date table column')
+        self.assertEqual(eyes_header.text,
+                         'Eyes',
+                         'Incorrect eyes table header')
+        self.assertEqual(eyes_column.text,
+                         '%s' % self.gcs_values['eyes'],
+                         'Incorrect eyes table column')
+        self.assertEqual(motor_header.text,
+                         'Motor',
+                         'Incorrect motor table header')
+        self.assertEqual(motor_column.text,
+                         '%s' % self.gcs_values['motor'],
+                         'Incorrect motor table column')
+        self.assertEqual(verbal_header.text,
+                         'Verbal',
+                         'Incorrect verbal table header')
+        self.assertEqual(verbal_column.text,
+                         '%s' % self.gcs_values['verbal'],
+                         'Incorrect verbal table column')
