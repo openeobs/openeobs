@@ -20,7 +20,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
             self.cr, self.uid, [], data=report_data, context=None)
         beautiful_report = BeautifulSoup(report_html, 'html.parser')
         header = beautiful_report.select('h3')[0]
-        table = header.parent.findNext('table')
+        table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
         self.assertEqual(len(table_headers),
@@ -109,7 +109,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
 
     def test_02_ews_table_structure_no_target(self):
         """
-        Test that the EWS table is rendering correctly when all data present
+        Test that the EWS table is rendering correctly when no oxygen target
         """
 
         self.o2target_id = []
@@ -124,7 +124,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
             self.cr, self.uid, [], data=report_data, context=None)
         beautiful_report = BeautifulSoup(report_html, 'html.parser')
         header = beautiful_report.select('h3')[0]
-        table = header.parent.findNext('table')
+        table = header.findNext('table')
         table_columns = table.select('td')
         ox_sat_column = table_columns[2]
         ox_sat = self.ews_values['indirect_oxymetry_spo2']
@@ -134,7 +134,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
 
     def test_03_ews_table_structure_no_supplement_oxygen(self):
         """
-        Test that the EWS table is rendering correctly when all data present
+        Test that the EWS table is rendering correctly when no supplemental o2
         """
 
         self.ews_values['oxygen_administration_flag'] = 0
@@ -149,9 +149,273 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
             self.cr, self.uid, [], data=report_data, context=None)
         beautiful_report = BeautifulSoup(report_html, 'html.parser')
         header = beautiful_report.select('h3')[0]
-        table = header.parent.findNext('table')
+        table = header.findNext('table')
         table_columns = table.select('td')
         sup_ox_column = table_columns[8]
         self.assertEqual(sup_ox_column.text,
                          '\n',
                          'Incorrect supplemental oxygen table column')
+
+    def test_04_ews_supplmental_oxygen_table_structure_all(self):
+        """
+        Test that the supplemental oxygen table renders correctly
+        """
+        self.ews_values['oxygen_administration_flag'] = True
+        self.ews_values['flow_rate'] = 1
+        self.ews_values['concentration'] = 2
+        self.ews_values['cpap_peep'] = 3
+        self.ews_values['niv_backup'] = 4
+        self.ews_values['niv_ipap'] = 5
+        self.ews_values['niv_epap'] = 6
+
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h4')[0]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        table_columns = table.select('tbody > tr > td')
+        self.assertEqual(len(table_headers),
+                         3,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         3,
+                         'Incorrect number of table columns')
+        date_header = table_headers[0]
+        device_header = table_headers[1]
+        values_header = table_headers[2]
+        date_column = table_columns[0]
+        device_column = table_columns[1]
+        values_column = table_columns[2]
+        self.assertEqual(date_header.text,
+                         'Date',
+                         'Incorrect date table header')
+        date_term = self.ews_values['date_terminated']
+        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(date_column.text,
+                         test_date_term,
+                         'Incorrect date table column')
+        self.assertEqual(device_header.text,
+                         'Device',
+                         'Incorrect device table header')
+        self.assertEqual(device_column.text,
+                         self.ews_values['device_id'][1],
+                         'Incorrect device table column')
+        self.assertEqual(values_header.text,
+                         'Values',
+                         'Incorrect value table header')
+        self.assertEqual(
+            values_column.text.strip().replace('\n', ''),
+            'Flow Rate:1Concentration:2CPAP PEEP (cmH2O):3NIV Back-up rate '
+            '(br/min):4NIV IPAP (cmH2O):5NIV EPAP (cmH2O):6',
+            'Incorrect value table column'
+        )
+
+    def test_05_ews_sup_o2_table_structure_no_flow(self):
+        """
+        Test that the supplemental oxygen table renders correctly without flow
+        """
+        self.ews_values['oxygen_administration_flag'] = True
+        self.ews_values['flow_rate'] = 0
+        self.ews_values['concentration'] = 2
+        self.ews_values['cpap_peep'] = 3
+        self.ews_values['niv_backup'] = 4
+        self.ews_values['niv_ipap'] = 5
+        self.ews_values['niv_epap'] = 6
+
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h4')[0]
+        table = header.findNext('table')
+        table_columns = table.select('tbody > tr > td')
+        values_column = table_columns[2]
+        self.assertEqual(
+            values_column.text.strip().replace('\n', ''),
+            'Concentration:2CPAP PEEP (cmH2O):3NIV Back-up rate '
+            '(br/min):4NIV IPAP (cmH2O):5NIV EPAP (cmH2O):6',
+            'Incorrect value table column'
+        )
+
+    def test_06_ews_sup_o2_table_structure_no_concentration(self):
+        """
+        Test that the supplemental oxygen table renders correctly without
+        concentration
+        """
+        self.ews_values['oxygen_administration_flag'] = True
+        self.ews_values['flow_rate'] = 1
+        self.ews_values['concentration'] = 0
+        self.ews_values['cpap_peep'] = 3
+        self.ews_values['niv_backup'] = 4
+        self.ews_values['niv_ipap'] = 5
+        self.ews_values['niv_epap'] = 6
+
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h4')[0]
+        table = header.findNext('table')
+        table_columns = table.select('tbody > tr > td')
+        values_column = table_columns[2]
+        self.assertEqual(
+            values_column.text.strip().replace('\n', ''),
+            'Flow Rate:1CPAP PEEP (cmH2O):3NIV Back-up rate '
+            '(br/min):4NIV IPAP (cmH2O):5NIV EPAP (cmH2O):6',
+            'Incorrect value table column'
+        )
+
+    def test_07_ews_sup_o2_table_structure_no_cpap(self):
+        """
+        Test that the supplemental oxygen table renders correctly without cpap
+        """
+        self.ews_values['oxygen_administration_flag'] = True
+        self.ews_values['flow_rate'] = 1
+        self.ews_values['concentration'] = 2
+        self.ews_values['cpap_peep'] = 0
+        self.ews_values['niv_backup'] = 4
+        self.ews_values['niv_ipap'] = 5
+        self.ews_values['niv_epap'] = 6
+
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h4')[0]
+        table = header.findNext('table')
+        table_columns = table.select('tbody > tr > td')
+        values_column = table_columns[2]
+        self.assertEqual(
+            values_column.text.strip().replace('\n', ''),
+            'Flow Rate:1Concentration:2NIV Back-up rate '
+            '(br/min):4NIV IPAP (cmH2O):5NIV EPAP (cmH2O):6',
+            'Incorrect value table column'
+        )
+
+    def test_08_ews_sup_o2_table_structure_no_nivbackup(self):
+        """
+        Test that the supplemental oxygen table renders correctly without niv
+        backup
+        """
+        self.ews_values['oxygen_administration_flag'] = True
+        self.ews_values['flow_rate'] = 1
+        self.ews_values['concentration'] = 2
+        self.ews_values['cpap_peep'] = 3
+        self.ews_values['niv_backup'] = 0
+        self.ews_values['niv_ipap'] = 5
+        self.ews_values['niv_epap'] = 6
+
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h4')[0]
+        table = header.findNext('table')
+        table_columns = table.select('tbody > tr > td')
+        values_column = table_columns[2]
+        self.assertEqual(
+            values_column.text.strip().replace('\n', ''),
+            'Flow Rate:1Concentration:2CPAP PEEP (cmH2O):3'
+            'NIV IPAP (cmH2O):5NIV EPAP (cmH2O):6',
+            'Incorrect value table column'
+        )
+
+    def test_09_ews_sup_o2_table_structure_no_nivipap(self):
+        """
+        Test that the supplemental oxygen table renders correctly without niv
+        ipap
+        """
+        self.ews_values['oxygen_administration_flag'] = True
+        self.ews_values['flow_rate'] = 1
+        self.ews_values['concentration'] = 2
+        self.ews_values['cpap_peep'] = 3
+        self.ews_values['niv_backup'] = 4
+        self.ews_values['niv_ipap'] = 0
+        self.ews_values['niv_epap'] = 6
+
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h4')[0]
+        table = header.findNext('table')
+        table_columns = table.select('tbody > tr > td')
+        values_column = table_columns[2]
+        self.assertEqual(
+            values_column.text.strip().replace('\n', ''),
+            'Flow Rate:1Concentration:2CPAP PEEP (cmH2O):3NIV Back-up rate '
+            '(br/min):4NIV EPAP (cmH2O):6',
+            'Incorrect value table column'
+        )
+
+    def test_10_ews_sup_o2_table_structure_no_niv_epap(self):
+        """
+        Test that the supplemental oxygen table renders correctly
+        """
+        self.ews_values['oxygen_administration_flag'] = True
+        self.ews_values['flow_rate'] = 1
+        self.ews_values['concentration'] = 2
+        self.ews_values['cpap_peep'] = 3
+        self.ews_values['niv_backup'] = 4
+        self.ews_values['niv_ipap'] = 5
+        self.ews_values['niv_epap'] = 0
+
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h4')[0]
+        table = header.findNext('table')
+        table_columns = table.select('tbody > tr > td')
+        values_column = table_columns[2]
+        self.assertEqual(
+            values_column.text.strip().replace('\n', ''),
+            'Flow Rate:1Concentration:2CPAP PEEP (cmH2O):3NIV Back-up rate '
+            '(br/min):4NIV IPAP (cmH2O):5',
+            'Incorrect value table column'
+        )
