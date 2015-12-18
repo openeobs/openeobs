@@ -49,7 +49,7 @@ class TestObservation(common.SingleTransactionCase):
     def test_03_create_activity_updates_activity_parent_id(self):
         cr, uid = self.cr, self.uid
         activity_id = self.height_pool.create_activity(
-                cr, uid, {}, {'patient_id': self.patient_id})
+            cr, uid, {}, {'patient_id': self.patient_id})
         activity_data = self.activity_pool.read(
             cr, uid, activity_id, ['parent_id'])
         self.assertEqual(activity_data.get('parent_id')[0], self.spell_id)
