@@ -296,9 +296,9 @@ class ObservationReport(models.AbstractModel):
         ews = self.get_ews_observations(data)
         json_data = []
         table_ews = []
-        for activity in copy.deepcopy(ews):
-            json_data.append(activity['values'])
-            table_ews.append(activity['values'])
+        for activity in ews:
+            json_data.append(copy.deepcopy(activity['values']))
+            table_ews.append(copy.deepcopy(activity['values']))
         json_ews = self.get_model_data_as_json(json_data)
 
         # Get the script files to load

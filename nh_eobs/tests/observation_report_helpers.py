@@ -6,6 +6,11 @@ import copy
 
 
 class ObservationReportHelpers(TransactionCase):
+
+    pretty_date_format = '%H:%M %d/%m/%y'
+    wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
+    odoo_date_format = '%Y-%m-%d %H:%M:%S'
+
     ews_values = {
         'respiration_rate': 18,
         'indirect_oxymetry_spo2': 99,

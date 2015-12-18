@@ -53,7 +53,7 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
         footer_image = footer_info.select('img')[0]
         footer_info = footer_info.text
         footer_has_name = 'Administrator' in footer_info
-        date_string = datetime.now().strftime('%H:%M %d/%m/%y')
+        date_string = datetime.now().strftime(self.pretty_date_format)
         footer_has_print_date = date_string in footer_info
         footer_has_hosp_name = 'Test Hospital' in footer_info
         footer_has_nhs_number = 'NHS1234123' in footer_info
@@ -173,8 +173,8 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
                        'write_date']:
                 json_data[key] = datetime.strptime(
                     value,
-                    '%a %b %d %Y %H:%M:%S %Z'
-                ).strftime('%Y-%m-%d %H:%M:%S')
+                    self.wkhtmltopdf_format
+                ).strftime(self.odoo_date_format)
         del json_data['o2_target']
         self.assertEqual(
             json_data,
