@@ -29,22 +29,23 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         act_data = self.get_activity_data(spell_id, model, start, end)
         if act_data:
-            ds = False
-            dt = False
-            if 'data_started' in act_data and act_data['date_started']:
-                ds = act_data['date_started']
-            if 'date_terminated' in act_data and act_data['date_terminated']:
-                dt = act_data['date_terminated']
-            if ds:
-                ds = helpers.convert_db_date_to_context_date(
-                    cr, uid, datetime.strptime(ds, dtf),
-                    self.pretty_date_format)
-                act_data['date_started'] = ds
-            if dt:
-                dt = helpers.convert_db_date_to_context_date(
-                    cr, uid, datetime.strptime(dt, dtf),
-                    self.pretty_date_format)
-                act_data['date_terminated'] = dt
+            for act in act_data:
+                ds = False
+                dt = False
+                if 'date_started' in act and act['date_started']:
+                    ds = act['date_started']
+                if 'date_terminated' in act and act['date_terminated']:
+                    dt = act['date_terminated']
+                if ds:
+                    ds = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(ds, dtf),
+                        self.pretty_date_format)
+                    act['date_started'] = ds
+                if dt:
+                    dt = helpers.convert_db_date_to_context_date(
+                        cr, uid, datetime.strptime(dt, dtf),
+                        self.pretty_date_format)
+                    act['date_terminated'] = dt
         return self.get_model_values(model, act_data)
 
     def get_model_values(self, model, act_data):
@@ -195,6 +196,13 @@ class ObservationReport(models.AbstractModel):
             vals['offensive'] = helpers.boolean_to_text(vals['offensive'])
             vals['laxatives'] = helpers.boolean_to_text(vals['laxatives'])
             vals['rectal_exam'] = helpers.boolean_to_text(vals['rectal_exam'])
+        return model_data
+
+    @staticmethod
+    def convert_pbp_booleans(model_data):
+        for ob in model_data:
+            vals = ob['values']
+            vals['result'] = helpers.boolean_to_text(vals['result'])
         return model_data
 
     def process_transfer_history(self, model_data):
@@ -371,7 +379,6 @@ class ObservationReport(models.AbstractModel):
             return ews_report
 
         basic_obs_dict = {
-            'pbps': 'nh.clinical.patient.observation.pbp',
             'gcs': 'nh.clinical.patient.observation.gcs',
             'bs': 'nh.clinical.patient.observation.blood_sugar',
             'pains': 'nh.clinical.patient.observation.pain',
@@ -384,6 +391,13 @@ class ObservationReport(models.AbstractModel):
             data
         )
 
+        pbps = self.convert_pbp_booleans(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.pbp',
+                data.start_time, data.end_time)
+        )
+
         bristol_stools = self.convert_bristol_stools_booleans(
             self.get_model_data(
                 spell_activity_id,
@@ -394,7 +408,8 @@ class ObservationReport(models.AbstractModel):
 
         non_basic_obs = {
             'bristol_stools': bristol_stools,
-            'weights': weights
+            'weights': weights,
+            'pbps': pbps
         }
 
         rep_data = helpers.merge_dicts(

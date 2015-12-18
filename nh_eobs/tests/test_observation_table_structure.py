@@ -671,7 +671,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(product_column.text,
                          '%s' % self.blood_product_values['product'],
                          'Incorrect blood product table column')
-        
+
     def test_16_bristol_stools_table_structure(self):
         """
         Test that the bristol stools table is rendering correctly
@@ -817,3 +817,103 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
             self.boolean_to_text(self.stools_values['rectal_exam']),
             'Incorrect rectal_exam table column'
         )
+
+    def test_17_postural_blood_pressure_table_structure(self):
+        """
+        Test that the postural blood pressure table is rendering correctly
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': False
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[7]
+        table = header.findNext('table')
+        thead = table.select('thead')[0]
+        tbody = table.select('tbody > tr')[0]
+        table_headers = thead.select('th')
+        table_columns = \
+            [td for td in tbody.select('td') if 'col-xs-4' not in td['class']]
+        self.assertEqual(len(table_headers),
+                         4,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         4,
+                         'Incorrect number of table columns')
+        date_header = table_headers[0]
+        user_header = table_headers[1]
+        dehydrated_header = table_headers[2]
+        values_header = table_headers[3]
+        date_column = table_columns[0]
+        user_column = table_columns[1]
+        dehydrated_column = table_columns[2]
+        values_column = table_columns[3]
+        value_table_headers = values_column.select('th')
+        value_table_rows = values_column.select('tr')
+        sitting_columns = value_table_rows[1].select('td')
+        standing_columns = value_table_rows[2].select('td')
+        position_header = value_table_headers[0]
+        systolic_header = value_table_headers[1]
+        diastolic_header = value_table_headers[2]
+        sitting_position = sitting_columns[0]
+        sitting_systolic = sitting_columns[1]
+        sitting_diastolic = sitting_columns[2]
+        standing_position = standing_columns[0]
+        standing_systolic = standing_columns[1]
+        standing_diastolic = standing_columns[2]
+        self.assertEqual(date_header.text,
+                         'Date',
+                         'Incorrect date table header')
+        date_term = self.pbp_data['date_terminated']
+        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(date_column.text,
+                         test_date_term,
+                         'Incorrect date table column')
+        self.assertEqual(user_header.text,
+                         'User',
+                         'Incorrect user table header')
+        self.assertEqual(user_column.text,
+                         self.pbp_data['terminate_uid'][1],
+                         'Incorrect user table column')
+        self.assertEqual(dehydrated_header.text,
+                         'Dehydrated',
+                         'Incorrect dehydrated table header')
+        self.assertEqual(dehydrated_column.text,
+                         'No',
+                         'Incorrect dehydrated table column')
+        self.assertEqual(values_header.text,
+                         'Values',
+                         'Incorrect values table header')
+        self.assertEqual(position_header.text,
+                         'Position',
+                         'Incorrect position value table header')
+        self.assertEqual(systolic_header.text,
+                         'Systolic',
+                         'Incorrect systolic value table header')
+        self.assertEqual(diastolic_header.text,
+                         'Diastolic',
+                         'Incorrect diastolic value table header')
+        self.assertEqual(sitting_position.text,
+                         'Sitting',
+                         'Incorrect sitting value table column')
+        self.assertEqual(sitting_systolic.text,
+                         '%s' % self.pbp_values['systolic_sitting'],
+                         'Incorrect sitting systolic value table column')
+        self.assertEqual(sitting_diastolic.text,
+                         '%s' % self.pbp_values['diastolic_sitting'],
+                         'Incorrect sitting diastolic value table column')
+        self.assertEqual(standing_position.text,
+                         'Standing',
+                         'Incorrect standing value table column')
+        self.assertEqual(standing_systolic.text,
+                         '%s' % self.pbp_values['systolic_standing'],
+                         'Incorrect standing systolic value table column')
+        self.assertEqual(standing_diastolic.text,
+                         '%s' % self.pbp_values['diastolic_standing'],
+                         'Incorrect standing diastolic value table column')
