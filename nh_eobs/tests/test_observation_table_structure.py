@@ -1172,7 +1172,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(ward_column.text,
                          self.location_values['parent_id'][1],
                          'Incorrect ward table column')
-        
+
     def test_22_transfer_history_table_structure(self):
         """
         Test that the transfer history table is rendering correctly
@@ -1255,7 +1255,6 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(user_header.text,
                          'User',
                          'Incorrect user table header')
-        
         mrsa_term = self.mrsa_values['date_terminated']
         test_mrsa_term = datetime.strptime(mrsa_term, self.odoo_date_format)\
             .strftime(self.pretty_date_format)
@@ -1271,7 +1270,6 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(mrsa_user.text,
                          self.mrsa_values['terminate_uid'][1],
                          'Incorrect mrsa user table header')
-        
         diabetes_term = self.diabetes_values['date_terminated']
         test_diabetes_term = datetime.strptime(
             diabetes_term,
@@ -1289,7 +1287,6 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(diabetes_user.text,
                          self.diabetes_values['terminate_uid'][1],
                          'Incorrect diabetes user table header')
-        
         palliative_care_term = self.palliative_care_values['date_terminated']
         test_palliative_care_term = datetime.strptime(
             palliative_care_term,
@@ -1307,7 +1304,6 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(palliative_care_user.text,
                          self.palliative_care_values['terminate_uid'][1],
                          'Incorrect palliative_care user table header')
-        
         post_surgery_term = self.post_surgery_values['date_terminated']
         test_post_surgery_term = datetime.strptime(
             post_surgery_term,
@@ -1325,7 +1321,6 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(post_surgery_user.text,
                          self.post_surgery_values['terminate_uid'][1],
                          'Incorrect post_surgery user table header')
-        
         critical_care_term = self.critical_care_values['date_terminated']
         test_critical_care_term = datetime.strptime(
             critical_care_term,
@@ -1343,7 +1338,6 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(critical_care_user.text,
                          self.critical_care_values['terminate_uid'][1],
                          'Incorrect critical_care user table header')
-        
 
     def tearDown(self):
         self.device_session_values['date_terminated'] = '1988-01-12 06:00:01'
