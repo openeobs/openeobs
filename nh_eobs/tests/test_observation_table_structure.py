@@ -1121,6 +1121,58 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          self.device_session_values['removal_reason'],
                          'Incorrect reason table column')
 
+    def test_21_transfer_history_table_structure(self):
+        """
+        Test that the transfer history table is rendering correctly
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[4]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        table_columns = table.select('td')
+        self.assertEqual(len(table_headers),
+                         3,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(table_columns),
+                         3,
+                         'Incorrect number of table columns')
+        date_header = table_headers[0]
+        bed_header = table_headers[1]
+        ward_header = table_headers[2]
+        date_column = table_columns[0]
+        bed_column = table_columns[1]
+        ward_column = table_columns[2]
+        self.assertEqual(date_header.text,
+                         'Date',
+                         'Incorrect date table header')
+        date_term = self.move_values['date_terminated']
+        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(date_column.text,
+                         test_date_term,
+                         'Incorrect date table column')
+        self.assertEqual(bed_header.text,
+                         'Bed',
+                         'Incorrect bed table header')
+        self.assertEqual(bed_column.text,
+                         self.location_values['name'],
+                         'Incorrect removed table column')
+        self.assertEqual(ward_header.text,
+                         'Ward',
+                         'Incorrect ward table header')
+        self.assertEqual(ward_column.text,
+                         self.location_values['parent_id'][1],
+                         'Incorrect ward table column')
+
     def tearDown(self):
         self.device_session_values['date_terminated'] = '1988-01-12 06:00:01'
         self.ews_values['oxygen_administration_flag'] = 0
