@@ -1281,7 +1281,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          test_diabetes_term,
                          'Incorrect diabetes date table column')
         self.assertEqual(diabetes_flag.text,
-                         'diabetes',
+                         'Diabetes',
                          'Incorrect diabetes flag table column')
         self.assertEqual(diabetes_action.text,
                          self.diabetes_values['status'],
@@ -1299,7 +1299,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          test_palliative_care_term,
                          'Incorrect palliative_care date table column')
         self.assertEqual(palliative_care_flag.text,
-                         'palliative_care',
+                         'Palliative Care',
                          'Incorrect palliative_care flag table column')
         self.assertEqual(palliative_care_action.text,
                          self.palliative_care_values['status'],
@@ -1317,7 +1317,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          test_post_surgery_term,
                          'Incorrect post_surgery date table column')
         self.assertEqual(post_surgery_flag.text,
-                         'post_surgery',
+                         'Post Surgery',
                          'Incorrect post_surgery flag table column')
         self.assertEqual(post_surgery_action.text,
                          self.post_surgery_values['status'],
@@ -1335,7 +1335,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          test_critical_care_term,
                          'Incorrect critical_care date table column')
         self.assertEqual(critical_care_flag.text,
-                         'critical_care',
+                         'Critical Care',
                          'Incorrect critical_care flag table column')
         self.assertEqual(critical_care_action.text,
                          self.critical_care_values['status'],
