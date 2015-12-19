@@ -223,8 +223,9 @@ class ObservationReport(models.AbstractModel):
                     observation['values']['location_id'][0], [])
                 if patient_location:
                     observation['bed'] = patient_location.get('name', False)
-                    observation['ward'] = patient_location.get(
-                        'parent_id', False)
+                    ward = patient_location.get('parent_id', False)
+                if ward:
+                    observation['ward'] = ward[1]
         return model_data
 
     def process_report_dates(self, data, spell, base_report):
