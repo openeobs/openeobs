@@ -745,7 +745,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-if="mrsa">
+                                <t t-if="mrsa_history">
                                     <t t-foreach="mrsa_history" t-as="mrsa">
                                         <tr class="main-entry">
                                             <td class="col-xs-3"><t t-esc="mrsa['values']['date_terminated']"/></td>
@@ -755,7 +755,7 @@
                                         </tr>
                                     </t>
                                 </t>
-                                <t t-if="diabetes">
+                                <t t-if="diabetes_history">
                                     <t t-foreach="diabetes_history" t-as="diabetes">
                                         <tr class="main-entry">
                                             <td class="col-xs-3"><t t-esc="diabetes['values']['date_terminated']"/></td>
@@ -765,7 +765,7 @@
                                         </tr>
                                     </t>
                                 </t>
-                                <t t-if="palliative_care">
+                                <t t-if="palliative_care_history">
                                     <t t-foreach="palliative_care_history" t-as="palliative_care">
                                         <tr class="main-entry">
                                             <td class="col-xs-3"><t t-esc="palliative_care['values']['date_terminated']"/></td>
@@ -775,7 +775,7 @@
                                         </tr>
                                     </t>
                                 </t>
-                                <t t-if="post_surgery">
+                                <t t-if="post_surgery_history">
                                     <t t-foreach="post_surgery_history" t-as="post_surgery">
                                         <tr class="main-entry">
                                             <td class="col-xs-3"><t t-esc="post_surgery['values']['date_terminated']"/></td>
@@ -785,7 +785,7 @@
                                         </tr>
                                     </t>
                                 </t>
-                                <t t-if="critical_care">
+                                <t t-if="critical_care_history">
                                     <t t-foreach="critical_care_history" t-as="critical_care">
                                         <tr class="main-entry">
                                             <td class="col-xs-3"><t t-esc="critical_care['values']['date_terminated']"/></td>
