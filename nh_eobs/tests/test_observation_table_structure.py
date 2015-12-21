@@ -1421,11 +1421,13 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(action_notes.text,
                          self.triggered_ews_data['notes'],
                          'Incorrect action notes table row')
-        self.assertEqual(action_user.text,
-                         'By: {0}'.format(
-                                 self.triggered_ews_data['user_id'][1]
-                         ),
-                         'Incorrect action user table row')
+        self.assertEqual(
+            action_user.text,
+            'By: {0}'.format(
+                self.triggered_ews_data['user_id'][1]
+            ),
+            'Incorrect action user table row'
+        )
         act_date = self.triggered_ews_data['date_terminated']
         test_act_date = datetime.strptime(act_date, self.odoo_date_format)\
             .strftime(self.pretty_date_format)
