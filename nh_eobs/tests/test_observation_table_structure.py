@@ -1351,6 +1351,88 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          self.critical_care_values['terminate_uid'][1],
                          'Incorrect critical_care user table header')
 
+    def test_23_triggered_actions_table_structure(self):
+        """
+        Test that the triggered actions table is rendering correctly
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': None,
+            'end_date': None,
+            'ews_only': True
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        header = beautiful_report.select('h3')[6]
+        table = header.findNext('table')
+        table_headers = table.select('th')
+        main_columns = table.select('.main-entry > td')
+        action_column = main_columns[3]
+        action_rows = action_column.select('.compact-data td')
+        self.assertEqual(len(table_headers), 4,
+                         'Incorrect number of table headers')
+        self.assertEqual(len(main_columns), 4,
+                         'Incorrect number of main columns')
+        self.assertEqual(len(action_rows), 4,
+                         'Incorrect number of action rows')
+        date_header = table_headers[0]
+        score_header = table_headers[1]
+        risk_header = table_headers[2]
+        action_header = table_headers[3]
+        date_column = main_columns[0]
+        score_column = main_columns[1]
+        risk_column = main_columns[2]
+        action_title = action_rows[0]
+        action_notes = action_rows[1]
+        action_user = action_rows[2]
+        action_date = action_rows[3]
+        self.assertEqual(date_header.text,
+                         'Date',
+                         'Incorrect ews date table header')
+        ews_date = self.ews_values['date_terminated']
+        test_ews_date = datetime.strptime(ews_date, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(date_column.text,
+                         test_ews_date,
+                         'Incorrect ews date table column')
+        self.assertEqual(score_header.text,
+                         'EWS Score',
+                         'Incorrect ews score table header')
+        self.assertEqual(score_column.text,
+                         self.ews_values['score'],
+                         'Incorrect mrsa status table column')
+        self.assertEqual(risk_header.text,
+                         'Clinical Risk',
+                         'Incorrect ews risk table header')
+        self.assertEqual(risk_column.text,
+                         self.ews_values['clinical_risk'],
+                         'Incorrect ews risk table column')
+        self.assertEqual(action_header.text,
+                         'Action Taken',
+                         'Incorrect ews actions table header')
+        self.assertEqual(risk_column.text,
+                         self.ews_values['clinical_risk'],
+                         'Incorrect ews risk table column')
+        self.assertEqual(action_title.text.strip(),
+                         self.triggered_ews_data['summary'],
+                         'Incorrect action title table row')
+        self.assertEqual(action_notes.text,
+                         self.triggered_ews_data['notes'],
+                         'Incorrect action notes table row')
+        self.assertEqual(action_user.text,
+                         'By: {0}'.format(
+                                 self.triggered_ews_data['user_id'][1]
+                         ),
+                         'Incorrect action user table row')
+        act_date = self.triggered_ews_data['date_terminated']
+        test_act_date = datetime.strptime(act_date, self.odoo_date_format)\
+            .strftime(self.pretty_date_format)
+        self.assertEqual(action_date.text.strip(),
+                         'Date: {0}'.format(test_act_date),
+                         'Incorrect action date table row')
+
     def tearDown(self):
         self.device_session_values['date_terminated'] = '1988-01-12 06:00:01'
         self.ews_values['oxygen_administration_flag'] = 0

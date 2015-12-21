@@ -53,7 +53,7 @@ class ObservationReportHelpers(TransactionCase):
 
     ews_data = {
         'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
+        'date_terminated': '1988-01-12 06:01:00',
         'id': 1,
         'data_ref': 'EWS,1',
         'terminate_uid': [1, 'Test'],
