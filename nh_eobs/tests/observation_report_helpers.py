@@ -339,7 +339,7 @@ class ObservationReportHelpers(TransactionCase):
         'location': 'Test Location',
         'terminate_uid': [1, 'Test'],
         'write_uid': [1, 'Test'],
-        'planned': True,
+        'planned': 'planned',
         'removal_reason': 'Test Reason'
     }
 

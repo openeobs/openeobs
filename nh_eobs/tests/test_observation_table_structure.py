@@ -1110,9 +1110,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Incorrect planned table header')
         self.assertEqual(
             planned_column.text,
-            self.boolean_to_text(
-                self.device_session_values['planned']
-            ),
+            self.device_session_values['planned'],
             'Incorrect planned table column')
         self.assertEqual(reason_header.text,
                          'Removal Reason',

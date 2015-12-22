@@ -208,13 +208,6 @@ class ObservationReport(models.AbstractModel):
             vals['result'] = helpers.boolean_to_text(vals['result'])
         return model_data
 
-    @staticmethod
-    def convert_device_session_booleans(model_data):
-        for ob in model_data:
-            vals = ob['values']
-            vals['planned'] = helpers.boolean_to_text(vals['planned'])
-        return model_data
-
     def process_transfer_history(self, model_data):
         for observation in model_data:
                 patient_location = self.pool['nh.clinical.location'].read(
@@ -360,13 +353,11 @@ class ObservationReport(models.AbstractModel):
             patient['bed'] = th.get('bed',  False)
             patient['ward'] = th.get('ward',  False)
 
-        device_session_history = self.convert_device_session_booleans(
-            self.get_multi_model_data(
-                spell_activity_id,
-                'nh.clinical.patient.o2target',
-                'nh.clinical.device.session',
-                data.start_time, data.end_time
-            )
+        device_session_history = self.get_multi_model_data(
+            spell_activity_id,
+            'nh.clinical.patient.o2target',
+            'nh.clinical.device.session',
+            data.start_time, data.end_time
         )
 
         ews_dict = {
