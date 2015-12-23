@@ -8,8 +8,10 @@
                             <img src="/nh_eobs/static/src/img/open_eobs_logo.png" alt="Open-eObs" style="height: 16px;"/>
                             <t t-esc="user_name"/> -
                             <t t-esc="time_generated"/> -
-                            <t t-esc="company_name"/> -
-                            <t t-esc="patient['other_identifier']"/>
+                            <t t-esc="hospital_name"/> -
+                            <t t-if="'other_identifier' in patient">
+                                <t t-esc="patient['other_identifier']"/>
+                            </t>
                         </p>
                 </div>
                 <div class="col-xs-3 pull-right">
@@ -213,7 +215,10 @@
                                     <h2>Patient</h2>
                                     <table class="col-xs-12">
                                         <tr>
-                                            <td><strong>Hospital No:</strong></td><td><t t-esc="patient['other_identifier']"/></td>
+                                            <td><strong>Hospital No:</strong></td><td>
+                                            <t t-if="'other_identifier' in patient">
+                                                <t t-esc="patient['other_identifier']"/>
+                                            </t></td>
                                         </tr>
                                         <tr>
                                             <td><strong>DOB:</strong></td><td><t t-esc="patient['dob']"/></td>
@@ -400,7 +405,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(weights) > 0">
+                    <t t-if="weights and len(weights) > 0">
                         <div class="col-xs-12 row">
                             <h3>Weight Values</h3>
                             <table class="striped col-xs-12 row">
@@ -423,7 +428,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(gcs) > 0">
+                    <t t-if="gcs and len(gcs) > 0">
                         <div class="col-xs-12 row">
                             <h3>GCS Values</h3>
                             <table class="striped col-xs-12 row">
@@ -449,7 +454,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(bs) > 0">
+                    <t t-if="bs and len(bs) > 0">
                         <div class="col-xs-12 row">
                             <h3>Blood Sugar Values</h3>
                             <table class="striped col-xs-12 row">
@@ -471,7 +476,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(pains) > 0">
+                    <t t-if="pains and len(pains) > 0">
                         <div class="col-xs-12 row">
                             <h3>Pain Score Values</h3>
                             <table class="striped col-xs-12 row">
@@ -495,7 +500,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(blood_products) > 0">
+                    <t t-if="blood_products and len(blood_products) > 0">
                         <div class="col-xs-12 row">
                             <h3>Blood Product Values</h3>
                             <table class="striped col-xs-12 row">
@@ -519,7 +524,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(bristol_stools) > 0">
+                    <t t-if="bristol_stools and len(bristol_stools) > 0">
                         <div class="col-xs-12 row">
                             <h3>Bristol Stools Values</h3>
                             <table class="striped col-xs-12 row">
@@ -561,7 +566,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(pbps) > 0 ">
+                    <t t-if="pbps and len(pbps) > 0 ">
                         <div class="col-xs-12 row">
                             <h3>Postural Blood Pressure Values</h3>
                             <table class="striped col-xs-12 row">
@@ -610,7 +615,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(targeto2) > 0">
+                    <t t-if="targeto2 and len(targeto2) > 0">
                         <div class="row col-xs-12">
                             <h3>O2 Target Values</h3>
                             <table class="striped col-xs-12 row">
@@ -635,7 +640,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(device_session_history) > 0">
+                    <t t-if="device_session_history and len(device_session_history) > 0">
                         <div class="row col-xs-12">
                             <h3>Active Device Sessions</h3>
                             <table class="striped col-xs-12 row">
@@ -666,7 +671,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(device_session_history) > 0">
+                    <t t-if="device_session_history and len(device_session_history) > 0">
                         <div class="row col-xs-12">
                             <h3>Device Session History</h3>
                             <table class="striped col-xs-12 row">
@@ -703,7 +708,7 @@
                         </div>
                     </t>
 
-                    <t t-if="len(transfer_history) > 0">
+                    <t t-if="transfer_history and len(transfer_history) > 0">
                         <div class="row col-xs-12">
                             <h3>Transfer History</h3>
                             <table class="striped col-xs-12 row">
@@ -740,45 +745,55 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="mrsa_history" t-as="mrsa">
-                                    <tr class="main-entry">
-                                        <td class="col-xs-3"><t t-esc="mrsa['values']['date_terminated']"/></td>
-                                        <td class="col-xs-3">MRSA</td>
-                                        <td class="col-xs-3"><t t-esc="mrsa['values']['mrsa']"/></td>
-                                        <td class="col-xs-3"><t t-esc="mrsa['values']['terminate_uid'][1]"/></td>
-                                    </tr>
+                                <t t-if="mrsa_history">
+                                    <t t-foreach="mrsa_history" t-as="mrsa">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="mrsa['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3">MRSA</td>
+                                            <td class="col-xs-3"><t t-esc="mrsa['values']['status']"/></td>
+                                            <td class="col-xs-3"><t t-esc="mrsa['values']['terminate_uid'][1]"/></td>
+                                        </tr>
+                                    </t>
                                 </t>
-                                <t t-foreach="diabetes_history" t-as="diabetes">
-                                    <tr class="main-entry">
-                                        <td class="col-xs-3"><t t-esc="diabetes['values']['date_terminated']"/></td>
-                                        <td class="col-xs-3">Diabetes</td>
-                                        <td class="col-xs-3"><t t-esc="diabetes['values']['diabetes']"/></td>
-                                        <td class="col-xs-3"><t t-esc="diabetes['values']['terminate_uid'][1]"/></td>
-                                    </tr>
+                                <t t-if="diabetes_history">
+                                    <t t-foreach="diabetes_history" t-as="diabetes">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="diabetes['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3">Diabetes</td>
+                                            <td class="col-xs-3"><t t-esc="diabetes['values']['status']"/></td>
+                                            <td class="col-xs-3"><t t-esc="diabetes['values']['terminate_uid'][1]"/></td>
+                                        </tr>
+                                    </t>
                                 </t>
-                                <t t-foreach="palliative_care_history" t-as="palliative_care">
-                                    <tr class="main-entry">
-                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['date_terminated']"/></td>
-                                        <td class="col-xs-3">Palliative Care</td>
-                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['palliative_care']"/></td>
-                                        <td class="col-xs-3"><t t-esc="palliative_care['values']['terminate_uid'][1]"/></td>
-                                    </tr>
+                                <t t-if="palliative_care_history">
+                                    <t t-foreach="palliative_care_history" t-as="palliative_care">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="palliative_care['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3">Palliative Care</td>
+                                            <td class="col-xs-3"><t t-esc="palliative_care['values']['status']"/></td>
+                                            <td class="col-xs-3"><t t-esc="palliative_care['values']['terminate_uid'][1]"/></td>
+                                        </tr>
+                                    </t>
                                 </t>
-                                <t t-foreach="post_surgery_history" t-as="post_surgery">
-                                    <tr class="main-entry">
-                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['date_terminated']"/></td>
-                                        <td class="col-xs-3">Post Surgery</td>
-                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['post_surgery']"/></td>
-                                        <td class="col-xs-3"><t t-esc="post_surgery['values']['terminate_uid'][1]"/></td>
-                                    </tr>
+                                <t t-if="post_surgery_history">
+                                    <t t-foreach="post_surgery_history" t-as="post_surgery">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="post_surgery['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3">Post Surgery</td>
+                                            <td class="col-xs-3"><t t-esc="post_surgery['values']['status']"/></td>
+                                            <td class="col-xs-3"><t t-esc="post_surgery['values']['terminate_uid'][1]"/></td>
+                                        </tr>
+                                    </t>
                                 </t>
-                                <t t-foreach="critical_care_history" t-as="critical_care">
-                                    <tr class="main-entry">
-                                        <td class="col-xs-3"><t t-esc="critical_care['values']['date_terminated']"/></td>
-                                        <td class="col-xs-3">Critical Care</td>
-                                        <td class="col-xs-3"><t t-esc="critical_care['values']['critical_care']"/></td>
-                                        <td class="col-xs-3"><t t-esc="critical_care['values']['terminate_uid'][1]"/></td>
-                                    </tr>
+                                <t t-if="critical_care_history">
+                                    <t t-foreach="critical_care_history" t-as="critical_care">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="critical_care['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3">Critical Care</td>
+                                            <td class="col-xs-3"><t t-esc="critical_care['values']['status']"/></td>
+                                            <td class="col-xs-3"><t t-esc="critical_care['values']['terminate_uid'][1]"/></td>
+                                        </tr>
+                                    </t>
                                 </t>
                             </tbody>
                         </table>
