@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>parameters &mdash; nh_observations 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="top" title="nh_observations 0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">nh_observations 0.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for parameters</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">`parameters.py` defines a set of activity types to record basic</span>
+<span class="sd">medical parameters. They have in common that they are not measurements</span>
+<span class="sd">like the observations.</span>
+
+<span class="sd">They can represent a patient state, flag or any simple medical</span>
+<span class="sd">information that is not measured, but set by the medical staff.</span>
+
+<span class="sd">They are represented by activity types mainly for audit purposes as</span>
+<span class="sd">their static nature would allow them to be fields instead. The last</span>
+<span class="sd">completed one would represent the current status regarding that specific</span>
+<span class="sd">parameter.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">openerp.osv</span> <span class="kn">import</span> <span class="n">orm</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">openerp</span> <span class="kn">import</span> <span class="n">SUPERUSER_ID</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span><span class="p">,</span> <span class="n">timedelta</span> <span class="k">as</span> <span class="n">td</span>
+<span class="kn">from</span> <span class="nn">openerp.addons.nh_observations.helpers</span> <span class="kn">import</span> <span class="n">refresh_materialized_views</span>
+<span class="kn">from</span> <span class="nn">openerp.tools</span> <span class="kn">import</span> <span class="n">DEFAULT_SERVER_DATETIME_FORMAT</span> <span class="k">as</span> <span class="n">dtf</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">frequencies</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="s">&#39;Every 15 Minutes&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="s">&#39;Every 30 Minutes&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="s">&#39;Every Hour&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="s">&#39;Every 2 Hours&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">240</span><span class="p">,</span> <span class="s">&#39;Every 4 Hours&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">360</span><span class="p">,</span> <span class="s">&#39;Every 6 Hours&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="s">&#39;Every 8 Hours&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="s">&#39;Every 10 Hours&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">720</span><span class="p">,</span> <span class="s">&#39;Every 12 Hours&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">1440</span><span class="p">,</span> <span class="s">&#39;Every Day&#39;</span><span class="p">)</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="nh_clinical_patient_mrsa"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_mrsa">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_mrsa</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the action of setting the</span>
+<span class="sd">    :class:`patient&lt;base.nh_clinical_patient&gt;` MRSA infection status</span>
+<span class="sd">    to `yes` or `no`. Depending on whether the patient has the infection</span>
+<span class="sd">    or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.mrsa&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span> 
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;mrsa&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">boolean</span><span class="p">(</span><span class="s">&#39;MRSA&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>                
+        <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">many2one</span><span class="p">(</span><span class="s">&#39;nh.clinical.patient&#39;</span><span class="p">,</span> <span class="s">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_mrsa</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="nh_clinical_patient_diabetes"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_diabetes">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_diabetes</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the action of setting the</span>
+<span class="sd">    :class:`patient&lt;base.nh_clinical_patient&gt;` diabetes status</span>
+<span class="sd">    to `yes` or `no`. Depending on whether the patient is diabetic or</span>
+<span class="sd">    not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.diabetes&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span> 
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;diabetes&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">boolean</span><span class="p">(</span><span class="s">&#39;Diabetes&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>                
+        <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">many2one</span><span class="p">(</span><span class="s">&#39;nh.clinical.patient&#39;</span><span class="p">,</span> <span class="s">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_diabetes</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+</div>
+<div class="viewcode-block" id="nh_clinical_patient_palliative_care"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_palliative_care">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_palliative_care</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the action of setting the</span>
+<span class="sd">    :class:`patient&lt;base.nh_clinical_patient&gt;` palliative care status</span>
+<span class="sd">    to `yes` or `no`. This would mainly depend on hospital policy and</span>
+<span class="sd">    the medical staff assessment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.palliative_care&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&#39;No&#39;</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">boolean</span><span class="p">(</span><span class="s">&#39;On Palliative Care?&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">_get_value</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;char&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">&#39;String Value&#39;</span><span class="p">),</span>
+        <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">many2one</span><span class="p">(</span><span class="s">&#39;nh.clinical.patient&#39;</span><span class="p">,</span> <span class="s">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="n">activity_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">id</span><span class="p">],</span>
+                                                          <span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;not in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">,</span> <span class="s">&#39;cancelled&#39;</span><span class="p">]],</span>
+                                                          <span class="s">&#39;|&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;ilike&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="si">%o</span><span class="s">bservation%&#39;</span><span class="p">],</span>
+                                                          <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;ilike&#39;</span><span class="p">,</span> <span class="s">&#39;%notification%&#39;</span><span class="p">]],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+            <span class="p">[</span><span class="n">activity_pool</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">aid</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span> <span class="k">for</span> <span class="n">aid</span> <span class="ow">in</span> <span class="n">activity_ids</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_palliative_care</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="nh_clinical_patient_post_surgery"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_post_surgery">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_post_surgery</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the action of setting the</span>
+<span class="sd">    :class:`patient&lt;base.nh_clinical_patient&gt;` post surgery status</span>
+<span class="sd">    to `yes` or `no`. This would be set as `yes` after surgery has</span>
+<span class="sd">    taken place and then set to `no` after recovery has been completed.</span>
+<span class="sd">    Although mainly depends on hospital policy and medical staff</span>
+<span class="sd">    assessment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.post_surgery&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&#39;No&#39;</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">boolean</span><span class="p">(</span><span class="s">&#39;On Recovery from Surgery?&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">_get_value</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;char&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">&#39;String Value&#39;</span><span class="p">),</span>
+        <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">many2one</span><span class="p">(</span><span class="s">&#39;nh.clinical.patient&#39;</span><span class="p">,</span> <span class="s">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">_ews_frequency</span> <span class="o">=</span> <span class="mi">60</span>
+
+    <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">ews_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.patient.observation.ews&#39;</span><span class="p">]</span>
+        <span class="n">api_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.api&#39;</span><span class="p">]</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="n">current_case</span> <span class="o">=</span> <span class="n">ews_pool</span><span class="o">.</span><span class="n">get_last_case</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+            <span class="n">current_freq</span> <span class="o">=</span> <span class="n">ews_pool</span><span class="o">.</span><span class="n">_POLICY</span><span class="p">[</span><span class="s">&#39;frequencies&#39;</span><span class="p">][</span><span class="n">current_case</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_case</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">current_freq</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ews_frequency</span><span class="p">:</span>
+                <span class="n">api_pool</span><span class="o">.</span><span class="n">change_activity_frequency</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                                                   <span class="s">&#39;nh.clinical.patient.observation.ews&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ews_frequency</span><span class="p">,</span>
+                                                   <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_post_surgery</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+<div class="viewcode-block" id="nh_clinical_patient_post_surgery.current_status"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_post_surgery.current_status">[docs]</a>    <span class="k">def</span> <span class="nf">current_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the provided :class:`patient&lt;base.nh_clinical_patient&gt;`</span>
+<span class="sd">        had surgery in the last 4 hours.</span>
+
+<span class="sd">        :parameter patient_id: :class:`patient&lt;base.nh_clinical_patient&gt;` id.</span>
+<span class="sd">        :type patient_id: int</span>
+<span class="sd">        :returns: ``True`` or ``False``</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">a_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span>
+                                               <span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;completed&#39;</span><span class="p">],</span>
+                                               <span class="p">[</span><span class="s">&#39;date_terminated&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;=&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">-</span><span class="n">td</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dtf</span><span class="p">)]],</span>
+                                     <span class="n">order</span><span class="o">=</span><span class="s">&#39;date_terminated desc, sequence desc&#39;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">a_ids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">a_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">status</span>
+
+</div></div>
+<div class="viewcode-block" id="nh_clinical_patient_critical_care"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_critical_care">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_critical_care</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the action of setting the</span>
+<span class="sd">    :class:`patient&lt;base.nh_clinical_patient&gt;` critical care status</span>
+<span class="sd">    to `yes` or `no`. This would mainly depend on hospital policy and</span>
+<span class="sd">    the medical staff assessment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.critical_care&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s">&#39;status&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&#39;No&#39;</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">boolean</span><span class="p">(</span><span class="s">&#39;On Critical Care?&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">_get_value</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;char&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">&#39;String Value&#39;</span><span class="p">),</span>
+        <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">many2one</span><span class="p">(</span><span class="s">&#39;nh.clinical.patient&#39;</span><span class="p">,</span> <span class="s">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">_ews_frequency</span> <span class="o">=</span> <span class="mi">240</span>
+
+<div class="viewcode-block" id="nh_clinical_patient_critical_care.current_status"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_critical_care.current_status">[docs]</a>    <span class="k">def</span> <span class="nf">current_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the provided :class:`patient&lt;base.nh_clinical_patient&gt;`</span>
+<span class="sd">        was marked with critical care status within the last 24 hours.</span>
+
+<span class="sd">        :parameter patient_id: :class:`patient&lt;base.nh_clinical_patient&gt;` id.</span>
+<span class="sd">        :type patient_id: int</span>
+<span class="sd">        :returns: ``True`` or ``False``</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">a_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span>
+                                               <span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;completed&#39;</span><span class="p">],</span>
+                                               <span class="p">[</span><span class="s">&#39;date_terminated&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;=&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">-</span><span class="n">td</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">dtf</span><span class="p">)]],</span>
+                                     <span class="n">order</span><span class="o">=</span><span class="s">&#39;date_terminated desc, sequence desc&#39;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">a_ids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">a_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">status</span>
+</div>
+    <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">ews_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.patient.observation.ews&#39;</span><span class="p">]</span>
+        <span class="n">api_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.api&#39;</span><span class="p">]</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">status</span><span class="p">:</span>
+            <span class="n">current_case</span> <span class="o">=</span> <span class="n">ews_pool</span><span class="o">.</span><span class="n">get_last_case</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+            <span class="n">current_freq</span> <span class="o">=</span> <span class="n">ews_pool</span><span class="o">.</span><span class="n">_POLICY</span><span class="p">[</span><span class="s">&#39;frequencies&#39;</span><span class="p">][</span><span class="n">current_case</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_case</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">current_freq</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ews_frequency</span><span class="p">:</span>
+                <span class="n">api_pool</span><span class="o">.</span><span class="n">change_activity_frequency</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                                                   <span class="s">&#39;nh.clinical.patient.observation.ews&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ews_frequency</span><span class="p">,</span>
+                                                   <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_critical_care</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="nh_clinical_patient_weight_monitoring"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_weight_monitoring">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_weight_monitoring</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the action of setting the</span>
+<span class="sd">    :class:`patient&lt;base.nh_clinical_patient&gt;` weight monitoring status</span>
+<span class="sd">    to `yes` or `no`. This would mainly depend on hospital policy and</span>
+<span class="sd">    the medical staff assessment.</span>
+
+<span class="sd">    This parameter is directly related to the</span>
+<span class="sd">    :mod:`weight&lt;observations.nh_clinical_patient_observation_weight&gt;`</span>
+<span class="sd">    observation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.weight_monitoring&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;weight_monitoring&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s">&#39;On&#39;</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s">&#39;weight_monitoring&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&#39;Off&#39;</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;weight_monitoring&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">boolean</span><span class="p">(</span><span class="s">&#39;Weight Monitoring&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">_get_value</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;char&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">&#39;String Value&#39;</span><span class="p">),</span>
+        <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">many2one</span><span class="p">(</span><span class="s">&#39;nh.clinical.patient&#39;</span><span class="p">,</span> <span class="s">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;weight&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">weight_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.patient.observation.weight&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">weight_monitoring</span><span class="p">:</span>
+            <span class="n">activity_pool</span><span class="o">.</span><span class="n">cancel_open_activities</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">parent_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">weight_pool</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+            <span class="n">weight_activity_id</span> <span class="o">=</span> <span class="n">weight_pool</span><span class="o">.</span><span class="n">create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span>
+                                 <span class="p">{</span><span class="s">&#39;creator_id&#39;</span><span class="p">:</span> <span class="n">activity_id</span><span class="p">,</span> <span class="s">&#39;parent_id&#39;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">parent_id</span><span class="o">.</span><span class="n">id</span><span class="p">},</span>
+                                 <span class="p">{</span><span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">id</span><span class="p">})</span>
+            <span class="n">activity_pool</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">weight_activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_weight_monitoring</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="nh_clinical_patient_urine_output_target"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_urine_output_target">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_urine_output_target</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the action of setting the current urine output target</span>
+<span class="sd">    for the :class:`patient&lt;base.nh_clinical_patient&gt;`. This would</span>
+<span class="sd">    mainly be decided by the medical staff assessment.</span>
+
+<span class="sd">    This parameter is directly related to the</span>
+<span class="sd">    :mod:`urine output&lt;observations.nh_clinical_patient_observation_urine_output&gt;`</span>
+<span class="sd">    observation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.uotarget&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.activity.data&#39;</span><span class="p">]</span>
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;volume&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">integer</span><span class="p">(</span><span class="s">&#39;Volume&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="s">&#39;unit&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">selection</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;ml/hour&#39;</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;L/day&#39;</span><span class="p">]],</span> <span class="s">&#39;Unit&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">many2one</span><span class="p">(</span><span class="s">&#39;nh.clinical.patient&#39;</span><span class="p">,</span> <span class="s">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="nh_clinical_patient_urine_output_target.current_target"><a class="viewcode-back" href="../parameters.html#parameters.nh_clinical_patient_urine_output_target.current_target">[docs]</a>    <span class="k">def</span> <span class="nf">current_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the current urine output target for the provided</span>
+<span class="sd">        :class:`patient&lt;base.nh_clinical_patient&gt;`</span>
+
+<span class="sd">        :returns: ``[volume,unit]``</span>
+<span class="sd">        :rtype: list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">a_ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="n">patient_id</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],</span>
+                                               <span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;completed&#39;</span><span class="p">]],</span>
+                                     <span class="n">order</span><span class="o">=</span><span class="s">&#39;date_terminated desc, sequence desc&#39;</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">a_ids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">a_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">volume</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">unit</span><span class="p">]</span>
+</div>
+    <span class="nd">@refresh_materialized_views</span><span class="p">(</span><span class="s">&#39;param&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_urine_output_target</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="../index.html">
+<img class="logo" src="../_static/img/company_logo.png" alt="Logo"/>
+</a></p><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../observations.html"><code class="docutils literal"><span class="pre">Observations</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parameters.html"><code class="docutils literal"><span class="pre">Parameters</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notifications.html"><code class="docutils literal"><span class="pre">Notifications</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nh_clinical_extension.html"><code class="docutils literal"><span class="pre">NH</span> <span class="pre">Clinical</span> <span class="pre">Extension</span></code></a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Neova Health.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

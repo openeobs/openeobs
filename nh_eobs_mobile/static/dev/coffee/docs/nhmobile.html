@@ -41,16 +41,53 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>ClassList Polyfill for IE9 by Devon Govett -
-<a href="https://gist.github.com/devongovett/1381839">https://gist.github.com/devongovett/1381839</a></p>
+<a href="https://gist.github.com/devongovett/1381839">https://gist.github.com/devongovett/1381839</a>
+if not (‘classList’ in document.documentElement) and
+   Object.defineProperty and typeof HTMLElement isnt
+   ‘undefined’
+ Object.defineProperty(HTMLElement.prototype, ‘classList’, {
+   get: () -&gt;
+     self = @</p>
+<pre><code> <span class="hljs-comment"># Currently using JS but need to make proper CoffeeScript</span>
+ `<span class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">update</span>(<span class="hljs-params">fn</span>) </span>{
+   <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value</span>) </span>{
+     <span class="hljs-keyword">var</span> classes = self.className.split(<span class="hljs-regexp">/\s+/</span>);
+     <span class="hljs-keyword">var</span> index = classes.indexOf(value);
+
+     fn(classes, index, value);
+     self.className = classes.join(<span class="hljs-string">" "</span>);
+   }
+ }</span>`
+
+ ret = {
+   <span class="hljs-attribute">add</span>: update(<span class="hljs-function"><span class="hljs-params">(classes, index, value)</span> -&gt;</span>
+     ~index || classes.push(value)
+     <span class="hljs-keyword">return</span>
+   ),
+   <span class="hljs-attribute">remove</span>: update(<span class="hljs-function"><span class="hljs-params">(classes, index)</span> -&gt;</span>
+     ~index &amp;&amp; classes.splice(index, <span class="hljs-number">1</span>)
+     <span class="hljs-keyword">return</span>
+   ),
+   <span class="hljs-attribute">toggle</span>: update(<span class="hljs-function"><span class="hljs-params">(classes, index, value)</span> -&gt;</span>
+     <span class="hljs-keyword">if</span> ~index <span class="hljs-keyword">then</span> classes.splice(index, <span class="hljs-number">1</span>) <span class="hljs-keyword">else</span> classes.push(value)
+     <span class="hljs-keyword">return</span>
+   ),
+   <span class="hljs-attribute">contains</span>: <span class="hljs-function"><span class="hljs-params">(value)</span> -&gt;</span>
+     <span class="hljs-keyword">return</span> !!~self.className.split(<span class="hljs-regexp">/\s+/</span>).indexOf(value)
+   ,
+   <span class="hljs-attribute">item</span>: <span class="hljs-function"><span class="hljs-params">(i)</span> -&gt;</span>
+     <span class="hljs-keyword">return</span> self.className.split(<span class="hljs-regexp">/\s+/</span>)[i] || <span class="hljs-literal">null</span>
+ }
+
+ Object.defineProperty(ret, <span class="hljs-string">'length'</span>, {
+   <span class="hljs-attribute">get</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+     <span class="hljs-keyword">return</span> self.className.split(<span class="hljs-regexp">/\s+/</span>).length
+ })
+
+ <span class="hljs-keyword">return</span> ret
+</code></pre><p> })</p>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> (<span class="hljs-string">'classList'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">document</span>.documentElement) <span class="hljs-keyword">and</span>
-    Object.defineProperty <span class="hljs-keyword">and</span> <span class="hljs-keyword">typeof</span> HTMLElement <span class="hljs-keyword">isnt</span>
-    <span class="hljs-string">'undefined'</span>
-  Object.defineProperty(HTMLElement.prototype, <span class="hljs-string">'classList'</span>, {
-    <span class="hljs-attribute">get</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
-      self = @</pre></div></div>
             
         </li>
         
@@ -61,47 +98,9 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Currently using JS but need to make proper CoffeeScript</p>
+              <h2 id="promise">Promise</h2>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre>      `<span class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">update</span>(<span class="hljs-params">fn</span>) </span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value</span>) </span>{
-          <span class="hljs-keyword">var</span> classes = self.className.split(<span class="hljs-regexp">/\s+/</span>);
-          <span class="hljs-keyword">var</span> index = classes.indexOf(value);
-
-          fn(classes, index, value);
-          self.className = classes.join(<span class="hljs-string">" "</span>);
-        }
-      }</span>`
-
-      ret = {
-        <span class="hljs-attribute">add</span>: update(<span class="hljs-function"><span class="hljs-params">(classes, index, value)</span> -&gt;</span>
-          ~index || classes.push(value)
-          <span class="hljs-keyword">return</span>
-        ),
-        <span class="hljs-attribute">remove</span>: update(<span class="hljs-function"><span class="hljs-params">(classes, index)</span> -&gt;</span>
-          ~index &amp;&amp; classes.splice(index, <span class="hljs-number">1</span>)
-          <span class="hljs-keyword">return</span>
-        ),
-        <span class="hljs-attribute">toggle</span>: update(<span class="hljs-function"><span class="hljs-params">(classes, index, value)</span> -&gt;</span>
-          <span class="hljs-keyword">if</span> ~index <span class="hljs-keyword">then</span> classes.splice(index, <span class="hljs-number">1</span>) <span class="hljs-keyword">else</span> classes.push(value)
-          <span class="hljs-keyword">return</span>
-        ),
-        <span class="hljs-attribute">contains</span>: <span class="hljs-function"><span class="hljs-params">(value)</span> -&gt;</span>
-          <span class="hljs-keyword">return</span> !!~self.className.split(<span class="hljs-regexp">/\s+/</span>).indexOf(value)
-        ,
-        <span class="hljs-attribute">item</span>: <span class="hljs-function"><span class="hljs-params">(i)</span> -&gt;</span>
-          <span class="hljs-keyword">return</span> self.className.split(<span class="hljs-regexp">/\s+/</span>)[i] || <span class="hljs-literal">null</span>
-      }
-
-      Object.defineProperty(ret, <span class="hljs-string">'length'</span>, {
-        <span class="hljs-attribute">get</span>: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
-          <span class="hljs-keyword">return</span> self.className.split(<span class="hljs-regexp">/\s+/</span>).length
-      })
-
-      <span class="hljs-keyword">return</span> ret
-  })</pre></div></div>
             
         </li>
         
@@ -112,20 +111,7 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <h2 id="promise">Promise</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
-              </div>
-              <p>Promise class for Async comms with server, wrap requests in <code>when</code> function
+              <p>Promise class for Async comes with server, wrap requests in <code>when</code> function
 you can then use <code>then</code> to handle the response</p>
 
             </div>
@@ -167,15 +153,36 @@ you can then use <code>then</code> to handle the response</p>
         </li>
         
         
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <h2 id="nhmobiledata">NHMobileData</h2>
+
+            </div>
+            
+        </li>
+        
+        
         <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <h2 id="nhmobile">NHMobile</h2>
+              <p>A utility class to hold data from the server</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHMobileData</span></span>
+  <span class="hljs-attribute">constructor</span>: <span class="hljs-function"><span class="hljs-params">(raw_data)</span> -&gt;</span>
+    <span class="hljs-property">@status</span> = raw_data.status
+    <span class="hljs-property">@title</span> = raw_data.title
+    <span class="hljs-property">@desc</span> = raw_data.description
+    <span class="hljs-property">@data</span> = raw_data.data
+    self = @</pre></div></div>
             
         </li>
         
@@ -185,6 +192,19 @@ you can then use <code>then</code> to handle the response</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <h2 id="nhmobile">NHMobile</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>contains utilities for working with the
 nh_eobs_mobile controllers as well as AJAX</p>
@@ -196,11 +216,11 @@ nh_eobs_mobile controllers as well as AJAX</p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>Handles the XMLHTTPRequest and wraps it up in a Promise
 Params:
@@ -217,9 +237,9 @@ Params:
       <span class="hljs-keyword">if</span> req.readyState <span class="hljs-keyword">is</span> <span class="hljs-number">4</span>
         successResultCodes = [<span class="hljs-number">200</span>, <span class="hljs-number">304</span>]
         <span class="hljs-keyword">if</span> req.status <span class="hljs-keyword">in</span> successResultCodes
-          data = eval(<span class="hljs-string">'['</span>+req.responseText+<span class="hljs-string">']'</span>)
-          <span class="hljs-built_in">console</span>.log <span class="hljs-string">'data: '</span>, data
-          promise.complete data
+          data = JSON.parse(req.responseText)
+          mob_data = <span class="hljs-keyword">new</span> NHMobileData(data)
+          promise.complete mob_data
         <span class="hljs-keyword">else</span>
           btn = <span class="hljs-string">'&lt;a href="#" data-action="close" '</span> +
             <span class="hljs-string">'data-target="data_error"&gt;Ok&lt;/a&gt;'</span>
@@ -241,11 +261,11 @@ Params:
         </li>
         
         
-        <li id="section-9">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>frontend_routes is the routes file from nh_eobs_mobile</p>
 
@@ -259,11 +279,11 @@ Params:
         </li>
         
         
-        <li id="section-10">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Decodes frontend_routes URL object into a <code>process_request</code> call</p>
 
@@ -275,11 +295,55 @@ Params:
         </li>
         
         
-        <li id="section-11">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Takes a patient object from server and renders patient information into
+template</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">render_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(patient, nameless, self)</span> -&gt;</span>
+    patient_info = <span class="hljs-string">''</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> nameless
+      <span class="hljs-keyword">if</span> patient.full_name
+        patient_info += <span class="hljs-string">'&lt;dt&gt;Name:&lt;/dt&gt;&lt;dd&gt;'</span> + patient.full_name + <span class="hljs-string">'&lt;/dd&gt;'</span>
+      <span class="hljs-keyword">if</span> patient.gender
+        patient_info += <span class="hljs-string">'&lt;dt&gt;Gender:&lt;/dt&gt;&lt;dd&gt;'</span> + patient.gender + <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">if</span> patient.dob
+      patientDOB = self.date_from_string(patient.dob)
+      patient_info += <span class="hljs-string">'&lt;dt&gt;DOB:&lt;/dt&gt;&lt;dd&gt;'</span> +
+        self.date_to_dob_string(patientDOB) + <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">if</span> patient.location
+      patient_info += <span class="hljs-string">'&lt;dt&gt;Location:&lt;/dt&gt;&lt;dd&gt;'</span> + patient.location
+    <span class="hljs-keyword">if</span> patient.parent_location
+      patient_info += <span class="hljs-string">','</span> + patient.parent_location + <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">else</span>
+      patient_info += <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">if</span> patient.ews_score
+      patient_info += <span class="hljs-string">'&lt;dt class="twoline"&gt;Latest Score:&lt;/dt&gt;'</span> +
+        <span class="hljs-string">'&lt;dd class="twoline"&gt;'</span> + patient.ews_score + <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">if</span> patient.ews_trend
+      patient_info += <span class="hljs-string">'&lt;dt&gt;NEWS Trend:&lt;/dt&gt;&lt;dd&gt;'</span> + patient.ews_trend + <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">if</span> patient.other_identifier
+      patient_info += <span class="hljs-string">'&lt;dt&gt;Hospital ID:&lt;/dt&gt;&lt;dd&gt;'</span> + patient.other_identifier +
+        <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">if</span> patient.patient_identifier
+      patient_info += <span class="hljs-string">'&lt;dt&gt;NHS Number:&lt;/dt&gt;&lt;dd&gt;'</span> + patient.patient_identifier+
+        <span class="hljs-string">'&lt;/dd&gt;'</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'&lt;dl&gt;'</span> + patient_info + <span class="hljs-string">'&lt;/dl&gt;'</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>Takes a patient ID, calls the server and then creates a NHModal from the
 data</p>
@@ -288,35 +352,15 @@ data</p>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">get_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(patient_id, self)</span> =&gt;</span>
     patient_url = <span class="hljs-keyword">this</span>.urls.json_patient_info(patient_id).url
-    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@process_request</span>(<span class="hljs-string">'GET'</span>, patient_url)).<span class="hljs-keyword">then</span> (server_data) -&gt;
-      data = server_data[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
-      patient_name = <span class="hljs-string">''</span>
+    Promise.<span class="hljs-keyword">when</span>(<span class="hljs-property">@process_request</span>(<span class="hljs-string">'GET'</span>, patient_url)).<span class="hljs-keyword">then</span> (raw_data) -&gt;
+      server_data = raw_data[<span class="hljs-number">0</span>]
+      data = server_data.data
+      patient_name = server_data.title
       patient_details = <span class="hljs-string">''</span>
-      <span class="hljs-keyword">if</span> data.full_name
-        patient_name += <span class="hljs-string">' '</span> + data.full_name
       <span class="hljs-keyword">if</span> data.gender
         patient_name += <span class="hljs-string">'&lt;span class="alignright"&gt;'</span> + data.gender + <span class="hljs-string">'&lt;/span&gt;'</span>
-      <span class="hljs-keyword">if</span> data.dob
-        patientDOB = self.date_from_string(data.dob)
-        patient_details += <span class="hljs-string">'&lt;dt&gt;DOB:&lt;/dt&gt;&lt;dd&gt;'</span> +
-          self.date_to_dob_string(patientDOB) + <span class="hljs-string">'&lt;/dd&gt;'</span>
-      <span class="hljs-keyword">if</span> data.location
-        patient_details += <span class="hljs-string">'&lt;dt&gt;Location:&lt;/dt&gt;&lt;dd&gt;'</span> + data.location
-      <span class="hljs-keyword">if</span> data.parent_location
-        patient_details += <span class="hljs-string">','</span> + data.parent_location + <span class="hljs-string">'&lt;/dd&gt;'</span>
-      <span class="hljs-keyword">else</span>
-        patient_details += <span class="hljs-string">'&lt;/dd&gt;'</span>
-      <span class="hljs-keyword">if</span> data.ews_score
-        patient_details += <span class="hljs-string">'&lt;dt class="twoline"&gt;Latest Score:&lt;/dt&gt;'</span> +
-          <span class="hljs-string">'&lt;dd class="twoline"&gt;'</span> + data.ews_score + <span class="hljs-string">'&lt;/dd&gt;'</span>
-      <span class="hljs-keyword">if</span> data.other_identifier
-        patient_details += <span class="hljs-string">'&lt;dt&gt;Hospital ID:&lt;/dt&gt;&lt;dd&gt;'</span> + data.other_identifier +
-          <span class="hljs-string">'&lt;/dd&gt;'</span>
-      <span class="hljs-keyword">if</span> data.patient_identifier
-        patient_details += <span class="hljs-string">'&lt;dt&gt;NHS Number:&lt;/dt&gt;&lt;dd&gt;'</span> + data.patient_identifier+
-          <span class="hljs-string">'&lt;/dd&gt;'</span>
-      patient_details = <span class="hljs-string">'&lt;dl&gt;'</span>+patient_details+<span class="hljs-string">'&lt;/dl&gt;&lt;p&gt;&lt;a href="'</span>+
-        self.urls[<span class="hljs-string">'single_patient'</span>](patient_id).url+
+      patient_details = self.render_patient_info(data, <span class="hljs-literal">true</span>, self) +
+        <span class="hljs-string">'&lt;p&gt;&lt;a href="'</span> + self.urls[<span class="hljs-string">'single_patient'</span>](patient_id).url+
         <span class="hljs-string">'" id="patient_obs_fullscreen" class="button patient_obs"&gt;'</span>+
         <span class="hljs-string">'View Patient Observation Data&lt;/a&gt;&lt;/p&gt;'</span>
       cancel = <span class="hljs-string">'&lt;a href="#" data-target="patient_info" '</span> +
@@ -324,26 +368,31 @@ data</p>
       <span class="hljs-keyword">new</span> NHModal(<span class="hljs-string">'patient_info'</span>, patient_name, patient_details,
         [cancel], <span class="hljs-number">0</span>, <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
       fullscreen = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'patient_obs_fullscreen'</span>)
-      fullscreen.addEventListener(<span class="hljs-string">'click'</span>, self.fullscreen_patient_info)
+      fullscreen.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+          self.fullscreen_patient_info(event, self)
+          event.handled = <span class="hljs-literal">true</span>
+      )
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-12">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Adds a full screen modal of the patient info screen over the current page
 triggered by the fullscreen button made by the patient information modal</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">fullscreen_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">fullscreen_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
     event.preventDefault()
     <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+      target_el = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
       container = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
       container.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'full-modal'</span>)
       options = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'p'</span>)
@@ -353,18 +402,45 @@ triggered by the fullscreen button made by the patient information modal</p>
       options_close.innerText = <span class="hljs-string">'Close popup'</span>
       options_close.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
         <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-          body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
-          body.removeChild(<span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>])
+          self.close_fullscreen_patient_info(event)
           event.handled = <span class="hljs-literal">true</span>
       )
       options.appendChild(options_close)
       container.appendChild(options)
       page = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'iframe'</span>)
-      page.setAttribute(<span class="hljs-string">'src'</span>, event.srcElement.getAttribute(<span class="hljs-string">'href'</span>))
+      page.setAttribute(<span class="hljs-string">'src'</span>, target_el.getAttribute(<span class="hljs-string">'href'</span>))
+      page.onload = <span class="hljs-function">-&gt;</span>
+        modal = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>]
+        iframe = modal.getElementsByTagName(<span class="hljs-string">'iframe'</span>)[<span class="hljs-number">0</span>]
+        contents = <span class="hljs-keyword">if</span> iframe.contentDocument <span class="hljs-keyword">then</span> iframe.contentDocument <span class="hljs-keyword">else</span>
+          iframe.contentWindow.<span class="hljs-built_in">document</span>
+        header = contents?.getElementsByClassName(<span class="hljs-string">'header'</span>)?[<span class="hljs-number">0</span>]
+        header?.parentNode.removeChild(header)
+        obs = contents?.getElementsByClassName(<span class="hljs-string">'obs'</span>)?[<span class="hljs-number">0</span>]
+        obs?.parentNode.removeChild(obs)
       container.appendChild(page)
       <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].appendChild(container)
-      event.handled = <span class="hljs-literal">true</span>
+      event.handled = <span class="hljs-literal">true</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Closes an open fullscreen modal of the patient’s information</p>
 
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_fullscreen_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+    event.preventDefault()
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+      body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+      body.removeChild(<span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>])
+      event.handled = <span class="hljs-literal">true</span>
 
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH

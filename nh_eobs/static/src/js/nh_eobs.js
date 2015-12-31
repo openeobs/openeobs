@@ -4,7 +4,7 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing3, timing4, timing5;
+    var timing, timing2, timing3, timing4, timing5, ward_dashboard_refresh;
     var refresh_placement = false;
     var refresh_active_poc = false;
     var wardboard_refreshed = false;
@@ -15,6 +15,7 @@ openerp.nh_eobs = function (instance) {
     var kiosk_t;
     var kiosk_button;
     var ranged_chart = null;
+    var modal_view = null;
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
@@ -107,7 +108,7 @@ openerp.nh_eobs = function (instance) {
         init: function(parent, dataset, view_id, options) {
 
             if (options.action){
-                if (['Doctors','Spells','Hospital Wards','Device Categories','Patients Board','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
+                if (['Doctors','Spells','Hospital Wards','Device Categories','Acuity Board','Patients by Ward','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
                     options.selectable = false;
                 };
                 if ('Patients' != options.action.name){
@@ -117,12 +118,12 @@ openerp.nh_eobs = function (instance) {
                     clearInterval(timing5);
                 }
                 wardboard_groups_opened = false;
-                if (options.action.name == "Patients Board"){
+                if (['Acuity Board','Patients by Ward'].indexOf(options.action.name) > -1){
                     if (typeof(timing) != 'undefined'){
                         clearInterval(timing);
                     }
                     timing = window.setInterval(function(){
-                        var button =  $("a:contains('Patients Board')");
+                        var button =  $("a:contains('Acuity Board')");
                         if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('oe_active') && $(".oe_view_manager_view_list").css('display') != 'none'){
                             wardboard_refreshed = true;
                             button.click();
@@ -550,6 +551,7 @@ openerp.nh_eobs = function (instance) {
 
                     var score_graph = new window.NH.NHGraph();
                     score_graph.options.keys = ['score'];
+                    score_graph.options.plot_partial = false;
                     score_graph.style.dimensions.height = 200;
                     score_graph.style.data_style = 'stepped';
                     score_graph.style.padding.bottom = 10;
@@ -831,7 +833,7 @@ openerp.nh_eobs = function (instance) {
     instance.web.FormView.include({
          can_be_discarded: function() {
              // Hack to save if on the patient allocation stuff
-            if(this.model !== 'nh.clinical.allocating.user'){
+            if(this.model !== 'nh.clinical.allocating'){
                 return this._super();
             }
 
@@ -904,6 +906,21 @@ openerp.nh_eobs = function (instance) {
                 $(".oe_leftbar").addClass("nh_eobs_show");
                 $(".oe_searchview").show();
             }
+            if (this.options.action.name == 'Ward Dashboard'){
+                if (typeof(ward_dashboard_refresh) == 'undefined') {
+                    ward_dashboard_refresh = window.setInterval(function () {
+                        var button = $("a:contains('Ward Dashboard SQL')");
+                        if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('active') && $(".oe_view_manager_view_kanban").css('display') != 'none') {
+                            button.click();
+                        }
+                    }, 60000);
+                }
+            }
+            else {
+                if (typeof(ward_dashboard_refresh) != 'undefined'){
+                    clearInterval(ward_dashboard_refresh);
+                }
+            }
     	}
     });
 
@@ -957,6 +974,31 @@ openerp.nh_eobs = function (instance) {
            });
         }
     });
+    // Function to handle the time to next observation
+    // Displays (overdue)? [0-9]* days [0-2][0-9]:[0-5][0-9]
+    // Takes the date string returned by Odoo
+    //var nh_date_diff_to_string = function(date1, date2){
+    //    var time_diff = (date1.getTime() - date2.getTime()) / 1000;
+    //    var string_to_return = ' ';
+    //    if(time_diff < 0){
+    //        string_to_return += 'overdue: ';
+    //        time_diff = Math.abs(time_diff);
+    //    }
+    //    var days = Math.floor(time_diff/86400);
+    //    time_diff -= days * 86400;
+    //    var hours = Math.floor(time_diff/3600);
+    //    time_diff -= hours * 3600;
+    //    var mins = Math.floor(time_diff/60);
+    //    if(days > 0){
+    //        var term = 'day';
+    //        if(days > 1){
+    //            term += 's';
+    //        }
+    //        string_to_return += days + ' ' + term + ' ';
+    //    }
+    //    string_to_return += ('0' + hours).slice(-2) +':'+ ('0' + mins).slice(-2);
+    //    return string_to_return;
+    //};
 
     var normalize_format = function (format) {
         return Date.normalizeFormat(instance.web.strip_raw_chars(format));
@@ -1062,7 +1104,7 @@ openerp.nh_eobs = function (instance) {
     // Override of the do_action implementation in web.View so it actually gets record ids [WI-577]
     instance.web.View.include({
         do_execute_action: function (action_data, dataset, record_id, on_closed) {
-            if((['nh.clinical.allocating.user', 'nh.clinical.wardboard'].indexOf(dataset.model) < 0) || (typeof(this.fields_view.type) !== 'undefined' && this.fields_view.type !== 'tree') || action_data.type !== 'action'){
+            if((['nh.clinical.allocating', 'nh.clinical.wardboard'].indexOf(dataset.model) < 0) || (typeof(this.fields_view.type) !== 'undefined' && this.fields_view.type !== 'tree') || action_data.type !== 'action'){
                 return this._super(action_data, dataset, record_id, on_closed);
             }
 
@@ -1093,7 +1135,7 @@ openerp.nh_eobs = function (instance) {
                     var active_ids_to_send = [];
                     var active_records_to_send = [];
                     if (dataset.model === 'nh.clinical.wardboard') {
-                        if (typeof(self.records._proxies) == 'object') {
+                        if (self.records.length == 0 && typeof(self.records._proxies) == 'object') {
                             for (key in self.records._proxies) {
                                 if (self.records._proxies.hasOwnProperty(key)) {
                                     for (var i = 0; i < self.records._proxies[key].records.length; i++) {
@@ -1104,9 +1146,15 @@ openerp.nh_eobs = function (instance) {
                                     //active_ids_to_send = self.records._proxies[key].records;
                                 }
                             }
+                        } else if (self.records.length > 0) {
+                            for (var i = 0; i < self.records.length; i++) {
+                                var rec = self.records.records[i];
+                                active_ids_to_send.push(rec.attributes.id);
+                                active_records_to_send.push(rec.attributes);
+                            }
                         } else {
                             if (record_id) {
-                                active_ids_to_send = [record_id]
+                                active_ids_to_send.push(record_id)
                             }
                         }
                     } else {
@@ -1137,9 +1185,10 @@ openerp.nh_eobs = function (instance) {
 
                     //var title_to_use = 'Observation Chart'
                     if(self.dataset.model == 'nh.clinical.allocating.user'){
-                        title_to_use = 'User Allocation';
+                        title_to_use = 'Shift Management';
                     }
 
+                    modal_view = self.ViewManager;
 
                     var pop = new instance.nh_eobs.PagedFormOpenPopup(action);
                     pop.show_element(
@@ -1186,7 +1235,7 @@ openerp.nh_eobs = function (instance) {
             } else if (action_data.type=="action") {
 
                 var active_ids_to_send = []
-                    if(typeof(self.records._proxies) == 'object'){
+                    if(self.records.length == 0 && typeof(self.records._proxies) == 'object'){
                         for(key in self.records._proxies){
                             if(self.records._proxies.hasOwnProperty(key)){
                                 for(var i = 0; i < self.records._proxies[key].records.length; i++){
@@ -1196,9 +1245,17 @@ openerp.nh_eobs = function (instance) {
                                 //active_ids_to_send = self.records._proxies[key].records;
                             }
                         }
-                    }else{
+                        if(active_ids_to_send.length< 1){
+                            active_ids_to_send.push(record_id)
+                        }
+                    } else if (self.records.length > 0) {
+                            for (var i = 0; i < self.records.length; i++) {
+                                var rec = self.records.records[i];
+                                active_ids_to_send.push(rec.attributes.id);
+                            }
+                    } else {
                         if(record_id){
-                            active_ids_to_send = [record_id]
+                            active_ids_to_send.push(record_id)
                         }
                     }
 
@@ -1265,7 +1322,7 @@ openerp.nh_eobs = function (instance) {
         },
         setup_form_view: function() {
             var self = this;
-            if (this.options.active_index) {
+            if (this.options.active_index > 0) {
                 //this.dataset.ids = [this.row_id];
                 this.dataset.index = this.options.active_index;
             } else {
@@ -1317,7 +1374,7 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.ViewManager.include({
         do_create_view: function(view_type){
-            if (this.dataset.model === 'nh.clinical.allocating.user'){
+            if (this.dataset.model === 'nh.clinical.allocating'){
                 this.views[view_type].options.initial_mode = 'edit';
             }
             return this._super(view_type);
@@ -1326,21 +1383,26 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.FormView.include({
         on_button_save: function(e) {
-            if (this.dataset.model === 'nh.clinical.allocating.user'){
+            if (this.dataset.model === 'nh.clinical.allocating'){
                 var self = this;
                 $(e.target).attr("disabled", true);
                 return this.save().done(function(result) {
                     self.trigger("save", result);
                     self.reload();
+                    self.ViewManager.ActionManager.$el.parent().parent().find('.modal-header .close').click();
                 }).always(function(){
-                   $(e.target).attr("disabled", false)
+                    $(e.target).attr("disabled", false);
+                    self.$el.parents('.modal').find('.close').click();
+                    if (modal_view != undefined){
+                        modal_view.reinitialize();
+                    }
                 });
             } else {
                 return this._super(e);
             }
         },
         on_button_cancel: function(e) {
-            if (this.dataset.model === 'nh.clinical.allocating.user'){
+            if (this.dataset.model === 'nh.clinical.allocating'){
                 var self = this;
                 if (this.can_be_discarded()) {
                     this.to_view_mode();
@@ -1350,6 +1412,10 @@ openerp.nh_eobs = function (instance) {
                     this.to_edit_mode();
                 }
                 this.trigger('on_button_cancel');
+                self.$el.parents('.modal').find('.close').click();
+                if (modal_view != undefined){
+                    modal_view.reinitialize();
+                }
                 return false;
             } else {
                 return this._super(e);
@@ -1361,7 +1427,7 @@ openerp.nh_eobs = function (instance) {
        init: function (group, opts) {
            var self = this;
            this._super(group, opts);
-           if (this.dataset.model === 'nh.clinical.allocating.user' || this.dataset.model === 'nh.clinical.wardboard'){
+           if (this.dataset.model === 'nh.clinical.allocating' || this.dataset.model === 'nh.clinical.wardboard'){
                this.$current = $('<tbody>')
                     .delegate('input[readonly=readonly]', 'click', function (e) {
                         e.preventDefault();

@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHLib,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -13,6 +15,8 @@ NHLib = (function() {
   NHLib.prototype.date_from_string = function(date_string) {
     var date;
     date = new Date(date_string);
+
+    /* istanbul ignore else */
     if (isNaN(date.getTime())) {
       date = new Date(date_string.replace(' ', 'T'));
     }
@@ -44,9 +48,34 @@ NHLib = (function() {
     return ("0" + date_element).slice(-2);
   };
 
+  NHLib.prototype.handle_event = function(raw_e, func, pref_dev, raw_args) {
+    var arg, args, i, len;
+    if (!raw_e.handled) {
+      raw_e.src_el = raw_e.srcElement ? raw_e.srcElement : raw_e.target;
+      if (pref_dev) {
+        raw_e.preventDefault();
+      }
+      args = [raw_e];
+      if (typeof raw_args !== 'undefined') {
+        if (!Array.isArray(raw_args)) {
+          raw_args = [raw_args];
+        }
+        for (i = 0, len = raw_args.length; i < len; i++) {
+          arg = raw_args[i];
+          args.push(arg);
+        }
+      }
+      func.apply(func, args);
+      return raw_e.handled = true;
+    }
+  };
+
   return NHLib;
 
 })();
+
+
+/* istanbul ignore else */
 
 if (!window.NH) {
   window.NH = {};

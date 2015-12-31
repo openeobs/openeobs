@@ -1,0 +1,325 @@
+/*
+List
+
+Structures for listing patients
+
+.tasklist - Main container for patient list
+.tasklist li a - List item, a link so maximum hit area is available
+.tasklist li a.level-not-set - List item with an unknown clinical risk
+.tasklist li a.level-one - List item with low clinical risk
+.tasklist li a.level-two - List item with medium clinical risk
+.tasklist li a.level-three - List item with high clinical risk
+.tasklist .task-meta - Container for information for list item
+.tasklist .task-meta .task-right - Right hand side information, used for time until next NEWS observation / task deadline
+.tasklist .task-meta .task-right .aside - Floats information right
+.tasklist .task-meta .task-left - Left hand side information, used for patient details
+.tasklist .task-meta .taskInfo - Used to display the task information
+
+Markup:
+<ul class="tasklist">
+  <li>
+    <a class="block level-one">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">06:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Test Patient</strong> (2 <i class="icon-down-arrow"></i>) <br>
+          <em>Bed 01, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+  <li>
+    <a class="block level-two">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Another Patient</strong> (5 <i class="icon-up-arrow"></i>) <br>
+          <em>Bed 02, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+  <li>
+    <a class="block level-three">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">00:30 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Ill Patient</strong> (17 <i class="icon-left-arrow"></i>) <br>
+          <em>Bed 03, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+  <li>
+    <a class="block level-not-set">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Unknown Patient</strong><br>
+          <em>Bed 04, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+</ul>
+
+Styleguide 2.2.0
+*/
+
+@import "utils.less";
+
+.tasklist{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  li a{
+    display: block;
+    padding-top: 0.7em;
+    padding-bottom: 0.7em;
+    border-bottom: 1px solid #eeeeee;
+    position: relative;
+    .task-meta{
+      width: 100%;
+      clear: both;
+      float: none;
+      display: inline-block;
+    }
+    .task-right{
+      float: right;
+      width: 27.5%;
+      margin-left: 2.5%;
+      margin-top: 0px;
+      text-align: right;
+      font-weight: bold;
+      p{
+        margin-top: 0px;
+        margin-bottom: 1em;
+      }
+    }
+    .task-left{
+      float: left;
+      width: 67.5%;
+      margin-right: 2.5%;
+      text-align: left;
+      margin-top: 0px;
+    }
+
+
+    h2{
+      width: 65%;
+      color: #262626;
+    }
+    p{
+      color: #000000;
+      &.taskInfo{
+        text-decoration: underline;
+      }
+    }
+    &.level-one{
+      .subtle-bgcolour(@ok-colour);
+    }
+    &.level-two{
+      .not-as-subtle-bgcolour(@warning-colour);
+    }
+    &.level-three, &.urgent{
+      .subtle-bgcolour(@error-color);
+    }
+    &.level-not-set{
+      background-color: @not-set-colour;
+    }
+  }
+}
+
+/*
+Stand-in List
+
+Structures for listing patients for stand-in functionality
+
+.sharelist - Main container for stand-in patient list, used in conjunction with .tasklist styling
+.sharelist .share_all - Button for selecting all patients
+.sharelist label.shared - A patient already shared as part of stand-in, coloured grey
+.sharelist label .patient-share - Checkbox for selecting patient
+.sharelist label > div - Patient information similar to task / patient list
+.sharelist label .task-meta .taskInfo - Stand-in information
+
+
+Markup:
+<ul class="tasklist sharelist">
+  <li>
+    <a class="share_all">Select all</a>
+  </li>
+  <li>
+    <label class="shared">
+      <input type="checkbox" class="patient-share">
+      <div class="level-none block">
+        <div class="task-meta">
+          <div class="task-right">
+            <p class="aside">12:00 Hours</p>
+          </div>
+          <div class="task-left">
+            <strong>Test Patient</strong> (0 <i class="icon-down-arrow"></i>) <br>
+            <em>Bed 03, Ward A</em>
+          </div>
+        </div>
+        <div class="task-meta">
+          <p class="taskInfo">Shared with: A Nurse, B Nurse<br>
+          Following: C Nurse<br>
+          Invited: D Nurse</p>
+        </div>
+      </div>
+    </label>
+  </li>
+  <li>
+    <label>
+      <input type="checkbox" class="patient-share">
+      <div class="level-three block">
+        <div class="task-meta">
+          <div class="task-right">
+            <p class="aside">00:30 Hours</p>
+          </div>
+          <div class="task-left">
+            <strong>Ill Patient</strong> (17 <i class="icon-left-arrow"></i>) <br>
+            <em>Bed 03, Ward A</em>
+          </div>
+        </div>
+        <div class="task-meta">
+          <p class="taskInfo"><br><br></p>
+        </div>
+      </div>
+    </label>
+  </li>
+</ul>
+
+Styleguide 2.2.1
+*/
+
+.sharelist{
+  list-style: none;
+  width: 100%;
+  li{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #eeeeee;
+    .patient-share, .patient_share_nurse{
+      flex: 1 0 0 ;
+      align-self: center;
+    }
+    > label {
+      flex: 4 0 0;
+      margin: 0;
+      margin-bottom: 0.8em;
+    }
+    label{
+      display: flex;
+      position: relative;
+      margin-bottom: 0;
+      width: 100%;
+      > .block{
+        flex: 4 0 0;
+        border-bottom: 0 solid black;
+      }
+      .block{
+        padding-top: 0.7em;
+        padding-bottom: 0.7em;
+      }
+      .task-meta{
+        width: 100%;
+        clear: both;
+        float: none;
+      }
+      .task-right{
+        float: right;
+        width: 27.5%;
+        margin-left: 2.5%;
+        margin-top: 0;
+        text-align: right;
+        font-weight: bold;
+        p{
+          margin-top: 0;
+          margin-bottom: 1em;
+        }
+      }
+      .task-left{
+        float: left;
+        width: 67.5%;
+        margin-right: 2.5%;
+        text-align: left;
+        margin-top: 0;
+        em{
+          font-weight: normal;
+          font-style: italic;
+        }
+      }
+      h2{
+        width: 65%;
+        color: #262626;
+      }
+      p{
+        color: black;
+        &.taskInfo{
+          text-decoration: underline;
+        }
+      }
+      .level-one{
+        background-color: #ccffcc;
+      }
+      .level-two{
+        background-color: #ffdfbe;
+      }
+      .level-three, .urgent{
+        background-color: #ffcccc;
+      }
+      .level-not-set{
+        background-color: #e5dfff;
+      }
+      .shared{
+        background-color: #eeeeee;
+      }
+    }
+  }
+}
+
+.share_invite{
+  .task-meta{
+    padding-top: 1em;
+    padding-bottom: 0;
+    background-color: #ffcccc;
+    border-radius: 10px;
+    .task-left{
+      padding-left: 2.5%;
+      width: 65%;
+    }
+    .task-right{
+      padding-right: 2.5%;
+      width: 25%;
+      .aside{
+        float: right;
+        background-color: #4491ce;
+        color: white;
+        border-radius: 10px;
+        padding: 0.5em 2.5%;
+      }
+    }
+  }
+}

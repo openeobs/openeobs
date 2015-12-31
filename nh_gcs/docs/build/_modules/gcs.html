@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gcs &mdash; nh_gcs 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="top" title="nh_gcs 0.0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">nh_gcs 0.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gcs</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">`gcs.py` defines the Glasgow Coma Scale observation class and its</span>
+<span class="sd">standard behaviour and policy triggers based on this worldwide standard.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">openerp.osv</span> <span class="kn">import</span> <span class="n">orm</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">osv</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">bisect</span>
+<span class="kn">from</span> <span class="nn">openerp</span> <span class="kn">import</span> <span class="n">SUPERUSER_ID</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="nh_clinical_patient_observation_gcs"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs">[docs]</a><span class="k">class</span> <span class="nc">nh_clinical_patient_observation_gcs</span><span class="p">(</span><span class="n">orm</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an Glasgow Coma Scale</span>
+<span class="sd">    :class:`observation&lt;observations.nh_clinical_patient_observation&gt;`</span>
+<span class="sd">    which stores three parameters that are used as a way to communicate</span>
+<span class="sd">    about the level of consciousness of</span>
+<span class="sd">    :class:`patients&lt;base.nh_clinical_patient&gt;` with acute brain injury.</span>
+
+<span class="sd">    The basis of the scale system are the following parameters:</span>
+<span class="sd">    Eye response: spontaneous, to sound, to pressure, none.</span>
+<span class="sd">    Verbal response: orientated, confused, words, sounds, none.</span>
+<span class="sd">    Motor response: obey commands, localising, normal flexion, abnormal</span>
+<span class="sd">    flexion, extension, none.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="s">&#39;nh.clinical.patient.observation.gcs&#39;</span>
+    <span class="n">_inherit</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;nh.clinical.patient.observation&#39;</span><span class="p">]</span>
+    <span class="n">_required</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;eyes&#39;</span><span class="p">,</span> <span class="s">&#39;verbal&#39;</span><span class="p">,</span> <span class="s">&#39;motor&#39;</span><span class="p">]</span>
+    <span class="n">_description</span> <span class="o">=</span> <span class="s">&quot;GCS Observation&quot;</span>
+    <span class="n">_eyes</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;4: Opens eyes spontaneously&#39;</span><span class="p">),</span>
+             <span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;3: Opens eyes in response to voice&#39;</span><span class="p">),</span>
+             <span class="p">(</span><span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;2: Opens eyes in response to painful stimuli&#39;</span><span class="p">),</span>
+             <span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;1: Does not open eyes&#39;</span><span class="p">),</span>
+             <span class="p">(</span><span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;C: Closed by swelling&#39;</span><span class="p">)]</span>
+    <span class="n">_verbal</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;5&#39;</span><span class="p">,</span> <span class="s">&#39;5: Oriented, converses normally&#39;</span><span class="p">),</span>
+               <span class="p">(</span><span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;4: Confused, disoriented&#39;</span><span class="p">),</span>
+               <span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;3: Utters inappropiate words&#39;</span><span class="p">),</span>
+               <span class="p">(</span><span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;2: Incomprehensible sounds&#39;</span><span class="p">),</span>
+               <span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;1: Makes no sounds&#39;</span><span class="p">),</span>
+               <span class="p">(</span><span class="s">&#39;T&#39;</span><span class="p">,</span> <span class="s">&#39;T: Intubated&#39;</span><span class="p">)]</span>
+    <span class="n">_motor</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;6&#39;</span><span class="p">,</span> <span class="s">&#39;6: Obeys commands&#39;</span><span class="p">),</span>
+              <span class="p">(</span><span class="s">&#39;5&#39;</span><span class="p">,</span> <span class="s">&#39;5: Localizes painful stimuli&#39;</span><span class="p">),</span>
+              <span class="p">(</span><span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;4: Flexion / Withdrawal to painful stimuli&#39;</span><span class="p">),</span>
+              <span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;3: Abnormal flexion to painful stimuli (decorticate response)&#39;</span><span class="p">),</span>
+              <span class="p">(</span><span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;2: Extension to painful stimuli (decerebrate response)&#39;</span><span class="p">),</span>
+              <span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;1: Makes no movements&#39;</span><span class="p">)</span>
+              <span class="p">]</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Default GCS policy has 5 different scenarios:</span>
+<span class="sd">        case 0: 30 min frequency</span>
+<span class="sd">        case 1: 1 hour frequency</span>
+<span class="sd">        case 2: 2 hour frequency</span>
+<span class="sd">        case 3: 4 hour frequency</span>
+<span class="sd">        case 4: 12 hour frequency (no clinical risk)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_POLICY</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;ranges&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="s">&#39;case&#39;</span><span class="p">:</span> <span class="s">&#39;01234&#39;</span><span class="p">,</span> <span class="s">&#39;frequencies&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="mi">720</span><span class="p">],</span>
+               <span class="s">&#39;notifications&#39;</span><span class="p">:</span> <span class="p">[[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]]}</span>
+
+<div class="viewcode-block" id="nh_clinical_patient_observation_gcs.calculate_score"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs.calculate_score">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gcs_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the score based on the GCS parameters provided.</span>
+
+<span class="sd">        :param gcs_data: The GCS parameters: ``eyes``, ``verbal`` and</span>
+<span class="sd">                         ``motor``.</span>
+<span class="sd">        :type gcs_data: dict</span>
+<span class="sd">        :returns: ``score``</span>
+<span class="sd">        :rtype: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">eyes</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;eyes&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;C&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;eyes&#39;</span><span class="p">])</span>
+        <span class="n">verbal</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;verbal&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;T&#39;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;verbal&#39;</span><span class="p">])</span>
+        <span class="n">motor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gcs_data</span><span class="p">[</span><span class="s">&#39;motor&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;score&#39;</span><span class="p">:</span> <span class="n">eyes</span><span class="o">+</span><span class="n">verbal</span><span class="o">+</span><span class="n">motor</span><span class="p">}</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">field_names</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">gcs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">gcs</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_score</span><span class="p">({</span><span class="s">&#39;eyes&#39;</span><span class="p">:</span> <span class="n">gcs</span><span class="o">.</span><span class="n">eyes</span><span class="p">,</span> <span class="s">&#39;verbal&#39;</span><span class="p">:</span> <span class="n">gcs</span><span class="o">.</span><span class="n">verbal</span><span class="p">,</span> <span class="s">&#39;motor&#39;</span><span class="p">:</span> <span class="n">gcs</span><span class="o">.</span><span class="n">motor</span><span class="p">})</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Observation GCS activity_id=</span><span class="si">%s</span><span class="s"> gcs_id=</span><span class="si">%s</span><span class="s"> score: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">gcs</span><span class="o">.</span><span class="n">activity_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">gcs</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="n">gcs</span><span class="o">.</span><span class="n">id</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="n">_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;score&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">_get_score</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;integer&#39;</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="s">&#39;score&#39;</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">&#39;Score&#39;</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="p">{</span>
+                       <span class="s">&#39;nh.clinical.patient.observation.gcs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span><span class="n">cr</span><span class="p">,</span><span class="n">uid</span><span class="p">,</span><span class="n">ids</span><span class="p">,</span><span class="n">ctx</span><span class="p">:</span> <span class="n">ids</span><span class="p">,</span> <span class="p">[],</span> <span class="mi">10</span><span class="p">)</span> <span class="c"># all fields of self</span>
+        <span class="p">}),</span>
+        <span class="s">&#39;eyes&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">selection</span><span class="p">(</span><span class="n">_eyes</span><span class="p">,</span> <span class="s">&#39;Eyes&#39;</span><span class="p">),</span>
+        <span class="s">&#39;verbal&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">selection</span><span class="p">(</span><span class="n">_verbal</span><span class="p">,</span> <span class="s">&#39;Verbal&#39;</span><span class="p">),</span>
+        <span class="s">&#39;motor&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="o">.</span><span class="n">selection</span><span class="p">(</span><span class="n">_motor</span><span class="p">,</span> <span class="s">&#39;Motor&#39;</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="n">_defaults</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;frequency&#39;</span><span class="p">:</span> <span class="mi">60</span>
+    <span class="p">}</span>
+
+    <span class="n">_form_description</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;meta&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;meta&#39;</span><span class="p">,</span>
+            <span class="s">&#39;score&#39;</span><span class="p">:</span> <span class="bp">True</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;eyes&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;selection&#39;</span><span class="p">,</span>
+            <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;Eyes&#39;</span><span class="p">,</span>
+            <span class="s">&#39;selection&#39;</span><span class="p">:</span> <span class="n">_eyes</span><span class="p">,</span>
+            <span class="s">&#39;initially_hidden&#39;</span><span class="p">:</span> <span class="bp">False</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;verbal&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;selection&#39;</span><span class="p">,</span>
+            <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;Verbal&#39;</span><span class="p">,</span>
+            <span class="s">&#39;selection&#39;</span><span class="p">:</span> <span class="n">_verbal</span><span class="p">,</span>
+            <span class="s">&#39;initially_hidden&#39;</span><span class="p">:</span> <span class="bp">False</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;motor&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;selection&#39;</span><span class="p">,</span>
+            <span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="s">&#39;Motor&#39;</span><span class="p">,</span>
+            <span class="s">&#39;selection&#39;</span><span class="p">:</span> <span class="n">_motor</span><span class="p">,</span>
+            <span class="s">&#39;initially_hidden&#39;</span><span class="p">:</span> <span class="bp">False</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="nh_clinical_patient_observation_gcs.complete"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs.complete">[docs]</a>    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        It determines which acuity case the current observation is in</span>
+<span class="sd">        with the stored data and responds to the different policy</span>
+<span class="sd">        triggers accordingly defined on the ``_POLICY`` dictionary.</span>
+
+<span class="sd">        :returns: ``True``</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">api_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.clinical.api&#39;</span><span class="p">]</span>
+        <span class="n">groups_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;res.groups&#39;</span><span class="p">]</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">case</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_POLICY</span><span class="p">[</span><span class="s">&#39;case&#39;</span><span class="p">][</span><span class="n">bisect</span><span class="o">.</span><span class="n">bisect_left</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_POLICY</span><span class="p">[</span><span class="s">&#39;ranges&#39;</span><span class="p">],</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">score</span><span class="p">)])</span>
+        <span class="n">hcagroup_ids</span> <span class="o">=</span> <span class="n">groups_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[(</span><span class="s">&#39;users&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">uid</span><span class="p">]),</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;NH Clinical HCA Group&#39;</span><span class="p">)])</span>
+        <span class="n">nursegroup_ids</span> <span class="o">=</span> <span class="n">groups_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">[(</span><span class="s">&#39;users&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">uid</span><span class="p">]),</span> <span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;NH Clinical Nurse Group&#39;</span><span class="p">)])</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">nursegroup_ids</span> <span class="ow">and</span> <span class="s">&#39;nurse&#39;</span> <span class="ow">or</span> <span class="n">hcagroup_ids</span> <span class="ow">and</span> <span class="s">&#39;hca&#39;</span> <span class="ow">or</span> <span class="bp">False</span>
+
+        <span class="c"># TRIGGER NOTIFICATIONS</span>
+        <span class="n">api_pool</span><span class="o">.</span><span class="n">trigger_notifications</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">&#39;notifications&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_POLICY</span><span class="p">[</span><span class="s">&#39;notifications&#39;</span><span class="p">][</span><span class="n">case</span><span class="p">],</span>
+            <span class="s">&#39;parent_id&#39;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">parent_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s">&#39;creator_id&#39;</span><span class="p">:</span> <span class="n">activity_id</span><span class="p">,</span>
+            <span class="s">&#39;patient_id&#39;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">data_ref</span><span class="o">.</span><span class="n">patient_id</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s">&#39;model&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+            <span class="s">&#39;group&#39;</span><span class="p">:</span> <span class="n">group</span>
+        <span class="p">},</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_observation_gcs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">activity_id</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="nh_clinical_patient_observation_gcs.create_activity"><a class="viewcode-back" href="../gcs.html#gcs.nh_clinical_patient_observation_gcs.create_activity">[docs]</a>    <span class="k">def</span> <span class="nf">create_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="o">=</span><span class="p">{},</span> <span class="n">vals_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">context</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        When creating a new activity of this type, an exception will be</span>
+<span class="sd">        raised if the :class:`spell&lt;base.nh_clinical_spell&gt;` already has</span>
+<span class="sd">        an open GCS.</span>
+
+<span class="sd">        :returns: :class:`activity&lt;activity.nh_activity&gt;` id.</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">vals_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;patient_id&#39;</span><span class="p">),</span> <span class="s">&quot;patient_id is a required field!&quot;</span>
+        <span class="n">activity_pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">[</span><span class="s">&#39;nh.activity&#39;</span><span class="p">]</span>
+        <span class="n">domain</span> <span class="o">=</span> <span class="p">[[</span><span class="s">&#39;patient_id&#39;</span><span class="p">,</span><span class="s">&#39;=&#39;</span><span class="p">,</span><span class="n">vals_data</span><span class="p">[</span><span class="s">&#39;patient_id&#39;</span><span class="p">]],[</span><span class="s">&#39;data_model&#39;</span><span class="p">,</span><span class="s">&#39;=&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">],[</span><span class="s">&#39;state&#39;</span><span class="p">,</span><span class="s">&#39;in&#39;</span><span class="p">,[</span><span class="s">&#39;new&#39;</span><span class="p">,</span><span class="s">&#39;started&#39;</span><span class="p">,</span><span class="s">&#39;scheduled&#39;</span><span class="p">]]]</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">activity_pool</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">SUPERUSER_ID</span><span class="p">,</span> <span class="n">domain</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">osv</span><span class="o">.</span><span class="n">except_osv</span><span class="p">(</span><span class="s">&quot;GCS Create Error!&quot;</span><span class="p">,</span>
+                                 <span class="s">&quot;Having more than one activity of type &#39;</span><span class="si">%s</span><span class="s">&#39; is restricted. &quot;</span>
+                                 <span class="s">&quot;Terminate activities with ids=</span><span class="si">%s</span><span class="s"> first&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ids</span><span class="p">)))</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">nh_clinical_patient_observation_gcs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">create_activity</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">vals_activity</span><span class="p">,</span> <span class="n">vals_data</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="../index.html">
+<img class="logo" src="../_static/img/company_logo.png" alt="Logo"/>
+</a></p><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../gcs.html"><code class="docutils literal"><span class="pre">Glasgow</span> <span class="pre">Coma</span> <span class="pre">Scale</span></code></a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Neova Health.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
