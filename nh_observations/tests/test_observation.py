@@ -22,9 +22,9 @@ class TestObservation(common.SingleTransactionCase):
             'nh.clinical.patient.observation.height')
 
         cls.patient_id = cls.patient_pool.search(
-            cr, uid, [['patient_identifier', '=', '0000000000']])[0]
+            cr, uid, [['patient_identifier', '=', 'NHSNUM0000']])[0]
         cls.patient_2_id = cls.patient_pool.search(
-            cr, uid, [['patient_identifier', '=', '1111111111']])[0]
+            cr, uid, [['patient_identifier', '=', 'NHSNUM0001']])[0]
         cls.spell_id = cls.activity_pool.search(
             cr, uid, [['patient_id', '=', cls.patient_id],
                       ['data_model', '=', 'nh.clinical.spell']])[0]
