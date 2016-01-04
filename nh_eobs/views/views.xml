@@ -37,6 +37,7 @@
             <xpath expr="." position="inside">
                 <link rel="stylesheet" href="/nh_eobs/static/src/css/nh_eobs.css"/>
                 <script type="text/javascript" src="/nh_eobs/static/src/js/nh_eobs.js"></script>
+                <script type="text/javascript" src="/nh_eobs/static/src/test/tours/staff_allocation.tour.js"></script>
             </xpath>
         </template>
 
