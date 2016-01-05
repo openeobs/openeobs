@@ -14,7 +14,6 @@
         steps: [
             {
                 title:     _t("Nursing Staff Shift Change Tutorial"),
-                //element:   ".oe_topbar_name:contains('Winifred')",
                 content: _t("It's 8pm, I am the designated nurse in charge for ward C for the upcoming night shift. I need to assign staff to patients at the beginning of my shift."),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
@@ -22,90 +21,108 @@
                 title:     _t("Logged in as a ward manager"),
                 content: _t("Only ward managers and senior managers are able to access the 'Nursing Shift Change' wizard"),
                 element:   ".oe_topbar_name:contains('Winifred')",
-                popover:   { next: _t("Continue"), end: _t("Exit") }
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                placement: 'bottom'
             },
             {
                 title:     _t("Click 'Nursing Shift Change'"),
                 content: _t("This will open the nursing shift change wizard"),
-                element:   "span.oe_menu_text:contains('Nursing Shift Change')",
-                popover:   { fixed: false }
+                element:   "span.oe_menu_text:contains('Nursing Shift Change')"
             },
             {
                 title:     _t("Select Ward"),
                 content: _t("Choose your ward from the drop down menu and click 'Start'"),
-                element:   ".modal-dialog button:contains('Start')",
-                popover:   { fixed: false },
-                placement: 'right'
+                element:   "button:contains('Start')",
+                placement: 'top'
             },
             {
                 title:     _t("Previous Shift"),
                 element: "div:contains('Previous Shift')",
-                content: _t("This shows a list of all beds in selected ward and the responsible staff members"),
+                content: _t("This shows a list of all beds in the selected ward and the responsible staff members"),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
                 title:     _t("Click 'Deallocate Previous Shift'"),
                 content: _t("This will deallocate all HCA's and nurses from previous shift"),
-                element:   ".modal-dialog button:contains('Deallocate Previous Shift')",
-                popover:   { fixed: true }
-            },
-            {
-                title:     _t("Enter staff for next shift"),
-                content: _t("Begin typing a name to get a list of matching staff members"),
-                element: "textarea",
-                sampleText:   "Nad"
-            },
-            {
-                title:     _t("Select staff from dropdown"),
-                content: _t("You can add multiple staff members to the list then click 'Select'"),
-                element:   ".modal-dialog button:contains('Select')", // Add 7 x HCA's and 7 x nurses
-                popover:   { fixed: false },
+                element:   "button:contains('Deallocate Previous Shift')",
                 placement: 'bottom'
             },
             {
+                title:     _t("Enter staff for next shift"),
+                content: _t("You can add multiple staff members. Begin typing a name to find matches or press down key to view list. Click 'Select' when done"),
+                element:   ".modal-dialog button:contains('Select')", // Add 7 x HCA's and 7 x nurses
+                //element:   ".modal-dialog input", // Add 7 x HCA's and 7 x nurses
+                placement: 'top'
+            },
+            {
+                title:     _t("Allocation Tab"),
+                element: "div:contains('Previous Shift')",
+                content: _t("This shows a list of all beds requiring staff allocation in this ward"),
+                popover:   { next: _t("Continue"), end: _t("Exit") }
+            },
+            {
                 title:     _t("Click Allocate"),
-                content: _t("To assign staff to bed"),
-                element:   ".modal-dialog button:contains('Allocate')"
+                content: _t("To assign staff to this bed"),
+                element:   ".modal-dialog button[title='Allocate']:eq(0)",
+                placement: 'top'
             },
             {
-                title:     _t("Select Nurse"),
+                title:     _t("Select Nurse / HCA"),
                 content: _t("Choose from dropdown or begin typing to get suggested names"),
-                element:   "Select"
+                element:   ".modal-dialog:eq(1) input:eq(0)",
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                placement: 'top'
             },
             {
-                title:     _t("Click HCA"),
-                content: _t("Choose from dropdown or begin typing to get suggested names"),
-                element:   "Select"
+                title:     _t("Navigation"),
+                content: _t("You can use the arrows to scroll through the beds in ward. Click here to view the next bed in list."),
+                element:   ".modal-dialog:eq(1) a[data-pager-action='next']:eq(0)",
+                placement: 'bottom'
             },
             {
-                title:     _t("Click Next Arrow"),
-                content: _t("To save changes and assign staff to next bed in list"),
-                element:   "Next arrow"
-            }, // Assign staff to all beds on ward
-            {
-                title:     _t("Click Save"),
-                content: _t("When finished allocating staff to beds"),
-                element:   "Save"
+                waitFor: ".modal-dialog:eq(1) span:contains('Bed 02')",
+                title:     _t("Save Changes"),
+                content: _t("When finished allocating you can click here to save changes and close popup"),
+                element:   ".modal-dialog:eq(1) button.oe_form_button_save"
             },
             {
-                title:     _t("Confirm Allocation"),
-                content: _t("Check that your changes are correct and confirm by clicking here"),
-                element:   "Confirm Allocation"
+                waitNot: ".modal-dialog:eq(1)",
+                title:     _t("Confirm Changes"),
+                content: _t("Review your changes here and click to confirm and return to the main page"),
+                element:   ".modal-dialog span:contains('Confirm Allocation')",
+                placement: 'bottom'
             },
             {
-                title:     _t("Completed"),
-                content: _t("Tutorial complete"),
+                waitNot: ".modal-dialog",
+                title:     _t("Tutorial Completed"),
+                content: _t("That's it. You're staff have now been allocated"),
                 popover:   { end: _t("Exit") }
             }
         ]
     });
     //openerp.Tour.register({
-    //    id: 'allocate_nursing_staff',
-    //    name: _t("Adding / Removing nursing staff during shift tutorial (Winifred)"),
+    //    id: 'nursing_reallocation',
+    //    name: _t("Re-allocating nursing staff during shift (Winifred)"),
     //    path: '/web?debug=',
     //    mode: 'tour',
     //    steps: [
-    //
+    //        {
+    //            title:     _t("Nursing Staff Re-Allocation Tutorial"),
+    //            content: _t("It's 8pm, I am the designated nurse in charge for ward C for the upcoming night shift. I need to assign staff to patients at the beginning of my shift."),
+    //            popover:   { next: _t("Continue"), end: _t("Exit") }
+    //        },
+    //        {
+    //            title:     _t("Logged in as a ward manager"),
+    //            content: _t("Only ward managers and senior managers are able to access the 'Nursing Shift Change' wizard"),
+    //            element:   ".oe_topbar_name:contains('Winifred')",
+    //            popover:   { next: _t("Continue"), end: _t("Exit") },
+    //            placement: 'bottom'
+    //        },
+    //        {
+    //            title:     _t("Click 'Nursing Shift Change'"),
+    //            content: _t("This will open the nursing shift change wizard"),
+    //            element:   "span.oe_menu_text:contains('Nursing Shift Change')"
+    //        },
     //    ]
     //});
 }());
