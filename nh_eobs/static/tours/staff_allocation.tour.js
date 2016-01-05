@@ -9,7 +9,7 @@
     openerp.Tour.register({
         id: 'nursing_shift_change',
         name: _t("Nursing staff shift change tutorial (Winifred)"),
-        path: '/web?debug=',
+        path: '/web',
         mode: 'tour',
         steps: [
             {
@@ -98,7 +98,7 @@
     openerp.Tour.register({
         id: 'nursing_reallocation',
         name: _t("Re-allocating nursing staff during shift (Winifred)"),
-        path: '/web?debug=',
+        path: '/web',
         mode: 'tour',
         steps: [
             {
