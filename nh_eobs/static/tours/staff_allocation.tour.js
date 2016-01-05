@@ -14,19 +14,12 @@
         steps: [
             {
                 title:     _t("Nursing Staff Shift Change Tutorial"),
-                content: _t("I am the designated nurse in charge for ward C for the upcoming shift. I need to assign staff to patients at the beginning of my shift."),
+                content: _t("This tour shows the steps needed to change the staff available at the beginning of a shift and then allocate them to beds."),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
-                title:     _t("Log in as ward manager"),
-                content: _t("Only ward managers and senior managers are able to access the 'Nursing Shift Change' wizard"),
-                element:   ".oe_topbar_name:contains('Winifred')",
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'bottom'
-            },
-            {
-                title:     _t("Click 'Nursing Shift Change'"),
-                content: _t("This will open the nursing shift change wizard"),
+                title:     _t("Start Here"),
+                content: _t("Click here to open the nursing shift change wizard"),
                 element:   "span.oe_menu_text:contains('Nursing Shift Change')"
             },
             {
@@ -110,15 +103,8 @@
         steps: [
             {
                 title:     _t("Nursing Staff Re-Allocation Tutorial"),
-                content: _t("I am designated nurse in charge for ward C. A new nurse has just started his shift. I need to re-allocate beds."),
+                content: _t("This tour shows you how to change the staff available on shift and re-allocate beds. e.g. If a new nurse starts their shift and needs to be allocated beds"),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
-            },
-            {
-                title:     _t("Log in as ward manager"),
-                content: _t("Only ward managers and senior managers are able to access the 'Nursing Re-Allocation' wizard"),
-                element:   ".oe_topbar_name:contains('Winifred')",
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'bottom'
             },
             {
                 title:     _t("Click here"),
