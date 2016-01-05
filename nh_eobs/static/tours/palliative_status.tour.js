@@ -70,12 +70,10 @@
             },
             {
                 waitFor: "h2.oe_view_title:contains('Overdue Tasks')",
-                title:     _t("Completed"),
+                title: _t("Completed"),
                 content: _t("All observation tasks for palliative patient have been removed. This completes the tutorial."),
-                popover:   { next: _t("Exit")}
+                popover: {next: _t("Exit")}
             }
-
-
         ]
     });
 }());
