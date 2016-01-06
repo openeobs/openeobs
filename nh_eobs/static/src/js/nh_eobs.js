@@ -75,6 +75,23 @@ openerp.nh_eobs = function (instance) {
     instance.web.list.columns.add('button', 'instance.nh_eobs.Button');
 
     instance.web.UserMenu.include({
+        //on_menu_tutorials: function () {
+        //    var self = this;
+        //    if (openerp.db_info) {
+        //        menu_help_about(odoo.db_info);
+        //    } else {
+        //        this.rpc("/web/webclient/version_info", {}).done(menu_help_about);
+        //    }
+        //    function menu_help_about(db_info) {
+        //        var $help = $(QWeb.render("UserMenu.tutorials", {db_info: db_info}));
+        //        new Dialog(self, {
+        //            size: 'medium',
+        //            dialogClass: 'o_act_window',
+        //            title: _t("About"),
+        //            $content: $help
+        //        }).open();
+        //    }
+        //},
         on_menu_help: function() {
             window.open('http://www.neovahealth.co.uk', '_blank');
         },

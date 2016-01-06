@@ -7,6 +7,7 @@
                 <li><a href="#" data-menu="about">About Odoo</a></li>
                 <li><a href="#" data-menu="help">Help</a></li>
                 <li><a href="#" data-menu="logout">Log out</a></li>
+                <li><a href="#" data-menu="tutorials">Tutorials</a></li>
             </ul>
         </t>
     </t>
