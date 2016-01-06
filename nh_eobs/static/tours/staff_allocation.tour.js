@@ -69,12 +69,12 @@
             },
             {
                 title:     _t("Navigation"),
-                content: _t("You can use the arrows to scroll through the beds in the ward. Click here to save changes and view the next bed in list."),
+                content: _t("You can use the arrows to scroll through the beds in the ward. Any changes will be saved automatically."),
                 element:   ".modal-dialog:eq(1) a[data-pager-action='next']:eq(0)",
-                placement: 'bottom'
+                placement: 'bottom',
+                popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
-                waitFor: ".modal-dialog:eq(1) span:contains('Bed 02')",
                 title:     _t("Save Changes"),
                 content: _t("When you've finished allocating, click here to save changes and close the popup"),
                 element:   ".modal-dialog:eq(1) button.oe_form_button_save",
