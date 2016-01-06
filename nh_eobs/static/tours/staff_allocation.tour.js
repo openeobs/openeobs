@@ -24,35 +24,35 @@
             },
             {
                 title:     _t("Select Ward"),
-                content: _t("Choose your ward from the drop down menu and click 'Start'"),
+                content: _t("Choose your ward from the drop down menu, then click <strong>Start</strong>"),
                 element:   ".modal-dialog input:eq(0)",
                 placement: 'top'
             },
             {
-                title:     _t("Previous Shift"),
-                element: "li.oe_active span.label:contains('De-allocate')",
+                title:     _t("Previous Shift List"),
+                waitFor: "li.oe_active span.label:contains('De-allocate')",
                 content: _t("This shows a list of all beds in the selected ward and the currently responsible staff members"),
                 popover:   { next: _t("Continue"), end: _t("Exit") },
                 placement: 'bottom'
             },
             {
-                title:     _t("Click 'Deallocate Previous Shift'"),
-                content: _t("This will deallocate all HCA's and nurses from previous shift"),
+                title:     _t("Click Here"),
+                content: _t("To deallocate all HCA's and nurses from the previous shift"),
                 element:   "button:contains('Deallocate Previous Shift')",
                 placement: 'bottom'
             },
             {
-                title:     _t("Enter staff for next shift"),
-                content: _t("You can add multiple staff members. Begin typing a name to find matches or press down key to view list. Click 'Select' when done"),
+                title:     _t("Enter New Staff"),
+                content: _t("You can add multiple staff members. Begin typing a name to find matches or press down key to view list. <br/>Click <strong>Select</strong> when done"),
                 element:   ".modal-dialog textarea",
                 placement: 'top'
             },
             {
-                title:     _t("Allocation Tab"),
-                element: "li.oe_active span.label:contains('Allocation')",
+                title:     _t("Allocation List"),
+                waitFor: "li.oe_active span.label:contains('Allocation')",
                 content: _t("This shows all the beds in the ward requiring staff allocation"),
                 popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'bottom'
+                //placement: 'bottom'
             },
             {
                 title:     _t("Click Allocate"),
@@ -62,7 +62,7 @@
             },
             {
                 title:     _t("Select Nurse / HCA"),
-                content: _t("Choose from dropdown or begin typing to get suggested names. Click 'Continue' when done."),
+                content: _t("Choose from dropdown or begin typing to get suggested names.  <br/>Click <strong>Continue</strong> when done"),
                 element:   ".modal-dialog:eq(1) input:eq(0)",
                 popover:   { next: _t("Continue"), end: _t("Exit") },
                 placement: 'top'
@@ -103,7 +103,7 @@
         steps: [
             {
                 title:     _t("Nursing Staff Re-Allocation Tutorial"),
-                content: _t("This tour shows you how to change the staff available on shift and re-allocate beds. e.g. If a new nurse starts their shift and needs to be allocated beds"),
+                content: _t("This tour shows you how to change the staff available on shift and re-allocate beds. e.g. If a nurse finishes their shift and their allocated beds need to be assigned to a different member of staff"),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
@@ -113,43 +113,43 @@
             },
             {
                 title:     _t("Add / Remove Staff"),
-                content: _t("Remove staff by clicking the 'x' next to their name. Add staff by typing in their name or selecting from the dropdown."),
+                content: _t("Remove staff by clicking the 'x' next to their name. Add staff by typing in their name or selecting from the dropdown. Click <strong>Re-Allocate</strong> to confirm."),
                 element:   ".modal-dialog textarea",
-                popover:   { next: _t("Continue"), end: _t("Exit") },
+                //popover:   { next: _t("Continue"), end: _t("Exit") },
                 placement: 'top'
             },
+            //{
+            //    title:     _t("Confirm Changes"),
+            //    content: _t("When happy with changes to staff on shift, click here"),
+            //    element:   "button:contains('Re-Allocate')",
+            //    placement: 'bottom'
+            //},
             {
-                title:     _t("Confirm Changes"),
-                content: _t("When happy with changes to staff on shift, click here"),
-                element:   "button:contains('Re-Allocate')",
-                placement: 'bottom'
-            },
-            {
-                title:     _t("Allocation Tab"),
-                element: "li.oe_active span.label:contains('Allocation')",
+                title:     _t("Allocation List"),
+                waitFor: "li.oe_active span.label:contains('Allocation')",
                 content: _t("This shows all the beds in the ward and the staff currently assigned"),
                 popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'bottom'
+                //placement: 'bottom'
             },
             {
                 title:     _t("Click Here"),
-                content: _t("To re-allocate the unassigned bed to the new member of staff"),
+                content: _t("To allocate a bed to a different member of staff"),
                 element:   ".modal-dialog button[title='Allocate']:eq(0)",
                 placement: 'top'
             },
             {
                 title:     _t("Select Nurse"),
-                content: _t("Choose from dropdown or begin typing to get suggested name"),
+                content: _t("Choose from dropdown or begin typing to get suggested name. Click <strong>Save</strong> when done."),
                 element:   ".modal-dialog:eq(1) input:eq(0)",
-                popover:   { next: _t("Continue"), end: _t("Exit") },
+                //popover:   { next: _t("Continue"), end: _t("Exit") },
                 placement: 'top'
             },
-            {
-                title:     _t("Click Here"),
-                content: _t("To confirm changes and close popup"),
-                element:   ".modal-dialog:eq(1) button.oe_form_button_save",
-                placement: 'bottom'
-            },
+            //{
+            //    title:     _t("Click Here"),
+            //    content: _t("To confirm changes and close popup"),
+            //    element:   ".modal-dialog:eq(1) button.oe_form_button_save",
+            //    placement: 'bottom'
+            //},
             {
                 waitNot: ".modal-dialog:eq(1)",
                 title:     _t("Review and Confirm"),

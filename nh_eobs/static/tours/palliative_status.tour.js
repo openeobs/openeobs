@@ -14,7 +14,7 @@
         steps: [
             {
                 title:     _t("Palliative Care Status Change Tutorial"),
-                content: _t("This tutorial demonstrates how changing a patients palliative care status will remove their scheduled observations tasks."),
+                content: _t("This tutorial demonstrates how changing a patients palliative care status will remove any scheduled observations tasks for that patient"),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
@@ -44,22 +44,14 @@
             },
             {
                 title:     _t("Change Status"),
-                content: _t("Select the status from the dropdown below. Click continue when done."),
+                content: _t("Select the status from the dropdown below. <br/>Click <strong>Save</strong> when done."),
                 element:   "select[name='palliative_care']",
-                placement: 'top',
-                popover:   { next: _t("Continue"), end: _t("Exit") }
-            },
-            {
-                title:     _t("Confirm Change"),
-                content: _t("Click here to save changes"),
-                element:   "button.oe_button:contains('Save')",
-                placement: 'bottom'
+                placement: 'top'
             },
             {
                 title:     _t("Change Logged"),
-                content: _t("The change is logged with the date, time and clinician. Click 'Continue' to proceed."),
-                element:   "tr[data-id='1']:eq(1)",
-                placement: 'bottom',
+                content: _t("The change has been logged with the date, time and clinician."),
+                waitNot:   "select[name='palliative_care']",
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
@@ -71,7 +63,7 @@
             {
                 waitFor: "h2.oe_view_title:contains('Overdue Tasks')",
                 title: _t("Completed"),
-                content: _t("All observation tasks for palliative patient have been removed. This completes the tutorial."),
+                content: _t("All observation tasks for the palliative patient have been removed. This completes the tutorial."),
                 popover: {next: _t("Exit")}
             }
         ]
