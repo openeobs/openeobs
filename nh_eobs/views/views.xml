@@ -27,25 +27,6 @@
             </div>
         </template>
 
-        <!--<div t-name="UserMenu.tutorials">-->
-            <!--<div class="container-fluid">-->
-                <!--<div class="row">-->
-                    <!--<div class="col-sm-offset-2 col-md-offset-2 col-sm-8 col-md-8 user-details">-->
-                        <!--<div class="user-image">-->
-                            <!--<h2>Tutorials</h2>-->
-                        <!--</div>-->
-                        <!--<div>-->
-                            <!--<ul>-->
-                                <!--<li>Nursing Staff Shift Change</li>-->
-                                <!--<li>Nursing Staff Re-Allocation</li>-->
-                                <!--<li>Palliative Care Status Change</li>-->
-                            <!--</ul>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-
         <template inherit_id="web.login" id="login" name="eobs login">
             <xpath expr="//label[@for='login']" position="replace">
                 <label for="login" class="control-label">Username</label>

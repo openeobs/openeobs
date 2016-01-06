@@ -75,23 +75,30 @@ openerp.nh_eobs = function (instance) {
     instance.web.list.columns.add('button', 'instance.nh_eobs.Button');
 
     instance.web.UserMenu.include({
-        //on_menu_tutorials: function () {
-        //    var self = this;
-        //    if (openerp.db_info) {
-        //        menu_help_about(odoo.db_info);
-        //    } else {
-        //        this.rpc("/web/webclient/version_info", {}).done(menu_help_about);
-        //    }
-        //    function menu_help_about(db_info) {
-        //        var $help = $(QWeb.render("UserMenu.tutorials", {db_info: db_info}));
-        //        new Dialog(self, {
-        //            size: 'medium',
-        //            dialogClass: 'o_act_window',
-        //            title: _t("About"),
-        //            $content: $help
-        //        }).open();
-        //    }
-        //},
+        on_menu_tutorials: function () {
+            console.log('clicked');
+            var self = this;
+            self.rpc("/web/webclient/version_info", {}).done(function(res) {
+                var $tuts = $(openerp.qweb.render("UserMenu.tutorials"));
+                $tuts.find('a.nursing_shift_change').click(function (e) {
+                    e.preventDefault();
+                    openerp.Tour.run('nursing_shift_change');
+                });
+                $tuts.find('a.nursing_reallocation').click(function (e) {
+                    e.preventDefault();
+                    openerp.Tour.run('nursing_reallocation');
+                });
+                $tuts.find('a.palliative_care').click(function (e) {
+                    e.preventDefault();
+                    openerp.Tour.run('palliative_care_flag');
+                });
+                new instance.web.Dialog(this, {
+                    size: 'medium',
+                    dialogClass: 'oe_act_window',
+                    title: _t("Tutorials")
+                }, $tuts).open();
+            });
+        },
         on_menu_help: function() {
             window.open('http://www.neovahealth.co.uk', '_blank');
         },

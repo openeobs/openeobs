@@ -12,6 +12,21 @@
         </t>
     </t>
 
+    <div t-name="UserMenu.tutorials">
+        <div class="container-fluid">
+            <div class="oe_form_nosheet">
+                <p>
+                    Select a tutorial from the list below:
+                </p>
+                <ul class="oe_form_group">
+                    <li><a class="nursing_shift_change" href="">Nursing Staff Shift Change</a></li>
+                    <li><a class="nursing_reallocation" href="">Nursing Staff Re-Allocation</a></li>
+                    <li><a class="palliative_care" href="">Palliative Care Status Change</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <t t-extend="WebClient.announcement_bar">
         <t t-jquery=".announcement_bar" t-operation="replace">
             <td colspan="2" class="announcement_bar">
