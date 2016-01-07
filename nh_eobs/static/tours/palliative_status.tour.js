@@ -14,7 +14,7 @@
         steps: [
             {
                 title:     _t("Palliative Care Status Change Tutorial"),
-                content: _t("This tutorial demonstrates how changing a patients palliative care status will remove any scheduled observations tasks for that patient"),
+                content: _t("This tutorial demonstrates how changing a patients palliative care status will remove any scheduled observation tasks for that patient"),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {

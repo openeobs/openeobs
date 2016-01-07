@@ -14,15 +14,36 @@
 
     <div t-name="UserMenu.tutorials">
         <div class="container-fluid">
-            <div class="oe_form_nosheet">
+            <div class="tutorials_dialog">
                 <p>
                     Select a tutorial from the list below:
                 </p>
-                <ul class="oe_form_group">
-                    <li><a class="nursing_shift_change" href="">Nursing Staff Shift Change</a></li>
-                    <li><a class="nursing_reallocation" href="">Nursing Staff Re-Allocation</a></li>
-                    <li><a class="palliative_care" href="">Palliative Care Status Change</a></li>
-                </ul>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-lg-3 col-md-3">Title</th>
+                            <th class="col-lg-7 col-md-7">Description</th>
+                            <th class="col-lg-2 col-md-2">Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a class="nursing_shift_change" href="">Nursing Staff Shift Change</a></td>
+                            <td>Describes the steps the nurse in charge should take at the beginning of their shift in order to de-allocate the previous shift's nursing staff and allocate the next.</td>
+                            <td>3 - 5 mins</td>
+                        </tr>
+                        <tr>
+                            <td><a class="nursing_reallocation" href="">Nursing Staff Re-Allocation</a></td>
+                            <td>Shows how to make adjustments to nursing staff during a shift, e.g. if one HCA finishes their shift and their beds need to be allocated to a new member of staff.</td>
+                            <td>2 - 3 mins</td>
+                        </tr>
+                        <tr>
+                            <td><a class="palliative_care" href="">Palliative Care Status Change</a></td>
+                            <td>Demonstrates how changing a patients palliative care status removes any scheduled observation tasks they had in the overdue tasks list.</td>
+                            <td>2 - 3 mins</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
