@@ -8,7 +8,7 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_eobs_mobile'],
+    'depends': ['nh_eobs'],
     'data': [],
     'application': True,
     'installable': True,
