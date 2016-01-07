@@ -57,3 +57,36 @@ class TestApiDemo(TransactionCase):
             spell = self.spell_pool.get_by_patient_id(cr, uid, patient_id)
             self.assertFalse(spell)
 
+    def test_get_available_beds_in_ward(self):
+        cr, uid = self.cr, self.uid
+        self.demo_api.generate_locations(
+            cr, uid, wards=1, beds=4, hospital=True
+        )
+
+        result = self.demo_loader._get_available_beds_in_ward(
+            cr, uid, 'W1', context=None
+        )
+        self.assertEqual(result, ['W1B1', 'W1B2', 'W1B3', 'W1B4'])
+
+    def test_transfer_patients_transfers_patient_from_location_to_location(self):
+        cr, uid = self.cr, self.uid
+        self.demo_api.generate_locations(
+            cr, uid, wards=1, beds=4, hospital=True)
+
+        result = self.demo_loader.transfer_patients(
+            cr, self.adt_uid, 'A', 'W1', 2, context=None
+        )
+        self.assertEqual(len(result), 2)
+        patient_ids = self.patient_pool.search(
+            cr, uid, [('other_identifier', 'in', result)])
+        patients = self.patient_pool.browse(cr, uid, patient_ids)
+
+        # check location is destination
+        locations = [patient.current_location_id for patient in patients]
+        self.assertEqual(
+            ['W1B1', 'W1B2'], [location.code for location in locations]
+        )
+
+
+
+

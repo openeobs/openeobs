@@ -12,10 +12,15 @@ fake = Faker()
 
 
 class nh_eobs_demo_loader(orm.AbstractModel):
-    """Discharges Patients."""
+    """Defines methods for loading data for demonstration purposes."""
     _name = 'nh.eobs.demo.loader'
 
     def discharge_patients(self, cr, uid, ward_code, amount, context=None):
+        """
+        Discharges a given number of patients from a chosen ward,
+        returning the hospital numbers of the patients successfully
+        discharged.
+        """
         api_demo = self.pool['nh.clinical.api.demo']
 
         # get the hospital numbers of placed patients in a particular ward
@@ -38,10 +43,37 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
         return patients
 
-    def transfer_patients(self, cr, uid, ward_codes, amount, context=None):
-        pass
+    def transfer_patients(self, cr, uid, origin_ward, destination_ward, amount,
+                          context=None):
+        """
+        Transfers a given number of patients from an origin ward to a
+        destination ward, returning the hospital numbers of the
+        patients successfully transferred.
+        """
+        api_demo = self.pool['nh.clinical.api.demo']
 
-    def _get_patient_hospital_numbers_by_ward(self, cr, uid, ward_code, context=None):
+        # get the hospital numbers of placed patients in a particular ward
+        hospital_numbers = self._get_patient_hospital_numbers_by_ward(
+            cr, uid, origin_ward, context=context
+        )
+
+        # get the available bed locations in to_location ward
+        available_beds = self._get_available_beds_in_ward(
+            cr, uid, destination_ward, context=context
+        )
+
+        # select the patients to transfer
+        patients_to_transfer = hospital_numbers[:amount]
+
+        # transfer_patients
+        patients = api_demo.transfer_patients(
+            cr, uid, patients_to_transfer, available_beds, context=context
+        )
+
+        return patients
+
+    def _get_patient_hospital_numbers_by_ward(self, cr, uid, ward_code,
+                                              context=None):
         location_pool = self.pool['nh.clinical.location']
         patient_pool = self.pool['nh.clinical.patient']
 
@@ -61,6 +93,22 @@ class nh_eobs_demo_loader(orm.AbstractModel):
             hospital_numbers.append(patient.other_identifier)
 
         return hospital_numbers
+
+    def _get_available_beds_in_ward(self, cr, uid, ward_code, context=None):
+        location_pool = self.pool['nh.clinical.location']
+        ward_id = location_pool.search(
+            cr, uid, [('code', '=', ward_code)], context=context)
+
+        bed_ids = location_pool.search(
+            cr, uid, [('parent_id', 'in', ward_id),
+                      ('is_available', '=', True)],
+            context=context
+        )
+        beds = location_pool.browse(cr, uid, bed_ids, context=context)
+        codes = [bed.code for bed in beds]
+        return codes
+
+
 
 
 
