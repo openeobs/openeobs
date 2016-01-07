@@ -46,7 +46,14 @@
                 title:     _t("Change Status"),
                 content: _t("Select the status from the dropdown below. <br/>Click <strong>Save</strong> when done."),
                 element:   "select[name='palliative_care']",
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Save')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
             {
                 title:     _t("Change Logged"),

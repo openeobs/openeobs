@@ -73,8 +73,7 @@
                 title:     _t("Allocation List"),
                 waitFor: "li.oe_active span.label:contains('Allocation')",
                 content: _t("This shows all the beds in the ward requiring staff allocation"),
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                //placement: 'bottom'
+                popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
                 title:     _t("Click Allocate"),
