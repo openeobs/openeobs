@@ -101,7 +101,8 @@ openerp.nh_eobs = function (instance) {
                 });
             };
             this.update_promise = this.update_promise.then(fct, fct);
-        },
+            $('li.odoo_support_contact').hide()
+        }
     });
 
     instance.web.ListView.include({
