@@ -200,6 +200,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
                 cr, uid, triggered_ews_id[0],
                 {'date_scheduled': scheduled_date.strftime(dtf)},
                 context=context)
+        return True
 
     def _get_nurse_hca_user_ids(self, cr, uid):
         """Gets nurse and hca nurse ids."""
