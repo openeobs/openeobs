@@ -75,10 +75,6 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
         return patients
 
-    def generate_news_simulation_final(self, cr, uid, days, patient_ids=None, context=None):
-        self.completed_first_ews_for_placed_patients(cr, uid, context=context)
-        self.generate_news_simulation(cr, uid, days, patient_ids=patient_ids, context=context)
-
     def generate_news_simulation(self, cr, uid, days, patient_ids=None, context=None):
         """
         Generates demo news data over a period of time for the patients
