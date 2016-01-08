@@ -1,4 +1,4 @@
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm
 from openerp import SUPERUSER_ID
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
