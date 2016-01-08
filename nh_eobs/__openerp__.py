@@ -5,7 +5,7 @@
     'category': 'Clinical',
     'license': 'AGPL-3',
     'summary': '',
-    'description': """    """,
+    'description': """     """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_clinical', 'nh_ews', 'nh_gcs', 'nh_pbp', 'nh_stools', 'nh_graphs',
