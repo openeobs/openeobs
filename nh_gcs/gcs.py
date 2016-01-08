@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+`gcs.py` defines the Glasgow Coma Scale observation class and its
+standard behaviour and policy triggers based on this worldwide standard.
+"""
 from openerp.osv import orm, fields, osv
 import logging
 import bisect
@@ -8,6 +12,19 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation_gcs(orm.Model):
+    """
+    Represents an Glasgow Coma Scale
+    :class:`observation<observations.nh_clinical_patient_observation>`
+    which stores three parameters that are used as a way to communicate
+    about the level of consciousness of
+    :class:`patients<base.nh_clinical_patient>` with acute brain injury.
+
+    The basis of the scale system are the following parameters:
+    Eye response: spontaneous, to sound, to pressure, none.
+    Verbal response: orientated, confused, words, sounds, none.
+    Motor response: obey commands, localising, normal flexion, abnormal
+    flexion, extension, none.
+    """
     _name = 'nh.clinical.patient.observation.gcs'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['eyes', 'verbal', 'motor']
@@ -43,6 +60,15 @@ class nh_clinical_patient_observation_gcs(orm.Model):
                'notifications': [[], [], [], [], []]}
 
     def calculate_score(self, gcs_data):
+        """
+        Computes the score based on the GCS parameters provided.
+
+        :param gcs_data: The GCS parameters: ``eyes``, ``verbal`` and
+                         ``motor``.
+        :type gcs_data: dict
+        :returns: ``score``
+        :rtype: dict
+        """
         eyes = 1 if gcs_data['eyes'] == 'C' else int(gcs_data['eyes'])
         verbal = 1 if gcs_data['verbal'] == 'T' else int(gcs_data['verbal'])
         motor = int(gcs_data['motor'])
@@ -100,7 +126,12 @@ class nh_clinical_patient_observation_gcs(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         """
-        Implementation of the default GCS policy
+        It determines which acuity case the current observation is in
+        with the stored data and responds to the different policy
+        triggers accordingly defined on the ``_POLICY`` dictionary.
+
+        :returns: ``True``
+        :rtype: bool
         """
         activity_pool = self.pool['nh.activity']
         api_pool = self.pool['nh.clinical.api']
@@ -124,6 +155,14 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         return super(nh_clinical_patient_observation_gcs, self).complete(cr, SUPERUSER_ID, activity_id, context)
 
     def create_activity(self, cr, uid, vals_activity={}, vals_data={}, context=None):
+        """
+        When creating a new activity of this type, an exception will be
+        raised if the :class:`spell<base.nh_clinical_spell>` already has
+        an open GCS.
+
+        :returns: :class:`activity<activity.nh_activity>` id.
+        :rtype: int
+        """
         assert vals_data.get('patient_id'), "patient_id is a required field!"
         activity_pool = self.pool['nh.activity']
         domain = [['patient_id','=',vals_data['patient_id']],['data_model','=',self._name],['state','in',['new','started','scheduled']]]

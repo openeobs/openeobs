@@ -10,4 +10,4 @@ import api_demo
 import kamishibai
 import spell_management
 import report
-import observation_extension
+import ward_dashboard

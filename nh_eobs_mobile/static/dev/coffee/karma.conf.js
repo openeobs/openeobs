@@ -4,14 +4,23 @@ module.exports = function(config) {
 
         files: [
             'tests/src/*js',
+            'tests/lib/helpers.js',
             'tests/lib/test_routes.js',
-            'tests/spec/*.spec.js'
+            'tests/spec/conversion.spec.js',
+		    'tests/spec/network.spec.js',
+		    'tests/spec/patient_info.spec.js',
+		    'tests/spec/utility.spec.js',
+            'tests/spec/standin.spec.js',
+            'tests/spec/form.spec.js',
+		    'tests/spec/events.spec.js'
         ],
 
-        exclude: [
-        ],
+        exclude: [],
 
-        reporters: ['nyan', 'html', 'coverage'],
+        hostname: 'localhost',
+        port: 9876,
+
+        reporters: ['nyan', 'coverage'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
@@ -20,12 +29,13 @@ module.exports = function(config) {
         autoWatch: false,
         singleRun: true,
 
-        frameworks: ['jasmine'],
+        frameworks: ['jasmine-ajax', 'jasmine'],
 
         browsers: ['PhantomJS'],
 
         plugins: [
             'karma-jasmine',
+            'karma-jasmine-ajax',
             'karma-junit-reporter',
             'karma-phantomjs-launcher',
             'karma-coverage',
@@ -44,16 +54,16 @@ module.exports = function(config) {
           dir : 'coverage/'
         },
 
-        htmlReporter: {
-            outputDir: 'karma_html',
-            templatePath: null,
-            focusOnFailures: false,
-            namedFiles: false,
-            pageTitle: null,
-            urlFriendlyName: false,
-            reportName: 'report-summary-filename',
-            preserveDescribeNesting: true
-        }
+        //htmlReporter: {
+        //    outputDir: 'karma_html',
+        //    templatePath: null,
+        //    focusOnFailures: false,
+        //    namedFiles: false,
+        //    pageTitle: null,
+        //    urlFriendlyName: false,
+        //    reportName: 'report-summary-filename',
+        //    preserveDescribeNesting: true
+        //}
 
     })
 }

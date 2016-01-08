@@ -54,61 +54,16 @@ if (!window.NH) {
 
 window.NH.NHLib = NHLib;
 
-var NHMobile, Promise,
-  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+var NHMobile, NHMobileData, Promise,
   slice = [].slice,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
-
-if (!(indexOf.call(document.documentElement, 'classList') >= 0) && Object.defineProperty && typeof HTMLElement !== 'undefined') {
-  Object.defineProperty(HTMLElement.prototype, 'classList', {
-    get: function() {
-      var ret, self;
-      self = this;
-      function update(fn) {
-        return function(value) {
-          var classes = self.className.split(/\s+/);
-          var index = classes.indexOf(value);
-
-          fn(classes, index, value);
-          self.className = classes.join(" ");
-        }
-      };
-      ret = {
-        add: update(function(classes, index, value) {
-          ~index || classes.push(value);
-        }),
-        remove: update(function(classes, index) {
-          ~index && classes.splice(index, 1);
-        }),
-        toggle: update(function(classes, index, value) {
-          if (~index) {
-            classes.splice(index, 1);
-          } else {
-            classes.push(value);
-          }
-        }),
-        contains: function(value) {
-          return !!~self.className.split(/\s+/).indexOf(value);
-        },
-        item: function(i) {
-          return self.className.split(/\s+/)[i] || null;
-        }
-      };
-      Object.defineProperty(ret, 'length', {
-        get: function() {
-          return self.className.split(/\s+/).length;
-        }
-      });
-      return ret;
-    }
-  });
-}
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 Promise = (function() {
   Promise.when = function() {
-    var args, fn, j, len, num_uncompleted, promise, task, task_id, tasks;
+    var args, fn, i, len, num_uncompleted, promise, task, task_id, tasks;
     tasks = 1 <= arguments.length ? slice.call(arguments, 0) : [];
     num_uncompleted = tasks.length;
     args = new Array(num_uncompleted);
@@ -122,7 +77,7 @@ Promise = (function() {
         }
       });
     };
-    for (task_id = j = 0, len = tasks.length; j < len; task_id = ++j) {
+    for (task_id = i = 0, len = tasks.length; i < len; task_id = ++i) {
       task = tasks[task_id];
       fn(task_id);
     }
@@ -135,13 +90,13 @@ Promise = (function() {
   }
 
   Promise.prototype.complete = function() {
-    var callback, j, len, ref, results;
+    var callback, i, len, ref, results;
     this.completed = true;
     this.data = arguments;
     ref = this.callbacks;
     results = [];
-    for (j = 0, len = ref.length; j < len; j++) {
-      callback = ref[j];
+    for (i = 0, len = ref.length; i < len; i++) {
+      callback = ref[i];
       results.push(callback.apply(callback, arguments));
     }
     return results;
@@ -159,6 +114,20 @@ Promise = (function() {
 
 })();
 
+NHMobileData = (function() {
+  function NHMobileData(raw_data) {
+    var self;
+    this.status = raw_data.status;
+    this.title = raw_data.title;
+    this.desc = raw_data.description;
+    this.data = raw_data.data;
+    self = this;
+  }
+
+  return NHMobileData;
+
+})();
+
 NHMobile = (function(superClass) {
   extend(NHMobile, superClass);
 
@@ -167,13 +136,13 @@ NHMobile = (function(superClass) {
     promise = new Promise();
     req = new XMLHttpRequest();
     req.addEventListener('readystatechange', function() {
-      var btn, msg, ref, successResultCodes;
+      var btn, mob_data, msg, ref, successResultCodes;
       if (req.readyState === 4) {
         successResultCodes = [200, 304];
         if (ref = req.status, indexOf.call(successResultCodes, ref) >= 0) {
-          data = eval('[' + req.responseText + ']');
-          console.log('data: ', data);
-          return promise.complete(data);
+          data = JSON.parse(req.responseText);
+          mob_data = new NHMobileData(data);
+          return promise.complete(mob_data);
         } else {
           btn = '<a href="#" data-action="close" ' + 'data-target="data_error">Ok</a>';
           msg = '<div class="block">The server returned an error ' + 'while processing the request. Please check your ' + 'input and resubmit</div>';
@@ -205,54 +174,75 @@ NHMobile = (function(superClass) {
     return this.process_request(url_object.method, url_object.url, data);
   };
 
+  NHMobile.prototype.render_patient_info = function(patient, nameless, self) {
+    var patientDOB, patient_info;
+    patient_info = '';
+    if (!nameless) {
+      if (patient.full_name) {
+        patient_info += '<dt>Name:</dt><dd>' + patient.full_name + '</dd>';
+      }
+      if (patient.gender) {
+        patient_info += '<dt>Gender:</dt><dd>' + patient.gender + '</dd>';
+      }
+    }
+    if (patient.dob) {
+      patientDOB = self.date_from_string(patient.dob);
+      patient_info += '<dt>DOB:</dt><dd>' + self.date_to_dob_string(patientDOB) + '</dd>';
+    }
+    if (patient.location) {
+      patient_info += '<dt>Location:</dt><dd>' + patient.location;
+    }
+    if (patient.parent_location) {
+      patient_info += ',' + patient.parent_location + '</dd>';
+    } else {
+      patient_info += '</dd>';
+    }
+    if (patient.ews_score) {
+      patient_info += '<dt class="twoline">Latest Score:</dt>' + '<dd class="twoline">' + patient.ews_score + '</dd>';
+    }
+    if (patient.ews_trend) {
+      patient_info += '<dt>NEWS Trend:</dt><dd>' + patient.ews_trend + '</dd>';
+    }
+    if (patient.other_identifier) {
+      patient_info += '<dt>Hospital ID:</dt><dd>' + patient.other_identifier + '</dd>';
+    }
+    if (patient.patient_identifier) {
+      patient_info += '<dt>NHS Number:</dt><dd>' + patient.patient_identifier + '</dd>';
+    }
+    return '<dl>' + patient_info + '</dl>';
+  };
+
   NHMobile.prototype.get_patient_info = function(patient_id, self) {
     var patient_url;
     patient_url = this.urls.json_patient_info(patient_id).url;
-    Promise.when(this.process_request('GET', patient_url)).then(function(server_data) {
-      var cancel, data, fullscreen, patientDOB, patient_details, patient_name;
-      data = server_data[0][0];
-      patient_name = '';
+    Promise.when(this.process_request('GET', patient_url)).then(function(raw_data) {
+      var cancel, data, fullscreen, patient_details, patient_name, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      patient_name = server_data.title;
       patient_details = '';
-      if (data.full_name) {
-        patient_name += ' ' + data.full_name;
-      }
       if (data.gender) {
         patient_name += '<span class="alignright">' + data.gender + '</span>';
       }
-      if (data.dob) {
-        patientDOB = self.date_from_string(data.dob);
-        patient_details += '<dt>DOB:</dt><dd>' + self.date_to_dob_string(patientDOB) + '</dd>';
-      }
-      if (data.location) {
-        patient_details += '<dt>Location:</dt><dd>' + data.location;
-      }
-      if (data.parent_location) {
-        patient_details += ',' + data.parent_location + '</dd>';
-      } else {
-        patient_details += '</dd>';
-      }
-      if (data.ews_score) {
-        patient_details += '<dt class="twoline">Latest Score:</dt>' + '<dd class="twoline">' + data.ews_score + '</dd>';
-      }
-      if (data.other_identifier) {
-        patient_details += '<dt>Hospital ID:</dt><dd>' + data.other_identifier + '</dd>';
-      }
-      if (data.patient_identifier) {
-        patient_details += '<dt>NHS Number:</dt><dd>' + data.patient_identifier + '</dd>';
-      }
-      patient_details = '<dl>' + patient_details + '</dl><p><a href="' + self.urls['single_patient'](patient_id).url + '" id="patient_obs_fullscreen" class="button patient_obs">' + 'View Patient Observation Data</a></p>';
+      patient_details = self.render_patient_info(data, true, self) + '<p><a href="' + self.urls['single_patient'](patient_id).url + '" id="patient_obs_fullscreen" class="button patient_obs">' + 'View Patient Observation Data</a></p>';
       cancel = '<a href="#" data-target="patient_info" ' + 'data-action="close">Cancel</a>';
       new NHModal('patient_info', patient_name, patient_details, [cancel], 0, document.getElementsByTagName('body')[0]);
       fullscreen = document.getElementById('patient_obs_fullscreen');
-      return fullscreen.addEventListener('click', self.fullscreen_patient_info);
+      return fullscreen.addEventListener('click', function(event) {
+        if (!event.handled) {
+          self.fullscreen_patient_info(event, self);
+          return event.handled = true;
+        }
+      });
     });
     return true;
   };
 
-  NHMobile.prototype.fullscreen_patient_info = function(event) {
-    var container, options, options_close, page;
+  NHMobile.prototype.fullscreen_patient_info = function(event, self) {
+    var container, options, options_close, page, target_el;
     event.preventDefault();
     if (!event.handled) {
+      target_el = event.srcElement ? event.srcElement : event.target;
       container = document.createElement('div');
       container.setAttribute('class', 'full-modal');
       options = document.createElement('p');
@@ -261,19 +251,39 @@ NHMobile = (function(superClass) {
       options_close.setAttribute('id', 'closeFullModal');
       options_close.innerText = 'Close popup';
       options_close.addEventListener('click', function(event) {
-        var body;
         if (!event.handled) {
-          body = document.getElementsByTagName('body')[0];
-          body.removeChild(document.getElementsByClassName('full-modal')[0]);
+          self.close_fullscreen_patient_info(event);
           return event.handled = true;
         }
       });
       options.appendChild(options_close);
       container.appendChild(options);
       page = document.createElement('iframe');
-      page.setAttribute('src', event.srcElement.getAttribute('href'));
+      page.setAttribute('src', target_el.getAttribute('href'));
+      page.onload = function() {
+        var contents, header, iframe, modal, obs, ref, ref1;
+        modal = document.getElementsByClassName('full-modal')[0];
+        iframe = modal.getElementsByTagName('iframe')[0];
+        contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+        header = contents != null ? (ref = contents.getElementsByClassName('header')) != null ? ref[0] : void 0 : void 0;
+        if (header != null) {
+          header.parentNode.removeChild(header);
+        }
+        obs = contents != null ? (ref1 = contents.getElementsByClassName('obs')) != null ? ref1[0] : void 0 : void 0;
+        return obs != null ? obs.parentNode.removeChild(obs) : void 0;
+      };
       container.appendChild(page);
       document.getElementsByTagName('body')[0].appendChild(container);
+      return event.handled = true;
+    }
+  };
+
+  NHMobile.prototype.close_fullscreen_patient_info = function(event) {
+    var body;
+    event.preventDefault();
+    if (!event.handled) {
+      body = document.getElementsByTagName('body')[0];
+      body.removeChild(document.getElementsByClassName('full-modal')[0]);
       return event.handled = true;
     }
   };
@@ -333,60 +343,33 @@ NHMobileBarcode = (function(superClass) {
   NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
     var dialog, input, url, url_meth;
     event.preventDefault();
-    input = event.srcElement ? event.srcElement : event.target;
-    dialog = input.parentNode.parentNode;
-    if (input.value === '') {
-      return;
-    }
-    url = self.urls.json_patient_barcode(input.value.split(',')[1]);
-    url_meth = url.method;
-    return Promise.when(self.process_request(url_meth, url.url)).then(function(server_data) {
-      var activities_string, activity, activties_string, content, data, i, len, patientDOB, patient_details, ref;
-      data = server_data[0][0];
-      patient_details = '';
-      if (data.full_name) {
-        patient_details += "<dt>Name:</dt><dd>" + data.full_name + "</dd>";
+    if (!event.handled) {
+      input = event.srcElement ? event.srcElement : event.target;
+      dialog = input.parentNode.parentNode;
+      if (input.value === '') {
+        return;
       }
-      if (data.gender) {
-        patient_details += '<dt>Gender:</dt><dd>' + data.gender + '</dd>';
-      }
-      if (data.dob) {
-        patientDOB = self.date_from_string(data.dob);
-        patient_details += "<dt>DOB:</dt><dd>" + self.date_to_dob_string(patientDOB) + "</dd>";
-      }
-      if (data.location) {
-        patient_details += "<dt>Location:</dt><dd>" + data.location;
-      }
-      if (data.parent_location) {
-        patient_details += ',' + data.parent_location + '</dd>';
-      } else {
-        patient_details += '</dd>';
-      }
-      if (data.ews_score) {
-        patient_details += '<dt class="twoline">Latest Score:</dt>' + '<dd class="twoline">' + data.ews_score + '</dd>';
-      }
-      if (data.ews_trend) {
-        patient_details += '<dt>NEWS Trend:</dt><dd>' + data.ews_trend + '</dd>';
-      }
-      if (data.other_identifier) {
-        patient_details += "<dt>Hospital ID:</dt><dd>" + data.other_identifier + "</dd>";
-      }
-      if (data.patient_identifier) {
-        patient_details += "<dt>NHS Number:</dt><dd>" + data.patient_identifier + "</dd>";
-      }
-      activties_string = "";
-      if (data.activities.length > 0) {
-        activities_string = '<ul class="menu">';
-        ref = data.activities;
-        for (i = 0, len = ref.length; i < len; i++) {
-          activity = ref[i];
-          activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
+      url = self.urls.json_patient_barcode(input.value.split(',')[1]);
+      url_meth = url.method;
+      return Promise.when(self.process_request(url_meth, url.url)).then(function(raw_data) {
+        var activities_string, activity, content, data, i, len, ref, server_data;
+        server_data = raw_data[0];
+        data = server_data.data;
+        activities_string = "";
+        if (data.activities.length > 0) {
+          activities_string = '<ul class="menu">';
+          ref = data.activities;
+          for (i = 0, len = ref.length; i < len; i++) {
+            activity = ref[i];
+            activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
+          }
+          activities_string += '</ul>';
         }
-        activities_string += '</ul>';
-      }
-      content = '<dl>' + patient_details + '</dl><h3>Tasks</h3>' + activities_string;
-      return dialog.innerHTML = content;
-    });
+        content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
+        dialog.innerHTML = content;
+        return event.handled = true;
+      });
+    }
   };
 
   return NHMobileBarcode;
@@ -416,6 +399,7 @@ NHMobileForm = (function(superClass) {
     this.show_reference = bind(this.show_reference, this);
     this.submit = bind(this.submit, this);
     this.trigger_actions = bind(this.trigger_actions, this);
+    this.validate_number_input = bind(this.validate_number_input, this);
     this.validate = bind(this.validate, this);
     var ptn_name, ref, self;
     this.form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
@@ -432,7 +416,7 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.setup_event_listeners = function(self) {
     var fn, i, input, len, ref;
-    ref = this.form.elements;
+    ref = self.form.elements;
     fn = function() {
       switch (input.localName) {
         case 'input':
@@ -446,6 +430,9 @@ NHMobileForm = (function(superClass) {
               return input.addEventListener('click', self.cancel_notification);
             case 'radio':
               return input.addEventListener('click', self.trigger_actions);
+            case 'text':
+              input.addEventListener('change', self.validate);
+              return input.addEventListener('change', self.trigger_actions);
           }
           break;
         case 'select':
@@ -467,12 +454,13 @@ NHMobileForm = (function(superClass) {
     });
     window.timeout_func = function() {
       var timeout;
-      timeout = new CustomEvent('form_timeout', {
+      timeout = document.createEvent('CustomEvent');
+      timeout.initCustomEvent('form_timeout', false, true, {
         'detail': 'form timed out'
       });
       return document.dispatchEvent(timeout);
     };
-    window.form_timeout = setTimeout(window.timeout_func, this.form_timeout);
+    window.form_timeout = setTimeout(window.timeout_func, self.form_timeout);
     document.addEventListener('post_score_submit', function(event) {
       if (!event.handled) {
         self.process_post_score_submit(self, event);
@@ -500,31 +488,18 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.validate = function(event) {
-    var cond, crit_target, crit_val, criteria, criterias, i, input, len, max, min, operator, other_input, other_input_value, results, target_input, target_input_value, value;
+    var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
     event.preventDefault();
     this.reset_form_timeout(this);
     input = event.srcElement ? event.srcElement : event.target;
+    input_type = input.getAttribute('type');
+    value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
-    value = parseFloat(input.value);
-    min = parseFloat(input.getAttribute('min'));
-    max = parseFloat(input.getAttribute('max'));
-    if (typeof value !== 'undefined' && !isNaN(value) && value !== '') {
-      if (input.getAttribute('type') === 'number') {
-        if (input.getAttribute('step') === '1' && value % 1 !== 0) {
-          this.add_input_errors(input, 'Must be whole number');
-          return;
-        }
-        if (value < min) {
-          this.add_input_errors(input, 'Input too low');
-          return;
-        }
-        if (value > max) {
-          this.add_input_errors(input, 'Input too high');
-          return;
-        }
+    if (typeof value !== 'undefined' && value !== '') {
+      if (input.getAttribute('type') === 'number' && !isNaN(value)) {
+        this.validate_number_input(input);
         if (input.getAttribute('data-validation')) {
           criterias = eval(input.getAttribute('data-validation'));
-          results = [];
           for (i = 0, len = criterias.length; i < len; i++) {
             criteria = criterias[i];
             crit_target = criteria['condition']['target'];
@@ -540,20 +515,45 @@ NHMobileForm = (function(superClass) {
             cond = target_input_value + ' ' + operator + ' ' + other_input_value;
             if (eval(cond)) {
               this.reset_input_errors(other_input);
-              continue;
-            }
-            if (typeof other_input_value !== 'undefined' && !isNaN(other_input_value) && other_input_value !== '') {
+            } else if (typeof other_input_value !== 'undefined' && !isNaN(other_input_value) && other_input_value !== '') {
               this.add_input_errors(target_input, criteria['message']['target']);
               this.add_input_errors(other_input, criteria['message']['value']);
-              continue;
             } else {
               this.add_input_errors(target_input, criteria['message']['target']);
               this.add_input_errors(other_input, 'Please enter a value');
-              continue;
             }
           }
-          return results;
+          this.validate_number_input(other_input);
+          this.validate_number_input(target_input);
         }
+      }
+      if (input.getAttribute('type') === 'text') {
+        if (input.getAttribute('pattern')) {
+          regex_res = input.validity.patternMismatch;
+          if (regex_res) {
+            this.add_input_errors(input, 'Invalid value');
+          }
+        }
+      }
+    }
+  };
+
+  NHMobileForm.prototype.validate_number_input = function(input) {
+    var max, min, value;
+    min = parseFloat(input.getAttribute('min'));
+    max = parseFloat(input.getAttribute('max'));
+    value = parseFloat(input.value);
+    if (typeof value !== 'undefined' && value !== '' && !isNaN(value)) {
+      if (input.getAttribute('step') === '1' && value % 1 !== 0) {
+        this.add_input_errors(input, 'Must be whole number');
+        return;
+      }
+      if (value < min) {
+        this.add_input_errors(input, 'Input too low');
+        return;
+      }
+      if (value > max) {
+        this.add_input_errors(input, 'Input too high');
       }
     }
   };
@@ -641,9 +641,10 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     event.preventDefault();
     this.reset_form_timeout(this);
+    ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
       var i, len, ref, results;
       ref = this.form.elements;
@@ -672,7 +673,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         element = form_elements[i];
-        if (!element.value) {
+        if (!element.value || element.value === '') {
           results.push(element);
         }
       }
@@ -696,8 +697,12 @@ NHMobileForm = (function(superClass) {
         button.setAttribute('disabled', 'disabled');
       }
       return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
+    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+      msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
+      btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
+      return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
     } else if (invalid_elements.length > 0) {
-      msg = '<p class="block">The form contains errors, please correct ' + 'the errors and resubmit</p>';
+      msg = '<p>The form contains errors, please correct ' + 'the errors and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
     } else {
@@ -744,12 +749,13 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.display_partial_reasons = function(self) {
     var form_type;
     form_type = self.form.getAttribute('data-source');
-    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(data) {
-      var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
+    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(rdata) {
+      var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
+      server_data = rdata[0];
+      data = server_data.data;
       options = '';
-      ref = data[0][0];
-      for (i = 0, len = ref.length; i < len; i++) {
-        option = ref[i];
+      for (i = 0, len = data.length; i < len; i++) {
+        option = data[i];
         option_val = option[0];
         option_name = option[1];
         options += '<option value="' + option_val + '">' + option_name + '</option>';
@@ -757,8 +763,8 @@ NHMobileForm = (function(superClass) {
       select = '<select name="partial_reason">' + options + '</select>';
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
-      msg = '<p class="block">Please state reason for ' + 'submitting partial observation</p>';
-      return new window.NH.NHModal('partial_reasons', 'Submit partial observation', msg + select, [can_btn, con_btn], 0, self.form);
+      msg = '<p>' + server_data.desc + '</p>';
+      return new window.NH.NHModal('partial_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, self.form);
     });
   };
 
@@ -774,20 +780,21 @@ NHMobileForm = (function(superClass) {
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
-    return Promise.when(this.call_resource(url, serialised_string)).then(function(server_data) {
-      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, st_url, sub_ob, task, task_list, tasks, title, triggered_tasks;
-      data = server_data[0][0];
+    return Promise.when(this.call_resource(url, serialised_string)).then(function(raw_data) {
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
+      server_data = raw_data[0];
+      data = server_data.data;
       body = document.getElementsByTagName('body')[0];
-      if (data && data.status === 3) {
+      if (server_data.status === 'success' && data.status === 3) {
         can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
-        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.modal_vals['next_action'] + '">Submit</a>';
-        new window.NH.NHModal('submit_observation', data.modal_vals['title'] + ' for ' + self.patient_name() + '?', data.modal_vals['content'], [can_btn, act_btn], 0, body);
+        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.next_action + '">Submit</a>';
+        new window.NH.NHModal('submit_observation', server_data.title + ' for ' + self.patient_name() + '?', server_data.desc, [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
-          cls = 'clinicalrisk-' + data.score['clinical_risk'].toLowerCase();
+          cls = 'clinicalrisk-' + data.score.clinical_risk.toLowerCase();
           return sub_ob.classList.add(cls);
         }
-      } else if (data && data.status === 1) {
+      } else if (server_data.status === 'success' && data.status === 1) {
         triggered_tasks = '';
         buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>'];
         if (data.related_tasks.length === 1) {
@@ -804,14 +811,13 @@ NHMobileForm = (function(superClass) {
           }
           triggered_tasks = '<ul class="menu">' + tasks + '</ul>';
         }
-        pos = '<p>Observation was submitted</p>';
+        pos = '<p>' + server_data.desc + '</p>';
         os = 'Observation successfully submitted';
         task_list = triggered_tasks ? triggered_tasks : pos;
-        title = triggered_tasks ? 'Action required' : os;
-        return new window.NH.NHModal('submit_success', title, task_list, buttons, 0, body);
-      } else if (data && data.status === 4) {
+        return new window.NH.NHModal('submit_success', server_data.title, task_list, buttons, 0, body);
+      } else if (server_data.status === 'success' && data.status === 4) {
         btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
-        return new window.NH.NHModal('cancel_success', 'Task successfully cancelled', '', [btn], 0, self.form);
+        return new window.NH.NHModal('cancel_success', server_data.title, '<p>' + server_data.desc + '</p>', [btn], 0, self.form);
       } else {
         action_buttons = (function() {
           var j, len1, ref1, ref2, results;
@@ -839,8 +845,10 @@ NHMobileForm = (function(superClass) {
     var can_id;
     can_id = self.urls['json_cancel_take_task'](id);
     return Promise.when(self.call_resource(can_id)).then(function(server_data) {
+
+      /* Should be checking server data */
       var btn, msg;
-      msg = '<p class="block">Please pick the task again from the task list ' + 'if you wish to complete it</p>';
+      msg = '<p>Please pick the task again from the task list ' + 'if you wish to complete it</p>';
       btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm">Go to My Tasks</a>';
       return new window.NH.NHModal('form_timeout', 'Task window expired', msg, [btn], 0, document.getElementsByTagName('body')[0]);
     });
@@ -849,21 +857,22 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.cancel_notification = function(self) {
     var opts;
     opts = this.urls.ajax_task_cancellation_options();
-    return Promise.when(this.call_resource(opts)).then(function(data) {
-      var can_btn, con_btn, i, len, msg, option, option_name, option_val, options, ref, select;
+    return Promise.when(this.call_resource(opts)).then(function(raw_data) {
+      var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
       options = '';
-      ref = data[0][0];
-      for (i = 0, len = ref.length; i < len; i++) {
-        option = ref[i];
+      for (i = 0, len = data.length; i < len; i++) {
+        option = data[i];
         option_val = option.id;
         option_name = option.name;
         options += '<option value="' + option_val + '">' + option_name + '</option>';
       }
       select = '<select name="reason">' + options + '</select>';
-      msg = '<p>Please state reason for cancelling task</p>';
+      msg = '<p>' + server_data.desc + '</p>';
       can_btn = '<a href="#" data-action="close" ' + 'data-target="cancel_reasons">Cancel</a>';
       con_btn = '<a href="#" data-target="cancel_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="cancel_clinical_notification">Confirm</a>';
-      return new window.NH.NHModal('cancel_reasons', 'Cancel task', msg + select, [can_btn, con_btn], 0, document.getElementsByTagName('form')[0]);
+      return new window.NH.NHModal('cancel_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, document.getElementsByTagName('form')[0]);
     });
   };
 
@@ -954,13 +963,14 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_post_score_submit = function(self, event) {
-    var element, endpoint, form_elements;
+    var element, endpoint, form, form_elements, ref;
+    form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
     form_elements = (function() {
-      var i, len, ref, results;
-      ref = self.form.elements;
+      var i, len, ref1, results;
+      ref1 = form.elements;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        element = ref[i];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        element = ref1[i];
         if (!element.classList.contains('exclude')) {
           results.push(element);
         }
@@ -1009,36 +1019,46 @@ NHMobilePatient = (function(superClass) {
       tab.addEventListener('click', this.handle_tabs);
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(server_data) {
-      return self.draw_graph(self, server_data);
+    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
+      var data, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      return self.draw_graph(self, data);
     });
   }
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
-    var i, len, tab, tabs;
+    var i, len, tab, tab_target, tabs, target_el;
     event.preventDefault();
-    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
-    for (i = 0, len = tabs.length; i < len; i++) {
-      tab = tabs[i];
-      tab.classList.remove('selected');
+    if (!event.handled) {
+      tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
+      for (i = 0, len = tabs.length; i < len; i++) {
+        tab = tabs[i];
+        tab.classList.remove('selected');
+      }
+      document.getElementById('graph-content').style.display = 'none';
+      document.getElementById('table-content').style.display = 'none';
+      target_el = event.srcElement ? event.srcElement : event.target;
+      target_el.classList.add('selected');
+      tab_target = target_el.getAttribute('href').replace('#', '');
+      document.getElementById(tab_target).style.display = 'block';
+      return event.handled = true;
     }
-    document.getElementById('graph-content').style.display = 'none';
-    document.getElementById('table-content').style.display = 'none';
-    event.srcElement.classList.add('selected');
-    return $(event.srcElement.getAttribute('href')).show();
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var obs_menu;
+    var body, menu, obs_menu;
     event.preventDefault();
     obs_menu = document.getElementById('obsMenu');
-    return new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul class="menu">' + obs_menu.innerHTML + '</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
+    body = document.getElementsByTagName('body')[0];
+    menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
+    return new NHModal('obs_menu', 'Pick an observation for ', menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
   };
 
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {
     var bp_graph, c, chart, context, controls, element_for_chart, f, focus, fr, graph_content, graph_tabs, i, len, ob, obs, oxy_graph, pulse_graph, resp_rate_graph, score_graph, svg, tabular_obs, temp_graph;
     element_for_chart = 'chart';
-    obs = server_data[0][0].obs.reverse();
+    obs = server_data.obs.reverse();
     if (obs.length > 0) {
       svg = new window.NH.NHGraphLib('#' + element_for_chart);
       resp_rate_graph = new window.NH.NHGraph();
@@ -1205,6 +1225,7 @@ NHMobilePatient = (function(superClass) {
       ];
       score_graph = new window.NH.NHGraph();
       score_graph.options.keys = ['score'];
+      score_graph.options.plot_partial = false;
       score_graph.style.dimensions.height = 200;
       score_graph.style.data_style = 'stepped';
       score_graph.axes.y.min = 0;
@@ -1262,7 +1283,7 @@ NHMobilePatient = (function(superClass) {
       svg.table.keys = [
         {
           title: 'NEWS Score',
-          keys: ['score']
+          keys: ['score_display']
         }, {
           title: 'Respiration Rate',
           keys: ['respiration_rate']
@@ -1452,22 +1473,24 @@ NHMobileShare = (function(superClass) {
     if (patients.length > 0) {
       url = self.urls.json_colleagues_list();
       urlmeth = url.method;
-      return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-        var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list;
-        data = server_data[0][0];
+      return Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+        var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list, ref, server_data;
+        server_data = raw_data[0];
+        data = server_data.data;
         nurse_list = '<form id="nurse_list"><ul class="sharelist">';
-        for (i = 0, len = data.length; i < len; i++) {
-          nurse = data[i];
-          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse['id'] + '" class="patient_share_nurse" value="' + nurse['id'] + '"/><label for="nurse_select_' + nurse['id'] + '">' + nurse['name'] + ' (' + nurse['patients'] + ')</label></li>';
+        ref = data.colleagues;
+        for (i = 0, len = ref.length; i < len; i++) {
+          nurse = ref[i];
+          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse.id + '" class="patient_share_nurse" value="' + nurse.id + '"/><label for="nurse_select_' + nurse.id + '">' + nurse.name + ' (' + nurse.patients + ')</label></li>';
         }
         nurse_list += '</ul><p class="error"></p></form>';
         assign_btn = '<a href="#" data-action="assign" ' + 'data-target="assign_nurse" data-ajax-action="json_assign_nurse">' + 'Assign</a>';
         can_btn = '<a href="#" data-action="close" data-target="assign_nurse"' + '>Cancel</a>';
         btns = [assign_btn, can_btn];
-        return new window.NH.NHModal('assign_nurse', 'Assign patient to colleague', nurse_list, btns, 0, self.form);
+        return new window.NH.NHModal('assign_nurse', server_data.title, nurse_list, btns, 0, self.form);
       });
     } else {
-      msg = '<p class="block">Please select patients to hand' + ' to another staff member</p>';
+      msg = '<p>Please select patients to hand' + ' to another staff member</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       return new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -1491,11 +1514,11 @@ NHMobileShare = (function(superClass) {
     if (patients.length > 0) {
       assign_btn = '<a href="#" data-action="claim" ' + 'data-target="claim_patients" data-ajax-action="json_claim_patients">' + 'Claim</a>';
       can_btn = '<a href="#" data-action="close" data-target="claim_patients"' + '>Cancel</a>';
-      claim_msg = '<p class="block">Claim patients shared with colleagues</p>';
+      claim_msg = '<p>Claim patients shared with colleagues</p>';
       btns = [assign_btn, can_btn];
       new window.NH.NHModal('claim_patients', 'Claim Patients?', claim_msg, btns, 0, self.form);
     } else {
-      msg = '<p class="block">Please select patients to claim back</p>';
+      msg = '<p>Please select patients to claim back</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -1530,10 +1553,11 @@ NHMobileShare = (function(superClass) {
       nurse_ids = 'user_ids=' + nurses;
       patient_ids = 'patient_ids=' + patients;
       data_string = patient_ids + '&' + nurse_ids;
-      Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-        var btns, can_btn, cover, data, i, len, pt, pt_el, pts, share_msg, ti;
-        data = server_data[0][0];
-        if (data['status']) {
+      Promise.when(self.call_resource(url, data_string)).then(function(raw_data) {
+        var btns, can_btn, cover, data, i, len, pt, pt_el, pts, server_data, share_msg, ti;
+        server_data = raw_data[0];
+        data = server_data.data;
+        if (server_data.status === 'success') {
           pts = (function() {
             var i, len, ref, ref1, results;
             ref = form.elements;
@@ -1553,18 +1577,18 @@ NHMobileShare = (function(superClass) {
             pt_el.parentNode.classList.add('shared');
             ti = pt_el.getElementsByClassName('taskInfo')[0];
             if (ti.innerHTML.indexOf('Shared') < 0) {
-              ti.innerHTML = 'Shared with: ' + data['shared_with'].join(', ');
+              ti.innerHTML = 'Shared with: ' + data.shared_with.join(', ');
             } else {
-              ti.innerHTML += ', ' + data['shared_with'].join(', ');
+              ti.innerHTML += ', ' + data.shared_with.join(', ');
             }
           }
           cover = document.getElementById('cover');
           document.getElementsByTagName('body')[0].removeChild(cover);
           popup.parentNode.removeChild(popup);
           can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
-          share_msg = '<p class="block">Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
+          share_msg = '<p>' + server_data.desc + data.shared_with.join(', ') + '</p>';
           btns = [can_btn];
-          return new window.NH.NHModal('share_success', 'Patients Shared', share_msg, btns, 0, body);
+          return new window.NH.NHModal('share_success', server_data.title, share_msg, btns, 0, body);
         } else {
           return error_message.innerHTML = 'Error assigning colleague(s),' + ' please try again';
         }
@@ -1590,15 +1614,16 @@ NHMobileShare = (function(superClass) {
     })();
     data_string = 'patient_ids=' + patients;
     url = self.urls.json_claim_patients();
-    Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-      var body, btns, can_btn, claim_msg, cover, data, i, len, popup, pt, pt_el, pts, ti;
-      data = server_data[0][0];
+    Promise.when(self.call_resource(url, data_string)).then(function(raw_data) {
+      var body, btns, can_btn, claim_msg, cover, data, i, len, popup, pt, pt_el, pts, server_data, ti;
+      server_data = raw_data[0];
+      data = server_data.data;
       popup = document.getElementById('claim_patients');
       cover = document.getElementById('cover');
       body = document.getElementsByTagName('body')[0];
       body.removeChild(cover);
       popup.parentNode.removeChild(popup);
-      if (data['status']) {
+      if (server_data.status === 'success') {
         pts = (function() {
           var i, len, ref, ref1, results;
           ref = form.elements;
@@ -1620,12 +1645,12 @@ NHMobileShare = (function(superClass) {
           ti.innerHTML = '<br>';
         }
         can_btn = '<a href="#" data-action="close" ' + 'data-target="claim_success">Cancel</a>';
-        claim_msg = '<p class="block">Successfully claimed patients</p>';
+        claim_msg = '<p>' + server_data.desc + '</p>';
         btns = [can_btn];
-        return new window.NH.NHModal('claim_success', 'Patients Claimed', claim_msg, btns, 0, body);
+        return new window.NH.NHModal('claim_success', server_data.title, claim_msg, btns, 0, body);
       } else {
         can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Cancel</a>';
-        claim_msg = '<p class="block">There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
+        claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);
       }
@@ -1717,13 +1742,14 @@ NHMobileShareInvite = (function(superClass) {
     var url, urlmeth;
     url = self.urls.json_invite_patients(activity_id);
     urlmeth = url.method;
-    Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var acpt_btn, body, btns, can_btn, cls_btn, data, j, len, pt, pt_list, pt_obj;
-      data = server_data[0][0];
+    Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+      var acpt_btn, body, btns, can_btn, cls_btn, data, j, len, pt, pt_list, pt_obj, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
       pt_list = '<ul class="tasklist">';
       for (j = 0, len = data.length; j < len; j++) {
         pt = data[j];
-        pt_obj = '<li class="block"><a>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt['next_ews_time'] + '</p></div>' + '<div class="task-left">' + '<strong>' + pt['full_name'] + '</strong>' + '(' + pt['ews_score'] + ' <i class="icon-' + pt['ews_trend'] + '-arrow"></i> )' + '<br><em>' + pt['location'] + ', ' + pt['parent_location'] + '</em>' + '</div>' + '</div>' + '</a></li>';
+        pt_obj = '<li class="block"><a>' + '<div class="task-meta">' + '<div class="task-right">' + '<p class="aside">' + pt.next_ews_time + '</p></div>' + '<div class="task-left">' + '<strong>' + pt.full_name + '</strong>' + '(' + pt.ews_score + ' <i class="icon-' + pt.ews_trend + '-arrow"></i> )' + '<br><em>' + pt.location + ', ' + pt.parent_location + '</em>' + '</div>' + '</div>' + '</a></li>';
         pt_list += pt_obj;
       }
       pt_list += '</ul>';
@@ -1732,7 +1758,7 @@ NHMobileShareInvite = (function(superClass) {
       acpt_btn = '<a href="#" data-action="accept" data-target="accept_invite"' + 'data-ajax-action="json_accept_invite" ' + 'data-invite-id="' + activity_id + '">Accept</a>';
       btns = [cls_btn, can_btn, acpt_btn];
       body = document.getElementsByTagName('body')[0];
-      return new window.NH.NHModal('accept_invite', 'Accept invitation to follow patients?', pt_list, btns, 0, body);
+      return new window.NH.NHModal('accept_invite', server_data.title, pt_list, btns, 0, body);
     });
     return true;
   };
@@ -1742,10 +1768,11 @@ NHMobileShareInvite = (function(superClass) {
     url = self.urls.json_accept_patients(activity_id);
     urlmeth = url.method;
     body = document.getElementsByTagName('body')[0];
-    return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1;
-      data = server_data[0][0];
-      if (data['status']) {
+    return Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      if (server_data.status === 'success') {
         invites = document.getElementsByClassName('share_invite');
         invite = ((function() {
           var j, len, results;
@@ -1769,7 +1796,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_success', 'Successfully accepted patients', '<p class="block">Now following ' + data['count'] + ' patients from ' + data['user'] + '</p>', btns, 0, body);
+        return new window.NH.NHModal('invite_success', server_data.title, '<p>' + server_data.desc + '</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
@@ -1781,7 +1808,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('invite_error', 'Error accepting patients', '<p class="block">There was an error accepting the invite to follow,' + 'Please try again</p>', btns, 0, body);
+        return new window.NH.NHModal('invite_error', 'Error accepting patients', '<p>There was an error accepting the invite to follow,' + 'Please try again</p>', btns, 0, body);
       }
     });
   };
@@ -1791,10 +1818,11 @@ NHMobileShareInvite = (function(superClass) {
     url = self.urls.json_reject_patients(activity_id);
     urlmeth = url.method;
     body = document.getElementsByTagName('body')[0];
-    return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1;
-      data = server_data[0][0];
-      if (data['status']) {
+    return Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+      var btns, cover, covers, data, i, invite, invite_modal, invites, j, k, len, len1, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      if (server_data.status === 'success') {
         invites = document.getElementsByClassName('share_invite');
         invite = ((function() {
           var j, len, results;
@@ -1818,7 +1846,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_success', 'Successfully rejected patients', '<p class="block">The invitation to follow ' + data['user'] + '\'s ' + 'patients was rejected</p>', btns, 0, body);
+        return new window.NH.NHModal('reject_success', server_data.title, '<p>' + server_data.desc + '</p>', btns, 0, body);
       } else {
         btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
         covers = document.getElementsByClassName('cover');
@@ -1830,7 +1858,7 @@ NHMobileShareInvite = (function(superClass) {
         }
         invite_modal = document.getElementById('accept_invite');
         invite_modal.parentNode.removeChild(invite_modal);
-        return new window.NH.NHModal('reject_error', 'Error rejecting patients', '<p class="block">There was an error rejecting the invite to follow,' + ' Please try again</p>', btns, 0, body);
+        return new window.NH.NHModal('reject_error', 'Error rejecting patients', '<p>There was an error rejecting the invite to follow,' + ' Please try again</p>', btns, 0, body);
       }
     });
   };
@@ -1847,7 +1875,8 @@ if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShareInvite = NHMobileShareInvite;
 }
 
-var NHModal;
+var NHModal,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 NHModal = (function() {
   function NHModal(id1, title1, content1, options1, popupTime, el1) {
@@ -1858,6 +1887,7 @@ NHModal = (function() {
     this.options = options1;
     this.popupTime = popupTime;
     this.el = el1;
+    this.handle_button_events = bind(this.handle_button_events, this);
     self = this;
     dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
     body = document.getElementsByTagName('body')[0];
@@ -1910,9 +1940,6 @@ NHModal = (function() {
           break;
         case 3:
           option_list.setAttribute('class', 'options three-col');
-          break;
-        case 4:
-          option_list.setAttribute('class', 'options four-col');
       }
       fn = function(self) {
         var option_button, ref;
@@ -1958,7 +1985,6 @@ NHModal = (function() {
       if (elh > window.innerHeight) {
         return window.innerHeight - dialog_height;
       }
-      return elh - dialog_height;
     };
     max_height = available_space(dialog, el);
     top_offset = el.offsetTop + margins.top;
@@ -1969,121 +1995,124 @@ NHModal = (function() {
     }
   };
 
+  NHModal.prototype.close_modal = function(modal_id) {
+    var cover, dialog_id;
+    dialog_id = document.getElementById(modal_id);
+    if (typeof dialog_id !== 'undefined') {
+      cover = document.getElementById('cover');
+      document.getElementsByTagName('body')[0].removeChild(cover);
+      return dialog_id.parentNode.removeChild(dialog_id);
+    }
+  };
+
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, cover, data_action, data_target, dialog, dialog_form, dialog_id, el, element, form, forms, i, invite, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event;
-    data_target = event.srcElement.getAttribute('data-target');
-    data_action = event.srcElement.getAttribute('data-ajax-action');
-    switch (event.srcElement.getAttribute('data-action')) {
-      case 'close':
-        event.preventDefault();
-        dialog_id = document.getElementById(data_target);
-        cover = document.getElementById('cover');
-        document.getElementsByTagName('body')[0].removeChild(cover);
-        dialog_id.parentNode.removeChild(dialog_id);
-        break;
-      case 'renable':
-        event.preventDefault();
-        forms = document.getElementsByTagName('form');
-        for (i = 0, len = forms.length; i < len; i++) {
-          form = forms[i];
-          action_buttons = (function() {
-            var j, len1, ref, ref1, results;
-            ref = form.elements;
+    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, data_action, data_target, dialog, dialog_form, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
+    if (!event.handled) {
+      target_el = event.srcElement ? event.srcElement : event.target;
+      data_target = target_el.getAttribute('data-target');
+      data_action = target_el.getAttribute('data-ajax-action');
+      switch (target_el.getAttribute('data-action')) {
+        case 'close':
+          event.preventDefault();
+          this.close_modal(data_target);
+          break;
+        case 'renable':
+          event.preventDefault();
+          forms = document.getElementsByTagName('form');
+          for (i = 0, len = forms.length; i < len; i++) {
+            form = forms[i];
+            action_buttons = (function() {
+              var j, len1, ref, ref1, results;
+              ref = form.elements;
+              results = [];
+              for (j = 0, len1 = ref.length; j < len1; j++) {
+                element = ref[j];
+                if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+                  results.push(element);
+                }
+              }
+              return results;
+            })();
+            for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+              button = action_buttons[j];
+              button.removeAttribute('disabled');
+            }
+          }
+          this.close_modal(data_target);
+          break;
+        case 'submit':
+          event.preventDefault();
+          submit_event = document.createEvent('CustomEvent');
+          submit_detail = {
+            'endpoint': target_el.getAttribute('data-ajax-action')
+          };
+          submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
+          document.dispatchEvent(submit_event);
+          this.close_modal(data_target);
+          break;
+        case 'partial_submit':
+          event.preventDefault();
+          if (!event.handled) {
+            submit_event = document.createEvent('CustomEvent');
+            submit_detail = {
+              'action': data_action,
+              'target': data_target
+            };
+            submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
+            document.dispatchEvent(submit_event);
+            event.handled = true;
+          }
+          break;
+        case 'assign':
+          event.preventDefault();
+          dialog = document.getElementById(data_target);
+          dialog_form = dialog.getElementsByTagName('form')[0];
+          nurses = (function() {
+            var k, len2, ref, results;
+            ref = dialog_form.elements;
             results = [];
-            for (j = 0, len1 = ref.length; j < len1; j++) {
-              element = ref[j];
-              if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
-                results.push(element);
+            for (k = 0, len2 = ref.length; k < len2; k++) {
+              el = ref[k];
+              if (el.checked) {
+                results.push(el.value);
               }
             }
             return results;
           })();
-          for (j = 0, len1 = action_buttons.length; j < len1; j++) {
-            button = action_buttons[j];
-            button.removeAttribute('disabled');
-          }
-        }
-        dialog_id = document.getElementById(data_target);
-        cover = document.getElementById('cover');
-        document.getElementsByTagName('body')[0].removeChild(cover);
-        dialog_id.parentNode.removeChild(dialog_id);
-        break;
-      case 'submit':
-        event.preventDefault();
-        submit_event = document.createEvent('CustomEvent');
-        submit_detail = {
-          'endpoint': event.srcElement.getAttribute('data-ajax-action')
-        };
-        submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
-        document.dispatchEvent(submit_event);
-        dialog_id = document.getElementById(data_target);
-        cover = document.getElementById('cover');
-        document.getElementsByTagName('body')[0].removeChild(cover);
-        dialog_id.parentNode.removeChild(dialog_id);
-        break;
-      case 'partial_submit':
-        event.preventDefault();
-        if (!event.handled) {
-          submit_event = document.createEvent('CustomEvent');
-          submit_detail = {
+          assign_event = document.createEvent('CustomEvent');
+          assign_detail = {
             'action': data_action,
-            'target': data_target
+            'target': data_target,
+            'nurses': nurses
           };
-          submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
-          document.dispatchEvent(submit_event);
-          event.handled = true;
-        }
-        break;
-      case 'assign':
-        event.preventDefault();
-        dialog = document.getElementById(data_target);
-        dialog_form = dialog.getElementsByTagName('form')[0];
-        nurses = (function() {
-          var k, len2, ref, results;
-          ref = dialog_form.elements;
-          results = [];
-          for (k = 0, len2 = ref.length; k < len2; k++) {
-            el = ref[k];
-            if (el.checked) {
-              results.push(el.value);
-            }
-          }
-          return results;
-        })();
-        assign_event = document.createEvent('CustomEvent');
-        assign_detail = {
-          'action': data_action,
-          'target': data_target,
-          'nurses': nurses
-        };
-        assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
-        document.dispatchEvent(assign_event);
-        break;
-      case 'claim':
-        event.preventDefault();
-        claim_event = document.createEvent('CustomEvent');
-        claim_event.initCustomEvent('claim_patients', false, true);
-        document.dispatchEvent(claim_event);
-        break;
-      case 'accept':
-        event.preventDefault();
-        accept_event = document.createEvent('CustomEvent');
-        invite = event.srcElement ? event.srcElement : event.target;
-        accept_detail = {
-          'invite_id': invite.getAttribute('data-invite-id')
-        };
-        accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
-        document.dispatchEvent(accept_event);
-        break;
-      case 'reject':
-        event.preventDefault();
-        reject_event = document.createEvent('CustomEvent');
-        invite = event.srcElement ? event.srcElement : event.target;
-        reject_detail = {
-          'invite_id': invite.getAttribute('data-invite-id')
-        };
-        reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
-        document.dispatchEvent(reject_event);
+          assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
+          document.dispatchEvent(assign_event);
+          break;
+        case 'claim':
+          event.preventDefault();
+          claim_event = document.createEvent('CustomEvent');
+          claim_event.initCustomEvent('claim_patients', false, true, false);
+          document.dispatchEvent(claim_event);
+          break;
+        case 'accept':
+          event.preventDefault();
+          accept_event = document.createEvent('CustomEvent');
+          accept_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          };
+          accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
+          document.dispatchEvent(accept_event);
+          break;
+        case 'reject':
+          event.preventDefault();
+          reject_event = document.createEvent('CustomEvent');
+          reject_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          };
+          reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
+          document.dispatchEvent(reject_event);
+      }
+      event.handled = true;
     }
   };
 

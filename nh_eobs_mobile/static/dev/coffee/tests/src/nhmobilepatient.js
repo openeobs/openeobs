@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHMobilePatient,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -14,6 +16,8 @@ NHMobilePatient = (function(superClass) {
     table_view = document.getElementById('table-content');
     table_view.style.display = 'none';
     obs = document.getElementsByClassName('obs');
+
+    /* istanbul ignore else */
     if (obs && obs.length > 0) {
       obs[0].addEventListener('click', this.show_obs_menu);
     }
@@ -24,36 +28,46 @@ NHMobilePatient = (function(superClass) {
       tab.addEventListener('click', this.handle_tabs);
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(server_data) {
-      return self.draw_graph(self, server_data);
+    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
+      var data, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      return self.draw_graph(self, data);
     });
   }
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
-    var i, len, tab, tabs;
+    var i, len, tab, tab_target, tabs, target_el;
     event.preventDefault();
-    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
-    for (i = 0, len = tabs.length; i < len; i++) {
-      tab = tabs[i];
-      tab.classList.remove('selected');
+    if (!event.handled) {
+      tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
+      for (i = 0, len = tabs.length; i < len; i++) {
+        tab = tabs[i];
+        tab.classList.remove('selected');
+      }
+      document.getElementById('graph-content').style.display = 'none';
+      document.getElementById('table-content').style.display = 'none';
+      target_el = event.srcElement ? event.srcElement : event.target;
+      target_el.classList.add('selected');
+      tab_target = target_el.getAttribute('href').replace('#', '');
+      document.getElementById(tab_target).style.display = 'block';
+      return event.handled = true;
     }
-    document.getElementById('graph-content').style.display = 'none';
-    document.getElementById('table-content').style.display = 'none';
-    event.srcElement.classList.add('selected');
-    return $(event.srcElement.getAttribute('href')).show();
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var obs_menu;
+    var body, menu, obs_menu;
     event.preventDefault();
     obs_menu = document.getElementById('obsMenu');
-    return new window.NH.NHModal('obs_menu', 'Pick an observation for ', '<ul class="menu">' + obs_menu.innerHTML + '</ul>', ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, document.getElementsByTagName('body')[0]);
+    body = document.getElementsByTagName('body')[0];
+    menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
+    return new NHModal('obs_menu', 'Pick an observation for ', menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
   };
 
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {
     var bp_graph, c, chart, context, controls, element_for_chart, f, focus, fr, graph_content, graph_tabs, i, len, ob, obs, oxy_graph, pulse_graph, resp_rate_graph, score_graph, svg, tabular_obs, temp_graph;
     element_for_chart = 'chart';
-    obs = server_data[0][0].obs.reverse();
+    obs = server_data.obs.reverse();
     if (obs.length > 0) {
       svg = new window.NH.NHGraphLib('#' + element_for_chart);
       resp_rate_graph = new window.NH.NHGraph();
@@ -220,6 +234,7 @@ NHMobilePatient = (function(superClass) {
       ];
       score_graph = new window.NH.NHGraph();
       score_graph.options.keys = ['score'];
+      score_graph.options.plot_partial = false;
       score_graph.style.dimensions.height = 200;
       score_graph.style.data_style = 'stepped';
       score_graph.axes.y.min = 0;
@@ -277,7 +292,7 @@ NHMobilePatient = (function(superClass) {
       svg.table.keys = [
         {
           title: 'NEWS Score',
-          keys: ['score']
+          keys: ['score_display']
         }, {
           title: 'Respiration Rate',
           keys: ['respiration_rate']
@@ -341,15 +356,23 @@ NHMobilePatient = (function(superClass) {
         f = ob.oxygen_administration_flag;
         if (fr || c || f) {
           ob.inspired_oxygen = "";
+
+          /* istanbul ignore else */
           if (ob.device_id) {
             ob.inspired_oxygen += "<strong>Device:</strong> " + ob.device_id[1] + "<br>";
           }
+
+          /* istanbul ignore else */
           if (fr) {
             ob.inspired_oxygen += "<strong>Flow:</strong> " + ob.flow_rate + "l/hr<br>";
           }
+
+          /* istanbul ignore else */
           if (c) {
             ob.inspired_oxygen += "<strong>Concentration:</strong> " + ob.concentration + "%<br>";
           }
+
+          /* istanbul ignore else */
           if (ob.cpap_peep && ob.cpap_peep > -1) {
             ob.inspired_oxygen += "<strong>CPAP PEEP:</strong> " + ob.cpap_peep + "<br>";
           } else if (ob.niv_backup && ob.niv_backup > -1) {
@@ -357,6 +380,8 @@ NHMobilePatient = (function(superClass) {
             ob.inspired_oxygen += "<strong>NIV EPAP:</strong> " + ob.niv_epap + "<br>";
             ob.inspired_oxygen += "<strong>NIV IPAP</strong>: " + ob.niv_ipap + "<br>";
           }
+
+          /* istanbul ignore else */
           if (ob.indirect_oxymetry_spo2) {
             ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + "%";
           }
@@ -380,9 +405,15 @@ NHMobilePatient = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobilePatient = NHMobilePatient;

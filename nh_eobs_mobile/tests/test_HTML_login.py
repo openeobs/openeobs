@@ -14,8 +14,7 @@ class TestLoginHTML(MobileHTMLRenderingCase):
     """
 
     def test_login_page_in_a_clean_state(self):
-        """
-        Test the 'login' page in the 'CLEAN' state:
+        """Test the 'login' page in a clean state.
         i.e. the user has just arrived in the page and the form is still pristine.
         """
         # Retrieve the fixture for this test and parse it,
@@ -43,8 +42,7 @@ class TestLoginHTML(MobileHTMLRenderingCase):
         self.assertEqual(compressed_rendered_template, compressed_expected_output)
 
     def test_login_page_in_an_invalid_state(self):
-        """
-        Test the 'login' page in the 'INVALID' state:
+        """Test the 'login' page in an invalid state.
         i.e. the user has already submit wrong credentials, now he's been showing a login page with an error message.
         """
         # Retrieve the fixture for this test and parse it,

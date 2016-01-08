@@ -37,6 +37,8 @@
             <xpath expr="." position="inside">
                 <link rel="stylesheet" href="/nh_eobs/static/src/css/nh_eobs.css"/>
                 <script type="text/javascript" src="/nh_eobs/static/src/js/nh_eobs.js"></script>
+                <script type="text/javascript" src="/nh_eobs/static/tours/staff_allocation.tour.js"></script>
+                <script type="text/javascript" src="/nh_eobs/static/tours/palliative_status.tour.js"></script>
             </xpath>
         </template>
 
@@ -641,7 +643,7 @@
                     <field name="summary"/>
                     <field name="patient_id"/>
                     <field name="location"/>
-                    <field name="create_date"/>
+                    <field name="create_date" widget="nhc_datetime"/>
                 </tree>
             </field>
         </record>

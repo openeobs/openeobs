@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Defines models for the `Wardboard` view.
+"""
 from openerp.osv import orm, fields, osv
 import logging
 
@@ -7,8 +10,12 @@ _logger = logging.getLogger(__name__)
 from openerp import SUPERUSER_ID
 
 class wardboard_swap_beds(orm.TransientModel):
+    """
+    Allows a :class:`patient<base.nh_clinical_patient>` to swap beds
+    with another patient on the same ward.
+    """
     _name = 'wardboard.swap_beds'
-    
+
     _columns = {
         'patient1_id': fields.many2one('nh.clinical.patient', 'Current Patient'),
         'patient2_id': fields.many2one('nh.clinical.patient', 'Patient To Swap With'),
@@ -18,6 +25,16 @@ class wardboard_swap_beds(orm.TransientModel):
     }
 
     def do_swap(self, cr, uid, ids, context=None):
+        """
+        Swaps the bed :class:`locations<base.nh_clinical_location>` of
+        two :class:`patients<base.nh_clinical_patient>`.
+
+        :param ids: list of ids for records
+        :type ids: list
+        :returns: ``True``
+        :rtype: bool
+        """
+
         data = self.browse(cr, uid, ids[0])
         values = {
             'location1_id': data.location1_id.id,
@@ -27,8 +44,20 @@ class wardboard_swap_beds(orm.TransientModel):
         swap_pool = self.pool['nh.clinical.patient.swap_beds']
         swap_id = swap_pool.create_activity(cr, uid, {}, values, context=context)
         activity_pool.complete(cr, uid, swap_id, context=context)
-    
+
     def onchange_location2(self, cr, uid, ids, location2_id, context=None):
+        """
+        Returns dictionary containing the
+        :class:`patient<base.nh_clinical_patient>` id of patient in the
+        :class:`location<base.nh_clinical_location>` of the
+        ``location2_id`` parameter.
+
+        :param location2_id: location id
+        :type location2_id: int
+        :returns: dictionary containing patient id
+        :rtype: dict
+        """
+
         if not location2_id:
             return {'value': {'patient2_id': False}}
         patient_pool = self.pool['nh.clinical.patient']
@@ -38,6 +67,12 @@ class wardboard_swap_beds(orm.TransientModel):
         return {'value': {'patient2_id': patient_id[0]}}
 
 class wardboard_patient_placement(orm.TransientModel):
+    """
+    Moves :class:`patient<base.nh_clinical_patient>` from a bed
+    :class:`location<base.nh_clinical_location>` to another vacant bed
+    location.
+    """
+
     _name = "wardboard.patient.placement"
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
@@ -47,6 +82,16 @@ class wardboard_patient_placement(orm.TransientModel):
     }
 
     def do_move(self, cr, uid, ids, context=None):
+        """
+        Moves the :class:`patient<base.nh_clinical_patient>` from their
+        current bed location to a destination bed location.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: ``True``
+        :rtype: bool
+        """
+
         wiz = self.browse(cr, uid, ids[0], context=context)
         spell_pool = self.pool['nh.clinical.spell']
         move_pool = self.pool['nh.clinical.patient.move']
@@ -63,6 +108,10 @@ class wardboard_patient_placement(orm.TransientModel):
 
 
 class wardboard_device_session_start(orm.TransientModel):
+    """
+    Starts a :class:`device<devices.nh_clinical_device>` session.
+    """
+
     _name = "wardboard.device.session.start"
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
@@ -73,6 +122,19 @@ class wardboard_device_session_start(orm.TransientModel):
     }
 
     def onchange_device_category_id(self, cr, uid, ids, device_category_id, context=None):
+        """
+        Returns domain dictionary containing the
+        :class:`type<devices.nh_clinical_device_type>` id of the
+        :class:`device<devices.nh_clinical_device>`.
+
+        :param device_category_id:
+            :class:`category<devices.nh_clinical_device_category>` id of
+            the device
+        :type device_category_id: int
+        :returns: domain dictionary containing ``device_type_id``
+        :rtype: dict
+        """
+
         response = False
         if device_category_id:
             response = {'value': {'device_id': False, 'device_type_id': False}}
@@ -81,6 +143,17 @@ class wardboard_device_session_start(orm.TransientModel):
         return response
 
     def onchange_device_type_id(self, cr, uid, ids, device_type_id, context=None):
+        """
+        Given a device :class:`type<devices.nh_clinical_device_type>`
+        id, it returns a domain dictionary containing the
+        :class:`device<devices.nh_clinical_device>` id.
+
+        :param device_type_id: type id of the device
+        :type device_type_id: int
+        :returns: domain dictionary containing ``device_id``
+        :rtype: dict
+        """
+
         response = False
         if device_type_id:
             response = {'value': {'device_id': False}}
@@ -89,6 +162,17 @@ class wardboard_device_session_start(orm.TransientModel):
         return response
 
     def onchange_device_id(self, cr, uid, ids, device_id, context=None):
+        """
+        Given a device :class:`device<devices.nh_clinical_device>` id,
+        it returns a domain dictionary containing the
+        :class:`type<devices.nh_clinical_device_type>` id.
+
+        :param device_id: id of the device
+        :type device_id: int
+        :returns: domain dictionary containing ``device_id``
+        :rtype: dict
+        """
+
         device_pool = self.pool['nh.clinical.device']
         if not device_id:
             return {}
@@ -96,6 +180,16 @@ class wardboard_device_session_start(orm.TransientModel):
         return {'value': {'device_type_id': device.type_id.id}}
 
     def do_start(self, cr, uid, ids, context=None):
+        """
+        Starts a :class:`session<devices.nh_clinical_device_session>`
+        for a device.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: ``True``
+        :rtype: bool
+        """
+
         wiz = self.browse(cr, uid, ids[0], context=context)
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(cr, uid, wiz.patient_id.id, context=context)
@@ -109,15 +203,30 @@ class wardboard_device_session_start(orm.TransientModel):
         self.pool['nh.activity'].submit(cr, uid, device_activity_id, {'location': wiz.location}, context)
 
 class wardboard_device_session_complete(orm.TransientModel):
+    """
+    Completes a :class:`session<devices.nh_clinical_device_session>` for
+    a device.
+    """
+
     _name = "wardboard.device.session.complete"
 
     _columns = {
         'session_id': fields.many2one('nh.clinical.device.session', 'Session'),
         'removal_reason': fields.char('Removal reason', size=100),
         'planned': fields.selection((('planned', 'Planned'), ('unplanned', 'Unplanned')), 'Planned?')
-    }   
-    
+    }
+
     def do_complete(self, cr, uid, ids, context=None):
+        """
+        Completed a :class:`session<devices.nh_clinical_device_session>`
+        for a device.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: Odoo `action` definition
+        :rtype: dict
+        """
+
         activity_pool = self.pool['nh.activity']
         wiz = self.browse(cr, uid, ids[0])
         activity_pool.submit(cr, uid, wiz.session_id.activity_id.id, {'removal_reason': wiz.removal_reason, 'planned': wiz.planned}, context)
@@ -141,9 +250,24 @@ class wardboard_device_session_complete(orm.TransientModel):
 
 
 class nh_clinical_device_session(orm.Model):
+    """
+    Extends :class:`session<devices.nh_clinical_device_session>`.
+    """
+
     _inherit = "nh.clinical.device.session"
 
     def device_session_complete(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`device session complete<wardboard_device_session_complete>`
+        for the view ``view_wardboard_device_session_complete_form``.
+
+        :param ids: record ids
+        :type ids: list
+        :returns: Odoo `action` definition
+        :rtype: dict
+        """
+
         device_session = self.browse(cr, uid, ids[0], context=context)
         res_id = self.pool['wardboard.device.session.complete'].create(cr, uid, {'session_id': device_session.id})
         view_id = self.pool['ir.model.data'].get_object_reference(cr, uid, 'nh_eobs', 'view_wardboard_device_session_complete_form')[1]
@@ -162,10 +286,19 @@ class nh_clinical_device_session(orm.Model):
 
 
 class nh_clinical_wardboard(orm.Model):
+    """
+    Represents a :class:`patient<base.nh_clinical_patient>` with basic
+    patient information (`admission`, `spell`, `location`, etc.).
+
+    Also includes
+    :class:`observation<observations.nh_clinical_patient_observation>`
+    data such as
+    :class:`EWS<ews.nh_clinical_patient_observation_ews>`,
+    :class:`weight<observations.nh_clinical_patient_observation_weight>`,
+    etc.
+    """
+
     _name = "nh.clinical.wardboard"
-#     _inherits = {
-#                  'nh.clinical.patient': 'patient_id',
-#     }
     _description = "Wardboard"
     _auto = False
     _table = "nh_clinical_wardboard"
@@ -198,23 +331,32 @@ class nh_clinical_wardboard(orm.Model):
 
     def _get_started_device_session_ids(self, cr, uid, ids, field_name, arg, context=None):
         res = {}.fromkeys(ids, False)
-        sql = """select spell_id, ids 
-                    from wb_activity_data 
-                    where data_model='nh.clinical.device.session' 
+        sql = """select spell_id, ids
+                    from wb_activity_data
+                    where data_model='nh.clinical.device.session'
                         and state in ('started') and spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
         cr.execute(sql)
         res.update({r['spell_id']: r['ids'] for r in cr.dictfetchall()})
-        return res 
+        return res
 
     def _get_terminated_device_session_ids(self, cr, uid, ids, field_name, arg, context=None):
         res = {}.fromkeys(ids, False)
-        sql = """select spell_id, ids 
-                    from wb_activity_data 
-                    where data_model='nh.clinical.device.session' 
+        sql = """select spell_id, ids
+                    from wb_activity_data
+                    where data_model='nh.clinical.device.session'
                         and state in ('completed', 'cancelled') and spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
         cr.execute(sql)
         res.update({r['spell_id']: r['ids'] for r in cr.dictfetchall()})
-        return res    
+        return res
+
+    def _get_recently_discharged_uids(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}.fromkeys(ids, False)
+        sql = """select spell_id, user_ids, ward_user_ids
+                    from last_discharge_users
+                    where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
+        cr.execute(sql)
+        res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
+        return res
 
     def _get_data_ids_multi(self, cr, uid, ids, field_names, arg, context=None):
         res = {id: {field_name: [] for field_name in field_names} for id in ids}
@@ -229,10 +371,12 @@ class nh_clinical_wardboard(orm.Model):
         return res
 
     def _get_transferred_user_ids(self, cr, uid, ids, field_names, arg, context=None):
-        res = {}
-        for wb_id in ids:
-            user_ids = self.pool['nh.clinical.spell'].read(cr, uid, wb_id, ['transferred_user_ids'], context=context)['transferred_user_ids']
-            res[wb_id] = user_ids
+        res = {}.fromkeys(ids, False)
+        sql = """select spell_id, user_ids, ward_user_ids
+                    from last_transfer_users
+                    where spell_id in (%s)""" % ", ".join([str(spell_id) for spell_id in ids])
+        cr.execute(sql)
+        res.update({r['spell_id']: list(set(r['user_ids'] + r['ward_user_ids'])) for r in cr.dictfetchall()})
         return res
 
     def _transferred_user_ids_search(self, cr, uid, obj, name, args, domain=None, context=None):
@@ -244,6 +388,14 @@ class nh_clinical_wardboard(orm.Model):
 
         return [('id', 'in', wb_ids)]
 
+    def _recently_discharged_uids_search(self, cr, uid, obj, name, args, domain=None, context=None):
+        arg1, op, arg2 = args[0]
+        arg2 = arg2 if isinstance(arg2, (list, tuple)) else [arg2]
+        all_ids = self.search(cr, uid, [])
+        user_ids = self._get_recently_discharged_uids(cr, uid, all_ids, 'recently_discharged_uids', None, context=context)
+        wb_ids = [k for k, v in user_ids.items() if set(v or []) & set(arg2 or [])]
+        return [('id', 'in', wb_ids)]
+
     def _is_placed(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for wb in self.browse(cr, uid, ids, context=context):
@@ -253,7 +405,7 @@ class nh_clinical_wardboard(orm.Model):
             ], context=context)
             res[wb.id] = len(placement_ids) > 0
         return res
-    
+
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=1, ondelete='restrict'),
         'company_logo': fields.function(_get_logo, type='binary', string='Logo'),
@@ -281,6 +433,7 @@ class nh_clinical_wardboard(orm.Model):
         'hospital_number': fields.text('Hospital Number'),
         'nhs_number': fields.text('NHS Number'),
         'age': fields.integer("Age"),
+        'date_scheduled': fields.datetime("Date Scheduled"),
         'next_diff': fields.text("Time to Next Obs"),
         'frequency': fields.text("Frequency"),
         'ews_score_string': fields.text("Latest Score"),
@@ -322,7 +475,7 @@ class nh_clinical_wardboard(orm.Model):
         'bowels_open_ids': fields.function(_get_data_ids_multi, multi='bowel_open_ids', type='many2many', relation='nh.clinical.patient.observation.bowels_open', string='Bowel Open Flag'),
         'ews_list_ids': fields.function(_get_data_ids_multi, multi='ews_list_ids', type='many2many', relation='nh.clinical.patient.observation.ews', string='EWS Obs List'),
         'transferred_user_ids': fields.function(_get_transferred_user_ids, type='many2many', relation='res.users', fnct_search=_transferred_user_ids_search, string='Recently Transferred Access'),
-        'placed': fields.boolean('Placed?')
+        'recently_discharged_uids': fields.function(_get_recently_discharged_uids, type='many2many', relation='res.users', fnct_search=_recently_discharged_uids_search, string='Recently Discharged Access'),
     }
 
     _order = 'location asc'
@@ -335,10 +488,21 @@ class nh_clinical_wardboard(orm.Model):
     _group_by_full = {
         'clinical_risk': _get_cr_groups,
     }
-    
+
     def device_session_start(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`device session start<wardboard_device_session_start>`
+        for the view ``view_wardboard_device_session_start_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
-        res_id = self.pool['wardboard.device.session.start'].create(cr, uid, 
+        res_id = self.pool['wardboard.device.session.start'].create(cr, uid,
                                                         {
                                                          'patient_id': wardboard.patient_id.id,
                                                          'device_id': None
@@ -357,6 +521,18 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def open_previous_spell(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_form_discharged`` to open a previous
+        :class:`spell<spell.nh_clinical_spell>`.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         activity_pool = self.pool['nh.activity']
         wb = self.browse(cr, uid, ids[0], context=context)
         activity_ids = activity_pool.search(cr, uid, [
@@ -381,6 +557,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_swap_beds(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`swap beds<wardboard_swap_beds>` for the view
+        ``view_wardboard_swap_beds_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         swap_beds_pool = self.pool['wardboard.swap_beds']
         wb = self.browse(cr, uid, ids[0])
         res_id = swap_beds_pool.create(cr, uid, {
@@ -401,34 +588,48 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_patient_placement(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`patient placement<wardboard_patient_placement>` for the
+        view ``view_wardboard_patient_placement_form``. Raises an
+        exception if :class:`patient<base.nh_clinical_patient>` isn't
+        placed in a bed.
+
+        :param ids: records ids
+        :type ids: list
+        :raises: :class:`osv.except_osv<openerp.osv.osv.except_orm>`
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
         # assumed that patient's placement is completed
         # parent location of bed is taken as ward
         if wardboard.location_id.usage != 'bed':
             raise osv.except_osv("Patient Board Error!", "Patient must be placed to bed before moving!")
         sql = """
-        with 
+        with
             recursive route(level, path, parent_id, id) as (
-                    select 0, id::text, parent_id, id 
-                    from nh_clinical_location 
+                    select 0, id::text, parent_id, id
+                    from nh_clinical_location
                     where parent_id is null
                 union
-                    select level + 1, path||','||location.id, location.parent_id, location.id 
-                    from nh_clinical_location location 
+                    select level + 1, path||','||location.id, location.parent_id, location.id
+                    from nh_clinical_location location
                     join route on location.parent_id = route.id
             )
-            select 
-                route.id as location_id, 
-                ('{'||path||'}')::int[] as parent_ids 
+            select
+                route.id as location_id,
+                ('{'||path||'}')::int[] as parent_ids
             from route
-            where id = %s 
+            where id = %s
             order by path
         """ % wardboard.location_id.id
         cr.execute(sql)
         parent_ids = (cr.dictfetchone() or {}).get('parent_ids')
         ward_location_ids = self.pool['nh.clinical.location'].search(cr, uid, [['id','in',parent_ids], ['usage','=','ward']])
         ward_location_id = ward_location_ids and ward_location_ids[0] or False
-        res_id = self.pool['wardboard.patient.placement'].create(cr, uid, 
+        res_id = self.pool['wardboard.patient.placement'].create(cr, uid,
                                                         {
                                                          'patient_id': wardboard.patient_id.id,
                                                          'ward_location_id': ward_location_id or wardboard.location_id.parent_id.id,
@@ -449,6 +650,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_prescribe(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_prescribe_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -465,8 +677,19 @@ class nh_clinical_wardboard(orm.Model):
             'context': context,
             'view_id': int(view_id)
         }
-        
+
     def wardboard_chart(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_chart_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -485,6 +708,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_weight_chart(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_weight_chart_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -505,6 +739,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_bs_chart(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`wardboard<nh_clinical_wardboard>` for the view
+        ``view_wardboard_bs_chart_form``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -523,6 +768,16 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_ews(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo tree window action for `completed`
+        :class:`ews<ews.nh_clinical_patient_observation_ews>`.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
         return {
             'name': wardboard.full_name,
@@ -536,6 +791,17 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def wardboard_place(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo form window action for
+        :class:`patient placement<operations.nh_clinical_patient_placement>`
+        for the view ``view_patient_placement_complete``.
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
         wardboard = self.browse(cr, uid, ids[0], context=context)
 
         model_data_pool = self.pool['ir.model.data']
@@ -564,6 +830,13 @@ class nh_clinical_wardboard(orm.Model):
         }
 
     def write(self, cr, uid, ids, vals, context=None):
+        """
+        Extends Odoo's :meth:`write()<openerp.models.Model.write>`.
+
+        :returns: ``True``
+        :rtype: bool
+        """
+
         activity_pool = self.pool['nh.activity']
         for wb in self.browse(cr, uid, ids, context=context):
             if 'mrsa' in vals:
@@ -625,24 +898,95 @@ class nh_clinical_wardboard(orm.Model):
     def init(self, cr):
         cr.execute("""
 
+drop view if exists wb_activity_ranked cascade;
+drop view if exists wb_ews_ranked cascade;
+drop view if exists wb_spell_ranked cascade;
+drop view if exists wb_transfer_ranked cascade;
+drop view if exists wb_discharge_ranked cascade;
+drop view if exists last_movement_users cascade;
+drop view if exists last_transfer_users cascade;
+drop view if exists last_discharge_users cascade;
+
+-- materialized views
 drop materialized view if exists ews0 cascade;
 drop materialized view if exists ews1 cascade;
 drop materialized view if exists ews2 cascade;
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
-drop materialized view if exists placement cascade;
-
+drop materialized view if exists weight cascade;
+drop materialized view if exists pbp cascade;
 
 create or replace view
 -- activity per spell, data_model, state
 wb_activity_ranked as(
-        select 
+        select
             spell.id as spell_id,
             activity.*,
             split_part(activity.data_ref, ',', 2)::int as data_id,
             rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
         from nh_clinical_spell spell
         inner join nh_activity activity on activity.spell_activity_id = spell.activity_id
+);
+
+create or replace view
+-- ews per spell, data_model, state
+wb_ews_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.observation.ews'
+    left join nh_clinical_patient_observation_ews ews on ews.activity_id = activity.id
+    where activity.state = 'scheduled' or (activity.state != 'scheduled' and ews.clinical_risk != 'Unknown')) sub_query
+    where rank < 3
+);
+
+create or replace view
+wb_spell_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.id = spell.activity_id) sub_query
+    where rank = 1
+);
+
+create or replace view
+-- transfer per spell, data_model, state
+wb_transfer_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.transfer') sub_query
+    where rank = 1
+);
+
+create or replace view
+-- discharge per spell, data_model, state
+wb_discharge_ranked as(
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model, activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity on activity.spell_activity_id = spell.activity_id and activity.data_model = 'nh.clinical.patient.discharge') sub_query
+    where rank = 1
 );
 
 create materialized view
@@ -660,9 +1004,9 @@ ward_locations as(
 
 create or replace view
 wb_activity_latest as(
-    with 
+    with
     max_sequence as(
-        select 
+        select
             spell.id as spell_id,
             activity.data_model,
             activity.state,
@@ -671,7 +1015,7 @@ wb_activity_latest as(
         inner join nh_activity activity on activity.patient_id = spell.patient_id
         group by spell_id, activity.data_model, activity.state
     )
-    select 
+    select
         max_sequence.spell_id,
         activity.state,
         array_agg(activity.id) as ids
@@ -685,17 +1029,17 @@ wb_activity_latest as(
 create or replace view
 -- activity data ids per spell/patient_id, data_model, state
 wb_activity_data as(
-        select 
+        select
             spell.id as spell_id,
             spell.patient_id,
-            activity.data_model, 
+            activity.data_model,
             activity.state,
             array_agg(split_part(activity.data_ref, ',', 2)::int order by split_part(activity.data_ref, ',', 2)::int desc) as ids
         from nh_clinical_spell spell
         inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
         inner join nh_activity activity on activity.parent_id = spell_activity.id
         group by spell_id, spell.patient_id, activity.data_model, activity.state
-); 
+);
 
 create materialized view
 ews0 as(
@@ -715,9 +1059,8 @@ ews0 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 1 and activity.state = 'scheduled'
 );
 
@@ -729,6 +1072,7 @@ ews1 as(
                 activity.spell_id,
                 activity.state,
                 activity.date_scheduled,
+                activity.date_terminated,
                 ews.id,
                 ews.score,
                 ews.frequency,
@@ -739,9 +1083,8 @@ ews1 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 1 and activity.state = 'completed'
 );
 
@@ -763,25 +1106,9 @@ ews2 as(
                     else interval '0s'
                 end as next_diff_interval,
                 activity.rank
-            from wb_activity_ranked activity
+            from wb_ews_ranked activity
             inner join nh_clinical_patient_observation_ews ews on activity.data_id = ews.id
-                and activity.data_model = 'nh.clinical.patient.observation.ews'
             where activity.rank = 2 and activity.state = 'completed'
-);
-
-create materialized view
-placement as(
-            select
-                activity.patient_id,
-                activity.spell_id,
-                activity.state,
-                activity.date_scheduled,
-                activity.id,
-                activity.rank
-            from wb_activity_ranked activity
-            inner join nh_clinical_patient_placement plc on activity.data_id = plc.id
-                and activity.data_model = 'nh.clinical.patient.placement'
-            where activity.state = 'completed'
 );
 
 create or replace view
@@ -802,8 +1129,6 @@ param as(
             height.height,
             diabetes.diabetes,
             mrsa.mrsa,
-            pbpm.pbp_monitoring,
-            wm.weight_monitoring,
             pc.status,
             o2target_level.id as o2target_level_id,
             ps.status as post_surgery,
@@ -815,8 +1140,6 @@ param as(
         from wb_activity_latest activity
         left join nh_clinical_patient_observation_height height on activity.ids && array[height.activity_id]
         left join nh_clinical_patient_diabetes diabetes on activity.ids && array[diabetes.activity_id]
-        left join nh_clinical_patient_pbp_monitoring pbpm on activity.ids && array[pbpm.activity_id]
-        left join nh_clinical_patient_weight_monitoring wm on activity.ids && array[wm.activity_id]
         left join nh_clinical_patient_o2target o2target on activity.ids && array[o2target.activity_id]
         left join nh_clinical_o2level o2target_level on o2target_level.id = o2target.level_id
         left join nh_clinical_patient_mrsa mrsa on activity.ids && array[mrsa.activity_id]
@@ -827,6 +1150,81 @@ param as(
         left join nh_clinical_patient_critical_care cc on activity.ids && array[cc.activity_id]
         left join nh_activity ccactivity on ccactivity.id = cc.activity_id
         where activity.state = 'completed'
+);
+
+create materialized view
+weight as(
+    select
+        activity.spell_id,
+        weight.weight_monitoring
+    from wb_activity_latest activity
+    left join nh_clinical_patient_weight_monitoring weight on activity.ids && array[weight.activity_id]
+    where activity.state = 'completed'
+);
+
+create materialized view
+pbp as(
+    select
+        activity.spell_id,
+        pbp.pbp_monitoring
+    from wb_activity_latest activity
+    left join nh_clinical_patient_pbp_monitoring pbp on activity.ids && array[pbp.activity_id]
+    where activity.state = 'completed'
+);
+
+create or replace view last_movement_users as(
+    select
+        spell.id as spell_id,
+        array_agg(distinct users.id) as user_ids,
+        array_agg(distinct users2.id) as ward_user_ids
+    from nh_clinical_spell spell
+    inner join wb_activity_ranked activity on activity.id = spell.activity_id and activity.rank = 1
+    inner join wb_activity_ranked move on move.parent_id = activity.id and move.rank = 1 and move.state = 'completed' and move.data_model = 'nh.clinical.patient.move'
+    inner join nh_clinical_patient_move move_data on move_data.activity_id = move.id
+    inner join nh_clinical_location location on location.id = move_data.from_location_id
+    inner join ward_locations wl on wl.id = location.id
+    left join user_location_rel ulrel on ulrel.location_id = location.id
+    left join res_users users on users.id = ulrel.user_id
+    left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
+    left join res_users users2 on users2.id = ulrel2.user_id
+    where now() at time zone 'UTC' - move.date_terminated < interval '1d'
+    group by spell.id
+);
+
+create or replace view last_discharge_users as(
+    select
+        activity.spell_id as spell_id,
+        array_agg(distinct users.id) as user_ids,
+        array_agg(distinct users2.id) as ward_user_ids
+    from wb_spell_ranked activity
+    inner join wb_discharge_ranked discharge on discharge.parent_id = activity.id and discharge.rank = 1 and discharge.state = 'completed'
+    inner join nh_clinical_patient_discharge discharge_data on discharge_data.id = discharge.data_id
+    inner join nh_clinical_location location on location.id = discharge_data.location_id
+    inner join ward_locations wl on wl.id = location.id
+    left join user_location_rel ulrel on ulrel.location_id = location.id
+    left join res_users users on users.id = ulrel.user_id
+    left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
+    left join res_users users2 on users2.id = ulrel2.user_id
+    where now() at time zone 'UTC' - discharge.date_terminated < interval '3d' and activity.rank = 1 and activity.state = 'completed'
+    group by activity.spell_id
+);
+
+create or replace view last_transfer_users as(
+    select
+        activity.spell_id as spell_id,
+        array_agg(distinct users.id) as user_ids,
+        array_agg(distinct users2.id) as ward_user_ids
+    from wb_spell_ranked activity
+    inner join wb_transfer_ranked transfer on transfer.parent_id = activity.id and transfer.rank = 1 and transfer.state = 'completed'
+    inner join nh_clinical_patient_transfer transfer_data on transfer_data.id = transfer.data_id
+    inner join nh_clinical_location location on location.id = transfer_data.origin_loc_id
+    inner join ward_locations wl on wl.id = location.id
+    left join user_location_rel ulrel on ulrel.location_id = location.id
+    left join res_users users on users.id = ulrel.user_id
+    left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
+    left join res_users users2 on users2.id = ulrel2.user_id
+    where now() at time zone 'UTC' - transfer.date_terminated < interval '3d' and activity.state = 'started' and activity.rank = 1
+    group by activity.spell_id
 );
 
 create or replace view
@@ -865,14 +1263,21 @@ nh_clinical_wardboard as(
         end as nhs_number,
         extract(year from age(now(), patient.dob)) as age,
         ews0.next_diff_polarity ||
-        case when extract(days from ews0.next_diff_interval) > 0
-            then  extract(days from ews0.next_diff_interval) || ' day(s) ' else ''
-        end || to_char(ews0.next_diff_interval, 'HH24:MI') next_diff,
+        case
+            when ews0.date_scheduled is not null then
+              -- case when greatest(now() at time zone 'UTC', ews0.date_scheduled) != ews0.date_scheduled then 'overdue: ' else '' end ||
+              case when extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) > 0
+                then extract(days from (greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled))) || ' day(s) '
+                else '' end ||
+              to_char(justify_hours(greatest(now() at time zone 'UTC', ews0.date_scheduled) - least(now() at time zone 'UTC', ews0.date_scheduled)), 'HH24:MI') || ' hours'
+            else to_char((interval '0s'), 'HH24:MI')
+        end as next_diff,
         case ews0.frequency < 60
             when true then ews0.frequency || ' min(s)'
             else ews0.frequency/60 || ' hour(s) ' || ews0.frequency - ews0.frequency/60*60 || ' min(s)'
         end as frequency,
-        case when ews1.id is null then 'none' else ews1.score::text end as ews_score_string,    
+        ews0.date_scheduled,
+        case when ews1.id is null then 'none' else ews1.score::text end as ews_score_string,
         ews1.score as ews_score,
         case
             when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) = 0 then 'same'
@@ -880,17 +1285,16 @@ nh_clinical_wardboard as(
             when ews1.id is not null and ews2.id is not null and (ews1.score - ews2.score) < 0 then 'down'
             when ews1.id is null and ews2.id is null then 'none'
             when ews1.id is not null and ews2.id is null then 'first'
-            when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen. 
+            when ews1.id is null and ews2.id is not null then 'no latest' -- shouldn't happen.
         end as ews_trend_string,
         case when ews1.id is null then 'NoScore' else ews1.clinical_risk end as clinical_risk,
         ews1.score - ews2.score as ews_trend,
-        case when plc.id is null then 0 else 1 end as placed,
         param.height,
         param.o2target_level_id as o2target,
         case when param.mrsa then 'yes' else 'no' end as mrsa,
         case when param.diabetes then 'yes' else 'no' end as diabetes,
-        case when param.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
-        case when param.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
+        case when pbp.pbp_monitoring then 'yes' else 'no' end as pbp_monitoring,
+        case when weight.weight_monitoring then 'yes' else 'no' end as weight_monitoring,
         case when param.status then 'yes' else 'no' end as palliative_care,
         case
             when param.post_surgery and param.post_surgery_date > now() - interval '4h' then 'yes'
@@ -904,10 +1308,10 @@ nh_clinical_wardboard as(
         param.uotarget_unit,
         consulting_doctors.names as consultant_names,
         case
-            when spell_activity.date_terminated > now() - interval '1d' and spell_activity.state = 'completed' then true
+            when spell_activity.date_terminated > now() - interval '3d' and spell_activity.state = 'completed' then true
             else false
         end as recently_discharged
-        
+
     from nh_clinical_spell spell
     inner join nh_activity spell_activity on spell_activity.id = spell.activity_id
     inner join nh_clinical_patient patient on spell.patient_id = patient.id
@@ -916,8 +1320,9 @@ nh_clinical_wardboard as(
     left join ews2 on spell.id = ews2.spell_id
     left join ews0 on spell.id = ews0.spell_id
     left join ward_locations wlocation on wlocation.id = location.id
-    left join placement plc on spell.id = plc.spell_id
     left join consulting_doctors on consulting_doctors.spell_id = spell.id
+    left join weight on weight.spell_id = spell.id
+    left join pbp pbp on pbp.spell_id = spell.id
     left join param on param.spell_id = spell.id
     order by location.name
 );

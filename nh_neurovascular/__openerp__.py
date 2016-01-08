@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'NH Clinical Neurovascular Observations',
+    'name': 'NH Neurovascular',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',

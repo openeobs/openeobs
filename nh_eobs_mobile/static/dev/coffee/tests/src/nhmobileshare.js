@@ -1,3 +1,5 @@
+
+/* istanbul ignore next */
 var NHMobileShare,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty,
@@ -28,6 +30,8 @@ NHMobileShare = (function(superClass) {
     this.all_button.addEventListener('click', function(event) {
       var button, button_mode;
       event.preventDefault();
+
+      /* istanbul ignore else */
       if (!event.handled) {
         button = event.srcElement ? event.srcElement : event.target;
         button_mode = button.getAttribute('mode');
@@ -77,22 +81,24 @@ NHMobileShare = (function(superClass) {
     if (patients.length > 0) {
       url = self.urls.json_colleagues_list();
       urlmeth = url.method;
-      return Promise.when(self.process_request(urlmeth, url.url)).then(function(server_data) {
-        var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list;
-        data = server_data[0][0];
+      return Promise.when(self.process_request(urlmeth, url.url)).then(function(raw_data) {
+        var assign_btn, btns, can_btn, data, i, len, nurse, nurse_list, ref, server_data;
+        server_data = raw_data[0];
+        data = server_data.data;
         nurse_list = '<form id="nurse_list"><ul class="sharelist">';
-        for (i = 0, len = data.length; i < len; i++) {
-          nurse = data[i];
-          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse['id'] + '" class="patient_share_nurse" value="' + nurse['id'] + '"/><label for="nurse_select_' + nurse['id'] + '">' + nurse['name'] + ' (' + nurse['patients'] + ')</label></li>';
+        ref = data.colleagues;
+        for (i = 0, len = ref.length; i < len; i++) {
+          nurse = ref[i];
+          nurse_list += '<li><input type="checkbox" name="nurse_select_' + nurse.id + '" class="patient_share_nurse" value="' + nurse.id + '"/><label for="nurse_select_' + nurse.id + '">' + nurse.name + ' (' + nurse.patients + ')</label></li>';
         }
         nurse_list += '</ul><p class="error"></p></form>';
         assign_btn = '<a href="#" data-action="assign" ' + 'data-target="assign_nurse" data-ajax-action="json_assign_nurse">' + 'Assign</a>';
         can_btn = '<a href="#" data-action="close" data-target="assign_nurse"' + '>Cancel</a>';
         btns = [assign_btn, can_btn];
-        return new window.NH.NHModal('assign_nurse', 'Assign patient to colleague', nurse_list, btns, 0, self.form);
+        return new window.NH.NHModal('assign_nurse', server_data.title, nurse_list, btns, 0, self.form);
       });
     } else {
-      msg = '<p class="block">Please select patients to hand' + ' to another staff member</p>';
+      msg = '<p>Please select patients to hand' + ' to another staff member</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       return new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -116,11 +122,11 @@ NHMobileShare = (function(superClass) {
     if (patients.length > 0) {
       assign_btn = '<a href="#" data-action="claim" ' + 'data-target="claim_patients" data-ajax-action="json_claim_patients">' + 'Claim</a>';
       can_btn = '<a href="#" data-action="close" data-target="claim_patients"' + '>Cancel</a>';
-      claim_msg = '<p class="block">Claim patients shared with colleagues</p>';
+      claim_msg = '<p>Claim patients shared with colleagues</p>';
       btns = [assign_btn, can_btn];
       new window.NH.NHModal('claim_patients', 'Claim Patients?', claim_msg, btns, 0, self.form);
     } else {
-      msg = '<p class="block">Please select patients to claim back</p>';
+      msg = '<p>Please select patients to claim back</p>';
       btn = ['<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>'];
       new window.NH.NHModal('invalid_form', 'No Patients selected', msg, btn, 0, self.form);
     }
@@ -155,10 +161,11 @@ NHMobileShare = (function(superClass) {
       nurse_ids = 'user_ids=' + nurses;
       patient_ids = 'patient_ids=' + patients;
       data_string = patient_ids + '&' + nurse_ids;
-      Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-        var btns, can_btn, cover, data, i, len, pt, pt_el, pts, share_msg, ti;
-        data = server_data[0][0];
-        if (data['status']) {
+      Promise.when(self.call_resource(url, data_string)).then(function(raw_data) {
+        var btns, can_btn, cover, data, i, len, pt, pt_el, pts, server_data, share_msg, ti;
+        server_data = raw_data[0];
+        data = server_data.data;
+        if (server_data.status === 'success') {
           pts = (function() {
             var i, len, ref, ref1, results;
             ref = form.elements;
@@ -178,18 +185,18 @@ NHMobileShare = (function(superClass) {
             pt_el.parentNode.classList.add('shared');
             ti = pt_el.getElementsByClassName('taskInfo')[0];
             if (ti.innerHTML.indexOf('Shared') < 0) {
-              ti.innerHTML = 'Shared with: ' + data['shared_with'].join(', ');
+              ti.innerHTML = 'Shared with: ' + data.shared_with.join(', ');
             } else {
-              ti.innerHTML += ', ' + data['shared_with'].join(', ');
+              ti.innerHTML += ', ' + data.shared_with.join(', ');
             }
           }
           cover = document.getElementById('cover');
           document.getElementsByTagName('body')[0].removeChild(cover);
           popup.parentNode.removeChild(popup);
           can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
-          share_msg = '<p class="block">Successfully shared patients with ' + data['shared_with'].join(', ') + '</p>';
+          share_msg = '<p>' + server_data.desc + data.shared_with.join(', ') + '</p>';
           btns = [can_btn];
-          return new window.NH.NHModal('share_success', 'Patients Shared', share_msg, btns, 0, body);
+          return new window.NH.NHModal('share_success', server_data.title, share_msg, btns, 0, body);
         } else {
           return error_message.innerHTML = 'Error assigning colleague(s),' + ' please try again';
         }
@@ -215,15 +222,16 @@ NHMobileShare = (function(superClass) {
     })();
     data_string = 'patient_ids=' + patients;
     url = self.urls.json_claim_patients();
-    Promise.when(self.call_resource(url, data_string)).then(function(server_data) {
-      var body, btns, can_btn, claim_msg, cover, data, i, len, popup, pt, pt_el, pts, ti;
-      data = server_data[0][0];
+    Promise.when(self.call_resource(url, data_string)).then(function(raw_data) {
+      var body, btns, can_btn, claim_msg, cover, data, i, len, popup, pt, pt_el, pts, server_data, ti;
+      server_data = raw_data[0];
+      data = server_data.data;
       popup = document.getElementById('claim_patients');
       cover = document.getElementById('cover');
       body = document.getElementsByTagName('body')[0];
       body.removeChild(cover);
       popup.parentNode.removeChild(popup);
-      if (data['status']) {
+      if (server_data.status === 'success') {
         pts = (function() {
           var i, len, ref, ref1, results;
           ref = form.elements;
@@ -245,12 +253,12 @@ NHMobileShare = (function(superClass) {
           ti.innerHTML = '<br>';
         }
         can_btn = '<a href="#" data-action="close" ' + 'data-target="claim_success">Cancel</a>';
-        claim_msg = '<p class="block">Successfully claimed patients</p>';
+        claim_msg = '<p>' + server_data.desc + '</p>';
         btns = [can_btn];
-        return new window.NH.NHModal('claim_success', 'Patients Claimed', claim_msg, btns, 0, body);
+        return new window.NH.NHModal('claim_success', server_data.title, claim_msg, btns, 0, body);
       } else {
         can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Cancel</a>';
-        claim_msg = '<p class="block">There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
+        claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);
       }
@@ -288,9 +296,15 @@ NHMobileShare = (function(superClass) {
 
 })(NHMobile);
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
+
+
+/* istanbul ignore else */
 
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHMobileShare = NHMobileShare;

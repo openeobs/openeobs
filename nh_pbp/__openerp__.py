@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'NH Clinical Postural Blood Pressure Observation',
+    'name': 'NH Postural Blood Pressure',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',

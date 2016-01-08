@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+`stools.py` defines the bristol stool scale observation class and its
+standard behaviour and policy triggers. There are currently no standard
+scalation policies defined.
+"""
 from openerp.osv import orm, fields
 import logging
 
@@ -6,10 +11,16 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation_stools(orm.Model):
+    """
+    Represents a Bristol Stool Scale
+    :class:`observation<observations.nh_clinical_patient_observation>`,
+    which is used as a useful research tool to evaluate the
+    effectiveness of treatments for various diseases of the bowel.
+    """
     _name = 'nh.clinical.patient.observation.stools'
     _inherit = ['nh.clinical.patient.observation']
     _required = []
-    _description = "Bristol Stools Observation"
+    _description = "Bristol Stool Scale Observation"
     _boolean_selection = [[True, 'Yes'], [False, 'No']]
     _quantity_selection = [['large', 'Large'], ['medium', 'Medium'], ['small', 'Small']]
     _colour_selection = [['brown', 'Brown'], ['yellow', 'Yellow'], ['green', 'Green'], ['black', 'Black/Tarry'],

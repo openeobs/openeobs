@@ -1,3 +1,7 @@
+"""
+Defines :class:`overdue<nh_clinical_overdue>` and
+:class:`doctors activities<nh_clinical_doctor_activities>`.
+"""
 from openerp.osv import orm, fields, osv
 import logging
 
@@ -5,6 +9,15 @@ _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_overdue(orm.Model):
+    """
+    Extends :class:`activity<activity.nh_activity>` to create
+    overdue activities used by view overdue_view.xml
+
+    Includes fields ``delay_string`` to record time
+    overdue and ``user_name`` to record user the activity is assigned
+    to.
+    """
+
     _name = "nh.clinical.overdue"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Overdue Activities View"
@@ -90,6 +103,15 @@ class nh_clinical_overdue(orm.Model):
 
 
 class nh_clinical_doctor_activities(orm.Model):
+    """
+    Extends :class:`activity<activity.nh_activity>` to create doctor
+    activities used by view `Doctor Tasks`.
+
+    Shows all
+    :class:`doctor assessment<notifications.nh_clinical_notification_doctor_assessment>`
+    activities still pending. i.e. not `completed` or `cancelled`.
+    """
+
     _name = "nh.clinical.doctor_activities"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Doctor Activities View"
@@ -116,6 +138,6 @@ class nh_clinical_doctor_activities(orm.Model):
                     inner join nh_clinical_location location on activity.location_id = location.id
                     inner join nh_clinical_location parent_location on location.parent_id = parent_location.id
                     left join nh_activity spell on spell.data_model = 'nh.clinical.spell' and spell.patient_id = activity.patient_id
-                    where activity.state not in ('completed','cancelled') and activity.data_model = 'nh.clinical.notification.doctor_assessment'
+                    where activity.state not in ('completed','cancelled') and activity.data_model = 'nh.clinical.notification.doctor_assessment' and spell.state = 'started'
                 )
         """ % (self._table, self._table))

@@ -340,6 +340,14 @@ var frontend_routes = {}; (function(_root){
            url: base_url+'staff/reject/' + (function(k,v){ return v})('invite_id', invite_id)
        })
     };
+
+      _nS('test');
+   _root.test = function(observation, patient_id){
+	   return _wA({
+		   method: 'POST',
+		   url: base_url+'test/' + (function(k,v){ return v })('test_ob', observation) + '/' + (function(k,v){ return v })('test_pt', patient_id)
+	   })
+   }
     
     
 

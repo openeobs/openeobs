@@ -1,10 +1,20 @@
-from openerp.osv import orm, fields, osv
+"""
+`neurovascular.py` defines the neurovascular observation class and its
+standard behaviour and policy triggers. There is currently no standard
+being followed by clinicians so the logic is quite generic.
+"""
+from openerp.osv import orm, fields
 import logging
 
 _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_patient_observation_neurovascular(orm.Model):
+    """
+    Represents a Neurovascular
+    :class:`observation<observations.nh_clinical_patient_observation>`
+    for acute limb compartment syndrome detection.
+    """
     _name = 'nh.clinical.patient.observation.neurovascular'
     _inherit = ['nh.clinical.patient.observation']
     _required = []

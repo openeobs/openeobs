@@ -109,7 +109,8 @@
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
                                                                              ('usage','=','bed'),
                                                                              ('is_available','=',True),
-                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"/>
+                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"
+                                required="1"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
@@ -137,7 +138,7 @@
             <field name="name">Wardboard Device Session Complete</field>
             <field name="model">wardboard.device.session.complete</field>
             <field name="arch" type="xml">
-                <form string="Wardboard Device Session Compplete" version="7.0">
+                <form string="Wardboard Device Session Complete" version="7.0">
                     <label for="session_id" string="You are about to complete session: "/>
                     <field name="session_id" readonly="1"/>
                     <group>
@@ -157,6 +158,7 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="arch" type="xml">
                 <search string="Wardboard Search View">
+                    <field name="ward_id"/>
                     <field name="ews_trend" />
                     <field name="full_name"/>
                     <field name="hospital_number"/>
@@ -166,8 +168,8 @@
                         <filter name="low_risk" string="Low Risk" domain="[('clinical_risk','=','Low')]"/>
                         <filter name="medium_risk" string="Medium Risk" domain="[('clinical_risk','=','Medium')]"/>
                         <filter name="high_risk" string="High Risk" domain="[('clinical_risk','=','High')]"/>
-                        <filter name="ews_trend_down" string="Deteriorating Trend" domain="[('ews_trend','&lt;',0)]"/>
-                        <filter name="ews_trend_up" string="Improving Trend" domain="[('ews_trend','&gt;',0)]"/>
+                        <filter name="ews_trend_down" string="Deteriorating Trend" domain="[('ews_trend','&gt;',0)]"/>
+                        <filter name="ews_trend_up" string="Improving Trend" domain="[('ews_trend','&lt;',0)]"/>
                         <filter name="ews_trend_same" string="Unchanged Trend" domain="[('ews_trend','=',0)]"/>
                     </group>
                     <group expand="1" string="Group By...">
@@ -293,7 +295,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
@@ -438,13 +440,12 @@
             <field name="arch" type="xml">
                 <kanban edit="false" quick_create="false" create="false">
                     <field name="full_name" />
-                    <field name="placed" />
                     <field name="location" />
                     <field name="location_full_name"/>
                     <field name="sex"/>
                     <field name="dob"/>
                     <field name="age" />
-                    <field name="next_diff" />
+                    <field name="date_scheduled"/>
                     <field name="frequency" />
                     <field name="ews_score_string"/>
                     <field name="ews_trend_string"/>
@@ -456,9 +457,8 @@
                                     <ul class="oe_dropdown_menu">
                                         <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
                                         <li><a name="wardboard_ews" type="object">NEWS List</a></li>
-                                        <li><a name="wardboard_place" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('placed','=',True)]}">Patient Placement</a></li>
-                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': [('placed','=',False)]}">Move Patient</a></li>
-                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': [('placed','=',False)]}">Swap Beds</a></li>
+                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Move Patient</a></li>
+                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Swap Beds</a></li>
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_content">
@@ -488,7 +488,7 @@
                                             n/a
                                         </t>
                                     </div>
-                                    <li>Time to next observation:<field name="next_diff"/></li>
+                                    <li>Time to next observation: <field name="next_diff"/></li>
                                     <t t-if="record.hospital_number.raw_value != ''">
                                         <div>Hospital Number: <field name="hospital_number"/></div>
                                     </t>
@@ -511,10 +511,9 @@
                 <kanban edit="false" quick_create="false" create="false">
                     <field name="initial" />
                     <field name="family_name" />
-                    <field name="placed" />
                     <field name="location" />
                     <field name="location_full_name"/>
-                    <field name="next_diff" />
+                    <field name="date_scheduled" />
                     <field name="frequency" />
                     <field name="ews_score_string"/>
                     <field name="ews_trend_string"/>
@@ -675,7 +674,7 @@
                                     </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
-                                    <field name="pbp_ids" class="nhc_pbp" readonly="1" nolabel="1">
+                                    <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>
                                             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
                                             <field name="systolic_sitting" string="Systolic"/>
@@ -764,7 +763,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard" >
-            <field name="name">Patients Board</field>
+            <field name="name">Acuity Board</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban,tree,form</field>
@@ -793,7 +792,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_patients_by_ward">
-            <field name="name">Patients Board</field>
+            <field name="name">Patients by Ward</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,kanban</field>
@@ -822,11 +821,12 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_discharged" >
-            <field name="name">Recently Discharged</field>
+            <field name="name">Discharged in the last 72 hours</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('spell_state','=','completed'),('recently_discharged','=',True)]</field>
+            <field name="domain">[('spell_state','=','completed'),('recently_discharged','=',True),
+                ('recently_discharged_uids','in',uid)]</field>
             <field name="context">{'search_default_clinical_risk':0,'search_default_group_by_ward':0}</field>
             <field name="search_view_id" ref="view_wardboard_search"/>
         </record>
@@ -844,7 +844,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_transferred">
-            <field name="name">Recently Transferred</field>
+            <field name="name">Transferred in the last 72 hours</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>

@@ -77,6 +77,8 @@ Params:</p>
     cover.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'cover'</span>)
     cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'close'</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-property">@id</span> <span class="hljs-keyword">is</span> <span class="hljs-string">'submit_observation'</span>
+      cover.setAttribute(<span class="hljs-string">'data-action'</span>, <span class="hljs-string">'renable'</span>)
     cover.setAttribute(<span class="hljs-string">'data-target'</span>, <span class="hljs-property">@id</span>)
     cover.style.height = (body.clientHeight)+<span class="hljs-string">'px'</span>
     cover.addEventListener(<span class="hljs-string">'click'</span>, self.handle_button_events)</pre></div></div>
@@ -203,7 +205,6 @@ Params:</p>
         <span class="hljs-keyword">when</span> <span class="hljs-number">1</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options one-col'</span>)
         <span class="hljs-keyword">when</span> <span class="hljs-number">2</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options two-col'</span>)
         <span class="hljs-keyword">when</span> <span class="hljs-number">3</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options three-col'</span>)
-        <span class="hljs-keyword">when</span> <span class="hljs-number">4</span> <span class="hljs-keyword">then</span> option_list.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'options four-col'</span>)
       <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> buttons
         <span class="hljs-keyword">do</span> (self) -&gt;
           option_button = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'li'</span>)
@@ -310,7 +311,7 @@ uses clientHeight to calculate the height of objects</p>
       dialog_height = ((dhh + dopth) + (margins.top + margins.bottom))
       <span class="hljs-keyword">if</span> elh &gt; <span class="hljs-built_in">window</span>.innerHeight
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>.innerHeight - dialog_height
-      <span class="hljs-keyword">return</span> elh - dialog_height
+
     max_height = available_space(dialog, el)
     top_offset = el.offsetTop + margins.top
     dialog.style.top = top_offset+<span class="hljs-string">'px'</span>
@@ -328,94 +329,122 @@ uses clientHeight to calculate the height of objects</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
+              <p>Remove a modal and it’s cover from DOM
+Takes the ID of the modal</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_modal</span>: <span class="hljs-function"><span class="hljs-params">(modal_id)</span> -&gt;</span>
+    dialog_id = <span class="hljs-built_in">document</span>.getElementById(modal_id)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> dialog_id <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span>
+      cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
+      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
+      dialog_id.parentNode.removeChild(dialog_id)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
               <p>Handle events from buttons created in options array
 Currently offers</p>
 <ul>
 <li>close (closes modal)</li>
 <li>submit (submits observation)</li>
 <li>partial submit (submits partial observation)</li>
-<li>assign (assigns nurses to patients)</li>
+<li>assign (assigns nurses to patients)
+NOTE: Don’t preventDefault() straight away as will disable all button clicks</li>
 </ul>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_button_events</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-    data_target = event.srcElement.getAttribute(<span class="hljs-string">'data-target'</span>)
-    data_action = event.srcElement.getAttribute(<span class="hljs-string">'data-ajax-action'</span>)
-    <span class="hljs-keyword">switch</span> event.srcElement.getAttribute(<span class="hljs-string">'data-action'</span>)
-      <span class="hljs-keyword">when</span> <span class="hljs-string">'close'</span>
-        event.preventDefault()
-        dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
-        cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
-        <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
-        dialog_id.parentNode.removeChild(dialog_id)
-      <span class="hljs-keyword">when</span> <span class="hljs-string">'submit'</span>
-        event.preventDefault()
-        submit_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
-        submit_detail = {
-          <span class="hljs-string">'endpoint'</span>: event.srcElement.getAttribute(<span class="hljs-string">'data-ajax-action'</span>)
-        }
-        submit_event.initCustomEvent(<span class="hljs-string">'post_score_submit'</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>,
-          submit_detail)
-        <span class="hljs-built_in">document</span>.dispatchEvent submit_event
-        dialog_id = <span class="hljs-built_in">document</span>.getElementById(data_target)
-        cover = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'cover'</span>)
-        <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].removeChild(cover)
-        dialog_id.parentNode.removeChild(dialog_id)
-      <span class="hljs-keyword">when</span> <span class="hljs-string">'partial_submit'</span>
-        event.preventDefault()
-        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_button_events</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+      target_el = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+      data_target = target_el.getAttribute(<span class="hljs-string">'data-target'</span>)
+      data_action = target_el.getAttribute(<span class="hljs-string">'data-ajax-action'</span>)
+      <span class="hljs-keyword">switch</span> target_el.getAttribute(<span class="hljs-string">'data-action'</span>)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'close'</span>
+          event.preventDefault()
+          <span class="hljs-property">@close_modal</span>(data_target)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'renable'</span>
+          event.preventDefault()
+          forms = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'form'</span>)
+          <span class="hljs-keyword">for</span> form <span class="hljs-keyword">in</span> forms
+            action_buttons = (element <span class="hljs-keyword">for</span> element <span class="hljs-keyword">in</span> form.elements \
+              <span class="hljs-keyword">when</span> element.getAttribute(<span class="hljs-string">'type'</span>) <span class="hljs-keyword">in</span> [<span class="hljs-string">'submit'</span>, <span class="hljs-string">'reset'</span>])
+            <span class="hljs-keyword">for</span> button <span class="hljs-keyword">in</span> action_buttons
+              button.removeAttribute(<span class="hljs-string">'disabled'</span>)
+          <span class="hljs-property">@close_modal</span>(data_target)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'submit'</span>
+          event.preventDefault()
           submit_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
           submit_detail = {
-            <span class="hljs-string">'action'</span>:data_action,
-            <span class="hljs-string">'target'</span>: data_target
+            <span class="hljs-string">'endpoint'</span>: target_el.getAttribute(<span class="hljs-string">'data-ajax-action'</span>)
           }
-          submit_event.initCustomEvent(<span class="hljs-string">'partial_submit'</span>,<span class="hljs-literal">false</span>,
-            <span class="hljs-literal">true</span>,submit_detail)
+          submit_event.initCustomEvent(<span class="hljs-string">'post_score_submit'</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>,
+            submit_detail)
           <span class="hljs-built_in">document</span>.dispatchEvent submit_event
-          event.handled = <span class="hljs-literal">true</span>
-      <span class="hljs-keyword">when</span> <span class="hljs-string">'assign'</span>
-        event.preventDefault()
-        dialog = <span class="hljs-built_in">document</span>.getElementById(data_target)
-        dialog_form = dialog.getElementsByTagName(<span class="hljs-string">'form'</span>)[<span class="hljs-number">0</span>]
-        nurses = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> dialog_form.elements <span class="hljs-keyword">when</span> el.checked)
-        assign_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
-        assign_detail = {
-          <span class="hljs-string">'action'</span>:data_action,
-          <span class="hljs-string">'target'</span>: data_target,
-          <span class="hljs-string">'nurses'</span>: nurses
-        }
-        assign_event.initCustomEvent(<span class="hljs-string">'assign_nurse'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>, assign_detail)
-        <span class="hljs-built_in">document</span>.dispatchEvent assign_event
-      <span class="hljs-keyword">when</span> <span class="hljs-string">'claim'</span>
-        event.preventDefault()
-        claim_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
-        claim_event.initCustomEvent(<span class="hljs-string">'claim_patients'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>)
-        <span class="hljs-built_in">document</span>.dispatchEvent claim_event
-      <span class="hljs-keyword">when</span> <span class="hljs-string">'accept'</span>
-        event.preventDefault()
-        accept_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
-        invite = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-        accept_detail = {
-          <span class="hljs-string">'invite_id'</span>: invite.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
-        }
-        accept_event.initCustomEvent(<span class="hljs-string">'accept_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
-          accept_detail)
-        <span class="hljs-built_in">document</span>.dispatchEvent accept_event
-      <span class="hljs-keyword">when</span> <span class="hljs-string">'reject'</span>
-        event.preventDefault()
-        reject_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
-        invite = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-        reject_detail = {
-          <span class="hljs-string">'invite_id'</span>: invite.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
-        }
-        reject_event.initCustomEvent(<span class="hljs-string">'reject_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
-          reject_detail)
-        <span class="hljs-built_in">document</span>.dispatchEvent reject_event
-    <span class="hljs-keyword">return</span>
+          <span class="hljs-property">@close_modal</span>(data_target)
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'partial_submit'</span>
+          event.preventDefault()
+          <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+            submit_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+            submit_detail = {
+              <span class="hljs-string">'action'</span>:data_action,
+              <span class="hljs-string">'target'</span>: data_target
+            }
+            submit_event.initCustomEvent(<span class="hljs-string">'partial_submit'</span>,<span class="hljs-literal">false</span>,
+              <span class="hljs-literal">true</span>,submit_detail)
+            <span class="hljs-built_in">document</span>.dispatchEvent submit_event
+            event.handled = <span class="hljs-literal">true</span>
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'assign'</span>
+          event.preventDefault()
+          dialog = <span class="hljs-built_in">document</span>.getElementById(data_target)
+          dialog_form = dialog.getElementsByTagName(<span class="hljs-string">'form'</span>)[<span class="hljs-number">0</span>]
+          nurses = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> dialog_form.elements <span class="hljs-keyword">when</span> el.checked)
+          assign_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          assign_detail = {
+            <span class="hljs-string">'action'</span>:data_action,
+            <span class="hljs-string">'target'</span>: data_target,
+            <span class="hljs-string">'nurses'</span>: nurses
+          }
+          assign_event.initCustomEvent(<span class="hljs-string">'assign_nurse'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+            assign_detail)
+          <span class="hljs-built_in">document</span>.dispatchEvent assign_event
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'claim'</span>
+          event.preventDefault()
+          claim_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          claim_event.initCustomEvent(<span class="hljs-string">'claim_patients'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>)
+          <span class="hljs-built_in">document</span>.dispatchEvent claim_event
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'accept'</span>
+          event.preventDefault()
+          accept_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          accept_detail = {
+            <span class="hljs-string">'invite_id'</span>: target_el.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
+          }
+          accept_event.initCustomEvent(<span class="hljs-string">'accept_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+            accept_detail)
+          <span class="hljs-built_in">document</span>.dispatchEvent accept_event
+        <span class="hljs-keyword">when</span> <span class="hljs-string">'reject'</span>
+          event.preventDefault()
+          reject_event = <span class="hljs-built_in">document</span>.createEvent <span class="hljs-string">'CustomEvent'</span>
+          reject_detail = {
+            <span class="hljs-string">'invite_id'</span>: target_el.getAttribute(<span class="hljs-string">'data-invite-id'</span>)
+          }
+          reject_event.initCustomEvent(<span class="hljs-string">'reject_invite'</span>, <span class="hljs-literal">false</span>, <span class="hljs-literal">true</span>,
+            reject_detail)
+          <span class="hljs-built_in">document</span>.dispatchEvent reject_event
+      event.handled = <span class="hljs-literal">true</span>
+      <span class="hljs-keyword">return</span>
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
+
 <span class="hljs-built_in">window</span>?.NH.NHModal = NHModal</pre></div></div>
             
         </li>

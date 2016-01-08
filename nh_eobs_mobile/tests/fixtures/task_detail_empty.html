@@ -5,7 +5,7 @@
         <link rel="manifest" href="/mobile/src/manifest.json"/>
         <link href="/mobile/src/css/main.css" rel="stylesheet" type="text/css"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
-        <script src="/mobile/src/js/routes.js" type="text/javascript"></script>
+        <script src="/api/v1/routes" type="text/javascript"></script>
         <script src="/nh_eobs_mobile/static/src/js/nhlib.js" type="text/javascript"></script>
     </head>
     <body>
@@ -30,7 +30,7 @@
             <form action="/mobile/task/submit/1337" method="POST" data-type="test" task-id="1337" patient-id="1" id="obsForm" data-source="task" ajax-action="calculate_obs_score" ajax-args="test,1337">
                 <input type="hidden" name="taskId" value="1337"/>
                 <input type="hidden" name="startTimestamp" id="startTimestamp" value="0"/>
-                <div class="block obsSubmit">
+                <div class="block obsSubmit" id="parent_submitButton">
                     <input type="submit" value="Submit" class="exclude" id="submitButton"/>
                 </div>
             </form>

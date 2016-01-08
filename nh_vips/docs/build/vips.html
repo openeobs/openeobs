@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Visual Infusion Phlebitis Score &mdash; nh_vips 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="nh_vips 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Contribution Guidelines" href="contribute.html" />
+    <link rel="prev" title="Getting Started" href="getting-started.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="contribute.html" title="Contribution Guidelines"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="getting-started.html" title="Getting Started"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">nh_vips 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vips">
+<span id="visual-infusion-phlebitis-score"></span><h1><code class="docutils literal"><span class="pre">Visual</span> <span class="pre">Infusion</span> <span class="pre">Phlebitis</span> <span class="pre">Score</span></code><a class="headerlink" href="#module-vips" title="Permalink to this headline">¶</a></h1>
+<p><cite>vips.py</cite> defines the visual infusion phlebitis score observation class
+and its standard behaviour and policy triggers.</p>
+<div class="section" id="vips-observation">
+<h2><code class="docutils literal"><span class="pre">VIPS</span> <span class="pre">Observation</span></code><a class="headerlink" href="#vips-observation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="vips.nh_clinical_patient_observation_vips">
+<em class="property">class </em><code class="descclassname">vips.</code><code class="descname">nh_clinical_patient_observation_vips</code><a class="reference internal" href="_modules/vips.html#nh_clinical_patient_observation_vips"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vips.nh_clinical_patient_observation_vips" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a Visual Infusion Phlebitis Score
+<code class="xref py py-class docutils literal"><span class="pre">observation</span></code>,
+which is used to early detect the possible development of phlebitis
+on any patient with an intravenous access device in place.</p>
+<p>The score is computed from several visual assessments done by the
+medical staff in charge: <code class="docutils literal"><span class="pre">pain</span></code>, <code class="docutils literal"><span class="pre">redness</span></code>, <code class="docutils literal"><span class="pre">swelling</span></code>,
+palpable venous <code class="docutils literal"><span class="pre">cord</span></code> and <code class="docutils literal"><span class="pre">pyrexia</span></code>.</p>
+<dl class="method">
+<dt id="vips.nh_clinical_patient_observation_vips.calculate_score">
+<code class="descname">calculate_score</code><span class="sig-paren">(</span><em>vips_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vips.html#nh_clinical_patient_observation_vips.calculate_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vips.nh_clinical_patient_observation_vips.calculate_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the score based on the VIPS parameters provided.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>vips_data</strong> (<a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; The VIPS parameters: <code class="docutils literal"><span class="pre">pain</span></code>, <code class="docutils literal"><span class="pre">redness</span></code>,
+<code class="docutils literal"><span class="pre">swelling</span></code>, <code class="docutils literal"><span class="pre">cord</span></code> and <code class="docutils literal"><span class="pre">pyrexia</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">score</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vips.nh_clinical_patient_observation_vips.complete">
+<code class="descname">complete</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>activity_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vips.html#nh_clinical_patient_observation_vips.complete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#vips.nh_clinical_patient_observation_vips.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>It determines which acuity case the current observation is in
+with the stored data and responds to the different policy
+triggers accordingly defined on the <code class="docutils literal"><span class="pre">_POLICY</span></code> dictionary.</p>
+<p>After the policy triggers take place the activity is <cite>completed</cite>
+and a new VIPS activity is created. Then the case based
+<cite>frequency</cite> is applied, effectively scheduling it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="index.html">
+<img class="logo" src="_static/img/company_logo.png" alt="Logo"/>
+</a></p><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href=""><code class="docutils literal"><span class="pre">Visual</span> <span class="pre">Infusion</span> <span class="pre">Phlebitis</span> <span class="pre">Score</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#vips-observation"><code class="docutils literal"><span class="pre">VIPS</span> <span class="pre">Observation</span></code></a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="getting-started.html"
+                        title="previous chapter">Getting Started</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="contribute.html"
+                        title="next chapter">Contribution Guidelines</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Neova Health.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

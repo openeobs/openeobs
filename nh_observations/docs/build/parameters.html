@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Parameters &mdash; nh_observations 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="nh_observations 0.0.1 documentation" href="index.html" />
+    <link rel="prev" title="Observations" href="observations.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="observations.html" title="Observations"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">nh_observations 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-parameters">
+<span id="parameters"></span><h1><code class="docutils literal"><span class="pre">Parameters</span></code><a class="headerlink" href="#module-parameters" title="Permalink to this headline">¶</a></h1>
+<p><cite>parameters.py</cite> defines a set of activity types to record basic
+medical parameters. They have in common that they are not measurements
+like the observations.</p>
+<p>They can represent a patient state, flag or any simple medical
+information that is not measured, but set by the medical staff.</p>
+<p>They are represented by activity types mainly for audit purposes as
+their static nature would allow them to be fields instead. The last
+completed one would represent the current status regarding that specific
+parameter.</p>
+<div class="section" id="mrsa">
+<h2><code class="docutils literal"><span class="pre">MRSA</span></code><a class="headerlink" href="#mrsa" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="parameters.nh_clinical_patient_mrsa">
+<em class="property">class </em><code class="descclassname">parameters.</code><code class="descname">nh_clinical_patient_mrsa</code><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_mrsa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_mrsa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the action of setting the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> MRSA infection status
+to <cite>yes</cite> or <cite>no</cite>. Depending on whether the patient has the infection
+or not.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="diabetes">
+<h2><code class="docutils literal"><span class="pre">Diabetes</span></code><a class="headerlink" href="#diabetes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="parameters.nh_clinical_patient_diabetes">
+<em class="property">class </em><code class="descclassname">parameters.</code><code class="descname">nh_clinical_patient_diabetes</code><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_diabetes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_diabetes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the action of setting the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> diabetes status
+to <cite>yes</cite> or <cite>no</cite>. Depending on whether the patient is diabetic or
+not.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="palliative-care">
+<h2><code class="docutils literal"><span class="pre">Palliative</span> <span class="pre">Care</span></code><a class="headerlink" href="#palliative-care" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="parameters.nh_clinical_patient_palliative_care">
+<em class="property">class </em><code class="descclassname">parameters.</code><code class="descname">nh_clinical_patient_palliative_care</code><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_palliative_care"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_palliative_care" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the action of setting the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> palliative care status
+to <cite>yes</cite> or <cite>no</cite>. This would mainly depend on hospital policy and
+the medical staff assessment.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="post-surgery">
+<h2><code class="docutils literal"><span class="pre">Post</span> <span class="pre">Surgery</span></code><a class="headerlink" href="#post-surgery" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="parameters.nh_clinical_patient_post_surgery">
+<em class="property">class </em><code class="descclassname">parameters.</code><code class="descname">nh_clinical_patient_post_surgery</code><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_post_surgery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_post_surgery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the action of setting the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> post surgery status
+to <cite>yes</cite> or <cite>no</cite>. This would be set as <cite>yes</cite> after surgery has
+taken place and then set to <cite>no</cite> after recovery has been completed.
+Although mainly depends on hospital policy and medical staff
+assessment.</p>
+<dl class="method">
+<dt id="parameters.nh_clinical_patient_post_surgery.current_status">
+<code class="descname">current_status</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>patient_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_post_surgery.current_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_post_surgery.current_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a>
+had surgery in the last 4 hours.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>patient_id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> or <code class="docutils literal"><span class="pre">False</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="critical-care">
+<h2><code class="docutils literal"><span class="pre">Critical</span> <span class="pre">Care</span></code><a class="headerlink" href="#critical-care" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="parameters.nh_clinical_patient_critical_care">
+<em class="property">class </em><code class="descclassname">parameters.</code><code class="descname">nh_clinical_patient_critical_care</code><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_critical_care"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_critical_care" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the action of setting the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> critical care status
+to <cite>yes</cite> or <cite>no</cite>. This would mainly depend on hospital policy and
+the medical staff assessment.</p>
+<dl class="method">
+<dt id="parameters.nh_clinical_patient_critical_care.current_status">
+<code class="descname">current_status</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>patient_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_critical_care.current_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_critical_care.current_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the provided <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a>
+was marked with critical care status within the last 24 hours.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>patient_id</strong> (<a class="reference external" href="https://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> or <code class="docutils literal"><span class="pre">False</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#bool" title="(in Python v2.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="weight-monitoring">
+<h2><code class="docutils literal"><span class="pre">Weight</span> <span class="pre">Monitoring</span></code><a class="headerlink" href="#weight-monitoring" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="parameters.nh_clinical_patient_weight_monitoring">
+<em class="property">class </em><code class="descclassname">parameters.</code><code class="descname">nh_clinical_patient_weight_monitoring</code><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_weight_monitoring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_weight_monitoring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the action of setting the
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a> weight monitoring status
+to <cite>yes</cite> or <cite>no</cite>. This would mainly depend on hospital policy and
+the medical staff assessment.</p>
+<p>This parameter is directly related to the
+<a class="reference internal" href="observations.html#observations.nh_clinical_patient_observation_weight" title="observations.nh_clinical_patient_observation_weight"><code class="xref py py-mod docutils literal"><span class="pre">weight</span></code></a>
+observation.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="urine-output-target">
+<h2><code class="docutils literal"><span class="pre">Urine</span> <span class="pre">Output</span> <span class="pre">Target</span></code><a class="headerlink" href="#urine-output-target" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="parameters.nh_clinical_patient_urine_output_target">
+<em class="property">class </em><code class="descclassname">parameters.</code><code class="descname">nh_clinical_patient_urine_output_target</code><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_urine_output_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_urine_output_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the action of setting the current urine output target
+for the <a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a>. This would
+mainly be decided by the medical staff assessment.</p>
+<p>This parameter is directly related to the
+<a class="reference internal" href="observations.html#observations.nh_clinical_patient_observation_urine_output" title="observations.nh_clinical_patient_observation_urine_output"><code class="xref py py-mod docutils literal"><span class="pre">urine</span> <span class="pre">output</span></code></a>
+observation.</p>
+<dl class="method">
+<dt id="parameters.nh_clinical_patient_urine_output_target.current_target">
+<code class="descname">current_target</code><span class="sig-paren">(</span><em>cr</em>, <em>uid</em>, <em>patient_id</em>, <em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/parameters.html#nh_clinical_patient_urine_output_target.current_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parameters.nh_clinical_patient_urine_output_target.current_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the current urine output target for the provided
+<a class="reference external" href="https://nh-clinical.readthedocs.org/en/develop/base.html#base.nh_clinical_patient" title="(in nh_clinical_docs v0.0.1)"><code class="xref py py-class docutils literal"><span class="pre">patient</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">[volume,unit]</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/library/functions.html#list" title="(in Python v2.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><p class="logo"><a href="index.html">
+<img class="logo" src="_static/img/company_logo.png" alt="Logo"/>
+</a></p><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="observations.html"><code class="docutils literal"><span class="pre">Observations</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href=""><code class="docutils literal"><span class="pre">Parameters</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mrsa"><code class="docutils literal"><span class="pre">MRSA</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#diabetes"><code class="docutils literal"><span class="pre">Diabetes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#palliative-care"><code class="docutils literal"><span class="pre">Palliative</span> <span class="pre">Care</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-surgery"><code class="docutils literal"><span class="pre">Post</span> <span class="pre">Surgery</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#critical-care"><code class="docutils literal"><span class="pre">Critical</span> <span class="pre">Care</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#weight-monitoring"><code class="docutils literal"><span class="pre">Weight</span> <span class="pre">Monitoring</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#urine-output-target"><code class="docutils literal"><span class="pre">Urine</span> <span class="pre">Output</span> <span class="pre">Target</span></code></a></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="observations.html"
+                        title="previous chapter"><code class="docutils literal"><span class="pre">Observations</span></code></a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Neova Health.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
