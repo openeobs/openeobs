@@ -108,7 +108,9 @@ class nh_eobs_ward_dashboard(orm.Model):
             'res_model': 'nh.clinical.wardboard',
             'view_type': 'form',
             'view_mode': 'kanban,form,tree',
-            'domain': [('spell_state', '=', 'started'), ('location_id.usage', '=', 'bed')],
+            'domain': [('spell_state', '=', 'started'),
+                       ('spell_activity_id.user_ids', 'in', uid),
+                       ('location_id.usage', '=', 'bed')],
             'target': 'current',
             'context': context
         }
