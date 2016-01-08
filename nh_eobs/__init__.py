@@ -11,3 +11,4 @@ import kamishibai
 import spell_management
 import report
 import ward_dashboard
+import nh_clinical_extension
