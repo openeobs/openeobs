@@ -14,7 +14,7 @@
         steps: [
             {
                 title:     _t("Palliative Care Status Change Tutorial"),
-                content: _t("This tutorial demonstrates how changing a patients palliative care status will remove any scheduled observations tasks for that patient"),
+                content: _t("This tutorial demonstrates how changing a patients palliative care status will remove any scheduled observation tasks for that patient"),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
@@ -46,7 +46,14 @@
                 title:     _t("Change Status"),
                 content: _t("Select the status from the dropdown below. <br/>Click <strong>Save</strong> when done."),
                 element:   "select[name='palliative_care']",
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Save')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
             {
                 title:     _t("Change Logged"),

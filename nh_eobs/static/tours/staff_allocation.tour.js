@@ -26,7 +26,22 @@
                 title:     _t("Select Ward"),
                 content: _t("Choose your ward from the drop down menu, then click <strong>Start</strong>"),
                 element:   ".modal-dialog input:eq(0)",
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Start')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        // Hack as just setting input with .val() failed because Odoo.
+                        // Have to click dropdown and select option as user would..
+                        $(state.step.element).parent().find('span.oe_m2o_drop_down_button').click();
+                        setTimeout(function () {
+                            $("a:contains('Ward C')").click();
+                        }, 300);
+                        setTimeout(function () {
+                            $(state.step.next).click();
+                        }, 300);
+                    }
+                }
             },
             {
                 title:     _t("Previous Shift List"),
@@ -45,14 +60,20 @@
                 title:     _t("Enter New Staff"),
                 content: _t("You can add multiple staff members. Begin typing a name to find matches or press down key to view list. <br/>Click <strong>Select</strong> when done"),
                 element:   ".modal-dialog textarea",
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Select')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
             {
                 title:     _t("Allocation List"),
                 waitFor: "li.oe_active span.label:contains('Allocation')",
                 content: _t("This shows all the beds in the ward requiring staff allocation"),
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                //placement: 'bottom'
+                popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
                 title:     _t("Click Allocate"),
@@ -115,21 +136,20 @@
                 title:     _t("Add / Remove Staff"),
                 content: _t("Remove staff by clicking the 'x' next to their name. Add staff by typing in their name or selecting from the dropdown. Click <strong>Re-Allocate</strong> to confirm."),
                 element:   ".modal-dialog textarea",
-                //popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Re-Allocate')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
-            //{
-            //    title:     _t("Confirm Changes"),
-            //    content: _t("When happy with changes to staff on shift, click here"),
-            //    element:   "button:contains('Re-Allocate')",
-            //    placement: 'bottom'
-            //},
             {
                 title:     _t("Allocation List"),
                 waitFor: "li.oe_active span.label:contains('Allocation')",
                 content: _t("This shows all the beds in the ward and the staff currently assigned"),
                 popover:   { next: _t("Continue"), end: _t("Exit") },
-                //placement: 'bottom'
             },
             {
                 title:     _t("Click Here"),
@@ -142,14 +162,15 @@
                 content: _t("Choose from dropdown or begin typing to get suggested name. Click <strong>Save</strong> when done."),
                 element:   ".modal-dialog:eq(1) input:eq(0)",
                 //popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'top'
+                placement: 'top',
+                next: ".modal-dialog:eq(1) button:contains('Save')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
-            //{
-            //    title:     _t("Click Here"),
-            //    content: _t("To confirm changes and close popup"),
-            //    element:   ".modal-dialog:eq(1) button.oe_form_button_save",
-            //    placement: 'bottom'
-            //},
             {
                 waitNot: ".modal-dialog:eq(1)",
                 title:     _t("Review and Confirm"),

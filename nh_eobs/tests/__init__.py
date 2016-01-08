@@ -7,3 +7,5 @@ import test_observation_report_create_filter
 import test_wardboard
 import test_workload
 import test_ward_dashboard
+import test_palliative_status_tour
+import test_staff_allocation_tours
