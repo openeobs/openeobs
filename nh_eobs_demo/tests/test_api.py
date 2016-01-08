@@ -87,6 +87,16 @@ class TestApiDemo(TransactionCase):
             ['W1B1', 'W1B2'], [location.code for location in locations]
         )
 
+    def test_get_nurse_hcs_user_ids(self):
+        cr, uid = self.cr, self.uid
+        user_ids = self.demo_loader._get_nurse_hca_user_ids(cr, uid)
+        self.assertTrue(len(user_ids) > 0)
+
+    def test_get_random_user_id(self):
+        cr, uid = self.cr, self.uid
+        user_ids = [1, 2, 3, 4]
+        user_id = self.demo_loader._get_random_user_id(cr, uid, user_ids)
+        self.assertTrue(user_id in user_ids)
 
 
 

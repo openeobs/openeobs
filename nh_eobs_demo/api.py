@@ -1,5 +1,6 @@
 # coding=utf-8
 import logging
+import random
 from datetime import datetime
 
 from faker import Faker
@@ -71,6 +72,37 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         )
 
         return patients
+
+    def simulate_news_for_ward(self, cr, uid, ward_code, days, context=None):
+        # for each patient in ward ...
+        # simulate news for patient
+        pass
+
+    def _simulate_news_for_patient(self, cr, uid, patient_id, context=None):
+        # get nurse and hca user_ids
+        # select a user_id randomly
+        pass
+
+    def _take_news_for_patient(self, cr, uid, hospital_number, context=None):
+        # get user responsible for patient take news observation
+        pass
+
+    def _get_nurse_hca_user_ids(self, cr, uid):
+        """Gets nurse and hca nurse ids."""
+        group_pool = self.pool['res.groups']
+        user_pool = self.pool['res.users']
+        # only HCA and nurse users submit/complete obs
+        group_ids = group_pool.search(
+            cr, uid, [['name', 'in', [
+                    'NH Clinical Nurse Group', 'NH Clinical HCA Group']]]
+        )
+        user_ids = user_pool.search(
+            cr, uid, [['groups_id', 'in', group_ids]])
+        return user_ids
+
+    def _get_random_user_id(self, cr, uid, user_ids):
+        """Gets randomly a user_id from a list of user_ids."""
+        return random.choice(user_ids)
 
     def _get_patient_hospital_numbers_by_ward(self, cr, uid, ward_code,
                                               context=None):
