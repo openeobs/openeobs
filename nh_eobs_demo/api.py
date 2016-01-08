@@ -75,6 +75,10 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
         return patients
 
+    def generate_news_simulation_final(self, cr, uid, days, patient_ids=None, context=None):
+        self.completed_first_ews_for_placed_patients(cr, uid, context=context)
+        self.generate_news_simulation(cr, uid, days, patient_ids=patient_ids, context=context)
+
     def generate_news_simulation(self, cr, uid, days, patient_ids=None, context=None):
         """
         Generates demo news data over a period of time for the patients
@@ -99,10 +103,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
             ['data_model', '=', 'nh.clinical.patient.observation.ews'],
             ['state', 'not in', ['completed', 'cancelled']]], context=context)
 
-        if not ews_activity_ids:
-            activity_pool.write(
-                cr, uid, ews_activity_ids, {'date_scheduled': begin_date},
-                context=context)
+        activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
 
         current_date = dt.strptime(begin_date, dtf)
         while current_date < dt.now():
@@ -160,6 +161,50 @@ class nh_eobs_demo_loader(orm.AbstractModel):
             current_date = nearest_date
         return True
 
+    def complete_first_ews_for_placed_patients(self, cr, uid, days, context=None):
+        """Completes observations for placed patients in order to
+        schedule further observations"""
+
+        activity_pool = self.pool['nh.activity']
+        ews_pool = self.pool['nh.clinical.patient.observation.ews']
+        begin_date = (dt.now()-td(days=days))
+
+        # get patients placed in beds
+        patient_ids = self._get_patients_placed(cr, uid)
+
+        ews_data = {
+            'respiration_rate': fake.random_element([18]*90 + [11]*8 + [24]*2),
+            'indirect_oxymetry_spo2': fake.random_element([99]*90 + [95]*8 + [93]*2),
+            'oxygen_administration_flag': fake.random_element([False]*96 + [True]*4),
+            'blood_pressure_systolic': fake.random_element([120]*90 + [110]*8 + [100]*2),
+            'blood_pressure_diastolic': 80,
+            'avpu_text': fake.random_element(['A']*97 + ['V', 'P', 'U']),
+            'pulse_rate': fake.random_element([65]*90 + [50]*8 + [130]*2),
+            'body_temperature': fake.random_element([37.5]*93 + [36.0]*7),
+        }
+
+        for patient_id in patient_ids:
+            ews_activity_id = ews_pool.create_activity(
+                cr, uid, {}, {'patient_id': patient_id}, context=context)
+            activity_pool.submit(
+                cr, uid, ews_activity_id, ews_data, context=context)
+            activity_pool.complete(cr, uid, ews_activity_id, context=context)
+            _logger.info("EWS observation '%s' made", ews_activity_id)
+
+            triggered_ews_id = activity_pool.search(cr, uid, [
+                    ['creator_id', '=', ews_activity_id],
+                    ['data_model', '=', 'nh.clinical.patient.observation.ews']],
+                    context=context)
+            if not triggered_ews_id:
+                osv.except_osv('Error!', 'The NEWS observation was not triggered after previous submission!')
+            triggered_ews = activity_pool.browse(cr, uid, triggered_ews_id[0], context=context)
+            # set scheduled date
+            scheduled_date = begin_date + td(minutes=triggered_ews.data_ref.frequency)
+            activity_pool.write(
+                cr, uid, triggered_ews_id[0],
+                {'date_scheduled': scheduled_date.strftime(dtf)},
+                context=context)
+
     def _get_nurse_hca_user_ids(self, cr, uid):
         """Gets nurse and hca nurse ids."""
         group_pool = self.pool['res.groups']
@@ -190,7 +235,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
             keys = []
             for key in ews_data:
                 if key not in measurements:
-                    key.append(key)
+                    keys.append(key)
             k = random.choice(keys)
             del ews_data[k]
             ews_data.update({'partial_reason': random.choice(reasons)})
@@ -233,7 +278,15 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         codes = [bed.code for bed in beds]
         return codes
 
-
+    def _get_patients_placed(self, cr, uid):
+        patient_pool = self.pool['nh.clinical.patient']
+        patient_ids = patient_pool.search(cr, uid, [])
+        patients = patient_pool.browse(cr, uid, patient_ids)
+        patient_in_bed_ids = []
+        for patient in patients:
+            if patient.current_location_id.usage == 'bed':
+                 patient_in_bed_ids.append(patient.id)
+        return patient_in_bed_ids
 
 
 

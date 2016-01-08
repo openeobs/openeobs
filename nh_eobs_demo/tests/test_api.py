@@ -124,3 +124,19 @@ class TestApiDemo(TransactionCase):
             ['data_model', '=', 'nh.clinical.patient.observation.ews'],
             ['state', 'not in', ['completed', 'cancelled']]])
         self.assertEquals(len(scheduled_ids), 3)
+
+    def test_complete_first_ews_for_placed_patients(self):
+        cr, uid = self.cr, self.uid
+
+        self.demo_loader.complete_first_ews_for_placed_patients(cr, uid, 1, context=None)
+        scheduled_ids = self.activity_pool.search(cr, uid, [
+            ['data_model', '=', 'nh.clinical.patient.observation.ews'],
+            ['state', 'not in', ['completed', 'cancelled']]])
+
+        self.assertTrue(len(scheduled_ids) > 0)
+
+    def test_get_patients_place_in_beds(self):
+        cr, uid = self.cr, self.uid
+        patient_ids = self.demo_loader._get_patients_placed(cr, uid)
+
+        self.assertTrue(len(patient_ids) > 0)
