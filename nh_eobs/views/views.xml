@@ -596,6 +596,7 @@
                 </tree>
             </field>
         </record>
+        <!--
         <record model="ir.ui.view" id="view_shifts_ward_form">
             <field name="name">Shifts Ward Form</field>
             <field name="model">nh.clinical.location</field>
@@ -618,6 +619,7 @@
                 </form>
             </field>
         </record>
+        -->
 
         <record model="ir.actions.act_window" id="action_show_wards_list">
             <field name="name">Hospital Wards</field>
@@ -629,6 +631,7 @@
             <field name="search_view_id" ref="view_wards_search"/>
         </record>
 
+        <!--
         <record model="ir.actions.act_window.view" id="act_view_wards_tree">
             <field eval="1" name="sequence"/>
             <field name="view_mode">tree</field>
@@ -641,6 +644,7 @@
             <field name="view_id" ref="view_shifts_ward_form"/>
             <field name="act_window_id" ref="action_show_wards_list"/>
         </record>
+        -->
 
         <!--Doctor Tasks-->
         <record model="ir.ui.view" id="view_nhc_doctor_activities_tree">
