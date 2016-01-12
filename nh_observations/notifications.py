@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 """
 `notifications.py` defines a set of activity types to serve as
 informative reminders for the users that some action needs to take
 place. They usually don't represent an action themselves.
-
 A complete notification means the notification was read and the action
 it refers to was done.
-
 The abstract definition of a notification from which all other
 notifications inherit is also included here.
 """
@@ -39,7 +37,6 @@ class nh_clinical_notification(orm.AbstractModel):
         Returns a description in dictionary format of the input fields
         that would be required in the user gui when the notification is
         shown.
-
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id
         :type patient_id: int
         :returns: a list of dictionaries
@@ -50,7 +47,6 @@ class nh_clinical_notification(orm.AbstractModel):
     def is_cancellable(self, cr, uid, context=None):
         """
         Notifications cannot be cancelled by the user by default.
-
         :returns: ``False``
         :rtype: bool
         """

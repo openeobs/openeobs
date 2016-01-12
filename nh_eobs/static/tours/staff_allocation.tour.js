@@ -24,35 +24,56 @@
             },
             {
                 title:     _t("Select Ward"),
-                content: _t("Choose your ward from the drop down menu and click 'Start'"),
+                content: _t("Choose your ward from the drop down menu, then click <strong>Start</strong>"),
                 element:   ".modal-dialog input:eq(0)",
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Start')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        // Hack as just setting input with .val() failed because Odoo.
+                        // Have to click dropdown and select option as user would..
+                        $(state.step.element).parent().find('span.oe_m2o_drop_down_button').click();
+                        setTimeout(function () {
+                            $("a:contains('Ward C')").click();
+                        }, 300);
+                        setTimeout(function () {
+                            $(state.step.next).click();
+                        }, 300);
+                    }
+                }
             },
             {
-                title:     _t("Previous Shift"),
-                element: "li.oe_active span.label:contains('De-allocate')",
+                title:     _t("Previous Shift List"),
+                waitFor: "li.oe_active span.label:contains('De-allocate')",
                 content: _t("This shows a list of all beds in the selected ward and the currently responsible staff members"),
                 popover:   { next: _t("Continue"), end: _t("Exit") },
                 placement: 'bottom'
             },
             {
-                title:     _t("Click 'Deallocate Previous Shift'"),
-                content: _t("This will deallocate all HCA's and nurses from previous shift"),
+                title:     _t("Click Here"),
+                content: _t("To deallocate all HCA's and nurses from the previous shift"),
                 element:   "button:contains('Deallocate Previous Shift')",
                 placement: 'bottom'
             },
             {
-                title:     _t("Enter staff for next shift"),
-                content: _t("You can add multiple staff members. Begin typing a name to find matches or press down key to view list. Click 'Select' when done"),
+                title:     _t("Enter New Staff"),
+                content: _t("You can add multiple staff members. Begin typing a name to find matches or press down key to view list. <br/>Click <strong>Select</strong> when done"),
                 element:   ".modal-dialog textarea",
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Select')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
             {
-                title:     _t("Allocation Tab"),
-                element: "li.oe_active span.label:contains('Allocation')",
+                title:     _t("Allocation List"),
+                waitFor: "li.oe_active span.label:contains('Allocation')",
                 content: _t("This shows all the beds in the ward requiring staff allocation"),
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'bottom'
+                popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
                 title:     _t("Click Allocate"),
@@ -62,19 +83,19 @@
             },
             {
                 title:     _t("Select Nurse / HCA"),
-                content: _t("Choose from dropdown or begin typing to get suggested names. Click 'Continue' when done."),
+                content: _t("Choose from dropdown or begin typing to get suggested names.  <br/>Click <strong>Continue</strong> when done"),
                 element:   ".modal-dialog:eq(1) input:eq(0)",
                 popover:   { next: _t("Continue"), end: _t("Exit") },
                 placement: 'top'
             },
             {
                 title:     _t("Navigation"),
-                content: _t("You can use the arrows to scroll through the beds in the ward. Click here to save changes and view the next bed in list."),
+                content: _t("You can use the arrows to scroll through the beds in the ward. Any changes will be saved automatically."),
                 element:   ".modal-dialog:eq(1) a[data-pager-action='next']:eq(0)",
-                placement: 'bottom'
+                placement: 'bottom',
+                popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
-                waitFor: ".modal-dialog:eq(1) span:contains('Bed 02')",
                 title:     _t("Save Changes"),
                 content: _t("When you've finished allocating, click here to save changes and close the popup"),
                 element:   ".modal-dialog:eq(1) button.oe_form_button_save",
@@ -103,7 +124,7 @@
         steps: [
             {
                 title:     _t("Nursing Staff Re-Allocation Tutorial"),
-                content: _t("This tour shows you how to change the staff available on shift and re-allocate beds. e.g. If a new nurse starts their shift and needs to be allocated beds"),
+                content: _t("This tour shows you how to change the staff available on shift and re-allocate beds. e.g. If a nurse finishes their shift and their allocated beds need to be assigned to a different member of staff"),
                 popover:   { next: _t("Continue"), end: _t("Exit") }
             },
             {
@@ -113,42 +134,42 @@
             },
             {
                 title:     _t("Add / Remove Staff"),
-                content: _t("Remove staff by clicking the 'x' next to their name. Add staff by typing in their name or selecting from the dropdown."),
+                content: _t("Remove staff by clicking the 'x' next to their name. Add staff by typing in their name or selecting from the dropdown. Click <strong>Re-Allocate</strong> to confirm."),
                 element:   ".modal-dialog textarea",
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'top'
+                placement: 'top',
+                next: "button:contains('Re-Allocate')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
             {
-                title:     _t("Confirm Changes"),
-                content: _t("When happy with changes to staff on shift, click here"),
-                element:   "button:contains('Re-Allocate')",
-                placement: 'bottom'
-            },
-            {
-                title:     _t("Allocation Tab"),
-                element: "li.oe_active span.label:contains('Allocation')",
+                title:     _t("Allocation List"),
+                waitFor: "li.oe_active span.label:contains('Allocation')",
                 content: _t("This shows all the beds in the ward and the staff currently assigned"),
                 popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'bottom'
             },
             {
                 title:     _t("Click Here"),
-                content: _t("To re-allocate the unassigned bed to the new member of staff"),
+                content: _t("To allocate a bed to a different member of staff"),
                 element:   ".modal-dialog button[title='Allocate']:eq(0)",
                 placement: 'top'
             },
             {
                 title:     _t("Select Nurse"),
-                content: _t("Choose from dropdown or begin typing to get suggested name"),
+                content: _t("Choose from dropdown or begin typing to get suggested name. Click <strong>Save</strong> when done."),
                 element:   ".modal-dialog:eq(1) input:eq(0)",
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                placement: 'top'
-            },
-            {
-                title:     _t("Click Here"),
-                content: _t("To confirm changes and close popup"),
-                element:   ".modal-dialog:eq(1) button.oe_form_button_save",
-                placement: 'bottom'
+                //popover:   { next: _t("Continue"), end: _t("Exit") },
+                placement: 'top',
+                next: ".modal-dialog:eq(1) button:contains('Save')",
+                onload: function () {
+                    var state = openerp.Tour.getState();
+                    if (state.mode !== 'tutorial') {
+                        $(state.step.next).click();
+                    }
+                }
             },
             {
                 waitNot: ".modal-dialog:eq(1)",

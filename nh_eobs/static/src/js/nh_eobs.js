@@ -75,6 +75,30 @@ openerp.nh_eobs = function (instance) {
     instance.web.list.columns.add('button', 'instance.nh_eobs.Button');
 
     instance.web.UserMenu.include({
+        on_menu_tutorials: function () {
+            console.log('clicked');
+            var self = this;
+            self.rpc("/web/webclient/version_info", {}).done(function(res) {
+                var $tuts = $(openerp.qweb.render("UserMenu.tutorials"));
+                $tuts.find('a.nursing_shift_change').click(function (e) {
+                    e.preventDefault();
+                    openerp.Tour.run('nursing_shift_change');
+                });
+                $tuts.find('a.nursing_reallocation').click(function (e) {
+                    e.preventDefault();
+                    openerp.Tour.run('nursing_reallocation');
+                });
+                $tuts.find('a.palliative_care').click(function (e) {
+                    e.preventDefault();
+                    openerp.Tour.run('palliative_care_flag');
+                });
+                new instance.web.Dialog(this, {
+                    size: 'large',
+                    dialogClass: 'oe_act_window',
+                    title: _t("Tutorials")
+                }, $tuts).open();
+            });
+        },
         on_menu_help: function() {
             window.open('http://www.neovahealth.co.uk', '_blank');
         },
@@ -101,7 +125,8 @@ openerp.nh_eobs = function (instance) {
                 });
             };
             this.update_promise = this.update_promise.then(fct, fct);
-        },
+            $('li.odoo_support_contact').hide()
+        }
     });
 
     instance.web.ListView.include({

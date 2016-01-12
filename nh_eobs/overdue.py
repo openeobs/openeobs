@@ -1,4 +1,5 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 """
 Defines :class:`overdue<nh_clinical_overdue>` and
 :class:`doctors activities<nh_clinical_doctor_activities>`.
@@ -13,7 +14,6 @@ class nh_clinical_overdue(orm.Model):
     """
     Extends :class:`activity<activity.nh_activity>` to create
     overdue activities used by view overdue_view.xml
-
     Includes fields ``delay_string`` to record time
     overdue and ``user_name`` to record user the activity is assigned
     to.
@@ -126,7 +126,6 @@ class nh_clinical_doctor_activities(orm.Model):
     """
     Extends :class:`activity<activity.nh_activity>` to create doctor
     activities used by view `Doctor Tasks`.
-
     Shows all
     :class:`doctor assessment
     <notifications.nh_clinical_notification_doctor_assessment>`

@@ -16,6 +16,7 @@ class wardboard_swap_beds(orm.TransientModel):
     Allows a :class:`patient<base.nh_clinical_patient>` to swap beds
     with another patient on the same ward.
     """
+
     _name = 'wardboard.swap_beds'
 
     _columns = {
@@ -40,7 +41,6 @@ class wardboard_swap_beds(orm.TransientModel):
         :returns: ``True``
         :rtype: bool
         """
-
         data = self.browse(cr, uid, ids[0])
         values = {
             'location1_id': data.location1_id.id,
@@ -64,7 +64,6 @@ class wardboard_swap_beds(orm.TransientModel):
         :returns: dictionary containing patient id
         :rtype: dict
         """
-
         if not location2_id:
             return {'value': {'patient2_id': False}}
         patient_pool = self.pool['nh.clinical.patient']
@@ -103,7 +102,6 @@ class wardboard_patient_placement(orm.TransientModel):
         :returns: ``True``
         :rtype: bool
         """
-
         wiz = self.browse(cr, uid, ids[0], context=context)
         spell_pool = self.pool['nh.clinical.spell']
         move_pool = self.pool['nh.clinical.patient.move']
@@ -180,9 +178,8 @@ class wardboard_device_session_start(orm.TransientModel):
             ids = self.pool['nh.clinical.device'].search(
                 cr, uid, [('type_id', '=', device_type_id)])
             response.update(
-                {'domain': {
-                    'device_id': [
-                        ('id', 'in', ids), ('is_available', '=', True)]}})
+                {'domain': {'device_id': [('id', 'in', ids),
+                                          ('is_available', '=', True)]}})
         return response
 
     def onchange_device_id(self, cr, uid, ids, device_id, context=None):

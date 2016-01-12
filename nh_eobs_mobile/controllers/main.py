@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-s
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 """
 Defines helper methods and handlers for eObs Mobile.
 """
@@ -65,7 +65,6 @@ route_manager.add_route(task_list)
 def abort_and_redirect(url):
     """
     Aborts and redirects to ``url``.
-
     :param url: URL
     :type url: str
     :returns: `302 Found` status code and redirection to ``url``
@@ -82,14 +81,11 @@ def ensure_db(redirect=URLS['login']):
     Used by client when a :meth:`http.route()<openerp.http.route>` has
     authentication method parameter as "none" (``auth='none'``) and if
     the route is dependent on a database.
-
     If no database is found, it will redirect to URL assigned to
     ``redirect`` parameter.
-
     If database name is from a query parameter, it will be checked by
     :meth:`http.db_filter()<openerp.http.db_filter>` thus to avoid
     database forgery that could lead to xss attacks.
-
     :param redirect: URL to redirect to
     :type redirect: str
     :returns: ``None``
@@ -153,7 +149,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         """
         Returns /static/src/css/nhc.css (custom stylesheet) response
         object.
-
         :returns: /static/src/css/nhc.css
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -169,7 +164,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_manifest(self, *args, **kw):
         """
         Returns /static/src/manifest.json response object.
-
         :returns: /static/src/manifest.json
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -185,7 +179,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_small_icon(self, *args, **kw):
         """
         Returns /static/src/icon/hd_small.png response object.
-
         :returns: /static/src/icon/hd_small.png
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -200,7 +193,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_big_icon(self, *args, **kw):
         """
         Returns /static/src/icon/hd_hi.png response object.
-
         :returns: /static/src/icon/hd_hi.png
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -216,7 +208,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         """
         Returns font-woff response object from fonts contained in
         /static/srs/font/.
-
         :returns: a Web Open Font Format (WOFF) font
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -240,7 +231,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_logo(self, *args, **kw):
         """
         Returns /static/src/img/open_eobs_logo.png response object.
-
         :returns: /static/src/img/open_eobs_logo.png
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -255,7 +245,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_bristol_stools_chart(self, *args, **kw):
         """
         Returns /static/src/img/bristol_stools.png response object.
-
         :returns: /static/src/img/bristol_stools.png
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -270,7 +259,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_jquery(self, *args, **kw):
         """
         Returns /static/src/js/jquery.js response object.
-
         :returns: /static/src/js/jquery.js
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -285,7 +273,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_observation_js(self, *args, **kw):
         """
         Returns /static/src/js/observation.js response object.
-
         :returns: /static/src/js/observation.js
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -300,7 +287,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_observation_validation(self, *args, **kw):
         """
         Returns /static/src/js/validation.js response object.
-
         :returns: /static/src/js/validation.js
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -315,7 +301,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def graph_lib(self, *args, **kw):
         """
         Returns /static/src/js/nh_graphlib.js response object.
-
         :returns: /static/src/js/nh_graphlib.js
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -330,7 +315,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def patient_graph_js(self, *args, **kw):
         """
         Returns /static/src/js/draw_ews_graph.js response object.
-
         :returns: /static/src/js/draw_ews_graph.js
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -345,7 +329,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def d_three(self, *args, **kw):
         """
         Returns /static/lib/js/d3.js response object.
-
         :returns: /static/lib/js/d3.js
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -361,7 +344,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         """
         Redirects :class:`user<base.res_users>` to task list if logged
         in. Otherwise the user will be redirect to login.
-
         :returns: :class:`Response<werkzeug.wrappers.Response>`
         :rtype: :class:`werkzeug.wrappers.Response` object
         """
@@ -379,7 +361,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         to the task list. If username or password is invalid, the login
         page response is returned with a message. For HTTP GET, the
         the login page response is returned.
-
         :returns: Either task list or login response objects
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -461,7 +442,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         """
         Logs a :class:`user<base.res_users>` out, returning them to the
         login page.
-
         :returns: login page response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -475,7 +455,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         """
         Returns the :class:`EWS<nh_clinical_patient_observation_ews>`
         class.
-
         :param score: EWS score
         :type score: str
         :returns: EWS class
@@ -497,7 +476,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patients(self, *args, **kw):
         """
         Returns the patient task list for patients.
-
         :returns: patient task list response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -545,7 +523,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_share_patients(self, *args, **kw):
         """
         Renders the shared patient list.
-
         :returns: shared patient list response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -600,7 +577,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_tasks(self, *args, **kw):
         """
         Renders the patient task list for tasks.
-
         :returns: task list response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -637,7 +613,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         :class:`observation<observations.nh_clinical_patient_observation>`
         or :class:`placement<operations.nh_clinical_patient_placement>`
         task. If the task is neither of these then an error is returned.
-
         :param task_id: id of task
         :type task_id: int
         :returns: task response object
@@ -835,7 +810,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patient(self, patient_id, *args, **kw):
         """
         Renders the :class:`patient<base.nh_clinical_patient>` view.
-
         :returns: patient response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -881,7 +855,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         Renders the
         :class:`observation<observations.nh_clinical_patient_observation>`
         entry view.
-
         :returns: observations entry response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """

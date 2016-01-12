@@ -1,4 +1,5 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 """
 `nh_clinical_extension.py` extends several NH Clinical classes to add
 relevant observations related functionality.
@@ -123,6 +124,7 @@ class nh_clinical_api_extension(orm.AbstractModel):
         :type values: dict
         """
         for n in values['notifications']:
+            # notifications: [{'summary','model','groups'}]
             if values.get('group') in n['groups']:
                 pool = self.pool['nh.clinical.notification.'+n['model']]
                 deadline = (dt.now()+td(
