@@ -85,9 +85,8 @@ class TestApiDemo(TransactionCase):
 
         # check location is destination
         locations = [patient.current_location_id for patient in patients]
-        self.assertEqual(
-            ['W1B1', 'W1B2'], [location.code for location in locations]
-        )
+        for location in locations:
+            self.assertTrue(location.code in ['W1B1', 'W1B2'])
 
     def test_get_nurse_hcs_user_ids(self):
         cr, uid = self.cr, self.uid
@@ -109,8 +108,8 @@ class TestApiDemo(TransactionCase):
         patient_ids = self.demo_api.generate_patients(cr, users['adt'][0], 3)
         results = self.location_pool.read(cr, uid, [location_ids[0]], ['code'])
 
-        # generate eobs for 2 days
-        start_date = datetime.now() - timedelta(days=2)
+        # generate eobs for 1 days
+        start_date = datetime.now() - timedelta(days=1)
         data = {'location': results[0]['code'], 'start_date': start_date}
         admit_patient_ids = self.demo_api.admit_patients(cr, users['adt'][0], patient_ids, data)
 

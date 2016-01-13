@@ -38,6 +38,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         data = {'discharge_date': discharge_date}
 
         # select the patients to discharge
+        random.shuffle(hospital_numbers)
         patients_to_discharge = hospital_numbers[:amount]
 
         # discharge patients
@@ -66,6 +67,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         )
 
         # select the patients to transfer
+        random.shuffle(hospital_numbers)
         patients_to_transfer = hospital_numbers[:amount]
 
         # transfer_patients
