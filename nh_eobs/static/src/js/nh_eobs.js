@@ -258,9 +258,12 @@ openerp.nh_eobs = function (instance) {
     //})
 
     instance.nh_eobs.NHMany2One = instance.web.form.FieldMany2One.extend({
+        display_string: function (str) {
+            this._super(str);
+            this.$('.oe_m2o_cm_button').css({'display':'none'});
+        },
         get_search_result: function(search_val) {
             var self = this;
-
             var dataset = new instance.web.DataSet(this, this.field.relation, self.build_context());
             var blacklist = this.get_search_blacklist();
             this.last_query = search_val;
