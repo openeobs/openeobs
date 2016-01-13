@@ -1,3 +1,3 @@
 # coding=utf-8
-import demo
-import api
+from . import demo
+from . import api

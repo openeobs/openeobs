@@ -2,10 +2,7 @@
 import logging
 
 from datetime import datetime, timedelta
-
-from openerp.osv import osv
 from openerp.tests.common import TransactionCase
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 _logger = logging.getLogger(__name__)
 
@@ -70,7 +67,7 @@ class TestApiDemo(TransactionCase):
         )
         self.assertEqual(result, ['W1B1', 'W1B2', 'W1B3', 'W1B4'])
 
-    def test_transfer_patients_transfers_patient_from_location_to_location(self):
+    def test_transfer_patients_transfers_them_from_location_to_location(self):
         cr, uid = self.cr, self.uid
         self.demo_api.generate_locations(
             cr, uid, wards=1, beds=4, hospital=True)
@@ -103,7 +100,8 @@ class TestApiDemo(TransactionCase):
     def test_generate_news_simulation(self):
         cr, uid = self.cr, self.uid
 
-        locations = self.demo_api.generate_locations(cr, uid, wards=1, beds=3, hospital=True)
+        locations = self.demo_api.generate_locations(cr, uid, wards=1, beds=3,
+                                                     hospital=True)
         location_ids = locations.get('Ward 1')
         users = self.demo_api.generate_users(cr, uid, location_ids)
         patient_ids = self.demo_api.generate_patients(cr, users['adt'][0], 3)
@@ -112,9 +110,11 @@ class TestApiDemo(TransactionCase):
         # generate eobs for 2 days
         start_date = datetime.now() - timedelta(days=2)
         data = {'location': results[0]['code'], 'start_date': start_date}
-        admit_patient_ids = self.demo_api.admit_patients(cr, users['adt'][0], patient_ids, data)
+        admit_patient_ids = self.demo_api.admit_patients(cr, users['adt'][0],
+                                                         patient_ids, data)
 
-        self.demo_api.place_patients(cr, uid, admit_patient_ids, location_ids[0])
+        self.demo_api.place_patients(cr, uid, admit_patient_ids,
+                                     location_ids[0])
         result = self.demo_loader.generate_news_simulation(
             cr, uid, 1, patient_ids=admit_patient_ids)
 
@@ -128,7 +128,8 @@ class TestApiDemo(TransactionCase):
     def test_complete_first_ews_for_placed_patients(self):
         cr, uid = self.cr, self.uid
 
-        self.demo_loader.complete_first_ews_for_placed_patients(cr, uid, 1, context=None)
+        self.demo_loader.complete_first_ews_for_placed_patients(cr, uid, 1,
+                                                                context=None)
         scheduled_ids = self.activity_pool.search(cr, uid, [
             ['data_model', '=', 'nh.clinical.patient.observation.ews'],
             ['state', 'not in', ['completed', 'cancelled']]])

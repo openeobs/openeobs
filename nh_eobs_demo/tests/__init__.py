@@ -1,4 +1,3 @@
 # coding=utf-8
-# import test_demo
-import test_api
-
+# from . import test_demo
+from . import test_api

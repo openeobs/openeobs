@@ -63,8 +63,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
         if return_file:
             directory_name = os.path.dirname(os.path.abspath(config_file))
             logins = self._get_users_login(cr, uid)
-            with open(os.path.join(directory_name, return_file), 'w') as outfile:
-                json.dump({'logins': logins}, outfile)
+            with open(os.path.join(directory_name, return_file), 'w') as outf:
+                json.dump({'logins': logins}, outf)
 
         return True
 
@@ -87,7 +87,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
         """
         result = []
         for k in locations:
-            result.append(self.generate_users(cr, uid, locations[k], data=users))
+            result.append(self.generate_users(cr, uid, locations[k],
+                                              data=users))
 
         return result
 
@@ -121,12 +122,15 @@ class nh_clinical_api_demo(orm.AbstractModel):
         admitted_patient_ids = []
 
         for n in range(len(patient_ids)):
-            data = {'location': ward_codes[n]['code'], 'start_date': start_date}
-            admitted_patient_ids.append(self.admit_patients(cr, uid, patient_ids[n], data))
+            data = {'location': ward_codes[n]['code'],
+                    'start_date': start_date}
+            admitted_patient_ids.append(self.admit_patients(
+                cr, uid, patient_ids[n], data))
 
         return admitted_patient_ids
 
-    def _load_place_patients(self, cr, uid, ward_ids, patient_ids, context=None):
+    def _load_place_patients(self, cr, uid, ward_ids, patient_ids,
+                             context=None):
         """
         Places patients in each ward.
         :param uid: adt uid
@@ -136,16 +140,20 @@ class nh_clinical_api_demo(orm.AbstractModel):
         """
         bed_ids = []
         for n in range(len(ward_ids)):
-            bed_ids.append(self.place_patients(cr, uid, patient_ids[n], ward_ids[n], context=context))
+            bed_ids.append(self.place_patients(cr, uid, patient_ids[n],
+                                               ward_ids[n], context=context))
 
         return bed_ids
 
     def generate_locations(self, cr, uid, wards=0, beds=0, hospital=False):
         """
-        Generates a specified number of locations (Hospital, wards, bays, beds).
+        Generate a specified number of locations (Hospital, wards, bays, beds).
         :param wards: the number of wards in hospital.
         :param beds: the number of beds per ward.
-        :return: Dict { 'Ward 1' : [ward_id, bed_id, bed_id], 'Ward 2': [ward_id_2, bed_id, etc. }
+        :return: Dict {
+                    'Ward 1' : [ward_id, bed_id, bed_id],
+                    'Ward 2': [ward_id_2, bed_id, etc.
+                }
         """
         identifiers = dict()
         location_pool = self.pool['nh.clinical.location']
@@ -153,18 +161,25 @@ class nh_clinical_api_demo(orm.AbstractModel):
         company_pool = self.pool['res.company']
         context_pool = self.pool['nh.clinical.context']
 
-        context_id = context_pool.search(cr, uid, [['name', 'in', ['eobs', 'etakelist']]])
+        context_id = context_pool.search(
+            cr, uid, [['name', 'in', ['eobs', 'etakelist']]])
 
         if hospital:
-            hospital_id = location_pool.create(cr, uid, {'name': fake.company()})
-            admission_id = location_pool.create(cr, uid, {'name': fake.company()})
-            discharge_id = location_pool.create(cr, uid, {'name': fake.company()})
+            hospital_id = location_pool.create(cr, uid,
+                                               {'name': fake.company()})
+            admission_id = location_pool.create(cr, uid,
+                                                {'name': fake.company()})
+            discharge_id = location_pool.create(cr, uid,
+                                                {'name': fake.company()})
             company_id = company_pool.create(cr, uid, {'name': fake.company()})
 
             # creates POS (clinical point of service)
-            pos_pool.create(cr, uid, {'name': fake.company(), 'location_id': hospital_id,
-                'company_id': company_id, 'lot_admission_id': admission_id,
-                'lot_discharge_id': discharge_id})
+            pos_pool.create(cr, uid,
+                            {'name': fake.company(),
+                             'location_id': hospital_id,
+                             'company_id': company_id,
+                             'lot_admission_id': admission_id,
+                             'lot_discharge_id': discharge_id})
         else:
             hospital_id = location_pool.search(cr, uid, [['id', '>', 0]])[0]
 
@@ -191,7 +206,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return identifiers
 
-    def generate_users(self, cr, uid, location_ids, data=dict()):
+    def generate_users(self, cr, uid, location_ids, data=None):
         """
         Generates a ward manager, nurse, HCA, junior doctor, consultant,
         registrar, receptionist, admin and ADT user. Nurses and HCAs are
@@ -199,6 +214,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
         :param location_ids: ['ward_id', 'bed_id_1', 'bed_id_2'...]
         :return: Dictionary { 'adt' : [id], 'nurse': [id, id], ... }
         """
+        if data is None:
+            data = dict()
         identifiers = dict()
         user_pool = self.pool['res.users']
         group_pool = self.pool['res.groups']
@@ -213,12 +230,17 @@ class nh_clinical_api_demo(orm.AbstractModel):
             ('receptionist', 'NH Clinical Receptionist Group'),
             ('admin', 'NH Clinical Admin Group')
         ]
-        pos_id = location_pool.read(cr, uid, [location_ids[0]], ['pos_id'])[0]['pos_id'][0]
+        pos_id = location_pool.read(cr, uid, [location_ids[0]],
+                                    ['pos_id'])[0]['pos_id'][0]
 
         # create adt user if non exists
         adt_group_id = group_pool.search(cr, uid, [
-            ['name', 'in', ['NH Clinical ADT Group', 'Contact Creation', 'NH Clinical Admin Group', 'Employee']]])
-        adt_uid_ids = user_pool.search(cr, uid, [['groups_id', 'in', adt_group_id], ['pos_id', '=', pos_id]])
+            ['name', 'in',
+             ['NH Clinical ADT Group', 'Contact Creation',
+              'NH Clinical Admin Group', 'Employee']]])
+        adt_uid_ids = user_pool.search(cr, uid,
+                                       [['groups_id', 'in', adt_group_id],
+                                        ['pos_id', '=', pos_id]])
         if adt_uid_ids:
             identifiers.update({'adt': [adt_uid_ids[0]]})
         else:
@@ -239,7 +261,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 number_of_users = 1
 
             for x in range(number_of_users):
-                user_login = user_type + '_' + str(x+1) + '_' + str(location_ids[0])
+                user_login = user_type + '_' + str(x+1) + '_' + str(
+                    location_ids[0])
                 assign_groups = [user[1], 'Employee']
 
                 if user_type in ('ward_manager', 'admin'):
@@ -249,11 +272,13 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 else:
                     locations = [location_ids[0]]
 
-                group_id = group_pool.search(cr, uid, [['name', 'in', assign_groups]])
+                group_id = group_pool.search(cr, uid,
+                                             [['name', 'in', assign_groups]])
                 user_id = user_pool.create(cr, uid, {
                     'name': fake.name(), 'login': user_login,
-                    'password': user_login, 'groups_id': [[6, False, group_id]],
-                    'pos_id': pos_id, 'location_ids': [[6, False, locations]]})
+                    'password': user_login,
+                    'groups_id': [[6, False, group_id]], 'pos_id': pos_id,
+                    'location_ids': [[6, False, locations]]})
 
                 if user_type in identifiers:
                     identifiers[user_type].append(user_id)
@@ -290,7 +315,9 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
             api.register(cr, uid, other_identifier, patient, context=context)
             _logger.info("Patient '%s' created", other_identifier)
-            identifiers += patient_pool.search(cr, uid, [['other_identifier', '=', other_identifier]], context=context)
+            identifiers += patient_pool.search(
+                cr, uid, [['other_identifier', '=', other_identifier]],
+                context=context)
 
         return identifiers
 
@@ -316,9 +343,11 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 ('patient_id', '=', patient.id)])
 
             if not spell_activity_id:
-                if api.admit(cr, uid, patient.other_identifier, data, context=context):
+                if api.admit(cr, uid, patient.other_identifier, data,
+                             context=context):
                     identifiers.append(patient_id)
-                    _logger.info("Patient '%s' admitted", patient.other_identifier)
+                    _logger.info("Patient '%s' admitted",
+                                 patient.other_identifier)
 
         return identifiers
 
@@ -341,7 +370,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         for index, bed_id in enumerate(bed_ids):
             if index < len(activity_ids):
-                activity_pool.submit(cr, uid, activity_ids[index], {'location_id': bed_id})
+                activity_pool.submit(cr, uid, activity_ids[index],
+                                     {'location_id': bed_id})
                 activity_pool.complete(cr, uid, activity_ids[index])
                 identifiers.append(bed_id)
                 _logger.info("Patient placed in %s", bed_id)
@@ -350,7 +380,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return identifiers
 
-    def transfer_patients(self, cr, uid, hospital_numbers, locations, context=None):
+    def transfer_patients(self, cr, uid, hospital_numbers, locations,
+                          context=None):
         """
         Transfers a list of patients to a list of locations.
         :param hospital_numbers: list of hospital numbers of the patients
@@ -383,7 +414,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return patients
 
-    def discharge_patients(self, cr, uid, hospital_numbers, data, context=None):
+    def discharge_patients(self, cr, uid, hospital_numbers, data,
+                           context=None):
         """
         Discharges a list of patients.
         :param hospital_numbers: list of hospital numbers of the patients
@@ -406,11 +438,15 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return patients
 
-    def generate_news_simulation(self, cr, uid, begin_date=False, patient_ids=None, context=None):
+    def generate_news_simulation(self, cr, uid, begin_date=False,
+                                 patient_ids=None, context=None):
         """
-        Generates demo news data over a period of time for the patients in patient_ids.
-        :param begin_date: Starting point of the demo. If not specified it defaults to now - 1 day.
-        :param patient_ids: List of patients that are going to be used. Every patient by default.
+        Generates demo news data over a period of time for the patients
+        in patient_ids.
+        :param begin_date: Starting point of the demo.
+        If not specified it defaults to now - 1 day.
+        :param patient_ids: List of patients that are going to be used.
+        Every patient by default.
         :return: True if successful
         """
         # TODO: work out randomisation for demonstration data
@@ -423,14 +459,18 @@ class nh_clinical_api_demo(orm.AbstractModel):
         if uid == SUPERUSER_ID:
             group_pool = self.pool['res.groups']
             user_pool = self.pool['res.users']
-            nurse_group_id = group_pool.search(cr, uid, [['name', '=', 'NH Clinical Nurse Group']], context=context)
-            user_pool.write(cr, uid, SUPERUSER_ID, {'groups_id': [(4, nurse_group_id[0])]})
+            nurse_group_id = group_pool.search(
+                cr, uid, [['name', '=', 'NH Clinical Nurse Group']],
+                context=context)
+            user_pool.write(cr, uid, SUPERUSER_ID,
+                            {'groups_id': [(4, nurse_group_id[0])]})
 
         ews_activity_ids = activity_pool.search(cr, uid, [
             ['patient_id', 'in', patient_ids],
             ['data_model', '=', 'nh.clinical.patient.observation.ews'],
             ['state', 'not in', ['completed', 'cancelled']]], context=context)
-        activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
+        activity_pool.write(cr, uid, ews_activity_ids,
+                            {'date_scheduled': begin_date}, context=context)
 
         current_date = dt.strptime(begin_date, dtf)
         while current_date < dt.now():
@@ -438,7 +478,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
                 ['patient_id', 'in', patient_ids],
                 ['data_model', '=', 'nh.clinical.patient.observation.ews'],
                 ['state', 'not in', ['completed', 'cancelled']],
-                ['date_scheduled', '<=', current_date.strftime(dtf)]], context=context)
+                ['date_scheduled', '<=', current_date.strftime(dtf)]
+            ], context=context)
 
             if not ews_activity_ids:
                 return False
@@ -446,33 +487,51 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
             for ews_id in ews_activity_ids:
                 ews_data = {
-                    'respiration_rate': fake.random_element([18]*90 + [11]*8 + [24]*2),
-                    'indirect_oxymetry_spo2': fake.random_element([99]*90 + [95]*8 + [93]*2),
-                    'oxygen_administration_flag': fake.random_element([False]*96 + [True]*4),
-                    'blood_pressure_systolic': fake.random_element([120]*90 + [110]*8 + [100]*2),
+                    'respiration_rate': fake.random_element(
+                        [18]*90 + [11]*8 + [24]*2),
+                    'indirect_oxymetry_spo2': fake.random_element(
+                        [99]*90 + [95]*8 + [93]*2),
+                    'oxygen_administration_flag': fake.random_element(
+                        [False]*96 + [True]*4),
+                    'blood_pressure_systolic': fake.random_element(
+                        [120]*90 + [110]*8 + [100]*2),
                     'blood_pressure_diastolic': 80,
-                    'avpu_text': fake.random_element(['A']*97 + ['V', 'P', 'U']),
-                    'pulse_rate': fake.random_element([65]*90 + [50]*8 + [130]*2),
-                    'body_temperature': fake.random_element([37.5]*93 + [36.0]*7),
+                    'avpu_text': fake.random_element(
+                        ['A']*97 + ['V', 'P', 'U']),
+                    'pulse_rate': fake.random_element(
+                        [65]*90 + [50]*8 + [130]*2),
+                    'body_temperature': fake.random_element(
+                        [37.5]*93 + [36.0]*7),
                 }
-                activity_pool.submit(cr, uid, ews_id, ews_data, context=context)
+                activity_pool.submit(cr, uid, ews_id, ews_data,
+                                     context=context)
                 activity_pool.complete(cr, uid, ews_id, context=context)
                 _logger.info("EWS observation '%s' made", ews_id)
                 # set complete date
                 complete_date = current_date - td(minutes=10)
-                activity_pool.write(cr, uid, ews_id, {'date_terminated': complete_date.strftime(dtf)}, context=context)
+                activity_pool.write(
+                    cr, uid, ews_id,
+                    {'date_terminated': complete_date.strftime(dtf)},
+                    context=context)
                 # get frequency of triggered ews
                 triggered_ews_id = activity_pool.search(cr, uid, [
                     ['creator_id', '=', ews_id],
-                    ['data_model', '=', 'nh.clinical.patient.observation.ews']],
-                    context=context)
+                    ['data_model', '=', 'nh.clinical.patient.observation.ews']
+                ], context=context)
                 if not triggered_ews_id:
-                    osv.except_osv('Error!', 'The NEWS observation was not triggered after previous submission!')
-                triggered_ews = activity_pool.browse(cr, uid, triggered_ews_id[0], context=context)
+                    osv.except_osv('Error!',
+                                   'The NEWS observation was not triggered '
+                                   'after previous submission!')
+                triggered_ews = activity_pool.browse(cr, uid,
+                                                     triggered_ews_id[0],
+                                                     context=context)
                 # set scheduled date
-                scheduled_date = complete_date + td(minutes=triggered_ews.data_ref.frequency)
-                activity_pool.write(cr, uid, triggered_ews_id[0],
-                                    {'date_scheduled': scheduled_date.strftime(dtf)}, context=context)
+                scheduled_date = complete_date + td(
+                    minutes=triggered_ews.data_ref.frequency)
+                activity_pool.write(
+                    cr, uid, triggered_ews_id[0],
+                    {'date_scheduled': scheduled_date.strftime(dtf)},
+                    context=context)
                 if not nearest_date or scheduled_date < nearest_date:
                     nearest_date = scheduled_date
 
