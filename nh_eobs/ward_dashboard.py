@@ -238,8 +238,10 @@ class nh_eobs_ward_dashboard(orm.Model):
                 rpc.noscore_patients,
                 case
                     when rpc.high_risk_patients > 0 then 2
-                    when rpc.med_risk_patients >0 then 3
-                    when rpc.low_risk_patients >0 then 4
+                    when rpc.med_risk_patients > 0 then 3
+                    when rpc.low_risk_patients > 0 then 4
+                    when rpc.no_risk_patients > 0 then 0
+                    when rpc.noscore_patients > 0 then 7
                     else 7
                 end as kanban_color
             from nh_clinical_location location
