@@ -477,6 +477,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         for ew in ews:
             for e in ew:
                 if e in ['date_terminated', 'create_date', 'write_date', 'date_started']:
+                    if not ew[e]:
+                        continue
                     ew[e] = fields.datetime.context_timestamp(cr, uid, datetime.strptime(ew[e], DTF), context=context).strftime(DTF)
 
         response_data = {
