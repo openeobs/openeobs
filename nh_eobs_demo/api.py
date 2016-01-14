@@ -67,8 +67,6 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         patients successfully transferred.
         """
         api_demo = self.pool['nh.clinical.api.demo']
-        patient_pool = self.pool['nh.clinical.patient']
-        location_pool = self.pool['nh.clinical.location']
 
         # get the hospital numbers of placed patients in a particular ward
         hospital_numbers = self._get_hospital_numbers_by_ward_not_placed(
@@ -78,16 +76,6 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         # select the patients to transfer
         random.shuffle(hospital_numbers)
         patients_to_transfer = hospital_numbers[:amount]
-
-        # place patients
-        patient_ids = patient_pool.search(cr, uid, [(
-            'other_identifier', 'in', patients_to_transfer)])
-        location_id = location_pool.search(cr, uid,
-                                           [('code', '=', origin_ward)])
-        api_demo.place_patients(cr, uid, patient_ids, location_id)
-
-        # submit observations
-        self.complete_first_ews_for_placed_patients(cr, uid, patient_ids)
 
         # transfer_patients
         patients = api_demo.transfer_patients(
