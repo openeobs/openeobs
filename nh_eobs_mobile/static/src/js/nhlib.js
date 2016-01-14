@@ -641,8 +641,13 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var dialogs, action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     event.preventDefault();
+    dialogs = document.getElementsByClassName('dialog');
+    for (i = 0; i < dialogs.length; i++) {
+        var id = dialogs[i].getAttribute('id');
+        NHModal.prototype.close_modal(id)
+    };
     this.reset_form_timeout(this);
     ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
