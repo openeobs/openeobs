@@ -36,6 +36,13 @@ class TestApiDemo(TransactionCase):
         self.assertTrue('HOSNUM0001' in result)
         self.assertTrue('HOSNUM0041' not in result)
 
+    def test_get_patient_hospital_numbers_by_ward_not_placed(self):
+        cr, uid = self.cr, self.uid
+        result = self.demo_loader._get_hospital_numbers_by_ward_not_placed(
+            cr, uid, 'A'
+        )
+        self.assertEqual(len(result), 12)
+
     def test_discharge_patients_completes_spell_patients_on_given_ward(self):
         cr, uid = self.cr, self.uid
 
@@ -70,7 +77,8 @@ class TestApiDemo(TransactionCase):
         )
         self.assertEqual(result, ['W1B1', 'W1B2', 'W1B3', 'W1B4'])
 
-    def test_transfer_patients_transfers_patient_from_location_to_location(self):
+    def test_transfer_patients_transfers_patient_from_location_to_location(
+            self):
         cr, uid = self.cr, self.uid
         self.demo_api.generate_locations(
             cr, uid, wards=1, beds=4, hospital=True)
@@ -86,7 +94,7 @@ class TestApiDemo(TransactionCase):
         # check location is destination
         locations = [patient.current_location_id for patient in patients]
         for location in locations:
-            self.assertTrue(location.code in ['W1B1', 'W1B2'])
+            self.assertEqual(location.code, 'W1')
 
     def test_get_nurse_hcs_user_ids(self):
         cr, uid = self.cr, self.uid
@@ -99,43 +107,10 @@ class TestApiDemo(TransactionCase):
         user_id = self.demo_loader._get_random_user_id(cr, uid, user_ids)
         self.assertTrue(user_id in user_ids)
 
-    def test_generate_news_simulation(self):
-        cr, uid = self.cr, self.uid
-
-        locations = self.demo_api.generate_locations(cr, uid, wards=1, beds=3, hospital=True)
-        location_ids = locations.get('Ward 1')
-        users = self.demo_api.generate_users(cr, uid, location_ids)
-        patient_ids = self.demo_api.generate_patients(cr, users['adt'][0], 3)
-        results = self.location_pool.read(cr, uid, [location_ids[0]], ['code'])
-
-        # generate eobs for 1 days
-        start_date = datetime.now() - timedelta(days=1)
-        data = {'location': results[0]['code'], 'start_date': start_date}
-        admit_patient_ids = self.demo_api.admit_patients(cr, users['adt'][0], patient_ids, data)
-
-        self.demo_api.place_patients(cr, uid, admit_patient_ids, location_ids[0])
-        result = self.demo_loader.generate_news_simulation(
-            cr, uid, 1, patient_ids=admit_patient_ids)
-
-        self.assertEquals(result, True)
-        scheduled_ids = self.activity_pool.search(cr, uid, [
-            ['patient_id', 'in', patient_ids],
-            ['data_model', '=', 'nh.clinical.patient.observation.ews'],
-            ['state', 'not in', ['completed', 'cancelled']]])
-        self.assertEquals(len(scheduled_ids), 3)
-
-    def test_complete_first_ews_for_placed_patients(self):
-        cr, uid = self.cr, self.uid
-
-        self.demo_loader.complete_first_ews_for_placed_patients(cr, uid, 1, context=None)
-        scheduled_ids = self.activity_pool.search(cr, uid, [
-            ['data_model', '=', 'nh.clinical.patient.observation.ews'],
-            ['state', 'not in', ['completed', 'cancelled']]])
-
-        self.assertTrue(len(scheduled_ids) > 0)
-
-    def test_get_patients_place_in_beds(self):
+    def test_get_patients_placed_in_beds(self):
         cr, uid = self.cr, self.uid
         patient_ids = self.demo_loader._get_patients_placed(cr, uid)
 
         self.assertTrue(len(patient_ids) > 0)
+
+
