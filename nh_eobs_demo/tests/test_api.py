@@ -23,6 +23,7 @@ class TestApiDemo(TransactionCase):
         self.demo_api = self.registry('nh.clinical.api.demo')
         self.activity_pool = self.registry('nh.activity')
         self.location_pool = self.registry('nh.clinical.location')
+        self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
 
         self.adt_uid = self.user_pool.search(
             cr, uid, [('login', '=', 'adt')])[0]
@@ -65,6 +66,10 @@ class TestApiDemo(TransactionCase):
         for patient_id in patient_ids:
             spell = self.spell_pool.get_by_patient_id(cr, uid, patient_id)
             self.assertFalse(spell)
+
+        for patient_id in patient_ids:
+            ews_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.patient.observation.ews'), ('patient_id', '=', patient_id)])
+            self.assertEqual(ews_id, '')
 
     def test_get_available_beds_in_ward(self):
         cr, uid = self.cr, self.uid
