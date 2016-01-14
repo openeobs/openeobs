@@ -67,10 +67,6 @@ class TestApiDemo(TransactionCase):
             spell = self.spell_pool.get_by_patient_id(cr, uid, patient_id)
             self.assertFalse(spell)
 
-        for patient_id in patient_ids:
-            ews_id = self.activity_pool.search(cr, uid, [('data_model', '=', 'nh.clinical.patient.observation.ews'), ('patient_id', '=', patient_id)])
-            self.assertEqual(ews_id, '')
-
     def test_get_available_beds_in_ward(self):
         cr, uid = self.cr, self.uid
         self.demo_api.generate_locations(

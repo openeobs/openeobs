@@ -69,7 +69,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         api_demo = self.pool['nh.clinical.api.demo']
 
         # get the hospital numbers of placed patients in a particular ward
-        hospital_numbers = self._get_hospital_numbers_by_ward_not_placed(
+        hospital_numbers = self._get_patient_hospital_numbers_by_ward(
             cr, uid, origin_ward, context=context
         )
 
