@@ -1047,12 +1047,13 @@ NHMobilePatient = (function(superClass) {
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var body, menu, obs_menu;
+    var body, menu, obs_menu, pat;
     event.preventDefault();
     obs_menu = document.getElementById('obsMenu');
     body = document.getElementsByTagName('body')[0];
     menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
-    return new NHModal('obs_menu', 'Pick an observation for ', menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
+    pat = document.querySelectorAll('a.patientInfo h3.name strong')[0].textContent;
+    return new NHModal('obs_menu', 'Pick an observation for ' + pat, menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
   };
 
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {
