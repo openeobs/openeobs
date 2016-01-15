@@ -132,7 +132,7 @@ class ObservationReport(models.AbstractModel):
             # get triggered actions from ews
             # - search activity with ews ids as creator_id filter out EWS tasks
             for observation in ews:
-                observation['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format)
+                observation['date_started'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_started'], dtf), pretty_date_format) if observation['date_started'] else False
                 observation['date_terminated'] = self.convert_db_date_to_context_date(datetime.strptime(observation['date_terminated'], dtf), pretty_date_format) if observation['date_terminated'] else False
                 triggered_actions_ids = activity_pool.search(cr, uid, [['creator_id', '=', observation['id']]])
                 observation['values'] = ews_pool.read(cr, uid, int(observation['data_ref'].split(',')[1]), [])
@@ -156,7 +156,7 @@ class ObservationReport(models.AbstractModel):
             for json_ob in json_obs:
                 json_ob['write_date'] = datetime.strftime(datetime.strptime(json_ob['write_date'], dtf), wkhtmltopdf_format)
                 json_ob['create_date'] = datetime.strftime(datetime.strptime(json_ob['create_date'], dtf), wkhtmltopdf_format)
-                json_ob['date_started'] = datetime.strftime(datetime.strptime(json_ob['date_started'], dtf), wkhtmltopdf_format)
+                json_ob['date_started'] = datetime.strftime(datetime.strptime(json_ob['date_started'], dtf), wkhtmltopdf_format)if json_ob['date_started'] else False
                 json_ob['date_terminated'] = datetime.strftime(datetime.strptime(json_ob['date_terminated'], dtf), wkhtmltopdf_format)
             json_ews = json.dumps(json_obs)
 
