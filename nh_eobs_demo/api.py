@@ -73,13 +73,18 @@ class nh_eobs_demo_loader(orm.AbstractModel):
             cr, uid, origin_ward, context=context
         )
 
+	# get the available bed location in destination ward
+        available_beds = self._get_available_beds_in_ward(
+            cr, uid, destination_ward, context=context
+	)
+
         # select the patients to transfer
         random.shuffle(hospital_numbers)
         patients_to_transfer = hospital_numbers[:amount]
 
         # transfer_patients
         patients = api_demo.transfer_patients(
-            cr, uid, patients_to_transfer, destination_ward, context=context
+            cr, uid, patients_to_transfer, available_beds, context=context
         )
 
         return patients
@@ -240,6 +245,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         location_id = location_pool.get_by_code(
             cr, uid, ward_code, context=context
         )
+        
         # get patients who are placed in a ward (i.e. in a bed)
         patient_ids = patient_pool.search(
             cr, uid, [('current_location_id', 'child_of', location_id)],
@@ -249,7 +255,8 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         hospital_numbers = []
         patients = patient_pool.browse(cr, uid, patient_ids, context=context)
         for patient in patients:
-            hospital_numbers.append(patient.other_identifier)
+            if patient.current_location_id.usage == 'bed':
+                hospital_numbers.append(patient.other_identifier)
 
         return hospital_numbers
 

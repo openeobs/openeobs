@@ -350,7 +350,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         return identifiers
 
-    def transfer_patients(self, cr, uid, hospital_numbers, location_code,
+    def transfer_patients(self, cr, uid, hospital_numbers, locations,
                           context=None):
         """
         Transfers a list of patients to a list of locations.
@@ -361,13 +361,21 @@ class nh_clinical_api_demo(orm.AbstractModel):
             patients
         """
         api = self.pool['nh.eobs.api']
+	location_pool = self.pool['nh.clinical.location']
         patients = []
 
-        data = {'location': location_code}
+        # filter only available locations
+        codes = location_pool.read_group(cr, uid, [
+            ('code', 'in', locations), ('is_available', '=', True),
+            ], ['code'], ['code'])
+	location_codes = [{'location': code['code']} for code in codes]
+	
+	hospital_numbers = hospital_numbers[:len(location_codes)]
 
-        for hospital_number in hospital_numbers:
+        for index, hospital_number in enumerate(hospital_numbers):
             try:
-                api.transfer(cr, uid, hospital_number, data, context=context)
+                api.transfer(cr, uid, hospital_number, location_codes[index],
+                             context=context)
             except osv.except_osv as e:
                 _logger.error('Failed to transfer patient!' + str(e))
                 continue
