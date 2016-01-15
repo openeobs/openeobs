@@ -185,7 +185,7 @@
             <field name="name">Wardboard Tree View</field>
             <field name="model">nh.clinical.wardboard</field>
             <field name="arch" type="xml">
-                <tree string="Wardboard Tree View" class="nhc_wardboard" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'">
+              <tree string="Wardboard Tree View" class="nhc_wardboard" version="7.0" create="0" colors="red:clinical_risk=='High'; orange:clinical_risk=='Medium'; green:clinical_risk=='Low'" default_order="location_id">
                    <button name="%(action_wardboard_chart)d" string="Chart" type="action" class="oe_highlight" nh_icon="chart"/>
                    <button name="%(action_wardboard_ews)d" string="EWS" type="action" class="oe_highlight" nh_icon="observation"/>
                    <field name="sex" widget="nh_gender" string=""/>
