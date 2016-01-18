@@ -91,28 +91,32 @@ class ObservationReport(models.AbstractModel):
 
     def get_model_data_as_json(self, model_data):
         for data in model_data:
-            data['write_date'] = datetime.strftime(
-                datetime.strptime(data['write_date'], dtf),
-                self.wkhtmltopdf_format
-            )
-            data['create_date'] = datetime.strftime(
-                datetime.strptime(data['create_date'], dtf),
-                self.wkhtmltopdf_format
-            )
-            data['date_started'] = datetime.strftime(
-                datetime.strptime(
-                    data['date_started'],
-                    self.pretty_date_format
-                ),
-                self.wkhtmltopdf_format
-            )
-            data['date_terminated'] = datetime.strftime(
-                datetime.strptime(
-                    data['date_terminated'],
-                    self.pretty_date_format
-                ),
-                self.wkhtmltopdf_format
-            )
+            if 'write_date' in data and data['write_date']:
+                data['write_date'] = datetime.strftime(
+                    datetime.strptime(data['write_date'], dtf),
+                    self.wkhtmltopdf_format
+                )
+            if 'create_date' in data and data['create_date']:
+                data['create_date'] = datetime.strftime(
+                    datetime.strptime(data['create_date'], dtf),
+                    self.wkhtmltopdf_format
+                )
+            if 'date_started' in data and data['date_started']:
+                data['date_started'] = datetime.strftime(
+                    datetime.strptime(
+                        data['date_started'],
+                        self.pretty_date_format
+                    ),
+                    self.wkhtmltopdf_format
+                )
+            if 'date_terminated' in data and data['date_terminated']:
+                data['date_terminated'] = datetime.strftime(
+                    datetime.strptime(
+                        data['date_terminated'],
+                        self.pretty_date_format
+                    ),
+                    self.wkhtmltopdf_format
+                )
         return json.dumps(model_data)
 
     def create_report_data(self, data):
@@ -153,9 +157,12 @@ class ObservationReport(models.AbstractModel):
         for observation in ews:
             triggered_actions_ids = self.pool['nh.activity'].search(
                 cr, uid, [['creator_id', '=', observation['id']]])
+            o2target_dt = datetime.strptime(
+                observation['values']['date_terminated'],
+                    self.pretty_date_format).strftime(dtf)
             o2_level_id = self.pool['nh.clinical.patient.o2target'].get_last(
                 cr, uid, self.patient_id,
-                observation['values']['date_terminated'])
+                datetime=o2target_dt)
             o2_level = False
             if o2_level_id:
                 o2_level = self.pool['nh.clinical.o2level'].browse(

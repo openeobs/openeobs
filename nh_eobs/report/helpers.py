@@ -1,6 +1,7 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.osv import fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+from datetime import datetime
 
 
 def merge_dicts(*dict_args):
@@ -56,9 +57,17 @@ def create_search_filter(spell_activity_id, model, start_date, end_date):
         filter = [['parent_id', '=', spell_activity_id],
                   ['data_model', '=', model], ['state', '=', 'completed']]
     if start_date:
-        filter.append(['date_started', '>=', start_date.strftime(dtf)])
+        filter.append(
+            ['date_started', '>=',
+             datetime.strptime(start_date, dtf).strftime(dtf)
+             ]
+        )
     if end_date:
-        filter.append(['date_terminated', '<=', end_date.strftime(dtf)])
+        filter.append(
+            ['date_terminated', '<=',
+             datetime.strptime(end_date, dtf).strftime(dtf)
+             ]
+        )
     return filter
 
 
