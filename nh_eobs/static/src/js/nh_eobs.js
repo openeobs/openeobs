@@ -247,6 +247,18 @@ openerp.nh_eobs = function (instance) {
             if (this.model == 'nh.clinical.patient.observation.pbp'){
                 this.$el.html(QWeb.render('ListViewPBP', this));
             }
+            // Hack to disable Form View Button
+            if (document.querySelectorAll("a[data-view-type='form']")[0] &&
+                this.model == 'nh.clinical.wardboard') {
+                var el = document.querySelectorAll("a[data-view-type='form']")[0],
+                    elClone = el.cloneNode(true);
+                el.parentNode.replaceChild(elClone, el);
+                elClone.addEventListener('click', function (e) {
+                    if (!$(e.target).parent().hasClass('active')) {
+                        instance.web.notification.notify('Invalid','No patient selected, please select a patient first',false)
+                    }
+                })
+            }
         }
 
     });
@@ -258,9 +270,12 @@ openerp.nh_eobs = function (instance) {
     //})
 
     instance.nh_eobs.NHMany2One = instance.web.form.FieldMany2One.extend({
+        display_string: function (str) {
+            this._super(str);
+            this.$('.oe_m2o_cm_button').css({'display':'none'});
+        },
         get_search_result: function(search_val) {
             var self = this;
-
             var dataset = new instance.web.DataSet(this, this.field.relation, self.build_context());
             var blacklist = this.get_search_blacklist();
             this.last_query = search_val;
@@ -880,6 +895,19 @@ openerp.nh_eobs = function (instance) {
     instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
     	
     	on_groups_started: function() {
+            // Hack to disable Form View Button
+            if (document.querySelectorAll("a[data-view-type='form']")[0] &&
+                this.dataset.model == 'nh.clinical.wardboard') {
+                var el = document.querySelectorAll("a[data-view-type='form']")[0],
+                    elClone = el.cloneNode(true);
+                el.parentNode.replaceChild(elClone, el);
+                elClone.addEventListener('click', function (e) {
+                    if (!$(e.target).parent().hasClass('active')) {
+                        instance.web.notification.notify('Invalid','No patient selected, please select a patient first',false)
+                    }
+                })
+            }
+
            if (this.group_by == 'clinical_risk'){
            	var cols = this.$el.find('td.oe_kanban_column');
            	var heads = this.$el.find('td.oe_kanban_group_header');

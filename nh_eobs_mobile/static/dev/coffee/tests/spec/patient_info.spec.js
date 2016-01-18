@@ -710,7 +710,7 @@ describe('Patient Information Functionality', function(){
             expect(NHMobilePatient.prototype.show_obs_menu.calls.count()).toBe(1);
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('obs_menu');
-            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Pick an observation for ');
+            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Pick an observation for ' + patient_info_data.data.full_name);
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<ul class="menu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>');
         });
 

@@ -1,5 +1,5 @@
-# -*- encoding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 {
     'name': 'NH Early Warning Score',
     'version': '0.1',
@@ -14,9 +14,12 @@
         'views/views.xml',
         'security/notif/ir.model.access.csv',
         'security/params/ir.model.access.csv',
-        'security/ir.model.access.csv'
-    ],
-    'demo': [],
+        'security/ir.model.access.csv',],
+    'demo': ['data/ward_a/demo_news.xml',
+             'data/ward_b/demo_news.xml',
+             'data/ward_c/demo_news.xml',
+             'data/ward_d/demo_news.xml',
+             'data/ward_e/demo_news.xml'],
     'css': [],
     'js': [],
     'qweb': [],

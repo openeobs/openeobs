@@ -37,8 +37,11 @@
             <xpath expr="." position="inside">
                 <link rel="stylesheet" href="/nh_eobs/static/src/css/nh_eobs.css"/>
                 <script type="text/javascript" src="/nh_eobs/static/src/js/nh_eobs.js"></script>
+                <script type="text/javascript" src="/nh_eobs/static/test/helper.js"></script>
                 <script type="text/javascript" src="/nh_eobs/static/tours/staff_allocation.tour.js"></script>
                 <script type="text/javascript" src="/nh_eobs/static/tours/palliative_status.tour.js"></script>
+                <script type="text/javascript" src="/nh_eobs/static/test/qa_permissions.tour.js"></script>
+                <script type="text/javascript" src="/nh_eobs/static/test/qa_acuity_board.tour.js"></script>
             </xpath>
         </template>
 
@@ -642,80 +645,6 @@
             <field name="act_window_id" ref="action_show_wards_list"/>
         </record>
         -->
-
-        <record model="ir.actions.act_window" id="action_show_device_categories">
-            <field name="name">Device Categories</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">nh.clinical.device.category</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="view_nhc_device_category_search"/>
-        </record>
-
-        <!--Admin Views - Daily Shifts: List of Wards-->
-        <record model="ir.ui.view" id="view_wards_search">
-            <field name="name">Wards Search</field>
-            <field name="model">nh.clinical.location</field>
-            <field name="arch" type="xml">
-                <search string="Wards">
-                    <field name="name"/>
-                </search>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="view_wards_tree">
-            <field name="name">Wards Tree</field>
-            <field name="model">nh.clinical.location</field>
-            <field name="arch" type="xml">
-                <tree string="Wards" version="7.0" create="0">
-                    <field name="name"/>
-                </tree>
-            </field>
-        </record>
-        <!--<record model="ir.ui.view" id="view_shifts_ward_form">-->
-            <!--<field name="name">Shifts Ward Form</field>-->
-            <!--<field name="model">nh.clinical.location</field>-->
-            <!--<field name="arch" type="xml">-->
-                <!--<form string="Ward" version="7.0" create="0">-->
-                    <!--<sheet>-->
-                        <!--<div class="oe_title">-->
-                            <!--<h1><field name="name" readonly="1"/></h1>-->
-                        <!--</div>-->
-                        <!--<notebook>-->
-                            <!--<page string="Daily Shifts">-->
-                                <!--<group>-->
-                                    <!--<div>-->
-                                        <!--<field name="shift_pattern_ids" nolabel="1" editable="inline"/>-->
-                                    <!--</div>-->
-                                <!--</group>-->
-                            <!--</page>-->
-                        <!--</notebook>-->
-                    <!--</sheet>-->
-                <!--</form>-->
-            <!--</field>-->
-        <!--</record>-->
-
-        <record model="ir.actions.act_window" id="action_show_wards_list">
-            <field name="name">Hospital Wards</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">nh.clinical.location</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-            <field name="domain">[['usage','=','ward']]</field>
-            <field name="search_view_id" ref="view_wards_search"/>
-        </record>
-
-        <!--<record model="ir.actions.act_window.view" id="act_view_wards_tree">-->
-            <!--<field eval="1" name="sequence"/>-->
-            <!--<field name="view_mode">tree</field>-->
-            <!--<field name="view_id" ref="view_wards_tree"/>-->
-            <!--<field name="act_window_id" ref="action_show_wards_list"/>-->
-        <!--</record>-->
-        <!--<record model="ir.actions.act_window.view" id="act_view_wards_form">-->
-            <!--<field eval="2" name="sequence"/>-->
-            <!--<field name="view_mode">form</field>-->
-            <!--<field name="view_id" ref="view_shifts_ward_form"/>-->
-            <!--<field name="act_window_id" ref="action_show_wards_list"/>-->
-        <!--</record>-->
 
         <!--Doctor Tasks-->
         <record model="ir.ui.view" id="view_nhc_doctor_activities_tree">
