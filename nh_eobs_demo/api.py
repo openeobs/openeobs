@@ -74,7 +74,8 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
         # get the available bed location in destination ward
         available_beds = self._get_available_beds_in_ward(
-            cr, uid, destination_ward, context=context)
+            cr, uid, destination_ward, context=context
+        )
 
         # select the patients to transfer
         random.shuffle(hospital_numbers)
