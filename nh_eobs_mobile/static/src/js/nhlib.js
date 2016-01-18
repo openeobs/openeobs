@@ -1894,7 +1894,6 @@ NHModal = (function(superClass) {
       cover.setAttribute('data-action', 'renable');
     }
     cover.setAttribute('data-target', this.id);
-    cover.style.height = body.clientHeight + 'px';
     cover.addEventListener('click', function(e) {
       return self.handle_event(e, self.handle_button_events, false);
     });

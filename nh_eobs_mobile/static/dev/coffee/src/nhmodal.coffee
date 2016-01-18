@@ -22,7 +22,6 @@ class NHModal extends NHLib
     if @id is 'submit_observation' or @id is 'partial_reasons'
       cover.setAttribute('data-action', 'renable')
     cover.setAttribute('data-target', @id)
-    cover.style.height = (body.clientHeight)+'px'
     cover.addEventListener('click', (e) ->
       self.handle_event(e, self.handle_button_events, false)
     )
