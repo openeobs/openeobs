@@ -56,11 +56,16 @@ NHMobilePatient = (function(superClass) {
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var body, menu, obs_menu;
+    var body, menu, obs_menu, pat, pats;
     obs_menu = document.getElementById('obsMenu');
     body = document.getElementsByTagName('body')[0];
     menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
-    return new NHModal('obs_menu', 'Pick an observation for ', menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
+    pats = document.querySelectorAll('a.patientInfo h3.name strong');
+    pat = '';
+    if (pats.length > 0) {
+      pat = pats[0].textContent;
+    }
+    return new NHModal('obs_menu', 'Pick an observation for ' + pat, menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
   };
 
   NHMobilePatient.prototype.draw_graph = function(self, server_data) {

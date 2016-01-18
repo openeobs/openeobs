@@ -387,7 +387,9 @@ describe('Patient Information Functionality', function(){
         var nhpatient, NHGraphLib, NHGraph, NHTable, NHFocus, NHContext;
         beforeEach(function(){
             var test = document.getElementById('test');
-            test.innerHTML = '<a href="#" class="obs">Obs</a>' +
+            test.innerHTML = '<a class="patientInfo" href="#" id="obsButton">' +
+                '<h3 class="name"><strong>Test Patient</strong></h3>' +
+                '<h3 class="obs">Obs</h3></a>' +
                     '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
                 '<ul class="two-col tabs">' +
                 '<li><a href="#graph-content" class="selected tab">Graph</a></li>' +

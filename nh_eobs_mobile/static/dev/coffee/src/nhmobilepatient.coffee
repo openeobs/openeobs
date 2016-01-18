@@ -56,7 +56,10 @@ class NHMobilePatient extends NHMobile
     obs_menu = document.getElementById('obsMenu')
     body = document.getElementsByTagName('body')[0]
     menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>'
-    pat = document.querySelectorAll('a.patientInfo h3.name strong')[0].textContent
+    pats = document.querySelectorAll('a.patientInfo h3.name strong')
+    pat = ''
+    if pats.length > 0
+      pat = pats[0].textContent
     new NHModal('obs_menu',
       'Pick an observation for ' + pat, menu,
       ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'],
