@@ -96,7 +96,7 @@ class NHModal extends NHLib
       right: 0,
       left: 0
     }
-    available_space = (dialog, el) ->
+    available_space = (dialog, el, dialog_content) ->
       dh = dialog.getElementsByTagName('h2')
       # dialog_header_height = dialog_header?[0]?.clientHeight
       dhh = parseInt(document.defaultView.getComputedStyle(dh?[0], \
@@ -109,10 +109,15 @@ class NHModal extends NHLib
       elh = parseInt(document.defaultView.getComputedStyle(el, \
         '').getPropertyValue('height').replace('px', ''))
       dialog_height = ((dhh + dopth) + (margins.top + margins.bottom))
+      dc_height = parseInt(document.defaultView.getComputedStyle(
+        dialog_content, '').getPropertyValue('height').replace('px', ''))
+      dialog_total = dialog_height + dc_height
       if elh > window.innerHeight
         return window.innerHeight - dialog_height
+      if dialog_total > window.innerHeight
+        return window.innerHeight - dialog_height
 
-    max_height = available_space(dialog, el)
+    max_height = available_space(dialog, el, dialog_content)
     top_offset = el.offsetTop + margins.top
     dialog.style.top = top_offset+'px'
     dialog.style.display = 'inline-block'

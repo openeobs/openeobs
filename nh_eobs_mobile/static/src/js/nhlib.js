@@ -1972,19 +1972,24 @@ NHModal = (function(superClass) {
       right: 0,
       left: 0
     };
-    available_space = function(dialog, el) {
-      var dh, dhh, dialog_height, dopt, dopth, elh;
+    available_space = function(dialog, el, dialog_content) {
+      var dc_height, dh, dhh, dialog_height, dialog_total, dopt, dopth, elh;
       dh = dialog.getElementsByTagName('h2');
       dhh = parseInt(document.defaultView.getComputedStyle(dh != null ? dh[0] : void 0, '').getPropertyValue('height').replace('px', ''));
       dopt = dialog.getElementsByClassName('options');
       dopth = parseInt(document.defaultView.getComputedStyle(dopt != null ? dopt[0] : void 0, '').getPropertyValue('height').replace('px', ''));
       elh = parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('height').replace('px', ''));
       dialog_height = (dhh + dopth) + (margins.top + margins.bottom);
+      dc_height = parseInt(document.defaultView.getComputedStyle(dialog_content, '').getPropertyValue('height').replace('px', ''));
+      dialog_total = dialog_height + dc_height;
       if (elh > window.innerHeight) {
         return window.innerHeight - dialog_height;
       }
+      if (dialog_total > window.innerHeight) {
+        return window.innerHeight - dialog_height;
+      }
     };
-    max_height = available_space(dialog, el);
+    max_height = available_space(dialog, el, dialog_content);
     top_offset = el.offsetTop + margins.top;
     dialog.style.top = top_offset + 'px';
     dialog.style.display = 'inline-block';
