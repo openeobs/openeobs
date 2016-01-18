@@ -1015,7 +1015,9 @@ NHMobilePatient = (function(superClass) {
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
     obs_menu = document.getElementById('obsMenu');
-    obs_menu.style.display = 'none';
+    if (obs_menu) {
+      obs_menu.style.display = 'none';
+    }
     table_view = document.getElementById('table-content');
     table_view.style.display = 'none';
     obs = document.getElementsByClassName('obs');

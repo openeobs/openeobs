@@ -9,7 +9,8 @@ class NHMobilePatient extends NHMobile
     super()
     # find the obs menu on page
     obs_menu = document.getElementById('obsMenu')
-    obs_menu.style.display = 'none'
+    if obs_menu
+      obs_menu.style.display = 'none'
     table_view = document.getElementById('table-content')
     table_view.style.display = 'none'
 
