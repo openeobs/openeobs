@@ -157,7 +157,7 @@ NHGraphLib = (function() {
 
   NHGraphLib.prototype.redraw_resize = function(self, event) {
     var context_event, ref, ref1, ref2, ref3;
-    if (!event.handled) {
+    if (!event.handled && document.querySelectorAll(self.el).length) {
       self.style.dimensions.width = ((ref = nh_graphs.select(self.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
       if ((ref3 = self.obj) != null) {
         ref3.attr('width', self.style.dimensions.width);

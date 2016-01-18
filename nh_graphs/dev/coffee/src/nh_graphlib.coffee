@@ -194,11 +194,12 @@ class NHGraphLib
     return
 
   # Handle browser resize event. Resize and redraw the graphs
+  # 0. Check chart element exists
   # 1. Get the dimensions of main element
   # 2. Set the attribute for the object
   # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (self, event) ->
-    if !event.handled
+    if !event.handled && document.querySelectorAll(self.el).length
       self.style.dimensions.width = \
         nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
         (self.style.margin.left + self.style.margin.right)
