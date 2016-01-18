@@ -274,13 +274,19 @@ class NHGraph extends NHGraphLib
 
     if self.options.keys.length>1
       values = []
-      for ob in self.parent_obj.parent_obj.data.raw
-        values.push(ob[key] for key in self.options.keys)
+      for key in self.options.keys
+        for ob in self.parent_obj.parent_obj.data.raw
+          ## Push null if false so that extent doesn't count it as a value
+          if typeof ob[key] == 'number'
+            values.push(ob[key])
+          else values.push(null)
       @.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values))
     else
       @.axes.y.ranged_extent = \
       nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
-        return d[self.options.keys[0]]
+        if (typeof d[self.options.keys[0]] == 'number')
+          return d[self.options.keys[0]]
+        else return null
       )
 
     if @.options.label?
@@ -296,10 +302,14 @@ class NHGraph extends NHGraphLib
       .data(@.options.keys).enter().append('text').text((d, i) ->
         raw = self.parent_obj.parent_obj.data.raw
         if i isnt self.options.keys.length-1
-          return raw[self.parent_obj.parent_obj.data.raw.length-1][d]
+          ## Used in case of partial observation
+          if raw[raw.length-1][d] != false
+            return raw[raw.length-1][d]
+          else return 'NA'
         else
-          return raw[self.parent_obj.parent_obj.data.raw.length-1][d] + '' +
-          self.options.measurement
+          if raw[raw.length-1][d] != false
+            return raw[raw.length-1][d] + '' + self.options.measurement
+          else return 'NA'
       ).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,
         'y': (d, i) ->

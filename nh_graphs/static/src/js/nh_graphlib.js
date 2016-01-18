@@ -107,7 +107,7 @@ NHGraphLib = (function() {
     var current_date, dates, new_date;
     if (self.focus != null) {
       current_date = self.focus.axes.x.min;
-      dates = event.srcElement.value.split('-');
+      dates = event.target.value.split('-');
       new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
       self.focus.axes.x.min = new_date;
       self.focus.redraw([new_date, self.focus.axes.x.max]);
@@ -118,10 +118,18 @@ NHGraphLib = (function() {
     var current_date, dates, new_date;
     if (self.focus != null) {
       current_date = self.focus.axes.x.max;
-      dates = event.srcElement.value.split('-');
+      dates = event.target.value.split('-');
       new_date = new Date(current_date.setFullYear(dates[0], parseInt(dates[1]) - 1, dates[2]));
       self.focus.axes.x.max = new_date;
       self.focus.redraw([self.focus.axes.x.min, new_date]);
+    }
+  };
+
+  NHGraphLib.prototype.is_landscape = function() {
+    if (window.innerWidth > window.innerHeight) {
+      return 1;
+    } else {
+      return 0;
     }
   };
 
@@ -129,7 +137,7 @@ NHGraphLib = (function() {
     var current_date, new_time, time;
     if (self.focus != null) {
       current_date = self.focus.axes.x.min;
-      time = event.srcElement.value.split(':');
+      time = event.target.value.split(':');
       new_time = new Date(current_date.setHours(time[0], time[1]));
       self.focus.axes.x.min = new_time;
       self.focus.redraw([new_time, self.focus.axes.x.max]);
@@ -140,7 +148,7 @@ NHGraphLib = (function() {
     var current_date, new_time, time;
     if (self.focus != null) {
       current_date = self.focus.axes.x.max;
-      time = event.srcElement.value.split(':');
+      time = event.target.value.split(':');
       new_time = new Date(current_date.setHours(time[0], time[1]));
       self.focus.axes.x.max = new_time;
       self.focus.redraw([self.focus.axes.x.min, new_time]);
@@ -149,13 +157,16 @@ NHGraphLib = (function() {
 
   NHGraphLib.prototype.redraw_resize = function(self, event) {
     var context_event, ref, ref1, ref2, ref3;
-    self.style.dimensions.width = ((ref = nh_graphs.select(self.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
-    if ((ref3 = self.obj) != null) {
-      ref3.attr('width', self.style.dimensions.width);
+    if (!event.handled) {
+      self.style.dimensions.width = ((ref = nh_graphs.select(self.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
+      if ((ref3 = self.obj) != null) {
+        ref3.attr('width', self.style.dimensions.width);
+      }
+      context_event = document.createEvent('HTMLEvents');
+      context_event.initEvent('context_resize', true, true);
+      window.dispatchEvent(context_event);
+      event.handled = true;
     }
-    context_event = document.createEvent('HTMLEvents');
-    context_event.initEvent('context_resize', true, true);
-    window.dispatchEvent(context_event);
   };
 
   NHGraphLib.prototype.init = function() {
@@ -221,14 +232,18 @@ NHGraphLib = (function() {
 
   NHGraphLib.prototype.draw = function() {
     var ref, ref1;
-    if ((ref = this.context) != null) {
-      ref.draw(this);
-    }
-    if ((ref1 = this.focus) != null) {
-      ref1.draw(this);
-    }
-    if (this.table.element != null) {
-      return this.draw_table(this);
+    if (this.data.raw.length > 0) {
+      if ((ref = this.context) != null) {
+        ref.draw(this);
+      }
+      if ((ref1 = this.focus) != null) {
+        ref1.draw(this);
+      }
+      if (this.table.element != null) {
+        return this.draw_table(this);
+      }
+    } else {
+      throw new Error('No raw data provided');
     }
   };
 
@@ -329,12 +344,17 @@ NHGraphLib = (function() {
 
 })();
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
 
 window.NH.NHGraphLib = NHGraphLib;
 
+
+/* istanbul ignore next */
 var NHContext,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -390,41 +410,44 @@ NHContext = (function(superClass) {
 
   NHContext.prototype.handle_resize = function(self, parent_svg, event) {
     var d, graph_event, new_date, ref, ref1, ref2, ref3, ref4;
-    self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
-    self.obj.attr('width', self.style.dimensions.width);
-    if ((ref = self.axes.x.scale) != null) {
-      ref.range()[1] = self.style.dimensions.width;
+    if (!event.handled) {
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
+      self.obj.attr('width', self.style.dimensions.width);
+      if ((ref = self.axes.x.scale) != null) {
+        ref.range()[1] = self.style.dimensions.width;
+      }
+      graph_event = document.createEvent('HTMLEvents');
+      graph_event.initEvent('focus_resize', true, true);
+      window.dispatchEvent(graph_event);
+      if (self.parent_obj.options.mobile.is_mob) {
+        new_date = new Date(self.axes.x.max);
+        if (self.parent_obj.is_landscape()) {
+          d = new_date.getDate() - self.parent_obj.options.mobile.date_range.landscape;
+          new_date.setDate(d);
+          self.graph.axes.x.scale.domain([new_date, self.axes.x.max]);
+        } else {
+          d = new_date.getDate() - self.parent_obj.options.mobile.date_range.portrait;
+          new_date.setDate(d);
+          self.graph.axes.x.scale.domain([new_date, self.axes.x.max]);
+        }
+        if ((ref1 = self.parent_obj.options.controls.date.start) != null) {
+          ref1.value = new_date.getFullYear() + '-' + self.leading_zero(new_date.getMonth() + 1) + '-' + self.leading_zero(new_date.getDate());
+        }
+        if ((ref2 = self.parent_obj.options.controls.date.end) != null) {
+          ref2.value = self.axes.x.max.getFullYear() + '-' + self.leading_zero(self.axes.x.max.getMonth() + 1) + '-' + self.leading_zero(self.axes.x.max.getDate());
+        }
+        if ((ref3 = self.parent_obj.options.controls.time.start) != null) {
+          ref3.value = self.leading_zero(new_date.getHours()) + ':' + self.leading_zero(new_date.getMinutes());
+        }
+        if ((ref4 = self.parent_obj.options.controls.time.end) != null) {
+          ref4.value = self.leading_zero(self.axes.x.max.getHours()) + ':' + self.leading_zero(self.axes.x.max.getMinutes());
+        }
+      }
+      self.graph.axes.x.scale.range([0, self.style.dimensions.width - self.graph.style.label_width]);
+      self.graph.axes.x.axis.ticks(self.style.dimensions.width / 100);
+      self.graph.redraw(this);
+      event.handled = true;
     }
-    graph_event = document.createEvent('HTMLEvents');
-    graph_event.initEvent('focus_resize', true, true);
-    window.dispatchEvent(graph_event);
-    if (self.parent_obj.options.mobile.is_mob) {
-      new_date = new Date(self.axes.x.max);
-      if (window.innerWidth > window.innerHeight) {
-        d = new_date.getDate() - self.parent_obj.options.mobile.date_range.landscape;
-        new_date.setDate(d);
-        self.graph.axes.x.scale.domain([new_date, self.axes.x.max]);
-      } else {
-        d = new_date.getDate() - self.parent_obj.options.mobile.date_range.portrait;
-        new_date.setDate(d);
-        self.graph.axes.x.scale.domain([new_date, self.axes.x.max]);
-      }
-      if ((ref1 = self.parent_obj.options.controls.date.start) != null) {
-        ref1.value = new_date.getFullYear() + '-' + self.leading_zero(new_date.getMonth() + 1) + '-' + self.leading_zero(new_date.getDate());
-      }
-      if ((ref2 = self.parent_obj.options.controls.date.end) != null) {
-        ref2.value = self.axes.x.max.getFullYear() + '-' + self.leading_zero(self.axes.x.max.getMonth() + 1) + '-' + self.leading_zero(self.axes.x.max.getDate());
-      }
-      if ((ref3 = self.parent_obj.options.controls.time.start) != null) {
-        ref3.value = self.leading_zero(new_date.getHours()) + ':' + self.leading_zero(new_date.getMinutes());
-      }
-      if ((ref4 = self.parent_obj.options.controls.time.end) != null) {
-        ref4.value = self.leading_zero(self.axes.x.max.getHours()) + ':' + self.leading_zero(self.axes.x.max.getMinutes());
-      }
-    }
-    self.graph.axes.x.scale.range([0, self.style.dimensions.width - self.graph.style.label_width]);
-    self.graph.axes.x.axis.ticks(self.style.dimensions.width / 100);
-    self.graph.redraw(this);
   };
 
   NHContext.prototype.handle_brush = function(self, context) {
@@ -503,12 +526,17 @@ NHContext = (function(superClass) {
 
 })(NHGraphLib);
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
 
 window.NH.NHContext = NHContext;
 
+
+/* istanbul ignore next */
 var NHFocus,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -562,25 +590,28 @@ NHFocus = (function() {
 
   NHFocus.prototype.handle_resize = function(self, event) {
     var d, new_date, ref;
-    self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
-    self.obj.attr('width', self.style.dimensions.width);
-    if ((ref = self.axes.x.scale) != null) {
-      ref.range()[1] = self.style.dimensions.width;
-    }
-    if (self.parent_obj.options.mobile.is_mob) {
-      if (window.innerWidth > window.innerHeight) {
-        new_date = new Date(self.axes.x.max);
-        d = new_date.getDate() - self.parent_obj.options.mobile.date_range.landscape;
-        new_date.setDate(d);
-        return self.redraw([new_date, self.axes.x.max]);
-      } else {
-        new_date = new Date(self.axes.x.max);
-        d = new_date.getDate() - self.parent_obj.options.mobile.date_range.portrait;
-        new_date.setDate(d);
-        return self.redraw([new_date, self.axes.x.max]);
+    if (!event.handled) {
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
+      self.obj.attr('width', self.style.dimensions.width);
+      if ((ref = self.axes.x.scale) != null) {
+        ref.range()[1] = self.style.dimensions.width;
       }
-    } else {
-      return self.redraw([self.axes.x.min, self.axes.x.max]);
+      if (self.parent_obj.options.mobile.is_mob) {
+        if (self.parent_obj.is_landscape()) {
+          new_date = new Date(self.axes.x.max);
+          d = new_date.getDate() - self.parent_obj.options.mobile.date_range.landscape;
+          new_date.setDate(d);
+          self.redraw([new_date, self.axes.x.max]);
+        } else {
+          new_date = new Date(self.axes.x.max);
+          d = new_date.getDate() - self.parent_obj.options.mobile.date_range.portrait;
+          new_date.setDate(d);
+          self.redraw([new_date, self.axes.x.max]);
+        }
+      } else {
+        self.redraw([self.axes.x.min, self.axes.x.max]);
+      }
+      event.handled = true;
     }
   };
 
@@ -678,12 +709,17 @@ NHFocus = (function() {
 
 })();
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
 
 window.NH.NHFocus = NHFocus;
 
+
+/* istanbul ignore next */
 var NHGraph,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -807,7 +843,7 @@ NHGraph = (function(superClass) {
 
   NHGraph.prototype.rangify_graph = function(self, event) {
     var d0, d1;
-    if (event.srcElement.checked) {
+    if (event.target.checked) {
       d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
       d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
       self.axes.y.scale.domain([(d0 > 0 ? d0 : 0), d1]);
@@ -831,11 +867,12 @@ NHGraph = (function(superClass) {
     if ((ref = self.axes.x.scale) != null) {
       ref.range()[1] = self.style.dimensions.width;
     }
-    return self.redraw(self.parent_obj);
+    self.redraw(self.parent_obj);
+    event.handled = true;
   };
 
   NHGraph.prototype.init = function(parent_obj) {
-    var adjusted_line, j, key, left_offset, len, line_self, ob, rangify, ref, self, tick_font_size, tick_line_height, top_offset, values, y_label;
+    var adjusted_line, j, k, key, left_offset, len, len1, line_self, ob, rangify, ref, ref1, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -886,24 +923,27 @@ NHGraph = (function(superClass) {
     }
     if (self.options.keys.length > 1) {
       values = [];
-      ref = self.parent_obj.parent_obj.data.raw;
+      ref = self.options.keys;
       for (j = 0, len = ref.length; j < len; j++) {
-        ob = ref[j];
-        values.push((function() {
-          var k, len1, ref1, results;
-          ref1 = self.options.keys;
-          results = [];
-          for (k = 0, len1 = ref1.length; k < len1; k++) {
-            key = ref1[k];
-            results.push(ob[key]);
+        key = ref[j];
+        ref1 = self.parent_obj.parent_obj.data.raw;
+        for (k = 0, len1 = ref1.length; k < len1; k++) {
+          ob = ref1[k];
+          if (typeof ob[key] === 'number') {
+            values.push(ob[key]);
+          } else {
+            values.push(null);
           }
-          return results;
-        })());
+        }
       }
       this.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values));
     } else {
       this.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, function(d) {
-        return d[self.options.keys[0]];
+        if (typeof d[self.options.keys[0]] === 'number') {
+          return d[self.options.keys[0]];
+        } else {
+          return null;
+        }
       });
     }
     if (this.options.label != null) {
@@ -918,9 +958,17 @@ NHGraph = (function(superClass) {
         var raw;
         raw = self.parent_obj.parent_obj.data.raw;
         if (i !== self.options.keys.length - 1) {
-          return raw[self.parent_obj.parent_obj.data.raw.length - 1][d];
+          if (raw[raw.length - 1][d] !== false) {
+            return raw[raw.length - 1][d];
+          } else {
+            return 'NA';
+          }
         } else {
-          return raw[self.parent_obj.parent_obj.data.raw.length - 1][d] + '' + self.options.measurement;
+          if (raw[raw.length - 1][d] !== false) {
+            return raw[raw.length - 1][d] + '' + self.options.measurement;
+          } else {
+            return 'NA';
+          }
         }
       }).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,
@@ -930,6 +978,33 @@ NHGraph = (function(superClass) {
         'class': 'measurement'
       });
     }
+    (function(self) {
+      var max, min, valid, yMax, yMin;
+      valid = true;
+      if ((self.options.normal.min != null) && (self.options.normal.max != null)) {
+        min = self.options.normal.min;
+        max = self.options.normal.max;
+        yMin = self.axes.y.min;
+        yMax = self.axes.y.max;
+        if (isNaN(min) || isNaN(max)) {
+          valid = false;
+        } else {
+          if (min > yMax || min < yMin || min > max) {
+            valid = false;
+          }
+          if (max < yMin || max > yMax || max < min) {
+            valid = false;
+          }
+        }
+      } else {
+        valid = false;
+      }
+      if (!valid) {
+        console.log('Invalid normal range defined');
+        self.options.normal.min = 0;
+        return self.options.normal.max = 0;
+      }
+    })(this);
     window.addEventListener('graph_resize', function(event) {
       return self.resize_graph(self, event);
     });
@@ -1021,7 +1096,7 @@ NHGraph = (function(superClass) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d, event) {
           return self.show_popup(d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
@@ -1038,7 +1113,7 @@ NHGraph = (function(superClass) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d, event) {
           return self.show_popup('Partial observation: ' + d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
@@ -1060,7 +1135,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range top',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d) {
+          }).on('mouseover', function(d, event) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -1087,7 +1162,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range bottom',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d) {
+          }).on('mouseover', function(d, event) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -1119,7 +1194,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.width,
             'class': 'range extent',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d) {
+          }).on('mouseover', function(d, event) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -1150,7 +1225,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range top empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d) {
+          }).on('mouseover', function(d, event) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation:<br>';
             ref1 = self.options.keys;
@@ -1181,7 +1256,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range bottom empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d) {
+          }).on('mouseover', function(d, event) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation:<br>';
             ref1 = self.options.keys;
@@ -1216,7 +1291,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.width,
             'class': 'range extent empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d) {
+          }).on('mouseover', function(d, event) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation<br>';
             ref1 = self.options.keys;
@@ -1361,12 +1436,17 @@ NHGraph = (function(superClass) {
 
 })(NHGraphLib);
 
+
+/* istanbul ignore if */
+
 if (!window.NH) {
   window.NH = {};
 }
 
 window.NH.NHGraph = NHGraph;
 
+
+/* istanbul ignore next */
 var NHTable,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -1517,6 +1597,9 @@ NHTable = (function(superClass) {
   return NHTable;
 
 })(NHGraphLib);
+
+
+/* istanbul ignore if */
 
 if (!window.NH) {
   window.NH = {};
