@@ -696,13 +696,12 @@ class nh_eobs_api(orm.AbstractModel):
 
         domain = [
             ('state', '=', 'started'),
-            ('patient_id', 'in', ids),
-            ('data_model', '=', 'nh.clinical.spell')
-        ] if ids else [
-            ('state', '=', 'started'),
             ('data_model', '=', 'nh.clinical.spell'),
-            ('user_ids', 'in', [uid])
+            ('user_ids', 'in', [uid])  # needed to filter user's responsibility
         ]
+        if ids:
+            domain.append(('patient_id', 'in', ids))
+
         activity_pool = self.pool['nh.activity']
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
         spell_ids_sql = ','.join(map(str, spell_ids))
