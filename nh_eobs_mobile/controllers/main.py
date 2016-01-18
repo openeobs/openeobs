@@ -622,7 +622,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.uid, request.context
         activity_reg = request.registry['nh.activity']
         api_reg = request.registry['nh.eobs.api']
-        task_id = int(task_id)
+        try:
+            task_id = int(task_id)
+        except ValueError:
+            return utils.redirect(URLS['task_list'], 303)
         follow_activities = api_reg.get_assigned_activities(
             cr, uid,
             activity_type='nh.clinical.patient.follow',
@@ -634,7 +637,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             patient_info = api_reg.get_patients(
                 cr, uid, [task['patient_id'][0]], context=context)
             if not patient_info:
-                exceptions.abort(404)
+                return utils.redirect(URLS['task_list'], 303)
             elif len(patient_info) > 0:
                 patient_info = patient_info[0]
             patient['url'] = URLS['single_patient'] + '{0}'.format(
@@ -642,12 +645,12 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             patient['name'] = patient_info['full_name']
             patient['id'] = patient_info['id']
         else:
-            exceptions.abort(404)
+            return utils.redirect(URLS['task_list'], 303)
         form = dict()
         # TODO: check if this is still actually used!
         form['action'] = URLS['task_form_action']+'{0}'.format(task_id)
         form['type'] = task['data_model']
-        form['task-id'] = int(task_id)
+        form['task-id'] = task_id
         pt_id = 'id' in patient and patient['id']
         form['patient-id'] = int(patient['id']) if patient and pt_id else False
         form['source'] = "task"
@@ -814,16 +817,20 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
 
+        try:
+            patient_id = int(patient_id)
+        except ValueError:
+            return utils.redirect(URLS['patient_list'], 303)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
-        patient = api_pool.get_patients(
-            cr, uid, [int(patient_id)], context=context)
-        if not patient:
-                exceptions.abort(404)
-        elif len(patient) > 0:
-            patient = patient[0]
+        patient_list = api_pool.get_patients(
+            cr, uid, [patient_id], context=context)
+        if not patient_list:
+            return utils.redirect(URLS['patient_list'], 303)
+        elif len(patient_list) > 0:
+            patient = patient_list[0]
         obs = api_pool.get_active_observations(
-            cr, uid, int(patient_id), context=context)
+            cr, uid, patient_id, context=context)
         for index, ob in enumerate(obs):
             if ob['type'] == 'ews':
                 obs.insert(0, obs.pop(index))
