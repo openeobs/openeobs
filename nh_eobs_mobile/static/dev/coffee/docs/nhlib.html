@@ -135,7 +135,35 @@ with leading zero</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">leading_zero</span>: <span class="hljs-function"><span class="hljs-params">(date_element)</span> -&gt;</span>
-    <span class="hljs-keyword">return</span> (<span class="hljs-string">"0"</span> + date_element).slice(-<span class="hljs-number">2</span>)
+    <span class="hljs-keyword">return</span> (<span class="hljs-string">"0"</span> + date_element).slice(-<span class="hljs-number">2</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>A utility for handling events</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">handle_event</span>: <span class="hljs-function"><span class="hljs-params">(raw_e, func, pref_dev, raw_args)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> raw_e.handled
+      raw_e.src_el = <span class="hljs-keyword">if</span> raw_e.srcElement <span class="hljs-keyword">then</span> raw_e.srcElement <span class="hljs-keyword">else</span> raw_e.target
+      <span class="hljs-keyword">if</span> pref_dev
+        raw_e.preventDefault()
+      args = [raw_e]
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span>(raw_args) <span class="hljs-keyword">isnt</span> <span class="hljs-string">'undefined'</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> Array.isArray(raw_args)
+          raw_args = [raw_args]
+        <span class="hljs-keyword">for</span> arg <span class="hljs-keyword">in</span> raw_args
+          args.push arg
+      func.apply func, args
+      raw_e.handled = <span class="hljs-literal">true</span>
+
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}
 <span class="hljs-built_in">window</span>.NH.NHLib = NHLib</pre></div></div>

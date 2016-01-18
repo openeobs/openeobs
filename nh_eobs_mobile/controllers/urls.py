@@ -1,3 +1,7 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+"""
+Defines routes and builds a route dictionary.
+"""
 from openerp.tools import config
 SERVER_PROTOCOL = "http"
 SERVER_ADDRESS = "localhost"
@@ -268,11 +272,15 @@ routes = [
 
 
 def get_urls():
+    """
+    Builds dictionary of routes.
+
+    :returns: routes
+    :rtype: dict
+    """
     r = {}
     for route in routes:
         r[route['name']] = URL_PREFIX+route['endpoint']
     return r
-
-
 
 URLS = get_urls()

@@ -211,10 +211,11 @@ class NHMobile extends NHLib
         [cancel], 0, document.getElementsByTagName('body')[0])
       fullscreen = document.getElementById('patient_obs_fullscreen')
       fullscreen.addEventListener('click', (event) ->
+        self.handle_event(event, self.fullscreen_patient_info, true, self)
         ### istanbul ignore else ###
-        if not event.handled
-          self.fullscreen_patient_info(event, self)
-          event.handled = true
+#        if not event.handled
+#          self.fullscreen_patient_info(event, self)
+#          event.handled = true
       )
     return true
 
@@ -222,49 +223,51 @@ class NHMobile extends NHLib
   # Adds a full screen modal of the patient info screen over the current page
   # triggered by the fullscreen button made by the patient information modal
   fullscreen_patient_info: (event, self) ->
-    event.preventDefault()
+#    event.preventDefault()
     ### istanbul ignore else ###
-    if not event.handled
-      target_el = if event.srcElement then event.srcElement else event.target
-      container = document.createElement('div')
-      container.setAttribute('class', 'full-modal')
-      options = document.createElement('p')
-      options_close = document.createElement('a')
-      options_close.setAttribute('href', '#')
-      options_close.setAttribute('id', 'closeFullModal')
-      options_close.innerText = 'Close popup'
-      options_close.addEventListener('click', (event) ->
-        ### istanbul ignore else ###
-        if not event.handled
-          self.close_fullscreen_patient_info(event)
-          event.handled = true
-      )
-      options.appendChild(options_close)
-      container.appendChild(options)
-      page = document.createElement('iframe')
-      page.setAttribute('src', target_el.getAttribute('href'))
-      ### istanbul ignore next ###
-      page.onload = ->
-        modal = document.getElementsByClassName('full-modal')[0]
-        iframe = modal.getElementsByTagName('iframe')[0]
-        contents = if iframe.contentDocument then iframe.contentDocument else
-          iframe.contentWindow.document
-        header = contents?.getElementsByClassName('header')?[0]
-        header?.parentNode.removeChild(header)
-        obs = contents?.getElementsByClassName('obs')?[0]
-        obs?.parentNode.removeChild(obs)
-      container.appendChild(page)
-      document.getElementsByTagName('body')[0].appendChild(container)
-      event.handled = true
+#    if not event.handled
+#    target_el = if event.srcElement then event.srcElement else event.target
+    target_el = event.src_el
+    container = document.createElement('div')
+    container.setAttribute('class', 'full-modal')
+    options = document.createElement('p')
+    options_close = document.createElement('a')
+    options_close.setAttribute('href', '#')
+    options_close.setAttribute('id', 'closeFullModal')
+    options_close.innerText = 'Close popup'
+    options_close.addEventListener('click', (event) ->
+      ### istanbul ignore else ###
+      self.handle_event(event, self.close_fullscreen_patient_info, true)
+#        if not event.handled
+#          self.close_fullscreen_patient_info(event)
+#          event.handled = true
+    )
+    options.appendChild(options_close)
+    container.appendChild(options)
+    page = document.createElement('iframe')
+    page.setAttribute('src', target_el.getAttribute('href'))
+    ### istanbul ignore next ###
+    page.onload = ->
+      modal = document.getElementsByClassName('full-modal')[0]
+      iframe = modal.getElementsByTagName('iframe')[0]
+      contents = if iframe.contentDocument then iframe.contentDocument else
+        iframe.contentWindow.document
+      header = contents?.getElementsByClassName('header')?[0]
+      header?.parentNode.removeChild(header)
+      obs = contents?.getElementsByClassName('obs')?[0]
+      obs?.parentNode.removeChild(obs)
+    container.appendChild(page)
+    document.getElementsByTagName('body')[0].appendChild(container)
+#      event.handled = true
 
   # Closes an open fullscreen modal of the patient's information
   close_fullscreen_patient_info: (event) ->
-    event.preventDefault()
+#    event.preventDefault()
     ### istanbul ignore else ###
-    if not event.handled
-      body = document.getElementsByTagName('body')[0]
-      body.removeChild(document.getElementsByClassName('full-modal')[0])
-      event.handled = true
+#    if not event.handled
+    body = document.getElementsByTagName('body')[0]
+    body.removeChild(document.getElementsByClassName('full-modal')[0])
+#      event.handled = true
 
 
 ### istanbul ignore if ###

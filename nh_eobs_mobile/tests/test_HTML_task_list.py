@@ -1,15 +1,17 @@
-__author__ = 'lorenzo'
-import logging
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from lxml import etree
-from openerp.addons.nh_eobs_mobile.tests.common_HTML_rendering import MobileHTMLRenderingCase
-
+from openerp.addons.nh_eobs_mobile.tests.common_HTML_rendering \
+    import MobileHTMLRenderingCase
+import logging
 
 _logger = logging.getLogger(__name__)
 
 
 class TestTaskListHTML(MobileHTMLRenderingCase):
-    """Test case collecting all the tests relating to the RENDERING of the 'task list' page.
-    Compare the actual rendered HTML pages against fixtures (i.e. 'fake' HTML files) specially built.
+    """Test case collecting all the tests relating to the
+    RENDERING of the 'task list' page.
+    Compare the actual rendered HTML pages against fixtures
+    (i.e. 'fake' HTML files) specially built.
     """
     template_id = 'nh_eobs_mobile.patient_task_list'
 
@@ -78,16 +80,23 @@ class TestTaskListHTML(MobileHTMLRenderingCase):
     def test_task_list_page_with_no_data(self):
         """Test the 'task list' page without any information in it."""
         # Retrieve the fixture for this test and parse it,
-        # thus there is an expected output to compare the mobile controller's method's result against
+        # thus there is an expected output to compare the mobile controller's
+        # method's result against
         fixture_name = 'task_list_empty.html'
         fixture_filepath = self._get_fixture_file_path(fixture_name)
         if fixture_filepath:
             tree = etree.parse(fixture_filepath)
             expected_output = etree.tostring(tree, method='html')
         else:
-            _logger.warning('IOError: Error reading fixture "{}". Hence, this test has not been actually executed'.format(fixture_name))
+            _logger.warning(
+                'IOError: Error reading fixture "{}". Hence, '
+                'this test has not been actually executed'.format(
+                    fixture_name
+                )
+            )
 
-        # Set up specific data to provide the template the data it needs for the rendering
+        # Set up specific data to provide the template the
+        # data it needs for the rendering
         api_data = {
             'items': [],
             'section': 'task',
@@ -97,31 +106,45 @@ class TestTaskListHTML(MobileHTMLRenderingCase):
         }
 
         # Test the template rendering.
-        # Pass the rendered template through the parser and convert it back to string.
+        # Pass the rendered template through the parser and
+        # convert it back to string.
         # This way it's 'string-comparable' with the fixture file parsed above.
-        rendered_template = self._render_template(self.cr, self.uid, self.template_id, options=api_data)
+        rendered_template = self._render_template(
+            self.cr, self.uid, self.template_id, options=api_data)
         temp_tree = etree.fromstring(rendered_template)
         rendered_and_parsed = etree.tostring(temp_tree, method='html')
 
         compressed_expected_output = self._compress_string(expected_output)
-        # Add the 'doctype' string (before compressing) as a small fix for the comparison's sake
-        compressed_rendered_parsed = self._compress_string('<!DOCTYPE html>'+rendered_and_parsed)
+        # Add the 'doctype' string (before compressing) as a small fix
+        # for the comparison's sake
+        compressed_rendered_parsed = self._compress_string(
+            '<!DOCTYPE html>'+rendered_and_parsed)
 
-        self.assertEqual(compressed_expected_output, compressed_rendered_parsed)
+        self.assertEqual(
+            compressed_expected_output,
+            compressed_rendered_parsed
+        )
 
     def test_task_list_page_with_tasks_data(self):
         """Test the 'task list' page with a list of tasks in it."""
         # Retrieve the fixture for this test and parse it,
-        # thus there is an expected output to compare the mobile controller's method's result against
+        # thus there is an expected output to compare the mobile
+        # controller's method's result against
         fixture_name = 'task_list_data.html'
         fixture_filepath = self._get_fixture_file_path(fixture_name)
         if fixture_filepath:
             tree = etree.parse(fixture_filepath)
             expected_output = etree.tostring(tree, method='html')
         else:
-            _logger.warning('IOError: Error reading fixture "{}". Hence, this test has not been actually executed'.format(fixture_name))
+            _logger.warning(
+                'IOError: Error reading fixture "{}". Hence, '
+                'this test has not been actually executed'.format(
+                    fixture_name
+                )
+            )
 
-        # Set up specific data to provide the template the data it needs for the rendering
+        # Set up specific data to provide the template the data
+        # it needs for the rendering
         api_data = {
             'items': self.tasks_fixtures,
             'section': 'task',
@@ -131,31 +154,46 @@ class TestTaskListHTML(MobileHTMLRenderingCase):
         }
 
         # Test the template rendering.
-        # Pass the rendered template through the parser and convert it back to string.
+        # Pass the rendered template through the parser and
+        # convert it back to string.
         # This way it's 'string-comparable' with the fixture file parsed above.
-        rendered_template = self._render_template(self.cr, self.uid, self.template_id, options=api_data)
+        rendered_template = self._render_template(
+            self.cr, self.uid, self.template_id, options=api_data)
         temp_tree = etree.fromstring(rendered_template)
         rendered_and_parsed = etree.tostring(temp_tree, method='html')
 
         compressed_expected_output = self._compress_string(expected_output)
-        # Add the 'doctype' string (before compressing) as a small fix for the comparison's sake
-        compressed_rendered_parsed = self._compress_string('<!DOCTYPE html>'+rendered_and_parsed)
+        # Add the 'doctype' string (before compressing) as a small
+        # fix for the comparison's sake
+        compressed_rendered_parsed = self._compress_string(
+            '<!DOCTYPE html>'+rendered_and_parsed)
 
-        self.assertEqual(compressed_expected_output, compressed_rendered_parsed)
+        self.assertEqual(
+            compressed_expected_output,
+            compressed_rendered_parsed
+        )
 
     def test_task_list_page_with_tasks_data_and_notification(self):
-        """Test the 'task list' page with a list of tasks in it and a notification counter."""
+        """Test the 'task list' page with a list of tasks in it
+        and a notification counter."""
         # Retrieve the fixture for this test and parse it,
-        # thus there is an expected output to compare the mobile controller's method's result against
+        # thus there is an expected output to compare the mobile
+        # controller's method's result against
         fixture_name = 'task_list_notification.html'
         fixture_filepath = self._get_fixture_file_path(fixture_name)
         if fixture_filepath:
             tree = etree.parse(fixture_filepath)
             expected_output = etree.tostring(tree, method='html')
         else:
-            _logger.warning('IOError: Error reading fixture "{}". Hence, this test has not been actually executed'.format(fixture_name))
+            _logger.warning(
+                'IOError: Error reading fixture "{}". Hence, '
+                'this test has not been actually executed'.format(
+                    fixture_name
+                )
+            )
 
-        # Set up specific data to provide the template the data it needs for the rendering
+        # Set up specific data to provide the template the data
+        # it needs for the rendering
         api_data = {
             'items': self.tasks_fixtures,
             'section': 'task',
@@ -165,14 +203,21 @@ class TestTaskListHTML(MobileHTMLRenderingCase):
         }
 
         # Test the template rendering.
-        # Pass the rendered template through the parser and convert it back to string.
+        # Pass the rendered template through the parser and
+        # convert it back to string.
         # This way it's 'string-comparable' with the fixture file parsed above.
-        rendered_template = self._render_template(self.cr, self.uid, self.template_id, options=api_data)
+        rendered_template = self._render_template(
+            self.cr, self.uid, self.template_id, options=api_data)
         temp_tree = etree.fromstring(rendered_template)
         rendered_and_parsed = etree.tostring(temp_tree, method='html')
 
         compressed_expected_output = self._compress_string(expected_output)
-        # Add the 'doctype' string (before compressing) as a small fix for the comparison's sake
-        compressed_rendered_parsed = self._compress_string('<!DOCTYPE html>'+rendered_and_parsed)
+        # Add the 'doctype' string (before compressing) as a small fix
+        # for the comparison's sake
+        compressed_rendered_parsed = self._compress_string(
+            '<!DOCTYPE html>'+rendered_and_parsed)
 
-        self.assertEqual(compressed_expected_output, compressed_rendered_parsed)
+        self.assertEqual(
+            compressed_expected_output,
+            compressed_rendered_parsed
+        )

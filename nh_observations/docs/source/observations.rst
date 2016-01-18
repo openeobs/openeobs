@@ -36,8 +36,3 @@
 ----------------
 .. autoclass:: nh_clinical_patient_observation_urine_output
     :members:
-
-``Bowels Open``
----------------
-.. autoclass:: nh_clinical_patient_observation_bowels_open
-    :members:

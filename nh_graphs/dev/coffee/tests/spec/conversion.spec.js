@@ -2,7 +2,9 @@
  * Created by colinwren on 22/06/15.
  */
 describe('Conversion', function() {
+
     var graphlib;
+
     beforeEach(function () {
         if(graphlib == null){
             graphlib = new NHGraphLib();
@@ -14,7 +16,6 @@ describe('Conversion', function() {
            graphlib = null;
         }
     });
-
 
     it('Has a function for String to Date Conversion', function(){
         expect(typeof(graphlib.date_from_string)).toBe('function');
@@ -29,6 +30,7 @@ describe('Conversion', function() {
     });
 
     describe('String to Date Conversion', function(){
+
         it('converts Odoo Format (YYYY-MM-DD HH:MM:SS) date string to date object', function(){
             var date_string = '1988-01-12 06:00:00';
             var date_for_string = graphlib.date_from_string(date_string);
@@ -45,6 +47,7 @@ describe('Conversion', function() {
     });
 
     describe('Date to String Conversion', function(){
+
         it('converts date object to Graph Format (day DD/MM/YY HH:MM) string', function(){
             var date = new Date('1988-01-12T06:00:00');
             var string_for_date = graphlib.date_to_string(date);
@@ -58,6 +61,7 @@ describe('Conversion', function() {
     });
 
     describe('Single to Double Digit date element Conversion', function(){
+
         it('converts single digit date element to double digit with leading zero', function(){
            var date = new Date('1988-01-12T06:00:00');
            var month = (date.getMonth() +1);

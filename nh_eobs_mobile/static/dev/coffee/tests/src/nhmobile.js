@@ -197,73 +197,59 @@ NHMobile = (function(superClass) {
       new NHModal('patient_info', patient_name, patient_details, [cancel], 0, document.getElementsByTagName('body')[0]);
       fullscreen = document.getElementById('patient_obs_fullscreen');
       return fullscreen.addEventListener('click', function(event) {
+        return self.handle_event(event, self.fullscreen_patient_info, true, self);
 
         /* istanbul ignore else */
-        if (!event.handled) {
-          self.fullscreen_patient_info(event, self);
-          return event.handled = true;
-        }
       });
     });
     return true;
   };
 
   NHMobile.prototype.fullscreen_patient_info = function(event, self) {
-    var container, options, options_close, page, target_el;
-    event.preventDefault();
 
     /* istanbul ignore else */
-    if (!event.handled) {
-      target_el = event.srcElement ? event.srcElement : event.target;
-      container = document.createElement('div');
-      container.setAttribute('class', 'full-modal');
-      options = document.createElement('p');
-      options_close = document.createElement('a');
-      options_close.setAttribute('href', '#');
-      options_close.setAttribute('id', 'closeFullModal');
-      options_close.innerText = 'Close popup';
-      options_close.addEventListener('click', function(event) {
+    var container, options, options_close, page, target_el;
+    target_el = event.src_el;
+    container = document.createElement('div');
+    container.setAttribute('class', 'full-modal');
+    options = document.createElement('p');
+    options_close = document.createElement('a');
+    options_close.setAttribute('href', '#');
+    options_close.setAttribute('id', 'closeFullModal');
+    options_close.innerText = 'Close popup';
+    options_close.addEventListener('click', function(event) {
 
-        /* istanbul ignore else */
-        if (!event.handled) {
-          self.close_fullscreen_patient_info(event);
-          return event.handled = true;
-        }
-      });
-      options.appendChild(options_close);
-      container.appendChild(options);
-      page = document.createElement('iframe');
-      page.setAttribute('src', target_el.getAttribute('href'));
+      /* istanbul ignore else */
+      return self.handle_event(event, self.close_fullscreen_patient_info, true);
+    });
+    options.appendChild(options_close);
+    container.appendChild(options);
+    page = document.createElement('iframe');
+    page.setAttribute('src', target_el.getAttribute('href'));
 
-      /* istanbul ignore next */
-      page.onload = function() {
-        var contents, header, iframe, modal, obs, ref, ref1;
-        modal = document.getElementsByClassName('full-modal')[0];
-        iframe = modal.getElementsByTagName('iframe')[0];
-        contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
-        header = contents != null ? (ref = contents.getElementsByClassName('header')) != null ? ref[0] : void 0 : void 0;
-        if (header != null) {
-          header.parentNode.removeChild(header);
-        }
-        obs = contents != null ? (ref1 = contents.getElementsByClassName('obs')) != null ? ref1[0] : void 0 : void 0;
-        return obs != null ? obs.parentNode.removeChild(obs) : void 0;
-      };
-      container.appendChild(page);
-      document.getElementsByTagName('body')[0].appendChild(container);
-      return event.handled = true;
-    }
+    /* istanbul ignore next */
+    page.onload = function() {
+      var contents, header, iframe, modal, obs, ref, ref1;
+      modal = document.getElementsByClassName('full-modal')[0];
+      iframe = modal.getElementsByTagName('iframe')[0];
+      contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+      header = contents != null ? (ref = contents.getElementsByClassName('header')) != null ? ref[0] : void 0 : void 0;
+      if (header != null) {
+        header.parentNode.removeChild(header);
+      }
+      obs = contents != null ? (ref1 = contents.getElementsByClassName('obs')) != null ? ref1[0] : void 0 : void 0;
+      return obs != null ? obs.parentNode.removeChild(obs) : void 0;
+    };
+    container.appendChild(page);
+    return document.getElementsByTagName('body')[0].appendChild(container);
   };
 
   NHMobile.prototype.close_fullscreen_patient_info = function(event) {
-    var body;
-    event.preventDefault();
 
     /* istanbul ignore else */
-    if (!event.handled) {
-      body = document.getElementsByTagName('body')[0];
-      body.removeChild(document.getElementsByClassName('full-modal')[0]);
-      return event.handled = true;
-    }
+    var body;
+    body = document.getElementsByTagName('body')[0];
+    return body.removeChild(document.getElementsByClassName('full-modal')[0]);
   };
 
   return NHMobile;

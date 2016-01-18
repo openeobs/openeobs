@@ -16,35 +16,29 @@ NHMobileShareInvite = (function(superClass) {
       invite.addEventListener('click', function(event) {
 
         /* istanbul ignore else */
-        var activity_id, btn;
-        if (!event.handled) {
-          btn = event.srcElement ? event.srcElement : event.target;
-          activity_id = btn.getAttribute('data-invite-id');
-          self.handle_invite_click(self, activity_id);
-          return event.handled = true;
-        }
+        var activity_id, args, btn;
+        btn = event.srcElement ? event.srcElement : event.target;
+        activity_id = btn.getAttribute('data-invite-id');
+        args = [self, activity_id];
+        return self.handle_event(event, self.handle_invite_click, true, args);
       });
     }
     document.addEventListener('accept_invite', function(event) {
-      var activity_id;
-      if (!event.handled) {
-        activity_id = event.detail.invite_id;
-        self.handle_accept_button_click(self, activity_id);
-        return event.handled = true;
-      }
+      var activity_id, args;
+      activity_id = event.detail.invite_id;
+      args = [self, activity_id];
+      return self.handle_event(event, self.handle_accept_button_click, true, args);
     });
     document.addEventListener('reject_invite', function(event) {
-      var activity_id;
-      if (!event.handled) {
-        activity_id = event.detail.invite_id;
-        self.handle_reject_button_click(self, activity_id);
-        return event.handled = true;
-      }
+      var activity_id, args;
+      activity_id = event.detail.invite_id;
+      args = [self, activity_id];
+      return self.handle_event(event, self.handle_reject_button_click, true, args);
     });
     NHMobileShareInvite.__super__.constructor.call(this);
   }
 
-  NHMobileShareInvite.prototype.handle_invite_click = function(self, activity_id) {
+  NHMobileShareInvite.prototype.handle_invite_click = function(event, self, activity_id) {
     var url, urlmeth;
     url = self.urls.json_invite_patients(activity_id);
     urlmeth = url.method;
@@ -69,7 +63,7 @@ NHMobileShareInvite = (function(superClass) {
     return true;
   };
 
-  NHMobileShareInvite.prototype.handle_accept_button_click = function(self, activity_id) {
+  NHMobileShareInvite.prototype.handle_accept_button_click = function(event, self, activity_id) {
     var body, url, urlmeth;
     url = self.urls.json_accept_patients(activity_id);
     urlmeth = url.method;
@@ -123,7 +117,7 @@ NHMobileShareInvite = (function(superClass) {
     });
   };
 
-  NHMobileShareInvite.prototype.handle_reject_button_click = function(self, activity_id) {
+  NHMobileShareInvite.prototype.handle_reject_button_click = function(event, self, activity_id) {
     var body, url, urlmeth;
     url = self.urls.json_reject_patients(activity_id);
     urlmeth = url.method;

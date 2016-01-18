@@ -1,6 +1,6 @@
 # NHModal creates a modal popup and handles events triggered via modal buttons
 ### istanbul ignore next ###
-class NHModal
+class NHModal extends NHLib
 
   # creates a dialog, adds it to the DOM and resizes to fit in window
   # Params:
@@ -19,13 +19,15 @@ class NHModal
     cover.setAttribute('class', 'cover')
     cover.setAttribute('id', 'cover')
     cover.setAttribute('data-action', 'close')
-    if @id is 'submit_observation'
+    if @id is 'submit_observation' or @id is 'partial_reasons'
       cover.setAttribute('data-action', 'renable')
     cover.setAttribute('data-target', @id)
-    cover.style.height = (body.clientHeight)+'px'
-    cover.addEventListener('click', self.handle_button_events)
+    cover.addEventListener('click', (e) ->
+      self.handle_event(e, self.handle_button_events, false)
+    )
 
     # append it to the DOM
+    @lock_scrolling()
     body.appendChild(cover)
     @el.appendChild(dialog)
    
@@ -68,8 +70,10 @@ class NHModal
         do (self) ->
           option_button = document.createElement('li')
           option_button.innerHTML = button
-          option_button.getElementsByTagName('a')?[0].addEventListener('click',
-            self.handle_button_events)
+          a_button = option_button.getElementsByTagName('a')?[0]
+          a_button.addEventListener('click', (e) ->
+            self.handle_event(e, self.handle_button_events, false)
+          )
           option_list.appendChild(option_button)
       return option_list
    
@@ -92,7 +96,7 @@ class NHModal
       right: 0,
       left: 0
     }
-    available_space = (dialog, el) ->
+    available_space = (dialog, el, dialog_content) ->
       dh = dialog.getElementsByTagName('h2')
       # dialog_header_height = dialog_header?[0]?.clientHeight
       dhh = parseInt(document.defaultView.getComputedStyle(dh?[0], \
@@ -105,10 +109,15 @@ class NHModal
       elh = parseInt(document.defaultView.getComputedStyle(el, \
         '').getPropertyValue('height').replace('px', ''))
       dialog_height = ((dhh + dopth) + (margins.top + margins.bottom))
+      dc_height = parseInt(document.defaultView.getComputedStyle(
+        dialog_content, '').getPropertyValue('height').replace('px', ''))
+      dialog_total = dialog_height + dc_height
       if elh > window.innerHeight
         return window.innerHeight - dialog_height
+      if dialog_total > window.innerHeight
+        return window.innerHeight - dialog_height
 
-    max_height = available_space(dialog, el)
+    max_height = available_space(dialog, el, dialog_content)
     top_offset = el.offsetTop + margins.top
     dialog.style.top = top_offset+'px'
     dialog.style.display = 'inline-block'
@@ -118,12 +127,15 @@ class NHModal
 
   # Remove a modal and it's cover from DOM
   # Takes the ID of the modal
-  close_modal: (modal_id) ->
+  close_modal: (modal_id) =>
+    self = @
     dialog_id = document.getElementById(modal_id)
-    if typeof dialog_id isnt 'undefined'
-      cover = document.getElementById('cover')
+    if typeof dialog_id isnt 'undefined' and dialog_id
+      cover = document.querySelectorAll('#cover[data-target="'+
+        modal_id+'"]')[0]
       document.getElementsByTagName('body')[0].removeChild(cover)
       dialog_id.parentNode.removeChild(dialog_id)
+      self.unlock_scrolling()
 
   # Handle events from buttons created in options array
   # Currently offers
@@ -133,84 +145,99 @@ class NHModal
   # - assign (assigns nurses to patients)
   # NOTE: Don't preventDefault() straight away as will disable all button clicks
   handle_button_events: (event) =>
-    if not event.handled
-      target_el = if event.srcElement then event.srcElement else event.target
-      data_target = target_el.getAttribute('data-target')
-      data_action = target_el.getAttribute('data-ajax-action')
-      switch target_el.getAttribute('data-action')
-        when 'close'
-          event.preventDefault()
-          @close_modal(data_target)
-        when 'renable'
-          event.preventDefault()
-          forms = document.getElementsByTagName('form')
-          for form in forms
-            action_buttons = (element for element in form.elements \
-              when element.getAttribute('type') in ['submit', 'reset'])
-            for button in action_buttons
-              button.removeAttribute('disabled')
-          @close_modal(data_target)
-        when 'submit'
-          event.preventDefault()
-          submit_event = document.createEvent 'CustomEvent'
-          submit_detail = {
-            'endpoint': target_el.getAttribute('data-ajax-action')
-          }
-          submit_event.initCustomEvent('post_score_submit', true, false,
-            submit_detail)
-          document.dispatchEvent submit_event
-          @close_modal(data_target)
-        when 'partial_submit'
-          event.preventDefault()
-          if not event.handled
-            submit_event = document.createEvent 'CustomEvent'
-            submit_detail = {
-              'action':data_action,
-              'target': data_target
-            }
-            submit_event.initCustomEvent('partial_submit',false,
-              true,submit_detail)
-            document.dispatchEvent submit_event
-            event.handled = true
-        when 'assign'
-          event.preventDefault()
-          dialog = document.getElementById(data_target)
-          dialog_form = dialog.getElementsByTagName('form')[0]
-          nurses = (el.value for el in dialog_form.elements when el.checked)
-          assign_event = document.createEvent 'CustomEvent'
-          assign_detail = {
-            'action':data_action,
-            'target': data_target,
-            'nurses': nurses
-          }
-          assign_event.initCustomEvent('assign_nurse', false, true,
-            assign_detail)
-          document.dispatchEvent assign_event
-        when 'claim'
-          event.preventDefault()
-          claim_event = document.createEvent 'CustomEvent'
-          claim_event.initCustomEvent('claim_patients', false, true, false)
-          document.dispatchEvent claim_event
-        when 'accept'
-          event.preventDefault()
-          accept_event = document.createEvent 'CustomEvent'
-          accept_detail = {
-            'invite_id': target_el.getAttribute('data-invite-id')
-          }
-          accept_event.initCustomEvent('accept_invite', false, true,
-            accept_detail)
-          document.dispatchEvent accept_event
-        when 'reject'
-          event.preventDefault()
-          reject_event = document.createEvent 'CustomEvent'
-          reject_detail = {
-            'invite_id': target_el.getAttribute('data-invite-id')
-          }
-          reject_event.initCustomEvent('reject_invite', false, true,
-            reject_detail)
-          document.dispatchEvent reject_event
-      event.handled = true
-      return
+#    if not event.handled
+#      target_el = if event.srcElement then event.srcElement else event.target
+    target_el = event.src_el
+    data_target = target_el.getAttribute('data-target')
+    data_action = target_el.getAttribute('data-ajax-action')
+    switch target_el.getAttribute('data-action')
+      when 'close'
+        event.preventDefault()
+        @close_modal(data_target)
+      when 'renable'
+        event.preventDefault()
+        forms = document.getElementsByTagName('form')
+        for form in forms
+          action_buttons = (element for element in form.elements \
+            when element.getAttribute('type') in ['submit', 'reset'])
+          for button in action_buttons
+            button.removeAttribute('disabled')
+        @close_modal(data_target)
+      when 'submit'
+        event.preventDefault()
+        submit_event = document.createEvent 'CustomEvent'
+        submit_detail = {
+          'endpoint': target_el.getAttribute('data-ajax-action')
+        }
+        submit_event.initCustomEvent('post_score_submit', true, false,
+          submit_detail)
+        document.dispatchEvent submit_event
+        @close_modal(data_target)
+      when 'partial_submit'
+        event.preventDefault()
+#        if not event.handled
+        submit_event = document.createEvent 'CustomEvent'
+        submit_detail = {
+          'action':data_action,
+          'target': data_target
+        }
+        submit_event.initCustomEvent('partial_submit',false,
+          true,submit_detail)
+        document.dispatchEvent submit_event
+#          event.handled = true
+      when 'assign'
+        event.preventDefault()
+        dialog = document.getElementById(data_target)
+        dialog_form = dialog.getElementsByTagName('form')[0]
+        nurses = (el.value for el in dialog_form.elements when el.checked)
+        assign_event = document.createEvent 'CustomEvent'
+        assign_detail = {
+          'action':data_action,
+          'target': data_target,
+          'nurses': nurses
+        }
+        assign_event.initCustomEvent('assign_nurse', false, true,
+          assign_detail)
+        document.dispatchEvent assign_event
+      when 'claim'
+        event.preventDefault()
+        claim_event = document.createEvent 'CustomEvent'
+        claim_event.initCustomEvent('claim_patients', false, true, false)
+        document.dispatchEvent claim_event
+      when 'accept'
+        event.preventDefault()
+        accept_event = document.createEvent 'CustomEvent'
+        accept_detail = {
+          'invite_id': target_el.getAttribute('data-invite-id')
+        }
+        accept_event.initCustomEvent('accept_invite', false, true,
+          accept_detail)
+        document.dispatchEvent accept_event
+      when 'reject'
+        event.preventDefault()
+        reject_event = document.createEvent 'CustomEvent'
+        reject_detail = {
+          'invite_id': target_el.getAttribute('data-invite-id')
+        }
+        reject_event.initCustomEvent('reject_invite', false, true,
+          reject_detail)
+        document.dispatchEvent reject_event
+#      event.handled = true
+
+
+  # Function to prevent scrolling via locking body size to defined height and
+  # setting overflow to none
+  lock_scrolling: () ->
+    body = document.getElementsByTagName('body')[0]
+    body.classList.add('no-scroll')
+
+  # Function to reinstate scrolling via unlocking body size and setting
+  # overflow to scroll
+  unlock_scrolling: () ->
+    body = document.getElementsByTagName('body')[0]
+    dialogs = document.getElementsByClassName('dialog')
+    if dialogs.length < 1
+      body.classList.remove('no-scroll')
 
 ### istanbul ignore if ###
 if !window.NH

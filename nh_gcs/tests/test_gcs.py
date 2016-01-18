@@ -1,6 +1,7 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.tests import common
 
-import logging        
+import logging
 _logger = logging.getLogger(__name__)
 
 from faker import Faker
@@ -35,30 +36,38 @@ class TestGCS(common.SingleTransactionCase):
 
         cls.apidemo = cls.registry('nh.clinical.api.demo')
 
-        cls.apidemo.build_unit_test_env(cr, uid, bed_count=4, patient_placement_count=2)
+        cls.apidemo.build_unit_test_env(cr, uid, bed_count=4,
+                                        patient_placement_count=2)
 
         cls.wu_id = cls.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
         cls.wt_id = cls.location_pool.search(cr, uid, [('code', '=', 'T')])[0]
-        cls.pos_id = cls.location_pool.read(cr, uid, cls.wu_id, ['pos_id'])['pos_id'][0]
-        cls.pos_location_id = cls.pos_pool.read(cr, uid, cls.pos_id, ['location_id'])['location_id'][0]
+        cls.pos_id = cls.location_pool.read(
+            cr, uid, cls.wu_id, ['pos_id'])['pos_id'][0]
+        cls.pos_location_id = cls.pos_pool.read(
+            cr, uid, cls.pos_id, ['location_id'])['location_id'][0]
 
         cls.wmu_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMU')])[0]
         cls.wmt_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMT')])[0]
         cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
-        cls.adt_id = cls.users_pool.search(cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']), ('pos_id', '=', cls.pos_id)])[0]
+        cls.adt_id = cls.users_pool.search(
+            cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']),
+                      ('pos_id', '=', cls.pos_id)])[0]
 
     def test_gcs_observations_policy_static(self):
         cr, uid = self.cr, self.uid
 
         gcs_test_data = {
-            'SCORE':    [   3,    4,    5,    6,    7,    8,    9,   10,   11,   12,   13,   14,   15],
-            'CASE':     [   0,    0,    0,    1,    1,    1,    1,    2,    2,    2,    2,    3,    4],
-            'EYES':     [ '1',  'C',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '4',  '4',  '4',  '4'],
-            'VERBAL':   [ '1',  'T',  '1',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '5',  '5',  '5'],
-            'MOTOR':    [ '1',  '2',  '2',  '2',  '2',  '2',  '3',  '3',  '3',  '4',  '4',  '5',  '6'],
+            'SCORE':    [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+            'CASE':     [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4],
+            'EYES':     ['1', 'C', '2', '2', '3', '3', '3', '4', '4', '4', '4',
+                         '4', '4'],
+            'VERBAL':   ['1', 'T', '1', '2', '2', '3', '3', '3', '4', '4', '5',
+                         '5', '5'],
+            'MOTOR':    ['1', '2', '2', '2', '2', '2', '3', '3', '3', '4', '4',
+                         '5', '6'],
         }
-        
+
         gcs_policy = {
             'frequencies': [30, 60, 120, 240, 720],
             'notifications': [
@@ -70,11 +79,21 @@ class TestGCS(common.SingleTransactionCase):
             ]
         }
 
-        patient_ids = self.patient_pool.search(cr, uid, [['current_location_id.usage', '=', 'bed'], ['current_location_id.parent_id', 'in', [self.wu_id, self.wt_id]]])
-        self.assertTrue(patient_ids, msg="Test set up Failed. No placed patients found")
+        patient_ids = self.patient_pool.search(
+            cr, uid,
+            [['current_location_id.usage', '=', 'bed'],
+             ['current_location_id.parent_id', 'in', [self.wu_id, self.wt_id]]
+             ])
+        self.assertTrue(
+            patient_ids, msg="Test set up Failed. No placed patients found")
         patient_id = fake.random_element(patient_ids)
-        spell_ids = self.activity_pool.search(cr, uid, [['data_model', '=', 'nh.clinical.spell'], ['patient_id', '=', patient_id]])
-        self.assertTrue(spell_ids, msg="Test set up Failed. No spell found for the patient")
+        spell_ids = self.activity_pool.search(
+            cr, uid,
+            [['data_model', '=', 'nh.clinical.spell'],
+             ['patient_id', '=', patient_id]])
+        self.assertTrue(
+            spell_ids,
+            msg="Test set up Failed. No spell found for the patient")
         spell_activity = self.activity_pool.browse(cr, uid, spell_ids[0])
         user_id = False
         if self.nu_id in [user.id for user in spell_activity.user_ids]:
@@ -82,7 +101,10 @@ class TestGCS(common.SingleTransactionCase):
         else:
             user_id = self.nt_id
 
-        gcs_activity_id = self.gcs_pool.create_activity(cr, uid, {'parent_id': spell_activity.id}, {'patient_id': spell_activity.patient_id.id})
+        gcs_activity_id = self.gcs_pool.create_activity(
+            cr, uid,
+            {'parent_id': spell_activity.id},
+            {'patient_id': spell_activity.patient_id.id})
 
         for i in range(13):
             data = {
@@ -95,25 +117,37 @@ class TestGCS(common.SingleTransactionCase):
             self.activity_pool.complete(cr, user_id, gcs_activity_id)
             gcs_activity = self.activity_pool.browse(cr, uid, gcs_activity_id)
 
-            frequency = gcs_policy['frequencies'][gcs_test_data['CASE'][i]]
-            nurse_notifications = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['nurse']
-            assessment = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['assessment']
-            review_frequency = gcs_policy['notifications'][gcs_test_data['CASE'][i]]['frequency']
+            frequency = gcs_policy['frequencies'][
+                gcs_test_data['CASE'][i]]
+            nurse_notifications = gcs_policy['notifications'][
+                gcs_test_data['CASE'][i]]['nurse']
+            assessment = gcs_policy['notifications'][
+                gcs_test_data['CASE'][i]]['assessment']
+            review_frequency = gcs_policy['notifications'][
+                gcs_test_data['CASE'][i]]['frequency']
 
-            _logger.info("TEST - observation GCS: expecting score %s, frequency %s" % (gcs_test_data['SCORE'][i], frequency))
-            
+            _logger.info("TEST - observation GCS: expecting score %s, "
+                         "frequency %s"
+                         % (gcs_test_data['SCORE'][i], frequency))
+
             # # # # # # # # # # # # # # # # #
             # Check the score and frequency #
             # # # # # # # # # # # # # # # # #
-            self.assertEqual(gcs_activity.data_ref.score, gcs_test_data['SCORE'][i], msg='Score not matching')
+            self.assertEqual(
+                gcs_activity.data_ref.score,
+                gcs_test_data['SCORE'][i], msg='Score not matching')
             domain = [
                 ('creator_id', '=', gcs_activity.id),
                 ('state', 'not in', ['completed', 'cancelled']),
                 ('data_model', '=', self.gcs_pool._name)]
             gcs_activity_ids = self.activity_pool.search(cr, uid, domain)
-            self.assertTrue(gcs_activity_ids, msg='Next GCS activity was not triggered')
-            next_gcs_activity = self.activity_pool.browse(cr, uid, gcs_activity_ids[0])
-            self.assertEqual(next_gcs_activity.data_ref.frequency, frequency, msg='Frequency not matching')
+            self.assertTrue(
+                gcs_activity_ids, msg='Next GCS activity was not triggered')
+            next_gcs_activity = self.activity_pool.browse(
+                cr, uid, gcs_activity_ids[0])
+            self.assertEqual(
+                next_gcs_activity.data_ref.frequency,
+                frequency, msg='Frequency not matching')
 
             # # # # # # # # # # # # # # # #
             # Check notification triggers #
@@ -125,17 +159,23 @@ class TestGCS(common.SingleTransactionCase):
             assessment_ids = self.activity_pool.search(cr, uid, domain)
 
             if assessment:
-                self.assertTrue(assessment_ids, msg='Assessment notification not triggered')
+                self.assertTrue(
+                    assessment_ids,
+                    msg='Assessment notification not triggered')
                 self.activity_pool.complete(cr, uid, assessment_ids[0])
                 domain = [
                     ('creator_id', '=', assessment_ids[0]),
                     ('state', 'not in', ['completed', 'cancelled']),
                     ('data_model', '=', 'nh.clinical.notification.frequency')]
                 frequency_ids = self.activity_pool.search(cr, uid, domain)
-                self.assertTrue(frequency_ids, msg='Review frequency not triggered after Assessment complete')
+                self.assertTrue(
+                    frequency_ids,
+                    msg='Review frequency not triggered after Assessment '
+                        'complete')
                 self.activity_pool.cancel(cr, uid, frequency_ids[0])
             else:
-                self.assertFalse(assessment_ids, msg='Assessment notification triggered')
+                self.assertFalse(
+                    assessment_ids, msg='Assessment notification triggered')
 
             domain = [
                 ('creator_id', '=', gcs_activity.id),
@@ -143,10 +183,14 @@ class TestGCS(common.SingleTransactionCase):
                 ('data_model', '=', 'nh.clinical.notification.frequency')]
             frequency_ids = self.activity_pool.search(cr, uid, domain)
             if review_frequency:
-                self.assertTrue(frequency_ids, msg='Review frequency notification not triggered')
+                self.assertTrue(
+                    frequency_ids,
+                    msg='Review frequency notification not triggered')
                 self.activity_pool.cancel(cr, uid, frequency_ids[0])
             else:
-                self.assertFalse(frequency_ids, msg='Review frequency notification triggered')
+                self.assertFalse(
+                    frequency_ids,
+                    msg='Review frequency notification triggered')
 
             if nurse_notifications:
                 for n in nurse_notifications:
@@ -156,7 +200,9 @@ class TestGCS(common.SingleTransactionCase):
                         ('data_model', '=', 'nh.clinical.notification.nurse'),
                         ('summary', '=', n)]
                     nurse_not_ids = self.activity_pool.search(cr, uid, domain)
-                    self.assertTrue(nurse_not_ids, msg='Nurse notification %s not triggered' % n)
+                    self.assertTrue(
+                        nurse_not_ids,
+                        msg='Nurse notification %s not triggered' % n)
                     self.activity_pool.cancel(cr, uid, nurse_not_ids[0])
             else:
                 domain = [
@@ -164,6 +210,6 @@ class TestGCS(common.SingleTransactionCase):
                     ('state', 'not in', ['completed', 'cancelled']),
                     ('data_model', '=', 'nh.clinical.notification.nurse')]
                 nurse_not_ids = self.activity_pool.search(cr, uid, domain)
-                self.assertFalse(nurse_not_ids, msg='Nurse notification triggered')
-
+                self.assertFalse(
+                    nurse_not_ids, msg='Nurse notification triggered')
             gcs_activity_id = next_gcs_activity.id

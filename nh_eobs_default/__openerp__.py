@@ -1,4 +1,5 @@
-# -*- encoding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 {
     'name': 'Open e-Obs Default Configuration',
     'version': '0.1',
@@ -9,8 +10,7 @@
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_eobs_mobile'],
-    'data': ['trust.xml',
-             'greenford_pos.xml', 'greenford_locations.xml', 'greenford_users.xml', 'greenford_params.xml'],
+    'data': ['trust.xml', 'params.xml'],
     'qweb': ['static/src/xml/nh_eobs_default.xml'],
     'css': ['static/src/css/nh_eobs_default.css'],
     'application': True,

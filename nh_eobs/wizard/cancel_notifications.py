@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from datetime import datetime as dt, timedelta as td
 from openerp.osv import osv, fields
@@ -26,12 +27,15 @@ class cancel_notifications_wizard(osv.TransientModel):
             ('data_model', 'ilike', '%notification%'),
             ('location_id.parent_id', 'in', user_locations)
         ]
-        notification_ids = activity_pool.search(cr, SUPERUSER_ID, domain, context=context)
-
-        [activity_pool.cancel(cr, SUPERUSER_ID, n, context=context) for n in notification_ids]
-
-        cancel_reason_id = self.pool['nh.cancel.reason'].search(cr, uid, [('name', '=', 'Cancelled by Ward Manager')], context=context)
-
-        activity_pool.write(cr, SUPERUSER_ID, notification_ids, {'terminate_uid': uid, 'cancel_reason_id': cancel_reason_id[0]}, context=context)
-
+        notification_ids = activity_pool.search(
+            cr, SUPERUSER_ID, domain, context=context)
+        [activity_pool.cancel(
+            cr, SUPERUSER_ID, n, context=context) for n in notification_ids]
+        cancel_reason_id = self.pool['nh.cancel.reason'].search(
+            cr, uid, [('name', '=', 'Cancelled by Ward Manager')],
+            context=context)
+        activity_pool.write(
+            cr, SUPERUSER_ID, notification_ids,
+            {'terminate_uid': uid, 'cancel_reason_id': cancel_reason_id[0]},
+            context=context)
         return {'type': 'ir.actions.act_window_close'}

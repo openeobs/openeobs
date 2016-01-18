@@ -55,38 +55,7 @@ Allows users to share patients with other users when they are not on ward</p>
     self = @
     <span class="hljs-property">@form</span> = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
     <span class="hljs-property">@share_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      event.preventDefault()
-      share_button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-      self.share_button_click(self)
-    <span class="hljs-property">@claim_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      event.preventDefault()
-      claim_button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-      self.claim_button_click(self)
-    <span class="hljs-property">@all_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      event.preventDefault()
-      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-        button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-        button_mode = button.getAttribute(<span class="hljs-string">'mode'</span>)
-        <span class="hljs-keyword">if</span> button_mode <span class="hljs-keyword">is</span> <span class="hljs-string">'select'</span>
-          self.select_all_patients(self, event)
-          button.textContent = <span class="hljs-string">'Unselect all'</span>
-          button.setAttribute(<span class="hljs-string">'mode'</span>, <span class="hljs-string">'unselect'</span>)
-        <span class="hljs-keyword">else</span>
-          self.unselect_all_patients(self, event)
-          button.textContent = <span class="hljs-string">'Select all'</span>
-          button.setAttribute(<span class="hljs-string">'mode'</span>, <span class="hljs-string">'select'</span>)
-        event.handled = <span class="hljs-literal">true</span>
-    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'assign_nurse'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      event.preventDefault()
-      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-        self.assign_button_click(self, event)
-        event.handled = <span class="hljs-literal">true</span>
-    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'claim_patients'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-      event.preventDefault()
-      <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-        self.claim_patients_click(self, event)
-        event.handled = <span class="hljs-literal">true</span>
-    <span class="hljs-keyword">super</span>()</pre></div></div>
+      self.handle_event(event, self.share_button_click, <span class="hljs-literal">true</span>, self)</pre></div></div>
             
         </li>
         
@@ -97,6 +66,119 @@ Allows users to share patients with other users when they are not on ward</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
+              <pre><code> event.preventDefault()
+share_button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+ self.share_button_click(self)
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-property">@claim_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <pre><code> event.preventDefault()
+claim_button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+ self.claim_button_click(self)
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      self.handle_event(event, self.claim_button_click, <span class="hljs-literal">true</span>, self)
+    <span class="hljs-property">@all_button</span>.addEventListener <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <pre><code> event.preventDefault()
+ <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      button = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
+      button_mode = button.getAttribute(<span class="hljs-string">'mode'</span>)
+      <span class="hljs-keyword">if</span> button_mode <span class="hljs-keyword">is</span> <span class="hljs-string">'select'</span>
+        self.handle_event(event, self.select_all_patients, <span class="hljs-literal">true</span>, self)
+        button.textContent = <span class="hljs-string">'Unselect all'</span>
+        button.setAttribute(<span class="hljs-string">'mode'</span>, <span class="hljs-string">'unselect'</span>)
+      <span class="hljs-keyword">else</span>
+        self.handle_event(event, self.unselect_all_patients, <span class="hljs-literal">true</span>, self)
+        button.textContent = <span class="hljs-string">'Select all'</span>
+        button.setAttribute(<span class="hljs-string">'mode'</span>, <span class="hljs-string">'select'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <pre><code> event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'assign_nurse'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <pre><code> event.preventDefault()
+ <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+   self.assign_button_click(self, event)
+   event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      self.handle_event(event, self.assign_button_click, <span class="hljs-literal">true</span>, self)
+    <span class="hljs-built_in">document</span>.addEventListener <span class="hljs-string">'claim_patients'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <pre><code> event.preventDefault()
+ <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+   self.claim_patients_click(self, event)
+   event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      self.handle_event(event, self.claim_patients_click, <span class="hljs-literal">true</span>, self)
+    <span class="hljs-keyword">super</span>()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
               <p>On share button being pressed:</p>
 <ul>
 <li>Create an array of IDs for patients to be shared</li>
@@ -106,7 +188,7 @@ Allows users to share patients with other users when they are not on ward</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">share_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">share_button_click</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
     patients = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> self.form.elements \
         <span class="hljs-keyword">when</span> el.checked <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
     <span class="hljs-keyword">if</span> patients.length &gt; <span class="hljs-number">0</span>
@@ -141,11 +223,11 @@ Allows users to share patients with other users when they are not on ward</p>
         </li>
         
         
-        <li id="section-4">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>On claim button being pressed:</p>
 <ul>
@@ -156,7 +238,7 @@ Allows users to share patients with other users when they are not on ward</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">claim_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">claim_button_click</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
     form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
     patients = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements \
       <span class="hljs-keyword">when</span> el.checked <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
@@ -181,11 +263,11 @@ Allows users to share patients with other users when they are not on ward</p>
         </li>
         
         
-        <li id="section-5">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>On Assign button being click in the modal:</p>
 <ul>
@@ -196,7 +278,7 @@ Allows users to share patients with other users when they are not on ward</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">assign_button_click</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">assign_button_click</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
     nurses = event.detail.nurses
     form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
     popup = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'assign_nurse'</span>)
@@ -243,7 +325,7 @@ Allows users to share patients with other users when they are not on ward</p>
             <span class="hljs-string">' please try again'</span>
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
 
-  <span class="hljs-attribute">claim_patients_click</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+  <span class="hljs-attribute">claim_patients_click</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
     form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
     patients = (el.value <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements \
       <span class="hljs-keyword">when</span> el.checked <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
@@ -281,13 +363,13 @@ Allows users to share patients with other users when they are not on ward</p>
           claim_msg, btns, <span class="hljs-number">0</span>, body)
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
 
-  <span class="hljs-attribute">select_all_patients</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+  <span class="hljs-attribute">select_all_patients</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
     form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
     (el.checked = <span class="hljs-literal">true</span> <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements \
       <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
 
-  <span class="hljs-attribute">unselect_all_patients</span>: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+  <span class="hljs-attribute">unselect_all_patients</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
     form = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'handover_form'</span>)
     (el.checked = <span class="hljs-literal">false</span> <span class="hljs-keyword">for</span> el <span class="hljs-keyword">in</span> form.elements \
       <span class="hljs-keyword">when</span> <span class="hljs-keyword">not</span> el.classList.contains(<span class="hljs-string">'exclude'</span>))

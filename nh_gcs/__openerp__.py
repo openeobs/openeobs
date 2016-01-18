@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 {
     'name': 'NH Glasgow Coma Scale',
     'version': '0.1',
@@ -9,8 +10,7 @@
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_observations'],
-    'data': [
-             'security/ir.model.access.csv',],
+    'data': ['security/ir.model.access.csv'],
     'demo': [],
     'css': [],
     'js': [],

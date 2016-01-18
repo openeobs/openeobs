@@ -7,7 +7,6 @@ from faker import Faker
 
 from openerp.osv import orm, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp import SUPERUSER_ID
 
 _logger = logging.getLogger(__name__)
 
@@ -89,7 +88,8 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
         return patients
 
-    def generate_news_simulation(self, cr, uid, days, patient_ids=None, context=None):
+    def generate_news_simulation(self, cr, uid, days, patient_ids=None,
+                                 context=None):
         """
         Generates demo news data over a period of time for the patients
         in patient_ids.
@@ -113,7 +113,8 @@ class nh_eobs_demo_loader(orm.AbstractModel):
             ['data_model', '=', 'nh.clinical.patient.observation.ews'],
             ['state', 'not in', ['completed', 'cancelled']]], context=context)
 
-        activity_pool.write(cr, uid, ews_activity_ids, {'date_scheduled': begin_date}, context=context)
+        activity_pool.write(cr, uid, ews_activity_ids,
+                            {'date_scheduled': begin_date}, context=context)
 
         current_date = dt.strptime(begin_date, dtf)
         while current_date < dt.now():
@@ -121,7 +122,8 @@ class nh_eobs_demo_loader(orm.AbstractModel):
                 ['patient_id', 'in', patient_ids],
                 ['data_model', '=', 'nh.clinical.patient.observation.ews'],
                 ['state', 'not in', ['completed', 'cancelled']],
-                ['date_scheduled', '<=', current_date.strftime(dtf)]], context=context)
+                ['date_scheduled', '<=', current_date.strftime(dtf)]
+            ], context=context)
 
             if not ews_activity_ids:
                 return False
@@ -129,14 +131,21 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
             for ews_id in ews_activity_ids:
                 ews_data = {
-                    'respiration_rate': fake.random_element([18]*90 + [11]*8 + [24]*2),
-                    'indirect_oxymetry_spo2': fake.random_element([99]*90 + [95]*8 + [93]*2),
-                    'oxygen_administration_flag': fake.random_element([False]*96 + [True]*4),
-                    'blood_pressure_systolic': fake.random_element([120]*90 + [110]*8 + [100]*2),
+                    'respiration_rate': fake.random_element(
+                        [18]*90 + [11]*8 + [24]*2),
+                    'indirect_oxymetry_spo2': fake.random_element(
+                        [99]*90 + [95]*8 + [93]*2),
+                    'oxygen_administration_flag': fake.random_element(
+                        [False]*96 + [True]*4),
+                    'blood_pressure_systolic': fake.random_element(
+                        [120]*90 + [110]*8 + [100]*2),
                     'blood_pressure_diastolic': 80,
-                    'avpu_text': fake.random_element(['A']*97 + ['V', 'P', 'U']),
-                    'pulse_rate': fake.random_element([65]*90 + [50]*8 + [130]*2),
-                    'body_temperature': fake.random_element([37.5]*93 + [36.0]*7),
+                    'avpu_text': fake.random_element(
+                        ['A']*97 + ['V', 'P', 'U']),
+                    'pulse_rate': fake.random_element(
+                        [65]*90 + [50]*8 + [130]*2),
+                    'body_temperature': fake.random_element(
+                        [37.5]*93 + [36.0]*7),
                 }
 
                 # set news obs to a partial
@@ -144,27 +153,37 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
                 # get a nurse/hca user_id to submit obs
                 user_id = self._get_random_user_id(cr, uid, nurse_hca_ids)
-                activity_pool.submit(cr, user_id, ews_id, ews_data, context=context)
+                activity_pool.submit(cr, user_id, ews_id, ews_data,
+                                     context=context)
                 activity_pool.complete(cr, user_id, ews_id, context=context)
                 _logger.info("EWS observation '%s' made", ews_id)
 
                 # set complete date
                 complete_date = current_date - td(minutes=10)
-                activity_pool.write(cr, uid, ews_id, {'date_terminated': complete_date.strftime(dtf)}, context=context)
+                activity_pool.write(
+                    cr, uid, ews_id,
+                    {'date_terminated': complete_date.strftime(dtf)},
+                    context=context)
 
                 # get frequency of triggered ews
                 triggered_ews_id = activity_pool.search(cr, uid, [
                     ['creator_id', '=', ews_id],
-                    ['data_model', '=', 'nh.clinical.patient.observation.ews']],
-                    context=context)
+                    ['data_model', '=', 'nh.clinical.patient.observation.ews']
+                ], context=context)
                 if not triggered_ews_id:
-                    osv.except_osv('Error!', 'The NEWS observation was not triggered after previous submission!')
-                triggered_ews = activity_pool.browse(cr, uid, triggered_ews_id[0], context=context)
+                    osv.except_osv('Error!',
+                                   'The NEWS observation was not triggered '
+                                   'after previous submission!')
+                triggered_ews = activity_pool.browse(
+                    cr, uid, triggered_ews_id[0], context=context)
 
                 # set scheduled date
-                scheduled_date = complete_date + td(minutes=triggered_ews.data_ref.frequency)
-                activity_pool.write(cr, uid, triggered_ews_id[0],
-                                    {'date_scheduled': scheduled_date.strftime(dtf)}, context=context)
+                scheduled_date = complete_date + td(
+                    minutes=triggered_ews.data_ref.frequency)
+                activity_pool.write(
+                    cr, uid, triggered_ews_id[0],
+                    {'date_scheduled': scheduled_date.strftime(dtf)},
+                    context=context)
                 if not nearest_date or scheduled_date < nearest_date:
                     nearest_date = scheduled_date
 
@@ -205,9 +224,8 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         user_pool = self.pool['res.users']
         # only HCA and nurse users submit/complete obs
         group_ids = group_pool.search(
-            cr, uid, [['name', 'in', [
-                    'NH Clinical Nurse Group', 'NH Clinical HCA Group']]]
-        )
+            cr, uid, [['name', 'in',
+                       ['NH Clinical Nurse Group', 'NH Clinical HCA Group']]])
         user_ids = user_pool.search(
             cr, uid, [['groups_id', 'in', group_ids]])
         return user_ids
@@ -303,8 +321,5 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         patient_in_bed_ids = []
         for patient in patients:
             if patient.current_location_id.usage == 'bed':
-                 patient_in_bed_ids.append(patient.id)
+                patient_in_bed_ids.append(patient.id)
         return patient_in_bed_ids
-
-
-

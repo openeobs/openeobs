@@ -1,9 +1,13 @@
 # Add min ability to Array class to find smallest value in Array
+
+### istanbul ignore next ###
 Array::min=->
   Math.min.apply(null, this)
 
 # NHGraph provides a graphic view of data which can be manipulated via a brush
 # or other method that changes the range of the axis
+
+
 class NHGraph extends NHGraphLib
   constructor: () ->
     # X & Y axis for the graph and the object that holds them
@@ -164,7 +168,7 @@ class NHGraph extends NHGraphLib
   # Handles rangify input event which changes the Y Axis to it's ranged scale
   # or to initial scale
   rangify_graph: (self, event) ->
-    if event.srcElement.checked
+    if event.target.checked
       d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
       d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
       self.axes.y.scale.domain([(if d0 > 0 then d0 else 0), d1])
@@ -187,6 +191,8 @@ class NHGraph extends NHGraphLib
     self.obj.attr('width', self.style.dimensions.width)
     self.axes.x.scale?.range()[1] = self.style.dimensions.width
     self.redraw(self.parent_obj)
+    event.handled = true
+    return
 
   # Setup graph which involves:
   # 1. Append a new group to the parent NHFocus or NHContext
@@ -268,13 +274,19 @@ class NHGraph extends NHGraphLib
 
     if self.options.keys.length>1
       values = []
-      for ob in self.parent_obj.parent_obj.data.raw
-        values.push(ob[key] for key in self.options.keys)
+      for key in self.options.keys
+        for ob in self.parent_obj.parent_obj.data.raw
+          ## Push null if false so that extent doesn't count it as a value
+          if typeof ob[key] == 'number'
+            values.push(ob[key])
+          else values.push(null)
       @.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values))
     else
       @.axes.y.ranged_extent = \
       nh_graphs.extent(self.parent_obj.parent_obj.data.raw, (d) ->
-        return d[self.options.keys[0]]
+        if (typeof d[self.options.keys[0]] == 'number')
+          return d[self.options.keys[0]]
+        else return null
       )
 
     if @.options.label?
@@ -290,10 +302,14 @@ class NHGraph extends NHGraphLib
       .data(@.options.keys).enter().append('text').text((d, i) ->
         raw = self.parent_obj.parent_obj.data.raw
         if i isnt self.options.keys.length-1
-          return raw[self.parent_obj.parent_obj.data.raw.length-1][d]
+          ## Used in case of partial observation
+          if raw[raw.length-1][d] != false
+            return raw[raw.length-1][d]
+          else return 'NA'
         else
-          return raw[self.parent_obj.parent_obj.data.raw.length-1][d] + '' +
-          self.options.measurement
+          if raw[raw.length-1][d] != false
+            return raw[raw.length-1][d] + '' + self.options.measurement
+          else return 'NA'
       ).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,
         'y': (d, i) ->
@@ -301,6 +317,36 @@ class NHGraph extends NHGraphLib
             (self.style.label_text_height*(self.options.keys.length-i))
         ,'class': 'measurement'
       })
+
+    # Check normal range background data validity
+    ((self) ->
+      valid = true
+      # Check if both have been defined
+      if self.options.normal.min? and self.options.normal.max?
+        min = self.options.normal.min
+        max = self.options.normal.max
+
+        # Get axis min / max values
+        yMin = self.axes.y.min
+        yMax = self.axes.y.max
+
+        # Throw error if either value is NaN
+        if isNaN(min) or isNaN(max)
+          valid = false
+
+        # Check values are valid
+        else
+          if min > yMax or min < yMin or min > max then valid = false
+          if max < yMin or max > yMax or max < min then valid = false
+      else
+        valid = false
+
+      if !valid
+        console.log 'Invalid normal range defined'
+
+        self.options.normal.min = 0
+        self.options.normal.max = 0
+    )(@)
 
     window.addEventListener('graph_resize', (event) ->
       self.resize_graph(self, event)
@@ -421,7 +467,7 @@ class NHGraph extends NHGraphLib
           return self.axes.y.scale(d[self.options.keys[0]])
         ).attr("r", 3).attr("class", "point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
-        .on('mouseover', (d) ->
+        .on('mouseover', (d,event) ->
           self.show_popup(d[self.options.keys[0]],event.pageX,event.pageY)
         )
         .on('mouseout', (d) ->
@@ -446,7 +492,7 @@ class NHGraph extends NHGraphLib
         .attr("r", 3)
         .attr("class", "empty_point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
-        .on('mouseover', (d) ->
+        .on('mouseover', (d,event) ->
           self.show_popup('Partial observation: ' + d[self.options.keys[0]],
             event.pageX,
             event.pageY)
@@ -488,7 +534,7 @@ class NHGraph extends NHGraphLib
             'class': 'range top',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
           })
-          .on('mouseover', (d) ->
+          .on('mouseover', (d,event) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -519,7 +565,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.cap.width,
             'class': 'range bottom',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -552,7 +598,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.width,
             'class': 'range extent',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = ''
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -586,7 +632,7 @@ class NHGraph extends NHGraphLib
             'class': 'range top empty_point',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
           })
-          .on('mouseover', (d) ->
+          .on('mouseover', (d,event) ->
             string_to_use = 'Partial Observation:<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -622,7 +668,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.cap.width,
             'class': 'range bottom empty_point',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = 'Partial Observation:<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -661,7 +707,7 @@ class NHGraph extends NHGraphLib
             'width': self.style.range.width,
             'class': 'range extent empty_point',
             'clip-path': 'url(#'+ self.options.keys.join('-')+'-clip' +')'
-          }).on('mouseover', (d) ->
+          }).on('mouseover', (d,event) ->
             string_to_use = 'Partial Observation<br>'
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
@@ -805,6 +851,7 @@ class NHGraph extends NHGraphLib
       else throw new Error('no graph style defined')
     return
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
 window.NH.NHGraph = NHGraph

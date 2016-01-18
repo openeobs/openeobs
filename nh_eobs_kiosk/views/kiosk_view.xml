@@ -30,7 +30,6 @@
             <field name="arch" type="xml">
                 <kanban edit="false" quick_create="false" create="false">
                     <field name="full_name" />
-                    <field name="placed" />
                     <field name="location" />
                     <field name="location_full_name"/>
                     <field name="sex"/>

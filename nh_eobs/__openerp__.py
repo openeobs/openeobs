@@ -1,4 +1,5 @@
-# -*- encoding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 {
     'name': 'NH eObs',
     'version': '0.1',
@@ -24,7 +25,6 @@
              'views/placement_view.xml',
              'views/overdue_view.xml',
              'views/views.xml',
-             # 'views/kamishibai_view.xml',
              'views/spell_management_views.xml',
              'views/ward_dashboard_view.xml',
              'views/locations_view.xml',

@@ -9,19 +9,24 @@ class NHMobilePatient extends NHMobile
     super()
     # find the obs menu on page
     obs_menu = document.getElementById('obsMenu')
-    obs_menu.style.display = 'none'
+    if obs_menu
+      obs_menu.style.display = 'none'
     table_view = document.getElementById('table-content')
     table_view.style.display = 'none'
 
     obs = document.getElementsByClassName('obs')
     ### istanbul ignore else ###
     if obs and obs.length > 0
-      obs[0].addEventListener('click', @.show_obs_menu)
+      obs[0].addEventListener('click', (e) ->
+        self.handle_event(e, self.show_obs_menu, true)
+      )
 
     tabs_el = document.getElementsByClassName('tabs')
     tabs = tabs_el[0].getElementsByTagName('a')
     for tab in tabs
-      tab.addEventListener('click', @.handle_tabs)
+      tab.addEventListener('click', (e) ->
+        self.handle_event(e, self.handle_tabs, true)
+      )
 
     data_id = document.getElementById('graph-content').getAttribute('data-id')
 
@@ -32,26 +37,30 @@ class NHMobilePatient extends NHMobile
         self.draw_graph(self, data)
 
   handle_tabs: (event) ->
-    event.preventDefault()
-    if not event.handled
-      tabs = document.getElementsByClassName('tabs')[0]
-      .getElementsByTagName('a')
-      for tab in tabs
-        tab.classList.remove('selected')
-      document.getElementById('graph-content').style.display = 'none'
-      document.getElementById('table-content').style.display = 'none'
-      target_el = if event.srcElement then event.srcElement else event.target
-      target_el.classList.add('selected')
-      tab_target = target_el.getAttribute('href').replace('#', '')
-      document.getElementById(tab_target).style.display = 'block'
-      event.handled = true
+#    event.preventDefault()
+#    if not event.handled
+    tabs = document.getElementsByClassName('tabs')[0]
+    .getElementsByTagName('a')
+    for tab in tabs
+      tab.classList.remove('selected')
+    document.getElementById('graph-content').style.display = 'none'
+    document.getElementById('table-content').style.display = 'none'
+#    target_el = if event.srcElement then event.srcElement else event.target
+    target_el = event.src_el
+    target_el.classList.add('selected')
+    tab_target = target_el.getAttribute('href').replace('#', '')
+    document.getElementById(tab_target).style.display = 'block'
+#      event.handled = true
 
   show_obs_menu: (event) ->
-    event.preventDefault()
+#    event.preventDefault()
     obs_menu = document.getElementById('obsMenu')
     body = document.getElementsByTagName('body')[0]
     menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>'
-    pat = document.querySelectorAll('a.patientInfo h3.name strong')[0].textContent
+    pats = document.querySelectorAll('a.patientInfo h3.name strong')
+    pat = ''
+    if pats.length > 0
+      pat = pats[0].textContent
     new NHModal('obs_menu',
       'Pick an observation for ' + pat, menu,
       ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'],

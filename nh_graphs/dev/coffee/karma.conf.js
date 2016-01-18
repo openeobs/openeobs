@@ -14,7 +14,7 @@ module.exports = function(config) {
         hostname: 'localhost',
         port: 9876,
 
-        reporters: ['nyan', 'html', 'coverage'],
+        reporters: ['nyan', 'coverage'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
@@ -25,13 +25,14 @@ module.exports = function(config) {
 
         frameworks: ['jasmine'],
 
-        browsers: ['PhantomJS'],
+        browsers: ['Chrome','PhantomJS'],
 
         plugins: [
             'karma-jasmine',
             'karma-junit-reporter',
             'karma-phantomjs-launcher',
             'karma-chrome-launcher',
+            'karma-firefox-launcher',
             'karma-coverage',
             'karma-nyan-reporter',
             'karma-html-reporter'
@@ -46,18 +47,6 @@ module.exports = function(config) {
         coverageReporter: {
           type : 'html',
           dir : 'coverage/'
-        },
-
-        htmlReporter: {
-            outputDir: 'karma_html',
-            templatePath: null,
-            focusOnFailures: false,
-            namedFiles: false,
-            pageTitle: null,
-            urlFriendlyName: false,
-            reportName: 'report-summary-filename',
-            preserveDescribeNesting: true
         }
-
     })
 }

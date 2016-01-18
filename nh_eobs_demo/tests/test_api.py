@@ -2,10 +2,7 @@
 import logging
 
 from datetime import datetime, timedelta
-
-from openerp.osv import osv
 from openerp.tests.common import TransactionCase
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 _logger = logging.getLogger(__name__)
 
@@ -78,8 +75,7 @@ class TestApiDemo(TransactionCase):
         )
         self.assertEqual(result, ['W1B1', 'W1B2', 'W1B3', 'W1B4'])
 
-    def test_transfer_patients_transfers_patient_from_location_to_location(
-            self):
+    def test_transfer_patients_transfers_them_from_location_to_location(self):
         cr, uid = self.cr, self.uid
         self.demo_api.generate_locations(
             cr, uid, wards=1, beds=4, hospital=True)
@@ -113,5 +109,3 @@ class TestApiDemo(TransactionCase):
         patient_ids = self.demo_loader._get_patients_placed(cr, uid)
 
         self.assertTrue(len(patient_ids) > 0)
-
-

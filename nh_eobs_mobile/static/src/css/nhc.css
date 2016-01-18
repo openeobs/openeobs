@@ -975,7 +975,7 @@ a.patientInfo .obs {
 }
 .cover {
   display: inline-block;
-  height: 100%;
+  height: 1000%;
   width: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 9998;
@@ -1621,4 +1621,9 @@ circle.point{
     fill: black;
     stroke: black;
     stroke-width: 1px;
+}
+
+body.no-scroll{
+  overflow: hidden;
+  height: 100%;
 }

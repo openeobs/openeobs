@@ -369,11 +369,7 @@ data</p>
         [cancel], <span class="hljs-number">0</span>, <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>])
       fullscreen = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'patient_obs_fullscreen'</span>)
       fullscreen.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-          self.fullscreen_patient_info(event, self)
-          event.handled = <span class="hljs-literal">true</span>
-      )
-    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span></pre></div></div>
+        self.handle_event(event, self.fullscreen_patient_info, <span class="hljs-literal">true</span>, self)</pre></div></div>
             
         </li>
         
@@ -384,43 +380,14 @@ data</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
-              <p>Adds a full screen modal of the patient info screen over the current page
-triggered by the fullscreen button made by the patient information modal</p>
-
+              <pre><code>   <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+     self.fullscreen_patient_info(event, self)
+     event.handled = <span class="hljs-literal">true</span>
+</code></pre>
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">fullscreen_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span>
-    event.preventDefault()
-    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-      target_el = <span class="hljs-keyword">if</span> event.srcElement <span class="hljs-keyword">then</span> event.srcElement <span class="hljs-keyword">else</span> event.target
-      container = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
-      container.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'full-modal'</span>)
-      options = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'p'</span>)
-      options_close = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'a'</span>)
-      options_close.setAttribute(<span class="hljs-string">'href'</span>, <span class="hljs-string">'#'</span>)
-      options_close.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'closeFullModal'</span>)
-      options_close.innerText = <span class="hljs-string">'Close popup'</span>
-      options_close.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-          self.close_fullscreen_patient_info(event)
-          event.handled = <span class="hljs-literal">true</span>
-      )
-      options.appendChild(options_close)
-      container.appendChild(options)
-      page = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'iframe'</span>)
-      page.setAttribute(<span class="hljs-string">'src'</span>, target_el.getAttribute(<span class="hljs-string">'href'</span>))
-      page.onload = <span class="hljs-function">-&gt;</span>
-        modal = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>]
-        iframe = modal.getElementsByTagName(<span class="hljs-string">'iframe'</span>)[<span class="hljs-number">0</span>]
-        contents = <span class="hljs-keyword">if</span> iframe.contentDocument <span class="hljs-keyword">then</span> iframe.contentDocument <span class="hljs-keyword">else</span>
-          iframe.contentWindow.<span class="hljs-built_in">document</span>
-        header = contents?.getElementsByClassName(<span class="hljs-string">'header'</span>)?[<span class="hljs-number">0</span>]
-        header?.parentNode.removeChild(header)
-        obs = contents?.getElementsByClassName(<span class="hljs-string">'obs'</span>)?[<span class="hljs-number">0</span>]
-        obs?.parentNode.removeChild(obs)
-      container.appendChild(page)
-      <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].appendChild(container)
-      event.handled = <span class="hljs-literal">true</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>      )
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span></pre></div></div>
             
         </li>
         
@@ -431,17 +398,130 @@ triggered by the fullscreen button made by the patient information modal</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
+              <p>Adds a full screen modal of the patient info screen over the current page
+triggered by the fullscreen button made by the patient information modal</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">fullscreen_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(event, self)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>   event.preventDefault()
+   if not event.handled
+   target_el = if event.srcElement then event.srcElement else event.target</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    target_el = event.src_el
+    container = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+    container.setAttribute(<span class="hljs-string">'class'</span>, <span class="hljs-string">'full-modal'</span>)
+    options = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'p'</span>)
+    options_close = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'a'</span>)
+    options_close.setAttribute(<span class="hljs-string">'href'</span>, <span class="hljs-string">'#'</span>)
+    options_close.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'closeFullModal'</span>)
+    options_close.innerText = <span class="hljs-string">'Close popup'</span>
+    options_close.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
+      self.handle_event(event, self.close_fullscreen_patient_info, <span class="hljs-literal">true</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <pre><code>   <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
+     self.close_fullscreen_patient_info(event)
+     event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    )
+    options.appendChild(options_close)
+    container.appendChild(options)
+    page = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'iframe'</span>)
+    page.setAttribute(<span class="hljs-string">'src'</span>, target_el.getAttribute(<span class="hljs-string">'href'</span>))
+    page.onload = <span class="hljs-function">-&gt;</span>
+      modal = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>]
+      iframe = modal.getElementsByTagName(<span class="hljs-string">'iframe'</span>)[<span class="hljs-number">0</span>]
+      contents = <span class="hljs-keyword">if</span> iframe.contentDocument <span class="hljs-keyword">then</span> iframe.contentDocument <span class="hljs-keyword">else</span>
+        iframe.contentWindow.<span class="hljs-built_in">document</span>
+      header = contents?.getElementsByClassName(<span class="hljs-string">'header'</span>)?[<span class="hljs-number">0</span>]
+      header?.parentNode.removeChild(header)
+      obs = contents?.getElementsByClassName(<span class="hljs-string">'obs'</span>)?[<span class="hljs-number">0</span>]
+      obs?.parentNode.removeChild(obs)
+    container.appendChild(page)
+    <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>].appendChild(container)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <pre><code> event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
               <p>Closes an open fullscreen modal of the patient’s information</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_fullscreen_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span>
-    event.preventDefault()
-    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> event.handled
-      body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
-      body.removeChild(<span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>])
-      event.handled = <span class="hljs-literal">true</span>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-attribute">close_fullscreen_patient_info</span>: <span class="hljs-function"><span class="hljs-params">(event)</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>   event.preventDefault()
+   if not event.handled</p>
 
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    body = <span class="hljs-built_in">document</span>.getElementsByTagName(<span class="hljs-string">'body'</span>)[<span class="hljs-number">0</span>]
+    body.removeChild(<span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'full-modal'</span>)[<span class="hljs-number">0</span>])</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <pre><code> event.handled = <span class="hljs-literal">true</span>
+</code></pre>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
 
 <span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
   <span class="hljs-built_in">window</span>.NH = {}

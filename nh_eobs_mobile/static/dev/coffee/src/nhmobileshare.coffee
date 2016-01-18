@@ -10,45 +10,49 @@ class NHMobileShare extends NHMobile
     self = @
     @form = document.getElementById('handover_form')
     @share_button.addEventListener 'click', (event) ->
-      event.preventDefault()
-      share_button = if event.srcElement then event.srcElement else event.target
-      self.share_button_click(self)
+      self.handle_event(event, self.share_button_click, true, self)
+#      event.preventDefault()
+#     share_button = if event.srcElement then event.srcElement else event.target
+#      self.share_button_click(self)
     @claim_button.addEventListener 'click', (event) ->
-      event.preventDefault()
-      claim_button = if event.srcElement then event.srcElement else event.target
-      self.claim_button_click(self)
+#      event.preventDefault()
+#     claim_button = if event.srcElement then event.srcElement else event.target
+#      self.claim_button_click(self)
+      self.handle_event(event, self.claim_button_click, true, self)
     @all_button.addEventListener 'click', (event) ->
-      event.preventDefault()
-      ### istanbul ignore else ###
-      if not event.handled
-        button = if event.srcElement then event.srcElement else event.target
-        button_mode = button.getAttribute('mode')
-        if button_mode is 'select'
-          self.select_all_patients(self, event)
-          button.textContent = 'Unselect all'
-          button.setAttribute('mode', 'unselect')
-        else
-          self.unselect_all_patients(self, event)
-          button.textContent = 'Select all'
-          button.setAttribute('mode', 'select')
-        event.handled = true
+#      event.preventDefault()
+#      ### istanbul ignore else ###
+#      if not event.handled
+      button = if event.srcElement then event.srcElement else event.target
+      button_mode = button.getAttribute('mode')
+      if button_mode is 'select'
+        self.handle_event(event, self.select_all_patients, true, self)
+        button.textContent = 'Unselect all'
+        button.setAttribute('mode', 'unselect')
+      else
+        self.handle_event(event, self.unselect_all_patients, true, self)
+        button.textContent = 'Select all'
+        button.setAttribute('mode', 'select')
+#      event.handled = true
     document.addEventListener 'assign_nurse', (event) ->
-      event.preventDefault()
-      if not event.handled
-        self.assign_button_click(self, event)
-        event.handled = true
+#      event.preventDefault()
+#      if not event.handled
+#        self.assign_button_click(self, event)
+#        event.handled = true
+      self.handle_event(event, self.assign_button_click, true, self)
     document.addEventListener 'claim_patients', (event) ->
-      event.preventDefault()
-      if not event.handled
-        self.claim_patients_click(self, event)
-        event.handled = true
+#      event.preventDefault()
+#      if not event.handled
+#        self.claim_patients_click(self, event)
+#        event.handled = true
+      self.handle_event(event, self.claim_patients_click, true, self)
     super()
 
   # On share button being pressed:
   # - Create an array of IDs for patients to be shared
   # - Get the list of nurses available to assign patients to
   # - Popup the nurse selection screen in a fullscreen modal
-  share_button_click: (self) ->
+  share_button_click: (event, self) ->
     patients = (el.value for el in self.form.elements \
         when el.checked and not el.classList.contains('exclude'))
     if patients.length > 0
@@ -84,7 +88,7 @@ class NHMobileShare extends NHMobile
   # - Create an array of IDs for patients to be claimed
   # - Send list of selected ids to server
   # - Update UI to reflect the change
-  claim_button_click: (self) ->
+  claim_button_click: (event, self) ->
     form = document.getElementById('handover_form')
     patients = (el.value for el in form.elements \
       when el.checked and not el.classList.contains('exclude'))
@@ -110,7 +114,7 @@ class NHMobileShare extends NHMobile
   # - Check to see if nurses are selected
   # - If so then send data over to the server
   # - If not then show an error message
-  assign_button_click: (self, event) ->
+  assign_button_click: (event, self) ->
     nurses = event.detail.nurses
     form = document.getElementById('handover_form')
     popup = document.getElementById('assign_nurse')
@@ -157,7 +161,7 @@ class NHMobileShare extends NHMobile
             ' please try again'
     return true
 
-  claim_patients_click: (self, event) ->
+  claim_patients_click: (event, self) ->
     form = document.getElementById('handover_form')
     patients = (el.value for el in form.elements \
       when el.checked and not el.classList.contains('exclude'))
@@ -195,13 +199,13 @@ class NHMobileShare extends NHMobile
           claim_msg, btns, 0, body)
     return true
 
-  select_all_patients: (self, event) ->
+  select_all_patients: (event, self) ->
     form = document.getElementById('handover_form')
     (el.checked = true for el in form.elements \
       when not el.classList.contains('exclude'))
     return true
 
-  unselect_all_patients: (self, event) ->
+  unselect_all_patients: (event, self) ->
     form = document.getElementById('handover_form')
     (el.checked = false for el in form.elements \
       when not el.classList.contains('exclude'))

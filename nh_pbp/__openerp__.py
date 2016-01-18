@@ -1,7 +1,8 @@
 # -*- encoding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 {
     'name': 'NH Postural Blood Pressure',
-    'version': '0.1',
+    'version': '1.0',
     'category': 'Clinical',
     'license': 'AGPL-3',
     'summary': '',

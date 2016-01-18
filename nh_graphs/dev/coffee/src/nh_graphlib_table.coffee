@@ -1,5 +1,7 @@
 # NHTable provides a table presentation of data which like a graph can be
 # changed via brushing
+
+### istanbul ignore next ###
 class NHTable extends NHGraphLib
 
   # Properties of the table
@@ -95,7 +97,7 @@ class NHTable extends NHGraphLib
   # 2. Select all the tr elements in the tbody (should be none)
   # 3. For each key to be drawn see if it's within the range and return the
   # ranged subset
-  # 4. For each key in subset attend a tr with the data for that key
+  # 4. For each key in subset append a tr with the data for that key
   # 5. For each entry select all td and append a td with the value as it's
   # inner HTML value
   redraw: (parent_obj) =>
@@ -136,6 +138,7 @@ class NHTable extends NHGraphLib
       data)
     return
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
 window.NH.NHTable = NHTable

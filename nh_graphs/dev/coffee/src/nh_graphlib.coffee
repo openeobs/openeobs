@@ -132,7 +132,7 @@ class NHGraphLib
   mobile_date_start_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.min
-      dates = event.srcElement.value.split('-')
+      dates = event.target.value.split('-')
       new_date = new Date(current_date.setFullYear(dates[0],
         parseInt(dates[1])-1, dates[2]))
       self.focus.axes.x.min = new_date
@@ -148,12 +148,20 @@ class NHGraphLib
   mobile_date_end_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.max
-      dates = event.srcElement.value.split('-')
+      dates = event.target.value.split('-')
       new_date = new Date(current_date.setFullYear(dates[0],
         parseInt(dates[1])-1, dates[2]))
       self.focus.axes.x.max = new_date
       self.focus.redraw([self.focus.axes.x.min, new_date])
     return
+
+  # Method to determine device orientation, used by NHContext and NHFocus
+  # on resize event when is_mob = true
+  is_landscape: () ->
+    if window.innerWidth > window.innerHeight
+      return 1
+    else
+      return 0
 
   # Handle events when input defined in options.controls.time.start changed
   # 1. Gets the current date (which is graph's X axis start)
@@ -164,7 +172,7 @@ class NHGraphLib
   mobile_time_start_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.min
-      time = event.srcElement.value.split(':')
+      time = event.target.value.split(':')
       new_time = new Date(current_date.setHours(time[0], time[1]))
       self.focus.axes.x.min = new_time
       self.focus.redraw([new_time, self.focus.axes.x.max])
@@ -179,24 +187,27 @@ class NHGraphLib
   mobile_time_end_change: (self, event) ->
     if self.focus?
       current_date = self.focus.axes.x.max
-      time = event.srcElement.value.split(':')
+      time = event.target.value.split(':')
       new_time = new Date(current_date.setHours(time[0], time[1]))
       self.focus.axes.x.max = new_time
       self.focus.redraw([self.focus.axes.x.min, new_time])
     return
 
   # Handle browser resize event. Resize and redraw the graphs
+  # 0. Check chart element exists
   # 1. Get the dimensions of main element
   # 2. Set the attribute for the object
   # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (self, event) ->
-    self.style.dimensions.width = \
-      nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
-      (self.style.margin.left + self.style.margin.right)
-    self.obj?.attr('width', self.style.dimensions.width)
-    context_event = document.createEvent('HTMLEvents')
-    context_event.initEvent('context_resize', true, true)
-    window.dispatchEvent(context_event)
+    if !event.handled && document.querySelectorAll(self.el).length
+      self.style.dimensions.width = \
+        nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
+        (self.style.margin.left + self.style.margin.right)
+      self.obj?.attr('width', self.style.dimensions.width)
+      context_event = document.createEvent('HTMLEvents')
+      context_event.initEvent('context_resize', true, true)
+      window.dispatchEvent(context_event)
+      event.handled = true
     return
 
   # Handle the creation of the graph objects and add event listeners
@@ -268,10 +279,13 @@ class NHGraphLib
 
   # Trigger the draw functions for context, focus and tabular representation
   draw: () ->
-    @.context?.draw(@)
-    @.focus?.draw(@)
-    if @.table.element?
-      @.draw_table(@)
+    if @.data.raw.length > 0
+      @.context?.draw(@)
+      @.focus?.draw(@)
+      if @.table.element?
+        @.draw_table(@)
+    else
+      throw new Error('No raw data provided')
 
   # Draw the tabular representation
   # 1. Get the elements
@@ -338,8 +352,10 @@ class NHGraphLib
         return d.value
      )
 
+### istanbul ignore if ###
 if !window.NH
   window.NH = {}
+
 window.NH.NHGraphLib = NHGraphLib
 
 

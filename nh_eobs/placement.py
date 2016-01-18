@@ -1,9 +1,11 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 """
 Shows all :class:`patients<base.nh_clinical_patient>` pending a
 :class:`placement<operations.nh_clinical_patient_placement>` in a
 :class:`bed location<base.nh_clinical_location>`.
 """
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm, fields
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -25,7 +27,8 @@ class nh_clinical_placement(orm.Model):
     _auto = False
     _table = "nh_clinical_placement"
     _columns = {
-        'activity_id': fields.many2one('nh.activity', 'Activity', required=1, ondelete='restrict'),
+        'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
+                                       ondelete='restrict'),
         'location_id': fields.many2one('nh.clinical.location', 'Ward'),
         'pos_id': fields.many2one('nh.clinical.pos', 'POS'),
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient'),
@@ -47,8 +50,10 @@ class nh_clinical_placement(orm.Model):
                         patient.other_identifier as hospital_number,
                         patient.patient_identifier as nhs_number
                     from nh_activity activity
-                    inner join nh_clinical_patient patient on activity.patient_id = patient.id
-                    where activity.data_model = 'nh.clinical.patient.placement' and activity.state not in ('completed','cancelled')
+                    inner join nh_clinical_patient patient
+                        on activity.patient_id = patient.id
+                    where activity.data_model = 'nh.clinical.patient.placement'
+                    and activity.state not in ('completed','cancelled')
                 )
         """ % (self._table, self._table))
 
@@ -57,7 +62,6 @@ class nh_clinical_placement(orm.Model):
         Extends :meth:`complete()<activity.nh_activity.complete>` to
         place a :class:`patient<base.nh_clinical_patient>` in a bed
         :class:`location<base.nh_clinical_location>`.
-
         :param ids: ids of placement
         :type ids: list
         :returns: an action to present a form view of
@@ -66,13 +70,14 @@ class nh_clinical_placement(orm.Model):
         """
 
         placement = self.browse(cr, uid, ids[0], context=context)
-
         model_data_pool = self.pool['ir.model.data']
-        model_data_ids = model_data_pool.search(cr, uid, [('name', '=', 'view_patient_placement_complete')], context=context)
+        model_data_ids = model_data_pool.search(
+            cr, uid, [('name', '=', 'view_patient_placement_complete')],
+            context=context)
         if not model_data_ids:
-            pass # view doesnt exist
-        view_id = model_data_pool.read(cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
-
+            pass
+        view_id = model_data_pool.read(
+            cr, uid, model_data_ids, ['res_id'], context)[0]['res_id']
         return {
             'name': 'Patient Placement',
             'type': 'ir.actions.act_window',

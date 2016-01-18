@@ -321,7 +321,7 @@
                         </t> -->
 
                     <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''"/>
                     <!-- </t>
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>

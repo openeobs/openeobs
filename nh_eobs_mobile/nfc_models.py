@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
-__author__ = 'lorenzo'
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+"""
+Adds functionality for NFC (`Near Field Communication`) user cards.
+"""
+from openerp.osv import orm
+from openerp.osv import fields
+from openerp.osv import osv
 import logging
-from openerp.osv import orm, fields, osv
+
 
 _logger = logging.getLogger(__name__)
 
 
 class nh_eobs_mobile_nfc(orm.Model):
-    """Extend the users' model with a card's PIN field (for NFC authentication purpose)."""
+    """
+    Extend :class:`users<base.res_users>` with a card's PIN field for
+    NFC authentication.
+    """
+
     _name = 'res.users'
     _inherit = 'res.users'
 
@@ -16,10 +26,23 @@ class nh_eobs_mobile_nfc(orm.Model):
     }
 
     def get_user_id_from_card_pin(self, cr, uid, card_pin, context=None):
-        """Return the user ID related to the card PIN passed as argument."""
-        user_id = self.search(cr, uid, [('card_pin', '=', card_pin)], context=context)
+        """
+        Gets the :class:`user's<base.res_users>` ``user_id`` of the
+        card's ``card_pin``. Raises an exception if there's more than
+        one user related to the card.
+
+        :param card_pin: pin of the card belonging to a user
+        :type card_pin: int
+        :raises: :class:`osv.except_osv<openerp.osv.osv.except_orm>`
+        :returns: ``user_id``
+        :rtype: int
+        """
+
+        user_id = self.search(
+            cr, uid, [('card_pin', '=', card_pin)], context=context)
         if not user_id:
-            _logger.debug('Cannot find a user ID related to the card PIN passed.')
+            _logger.debug(
+                'Cannot find a user ID related to the card PIN passed.')
             return False
         else:
             if len(user_id) > 1:
@@ -29,8 +52,23 @@ class nh_eobs_mobile_nfc(orm.Model):
                 return user_id[0]
 
     def get_user_login_from_user_id(self, cr, uid, user_id, context=None):
-        """Return the user name (stored in the 'login' field) related to the user ID passed as argument."""
-        user_login = self.search_read(cr, uid, domain=[('id', '=', user_id)], fields=['login'], context=context)
+        """
+        Gets the :class:`user's<base.res_users>` ``login`` from the
+        records ``user_id``. Raises an exception if there's more than
+        one user related to the ``user_id``.
+
+        :param card_pin: pin of the card belonging to a user
+        :type card_pin: int
+        :raises: :class:`osv.except_osv<openerp.osv.osv.except_orm>`
+        :returns: ``login`` of user
+        :rtype: int
+        """
+        user_login = self.search_read(
+            cr, uid,
+            domain=[('id', '=', user_id)],
+            fields=['login'],
+            context=context
+        )
         if not user_login:
             _logger.debug('Cannot find a user related to the user ID passed.')
             return False

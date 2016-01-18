@@ -1,6 +1,6 @@
-import notifications
-import observations
-import parameters
-import nh_clinical_extension
-import api_demo
-import helpers
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+from . import notifications
+from . import observations
+from . import parameters
+from . import nh_clinical_extension
+from . import api_demo

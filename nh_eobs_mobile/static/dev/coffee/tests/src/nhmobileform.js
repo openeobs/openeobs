@@ -38,23 +38,39 @@ NHMobileForm = (function(superClass) {
         case 'input':
           switch (input.getAttribute('type')) {
             case 'number':
-              input.addEventListener('change', self.validate);
-              return input.addEventListener('change', self.trigger_actions);
+              return input.addEventListener('change', function(e) {
+                self.handle_event(e, self.validate, true);
+                e.handled = false;
+                return self.handle_event(e, self.trigger_actions, true);
+              });
             case 'submit':
-              return input.addEventListener('click', self.submit);
+              return input.addEventListener('click', function(e) {
+                return self.handle_event(e, self.submit, true);
+              });
             case 'reset':
-              return input.addEventListener('click', self.cancel_notification);
+              return input.addEventListener('click', function(e) {
+                return self.handle_event(e, self.cancel_notification, true);
+              });
             case 'radio':
-              return input.addEventListener('click', self.trigger_actions);
+              return input.addEventListener('click', function(e) {
+                return self.handle_event(e, self.trigger_actions, true);
+              });
             case 'text':
-              input.addEventListener('change', self.validate);
-              return input.addEventListener('change', self.trigger_actions);
+              return input.addEventListener('change', function(e) {
+                self.handle_event(e, self.validate, true);
+                e.handled = false;
+                return self.handle_event(e, self.trigger_actions, true);
+              });
           }
           break;
         case 'select':
-          return input.addEventListener('change', self.trigger_actions);
+          return input.addEventListener('change', function(e) {
+            return self.handle_event(e, self.trigger_actions, true);
+          });
         case 'button':
-          return input.addEventListener('click', self.show_reference);
+          return input.addEventListener('click', function(e) {
+            return self.handle_event(e, self.show_reference, true);
+          });
       }
     };
     for (i = 0, len = ref.length; i < len; i++) {
@@ -80,16 +96,10 @@ NHMobileForm = (function(superClass) {
     };
     window.form_timeout = setTimeout(window.timeout_func, self.form_timeout);
     document.addEventListener('post_score_submit', function(event) {
-      if (!event.handled) {
-        self.process_post_score_submit(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.process_post_score_submit, true, self);
     });
     document.addEventListener('partial_submit', function(event) {
-      if (!event.handled) {
-        self.process_partial_submit(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.process_partial_submit, true, self);
     });
     return this.patient_name_el.addEventListener('click', function(event) {
       var can_btn, patient_id;
@@ -107,9 +117,8 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.validate = function(event) {
     var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
-    event.preventDefault();
     this.reset_form_timeout(this);
-    input = event.srcElement ? event.srcElement : event.target;
+    input = event.src_el;
     input_type = input.getAttribute('type');
     value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
@@ -179,7 +188,7 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.trigger_actions = function(event) {
     var action, actions, condition, conditions, el, field, i, input, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, mode, n, o, p, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, value;
     this.reset_form_timeout(this);
-    input = event.srcElement ? event.srcElement : event.target;
+    input = event.src_el;
     value = input.value;
     if (input.getAttribute('type') === 'radio') {
       ref = document.getElementsByName(input.name);
@@ -262,7 +271,6 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.submit = function(event) {
     var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
-    event.preventDefault();
     this.reset_form_timeout(this);
     ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
@@ -348,9 +356,8 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.show_reference = function(event) {
     var btn, iframe, img, input, ref_title, ref_type, ref_url;
-    event.preventDefault();
     this.reset_form_timeout(this);
-    input = event.srcElement ? event.srcElement : event.target;
+    input = event.src_el;
     ref_type = input.getAttribute('data-type');
     ref_url = input.getAttribute('data-url');
     ref_title = input.getAttribute('data-title');
@@ -549,7 +556,7 @@ NHMobileForm = (function(superClass) {
     return inp.disabled = false;
   };
 
-  NHMobileForm.prototype.process_partial_submit = function(self, event) {
+  NHMobileForm.prototype.process_partial_submit = function(event, self) {
     var cancel_reason, cover, dialog_id, element, form_elements, reason, reason_to_use;
     form_elements = (function() {
       var i, len, ref, results;
@@ -582,7 +589,7 @@ NHMobileForm = (function(superClass) {
     }
   };
 
-  NHMobileForm.prototype.process_post_score_submit = function(self, event) {
+  NHMobileForm.prototype.process_post_score_submit = function(event, self) {
     var element, endpoint, form, form_elements, ref;
     form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
     form_elements = (function() {

@@ -8,14 +8,15 @@ class NHMobileBarcode extends NHMobile
   constructor: (@trigger_button) ->
     self = @
     @trigger_button.addEventListener 'click', (event) ->
-      self.trigger_button_click(self)
+      self.handle_event(event, self.trigger_button_click, true, self)
+#      self.trigger_button_click(self)
     super()
 
   # On trigger button being pressed:
   # - Show a modal with an input box to scan
   # - Set the focus to the input in the box
   # - Add a change event listener to the input box
-  trigger_button_click: (self) ->
+  trigger_button_click: (event, self) ->
     input = '<div class="block"><textarea '+
       'name="barcode_scan" class="barcode_scan"></textarea></div>'
     cancel = '<a href="#" data-target="patient_barcode" ' +
@@ -28,14 +29,16 @@ class NHMobileBarcode extends NHMobile
       if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
         event.preventDefault()
         setTimeout( ->
-          self.barcode_scanned(self, event)
+          self.handle_event(event, self.barcode_scanned, true, self)
+#          self.barcode_scanned(self, event)
         , 1000)
 
     self.input.addEventListener 'keypress', (event) ->
       ### istanbul ignore else ###
       if event.keyCode is 13 or event.keyCode is 0 or event.keyCode is 116
-        event.preventDefault()
-        self.barcode_scanned(self, event)
+        self.handle_event(event, self.barcode_scanned, true, self)
+#        event.preventDefault()
+#        self.barcode_scanned(self, event)
     self.input.focus()
 
   # On barcode being scanned:
@@ -44,37 +47,38 @@ class NHMobileBarcode extends NHMobile
   # ready
   # - use that hospital number to call the server
   # - on receiving data change the modal content
-  barcode_scanned: (self, event) ->
-    event.preventDefault()
+  barcode_scanned: (event, self) ->
+#    event.preventDefault()
     ### istanbul ignore else ###
-    if not event.handled
-      input = if event.srcElement then event.srcElement else event.target
-      # hosp_num = input.value
-      dialog = input.parentNode.parentNode
-      if input.value is ''
-        return
-      # process hosp_num from wristband
-      # hosp_num = hosp_num.split(',')[1]
-      url = self.urls.json_patient_barcode(input.value.split(',')[1])
-      url_meth = url.method
+#    if not event.handled
+#    input = if event.srcElement then event.srcElement else event.target
+    input = event.src_el
+    # hosp_num = input.value
+    dialog = input.parentNode.parentNode
+    if input.value is ''
+      return
+    # process hosp_num from wristband
+    # hosp_num = hosp_num.split(',')[1]
+    url = self.urls.json_patient_barcode(input.value.split(',')[1])
+    url_meth = url.method
 
-      Promise.when(self.process_request(url_meth, url.url))
-      .then (raw_data) ->
-        server_data = raw_data[0]
-        data = server_data.data
-        activities_string = ""
-        if data.activities.length > 0
-          activities_string = '<ul class="menu">'
-          for activity in data.activities
-            activities_string += '<li class="rightContent"><a href="'+
-              self.urls.single_task(activity.id).url+'">'+
-              activity.display_name+'<span class="aside">'+
-              activity.time+'</span></a></li>'
-          activities_string += '</ul>'
-        content = self.render_patient_info(data, false, self) +
-          '<h3>Tasks</h3>'+activities_string
-        dialog.innerHTML = content
-        event.handled = true
+    Promise.when(self.process_request(url_meth, url.url))
+    .then (raw_data) ->
+      server_data = raw_data[0]
+      data = server_data.data
+      activities_string = ""
+      if data.activities.length > 0
+        activities_string = '<ul class="menu">'
+        for activity in data.activities
+          activities_string += '<li class="rightContent"><a href="'+
+            self.urls.single_task(activity.id).url+'">'+
+            activity.display_name+'<span class="aside">'+
+            activity.time+'</span></a></li>'
+        activities_string += '</ul>'
+      content = self.render_patient_info(data, false, self) +
+        '<h3>Tasks</h3>'+activities_string
+      dialog.innerHTML = content
+#        event.handled = true
 
 ### istanbul ignore if ###
 if !window.NH

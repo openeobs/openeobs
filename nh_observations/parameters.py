@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `parameters.py` defines a set of activity types to record basic
 medical parameters. They have in common that they are not measurements
@@ -16,7 +17,6 @@ from openerp.osv import orm, fields
 import logging
 from openerp import SUPERUSER_ID
 from datetime import datetime as dt, timedelta as td
-from openerp.addons.nh_observations.helpers import refresh_materialized_views
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 _logger = logging.getLogger(__name__)
 
@@ -42,16 +42,13 @@ class nh_clinical_patient_mrsa(orm.Model):
     or not.
     """
     _name = 'nh.clinical.patient.mrsa'
-    _inherit = ['nh.activity.data'] 
+    _inherit = ['nh.activity.data']
     _columns = {
-        'mrsa': fields.boolean('MRSA', required=True),                
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'status': fields.boolean('MRSA'),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
 
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_mrsa, self).complete(cr, uid, activity_id, context)
-        return res
 
 class nh_clinical_patient_diabetes(orm.Model):
     """
@@ -61,16 +58,12 @@ class nh_clinical_patient_diabetes(orm.Model):
     not.
     """
     _name = 'nh.clinical.patient.diabetes'
-    _inherit = ['nh.activity.data'] 
+    _inherit = ['nh.activity.data']
     _columns = {
-        'diabetes': fields.boolean('Diabetes', required=True),                
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'status': fields.boolean('Diabetes'),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_diabetes, self).complete(cr, uid, activity_id, context)
-        return res
 
 
 class nh_clinical_patient_palliative_care(orm.Model):
@@ -83,6 +76,11 @@ class nh_clinical_patient_palliative_care(orm.Model):
     _name = 'nh.clinical.patient.palliative_care'
     _inherit = ['nh.activity.data']
 
+    _POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews',
+                               'type': 'recurring',
+                               'cancel_others': True,
+                               'context': 'eobs'}]}
+
     def _get_value(self, cr, uid, ids, fn, args, context=None):
         result = dict.fromkeys(ids, False)
         for r in self.read(cr, uid, ids, ['status'], context=context):
@@ -90,22 +88,31 @@ class nh_clinical_patient_palliative_care(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('On Palliative Care?', required=True),
-        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'status': fields.boolean('On Palliative Care?'),
+        'value': fields.function(_get_value, type='char', size=3,
+                                 string='String Value'),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
 
-    @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         if activity.data_ref.status:
-            activity_ids = activity_pool.search(cr, uid, [['patient_id', '=', activity.data_ref.patient_id.id],
-                                                          ['state', 'not in', ['completed', 'cancelled']],
-                                                          '|', ['data_model', 'ilike', '%observation%'],
-                                                          ['data_model', 'ilike', '%notification%']], context=context)
-            [activity_pool.cancel(cr, uid, aid, context=context) for aid in activity_ids]
-        return super(nh_clinical_patient_palliative_care, self).complete(cr, uid, activity_id, context=context)
+            activity_ids = activity_pool.search(
+                cr, uid, [['patient_id', '=', activity.data_ref.patient_id.id],
+                          ['state', 'not in', ['completed', 'cancelled']], '|',
+                          ['data_model', 'ilike', '%observation%'],
+                          ['data_model', 'ilike', '%notification%']],
+                context=context)
+            [activity_pool.cancel(
+                cr, uid, aid, context=context) for aid in activity_ids]
+        else:
+            self.trigger_policy(cr, uid, activity_id,
+                                location_id=activity.parent_id.location_id.id,
+                                context=context)
+        return super(nh_clinical_patient_palliative_care, self).complete(
+            cr, uid, activity_id, context=context)
 
 
 class nh_clinical_patient_post_surgery(orm.Model):
@@ -127,26 +134,31 @@ class nh_clinical_patient_post_surgery(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('On Recovery from Surgery?', required=True),
-        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'status': fields.boolean('On Recovery from Surgery?'),
+        'value': fields.function(_get_value, type='char', size=3,
+                                 string='String Value'),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
     _ews_frequency = 60
 
-    @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
         api_pool = self.pool['nh.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         if activity.data_ref.status:
-            current_case = ews_pool.get_last_case(cr, uid, activity.data_ref.patient_id.id, context=context)
-            current_freq = ews_pool._POLICY['frequencies'][current_case] if isinstance(current_case, int) else 0
+            current_case = ews_pool.get_last_case(
+                cr, uid, activity.data_ref.patient_id.id, context=context)
+            current_freq = ews_pool._POLICY['frequencies'][current_case] \
+                if isinstance(current_case, int) else 0
             if current_freq > self._ews_frequency:
-                api_pool.change_activity_frequency(cr, uid, activity.data_ref.patient_id.id,
-                                                   'nh.clinical.patient.observation.ews', self._ews_frequency,
-                                                   context=context)
-        return super(nh_clinical_patient_post_surgery, self).complete(cr, uid, activity_id, context=context)
+                api_pool.change_activity_frequency(
+                    cr, uid, activity.data_ref.patient_id.id,
+                    'nh.clinical.patient.observation.ews', self._ews_frequency,
+                    context=context)
+        return super(nh_clinical_patient_post_surgery, self).complete(
+            cr, uid, activity_id, context=context)
 
     def current_status(self, cr, uid, patient_id, context=None):
         """
@@ -159,13 +171,17 @@ class nh_clinical_patient_post_surgery(orm.Model):
         :rtype: bool
         """
         activity_pool = self.pool['nh.activity']
-        a_ids = activity_pool.search(cr, uid, [['patient_id', '=', patient_id], ['data_model', '=', self._name],
-                                               ['state', '=', 'completed'],
-                                               ['date_terminated', '>=', (dt.now()-td(hours=4)).strftime(dtf)]],
-                                     order='date_terminated desc, sequence desc', context=context)
+        a_ids = activity_pool.search(
+            cr, uid, [['patient_id', '=', patient_id],
+                      ['data_model', '=', self._name],
+                      ['state', '=', 'completed'],
+                      ['date_terminated', '>=',
+                       (dt.now()-td(hours=4)).strftime(dtf)]],
+            order='date_terminated desc, sequence desc', context=context)
         if not a_ids:
             return False
-        return activity_pool.browse(cr, uid, a_ids[0], context=context).data_ref.status
+        return activity_pool.browse(
+            cr, uid, a_ids[0], context=context).data_ref.status
 
 
 class nh_clinical_patient_critical_care(orm.Model):
@@ -185,9 +201,11 @@ class nh_clinical_patient_critical_care(orm.Model):
         return result
 
     _columns = {
-        'status': fields.boolean('On Critical Care?', required=True),
-        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'status': fields.boolean('On Critical Care?'),
+        'value': fields.function(_get_value, type='char', size=3,
+                                 string='String Value'),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
     _ews_frequency = 240
 
@@ -202,28 +220,35 @@ class nh_clinical_patient_critical_care(orm.Model):
         :rtype: bool
         """
         activity_pool = self.pool['nh.activity']
-        a_ids = activity_pool.search(cr, uid, [['patient_id', '=', patient_id], ['data_model', '=', self._name],
-                                               ['state', '=', 'completed'],
-                                               ['date_terminated', '>=', (dt.now()-td(hours=24)).strftime(dtf)]],
-                                     order='date_terminated desc, sequence desc', context=context)
+        a_ids = activity_pool.search(
+            cr, uid, [['patient_id', '=', patient_id],
+                      ['data_model', '=', self._name],
+                      ['state', '=', 'completed'],
+                      ['date_terminated', '>=',
+                       (dt.now()-td(hours=24)).strftime(dtf)]],
+            order='date_terminated desc, sequence desc', context=context)
         if not a_ids:
             return False
-        return activity_pool.browse(cr, uid, a_ids[0], context=context).data_ref.status
+        return activity_pool.browse(
+            cr, uid, a_ids[0], context=context).data_ref.status
 
-    @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         ews_pool = self.pool['nh.clinical.patient.observation.ews']
         api_pool = self.pool['nh.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         if activity.data_ref.status:
-            current_case = ews_pool.get_last_case(cr, uid, activity.data_ref.patient_id.id, context=context)
-            current_freq = ews_pool._POLICY['frequencies'][current_case] if isinstance(current_case, int) else 0
+            current_case = ews_pool.get_last_case(
+                cr, uid, activity.data_ref.patient_id.id, context=context)
+            current_freq = ews_pool._POLICY['frequencies'][current_case] \
+                if isinstance(current_case, int) else 0
             if current_freq > self._ews_frequency:
-                api_pool.change_activity_frequency(cr, uid, activity.data_ref.patient_id.id,
-                                                   'nh.clinical.patient.observation.ews', self._ews_frequency,
-                                                   context=context)
-        return super(nh_clinical_patient_critical_care, self).complete(cr, uid, activity_id, context=context)
+                api_pool.change_activity_frequency(
+                    cr, uid, activity.data_ref.patient_id.id,
+                    'nh.clinical.patient.observation.ews', self._ews_frequency,
+                    context=context)
+        return super(nh_clinical_patient_critical_care, self).complete(
+            cr, uid, activity_id, context=context)
 
 
 class nh_clinical_patient_weight_monitoring(orm.Model):
@@ -242,29 +267,35 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
 
     def _get_value(self, cr, uid, ids, fn, args, context=None):
         result = dict.fromkeys(ids, False)
-        for r in self.read(cr, uid, ids, ['weight_monitoring'], context=context):
-            result[r['id']] = 'On' if r['weight_monitoring'] else 'Off'
+        for r in self.read(cr, uid, ids, ['status'], context=context):
+            result[r['id']] = 'On' if r['status'] else 'Off'
         return result
 
     _columns = {
-        'weight_monitoring': fields.boolean('Weight Monitoring', required=True),
-        'value': fields.function(_get_value, type='char', size=3, string='String Value'),
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'status': fields.boolean('Weight Monitoring'),
+        'value': fields.function(_get_value, type='char', size=3,
+                                 string='String Value'),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
 
-    @refresh_materialized_views('weight')
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         weight_pool = self.pool['nh.clinical.patient.observation.weight']
-        if activity.data_ref.weight_monitoring:
-            activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, weight_pool._name, context=context)
-            weight_activity_id = weight_pool.create_activity(cr, SUPERUSER_ID,
-                                 {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
-                                 {'patient_id': activity.data_ref.patient_id.id})
-            activity_pool.schedule(cr, SUPERUSER_ID, weight_activity_id, context=context)
-
-        return super(nh_clinical_patient_weight_monitoring, self).complete(cr, uid, activity_id, context=context)
+        if activity.data_ref.status:
+            activity_pool.cancel_open_activities(
+                cr, uid, activity.parent_id.id, weight_pool._name,
+                context=context)
+            weight_activity_id = weight_pool.create_activity(
+                cr, SUPERUSER_ID,
+                {'creator_id': activity_id,
+                 'parent_id': activity.parent_id.id},
+                {'patient_id': activity.data_ref.patient_id.id})
+            activity_pool.schedule(
+                cr, SUPERUSER_ID, weight_activity_id, context=context)
+        return super(nh_clinical_patient_weight_monitoring, self).complete(
+            cr, uid, activity_id, context=context)
 
 
 class nh_clinical_patient_urine_output_target(orm.Model):
@@ -274,15 +305,17 @@ class nh_clinical_patient_urine_output_target(orm.Model):
     mainly be decided by the medical staff assessment.
 
     This parameter is directly related to the
-    :mod:`urine output<observations.nh_clinical_patient_observation_urine_output>`
+    :mod:`output<observations.nh_clinical_patient_observation_urine_output>`
     observation.
     """
     _name = 'nh.clinical.patient.uotarget'
     _inherit = ['nh.activity.data']
     _columns = {
         'volume': fields.integer('Volume', required=True),
-        'unit': fields.selection([[1, 'ml/hour'], [2, 'L/day']], 'Unit', required=True),
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient', required=True),
+        'unit': fields.selection([[1, 'ml/hour'], [2, 'L/day']], 'Unit',
+                                 required=True),
+        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
+                                      required=True),
     }
 
     def current_target(self, cr, uid, patient_id, context=None):
@@ -294,15 +327,12 @@ class nh_clinical_patient_urine_output_target(orm.Model):
         :rtype: list
         """
         activity_pool = self.pool['nh.activity']
-        a_ids = activity_pool.search(cr, uid, [['patient_id', '=', patient_id], ['data_model', '=', self._name],
-                                               ['state', '=', 'completed']],
-                                     order='date_terminated desc, sequence desc', context=context)
+        a_ids = activity_pool.search(
+            cr, uid, [['patient_id', '=', patient_id],
+                      ['data_model', '=', self._name],
+                      ['state', '=', 'completed']],
+            order='date_terminated desc, sequence desc', context=context)
         if not a_ids:
             return False
         activity = activity_pool.browse(cr, uid, a_ids[0], context=context)
         return [activity.data_ref.volume, activity.data_ref.unit]
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(nh_clinical_patient_urine_output_target, self).complete(cr, uid, activity_id, context)
-        return res

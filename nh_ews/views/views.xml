@@ -18,5 +18,37 @@
                 </tree>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="view_form_observation_ews">
+            <field name="name">view.form.ews.observation</field>
+            <field name="model">nh.clinical.patient.observation.ews</field>
+            <field name="arch" type="xml">
+                <form string="EWS Form">
+                    <sheet>
+                        <group string="Results">
+                            <field name="score_display"/>
+                            <field name="clinical_risk"/>
+                            <field name="date_terminated" widget="nhc_datetime"/>
+                            <field name="terminate_uid" options="{'no_open': True}"/>
+                        </group>
+                        <group string="Input Parameters">
+                            <field name="pulse_rate"/>
+                            <field name="body_temperature"/>
+                            <field name="bp_display"/>
+                            <field name="respiration_rate"/>
+                            <field name="indirect_oxymetry_spo2"/>
+                            <field name="avpu_text"/>
+                            <field name="o2_display"/>
+                        </group>
+                        <group string="O2 Parameters" options="{'invisible': [['indirect_oxymetry_spo2', '=', False]]}">
+                            <field name="flow_rate" options="{'invisible': [['concentration', '!=', False]]}"/>
+                            <field name="concentration" options="{'invisible': [['flow_rate', '!=', False]]}"/>
+                            <field name="device_id" options="{'no_open': True}"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
     </data>
 </openerp>

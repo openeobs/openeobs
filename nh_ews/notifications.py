@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `notifications.py` define notification types necessary for the Early
 Warning Score policy triggers.
@@ -23,7 +24,7 @@ class nh_clinical_notification_assessment(orm.Model):
         """
         :meth:`completes<activity.nh_activity.complete>` the activity
         and triggers a
-        :class:`review frequency<notifications.nh_clinical_notification_frequency>`
+        :class:`frequency<notifications.nh_clinical_notification_frequency>`
         by default.
 
         :returns: ``True``
@@ -40,7 +41,8 @@ class nh_clinical_notification_assessment(orm.Model):
             'model': activity.creator_id.data_ref._name,
             'group': 'nurse'
         }, context=context)
-        return super(nh_clinical_notification_assessment, self).complete(cr, uid, activity_id, context=context)
+        return super(nh_clinical_notification_assessment, self).complete(
+            cr, uid, activity_id, context=context)
 
 
 class nh_clinical_notification_medical_team(orm.Model):
@@ -58,8 +60,8 @@ class nh_clinical_notification_medical_team(orm.Model):
         """
         :meth:`completes<activity.nh_activity.complete>` the activity
         and triggers a
-        :class:`doctor assessment<notifications.nh_clinical_notification_doctor_assessment>`
-        by default.
+        :class:`assessment<notifications.nh_clinical_notification_doctor_
+        assessment>` by default.
 
         :returns: ``True``
         :rtype: bool
@@ -75,7 +77,8 @@ class nh_clinical_notification_medical_team(orm.Model):
             'model': activity.creator_id._name,
             'group': 'nurse'
         }, context=context)
-        return super(nh_clinical_notification_medical_team, self).complete(cr, uid, activity_id, context=context)
+        return super(nh_clinical_notification_medical_team, self).complete(
+            cr, uid, activity_id, context=context)
 
     def is_cancellable(self, cr, uid, context=None):
         """

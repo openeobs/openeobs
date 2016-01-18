@@ -1,3 +1,4 @@
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `urinary_analysis.py` defines the urine analysis observation class and
 its standard behaviour and policy triggers. There are currently no
@@ -25,7 +26,8 @@ class nh_clinical_patient_observation_urinary_analysis(orm.Model):
     _required = []
     _description = "Urinary Analysis Observation"
     _num_fields = ['ph']
-    _values = [['neg', 'NEG'], ['trace', 'TRACE'], ['1', '+'], ['2', '++'], ['3', '+++'], ['4', '++++']]
+    _values = [['neg', 'NEG'], ['trace', 'TRACE'], ['1', '+'], ['2', '++'],
+               ['3', '+++'], ['4', '++++']]
     _columns = {
         'ph': fields.float('pH', digits=(2, 1)),
         'blood': fields.selection(_values, 'Blood'),

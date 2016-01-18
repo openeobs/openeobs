@@ -1,4 +1,5 @@
-# -*- encoding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 {
     'name': 'NH eObs Kiosk View Theme',
     'version': '0.1',

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `pbp.py` defines the postural blood pressure observation class and its
 standard behaviour and policy triggers.
@@ -22,14 +23,19 @@ class nh_clinical_patient_observation_pbp(orm.Model):
     """
     _name = 'nh.clinical.patient.observation.pbp'
     _inherit = ['nh.clinical.patient.observation']
-    _required = ['systolic_sitting', 'diastolic_sitting', 'systolic_standing', 'diastolic_standing']
+    _required = ['systolic_sitting', 'diastolic_sitting',
+                 'systolic_standing', 'diastolic_standing']
     _description = "Postural Blood Pressure Observation"
 
     _POLICY = {'schedule': [[6, 0], [18, 0]], 'notifications': [
         [],
-        [{'model': 'nurse', 'summary': 'Inform FY2', 'groups': ['nurse', 'hca']},
-         {'model': 'hca', 'summary': 'Inform registered nurse', 'groups': ['hca']},
-         {'model': 'nurse', 'summary': 'Informed about patient status (Postural Blood Pressure)', 'groups': ['hca']}]
+        [{'model': 'nurse', 'summary': 'Inform FY2',
+          'groups': ['nurse', 'hca']},
+         {'model': 'hca', 'summary': 'Inform registered nurse',
+          'groups': ['hca']},
+         {'model': 'nurse',
+          'summary': 'Informed about patient status (Postural Blood Pressure)',
+          'groups': ['hca']}]
     ]}
 
     def _get_pbp_result(self, cr, uid, ids, field_name, arg, context=None):
@@ -43,10 +49,14 @@ class nh_clinical_patient_observation_pbp(orm.Model):
 
     _columns = {
         'systolic_sitting': fields.integer('Sitting Blood Pressure Systolic'),
-        'systolic_standing': fields.integer('Standing Blood Pressure Systolic'),
-        'diastolic_sitting': fields.integer('Sitting Blood Pressure Diastolic'),
-        'diastolic_standing': fields.integer('Standing Blood Pressure Diastolic'),
-        'result': fields.function(_get_pbp_result, type='char', string='>20 mm/Hg', size=5, store=False)
+        'systolic_standing': fields.integer(
+            'Standing Blood Pressure Systolic'),
+        'diastolic_sitting': fields.integer(
+            'Sitting Blood Pressure Diastolic'),
+        'diastolic_standing': fields.integer(
+            'Standing Blood Pressure Diastolic'),
+        'result': fields.function(_get_pbp_result, type='char',
+                                  string='>20 mm/Hg', size=5, store=False)
     }
 
     _form_description = [
@@ -59,12 +69,14 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'on_change': [
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': [['systolic_sitting', '!=', ''], ['diastolic_sitting', '!=', '']],
+                    'condition': [['systolic_sitting', '!=', ''],
+                                  ['diastolic_sitting', '!=', '']],
                     'action': 'show'
                 },
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': ['||', ['systolic_sitting', '==', ''], ['diastolic_sitting', '==', '']],
+                    'condition': ['||', ['systolic_sitting', '==', ''],
+                                  ['diastolic_sitting', '==', '']],
                     'action': 'hide'
                 }
             ],
@@ -76,8 +88,10 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                         'value': 'diastolic_sitting'
                     },
                     'message': {
-                        'target': 'Sitting Systolic BP must be more than Sitting Diastolic BP',
-                        'value': 'Sitting Diastolic BP must be less than Sitting Systolic BP'
+                        'target': 'Sitting Systolic BP must be more than '
+                                  'Sitting Diastolic BP',
+                        'value': 'Sitting Diastolic BP must be less than '
+                                 'Sitting Systolic BP'
                     }
                 }
             ],
@@ -92,12 +106,14 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'on_change': [
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': [['systolic_sitting', '!=', ''], ['diastolic_sitting', '!=', '']],
+                    'condition': [['systolic_sitting', '!=', ''],
+                                  ['diastolic_sitting', '!=', '']],
                     'action': 'show'
                 },
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
-                    'condition': ['||', ['systolic_sitting', '==', ''], ['diastolic_sitting', '==', '']],
+                    'condition': ['||', ['systolic_sitting', '==', ''],
+                                  ['diastolic_sitting', '==', '']],
                     'action': 'hide'
                 }
             ],
@@ -109,8 +125,10 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                         'value': 'systolic_sitting'
                     },
                     'message': {
-                        'target': 'Sitting Diastolic BP must be less than Sitting Systolic BP',
-                        'value': 'Sitting Systolic BP must be more than Sitting Diastolic BP'
+                        'target': 'Sitting Diastolic BP must be less than '
+                                  'Sitting Systolic BP',
+                        'value': 'Sitting Systolic BP must be more than '
+                                 'Sitting Diastolic BP'
                     }
                 }
             ],
@@ -130,8 +148,10 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                         'value': 'diastolic_standing'
                     },
                     'message': {
-                        'target': 'Standing Systolic BP must be more than Standing Diastolic BP',
-                        'value': 'Standing Diastolic BP must be less than Standing Systolic BP'
+                        'target': 'Standing Systolic BP must be more than '
+                                  'Standing Diastolic BP',
+                        'value': 'Standing Diastolic BP must be less than '
+                                 'Standing Systolic BP'
                     }
                 }
             ],
@@ -151,8 +171,10 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                         'value': 'systolic_standing'
                     },
                     'message': {
-                        'target': 'Standing Diastolic BP must be less than Standing Systolic BP',
-                        'value': 'Standing Systolic BP must be more than Standing Diastolic BP'
+                        'target': 'Standing Diastolic BP must be less than '
+                                  'Standing Systolic BP',
+                        'value': 'Standing Systolic BP must be more than '
+                                 'Standing Diastolic BP'
                     }
                 }
             ],
@@ -160,7 +182,8 @@ class nh_clinical_patient_observation_pbp(orm.Model):
         }
     ]
 
-    def schedule(self, cr, uid, activity_id, date_scheduled=None, context=None):
+    def schedule(self, cr, uid, activity_id, date_scheduled=None,
+                 context=None):
         """
         If a specific ``date_scheduled`` parameter is not specified.
         The `_POLICY['schedule']` dictionary value will be used to find
@@ -175,12 +198,18 @@ class nh_clinical_patient_observation_pbp(orm.Model):
         hour = td(hours=1)
         schedule_times = []
         for s in self._POLICY['schedule']:
-            schedule_times.append(dt.now().replace(hour=s[0], minute=s[1], second=0, microsecond=0))
-        date_schedule = date_scheduled if date_scheduled else dt.now().replace(minute=0, second=0, microsecond=0)
-        utctimes = [fields.datetime.utc_timestamp(cr, uid, t, context=context) for t in schedule_times]
-        while all([date_schedule.hour != date_schedule.strptime(ut, DTF).hour for ut in utctimes]):
+            schedule_times.append(
+                dt.now().replace(
+                    hour=s[0], minute=s[1], second=0, microsecond=0))
+        date_schedule = date_scheduled if date_scheduled else dt.now().replace(
+            minute=0, second=0, microsecond=0)
+        utctimes = [fields.datetime.utc_timestamp(
+            cr, uid, t, context=context) for t in schedule_times]
+        while all([date_schedule.hour != date_schedule.strptime(
+                ut, DTF).hour for ut in utctimes]):
             date_schedule += hour
-        return super(nh_clinical_patient_observation_pbp, self).schedule(cr, uid, activity_id, date_schedule.strftime(DTF), context=context)
+        return super(nh_clinical_patient_observation_pbp, self).schedule(
+            cr, uid, activity_id, date_schedule.strftime(DTF), context=context)
 
     def complete(self, cr, uid, activity_id, context=None):
         """
@@ -191,7 +220,7 @@ class nh_clinical_patient_observation_pbp(orm.Model):
         Calls :meth:`complete<activity.nh_activity.complete>` and then
         creates and schedules a new postural blood pressure observation
         if the current
-        :mod:`postural blood pressure monitoring<parameters.nh_clinical_patient_pbp_monitoring>`
+        :mod:`pbp monitoring<parameters.nh_clinical_patient_pbp_monitoring>`
         parameter is ``True``.
 
         :returns: ``True``
@@ -202,8 +231,12 @@ class nh_clinical_patient_observation_pbp(orm.Model):
         groups_pool = self.pool['res.groups']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
         case = int(activity.data_ref.result == 'yes')
-        hcagroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'NH Clinical HCA Group')])
-        nursegroup_ids = groups_pool.search(cr, uid, [('users', 'in', [uid]), ('name', '=', 'NH Clinical Nurse Group')])
+        hcagroup_ids = groups_pool.search(
+            cr, uid, [('users', 'in', [uid]),
+                      ('name', '=', 'NH Clinical HCA Group')])
+        nursegroup_ids = groups_pool.search(
+            cr, uid, [('users', 'in', [uid]),
+                      ('name', '=', 'NH Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
 
         # TRIGGER NOTIFICATIONS
@@ -216,9 +249,11 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             'group': group
         }, context=context)
 
-        res = super(nh_clinical_patient_observation_pbp, self).complete(cr, uid, activity_id, context)
+        res = super(nh_clinical_patient_observation_pbp, self).complete(
+            cr, uid, activity_id, context)
 
-        activity_pool.cancel_open_activities(cr, uid, activity.parent_id.id, self._name, context=context)
+        activity_pool.cancel_open_activities(
+            cr, uid, activity.parent_id.id, self._name, context=context)
 
         # create next PBP (schedule)
         domain = [
@@ -226,14 +261,20 @@ class nh_clinical_patient_observation_pbp(orm.Model):
             ['state', '=', 'completed'],
             ['patient_id', '=', activity.data_ref.patient_id.id]
         ]
-        pbp_monitoring_ids = activity_pool.search(cr, uid, domain, order="date_terminated desc, sequence desc", context=context)
-        monitoring_active = pbp_monitoring_ids and activity_pool.browse(cr, uid, pbp_monitoring_ids[0], context=context).data_ref.pbp_monitoring
+        pbp_monitoring_ids = activity_pool.search(
+            cr, uid, domain, order="date_terminated desc, sequence desc",
+            context=context)
+        monitoring_active = pbp_monitoring_ids and activity_pool.browse(
+            cr, uid, pbp_monitoring_ids[0], context=context).data_ref.status
         if monitoring_active:
-            next_activity_id = self.create_activity(cr, SUPERUSER_ID,
-                                 {'creator_id': activity_id, 'parent_id': activity.parent_id.id},
-                                 {'patient_id': activity.data_ref.patient_id.id})
+            next_activity_id = self.create_activity(
+                cr, SUPERUSER_ID,
+                {'creator_id': activity_id,
+                 'parent_id': activity.parent_id.id},
+                {'patient_id': activity.data_ref.patient_id.id})
 
-            date_schedule = dt.now().replace(minute=0, second=0, microsecond=0) + td(hours=2)
-
-            activity_pool.schedule(cr, uid, next_activity_id, date_schedule, context=context)
+            date_schedule = dt.now().replace(
+                minute=0, second=0, microsecond=0) + td(hours=2)
+            activity_pool.schedule(
+                cr, uid, next_activity_id, date_schedule, context=context)
         return res

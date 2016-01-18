@@ -1,2 +1,3 @@
-import routing
-import controllers
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+from . import routing
+from . import controllers

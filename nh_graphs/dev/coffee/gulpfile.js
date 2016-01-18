@@ -4,7 +4,32 @@ karma = require('gulp-karma'),
 notify = require('gulp-notify'),
 concat = require('gulp-concat'),
 docco = require('gulp-docco'),
-coffee = require('gulp-coffee');
+coffee = require('gulp-coffee'),
+sauceConnectLauncher = require('sauce-connect-launcher');
+
+gulp.task('hot_sauce', function() {
+	sauceConnectLauncher({
+		username: process.env.SAUCE_USERNAME,
+		accessKey: process.env.SAUCE_ACCESS_KEY
+	}, function (err, sauceConnectProcess) {
+		if (err) {
+			console.error(err.message);
+			return;
+		}
+		console.log("Gulping hot sauce");
+	});
+});
+
+gulp.task('sauce_stop', function() {
+	sauceConnectLauncher({
+		username: process.env.SAUCE_USERNAME,
+		accessKey: process.env.SAUCE_ACCESS_KEY
+	}, function (err, sauceConnectProcess) {
+		sauceConnectProcess.close(function () {
+			console.log("Closed Sauce Connect process");
+		})
+	});
+});
 
 var Server = require('karma').Server;
 
@@ -53,12 +78,6 @@ gulp.task('pycharm_test_compile', function(){
 	.pipe(coffee({bare: true}))
 	.pipe(gulp.dest('tests/src'));
 
-	// Compile spec coffee
-	gulp.src(['tests/spec/coffee/*.coffee'])
-	.pipe(coffeelint())
-	.pipe(coffeelint.reporter())
-	.pipe(coffee({bare: true}))
-	.pipe(gulp.dest('tests/spec'))
 });
 
 gulp.task('default', ['compile']);

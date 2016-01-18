@@ -44,6 +44,28 @@ NHLib = (function() {
     return ("0" + date_element).slice(-2);
   };
 
+  NHLib.prototype.handle_event = function(raw_e, func, pref_dev, raw_args) {
+    var arg, args, i, len;
+    if (!raw_e.handled) {
+      raw_e.src_el = raw_e.srcElement ? raw_e.srcElement : raw_e.target;
+      if (pref_dev) {
+        raw_e.preventDefault();
+      }
+      args = [raw_e];
+      if (typeof raw_args !== 'undefined') {
+        if (!Array.isArray(raw_args)) {
+          raw_args = [raw_args];
+        }
+        for (i = 0, len = raw_args.length; i < len; i++) {
+          arg = raw_args[i];
+          args.push(arg);
+        }
+      }
+      func.apply(func, args);
+      return raw_e.handled = true;
+    }
+  };
+
   return NHLib;
 
 })();
@@ -229,10 +251,7 @@ NHMobile = (function(superClass) {
       new NHModal('patient_info', patient_name, patient_details, [cancel], 0, document.getElementsByTagName('body')[0]);
       fullscreen = document.getElementById('patient_obs_fullscreen');
       return fullscreen.addEventListener('click', function(event) {
-        if (!event.handled) {
-          self.fullscreen_patient_info(event, self);
-          return event.handled = true;
-        }
+        return self.handle_event(event, self.fullscreen_patient_info, true, self);
       });
     });
     return true;
@@ -240,52 +259,41 @@ NHMobile = (function(superClass) {
 
   NHMobile.prototype.fullscreen_patient_info = function(event, self) {
     var container, options, options_close, page, target_el;
-    event.preventDefault();
-    if (!event.handled) {
-      target_el = event.srcElement ? event.srcElement : event.target;
-      container = document.createElement('div');
-      container.setAttribute('class', 'full-modal');
-      options = document.createElement('p');
-      options_close = document.createElement('a');
-      options_close.setAttribute('href', '#');
-      options_close.setAttribute('id', 'closeFullModal');
-      options_close.innerText = 'Close popup';
-      options_close.addEventListener('click', function(event) {
-        if (!event.handled) {
-          self.close_fullscreen_patient_info(event);
-          return event.handled = true;
-        }
-      });
-      options.appendChild(options_close);
-      container.appendChild(options);
-      page = document.createElement('iframe');
-      page.setAttribute('src', target_el.getAttribute('href'));
-      page.onload = function() {
-        var contents, header, iframe, modal, obs, ref, ref1;
-        modal = document.getElementsByClassName('full-modal')[0];
-        iframe = modal.getElementsByTagName('iframe')[0];
-        contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
-        header = contents != null ? (ref = contents.getElementsByClassName('header')) != null ? ref[0] : void 0 : void 0;
-        if (header != null) {
-          header.parentNode.removeChild(header);
-        }
-        obs = contents != null ? (ref1 = contents.getElementsByClassName('obs')) != null ? ref1[0] : void 0 : void 0;
-        return obs != null ? obs.parentNode.removeChild(obs) : void 0;
-      };
-      container.appendChild(page);
-      document.getElementsByTagName('body')[0].appendChild(container);
-      return event.handled = true;
-    }
+    target_el = event.src_el;
+    container = document.createElement('div');
+    container.setAttribute('class', 'full-modal');
+    options = document.createElement('p');
+    options_close = document.createElement('a');
+    options_close.setAttribute('href', '#');
+    options_close.setAttribute('id', 'closeFullModal');
+    options_close.innerText = 'Close popup';
+    options_close.addEventListener('click', function(event) {
+      return self.handle_event(event, self.close_fullscreen_patient_info, true);
+    });
+    options.appendChild(options_close);
+    container.appendChild(options);
+    page = document.createElement('iframe');
+    page.setAttribute('src', target_el.getAttribute('href'));
+    page.onload = function() {
+      var contents, header, iframe, modal, obs, ref, ref1;
+      modal = document.getElementsByClassName('full-modal')[0];
+      iframe = modal.getElementsByTagName('iframe')[0];
+      contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+      header = contents != null ? (ref = contents.getElementsByClassName('header')) != null ? ref[0] : void 0 : void 0;
+      if (header != null) {
+        header.parentNode.removeChild(header);
+      }
+      obs = contents != null ? (ref1 = contents.getElementsByClassName('obs')) != null ? ref1[0] : void 0 : void 0;
+      return obs != null ? obs.parentNode.removeChild(obs) : void 0;
+    };
+    container.appendChild(page);
+    return document.getElementsByTagName('body')[0].appendChild(container);
   };
 
   NHMobile.prototype.close_fullscreen_patient_info = function(event) {
     var body;
-    event.preventDefault();
-    if (!event.handled) {
-      body = document.getElementsByTagName('body')[0];
-      body.removeChild(document.getElementsByClassName('full-modal')[0]);
-      return event.handled = true;
-    }
+    body = document.getElementsByTagName('body')[0];
+    return body.removeChild(document.getElementsByClassName('full-modal')[0]);
   };
 
   return NHMobile;
@@ -312,12 +320,12 @@ NHMobileBarcode = (function(superClass) {
     this.trigger_button = trigger_button;
     self = this;
     this.trigger_button.addEventListener('click', function(event) {
-      return self.trigger_button_click(self);
+      return self.handle_event(event, self.trigger_button_click, true, self);
     });
     NHMobileBarcode.__super__.constructor.call(this);
   }
 
-  NHMobileBarcode.prototype.trigger_button_click = function(self) {
+  NHMobileBarcode.prototype.trigger_button_click = function(event, self) {
     var cancel, input;
     input = '<div class="block"><textarea ' + 'name="barcode_scan" class="barcode_scan"></textarea></div>';
     cancel = '<a href="#" data-target="patient_barcode" ' + 'data-action="close">Cancel</a>';
@@ -327,49 +335,44 @@ NHMobileBarcode = (function(superClass) {
       if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
         event.preventDefault();
         return setTimeout(function() {
-          return self.barcode_scanned(self, event);
+          return self.handle_event(event, self.barcode_scanned, true, self);
         }, 1000);
       }
     });
     self.input.addEventListener('keypress', function(event) {
       if (event.keyCode === 13 || event.keyCode === 0 || event.keyCode === 116) {
-        event.preventDefault();
-        return self.barcode_scanned(self, event);
+        return self.handle_event(event, self.barcode_scanned, true, self);
       }
     });
     return self.input.focus();
   };
 
-  NHMobileBarcode.prototype.barcode_scanned = function(self, event) {
+  NHMobileBarcode.prototype.barcode_scanned = function(event, self) {
     var dialog, input, url, url_meth;
-    event.preventDefault();
-    if (!event.handled) {
-      input = event.srcElement ? event.srcElement : event.target;
-      dialog = input.parentNode.parentNode;
-      if (input.value === '') {
-        return;
-      }
-      url = self.urls.json_patient_barcode(input.value.split(',')[1]);
-      url_meth = url.method;
-      return Promise.when(self.process_request(url_meth, url.url)).then(function(raw_data) {
-        var activities_string, activity, content, data, i, len, ref, server_data;
-        server_data = raw_data[0];
-        data = server_data.data;
-        activities_string = "";
-        if (data.activities.length > 0) {
-          activities_string = '<ul class="menu">';
-          ref = data.activities;
-          for (i = 0, len = ref.length; i < len; i++) {
-            activity = ref[i];
-            activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
-          }
-          activities_string += '</ul>';
-        }
-        content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
-        dialog.innerHTML = content;
-        return event.handled = true;
-      });
+    input = event.src_el;
+    dialog = input.parentNode.parentNode;
+    if (input.value === '') {
+      return;
     }
+    url = self.urls.json_patient_barcode(input.value.split(',')[1]);
+    url_meth = url.method;
+    return Promise.when(self.process_request(url_meth, url.url)).then(function(raw_data) {
+      var activities_string, activity, content, data, i, len, ref, server_data;
+      server_data = raw_data[0];
+      data = server_data.data;
+      activities_string = "";
+      if (data.activities.length > 0) {
+        activities_string = '<ul class="menu">';
+        ref = data.activities;
+        for (i = 0, len = ref.length; i < len; i++) {
+          activity = ref[i];
+          activities_string += '<li class="rightContent"><a href="' + self.urls.single_task(activity.id).url + '">' + activity.display_name + '<span class="aside">' + activity.time + '</span></a></li>';
+        }
+        activities_string += '</ul>';
+      }
+      content = self.render_patient_info(data, false, self) + '<h3>Tasks</h3>' + activities_string;
+      return dialog.innerHTML = content;
+    });
   };
 
   return NHMobileBarcode;
@@ -422,23 +425,39 @@ NHMobileForm = (function(superClass) {
         case 'input':
           switch (input.getAttribute('type')) {
             case 'number':
-              input.addEventListener('change', self.validate);
-              return input.addEventListener('change', self.trigger_actions);
+              return input.addEventListener('change', function(e) {
+                self.handle_event(e, self.validate, true);
+                e.handled = false;
+                return self.handle_event(e, self.trigger_actions, true);
+              });
             case 'submit':
-              return input.addEventListener('click', self.submit);
+              return input.addEventListener('click', function(e) {
+                return self.handle_event(e, self.submit, true);
+              });
             case 'reset':
-              return input.addEventListener('click', self.cancel_notification);
+              return input.addEventListener('click', function(e) {
+                return self.handle_event(e, self.cancel_notification, true);
+              });
             case 'radio':
-              return input.addEventListener('click', self.trigger_actions);
+              return input.addEventListener('click', function(e) {
+                return self.handle_event(e, self.trigger_actions, true);
+              });
             case 'text':
-              input.addEventListener('change', self.validate);
-              return input.addEventListener('change', self.trigger_actions);
+              return input.addEventListener('change', function(e) {
+                self.handle_event(e, self.validate, true);
+                e.handled = false;
+                return self.handle_event(e, self.trigger_actions, true);
+              });
           }
           break;
         case 'select':
-          return input.addEventListener('change', self.trigger_actions);
+          return input.addEventListener('change', function(e) {
+            return self.handle_event(e, self.trigger_actions, true);
+          });
         case 'button':
-          return input.addEventListener('click', self.show_reference);
+          return input.addEventListener('click', function(e) {
+            return self.handle_event(e, self.show_reference, true);
+          });
       }
     };
     for (i = 0, len = ref.length; i < len; i++) {
@@ -462,16 +481,10 @@ NHMobileForm = (function(superClass) {
     };
     window.form_timeout = setTimeout(window.timeout_func, self.form_timeout);
     document.addEventListener('post_score_submit', function(event) {
-      if (!event.handled) {
-        self.process_post_score_submit(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.process_post_score_submit, true, self);
     });
     document.addEventListener('partial_submit', function(event) {
-      if (!event.handled) {
-        self.process_partial_submit(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.process_partial_submit, true, self);
     });
     return this.patient_name_el.addEventListener('click', function(event) {
       var can_btn, patient_id;
@@ -489,9 +502,8 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.validate = function(event) {
     var cond, crit_target, crit_val, criteria, criterias, i, input, input_type, len, operator, other_input, other_input_value, regex_res, target_input, target_input_value, value;
-    event.preventDefault();
     this.reset_form_timeout(this);
-    input = event.srcElement ? event.srcElement : event.target;
+    input = event.src_el;
     input_type = input.getAttribute('type');
     value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
@@ -561,7 +573,7 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.trigger_actions = function(event) {
     var action, actions, condition, conditions, el, field, i, input, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, mode, n, o, p, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, value;
     this.reset_form_timeout(this);
-    input = event.srcElement ? event.srcElement : event.target;
+    input = event.src_el;
     value = input.value;
     if (input.getAttribute('type') === 'radio') {
       ref = document.getElementsByName(input.name);
@@ -641,13 +653,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var dialogs, action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
-    event.preventDefault();
-    dialogs = document.getElementsByClassName('dialog');
-    for (i = 0; i < dialogs.length; i++) {
-        var id = dialogs[i].getAttribute('id');
-        NHModal.prototype.close_modal(id)
-    };
+    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
     this.reset_form_timeout(this);
     ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
@@ -733,9 +739,8 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.show_reference = function(event) {
     var btn, iframe, img, input, ref_title, ref_type, ref_url;
-    event.preventDefault();
     this.reset_form_timeout(this);
-    input = event.srcElement ? event.srcElement : event.target;
+    input = event.src_el;
     ref_type = input.getAttribute('data-type');
     ref_url = input.getAttribute('data-url');
     ref_title = input.getAttribute('data-title');
@@ -934,7 +939,7 @@ NHMobileForm = (function(superClass) {
     return inp.disabled = false;
   };
 
-  NHMobileForm.prototype.process_partial_submit = function(self, event) {
+  NHMobileForm.prototype.process_partial_submit = function(event, self) {
     var cancel_reason, cover, dialog_id, element, form_elements, reason, reason_to_use;
     form_elements = (function() {
       var i, len, ref, results;
@@ -967,7 +972,7 @@ NHMobileForm = (function(superClass) {
     }
   };
 
-  NHMobileForm.prototype.process_post_score_submit = function(self, event) {
+  NHMobileForm.prototype.process_post_score_submit = function(event, self) {
     var element, endpoint, form, form_elements, ref;
     form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
     form_elements = (function() {
@@ -1010,18 +1015,24 @@ NHMobilePatient = (function(superClass) {
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
     obs_menu = document.getElementById('obsMenu');
-    obs_menu.style.display = 'none';
+    if (obs_menu) {
+      obs_menu.style.display = 'none';
+    }
     table_view = document.getElementById('table-content');
     table_view.style.display = 'none';
     obs = document.getElementsByClassName('obs');
     if (obs && obs.length > 0) {
-      obs[0].addEventListener('click', this.show_obs_menu);
+      obs[0].addEventListener('click', function(e) {
+        return self.handle_event(e, self.show_obs_menu, true);
+      });
     }
     tabs_el = document.getElementsByClassName('tabs');
     tabs = tabs_el[0].getElementsByTagName('a');
     for (i = 0, len = tabs.length; i < len; i++) {
       tab = tabs[i];
-      tab.addEventListener('click', this.handle_tabs);
+      tab.addEventListener('click', function(e) {
+        return self.handle_event(e, self.handle_tabs, true);
+      });
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
     Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
@@ -1034,30 +1045,29 @@ NHMobilePatient = (function(superClass) {
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
     var i, len, tab, tab_target, tabs, target_el;
-    event.preventDefault();
-    if (!event.handled) {
-      tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
-      for (i = 0, len = tabs.length; i < len; i++) {
-        tab = tabs[i];
-        tab.classList.remove('selected');
-      }
-      document.getElementById('graph-content').style.display = 'none';
-      document.getElementById('table-content').style.display = 'none';
-      target_el = event.srcElement ? event.srcElement : event.target;
-      target_el.classList.add('selected');
-      tab_target = target_el.getAttribute('href').replace('#', '');
-      document.getElementById(tab_target).style.display = 'block';
-      return event.handled = true;
+    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
+    for (i = 0, len = tabs.length; i < len; i++) {
+      tab = tabs[i];
+      tab.classList.remove('selected');
     }
+    document.getElementById('graph-content').style.display = 'none';
+    document.getElementById('table-content').style.display = 'none';
+    target_el = event.src_el;
+    target_el.classList.add('selected');
+    tab_target = target_el.getAttribute('href').replace('#', '');
+    return document.getElementById(tab_target).style.display = 'block';
   };
 
   NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var body, menu, obs_menu, pat;
-    event.preventDefault();
+    var body, menu, obs_menu, pat, pats;
     obs_menu = document.getElementById('obsMenu');
     body = document.getElementsByTagName('body')[0];
     menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
-    pat = document.querySelectorAll('a.patientInfo h3.name strong')[0].textContent;
+    pats = document.querySelectorAll('a.patientInfo h3.name strong');
+    pat = '';
+    if (pats.length > 0) {
+      pat = pats[0].textContent;
+    }
     return new NHModal('obs_menu', 'Pick an observation for ' + pat, menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
   };
 
@@ -1408,61 +1418,43 @@ var NHMobileShare,
 NHMobileShare = (function(superClass) {
   extend(NHMobileShare, superClass);
 
-  function NHMobileShare(share_button1, claim_button1, all_button) {
+  function NHMobileShare(share_button, claim_button, all_button) {
     var self;
-    this.share_button = share_button1;
-    this.claim_button = claim_button1;
+    this.share_button = share_button;
+    this.claim_button = claim_button;
     this.all_button = all_button;
     self = this;
     this.form = document.getElementById('handover_form');
     this.share_button.addEventListener('click', function(event) {
-      var share_button;
-      event.preventDefault();
-      share_button = event.srcElement ? event.srcElement : event.target;
-      return self.share_button_click(self);
+      return self.handle_event(event, self.share_button_click, true, self);
     });
     this.claim_button.addEventListener('click', function(event) {
-      var claim_button;
-      event.preventDefault();
-      claim_button = event.srcElement ? event.srcElement : event.target;
-      return self.claim_button_click(self);
+      return self.handle_event(event, self.claim_button_click, true, self);
     });
     this.all_button.addEventListener('click', function(event) {
       var button, button_mode;
-      event.preventDefault();
-      if (!event.handled) {
-        button = event.srcElement ? event.srcElement : event.target;
-        button_mode = button.getAttribute('mode');
-        if (button_mode === 'select') {
-          self.select_all_patients(self, event);
-          button.textContent = 'Unselect all';
-          button.setAttribute('mode', 'unselect');
-        } else {
-          self.unselect_all_patients(self, event);
-          button.textContent = 'Select all';
-          button.setAttribute('mode', 'select');
-        }
-        return event.handled = true;
+      button = event.srcElement ? event.srcElement : event.target;
+      button_mode = button.getAttribute('mode');
+      if (button_mode === 'select') {
+        self.handle_event(event, self.select_all_patients, true, self);
+        button.textContent = 'Unselect all';
+        return button.setAttribute('mode', 'unselect');
+      } else {
+        self.handle_event(event, self.unselect_all_patients, true, self);
+        button.textContent = 'Select all';
+        return button.setAttribute('mode', 'select');
       }
     });
     document.addEventListener('assign_nurse', function(event) {
-      event.preventDefault();
-      if (!event.handled) {
-        self.assign_button_click(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.assign_button_click, true, self);
     });
     document.addEventListener('claim_patients', function(event) {
-      event.preventDefault();
-      if (!event.handled) {
-        self.claim_patients_click(self, event);
-        return event.handled = true;
-      }
+      return self.handle_event(event, self.claim_patients_click, true, self);
     });
     NHMobileShare.__super__.constructor.call(this);
   }
 
-  NHMobileShare.prototype.share_button_click = function(self) {
+  NHMobileShare.prototype.share_button_click = function(event, self) {
     var btn, el, msg, patients, url, urlmeth;
     patients = (function() {
       var i, len, ref, results;
@@ -1502,7 +1494,7 @@ NHMobileShare = (function(superClass) {
     }
   };
 
-  NHMobileShare.prototype.claim_button_click = function(self) {
+  NHMobileShare.prototype.claim_button_click = function(event, self) {
     var assign_btn, btn, btns, can_btn, claim_msg, el, form, msg, patients;
     form = document.getElementById('handover_form');
     patients = (function() {
@@ -1531,7 +1523,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.assign_button_click = function(self, event) {
+  NHMobileShare.prototype.assign_button_click = function(event, self) {
     var body, data_string, el, error_message, form, nurse_ids, nurses, patient_ids, patients, popup, url;
     nurses = event.detail.nurses;
     form = document.getElementById('handover_form');
@@ -1603,7 +1595,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.claim_patients_click = function(self, event) {
+  NHMobileShare.prototype.claim_patients_click = function(event, self) {
     var data_string, el, form, patients, url;
     form = document.getElementById('handover_form');
     patients = (function() {
@@ -1664,7 +1656,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.select_all_patients = function(self, event) {
+  NHMobileShare.prototype.select_all_patients = function(event, self) {
     var el, form, i, len, ref;
     form = document.getElementById('handover_form');
     ref = form.elements;
@@ -1677,7 +1669,7 @@ NHMobileShare = (function(superClass) {
     return true;
   };
 
-  NHMobileShare.prototype.unselect_all_patients = function(self, event) {
+  NHMobileShare.prototype.unselect_all_patients = function(event, self) {
     var el, form, i, len, ref;
     form = document.getElementById('handover_form');
     ref = form.elements;
@@ -1716,35 +1708,29 @@ NHMobileShareInvite = (function(superClass) {
     for (j = 0, len = invite_list.length; j < len; j++) {
       invite = invite_list[j];
       invite.addEventListener('click', function(event) {
-        var activity_id, btn;
-        if (!event.handled) {
-          btn = event.srcElement ? event.srcElement : event.target;
-          activity_id = btn.getAttribute('data-invite-id');
-          self.handle_invite_click(self, activity_id);
-          return event.handled = true;
-        }
+        var activity_id, args, btn;
+        btn = event.srcElement ? event.srcElement : event.target;
+        activity_id = btn.getAttribute('data-invite-id');
+        args = [self, activity_id];
+        return self.handle_event(event, self.handle_invite_click, true, args);
       });
     }
     document.addEventListener('accept_invite', function(event) {
-      var activity_id;
-      if (!event.handled) {
-        activity_id = event.detail.invite_id;
-        self.handle_accept_button_click(self, activity_id);
-        return event.handled = true;
-      }
+      var activity_id, args;
+      activity_id = event.detail.invite_id;
+      args = [self, activity_id];
+      return self.handle_event(event, self.handle_accept_button_click, true, args);
     });
     document.addEventListener('reject_invite', function(event) {
-      var activity_id;
-      if (!event.handled) {
-        activity_id = event.detail.invite_id;
-        self.handle_reject_button_click(self, activity_id);
-        return event.handled = true;
-      }
+      var activity_id, args;
+      activity_id = event.detail.invite_id;
+      args = [self, activity_id];
+      return self.handle_event(event, self.handle_reject_button_click, true, args);
     });
     NHMobileShareInvite.__super__.constructor.call(this);
   }
 
-  NHMobileShareInvite.prototype.handle_invite_click = function(self, activity_id) {
+  NHMobileShareInvite.prototype.handle_invite_click = function(event, self, activity_id) {
     var url, urlmeth;
     url = self.urls.json_invite_patients(activity_id);
     urlmeth = url.method;
@@ -1769,7 +1755,7 @@ NHMobileShareInvite = (function(superClass) {
     return true;
   };
 
-  NHMobileShareInvite.prototype.handle_accept_button_click = function(self, activity_id) {
+  NHMobileShareInvite.prototype.handle_accept_button_click = function(event, self, activity_id) {
     var body, url, urlmeth;
     url = self.urls.json_accept_patients(activity_id);
     urlmeth = url.method;
@@ -1819,7 +1805,7 @@ NHMobileShareInvite = (function(superClass) {
     });
   };
 
-  NHMobileShareInvite.prototype.handle_reject_button_click = function(self, activity_id) {
+  NHMobileShareInvite.prototype.handle_reject_button_click = function(event, self, activity_id) {
     var body, url, urlmeth;
     url = self.urls.json_reject_patients(activity_id);
     urlmeth = url.method;
@@ -1882,9 +1868,13 @@ if (typeof window !== "undefined" && window !== null) {
 }
 
 var NHModal,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-NHModal = (function() {
+NHModal = (function(superClass) {
+  extend(NHModal, superClass);
+
   function NHModal(id1, title1, content1, options1, popupTime, el1) {
     var body, cover, dialog, self;
     this.id = id1;
@@ -1894,6 +1884,7 @@ NHModal = (function() {
     this.popupTime = popupTime;
     this.el = el1;
     this.handle_button_events = bind(this.handle_button_events, this);
+    this.close_modal = bind(this.close_modal, this);
     self = this;
     dialog = this.create_dialog(self, this.id, this.title, this.content, this.options);
     body = document.getElementsByTagName('body')[0];
@@ -1901,12 +1892,14 @@ NHModal = (function() {
     cover.setAttribute('class', 'cover');
     cover.setAttribute('id', 'cover');
     cover.setAttribute('data-action', 'close');
-    if (this.id === 'submit_observation') {
+    if (this.id === 'submit_observation' || this.id === 'partial_reasons') {
       cover.setAttribute('data-action', 'renable');
     }
     cover.setAttribute('data-target', this.id);
-    cover.style.height = body.clientHeight + 'px';
-    cover.addEventListener('click', self.handle_button_events);
+    cover.addEventListener('click', function(e) {
+      return self.handle_event(e, self.handle_button_events, false);
+    });
+    this.lock_scrolling();
     body.appendChild(cover);
     this.el.appendChild(dialog);
     this.calculate_dimensions(dialog, dialog.getElementsByClassName('dialogContent')[0], this.el);
@@ -1948,12 +1941,13 @@ NHModal = (function() {
           option_list.setAttribute('class', 'options three-col');
       }
       fn = function(self) {
-        var option_button, ref;
+        var a_button, option_button, ref;
         option_button = document.createElement('li');
         option_button.innerHTML = button;
-        if ((ref = option_button.getElementsByTagName('a')) != null) {
-          ref[0].addEventListener('click', self.handle_button_events);
-        }
+        a_button = (ref = option_button.getElementsByTagName('a')) != null ? ref[0] : void 0;
+        a_button.addEventListener('click', function(e) {
+          return self.handle_event(e, self.handle_button_events, false);
+        });
         return option_list.appendChild(option_button);
       };
       for (i = 0, len = buttons.length; i < len; i++) {
@@ -1980,19 +1974,24 @@ NHModal = (function() {
       right: 0,
       left: 0
     };
-    available_space = function(dialog, el) {
-      var dh, dhh, dialog_height, dopt, dopth, elh;
+    available_space = function(dialog, el, dialog_content) {
+      var dc_height, dh, dhh, dialog_height, dialog_total, dopt, dopth, elh;
       dh = dialog.getElementsByTagName('h2');
       dhh = parseInt(document.defaultView.getComputedStyle(dh != null ? dh[0] : void 0, '').getPropertyValue('height').replace('px', ''));
       dopt = dialog.getElementsByClassName('options');
       dopth = parseInt(document.defaultView.getComputedStyle(dopt != null ? dopt[0] : void 0, '').getPropertyValue('height').replace('px', ''));
       elh = parseInt(document.defaultView.getComputedStyle(el, '').getPropertyValue('height').replace('px', ''));
       dialog_height = (dhh + dopth) + (margins.top + margins.bottom);
+      dc_height = parseInt(document.defaultView.getComputedStyle(dialog_content, '').getPropertyValue('height').replace('px', ''));
+      dialog_total = dialog_height + dc_height;
       if (elh > window.innerHeight) {
         return window.innerHeight - dialog_height;
       }
+      if (dialog_total > window.innerHeight) {
+        return window.innerHeight - dialog_height;
+      }
     };
-    max_height = available_space(dialog, el);
+    max_height = available_space(dialog, el, dialog_content);
     top_offset = el.offsetTop + margins.top;
     dialog.style.top = top_offset + 'px';
     dialog.style.display = 'inline-block';
@@ -2002,129 +2001,133 @@ NHModal = (function() {
   };
 
   NHModal.prototype.close_modal = function(modal_id) {
-    var cover, dialog_id;
+    var cover, dialog_id, self;
+    self = this;
     dialog_id = document.getElementById(modal_id);
-    if (typeof dialog_id !== 'undefined') {
-      cover = document.getElementById('cover');
+    if (typeof dialog_id !== 'undefined' && dialog_id) {
+      cover = document.querySelectorAll('#cover[data-target="' + modal_id + '"]')[0];
       document.getElementsByTagName('body')[0].removeChild(cover);
-      return dialog_id.parentNode.removeChild(dialog_id);
+      dialog_id.parentNode.removeChild(dialog_id);
+      return self.unlock_scrolling();
     }
   };
 
   NHModal.prototype.handle_button_events = function(event) {
     var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, data_action, data_target, dialog, dialog_form, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
-    if (!event.handled) {
-      target_el = event.srcElement ? event.srcElement : event.target;
-      data_target = target_el.getAttribute('data-target');
-      data_action = target_el.getAttribute('data-ajax-action');
-      switch (target_el.getAttribute('data-action')) {
-        case 'close':
-          event.preventDefault();
-          this.close_modal(data_target);
-          break;
-        case 'renable':
-          event.preventDefault();
-          forms = document.getElementsByTagName('form');
-          for (i = 0, len = forms.length; i < len; i++) {
-            form = forms[i];
-            action_buttons = (function() {
-              var j, len1, ref, ref1, results;
-              ref = form.elements;
-              results = [];
-              for (j = 0, len1 = ref.length; j < len1; j++) {
-                element = ref[j];
-                if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
-                  results.push(element);
-                }
-              }
-              return results;
-            })();
-            for (j = 0, len1 = action_buttons.length; j < len1; j++) {
-              button = action_buttons[j];
-              button.removeAttribute('disabled');
-            }
-          }
-          this.close_modal(data_target);
-          break;
-        case 'submit':
-          event.preventDefault();
-          submit_event = document.createEvent('CustomEvent');
-          submit_detail = {
-            'endpoint': target_el.getAttribute('data-ajax-action')
-          };
-          submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
-          document.dispatchEvent(submit_event);
-          this.close_modal(data_target);
-          break;
-        case 'partial_submit':
-          event.preventDefault();
-          if (!event.handled) {
-            submit_event = document.createEvent('CustomEvent');
-            submit_detail = {
-              'action': data_action,
-              'target': data_target
-            };
-            submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
-            document.dispatchEvent(submit_event);
-            event.handled = true;
-          }
-          break;
-        case 'assign':
-          event.preventDefault();
-          dialog = document.getElementById(data_target);
-          dialog_form = dialog.getElementsByTagName('form')[0];
-          nurses = (function() {
-            var k, len2, ref, results;
-            ref = dialog_form.elements;
+    target_el = event.src_el;
+    data_target = target_el.getAttribute('data-target');
+    data_action = target_el.getAttribute('data-ajax-action');
+    switch (target_el.getAttribute('data-action')) {
+      case 'close':
+        event.preventDefault();
+        return this.close_modal(data_target);
+      case 'renable':
+        event.preventDefault();
+        forms = document.getElementsByTagName('form');
+        for (i = 0, len = forms.length; i < len; i++) {
+          form = forms[i];
+          action_buttons = (function() {
+            var j, len1, ref, ref1, results;
+            ref = form.elements;
             results = [];
-            for (k = 0, len2 = ref.length; k < len2; k++) {
-              el = ref[k];
-              if (el.checked) {
-                results.push(el.value);
+            for (j = 0, len1 = ref.length; j < len1; j++) {
+              element = ref[j];
+              if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+                results.push(element);
               }
             }
             return results;
           })();
-          assign_event = document.createEvent('CustomEvent');
-          assign_detail = {
-            'action': data_action,
-            'target': data_target,
-            'nurses': nurses
-          };
-          assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
-          document.dispatchEvent(assign_event);
-          break;
-        case 'claim':
-          event.preventDefault();
-          claim_event = document.createEvent('CustomEvent');
-          claim_event.initCustomEvent('claim_patients', false, true, false);
-          document.dispatchEvent(claim_event);
-          break;
-        case 'accept':
-          event.preventDefault();
-          accept_event = document.createEvent('CustomEvent');
-          accept_detail = {
-            'invite_id': target_el.getAttribute('data-invite-id')
-          };
-          accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
-          document.dispatchEvent(accept_event);
-          break;
-        case 'reject':
-          event.preventDefault();
-          reject_event = document.createEvent('CustomEvent');
-          reject_detail = {
-            'invite_id': target_el.getAttribute('data-invite-id')
-          };
-          reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
-          document.dispatchEvent(reject_event);
-      }
-      event.handled = true;
+          for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+            button = action_buttons[j];
+            button.removeAttribute('disabled');
+          }
+        }
+        return this.close_modal(data_target);
+      case 'submit':
+        event.preventDefault();
+        submit_event = document.createEvent('CustomEvent');
+        submit_detail = {
+          'endpoint': target_el.getAttribute('data-ajax-action')
+        };
+        submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
+        document.dispatchEvent(submit_event);
+        return this.close_modal(data_target);
+      case 'partial_submit':
+        event.preventDefault();
+        submit_event = document.createEvent('CustomEvent');
+        submit_detail = {
+          'action': data_action,
+          'target': data_target
+        };
+        submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
+        return document.dispatchEvent(submit_event);
+      case 'assign':
+        event.preventDefault();
+        dialog = document.getElementById(data_target);
+        dialog_form = dialog.getElementsByTagName('form')[0];
+        nurses = (function() {
+          var k, len2, ref, results;
+          ref = dialog_form.elements;
+          results = [];
+          for (k = 0, len2 = ref.length; k < len2; k++) {
+            el = ref[k];
+            if (el.checked) {
+              results.push(el.value);
+            }
+          }
+          return results;
+        })();
+        assign_event = document.createEvent('CustomEvent');
+        assign_detail = {
+          'action': data_action,
+          'target': data_target,
+          'nurses': nurses
+        };
+        assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
+        return document.dispatchEvent(assign_event);
+      case 'claim':
+        event.preventDefault();
+        claim_event = document.createEvent('CustomEvent');
+        claim_event.initCustomEvent('claim_patients', false, true, false);
+        return document.dispatchEvent(claim_event);
+      case 'accept':
+        event.preventDefault();
+        accept_event = document.createEvent('CustomEvent');
+        accept_detail = {
+          'invite_id': target_el.getAttribute('data-invite-id')
+        };
+        accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
+        return document.dispatchEvent(accept_event);
+      case 'reject':
+        event.preventDefault();
+        reject_event = document.createEvent('CustomEvent');
+        reject_detail = {
+          'invite_id': target_el.getAttribute('data-invite-id')
+        };
+        reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
+        return document.dispatchEvent(reject_event);
+    }
+  };
+
+  NHModal.prototype.lock_scrolling = function() {
+    var body;
+    body = document.getElementsByTagName('body')[0];
+    return body.classList.add('no-scroll');
+  };
+
+  NHModal.prototype.unlock_scrolling = function() {
+    var body, dialogs;
+    body = document.getElementsByTagName('body')[0];
+    dialogs = document.getElementsByClassName('dialog');
+    if (dialogs.length < 1) {
+      return body.classList.remove('no-scroll');
     }
   };
 
   return NHModal;
 
-})();
+})(NHLib);
 
 if (!window.NH) {
   window.NH = {};
