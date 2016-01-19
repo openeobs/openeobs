@@ -391,17 +391,15 @@ class nh_clinical_api_demo(orm.AbstractModel):
             patients
         """
         api = self.pool['nh.eobs.api']
-	location_pool = self.pool['nh.clinical.location']
+        location_pool = self.pool['nh.clinical.location']
         patients = []
 
         # filter only available locations
         codes = location_pool.read_group(cr, uid, [
             ('code', 'in', locations), ('is_available', '=', True),
             ], ['code'], ['code'])
-	location_codes = [{'location': code['code']} for code in codes]
-	
-	hospital_numbers = hospital_numbers[:len(location_codes)]
-
+        location_codes = [{'location': code['code']} for code in codes]
+        hospital_numbers = hospital_numbers[:len(location_codes)]
         for index, hospital_number in enumerate(hospital_numbers):
             try:
                 api.transfer(cr, uid, hospital_number, location_codes[index],

@@ -1,5 +1,4 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'Will'
 import logging
 from functools import wraps
 

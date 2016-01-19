@@ -1,5 +1,4 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'colinwren'
 from openerp.tests.common import TransactionCase
 from datetime import datetime, timedelta
 import logging

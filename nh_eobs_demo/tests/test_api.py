@@ -1,7 +1,5 @@
 # coding=utf-8
 import logging
-
-from datetime import datetime, timedelta
 from openerp.tests.common import TransactionCase
 
 _logger = logging.getLogger(__name__)

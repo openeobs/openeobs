@@ -190,7 +190,8 @@ class nh_eobs_demo_loader(orm.AbstractModel):
             current_date = nearest_date
         return True
 
-    def complete_first_ews_for_placed_patients(self, cr, uid, patient_ids, context=None):
+    def complete_first_ews_for_placed_patients(self, cr, uid, patient_ids,
+                                               context=None):
         """Completes observations for placed patients in order to
         schedule further observations"""
 
@@ -263,7 +264,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         location_id = location_pool.get_by_code(
             cr, uid, ward_code, context=context
         )
-        
+
         # get patients who are placed in a ward (i.e. in a bed)
         patient_ids = patient_pool.search(
             cr, uid, [('current_location_id', 'child_of', location_id)],

@@ -1,11 +1,10 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'colinwren'
 from datetime import datetime
 import base64
 from openerp.osv import osv, fields
 import logging
-_logger = logging.getLogger(__name__)
 from openerp.exceptions import AccessError
+_logger = logging.getLogger(__name__)
 
 
 class print_observation_report_wizard(osv.TransientModel):

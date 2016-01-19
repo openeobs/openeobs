@@ -1,11 +1,9 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.tests import common
-
+from faker import Faker
 import logging
 
 _logger = logging.getLogger(__name__)
-
-from faker import Faker
 fake = Faker()
 seed = fake.random_int(min=0, max=9999999)
 

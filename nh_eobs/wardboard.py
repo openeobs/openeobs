@@ -5,10 +5,9 @@ Defines models for the `Wardboard` view.
 """
 from openerp.osv import orm, fields, osv
 import logging
+from openerp import SUPERUSER_ID
 
 _logger = logging.getLogger(__name__)
-
-from openerp import SUPERUSER_ID
 
 
 class wardboard_swap_beds(orm.TransientModel):

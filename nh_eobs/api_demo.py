@@ -3,15 +3,14 @@ import logging
 import json
 import os
 from datetime import datetime as dt, timedelta as td
-
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.osv import orm, osv
 from openerp import SUPERUSER_ID
+from faker import Faker
+from faker.providers import BaseProvider
 
 _logger = logging.getLogger(__name__)
 
-from faker import Faker
-from faker.providers import BaseProvider
 fake = Faker()
 
 

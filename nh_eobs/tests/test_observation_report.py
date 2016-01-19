@@ -1,5 +1,4 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'colinwren'
 from . import observation_report_helpers as helpers
 from openerp.tools import test_reports
 from datetime import datetime

@@ -1,6 +1,5 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-s
-__author__ = 'lorenzo'
 import openerp
 from datetime import datetime
 from openerp import http
@@ -657,22 +656,34 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         patient_list = api_pool.get_patients(cr, uid, [int(patient_id)])
         if len(patient_list) > 0:
             patient = patient_list[0]
-            ews = api_pool.get_activities_for_patient(cr, uid, patient_id=int(patient_id), activity_type='ews')
+            ews = api_pool.get_activities_for_patient(
+                cr, uid,
+                patient_id=int(patient_id),
+                activity_type='ews'
+            )
             for ew in ews:
                 for e in ew:
-                    if e in ['date_terminated', 'create_date', 'write_date', 'date_started']:
+                    if e in ['date_terminated', 'create_date',
+                             'write_date', 'date_started']:
                         if not ew[e]:
                             continue
-                        ew[e] = fields.datetime.context_timestamp(cr, uid, datetime.strptime(ew[e], DTF), context=context).strftime(DTF)
+                        ew[e] = fields.datetime.context_timestamp(
+                            cr, uid, datetime.strptime(ew[e], DTF),
+                            context=context
+                        ).strftime(DTF)
     
             response_data = {
                 'obs': ews,
                 'obsType': 'ews'
             }
-            response_json = ResponseJSON.get_json_data(status=ResponseJSON.STATUS_SUCCESS,
-                                                       title='{0}'.format(patient['full_name']),
-                                                       description='Observations for {0}'.format(patient['full_name']),
-                                                       data=response_data)
+            response_json = ResponseJSON.get_json_data(
+                status=ResponseJSON.STATUS_SUCCESS,
+                title='{0}'.format(patient['full_name']),
+                description='Observations for {0}'.format(
+                    patient['full_name']
+                ),
+                data=response_data
+            )
         else:
             response_data = {'error': 'Patient not found.'}
             response_json = ResponseJSON.get_json_data(
@@ -682,7 +693,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 data=response_data
             )
 
-        return request.make_response(response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
+        return request.make_response(response_json,
+                                     headers=ResponseJSON.HEADER_CONTENT_TYPE)
 
     @http.route(**route_manager.expose_route('json_patient_form_action'))
     def process_patient_observation_form(self, *args, **kw):

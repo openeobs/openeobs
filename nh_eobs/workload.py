@@ -6,8 +6,8 @@ proximity interval.
 """
 from openerp.osv import orm, fields
 import logging
-_logger = logging.getLogger(__name__)
 from openerp import tools
+_logger = logging.getLogger(__name__)
 
 
 class nh_clinical_workload(orm.Model):

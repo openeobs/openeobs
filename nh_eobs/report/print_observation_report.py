@@ -1,5 +1,4 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-__author__ = 'colinwren'
 from openerp import api, models
 from datetime import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
@@ -159,7 +158,8 @@ class ObservationReport(models.AbstractModel):
                 cr, uid, [['creator_id', '=', observation['id']]])
             o2target_dt = datetime.strptime(
                 observation['values']['date_terminated'],
-                    self.pretty_date_format).strftime(dtf)
+                self.pretty_date_format
+            ).strftime(dtf)
             o2_level_id = self.pool['nh.clinical.patient.o2target'].get_last(
                 cr, uid, self.patient_id,
                 datetime=o2target_dt)
