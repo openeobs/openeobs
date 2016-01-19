@@ -671,7 +671,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                             cr, uid, datetime.strptime(ew[e], DTF),
                             context=context
                         ).strftime(DTF)
-    
+
             response_data = {
                 'obs': ews,
                 'obsType': 'ews'
