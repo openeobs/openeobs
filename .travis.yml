@@ -76,7 +76,7 @@ install:
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
 - travis_install_nightly
 script:
-- travis_wait travis_run_tests
+- travis_run_tests
 after_script:
 - coverage xml -o ${HOME}/build/NeovaHealth/openeobs/coverage.xml
 - cd ${HOME}/build/NeovaHealth/openeobs
