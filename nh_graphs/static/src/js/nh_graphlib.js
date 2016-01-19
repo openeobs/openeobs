@@ -1096,7 +1096,7 @@ NHGraph = (function(superClass) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d, event) {
+        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup(d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
@@ -1113,7 +1113,7 @@ NHGraph = (function(superClass) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d, event) {
+        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup('Partial observation: ' + d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
@@ -1135,7 +1135,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range top',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d, event) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -1162,7 +1162,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range bottom',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d, event) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -1194,7 +1194,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.width,
             'class': 'range extent',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d, event) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -1225,7 +1225,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range top empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d, event) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation:<br>';
             ref1 = self.options.keys;
@@ -1256,7 +1256,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.cap.width,
             'class': 'range bottom empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d, event) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation:<br>';
             ref1 = self.options.keys;
@@ -1291,7 +1291,7 @@ NHGraph = (function(superClass) {
             'width': self.style.range.width,
             'class': 'range extent empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function(d, event) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation<br>';
             ref1 = self.options.keys;

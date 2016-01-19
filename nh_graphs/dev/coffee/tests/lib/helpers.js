@@ -25,28 +25,24 @@ beforeEach(function() {
 
 
 // Event helper object
-ev = {}
+ev = {};
 
 /*
  Function to create and dispatch mouse events using browser specific method
  Expects action as string e.g. 'mouseover','click', target element and optional x/y co-ords
 */
 ev.mouse = function (action, el, x, y) {
-
     var ev;
     if (!x) x = 0;
     if (!y) y = 0;
-
     if (el.dispatchEvent) {
         try {
             // Chrome, Firefox, Safari
             ev = new MouseEvent(action, {
                 bubbles: true,
                 cancelable: true,
-                clientX: x,
-                clientY: y,
-                screenX: x,
-                screenY: y});
+                pageX: x,
+                pageY: y});
         }
         catch (e) {
             // PhantomJS
@@ -74,6 +70,8 @@ ev.mouse = function (action, el, x, y) {
         // IE
         ev = document.createEventObject('MouseEvent');
         if (x) {
+            ev.pageX = x;
+            ev.pageY = y;
             ev.clientX = x;
             ev.clientY = y;
             ev.screenX = x;
@@ -103,5 +101,5 @@ ev.html = function (action, el) {
         else return ev
     }
     else return "Fail, no event method found"
-}
+};
 
