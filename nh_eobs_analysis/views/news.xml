@@ -55,6 +55,7 @@
             <field name="res_model">nh.eobs.news.report</field>
             <field name="view_type">form</field>
             <field name="view_mode">graph</field>
+            <field name="domain">[('ward_id.user_ids', 'in', uid)]</field>
             <field name="search_view_id" ref="view_nh_eobs_news_report_search"/>
             <field name="context">{'group_by_no_leaf':1,'group_by':[]}</field>
         </record>
