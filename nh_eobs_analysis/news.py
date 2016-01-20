@@ -53,7 +53,8 @@ class nh_eobs_news_report(osv.Model):
             a.date_terminated as date_terminated,
             a.location_id as location_id,
             case
-                when t.data_model = 'nh.clinical.patient.placement' then 'Placement'
+                when t.data_model = 'nh.clinical.patient.placement'
+                then 'Placement'
                 else 'Observation'
             end as trigger_type,
             case
@@ -77,48 +78,61 @@ class nh_eobs_news_report(osv.Model):
             case
                 when a.date_scheduled is null then 0
                 when a.date_scheduled >= a.date_terminated then 0
-                else extract(epoch from (a.date_terminated - a.date_scheduled))/60
+                else extract(epoch
+                from (a.date_terminated - a.date_scheduled))/60
             end as delay,
             case
                 when a.date_scheduled is null then 0
                 when a.date_scheduled < a.date_terminated then 0
-                else extract(epoch from (a.date_scheduled - a.date_terminated))/60
+                else extract(epoch
+                from (a.date_scheduled - a.date_terminated))/60
             end as expedite,
             case
-                when (%s)::text[] @> ARRAY['NH Clinical Nurse Group'] then 'Nurse'
-                when (%s)::text[] @> ARRAY['NH Clinical HCA Group'] then 'HCA'
+                when (%s)::text[] @> ARRAY['NH Clinical Nurse Group']
+                  then 'Nurse'
+                when (%s)::text[] @> ARRAY['NH Clinical HCA Group']
+                  then 'HCA'
                 else 'Other'
             end as staff_type,
             case
-                when n.partial_reason = 'patient_away_from_bed' then 'Away From Bed'
-                when n.partial_reason = 'patient_refused' then 'Refused'
-                when n.partial_reason = 'emergency_situation' then 'Emergency'
-                when n.partial_reason = 'doctors_request' then 'Doctor Request'
+                when n.partial_reason = 'patient_away_from_bed'
+                  then 'Away From Bed'
+                when n.partial_reason = 'patient_refused'
+                  then 'Refused'
+                when n.partial_reason = 'emergency_situation'
+                  then 'Emergency'
+                when n.partial_reason = 'doctors_request'
+                  then 'Doctor Request'
                 else 'Not Partial'
             end as partial_reason,
             w.ward_id as ward_id,
             case
-                when t.data_model != 'nh.clinical.patient.observation.ews' then 'Unknown'
+                when t.data_model != 'nh.clinical.patient.observation.ews'
+                  then 'Unknown'
                 when p.clinical_risk = 'None' then 'No Risk'
                 else p.clinical_risk
             end as previous_risk,
             case
-                when t.data_model != 'nh.clinical.patient.observation.ews' then 'Unknown'
+                when t.data_model != 'nh.clinical.patient.observation.ews'
+                  then 'Unknown'
                 when p.partial_reason is not null then 'None'
                 else p.score::text
             end as previous_score,
             case
-                when t.data_model != 'nh.clinical.patient.observation.ews' then 0
+                when t.data_model != 'nh.clinical.patient.observation.ews'
+                  then 0
                 when p.score < n.score then 1
                 else 0
             end as trend_up,
             case
-                when t.data_model != 'nh.clinical.patient.observation.ews' then 0
+                when t.data_model != 'nh.clinical.patient.observation.ews'
+                  then 0
                 when p.score > n.score then 1
                 else 0
             end as trend_down,
             case
-                when t.data_model != 'nh.clinical.patient.observation.ews' then 0
+                when t.data_model != 'nh.clinical.patient.observation.ews'
+                  then 0
                 when p.score = n.score then 1
                 else 0
             end as trend_same
@@ -164,7 +178,9 @@ class nh_eobs_news_report(osv.Model):
                 inner join res_users u on a.terminate_uid = u.id
                 inner join ward_locations w on w.id = a.location_id
                 left join nh_activity t on a.creator_id = t.id
-                left join nh_clinical_patient_observation_ews p on p.activity_id = t.id
-                where a.state = 'completed' and a.date_scheduled > current_date - interval '8 days'
+                left join nh_clinical_patient_observation_ews p
+                    on p.activity_id = t.id
+                where a.state = 'completed'
+                    and a.date_scheduled > current_date - interval '8 days'
                 %s
         """ % (self._select(), self._group_by()))
