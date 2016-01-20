@@ -12,6 +12,7 @@
     'depends': ['nh_eobs'],
     'data': [
         'views/news.xml',
+        'views/dashboard.xml',
         'views/menuitem.xml',
         'security/ir.model.access.csv'],
     'qweb': [],
