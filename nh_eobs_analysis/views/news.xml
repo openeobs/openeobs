@@ -1,0 +1,62 @@
+<openerp>
+    <data>
+        <record id="view_nh_eobs_news_report_pivot" model="ir.ui.view">
+            <field name="name">nh.eobs.news.report.pivot</field>
+            <field name="model">nh.eobs.news.report</field>
+            <field name="arch" type="xml">
+                <graph type="pivot" string="NEWS Observations Analysis">
+                    <field name="ward_id" type="row"/>
+                    <!--<field name="location_id" type="col"/>-->
+                    <field name="on_time" type="measure"/>
+                 </graph>
+             </field>
+        </record>
+
+        <record id="view_nh_eobs_news_report_search" model="ir.ui.view">
+            <field name="name">NEWS Analysis</field>
+            <field name="model">nh.eobs.news.report</field>
+            <field name="arch" type="xml">
+                <search string="NEWS Analysis">
+                    <field name="date_scheduled"/>
+                    <field name="date_terminated"/>
+                    <field name="user_id"/>
+                    <field name="type"/>
+                    <field name="ward_id"/>
+                    <field name="location_id"/>
+                    <field name="trigger_type"/>
+                    <field name="score"/>
+                    <field name="clinical_risk"/>
+                    <field name="staff_type"/>
+                    <field name="partial_reason"/>
+                    <field name="previous_risk"/>
+                    <field name="previous_score"/>
+                    <filter string="No Clinical Risk" name="no_risk"
+                            domain="[['clinical_risk','=','No Risk']]"/>
+                    <filter string="Low Clinical Risk" name="low_risk"
+                            domain="[['clinical_risk','=','Low']]"/>
+                    <filter string="Medium Clinical Risk" name="med_risk"
+                            domain="[['clinical_risk','=','Medium']]"/>
+                    <filter string="High Clinical Risk" name="high_risk"
+                            domain="[['clinical_risk','=','High']]"/>
+                    <filter string="Last 48 hrs" name="last_48_hrs"
+                            domain="[['date_scheduled','>=',((context_today()-datetime.timedelta(days=2)).strftime('%Y-%m-%d'))]]"/>
+                    <group expand="1" string="Group By">
+                        <filter string="Clinical Risk" name="clinical_risk" context="{'group_by':'clinical_risk'}"/>
+                        <filter string="Ward" name="ward" context="{'group_by':'ward_id'}"/>
+                        <filter string="Bed" name="bed" context="{'group_by':'location_id'}"/>
+                        <filter string="Staff Type" name="staff" context="{'group_by':'staff_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_nh_eobs_news_report_pivot" model="ir.actions.act_window">
+            <field name="name">NEWS Observations Analysis (last 8 days)</field>
+            <field name="res_model">nh.eobs.news.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">graph</field>
+            <field name="search_view_id" ref="view_nh_eobs_news_report_search"/>
+            <field name="context">{'group_by_no_leaf':1,'group_by':[]}</field>
+        </record>
+    </data>
+</openerp>
