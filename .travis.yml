@@ -59,7 +59,7 @@ before_install:
   NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
 - git fetch --all
-- git checkout ${TRAVIS_BRANCH}
+- if [ "git branch --list ${TRAVIS_BRANCH} " ]; then "git checkout ${TRAVIS_BRANCH}" ; fi
 - mkdir -p ${HOME}/dependencies
 - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
 - cd ../..
