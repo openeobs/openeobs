@@ -58,8 +58,8 @@ before_install:
 - git clone https://github.com/NeovaHealth/nhclinical.git
   NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
-- git fetch --all
-- if [ "git branch --list ${TRAVIS_BRANCH} " ]; then "git checkout ${TRAVIS_BRANCH}" ; fi
+- git show-ref refs/remotes/origin/${TRAVIS_BRANCH}
+- if [ $? = 0 ]; then "git checkout -b ${TRAVIS_BRANCH} refs/remotes/origin/${TRAVIS_BRANCH}" ; fi
 - mkdir -p ${HOME}/dependencies
 - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
 - cd ../..
