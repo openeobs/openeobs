@@ -163,13 +163,6 @@
                   action="nh_clinical.action_nhc_doctor_allocation"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="NEWS Analysis (last 8 days)"
-                  id="menu_eobs_news_report"
-                  sequence="1"
-                  parent="menu_eobs_category_reports"
-                  action="action_nh_eobs_news_report_pivot"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
-
         <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev"/>
 
         <menuitem name="Data Management"
