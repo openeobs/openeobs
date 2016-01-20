@@ -56,8 +56,8 @@ before_install:
 - echo -e "sonar.host.url=${SONAR_URL}\nsonar.jdbc.username=${SONAR_USER}\nsonar.jdbc.password=${SONAR_PASSWORD}\nsonar.jdbc.url=${SONAR_DBURL}"
   >> ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
 - BRANCH_TO_CLONE="master"
-- curl -s  https://api.github.com/repos/NeovaHealth/nhclinical/branches/${TRAVIS_BRANCH} | grep "Branch not found"
-- if [ "$?" == "1" ] ; then BRANCH_TO_CLONE=${TRAVIS_BRANCH} ; fi
+- curl -s  https://api.github.com/repos/NeovaHealth/nhclinical/branches/${TRAVIS_BRANCH} | grep "Branch not found" ; BRANCH_NOT_FOUND=$?
+- if [ ${BRANCH_NOT_FOUND} == "1" ] ; then BRANCH_TO_CLONE=${TRAVIS_BRANCH} ; fi
 - git clone --depth=50 --branch=${BRANCH_TO_CLONE} https://github.com/NeovaHealth/nhclinical.git
   NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
