@@ -1,6 +1,5 @@
-# coding=utf-8
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 {
     'name': 'NH eObs Analysis',
     'version': '0.1',
