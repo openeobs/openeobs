@@ -1538,19 +1538,15 @@ openerp.nh_eobs = function (instance) {
             var formView = this.__parentedParent.__parentedParent.__parentedChildren[2];
             var graph = formView.__parentedChildren[0];
 
-            console.log(formView);
-
             //options.mode = graph.mode;
             //options.heatmap_mode = graph.heatmap_mode;
             //options.visible_ui = graph.visible_ui;
             //options.bar_ui = graph.bar_ui;
             //options.graph_view= graph.graph_view;
 
-            var raw = graph.pivot_options.measures;
-
-            //var measures = graph.pivot_options.measures.map(function (el) {
-            //    return el.field;
-            //});
+            var measures = graph.pivot_options.measures.map(function (el) {
+                return el.field;
+            });
 
             var self = this;
             if (! this.view.view_manager.action || ! this.$el.find("select").val()) {
@@ -1564,7 +1560,7 @@ openerp.nh_eobs = function (instance) {
             _.each(data.domains, domain.add, domain);
 
             context.add({
-                measures: raw,
+                measures: measures,
                 group_by: instance.web.pyeval.eval('groupbys', data.groupbys || [])
             });
 
@@ -1596,31 +1592,17 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
-    instance.web_graph.GraphView.include({
-        init: function (parent, dataset, view_id, options) {
+
+
+    // Graph widget
+    instance.web_graph.Graph.include({
+        init: function (parent, model,  domain, options) {
+            this._super(parent, model,  domain, options);
             if (options.context.measures) {
-                this.measures = options.context.measures;
-            }
-            this._super(parent, dataset, view_id, options);
-        },
-        view_loading: function (fields_view_get) {
-            this._super(fields_view_get);
-            if (this.measures) {
-                this.widget_config.measures = this.measures;
+                this.pivot_options.measures = options.context.measures;
             }
         }
     });
-
-    //// Graph widget
-    //instance.web_graph.Graph.include({
-    //    init: function (parent, model,  domain, options) {
-    //
-    //        if (options.measures) {
-    //            this.measures = options.measures;
-    //        }
-    //        this._super(parent, model,  domain, options);
-    //    }
-    //});
 
 
     instance.web_graph.PivotTable.include({
