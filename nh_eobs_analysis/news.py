@@ -24,7 +24,7 @@ class nh_eobs_news_report(osv.Model):
         'not_on_time': fields.integer('# Not On Time', readonly=True),
         'delay': fields.float('min Delayed', digits=(16, 2), readonly=True,
                               group_operator="avg"),
-        'expedite': fields.float('min Early', digits=(16, 2), readonly=True,
+        'minutes_early': fields.float('min Early', digits=(16, 2), readonly=True,
                                  group_operator="avg"),
         'staff_type': fields.char('Staff Type', readonly=True),
         'partial_reason': fields.char('Reason', readonly=True),
@@ -88,7 +88,7 @@ class nh_eobs_news_report(osv.Model):
                 when a.date_scheduled < a.date_terminated then 0
                 else extract(epoch
                 from (a.date_scheduled - a.date_terminated))/60
-            end as expedite,
+            end as minutes_early,
             case
                 when (%s)::text[] @> ARRAY['NH Clinical Nurse Group']
                   then 'Nurse'
