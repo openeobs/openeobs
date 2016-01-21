@@ -1560,6 +1560,8 @@ openerp.nh_eobs = function (instance) {
             _.each(data.domains, domain.add, domain);
 
             context.add({
+                heatmap_mode: graph.heatmap_mode,
+                mode: graph.mode,
                 measures: measures,
                 group_by: instance.web.pyeval.eval('groupbys', data.groupbys || [])
             });
@@ -1600,6 +1602,8 @@ openerp.nh_eobs = function (instance) {
             this._super(parent, model,  domain, options);
             if (options.context.measures) {
                 this.pivot_options.measures = options.context.measures;
+                this.heatmap_mode = options.context.heatmap_mode;
+                //this.mode = options.context.mode;
             }
         }
     });
