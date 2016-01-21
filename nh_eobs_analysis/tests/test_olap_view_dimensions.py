@@ -31,109 +31,125 @@ class TestOlapViewDimensions(TransactionCase):
       taken
     """
 
+    def setUp(self):
+        super(TestOlapViewDimensions, self).setUp()
+        self.olap = self.registry('nh.eobs.news.report')
+
     def test_has_dimension_who_the_observation_was_taken_by(self):
         """
         Test that the OLAP view has a dimension for who took the observation
         """
-        pass
+        self.assertTrue('user_id' in self.olap, 'User ID not in OLAP model')
 
     def test_has_dimension_date_the_observation_was_scheduled(self):
         """
         Test that the OLAP view has a dimension for the date the observation
         was scheduled
         """
-        pass
+        self.assertTrue('date_scheduled' in self.olap,
+                        'Date Scheduled not in OLAP model')
 
     def test_has_dimension_date_the_observation_was_carried_out(self):
         """
         Test that the OLAP view has a dimension for the date the observation
         was completed
         """
-        pass
+        self.assertTrue('date_terminated' in self.olap,
+                        'Date Terminated not in OLAP model')
 
     def test_has_dimension_location_the_observation_was_carried_out_at(self):
         """
         Test that the OLAP view has a dimension for the location that the
         observation was carried out at
         """
-        pass
+        self.assertTrue('location_id' in self.olap,
+                        'Location ID not in OLAP model')
 
     def test_has_dimension_ward_the_observation_was_carried_out_in(self):
         """
         Test that the OLAP view has a dimension for the ward that the
         observation was carried out in
         """
-        pass
+        self.assertTrue('ward_id' in self.olap, 'Ward ID not in OLAP model')
 
     def test_has_dimension_type_activity_that_triggered_the_observation(self):
         """
         Test that the OLAP view has a dimension for the type of the activity
         that triggered the observation
         """
-        pass
+        self.assertTrue('type' in self.olap, 'Trigger Type not in OLAP model')
 
     def test_has_dimension_observation_early_warning_score(self):
         """
         Test that the OLAP view has a dimension for the early warning score
         that was calculated from the observation's values
         """
-        pass
+        self.assertTrue('score' in self.olap,
+                        'Current Score not in OLAP model')
 
     def test_has_dimension_observation_clinical_risk(self):
         """
         Test that the OLAP view has a dimension for the clinical risk that
         was assigned based on the early warning score
         """
-        pass
+        self.assertTrue('clinical_risk' in self.olap,
+                        'Current Clinical Risk not in OLAP model')
 
     def test_has_dimension_observation_was_carried_out_on_time(self):
         """
         Test that the OLAP view has a dimension for indicating if the
         observation was carried out on time or not
         """
-        pass
+        self.assertTrue('on_time' in self.olap,
+                        'On time flag not in OLAP model')
 
     def test_has_dimension_number_of_minutes_overdue(self):
         """
         Test that the OLAP view has a dimension indicating the number of
         minutes that the observation was overdue by
         """
-        pass
+        self.assertTrue('delay' in self.olap,
+                        'Minutes Overdue not in OLAP model')
 
     def test_has_dimension_number_of_minutes_early(self):
         """
         Test that the OLAP view has a dimension indicating the number of
         minutes the observation was completed early by
         """
-        pass
+        self.assertTrue('minutes_early' in self.olap,
+                        'Minutes Early not in OLAP model')
 
     def test_has_dimension_type_of_staff_completed_observation(self):
         """
         Test that the OLAP view has a dimension indicating the type of staff
         that completed the observation (HCA, Nurse)
         """
-        pass
+        self.assertTrue('staff_type' in self.olap,
+                        'Staff Type not in OLAP model')
 
     def test_has_dimension_reason_a_partial_observation(self):
         """
         Test that the OLAP view has a dimension for the reason why a partial
         observation was completed if the observation was a partial one
         """
-        pass
+        self.assertTrue('partial_reason' in self.olap,
+                        'Partial Reason not in OLAP model')
 
     def test_has_dimension_clinical_risk_for_previous_observation(self):
         """
         Test that the OLAP view has a dimension for the clinical risk of the
         patient's previous observation
         """
-        pass
+        self.assertTrue('previous_risk' in self.olap,
+                        'Previous Clinical Risk not in OLAP model')
 
     def test_has_dimension_score_for_previous_observation(self):
         """
         Test that the OLAP view has a dimension for the early warning score
         of the patient's previous observation
         """
-        pass
+        self.assertTrue('previous_score' in self.olap,
+                        'Previous EWS not in OLAP model')
 
     def test_has_dimension_patient_score_increased(self):
         """
@@ -141,7 +157,7 @@ class TestOlapViewDimensions(TransactionCase):
         observation score is higher than the patient's previous observation
         score
         """
-        pass
+        self.assertTrue('trend_up' in self.olap, 'Trend Up not in OLAP model')
 
     def test_has_dimension_patient_score_decreased(self):
         """
@@ -149,7 +165,8 @@ class TestOlapViewDimensions(TransactionCase):
         observation score is lower than the patient's previous observation
         score
         """
-        pass
+        self.assertTrue('trend_down' in self.olap,
+                        'Trend Down not in OLAP model')
 
     def test_has_dimension_patient_score_same(self):
         """
@@ -157,4 +174,5 @@ class TestOlapViewDimensions(TransactionCase):
         observation score is the same as the patient's previous observation
         score
         """
-        pass
+        self.assertTrue('trend_same' in self.olap,
+                        'Trend Same not in OLAP model')
