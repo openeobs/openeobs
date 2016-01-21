@@ -57,7 +57,7 @@ before_install:
   >> ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
 - git clone https://github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
-- find_branch() { git show-ref refs/remotes/origin/${TRAVIS_BRANCH} && git checkout ${TRAVIS_BRANCH}; return 0 }; find_branch
+- find_branch() { git show-ref refs/remotes/origin/${TRAVIS_BRANCH} && git checkout ${TRAVIS_BRANCH}; return 0; }; find_branch
 - mkdir -p ${HOME}/dependencies
 - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
 - cd ../..
