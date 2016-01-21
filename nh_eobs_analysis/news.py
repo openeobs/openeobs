@@ -19,7 +19,7 @@ class nh_eobs_news_report(osv.Model):
                                    readonly=True),
         'trigger_type': fields.char('Trigger Type', readonly=True),
         'score': fields.char('Score', readonly=True),
-        'clinical_risk': fields.char('Clinical Risk', readonly=True),
+        'clinical_risk': fields.char('Risk', readonly=True),
         'on_time': fields.integer('# On Time', readonly=True),
         'not_on_time': fields.integer('# Not On Time', readonly=True),
         'delay': fields.float('min Delayed', digits=(16, 2), readonly=True,

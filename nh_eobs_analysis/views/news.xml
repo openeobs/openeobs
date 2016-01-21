@@ -30,18 +30,18 @@
                     <field name="partial_reason"/>
                     <field name="previous_risk"/>
                     <field name="previous_score"/>
-                    <filter string="No Clinical Risk" name="no_risk"
+                    <filter string="No Risk" name="no_risk"
                             domain="[['clinical_risk','=','No Risk']]"/>
-                    <filter string="Low Clinical Risk" name="low_risk"
+                    <filter string="Low Risk" name="low_risk"
                             domain="[['clinical_risk','=','Low']]"/>
-                    <filter string="Medium Clinical Risk" name="med_risk"
+                    <filter string="Medium Risk" name="med_risk"
                             domain="[['clinical_risk','=','Medium']]"/>
-                    <filter string="High Clinical Risk" name="high_risk"
+                    <filter string="High Risk" name="high_risk"
                             domain="[['clinical_risk','=','High']]"/>
                     <filter string="Last 48 hrs" name="last_48_hrs"
                             domain="[['date_scheduled','>=',((context_today()-datetime.timedelta(days=2)).strftime('%Y-%m-%d'))]]"/>
                     <group expand="1" string="Group By">
-                        <filter string="Clinical Risk" name="clinical_risk" context="{'group_by':'clinical_risk'}"/>
+                        <filter string="Risk" name="clinical_risk" context="{'group_by':'clinical_risk'}"/>
                         <filter string="Ward" name="ward" context="{'group_by':'ward_id'}"/>
                         <filter string="Bed" name="bed" context="{'group_by':'location_id'}"/>
                         <filter string="Staff Type" name="staff" context="{'group_by':'staff_type'}"/>
