@@ -1538,12 +1538,6 @@ openerp.nh_eobs = function (instance) {
             var formView = this.__parentedParent.__parentedParent.__parentedChildren[2];
             var graph = formView.__parentedChildren[0];
 
-            //options.mode = graph.mode;
-            //options.heatmap_mode = graph.heatmap_mode;
-            //options.visible_ui = graph.visible_ui;
-            //options.bar_ui = graph.bar_ui;
-            //options.graph_view= graph.graph_view;
-
             var measures = graph.pivot_options.measures.map(function (el) {
                 return el.field;
             });
@@ -1603,20 +1597,8 @@ openerp.nh_eobs = function (instance) {
             if (options.context.measures) {
                 this.pivot_options.measures = options.context.measures;
                 this.heatmap_mode = options.context.heatmap_mode;
-                //this.mode = options.context.mode;
+                this.mode = options.context.mode;
             }
         }
     });
-
-
-    instance.web_graph.PivotTable.include({
-        init: function (model, domain, fields, options) {
-
-            //if (instance.nh_eobs.measures) {
-            //    options.measures = instance.nh_eobs.measures
-            //};
-
-            this._super(model, domain, fields, options);
-        }
-    })
 }
