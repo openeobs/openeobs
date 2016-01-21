@@ -163,7 +163,7 @@ class nh_eobs_news_report(osv.Model):
                 on_time,
                 not_on_time,
                 delay,
-                expedite,
+                minutes_early,
                 trend_up,
                 trend_down,
                 trend_same
