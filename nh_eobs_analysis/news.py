@@ -10,13 +10,14 @@ class nh_eobs_news_report(osv.Model):
     _auto = False
     _columns = {
         'user_id': fields.many2one('res.users', 'Taken By', readonly=True),
-        'type': fields.char('Type', readonly=True),
+        'obs_type': fields.char('Type', readonly=True),
         'date_scheduled': fields.datetime('Date Scheduled', readonly=True),
         'date_terminated': fields.datetime('Date Taken', readonly=True),
         'location_id': fields.many2one('nh.clinical.location', 'Location',
                                        readonly=True),
         'ward_id': fields.many2one('nh.clinical.location', 'Ward',
                                    readonly=True),
+        'location_str': fields.char('Location', readonly=True),
         'trigger_type': fields.char('Trigger Type', readonly=True),
         'score': fields.char('Current Score', readonly=True),
         'clinical_risk': fields.char('Current Clinical Risk', readonly=True),
@@ -50,10 +51,15 @@ class nh_eobs_news_report(osv.Model):
             case
                 when n.partial_reason is not null then 'Partial'
                 else 'Complete'
-            end as type,
+            end as obs_type,
             a.date_scheduled as date_scheduled,
             a.date_terminated as date_terminated,
             a.location_id as location_id,
+            case
+                when char_length(loc.name) = 5 then wloc.name||' Bed 00'||substring(loc.name from 5 for 1)
+                when char_length(loc.name) = 6 then wloc.name||' Bed 0'||substring(loc.name from 5 for 2)
+                else wloc.name||' '||loc.name
+            end as location_str,
             case
                 when t.data_model = 'nh.clinical.patient.placement'
                 then 'Placement'
@@ -148,10 +154,11 @@ class nh_eobs_news_report(osv.Model):
             group by
                 n.id,
                 a.terminate_uid,
-                type,
+                obs_type,
                 a.date_scheduled,
                 a.date_terminated,
                 a.location_id,
+                location_str,
                 trigger_type,
                 n.score,
                 n.clinical_risk,
@@ -181,6 +188,8 @@ class nh_eobs_news_report(osv.Model):
                 inner join nh_activity a on n.activity_id = a.id
                 inner join res_users u on a.terminate_uid = u.id
                 inner join ward_locations w on w.id = a.location_id
+                inner join nh_clinical_location loc on loc.id = a.location_id
+                inner join nh_clinical_location wloc on wloc.id = w.ward_id
                 left join nh_activity t on a.creator_id = t.id
                 left join nh_clinical_patient_observation_ews p
                     on p.activity_id = t.id

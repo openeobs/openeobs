@@ -20,9 +20,10 @@
                     <field name="date_scheduled"/>
                     <field name="date_terminated"/>
                     <field name="user_id"/>
-                    <field name="type"/>
+                    <field name="obs_type"/>
                     <field name="ward_id"/>
-                    <field name="location_id"/>
+                    <!--<field name="location_id"/>-->
+                    <field name="location_str"/>
                     <field name="trigger_type"/>
                     <field name="score"/>
                     <field name="clinical_risk"/>
@@ -43,7 +44,7 @@
                     <group expand="1" string="Group By">
                         <filter string="Current Clinical Risk" name="clinical_risk" context="{'group_by':'clinical_risk'}"/>
                         <filter string="Ward" name="ward" context="{'group_by':'ward_id'}"/>
-                        <filter string="Bed" name="bed" context="{'group_by':'location_id'}"/>
+                        <filter string="Bed" name="bed" context="{'group_by':'location_str'}"/>
                         <filter string="Staff Type" name="staff" context="{'group_by':'staff_type'}"/>
                     </group>
                 </search>
