@@ -28,16 +28,14 @@ class TestApiDemo(TransactionCase):
         result = self.demo_loader._get_patient_hospital_numbers_by_ward(
             cr, uid, 'A'
         )
-        self.assertEqual(len(result), 40)
-        self.assertTrue('HOSNUM0001' in result)
-        self.assertTrue('HOSNUM0041' not in result)
+        self.assertEqual(len(result), 28)
 
     def test_get_patient_hospital_numbers_by_ward_not_placed(self):
         cr, uid = self.cr, self.uid
         result = self.demo_loader._get_hospital_numbers_by_ward_not_placed(
             cr, uid, 'A'
         )
-        self.assertEqual(len(result), 12)
+        self.assertEqual(len(result), 8)
 
     def test_discharge_patients_completes_spell_patients_on_given_ward(self):
         cr, uid = self.cr, self.uid
@@ -89,7 +87,7 @@ class TestApiDemo(TransactionCase):
         # check location is destination
         locations = [patient.current_location_id for patient in patients]
         for location in locations:
-            self.assertEqual(location.code, 'W1')
+            self.assertTrue(location.code in ['W1B1', 'W1B2'])
 
     def test_get_nurse_hcs_user_ids(self):
         cr, uid = self.cr, self.uid
