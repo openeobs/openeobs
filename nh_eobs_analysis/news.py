@@ -18,8 +18,8 @@ class nh_eobs_news_report(osv.Model):
         'ward_id': fields.many2one('nh.clinical.location', 'Ward',
                                    readonly=True),
         'trigger_type': fields.char('Trigger Type', readonly=True),
-        'score': fields.char('Score', readonly=True),
-        'clinical_risk': fields.char('Risk', readonly=True),
+        'score': fields.char('Current Score', readonly=True),
+        'clinical_risk': fields.char('Current Clinical Risk', readonly=True),
         'on_time': fields.integer('# On Time', readonly=True),
         'not_on_time': fields.integer('# Not On Time', readonly=True),
         'delay': fields.float('min Delayed', digits=(16, 2), readonly=True,
@@ -28,7 +28,7 @@ class nh_eobs_news_report(osv.Model):
                                       readonly=True, group_operator="avg"),
         'staff_type': fields.char('Staff Type', readonly=True),
         'partial_reason': fields.char('Reason', readonly=True),
-        'previous_risk': fields.char('Previous Risk', readonly=True),
+        'previous_risk': fields.char('Previous Clinical Risk', readonly=True),
         'previous_score': fields.char('Previous Score', readonly=True),
         'trend_up': fields.integer('# Trend Up', readonly=True),
         'trend_down': fields.integer('# Trend Down', readonly=True),
@@ -60,12 +60,13 @@ class nh_eobs_news_report(osv.Model):
                 else 'Observation'
             end as trigger_type,
             case
-                when n.partial_reason is not null then 'None'
-                else n.score::text
+                when n.partial_reason is not null then 'Current Score: None'
+                else 'Current Score: '||n.score::text
             end as score,
             case
-                when n.clinical_risk = 'None' then 'No Risk'
-                else n.clinical_risk
+                when n.clinical_risk = 'Current Risk: None'
+                then 'Current Risk: No Risk'
+                else 'Current Risk: '||n.clinical_risk
             end as clinical_risk,
             case
                 when a.date_scheduled is null then 0
@@ -110,15 +111,16 @@ class nh_eobs_news_report(osv.Model):
             w.ward_id as ward_id,
             case
                 when t.data_model != 'nh.clinical.patient.observation.ews'
-                  then 'Unknown'
-                when p.clinical_risk = 'None' then 'No Risk'
-                else p.clinical_risk
+                  then 'Previous Risk: Unknown'
+                when p.clinical_risk = 'Previous Risk: None'
+                then 'Previous Risk: No Risk'
+                else 'Previous Risk: '||p.clinical_risk
             end as previous_risk,
             case
                 when t.data_model != 'nh.clinical.patient.observation.ews'
-                  then 'Unknown'
-                when p.partial_reason is not null then 'None'
-                else p.score::text
+                  then 'Previous Score: Unknown'
+                when p.partial_reason is not null then 'Previous Score: None'
+                else 'Previous Score: '||p.score::text
             end as previous_score,
             case
                 when t.data_model != 'nh.clinical.patient.observation.ews'
