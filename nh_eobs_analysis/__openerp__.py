@@ -9,11 +9,12 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_eobs'],
+    'depends': ['nh_eobs', 'board', 'web_graph'],
     'data': [
         'views/news.xml',
         'views/dashboard.xml',
         'views/menuitem.xml',
+        'views/static_resources.xml',
         'security/ir.model.access.csv'],
     'qweb': [],
     'application': True,
