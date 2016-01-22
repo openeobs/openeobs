@@ -5,7 +5,7 @@ cache:
   directories:
   - "$HOME/.cache/pip"
 python:
-- '2.7'
+- "2.7"
 addons:
   apt:
     sources:
@@ -18,7 +18,7 @@ addons:
     - python-yaml
     - sshpass
     - wkhtmltopdf
-  postgresql: '9.3'
+  postgresql: "9.3"
 env:
   global:
   - VERSION="8.0" LINT_CHECK="0" TRANSIFEX="0"
@@ -55,11 +55,9 @@ before_install:
 - rm ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
 - echo -e "sonar.host.url=${SONAR_URL}\nsonar.jdbc.username=${SONAR_USER}\nsonar.jdbc.password=${SONAR_PASSWORD}\nsonar.jdbc.url=${SONAR_DBURL}"
   >> ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
-- git clone https://github.com/NeovaHealth/nhclinical.git
-  NeovaHealth/nhclinical
+- git clone https://github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
-- git fetch --all
-- git checkout ${TRAVIS_BRANCH}
+- find_branch() { git show-ref refs/remotes/origin/${TRAVIS_BRANCH} && git checkout ${TRAVIS_BRANCH}; return 0; }; find_branch
 - mkdir -p ${HOME}/dependencies
 - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
 - cd ../..

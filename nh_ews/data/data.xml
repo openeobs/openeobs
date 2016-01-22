@@ -1,0 +1,20 @@
+<openerp>
+    <data>
+        <record id="nhc_o2level_0" model="nh.clinical.o2level">
+            <field name="min">86</field>
+            <field name="max">90</field>
+        </record>
+        <record id="nhc_o2level_1" model="nh.clinical.o2level">
+            <field name="min">88</field>
+            <field name="max">92</field>
+        </record>
+        <record id="nhc_o2level_2" model="nh.clinical.o2level">
+            <field name="min">90</field>
+            <field name="max">94</field>
+        </record>
+        <record id="nhc_o2level_3" model="nh.clinical.o2level">
+            <field name="min">92</field>
+            <field name="max">96</field>
+        </record>
+    </data>
+</openerp>
