@@ -694,13 +694,21 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: list
         """
 
-        domain = [
-            ('state', '=', 'started'),
-            ('data_model', '=', 'nh.clinical.spell'),
-            ('user_ids', 'in', [uid])  # needed to filter user's responsibility
-        ]
         if ids:
-            domain.append(('patient_id', 'in', ids))
+            domain = [
+                ('patient_id', 'in', ids),
+                ('state', '=', 'started'),
+                ('data_model', '=', 'nh.clinical.spell'),
+                '|',
+                ('user_ids', 'in', [uid]),  # filter user responsibility
+                ('patient_id.follower_ids', 'in', [uid])
+            ]
+        else:
+            domain = [
+                ('state', '=', 'started'),
+                ('data_model', '=', 'nh.clinical.spell'),
+                ('user_ids', 'in', [uid]),  # filter user responsibility
+            ]
 
         activity_pool = self.pool['nh.activity']
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
