@@ -1,5 +1,6 @@
 openerp.nh_eobs_analysis = function (instance) {
 
+    var QWeb = instance.web.qweb;
     var _t = instance.web._t;
 
     instance.board.AddToDashboard.include({
@@ -69,6 +70,55 @@ openerp.nh_eobs_analysis = function (instance) {
                 this.heatmap_mode = options.context.heatmap_mode;
                 this.mode = options.context.mode;
             }
+        },
+        header_cell_clicked: function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var id = event.target.getAttribute('data-id'),
+                header = this.pivot.get_header(id),
+                self = this;
+
+            if (header.expanded) {
+                if (header.root === this.pivot.rows) {
+                    this.fold_row(header, event);
+                } else {
+                    this.fold_col(header);
+                }
+                return;
+            }
+            if (header.path.length < header.root.groupby.length) {
+                this.$row_clicked = $(event.target).closest('tr');
+                this.expand(id);
+                return;
+            }
+            if (!this.groupby_fields.length) {
+                return;
+            }
+
+            var fields = _.map(this.groupby_fields, function (field) {
+                    return {id: field.field, value: field.string, type:self.fields[field.field.split(':')[0]].type};
+            });
+            var sorted_fields = ['clinical_risk', 'previous_risk', 'score', 'previous_score', 'ward_id', 'location_id', 'staff_type', 'user_id', 'date_terminated', 'date_scheduled', 'type', 'trigger_type', 'partial_reason']
+
+            fields.sort(function(a, b){
+                var keyA = sorted_fields.indexOf(a.id),
+                    keyB = sorted_fields.indexOf(b.id);
+                // Compare the 2 dates
+                if(keyA < keyB) return -1;
+                if(keyA > keyB) return 1;
+                return 0;
+            });
+
+            if (this.dropdown) {
+                this.dropdown.remove();
+            }
+            this.dropdown = $(QWeb.render('field_selection', {fields:fields, header_id:id}));
+            $(event.target).after(this.dropdown);
+            this.dropdown.css({
+                position:'absolute',
+                left:event.originalEvent.layerX,
+            });
+            this.$('.field-selection').next('.dropdown-menu').first().toggle();
         }
     });
 }
