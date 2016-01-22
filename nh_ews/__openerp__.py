@@ -14,7 +14,9 @@
         'views/views.xml',
         'security/notif/ir.model.access.csv',
         'security/params/ir.model.access.csv',
-        'security/ir.model.access.csv'],
+        'security/ir.model.access.csv',
+        'data/data.xml'
+    ],
     'demo': ['data/ward_a/demo_news.xml',
              'data/ward_b/demo_news.xml',
              'data/ward_c/demo_news.xml',
