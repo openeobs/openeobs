@@ -173,26 +173,6 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         """Gets randomly a user_id from a list of user_ids."""
         return random.choice(user_ids)
 
-    def _partial_news(self, cr, uid, ews_data):
-        """Sets an observation to a partial obs and adds reason."""
-        partial = [i for i in range(30)]
-        measurements = ['avpu_text',
-                        'blood_pressure_diastolic',
-                        'oxygen_administration_flag']
-        reasons = ['patient_away_from_bed', 'patient_refused',
-                   'emergency_situation', 'doctors_request']
-
-        if random.choice(partial) == 1:
-            keys = []
-            for key in ews_data:
-                if key not in measurements:
-                    keys.append(key)
-            k = random.choice(keys)
-            del ews_data[k]
-            ews_data.update({'partial_reason': random.choice(reasons)})
-
-        return ews_data
-
     def _get_patient_hospital_numbers_by_ward(self, cr, uid, ward_code,
                                               context=None):
         location_pool = self.pool['nh.clinical.location']
@@ -253,12 +233,3 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         codes = [bed.code for bed in beds]
         return codes
 
-    def _get_patients_placed(self, cr, uid):
-        patient_pool = self.pool['nh.clinical.patient']
-        patient_ids = patient_pool.search(cr, uid, [])
-        patients = patient_pool.browse(cr, uid, patient_ids)
-        patient_in_bed_ids = []
-        for patient in patients:
-            if patient.current_location_id.usage == 'bed':
-                patient_in_bed_ids.append(patient.id)
-        return patient_in_bed_ids

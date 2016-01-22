@@ -99,9 +99,3 @@ class TestApiDemo(TransactionCase):
         user_ids = [1, 2, 3, 4]
         user_id = self.demo_loader._get_random_user_id(cr, uid, user_ids)
         self.assertTrue(user_id in user_ids)
-
-    def test_get_patients_placed_in_beds(self):
-        cr, uid = self.cr, self.uid
-        patient_ids = self.demo_loader._get_patients_placed(cr, uid)
-
-        self.assertTrue(len(patient_ids) > 0)
