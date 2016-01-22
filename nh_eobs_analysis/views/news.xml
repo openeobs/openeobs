@@ -30,13 +30,13 @@
                     <field name="partial_reason"/>
                     <field name="previous_risk"/>
                     <field name="previous_score"/>
-                    <filter string="No Risk" name="no_risk"
+                    <filter string="Current Risk: None" name="no_risk"
                             domain="[['clinical_risk','=','No Risk']]"/>
-                    <filter string="Low Risk" name="low_risk"
+                    <filter string="Current Risk: Low" name="low_risk"
                             domain="[['clinical_risk','=','Low']]"/>
-                    <filter string="Medium Risk" name="med_risk"
+                    <filter string="Current Risk: Medium" name="med_risk"
                             domain="[['clinical_risk','=','Medium']]"/>
-                    <filter string="High Risk" name="high_risk"
+                    <filter string="Current Risk: High" name="high_risk"
                             domain="[['clinical_risk','=','High']]"/>
                     <filter string="Last 48 hrs" name="last_48_hrs"
                             domain="[['date_scheduled','>=',((context_today()-datetime.timedelta(days=2)).strftime('%Y-%m-%d'))]]"/>
