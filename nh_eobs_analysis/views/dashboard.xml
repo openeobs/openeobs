@@ -35,5 +35,9 @@
               </div>
             </field>
         </record>
+
+        <delete model="ir.ui.view" search="[['name','=','My Dashboard'], ['model','=','board.board']]"/>
+        <delete model="ir.actions.act_window" search="[['name','=','My Dashboard'], ['res_model','=','board.board']]"/>
+
     </data>
 </openerp>
