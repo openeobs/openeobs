@@ -9,7 +9,7 @@ openerp.nh_eobs_analysis = function (instance) {
             var formView = this.__parentedParent.__parentedParent.__parentedChildren[2];
             var graph = formView.__parentedChildren[0];
 
-            var measures = graph.pivot_options.measures.map(function (el) {
+            var measures = graph.pivot.measures.map(function (el) {
                 return el.field;
             });
 
