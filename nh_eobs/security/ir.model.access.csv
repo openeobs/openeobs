@@ -31,7 +31,7 @@ wm_access_workload,manager:access_workload,model_nh_activity_workload,nh_clinica
 wm_access_placement,manager:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_overdue,manager:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_ward_manager,1,1,1,0
-wm_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_ward_manager,0,0,0,0
+wm_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_ward_dashboard,manager:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_bed_dashboard,manager:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 ,,,,,,,
