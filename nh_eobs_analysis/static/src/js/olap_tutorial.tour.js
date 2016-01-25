@@ -9,7 +9,7 @@
     openerp.Tour.register({
         id: 'olap_tutorial',
         name: "Tutorial demonstrating the features of the NEWS Analysis OLAP tool",
-        path: '/web',
+        path: '/web?debug=',
         mode: 'tour',
         steps: [
             {
@@ -19,23 +19,19 @@
             },
             {
                 title:     _t("Start Here"),
-                content: _t("Click here to access the analysis panel"),
+                content: _t("Click to open the analysis panel"),
                 element:   "span.oe_menu_text:contains('NEWS Analysis')",
                 placement: 'bottom'
             },
-            //{
-            //    title:     _t("Overview"),
-            //    content: _t(""),
-            //    popover:   { next: _t("Continue"), end: _t("Exit") }
-            //},
             {
                 title:     _t("Select your measures"),
                 content: _t("Add or remove measures by clicking the items in this dropdown. <br/>Click <strong>Continue</strong> when done."),
-                element:   "ul.dropdown-menu.graph_measure_selection",
+                element:   ".dropdown-toggle:contains('Measures')",
                 placement: 'top',
-                popover:   { next: _t("Continue"), end: _t("Exit") }
+                popover:   { arrow: true, next: _t("Continue"), end: _t("Exit") }
             },
             {
+                //waitFor: ".graph_main_content table tbody tr:eq(0) td:eq(2)",
                 title:     _t("Heatmap"),
                 content: _t("Click here to view your selection as a heatmap"),
                 element:   ".btn[data-mode='both']",
@@ -56,12 +52,12 @@
                 placement: 'top'
             },
             {
-                waitFor: ".btn[data-mode='row'].active",
+                waitFor: ".btn[data-mode='col'].active",
                 title:     _t("Swap Axes"),
                 content: _t("This will swap the axes over. Try it now then click <strong>Continue</strong>"),
                 element:   ".btn[data-choice='swap_axis']",
                 placement: 'top',
-                popover:   { next: _t("Continue"), end: _t("Exit") }
+                popover:   { arrow: true, next: _t("Continue"), end: _t("Exit") }
             },
             {
                 title:     _t("Expand All"),
@@ -119,12 +115,39 @@
                 placement: 'bottom'
             },
             {
-                waitNot: "input[placeholder='Title of new dashboard item']",
+                waitNot: ".oe_searchview_dashboard.oe_opened",
                 title:     _t("Click Here"),
-                content: _t("To view your new selection inside your dashboard"),
+                content: _t("To view the newly added selection inside your dashboard"),
                 element:  "span.oe_menu_text:contains('My Dashboard')",
                 placement: 'bottom'
             },
+            {
+                title:     _t("Here it is"),
+                content: _t("Your analysis has been saved to your dashboard."),
+                element:  "oe_dashboard_column h2.oe_header",
+                placement: 'top',
+                popover:   { next: _t("Continue"), end: _t("Exit") }
+            },
+            {
+                title:     _t("Customise your Dashboard"),
+                content: _t("You can rearrange your analyses using this button. Try it now."),
+                element:  "span:contains('Change Layout')",
+                placement: 'bottom'
+            },
+            {
+                title:     _t("Select a Layout"),
+                content: _t("Click any layout preference from above"),
+                element:  ".oe_dashboard_layout_selector",
+                placement: 'bottom'
+            },
+            {
+                waitNot: ".modal",
+                title:     _t("Reset Dashboard"),
+                content: _t("This will reset your dashboard and remove all saved views. <br/> This concludes the analysis tutorial, click <strong>Exit</strong> to end."),
+                element: "span:contains('Reset')",
+                placement: 'bottom',
+                popover:   { next: _t("Exit") }
+            }
         ]
     });
 }());

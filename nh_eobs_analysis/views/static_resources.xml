@@ -3,6 +3,7 @@
         <template id="assets_backend" name="eobs assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
                 <script type="text/javascript" src="/nh_eobs_analysis/static/src/js/save_to_dashboard.js"></script>
+                <script type="text/javascript" src="/nh_eobs_analysis/static/src/js/olap_tutorial.tour.js"></script>
             </xpath>
         </template>
     </data>
