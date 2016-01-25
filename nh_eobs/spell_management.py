@@ -12,9 +12,7 @@ _logger = logging.getLogger(__name__)
 
 class nh_clinical_spellboard(orm.Model):
     """
-    Extends :class:`spell<spell.nh_clinical_spell>`, joining it with
-    :class:`activity<activity.nh_activity>` to provide additional
-    information related to the spell.
+    Provides patient spell information and operations for the GUI.
     """
 
     _name = "nh.clinical.spellboard"
@@ -82,9 +80,7 @@ class nh_clinical_spellboard(orm.Model):
 
     def create(self, cr, uid, vals, context=None):
         """
-        Extends :meth:`create()<openerp.models.Model.create>`. Admits
-        :class:`patient<base.nh_clinical_patient>` or raises an
-        exception.
+        Admits a patients or raises an exception.
 
         :param vals: must contain keys ``patient_id``, ``location_id``,
             ``code``, ``start_date``, ``ref_doctor_ids`` and
