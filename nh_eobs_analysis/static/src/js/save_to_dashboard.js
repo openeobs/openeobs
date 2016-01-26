@@ -71,6 +71,23 @@ openerp.nh_eobs_analysis = function (instance) {
                 this.mode = options.context.mode;
             }
         },
+        add_measures_to_options: function() {
+            var sorted_measures = ['__count', 'on_time', 'not_on_time', 'minutes_early', 'delay', 'trend_up', 'trend_same', 'trend_down'];
+            this.measure_list.sort(function(a, b){
+                var keyA = sorted_measures.indexOf(a.field),
+                    keyB = sorted_measures.indexOf(b.field);
+                // Compare the 2 dates
+                if(keyA < keyB) return -1;
+                if(keyA > keyB) return 1;
+                return 0;
+            });
+            this.$('.graph_measure_selection').append(
+            _.map(this.measure_list, function (measure) {
+                return $('<li>').append($('<a>').attr('data-choice', measure.field)
+                                         .attr('href', '#')
+                                         .text(measure.string));
+            }));
+        },
         header_cell_clicked: function (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -98,7 +115,7 @@ openerp.nh_eobs_analysis = function (instance) {
             var fields = _.map(this.groupby_fields, function (field) {
                     return {id: field.field, value: field.string, type:self.fields[field.field.split(':')[0]].type};
             });
-            var sorted_fields = ['clinical_risk', 'previous_risk', 'score', 'previous_score', 'ward_id', 'location_id', 'staff_type', 'user_id', 'date_terminated', 'date_scheduled', 'type', 'trigger_type', 'partial_reason']
+            var sorted_fields = ['clinical_risk', 'previous_risk', 'score', 'previous_score', 'ward_id', 'location_id', 'staff_type', 'user_id', 'date_terminated', 'date_scheduled', 'type']
 
             fields.sort(function(a, b){
                 var keyA = sorted_fields.indexOf(a.id),
