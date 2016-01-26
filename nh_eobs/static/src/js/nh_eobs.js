@@ -92,6 +92,10 @@ openerp.nh_eobs = function (instance) {
                     e.preventDefault();
                     openerp.Tour.run('palliative_care_flag');
                 });
+                $tuts.find('a.olap_tutorial').click(function (e) {
+                    e.preventDefault();
+                    openerp.Tour.run('olap_tutorial');
+                });
                 new instance.web.Dialog(this, {
                     size: 'large',
                     dialogClass: 'oe_act_window',
