@@ -29,18 +29,18 @@
                     <field name="staff_type"/>
                     <field name="previous_risk"/>
                     <field name="previous_score"/>
-                    <filter string="Current Risk: None" name="no_risk"
+                    <filter string="Obtained Risk: None" name="no_risk"
                             domain="[['clinical_risk','=','No Risk']]"/>
-                    <filter string="Current Risk: Low" name="low_risk"
+                    <filter string="Obtained Risk: Low" name="low_risk"
                             domain="[['clinical_risk','=','Low']]"/>
-                    <filter string="Current Risk: Medium" name="med_risk"
+                    <filter string="Obtained Risk: Medium" name="med_risk"
                             domain="[['clinical_risk','=','Medium']]"/>
-                    <filter string="Current Risk: High" name="high_risk"
+                    <filter string="Obtained Risk: High" name="high_risk"
                             domain="[['clinical_risk','=','High']]"/>
                     <filter string="Last 48 hrs" name="last_48_hrs"
                             domain="[['date_scheduled','>=',((context_today()-datetime.timedelta(days=2)).strftime('%Y-%m-%d'))]]"/>
                     <group expand="1" string="Group By">
-                        <filter string="Current Clinical Risk" name="clinical_risk" context="{'group_by':'clinical_risk'}"/>
+                        <filter string="Obtained Clinical Risk" name="clinical_risk" context="{'group_by':'clinical_risk'}"/>
                         <filter string="Ward" name="ward" context="{'group_by':'ward_id'}"/>
                         <filter string="Bed" name="bed" context="{'group_by':'location_str'}"/>
                         <filter string="Staff Type" name="staff" context="{'group_by':'staff_type'}"/>

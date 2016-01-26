@@ -19,8 +19,8 @@ class nh_eobs_news_report(osv.Model):
                                    readonly=True),
         'location_str': fields.char('Location', readonly=True),
         # 'trigger_type': fields.char('Trigger Type', readonly=True),
-        'score': fields.char('Current Score', readonly=True),
-        'clinical_risk': fields.char('Current Clinical Risk', readonly=True),
+        'score': fields.char('Obtained Score', readonly=True),
+        'clinical_risk': fields.char('Obtained Clinical Risk', readonly=True),
         'on_time': fields.integer('# On Time', readonly=True),
         'not_on_time': fields.integer('# Not On Time', readonly=True),
         'delay': fields.float('Minutes Delayed', digits=(16, 0), readonly=True,
@@ -66,13 +66,13 @@ class nh_eobs_news_report(osv.Model):
                 else 'Observation'
             end as trigger_type,
             case
-                when n.partial_reason is not null then 'Current Score: None'
-                else 'Current Score: '||n.score::text
+                when n.partial_reason is not null then 'Obtained Score: None'
+                else 'Obtained Score: '||n.score::text
             end as score,
             case
-                when n.clinical_risk = 'Current Risk: None'
-                then 'Current Risk: No Risk'
-                else 'Current Risk: '||n.clinical_risk
+                when n.clinical_risk = 'Obtained Risk: None'
+                then 'Obtained Risk: No Risk'
+                else 'Obtained Risk: '||n.clinical_risk
             end as clinical_risk,
             case
                 when a.date_scheduled is null then 0
