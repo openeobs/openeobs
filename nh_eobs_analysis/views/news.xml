@@ -20,15 +20,13 @@
                     <field name="date_scheduled"/>
                     <field name="date_terminated"/>
                     <field name="user_id"/>
-                    <field name="obs_type"/>
                     <field name="ward_id"/>
                     <!--<field name="location_id"/>-->
-                    <field name="location_str"/>
+                    <!-- <field name="location_str"/> -->
                     <field name="trigger_type"/>
                     <field name="score"/>
                     <field name="clinical_risk"/>
                     <field name="staff_type"/>
-                    <field name="partial_reason"/>
                     <field name="previous_risk"/>
                     <field name="previous_score"/>
                     <filter string="Current Risk: None" name="no_risk"
