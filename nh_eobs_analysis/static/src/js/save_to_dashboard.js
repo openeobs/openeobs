@@ -3,19 +3,17 @@ openerp.nh_eobs_analysis = function (instance) {
     var QWeb = instance.web.qweb;
     var _t = instance.web._t;
 
+    // Fix to allow measures, options and x-axis dimensions to save to dashboard
     instance.board.AddToDashboard.include({
         add_dashboard: function () {
-
             // Get measures array from pivot table class
             var formView = this.__parentedParent.__parentedParent.__parentedChildren[2];
             var graph = formView.__parentedChildren[0];
 
-            console.log(graph);
-
+            // Convert to simple array of strings
             var measures = graph.pivot.measures.map(function (el) {
                 return el.field;
             });
-            var cols = graph.pivot.cols.group_by;
 
             var self = this;
             if (!this.view.view_manager.action || !this.$el.find("select").val()) {
@@ -29,7 +27,7 @@ openerp.nh_eobs_analysis = function (instance) {
             _.each(data.domains, domain.add, domain);
 
             context.add({
-                cols: cols,
+                // Include options and measures array in context
                 heatmap_mode: graph.heatmap_mode,
                 mode: graph.mode,
                 measures: measures,
@@ -67,13 +65,17 @@ openerp.nh_eobs_analysis = function (instance) {
 
     // Graph widget
     instance.web_graph.Graph.include({
+
+        // After running super, applies any additional options that may have
+        // been passed in context by add_dashboard method (WI- 2110)
         init: function (parent, model, domain, options) {
             this._super(parent, model, domain, options);
             if (options.context.measures) {
                 this.pivot_options.measures = options.context.measures;
                 this.heatmap_mode = options.context.heatmap_mode;
                 this.mode = options.context.mode;
-                this.pivot_options.cols = options.context.cols;
+                this.pivot_options.col_groupby = options.context.col_group_by;
+                this.visible_ui = false;
             }
         },
         add_measures_to_options: function() {
@@ -143,6 +145,7 @@ openerp.nh_eobs_analysis = function (instance) {
             this.$('.field-selection').next('.dropdown-menu').first().toggle();
         },
 
+        // One line changed. _.sprintf bug fix (WI-2102)
         build_rows: function (headers, raw) {
             var self = this,
                 pivot = this.pivot,
@@ -194,7 +197,6 @@ openerp.nh_eobs_analysis = function (instance) {
                     cells: cells,
                 });
             }
-
             return rows;
         }
     });
