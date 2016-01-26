@@ -115,7 +115,7 @@ openerp.nh_eobs_analysis = function (instance) {
             var fields = _.map(this.groupby_fields, function (field) {
                     return {id: field.field, value: field.string, type:self.fields[field.field.split(':')[0]].type};
             });
-            var sorted_fields = ['clinical_risk', 'previous_risk', 'score', 'previous_score', 'ward_id', 'location_id', 'staff_type', 'user_id', 'date_terminated', 'date_scheduled', 'type']
+            var sorted_fields = ['clinical_risk', 'previous_risk', 'score', 'previous_score', 'ward_id', 'location_str', 'staff_type', 'user_id', 'date_terminated', 'date_scheduled', 'type']
 
             fields.sort(function(a, b){
                 var keyA = sorted_fields.indexOf(a.id),
