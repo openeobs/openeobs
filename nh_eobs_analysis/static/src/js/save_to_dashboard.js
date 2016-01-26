@@ -10,9 +10,12 @@ openerp.nh_eobs_analysis = function (instance) {
             var formView = this.__parentedParent.__parentedParent.__parentedChildren[2];
             var graph = formView.__parentedChildren[0];
 
+            console.log(graph);
+
             var measures = graph.pivot.measures.map(function (el) {
                 return el.field;
             });
+            var cols = graph.pivot.cols.group_by;
 
             var self = this;
             if (!this.view.view_manager.action || !this.$el.find("select").val()) {
@@ -26,6 +29,7 @@ openerp.nh_eobs_analysis = function (instance) {
             _.each(data.domains, domain.add, domain);
 
             context.add({
+                cols: cols,
                 heatmap_mode: graph.heatmap_mode,
                 mode: graph.mode,
                 measures: measures,
@@ -69,6 +73,7 @@ openerp.nh_eobs_analysis = function (instance) {
                 this.pivot_options.measures = options.context.measures;
                 this.heatmap_mode = options.context.heatmap_mode;
                 this.mode = options.context.mode;
+                this.pivot_options.cols = options.context.cols;
             }
         },
         add_measures_to_options: function() {
