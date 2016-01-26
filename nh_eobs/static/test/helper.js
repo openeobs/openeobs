@@ -15,6 +15,10 @@ openerp.Tour.helpers.capitalise = function (name) {
     return name.charAt(0).toUpperCase() + name.substring(1).toLowerCase();
 };
 
+openerp.Tour.templates = {
+    combo: '<div class="popover tour fade top in"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div><nav class="popover-navigation"><button class="btn btn-sm btn-default" data-role="next">Continue</button> <small> <span class="text-muted"> or </span><button class="btn-link" data-role="end" style="float: none; padding: 0">Exit</button></small></nav></div>'
+};
+
 openerp.Tour.users = {
     admin: 'olga',
     hca: 'harold',

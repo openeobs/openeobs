@@ -6,7 +6,7 @@
 
 (function () {
     var _t = openerp._t,
-        combo = '<div class="popover tour fade top in"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div><nav class="popover-navigation"><button class="btn btn-sm btn-default" data-role="next">Continue</button> <small> <span class="text-muted"> or </span><button class="btn-link" data-role="end" style="float: none; padding: 0">Exit</button></small></nav></div>';
+        combo = openerp.Tour.templates.combo;
     openerp.Tour.register({
         id: 'olap_tutorial',
         name: "Tutorial demonstrating the features of the NEWS Analysis OLAP tool",
@@ -25,16 +25,8 @@
                 placement: 'bottom'
             },
             {
-                title:     _t("Choose Dimensions"),
-                content: _t("Use the group-by buttons to quickly select the dimensions you want to view. <br/>Click <strong>Continue</strong> when done."),
-                element:   "dt:contains('Group By')",
-                placement: 'left',
-                popover:   { next: _t("Continue"), end: _t("Exit") },
-                template: combo
-            },
-            {
-                title:     _t("Specify Dimensions"),
-                content: _t("Use the <span class='fa fa-plus-square' style='display:inline;'</span> and <span class='fa fa-minus-square' style='display:inline;'</span> buttons to further specify dimensions.<br/>Click <strong>Continue</strong> when done."),
+                title:     _t("Select Dimensions"),
+                content: _t("Use the <span class='fa fa-plus-square' style='display:inline;'</span> and <span class='fa fa-minus-square' style='display:inline;'</span> buttons to specify dimensions.<br/>Click <strong>Continue</strong> when done."),
                 element:   "span.fa.fa-minus-square.web_graph_click",
                 placement: 'top',
                 popover:   { next: _t("Continue"), end: _t("Exit") },
@@ -95,7 +87,7 @@
             },
             {
                 title:     _t("Export Dataset"),
-                content: _t("You can click here to download the dataset as a CSV"),
+                content: _t("You can click here to download the dataset as excel spreadsheet"),
                 element:   ".btn[data-choice='export_data']",
                 placement: 'top',
                 popover:   { next: _t("Continue"), end: _t("Exit") },
@@ -152,23 +144,17 @@
                 template:   combo
             },
             {
-                title:     _t("Customise your Dashboard"),
-                content: _t("You can rearrange your analyses using this button. Try it now."),
-                element:  "span:contains('Change Layout')",
-                placement: 'bottom'
-            },
-            {
-                title:     _t("Select a Layout"),
-                content: _t("Click any layout preference from above"),
-                element:  ".oe_dashboard_layout_selector ul li:eq(2)",
-                placement: 'bottom'
-            },
-            {
-                waitNot: ".modal",
-                title:     _t("Reset Dashboard"),
-                content: _t("This resets your dashboard and remove all saved views. Caution: Cannot be undone."),
-                element: "span:contains('Reset')",
+                title:     _t("Collapse / Expand"),
+                content: _t("Use this to collapse or expand the view. Try it out now."),
+                element:  "span.oe_icon.oe_fold",
                 placement: 'bottom',
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template:   combo
+            },
+            {
+                title:     _t("Delete"),
+                content: _t("This will delete the selected analysis from your dashboard. Warning: Can't be undone."),
+                element:  "span.oe_icon.oe_close",
                 popover:   { next: _t("Continue"), end: _t("Exit") },
                 template:   combo
             },
