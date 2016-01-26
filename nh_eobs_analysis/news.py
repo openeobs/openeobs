@@ -23,7 +23,7 @@ class nh_eobs_news_report(osv.Model):
         'clinical_risk': fields.char('Current Clinical Risk', readonly=True),
         'on_time': fields.integer('# On Time', readonly=True),
         'not_on_time': fields.integer('# Not On Time', readonly=True),
-        'delay': fields.float('Minutest Delayed', digits=(16, 0), readonly=True,
+        'delay': fields.float('Minutes Delayed', digits=(16, 0), readonly=True,
                               group_operator="avg"),
         'minutes_early': fields.float('Minutes Early', digits=(16, 0),
                                       readonly=True, group_operator="avg"),
