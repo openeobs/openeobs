@@ -23,7 +23,7 @@
                     <field name="ward_id"/>
                     <!--<field name="location_id"/>-->
                     <!-- <field name="location_str"/> -->
-                    <field name="trigger_type"/>
+                    <!--<field name="trigger_type"/>-->
                     <field name="score"/>
                     <field name="clinical_risk"/>
                     <field name="staff_type"/>
