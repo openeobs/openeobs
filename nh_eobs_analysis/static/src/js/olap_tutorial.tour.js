@@ -5,7 +5,8 @@
  */
 
 (function () {
-    var _t = openerp._t;
+    var _t = openerp._t,
+        combo = '<div class="popover tour fade top in"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div><nav class="popover-navigation"><button class="btn btn-sm btn-default" data-role="next">Continue</button> <small> <span class="text-muted"> or </span><button class="btn-link" data-role="end" style="float: none; padding: 0">Exit</button></small></nav></div>';
     openerp.Tour.register({
         id: 'olap_tutorial',
         name: "Tutorial demonstrating the features of the NEWS Analysis OLAP tool",
@@ -24,14 +25,30 @@
                 placement: 'bottom'
             },
             {
+                title:     _t("Choose Dimensions"),
+                content: _t("Use the group-by buttons to quickly select the dimensions you want to view. <br/>Click <strong>Continue</strong> when done."),
+                element:   "dt:contains('Group By')",
+                placement: 'left',
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template: combo
+            },
+            {
+                title:     _t("Specify Dimensions"),
+                content: _t("Use the <span class='fa fa-plus-square' style='display:inline;'</span> and <span class='fa fa-minus-square' style='display:inline;'</span> buttons to further specify dimensions.<br/>Click <strong>Continue</strong> when done."),
+                element:   "span.fa.fa-minus-square.web_graph_click",
+                placement: 'top',
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template: combo
+            },
+            {
                 title:     _t("Select your measures"),
                 content: _t("Add or remove measures by clicking the items in this dropdown. <br/>Click <strong>Continue</strong> when done."),
                 element:   ".dropdown-toggle:contains('Measures')",
                 placement: 'top',
-                popover:   { arrow: true, next: _t("Continue"), end: _t("Exit") }
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template: combo
             },
             {
-                //waitFor: ".graph_main_content table tbody tr:eq(0) td:eq(2)",
                 title:     _t("Heatmap"),
                 content: _t("Click here to view your selection as a heatmap"),
                 element:   ".btn[data-mode='both']",
@@ -57,28 +74,32 @@
                 content: _t("This will swap the axes over. Try it now then click <strong>Continue</strong>"),
                 element:   ".btn[data-choice='swap_axis']",
                 placement: 'top',
-                popover:   { arrow: true, next: _t("Continue"), end: _t("Exit") }
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template: combo
             },
             {
                 title:     _t("Expand All"),
-                content: _t("You can click here to expand all measures (if they have been collapsed by clicking the '-' button)"),
-                element:   ".btn[data-choice='swap_axis']",
+                content: _t('You can click here to expand all measures (e.g. if one has been collapsed by clicking the <span class="fa fa-minus-square web_graph_click" style="margin-left: 0px;"</span> button)'),
+                element:   ".btn[data-choice='expand_all']",
                 placement: 'top',
-                popover:   { next: _t("Continue"), end: _t("Exit") }
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template: combo
             },
             {
                 title:     _t("Refresh Data"),
-                content: _t("You can click here to update the data in the current view"),
-                element:   ".btn[data-choice='swap_axis']",
+                content: _t("You can click here to update the data in the current view. "),
+                element:   ".btn[data-choice='update_values']",
                 placement: 'top',
-                popover:   { next: _t("Continue"), end: _t("Exit") }
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template: combo
             },
             {
                 title:     _t("Export Dataset"),
                 content: _t("You can click here to download the dataset as a CSV"),
-                element:   ".btn[data-choice='swap_axis']",
+                element:   ".btn[data-choice='export_data']",
                 placement: 'top',
-                popover:   { next: _t("Continue"), end: _t("Exit") }
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template: combo
             },
             {
                 title:     _t("View as Bar Chart"),
@@ -103,8 +124,8 @@
             {
                 waitFor: ".btn[data-mode='pie'].active",
                 title:     _t("Save Dashboard"),
-                content: _t("When you are happy with your selection, click here to save it to your dashboard."),
-                element:   ".oe_searchview_dashboard",
+                content: _t("When you are happy with your selection, click here to save it to your personal dashboard."),
+                element:   "h4:contains('Add to Dashboard')",
                 placement: 'bottom'
             },
             {
@@ -116,6 +137,7 @@
             },
             {
                 waitNot: ".oe_searchview_dashboard.oe_opened",
+                waitFor: ".ui-notify-message:contains('Filter added to dashboard'):hidden",
                 title:     _t("Click Here"),
                 content: _t("To view the newly added selection inside your dashboard"),
                 element:  "span.oe_menu_text:contains('My Dashboard')",
@@ -124,9 +146,10 @@
             {
                 title:     _t("Here it is"),
                 content: _t("Your analysis has been saved to your dashboard."),
-                element:  "oe_dashboard_column h2.oe_header",
+                element:  ".oe_action",
                 placement: 'top',
-                popover:   { next: _t("Continue"), end: _t("Exit") }
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template:   combo
             },
             {
                 title:     _t("Customise your Dashboard"),
@@ -137,15 +160,21 @@
             {
                 title:     _t("Select a Layout"),
                 content: _t("Click any layout preference from above"),
-                element:  ".oe_dashboard_layout_selector",
+                element:  ".oe_dashboard_layout_selector ul li:eq(2)",
                 placement: 'bottom'
             },
             {
                 waitNot: ".modal",
                 title:     _t("Reset Dashboard"),
-                content: _t("This will reset your dashboard and remove all saved views. <br/> This concludes the analysis tutorial, click <strong>Exit</strong> to end."),
+                content: _t("This resets your dashboard and remove all saved views. Caution: Cannot be undone."),
                 element: "span:contains('Reset')",
                 placement: 'bottom',
+                popover:   { next: _t("Continue"), end: _t("Exit") },
+                template:   combo
+            },
+            {
+                title:     _t("End of Tutorial"),
+                content: _t("This concludes the analysis tutorial"),
                 popover:   { next: _t("Exit") }
             }
         ]
