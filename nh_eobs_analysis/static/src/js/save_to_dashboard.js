@@ -136,6 +136,61 @@ openerp.nh_eobs_analysis = function (instance) {
                 left:event.originalEvent.layerX,
             });
             this.$('.field-selection').next('.dropdown-menu').first().toggle();
+        },
+
+        build_rows: function (headers, raw) {
+            var self = this,
+                pivot = this.pivot,
+                m, i, j, k, cell, row;
+
+            var rows = [];
+            var cells, pivot_cells, values;
+
+            var nbr_of_rows = headers.length;
+            var col_headers = pivot.get_cols_leaves();
+
+            for (i = 0; i < nbr_of_rows; i++) {
+                row = headers[i];
+                cells = [];
+                pivot_cells = [];
+                for (j = 0; j < pivot.cells.length; j++) {
+                    if (pivot.cells[j].x == row.id || pivot.cells[j].y == row.id) {
+                        pivot_cells.push(pivot.cells[j]);
+                    }
+                }
+
+                for (j = 0; j < col_headers.length; j++) {
+                    values = undefined;
+                    for (k = 0; k < pivot_cells.length; k++) {
+                        if (pivot_cells[k].x == col_headers[j].id || pivot_cells[k].y == col_headers[j].id) {
+                            values = pivot_cells[k].values;
+                            break;
+                        }
+                    }
+                    if (!values) { values = new Array(pivot.measures.length);}
+                    for (m = 0; m < pivot.measures.length; m++) {
+                        // Added or 0 to prevent make_cell being called with undefined value (WI-2102)
+                        cells.push(self.make_cell(row,col_headers[j],values[m] || 0, m, raw));
+                    }
+                }
+                if (col_headers.length > 1) {
+                    var totals = pivot.get_total(row);
+                    for (m = 0; m < pivot.measures.length; m++) {
+                        cell = self.make_cell(row, pivot.cols.headers[0], totals[m], m, raw);
+                        cell.is_bold = 'true';
+                        cells.push(cell);
+                    }
+                }
+                rows.push({
+                    id: row.id,
+                    indent: row.path.length,
+                    title: row.title,
+                    expanded: row.expanded,
+                    cells: cells,
+                });
+            }
+
+            return rows;
         }
     });
 }
