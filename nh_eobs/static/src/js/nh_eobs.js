@@ -1530,4 +1530,60 @@ openerp.nh_eobs = function (instance) {
            }
        }
     });
+
+    // Adding date format dropdown to CSV import options (WI-2119)
+    // Temp fix as import.js not loading before nh_eobs.js
+    window.setTimeout(function () {
+
+        var _lt = instance.web._lt,
+            _t = instance.web._t;
+
+        instance.web.DataImport.include({
+            opts: [
+                {name: 'dateformat', label: _lt("Date format:"), value: 'YYYYMMDD'},
+                {name: 'encoding', label: _lt("Encoding:"), value: 'utf-8'},
+                {name: 'separator', label: _lt("Separator:"), value: ','},
+                {name: 'quoting', label: _lt("Quoting:"), value: '"'}
+            ],
+            start: function () {
+                var self = this;
+                this.setup_encoding_picker();
+                this.setup_separator_picker();
+                this.setup_dateformat_picker(); // Add call to custom method
+
+                return $.when(
+                    this._super(),
+                    this.Import.call('create', [{
+                        'res_model': this.res_model
+                    }]).done(function (id) {
+                        self.id = id;
+                        self.$('input[name=import_id]').val(id);
+                    })
+                )
+            },
+
+            // Modified version of setup_seperator_picker
+            setup_dateformat_picker: function () {
+                this.$('input.oe_import_dateformat').select2({
+                    width: '160px',
+                    query: function (q) {
+                        var suggestions = [
+                            {id: 'YYYYMMDD', text: _t('YYYYMMDD')},
+                            {id: 'YYYY-MM-DD', text: _t('YYYY-MM-DD')},
+                            {id: 'YYYY MM DD', text: _t('YYYY MM DD')},
+                            {id: 'YYYYMMDDHHMMSS', text: _t('YYYYMMDDHHMMSS')},
+                            {id: 'YYYY-MM-DD HH:MM:SS', text: _t('YYYY-MM-DD HH:MM:SS')}
+                        ];
+                        if (q.term) {
+                            suggestions.unshift({id: q.term, text: q.term});
+                        }
+                        q.callback({results: suggestions});
+                    },
+                    initSelection: function (e, c) {
+                        return c({id: 'YYYYMMDD', text: _t("YYYYMMDD")});
+                    }
+                });
+            }
+        })
+    },2000);
 }
