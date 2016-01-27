@@ -226,8 +226,12 @@ class nh_clinical_spellboard(orm.Model):
         return all([res[r] for r in res.keys()])
 
     def transfer_button(self, cr, uid, ids, context=None):
-        record = self.browse(cr, uid, ids, context=context)
+        """
+        Button called by view_spellboard_form view to call form to
+        transfer patient.
+        """
 
+        record = self.browse(cr, uid, ids, context=context)
         if context:
             context.update({'default_patient_id': record.patient_id.id})
             context.update({'default_location_id': record.location_id.id})
@@ -259,6 +263,11 @@ class TransferPatientWizard(osv.TransientModel):
     }
 
     def transfer(self, cr, uid, ids, context=None):
+        """
+        Button called by view_transfer_wizard view to transfer
+        patient.
+        """
+
         api = self.pool['nh.eobs.api']
         record = self.browse(cr, uid, ids, context=context)
 
@@ -266,4 +275,5 @@ class TransferPatientWizard(osv.TransientModel):
             cr, uid, record.patient_id.other_identifier,
             {'location': record.transfer_location_id.code}, context=context
         )
+
         return result
