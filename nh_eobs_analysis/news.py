@@ -10,25 +10,25 @@ class nh_eobs_news_report(osv.Model):
     _auto = False
     _columns = {
         'user_id': fields.many2one('res.users', 'Taken By', readonly=True),
-        'obs_type': fields.char('Type', readonly=True),
+        # 'obs_type': fields.char('Type', readonly=True),
         'date_scheduled': fields.datetime('Date Scheduled', readonly=True),
         'date_terminated': fields.datetime('Date Taken', readonly=True),
-        'location_id': fields.many2one('nh.clinical.location', 'Location',
-                                       readonly=True),
+        # 'location_id': fields.many2one('nh.clinical.location', 'Location',
+        #                                readonly=True),
         'ward_id': fields.many2one('nh.clinical.location', 'Ward',
                                    readonly=True),
         'location_str': fields.char('Location', readonly=True),
-        'trigger_type': fields.char('Trigger Type', readonly=True),
-        'score': fields.char('Current Score', readonly=True),
-        'clinical_risk': fields.char('Current Clinical Risk', readonly=True),
+        # 'trigger_type': fields.char('Trigger Type', readonly=True),
+        'score': fields.char('Obtained Score', readonly=True),
+        'clinical_risk': fields.char('Obtained Clinical Risk', readonly=True),
         'on_time': fields.integer('# On Time', readonly=True),
         'not_on_time': fields.integer('# Not On Time', readonly=True),
-        'delay': fields.float('min Delayed', digits=(16, 0), readonly=True,
+        'delay': fields.float('Minutes Delayed', digits=(16, 0), readonly=True,
                               group_operator="avg"),
-        'minutes_early': fields.float('min Early', digits=(16, 0),
+        'minutes_early': fields.float('Minutes Early', digits=(16, 0),
                                       readonly=True, group_operator="avg"),
         'staff_type': fields.char('Staff Type', readonly=True),
-        'partial_reason': fields.char('Reason', readonly=True),
+        # 'partial_reason': fields.char('Reason', readonly=True),
         'previous_risk': fields.char('Previous Clinical Risk', readonly=True),
         'previous_score': fields.char('Previous Score', readonly=True),
         'trend_up': fields.integer('# Trend Up', readonly=True),
@@ -66,13 +66,13 @@ class nh_eobs_news_report(osv.Model):
                 else 'Observation'
             end as trigger_type,
             case
-                when n.partial_reason is not null then 'Current Score: None'
-                else 'Current Score: '||n.score::text
+                when n.partial_reason is not null then 'Obtained Score: None'
+                else 'Obtained Score: '||n.score::text
             end as score,
             case
-                when n.clinical_risk = 'Current Risk: None'
-                then 'Current Risk: No Risk'
-                else 'Current Risk: '||n.clinical_risk
+                when n.clinical_risk = 'Obtained Risk: None'
+                then 'Obtained Risk: No Risk'
+                else 'Obtained Risk: '||n.clinical_risk
             end as clinical_risk,
             case
                 when a.date_scheduled is null then 0
