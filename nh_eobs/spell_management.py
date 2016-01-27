@@ -57,6 +57,11 @@ class nh_clinical_spellboard(orm.Model):
             'doctor_id', "Consulting Doctors"),
     }
 
+    _defaults = {
+        'code': lambda s, cr, uid, c: s.pool['ir.sequence'].next_by_code(
+            cr, uid, 'nh.clinical.spell', context=c),
+    }
+
     def init(self, cr):
 
         cr.execute("""

@@ -42,15 +42,15 @@
                     </header>
                     <sheet>
                         <group>
-                            <field name="patient_id"/>
+                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="state" />
-                            <field name="location_id" domain="[['usage','=','ward']]"/>
-                            <field name="ward_id"/>
-                            <field name="code"/>
+                            <field name="location_id" domain="[['usage','=','ward']]" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="code" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="date_started"/>
                             <field name="date_terminated"/>
                         </group>
-                        <notebook>
+                        <notebook groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
                             <page string="Referring Doctors">
                                 <group>
                                     <field name="ref_doctor_ids" nolabel="1"/>
