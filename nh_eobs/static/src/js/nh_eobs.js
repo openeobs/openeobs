@@ -1,4 +1,3 @@
-var logout_time = 1200000;
 
 openerp.nh_eobs = function (instance) {
 
@@ -9,7 +8,6 @@ openerp.nh_eobs = function (instance) {
     var refresh_active_poc = false;
     var wardboard_refreshed = false;
     var _t = instance.web._t;
-    var logout_timeout, session;
     var wardboard_groups_opened = false;
     var kiosk_mode = false;
     var kiosk_t;
@@ -18,6 +16,50 @@ openerp.nh_eobs = function (instance) {
     var modal_view = null;
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
+
+    // Auto logout object - reset() sets timeout interval with provided interval
+    // or default value. Displays notification 10 seconds before timeout then
+    // logs out unless reset has been called again.
+    instance.nh_eobs.Logout = {
+        default: 1200000, // 20mins
+        ref: null, // Used to store the timeout reference if set
+        reset: function (time) {
+            var self = this;
+            // If called by mouse click time param is passed event object
+            if (typeof time !== 'number') {
+                time = null;
+            }
+            if (typeof this.ref === 'number') {
+                window.clearTimeout(this.ref);
+            }
+            this.ref = window.setTimeout(
+                function () {
+                    instance.web.notification.warn(
+                        'Logging Out',
+                        'You are about to be logged out due to inactivity. Close this notification to continue your session.',
+                        true
+                    ).element.find('.ui-notify-close').click(
+                        // Required as click event not propagated to window.
+                        instance.nh_eobs.Logout.reset.bind(instance.nh_eobs.Logout)
+                    );
+                    self.ref = window.setTimeout(function () {
+                        instance.session.session_logout()
+                            .done(function () {
+                                location.reload();
+                                console.log('Logged out due to inactivity');
+                            });
+                    }, 10000);
+                },
+                (time || this.default) - 10000
+            );
+        }
+    };
+
+    // Set initial countdown
+    instance.nh_eobs.Logout.reset();
+
+    // Sets click event listener for logout.reset() function
+    window.addEventListener('click', instance.nh_eobs.Logout.reset.bind(instance.nh_eobs.Logout));
 
     instance.web.NHTreeView = instance.web.TreeView.extend({
 
@@ -209,21 +251,7 @@ openerp.nh_eobs = function (instance) {
                 }
             };
             this._super.apply(this, [parent, dataset, view_id, options]);
-
-            if (!wardboard_refreshed){
-                if (typeof(logout_timeout) != 'undefined'){
-                    clearInterval(logout_timeout);
-                }
-                session = this.session;
-                logout_timeout = window.setInterval(function(){
-                    session.session_logout().done(function(){
-                        location.reload();
-                    });
-                }, logout_time);
-            } else {
-                wardboard_refreshed = false;
-            }
-
+            wardboard_refreshed = false;
         },
 
         select_record: function (index, view) {
@@ -856,23 +884,6 @@ openerp.nh_eobs = function (instance) {
     });
 
     instance.web.form.widgets.add('nh_weightchart', 'instance.nh_eobs.WeightChartWidget');
-
-    instance.nh_eobs.FormView = instance.web.FormView.extend({
-        init: function(parent, dataset, view_id, options) {
-            this._super(parent, dataset, view_id, options);
-            if (typeof(logout_timeout) != 'undefined'){
-                clearInterval(logout_timeout);
-            }
-            session = this.session;
-            logout_timeout = window.setInterval(function(){
-                session.session_logout().done(function(){
-                    location.reload();
-                });
-            }, logout_time);
-        },
-    });
-
-    instance.web.views.add('form', 'instance.nh_eobs.FormView');
 
     instance.web.FormView.include({
          can_be_discarded: function() {
