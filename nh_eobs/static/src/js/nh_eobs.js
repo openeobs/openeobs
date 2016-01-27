@@ -1579,7 +1579,9 @@ openerp.nh_eobs = function (instance) {
                     },
                     initSelection: function (e, c) {
                         return c({id: 'YMD', text: _t('Year Month Day')});
-                    }
+                    },
+                    // Removes search box from drop down
+                    minimumResultsForSearch: Infinity
                 });
             }
         })
