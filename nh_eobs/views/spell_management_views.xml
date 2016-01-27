@@ -38,6 +38,7 @@
                         <button name="cancel" string="Cancel Spell"  type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="discharge" string="Discharge"  type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge"  type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
+                        <button name="transfer_button" string="Transfer" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"  attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                     </header>
                     <sheet>
                         <group>
@@ -66,6 +67,28 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="view_transfer_wizard">
+            <field name="name">Transfer Wizard Form</field>
+            <field name="model">nh.clinical.transfer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Transfer Wizard Form" version="7.0" delete="0">
+
+                    <sheet>
+                        <group>
+                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="location_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="transfer_location_id" domain="[['usage','=','ward']]"/>
+                        </group>
+                    </sheet>
+
+                    <footer>
+                        <button name="transfer" type="object" string="Complete Transfer" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"/>
+                        <button special="cancel" string="Cancel Transfer"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
         <record model="ir.actions.act_window" id="action_show_spells">
             <field name="name">Spells</field>
             <field name="type">ir.actions.act_window</field>
@@ -82,11 +105,13 @@
             <field name="view_id" ref="view_spellboard_tree"/>
             <field name="act_window_id" ref="action_show_spells"/>
         </record>
+
         <record model="ir.actions.act_window.view" id="act_view_spellboard_form">
             <field eval="2" name="sequence"/>
             <field name="view_mode">form</field>
             <field name="view_id" ref="view_spellboard_form"/>
             <field name="act_window_id" ref="action_show_spells"/>
         </record>
+
     </data>
 </openerp>

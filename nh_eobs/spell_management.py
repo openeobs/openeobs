@@ -224,3 +224,46 @@ class nh_clinical_spellboard(orm.Model):
             res[spell.id] = api.cancel_discharge(
                 cr, uid, spell.patient_id.other_identifier, context=context)
         return all([res[r] for r in res.keys()])
+
+    def transfer_button(self, cr, uid, ids, context=None):
+        record = self.browse(cr, uid, ids, context=context)
+
+        if context:
+            context.update({'default_patient_id': record.patient_id.id})
+            context.update({'default_location_id': record.location_id.id})
+
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Transfer Patient",
+            "res_model": "nh.clinical.transfer.wizard",
+            "view_mode": "form",
+            "view_type": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "search_view_id": "view_transfer_wizard",
+            "context": context,
+        }
+        return action
+
+
+class TransferPatientWizard(osv.TransientModel):
+
+    _name = 'nh.clinical.transfer.wizard'
+    _columns = {
+        'patient_id': fields.many2one(
+            'nh.clinical.patient', 'Patient', required=True),
+        'location_id': fields.many2one(
+            'nh.clinical.location', 'Current Location', required=True),
+        'transfer_location_id': fields.many2one(
+            'nh.clinical.location', 'Transfer Ward Location')
+    }
+
+    def transfer(self, cr, uid, ids, context=None):
+        api = self.pool['nh.eobs.api']
+        record = self.browse(cr, uid, ids, context=context)
+
+        result = api.transfer(
+            cr, uid, record.patient_id.other_identifier,
+            {'location': record.transfer_location_id.code}, context=context
+        )
+        return result

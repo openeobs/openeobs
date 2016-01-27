@@ -190,7 +190,7 @@
                   sequence="2"
                   parent="menu_eobs_category_data_management"
                   action="action_show_locations_dev"
-                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Doctors"
                   sequence="3"
