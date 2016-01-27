@@ -1568,11 +1568,9 @@ openerp.nh_eobs = function (instance) {
                     width: '160px',
                     query: function (q) {
                         var suggestions = [
-                            {id: 'YYYYMMDD', text: _t('YYYYMMDD')},
-                            {id: 'YYYY-MM-DD', text: _t('YYYY-MM-DD')},
-                            {id: 'YYYY MM DD', text: _t('YYYY MM DD')},
-                            {id: 'YYYYMMDDHHMMSS', text: _t('YYYYMMDDHHMMSS')},
-                            {id: 'YYYY-MM-DD HH:MM:SS', text: _t('YYYY-MM-DD HH:MM:SS')}
+                            {id: 'YMD', text: _t('Year Month Day')},
+                            {id: 'DMY', text: _t('Day Month Year')},
+                            {id: 'MDY', text: _t('Month Day Year')}
                         ];
                         if (q.term) {
                             suggestions.unshift({id: q.term, text: q.term});
@@ -1580,7 +1578,7 @@ openerp.nh_eobs = function (instance) {
                         q.callback({results: suggestions});
                     },
                     initSelection: function (e, c) {
-                        return c({id: 'YYYYMMDD', text: _t("YYYYMMDD")});
+                        return c({id: 'YMD', text: _t('Year Month Day')});
                     }
                 });
             }
