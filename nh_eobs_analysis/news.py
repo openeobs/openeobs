@@ -56,8 +56,10 @@ class nh_eobs_news_report(osv.Model):
             a.date_terminated as date_terminated,
             a.location_id as location_id,
             case
-                when char_length(loc.name) = 5 then wloc.name||' Bed 00'||substring(loc.name from 5 for 1)
-                when char_length(loc.name) = 6 then wloc.name||' Bed 0'||substring(loc.name from 5 for 2)
+                when char_length(loc.name) = 5 then
+                wloc.name||' Bed 00'||substring(loc.name from 5 for 1)
+                when char_length(loc.name) = 6 then
+                wloc.name||' Bed 0'||substring(loc.name from 5 for 2)
                 else wloc.name||' '||loc.name
             end as location_str,
             case
