@@ -1540,7 +1540,7 @@ openerp.nh_eobs = function (instance) {
 
         instance.web.DataImport.include({
             opts: [
-                {name: 'dateformat', label: _lt("Date format:"), value: 'YYYYMMDD'},
+                {name: 'dateformat', label: _lt("Date format:"), value: 'YMD'},
                 {name: 'encoding', label: _lt("Encoding:"), value: 'utf-8'},
                 {name: 'separator', label: _lt("Separator:"), value: ','},
                 {name: 'quoting', label: _lt("Quoting:"), value: '"'}

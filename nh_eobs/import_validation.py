@@ -9,12 +9,6 @@ class ir_import_extension(orm.TransientModel):
     _name = 'base_import.import'
     _inherit = 'base_import.import'
 
-    def format_patient_data(self, data, fields):
-        for index, field in enumerate(fields):
-            if field in ['other_identifier', 'patient_identifier']:
-                for d in data:
-                    d[index].replace(" ", "")
-
     def do(self, cr, uid, id, fields, options, dryrun=False, context=None):
         cr.execute('SAVEPOINT import')
 
@@ -29,9 +23,8 @@ class ir_import_extension(orm.TransientModel):
                 'record': False,
             }]
 
-        if record.res_model == 'nh.clinical.patient':
-            self.format_patient_data(data, import_fields)
         _logger.info('importing %d rows...', len(data))
+        context['dateformat'] = options.get('dateformat')
         import_result = self.pool[record.res_model].load(
             cr, uid, import_fields, data, context=context)
         _logger.info('done')
