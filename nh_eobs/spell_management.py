@@ -4,6 +4,7 @@ Defines models used for `Open eObs` spellboard UI.
 """
 from openerp.osv import orm, fields, osv
 from datetime import datetime as dt
+import re
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 import logging
 
@@ -55,6 +56,8 @@ class nh_clinical_spellboard(orm.Model):
         'con_doctor_ids': fields.many2many(
             'nh.clinical.doctor', 'con_doctor_spell_rel', 'spell_id',
             'doctor_id', "Consulting Doctors"),
+        'hospital_number': fields.char('Hospital Number', size=200),
+        'nhs_number': fields.char('NHS Number', size=200)
     }
 
     _defaults = {
@@ -75,13 +78,48 @@ class nh_clinical_spellboard(orm.Model):
                         spell.pos_id as pos_id,
                         spell.code as code,
                         spell.start_date as start_date,
-                        spell.move_date as move_date
+                        spell.move_date as move_date,
+                        patient.other_identifier as hospital_number,
+                        patient.patient_identifier as nhs_number
                     from nh_activity spell_activity
                     inner join nh_clinical_spell spell
                         on spell.activity_id = spell_activity.id
+                    inner join nh_clinical_patient patient
+                        on spell.patient_id = patient.id
                     where spell_activity.data_model = 'nh.clinical.spell'
                 )
         """ % (self._table, self._table))
+
+    def format_data(self, data):
+        """
+        Removes any non alphanumeric symbols from hospital number
+        and NHS number fields.
+        """
+        for field in data.keys():
+            if field == 'hospital_number' or field == 'nhs_number':
+                non_alphanumeric = re.compile(r'[\W_]+')
+                data[field] = non_alphanumeric.sub('', data[field])
+
+    def fetch_patient_id(self, cr, uid, data, context=None):
+        """
+        Fetches the patient_id from the provided Hospital Number or
+        NHS Number
+        """
+        if not context:
+            context = dict()
+        patient_api = self.pool['nh.clinical.patient']
+        if data.get('hospital_number'):
+            patient_id = patient_api.search(
+                cr, uid,
+                [['other_identifier', '=', data.get('hospital_number')]],
+                context=context)
+            data['patient_id'] = patient_id[0] if patient_id else False
+        elif data.get('nhs_number'):
+            patient_id = patient_api.search(
+                cr, uid,
+                [['patient_identifier', '=', data.get('nhs_number')]],
+                context=context)
+            data['patient_id'] = patient_id[0] if patient_id else False
 
     def create(self, cr, uid, vals, context=None):
         """
@@ -95,7 +133,11 @@ class nh_clinical_spellboard(orm.Model):
         :returns: id of new record
         :rtype: int
         """
-
+        self.format_data(vals)
+        if vals.get('hospital_number') or vals.get('nhs_number'):
+            self.fetch_patient_id(cr, uid, vals, context=context)
+            if not vals.get('patient_id'):
+                raise orm.except_orm('Validation Error!', 'Patient not found!')
         api = self.pool['nh.eobs.api']
         patient_pool = self.pool['nh.clinical.patient']
         location_pool = self.pool['nh.clinical.location']

@@ -136,7 +136,7 @@ openerp.nh_eobs = function (instance) {
                 if (['Doctors','Spells','Hospital Wards','Device Categories','Acuity Board','Patients by Ward','Overdue Tasks','Doctor Tasks','Device Types','Devices','O2 Targets','User Management','Recently Discharged','Recently Transferred','Patients without bed','Wardboard','Active Points of Care','Inactive Points of Care'].indexOf(options.action.name) > -1){
                     options.selectable = false;
                 };
-                if (['Patients', 'Locations', 'Spells'].indexOf(options.action.name) == -1){
+                if (['Patients', 'Locations', 'Current Visits'].indexOf(options.action.name) == -1){
                     options.import_enabled = false;
                 };
                 if (typeof(timing5) != 'undefined'){
