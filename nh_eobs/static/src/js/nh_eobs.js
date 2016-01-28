@@ -1532,7 +1532,7 @@ openerp.nh_eobs = function (instance) {
     });
 
     // Adding date format dropdown to CSV import options (WI-2119)
-    // Temp fix as import.js not loading before nh_eobs.js
+    // setTimeout = temp fix as import.js not loading before nh_eobs.js
     window.setTimeout(function () {
 
         var _lt = instance.web._lt,
@@ -1586,4 +1586,8 @@ openerp.nh_eobs = function (instance) {
             }
         })
     },2000);
+
+    // Over ride default year range in date picker to show years up to 115 ago
+    $.datepicker.setDefaults({yearRange: 'c-115:c+0'});
+
 }
