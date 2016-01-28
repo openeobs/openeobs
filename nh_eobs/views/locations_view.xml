@@ -118,8 +118,8 @@
                                 <field name="code"/>
                                 <field name="type"/>
                                 <field name="usage"/>
-                                <field name="pos_id" string="Point of Service"/>
-                                <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
+                                <field name="pos_id" string="Point of Service" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                                <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                             </group>
                         </group>
                         <notebook>
@@ -130,8 +130,8 @@
                                         <field name="code"/>
                                         <field name="type"/>
                                         <field name="usage"/>
-                                        <field name="pos_id" string="Point of Service"/>
-                                        <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
+                                        <field name="pos_id" string="Point of Service" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                                        <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                                     </tree>
                                 </field>
                             </page>
