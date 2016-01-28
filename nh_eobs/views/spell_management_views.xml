@@ -42,9 +42,9 @@
                     </header>
                     <sheet>
                         <group>
-                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="patient_id"/>
                             <field name="state" />
-                            <field name="location_id" domain="[['usage','=','ward']]" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="location_id" domain="[['usage','=','ward']]"/>
                             <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="code" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="date_started"/>
@@ -90,7 +90,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_show_spells">
-            <field name="name">Spells</field>
+            <field name="name">Current Visits</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">nh.clinical.spellboard</field>
             <field name="view_type">form</field>
