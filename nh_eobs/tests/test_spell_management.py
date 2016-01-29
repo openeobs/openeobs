@@ -1,6 +1,7 @@
-# coding=utf-8
-from mock import MagicMock
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
+# -*- coding: utf-8 -*-
 from collections import namedtuple
+from mock import MagicMock
 
 from openerp.tests.common import SingleTransactionCase
 
@@ -10,6 +11,68 @@ class TestSpellManagement(SingleTransactionCase):
     def setUp(self):
         super(TestSpellManagement, self).setUp()
         self.spellboard_pool = self.registry('nh.clinical.spellboard')
+
+    def test_fetch_patient_id_adds_patient_id_to_data_dict_if_found_it(self):
+
+        patient_api = self.registry('nh.clinical.patient')
+        data = {'hospital_number': 'HOSPNUM123'}
+
+        def mock_search_returning_patient_id(*args, **kwargs):
+            """
+            Return a list containing an integer,
+            to mock the returning value of the actual Odoo method
+            when a patient is searched and found.
+            """
+            return [47]
+
+        patient_api._patch_method('search', mock_search_returning_patient_id)
+        self.spellboard_pool.fetch_patient_id(self.cr, self.uid, data)
+        patient_api._revert_method('search')
+
+        self.assertIn('patient_id', data)
+        self.assertEqual(data['patient_id'], 47)
+
+    def test_fetch_patient_id_adds_patient_id_false_if_patient_not_found(self):
+
+        patient_api = self.registry('nh.clinical.patient')
+        data = {'hospital_number': 'HOSPNUM123'}
+
+        def mock_search_returning_empty_list(*args, **kwargs):
+            return []
+
+        patient_api._patch_method('search', mock_search_returning_empty_list)
+        self.spellboard_pool.fetch_patient_id(self.cr, self.uid, data)
+        patient_api._revert_method('search')
+
+        self.assertIn('patient_id', data)
+        self.assertEqual(data['patient_id'], False)
+
+    def test_fetch_patient_id_does_not_change_previous_keys_in_data_dict(self):
+        patient_api = self.registry('nh.clinical.patient')
+        data = {'hospital_number': 'HOSPNUM123'}
+
+        def mock_search_returning_patient_id(*args, **kwargs):
+            return [47]
+
+        patient_api._patch_method('search', mock_search_returning_patient_id)
+        self.spellboard_pool.fetch_patient_id(self.cr, self.uid, data)
+        patient_api._revert_method('search')
+
+        self.assertIn('hospital_number', data)
+        self.assertEqual(data['hospital_number'], 'HOSPNUM123')
+
+    def test_fetch_patient_id_not_adds_patient_id_to_data_dict_if_empty(self):
+        patient_api = self.registry('nh.clinical.patient')
+        data = {}
+
+        def mock_search_returning_patient_id(*args, **kwargs):
+            return [47]
+
+        patient_api._patch_method('search', mock_search_returning_patient_id)
+        self.spellboard_pool.fetch_patient_id(self.cr, self.uid, data)
+        patient_api._revert_method('search')
+
+        self.assertNotIn('patient_id', data)
 
     def test_transfer_button_returns_correct_action(self):
         cr, uid = self.cr, self.uid
@@ -76,4 +139,3 @@ class TestTransferPatientWizard(SingleTransactionCase):
             cr, uid, 2, {'location': 'A'}, context=None)
 
         del self.api.transfer
-

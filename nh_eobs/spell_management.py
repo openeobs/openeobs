@@ -102,8 +102,7 @@ class nh_clinical_spellboard(orm.Model):
 
     def fetch_patient_id(self, cr, uid, data, context=None):
         """
-        Fetches the patient_id from the provided Hospital Number or
-        NHS Number
+        Fetch the patient_id from the provided Hospital Number or NHS Number.
         """
         if not context:
             context = dict()
