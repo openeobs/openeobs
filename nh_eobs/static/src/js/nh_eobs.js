@@ -1588,6 +1588,32 @@ openerp.nh_eobs = function (instance) {
     },2000);
 
     // Over ride default year range in date picker to show years up to 115 ago
-    $.datepicker.setDefaults({yearRange: 'c-115:c+0'});
+    $.datepicker.setDefaults({yearRange: '-115:+0'});
 
+    instance.web.DateTimeWidget.include({
+        on_picker_select: function(text, instance_) {
+            var date = this.picker('getDate');
+            this.$input
+                .val(date ? this.format_client(date) : '')
+                .change()
+                .focus();
+
+            // If datepicker is being used for date of birth
+            if (this.$input.attr('name') === 'dob') {
+
+                // Calculate age from date selected
+                var agems = Date.now() - date.getTime();
+                var age = Math.abs(new Date(agems).getUTCFullYear() - 1970);
+
+                // Add an age div after the picker or change the text if already
+                // present
+                if (!document.getElementById('age')) {
+                    $(this.$el).after('<div id="age" style="display:inline;margin-left:20px;">' + age + ' years old</div>');
+                }
+                else {
+                    $('#age').text(age + ' years old')
+                }
+            }
+        }
+    })
 }
