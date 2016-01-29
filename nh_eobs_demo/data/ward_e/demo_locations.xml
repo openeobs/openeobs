@@ -1,0 +1,252 @@
+<openerp>
+  <data noupdate="1">
+    <record id="nhc_def_conf_location_we" model="nh.clinical.location">
+      <field name="name">Ward E</field>
+      <field name="code">E</field>
+      <field name="type">poc</field>
+      <field name="usage">ward</field>
+      <field name="parent_id" ref="nhc_def_conf_location_guh" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b1" model="nh.clinical.location">
+      <field name="name">Bed 1</field>
+      <field name="code">E1</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b2" model="nh.clinical.location">
+      <field name="name">Bed 2</field>
+      <field name="code">E2</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b3" model="nh.clinical.location">
+      <field name="name">Bed 3</field>
+      <field name="code">E3</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b4" model="nh.clinical.location">
+      <field name="name">Bed 4</field>
+      <field name="code">E4</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b5" model="nh.clinical.location">
+      <field name="name">Bed 5</field>
+      <field name="code">E5</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b6" model="nh.clinical.location">
+      <field name="name">Bed 6</field>
+      <field name="code">E6</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b7" model="nh.clinical.location">
+      <field name="name">Bed 7</field>
+      <field name="code">E7</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b8" model="nh.clinical.location">
+      <field name="name">Bed 8</field>
+      <field name="code">E8</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b9" model="nh.clinical.location">
+      <field name="name">Bed 9</field>
+      <field name="code">E9</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b10" model="nh.clinical.location">
+      <field name="name">Bed 10</field>
+      <field name="code">E10</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b11" model="nh.clinical.location">
+      <field name="name">Bed 11</field>
+      <field name="code">E11</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b12" model="nh.clinical.location">
+      <field name="name">Bed 12</field>
+      <field name="code">E12</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b13" model="nh.clinical.location">
+      <field name="name">Bed 13</field>
+      <field name="code">E13</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b14" model="nh.clinical.location">
+      <field name="name">Bed 14</field>
+      <field name="code">E14</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b15" model="nh.clinical.location">
+      <field name="name">Bed 15</field>
+      <field name="code">E15</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b16" model="nh.clinical.location">
+      <field name="name">Bed 16</field>
+      <field name="code">E16</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b17" model="nh.clinical.location">
+      <field name="name">Bed 17</field>
+      <field name="code">E17</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b18" model="nh.clinical.location">
+      <field name="name">Bed 18</field>
+      <field name="code">E18</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b19" model="nh.clinical.location">
+      <field name="name">Bed 19</field>
+      <field name="code">E19</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b20" model="nh.clinical.location">
+      <field name="name">Bed 20</field>
+      <field name="code">E20</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b21" model="nh.clinical.location">
+      <field name="name">Bed 21</field>
+      <field name="code">E21</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b22" model="nh.clinical.location">
+      <field name="name">Bed 22</field>
+      <field name="code">E22</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b23" model="nh.clinical.location">
+      <field name="name">Bed 23</field>
+      <field name="code">E23</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b24" model="nh.clinical.location">
+      <field name="name">Bed 24</field>
+      <field name="code">E24</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b25" model="nh.clinical.location">
+      <field name="name">Bed 25</field>
+      <field name="code">E25</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b26" model="nh.clinical.location">
+      <field name="name">Bed 26</field>
+      <field name="code">E26</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b27" model="nh.clinical.location">
+      <field name="name">Bed 27</field>
+      <field name="code">E27</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b28" model="nh.clinical.location">
+      <field name="name">Bed 28</field>
+      <field name="code">E28</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b29" model="nh.clinical.location">
+      <field name="name">Bed 29</field>
+      <field name="code">E29</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+    <record id="nhc_def_conf_location_we_b30" model="nh.clinical.location">
+      <field name="name">Bed 30</field>
+      <field name="code">E30</field>
+      <field name="type">poc</field>
+      <field name="usage">bed</field>
+      <field name="parent_id" ref="nhc_def_conf_location_we" />
+      <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
+    </record>
+  </data>
+</openerp>

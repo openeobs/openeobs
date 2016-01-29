@@ -3,13 +3,14 @@ openerp.nh_eobs_analysis = function (instance) {
     var QWeb = instance.web.qweb;
     var _t = instance.web._t;
 
+    // Fix to allow measures, options and x-axis dimensions to save to dashboard
     instance.board.AddToDashboard.include({
         add_dashboard: function () {
-
             // Get measures array from pivot table class
             var formView = this.__parentedParent.__parentedParent.__parentedChildren[2];
             var graph = formView.__parentedChildren[0];
 
+            // Convert to simple array of strings
             var measures = graph.pivot.measures.map(function (el) {
                 return el.field;
             });
@@ -26,6 +27,7 @@ openerp.nh_eobs_analysis = function (instance) {
             _.each(data.domains, domain.add, domain);
 
             context.add({
+                // Include options and measures array in context
                 heatmap_mode: graph.heatmap_mode,
                 mode: graph.mode,
                 measures: measures,
@@ -63,13 +65,35 @@ openerp.nh_eobs_analysis = function (instance) {
 
     // Graph widget
     instance.web_graph.Graph.include({
+
+        // After running super, applies any additional options that may have
+        // been passed in context by add_dashboard method (WI- 2110)
         init: function (parent, model, domain, options) {
             this._super(parent, model, domain, options);
             if (options.context.measures) {
                 this.pivot_options.measures = options.context.measures;
                 this.heatmap_mode = options.context.heatmap_mode;
                 this.mode = options.context.mode;
+                this.pivot_options.col_groupby = options.context.col_group_by;
+                this.visible_ui = false;
             }
+        },
+        add_measures_to_options: function() {
+            var sorted_measures = ['__count', 'on_time', 'not_on_time', 'minutes_early', 'delay', 'trend_up', 'trend_same', 'trend_down'];
+            this.measure_list.sort(function(a, b){
+                var keyA = sorted_measures.indexOf(a.field),
+                    keyB = sorted_measures.indexOf(b.field);
+                // Compare the 2 dates
+                if(keyA < keyB) return -1;
+                if(keyA > keyB) return 1;
+                return 0;
+            });
+            this.$('.graph_measure_selection').append(
+            _.map(this.measure_list, function (measure) {
+                return $('<li>').append($('<a>').attr('data-choice', measure.field)
+                                         .attr('href', '#')
+                                         .text(measure.string));
+            }));
         },
         header_cell_clicked: function (event) {
             event.preventDefault();
@@ -98,7 +122,7 @@ openerp.nh_eobs_analysis = function (instance) {
             var fields = _.map(this.groupby_fields, function (field) {
                     return {id: field.field, value: field.string, type:self.fields[field.field.split(':')[0]].type};
             });
-            var sorted_fields = ['clinical_risk', 'previous_risk', 'score', 'previous_score', 'ward_id', 'location_id', 'staff_type', 'user_id', 'date_terminated', 'date_scheduled', 'type', 'trigger_type', 'partial_reason']
+            var sorted_fields = ['clinical_risk', 'previous_risk', 'score', 'previous_score', 'ward_id', 'location_str', 'staff_type', 'user_id', 'date_terminated', 'date_scheduled', 'type']
 
             fields.sort(function(a, b){
                 var keyA = sorted_fields.indexOf(a.id),
@@ -119,6 +143,61 @@ openerp.nh_eobs_analysis = function (instance) {
                 left:event.originalEvent.layerX,
             });
             this.$('.field-selection').next('.dropdown-menu').first().toggle();
+        },
+
+        // One line changed. _.sprintf bug fix (WI-2102)
+        build_rows: function (headers, raw) {
+            var self = this,
+                pivot = this.pivot,
+                m, i, j, k, cell, row;
+
+            var rows = [];
+            var cells, pivot_cells, values;
+
+            var nbr_of_rows = headers.length;
+            var col_headers = pivot.get_cols_leaves();
+
+            for (i = 0; i < nbr_of_rows; i++) {
+                row = headers[i];
+                cells = [];
+                pivot_cells = [];
+                for (j = 0; j < pivot.cells.length; j++) {
+                    if (pivot.cells[j].x == row.id || pivot.cells[j].y == row.id) {
+                        pivot_cells.push(pivot.cells[j]);
+                    }
+                }
+
+                for (j = 0; j < col_headers.length; j++) {
+                    values = undefined;
+                    for (k = 0; k < pivot_cells.length; k++) {
+                        if (pivot_cells[k].x == col_headers[j].id || pivot_cells[k].y == col_headers[j].id) {
+                            values = pivot_cells[k].values;
+                            break;
+                        }
+                    }
+                    if (!values) { values = new Array(pivot.measures.length);}
+                    for (m = 0; m < pivot.measures.length; m++) {
+                        // Added or 0 to prevent make_cell being called with undefined value (WI-2102)
+                        cells.push(self.make_cell(row,col_headers[j],values[m] || 0, m, raw));
+                    }
+                }
+                if (col_headers.length > 1) {
+                    var totals = pivot.get_total(row);
+                    for (m = 0; m < pivot.measures.length; m++) {
+                        cell = self.make_cell(row, pivot.cols.headers[0], totals[m], m, raw);
+                        cell.is_bold = 'true';
+                        cells.push(cell);
+                    }
+                }
+                rows.push({
+                    id: row.id,
+                    indent: row.path.length,
+                    title: row.title,
+                    expanded: row.expanded,
+                    cells: cells,
+                });
+            }
+            return rows;
         }
     });
 }

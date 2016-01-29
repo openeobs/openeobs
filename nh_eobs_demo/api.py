@@ -232,4 +232,3 @@ class nh_eobs_demo_loader(orm.AbstractModel):
         beds = location_pool.browse(cr, uid, bed_ids, context=context)
         codes = [bed.code for bed in beds]
         return codes
-
