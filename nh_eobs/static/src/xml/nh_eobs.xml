@@ -42,6 +42,11 @@
                             <td>Demonstrates how changing a patients palliative care status removes any scheduled observation tasks they had in the overdue tasks list.</td>
                             <td>2 - 3 mins</td>
                         </tr>
+                        <tr>
+                            <td><a class="olap_tutorial" href="">OLAP Tutorial</a></td>
+                            <td>Introduces the NEWS Alanysis / OLAP tool for analysing data.</td>
+                            <td>2 - 3 mins</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
