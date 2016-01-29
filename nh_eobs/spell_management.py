@@ -277,12 +277,7 @@ class nh_clinical_spellboard(orm.Model):
         Button called by view_spellboard_form view to call form to
         transfer patient.
         """
-
-        record = self.browse(cr, uid, ids, context=context)
-        if context:
-            context.update({'default_patient_id': record.patient_id.id})
-            context.update({'default_location_id': record.location_id.id})
-
+        context = self._update_context(cr, uid, ids, context=context)
         action = {
             "type": "ir.actions.act_window",
             "name": "Transfer Patient",
@@ -295,6 +290,14 @@ class nh_clinical_spellboard(orm.Model):
             "context": context,
         }
         return action
+
+    def _update_context(self, cr, uid, ids, context=None):
+        """Updates context with patient_id and location_id."""
+        record = self.browse(cr, uid, ids, context=context)
+        if context:
+            context.update({'default_patient_id': record.patient_id.id})
+            context.update({'default_location_id': record.location_id.id})
+        return context
 
 
 class TransferPatientWizard(osv.TransientModel):
