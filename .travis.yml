@@ -130,8 +130,7 @@ install:
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
 - travis_install_nightly
 script:
-- ls ${HOME}/data_dir/addons/8.0
-- ls ${TRAVIS_BUILD_DIR}/Neovahealth/openeobs
+- ls ${TRAVIS_BUILD_DIR}
 - ls ${HOME}/dependencies
 - travis_run_tests
 after_script:
