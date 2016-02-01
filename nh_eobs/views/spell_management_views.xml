@@ -18,14 +18,12 @@
             <field name="name">Spell Tree View</field>
             <field name="model">nh.clinical.spellboard</field>
             <field name="arch" type="xml">
-                <tree string="Spell Tree View" version="7.0" delete="0">
+                <tree string="Spell Tree View" version="7.0" delete="0" create="false">
                    <field name="patient_id"/>
-                   <field name="state" />
+                    <field name="code"/>
                    <field name="location_id"/>
                    <field name="ward_id"/>
-                   <field name="code"/>
                    <field name="date_started"/>
-                   <field name="date_terminated"/>
                 </tree>
             </field>
         </record>
@@ -33,22 +31,22 @@
             <field name="name">Spell Form View</field>
             <field name="model">nh.clinical.spellboard</field>
             <field name="arch" type="xml">
-                <form string="Spell Form View" version="7.0" delete="0">
+                <form string="Spell Form View" version="7.0" delete="0" create="false">
                     <header>
-                        <button name="cancel" string="Cancel Spell"  type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
+                        <button name="cancel" string="Cancel Visit"  type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="discharge" string="Discharge"  type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge"  type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <button name="transfer_button" string="Transfer" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"  attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                     </header>
                     <sheet>
                         <group>
-                            <field name="patient_id"/>
-                            <field name="state" />
-                            <field name="location_id" domain="[['usage','=','ward']]"/>
+                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="state" attrs="{'invisible': True}" />
+                            <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
-                            <field name="code" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="date_started"/>
-                            <field name="date_terminated"/>
+                            <field name="code" attrs="{'readonly': True}" options="{'no_open': True}"/>
                         </group>
                         <notebook groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
                             <page string="Referring Doctors">
@@ -76,14 +74,15 @@
                     <sheet>
                         <group>
                             <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
-                            <field name="location_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="nhs_number" attrs="{'readonly': True}" />
+                            <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="transfer_location_id" domain="[['usage','=','ward']]"/>
                         </group>
                     </sheet>
 
                     <footer>
-                        <button name="transfer" type="object" string="Complete Transfer" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"/>
-                        <button special="cancel" string="Cancel Transfer"/>
+                        <button name="transfer" type="object" string="Confirm" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"/>
+                        <button special="cancel" string="Cancel"/>
                     </footer>
                 </form>
             </field>

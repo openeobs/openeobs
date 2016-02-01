@@ -45,9 +45,9 @@ class nh_clinical_spellboard(orm.Model):
                                        'Current Location', required=True),
         'ward_id': fields.function(
             _get_ward_id, type='many2one', relation='nh.clinical.location',
-            string='Ward'),
+            string='Admission Location'),
         'pos_id': fields.many2one('nh.clinical.pos', 'Point of Service'),
-        'code': fields.char("Code", size=20),
+        'code': fields.char("Admission Code", size=20),
         'start_date': fields.datetime("Admission Date"),
         'move_date': fields.datetime("Last Movement Date"),
         'ref_doctor_ids': fields.many2many(
@@ -296,6 +296,8 @@ class nh_clinical_spellboard(orm.Model):
         if context:
             context.update({'default_patient_id': record.patient_id.id})
             context.update({'default_location_id': record.location_id.id})
+            context.update({'default_nhs_number': record.nhs_number})
+            context.update({'default_ward_id': record.ward_id.id})
         return context
 
 
@@ -305,10 +307,13 @@ class TransferPatientWizard(osv.TransientModel):
     _columns = {
         'patient_id': fields.many2one(
             'nh.clinical.patient', 'Patient', required=True),
+        'nhs_number': fields.char('NHS Number', size=200),
+        'ward_id': fields.many2one('nh.clinical.location', 'Current Ward',
+                                   required=True),
         'location_id': fields.many2one(
             'nh.clinical.location', 'Current Location', required=True),
         'transfer_location_id': fields.many2one(
-            'nh.clinical.location', 'Transfer Ward Location')
+            'nh.clinical.location', 'Transfer Location')
     }
 
     def transfer(self, cr, uid, ids, context=None):
