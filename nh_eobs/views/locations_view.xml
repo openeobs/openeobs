@@ -114,10 +114,10 @@
                         </div>
                         <group>
                             <group name="parent" col="4">
-                                <field name="parent_id" string="Upper point of care"/>
+                                <field name="parent_id" string="Upper point of care" on_change="onchange_parent_id(usage,parent_id)"/>
                                 <field name="code"/>
-                                <field name="type"/>
-                                <field name="usage"/>
+                                <field name="type" on_change="onchange_type(usage,type)"/>
+                                <field name="usage" on_change="onchange_usage(usage)"/>
                                 <field name="pos_id" string="Point of Service" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                                 <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
                             </group>

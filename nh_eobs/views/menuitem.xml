@@ -119,7 +119,7 @@
                   id="menu_eobs_locations"
                   sequence="6"
                   parent="menu_eobs_category_ward_management"
-                  action="action_show_locations"
+                  action="action_show_locations_dev"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <!--<menuitem name="Shift Management"-->
