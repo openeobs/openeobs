@@ -203,15 +203,13 @@ class NHGraphLib
   # 1. Get the dimensions of main element
   # 2. Set the attribute for the object
   # 3. ping off a resize event to the context to handle this lower down
-  redraw_resize: (self, event) ->
-    if !event.handled
-      self.style.dimensions.width = \
-        nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
-        (self.style.margin.left + self.style.margin.right)
-      self.obj?.attr('width', self.style.dimensions.width)
-      context_event = document.createEvent('HTMLEvents')
-      context_event.initEvent('context_resize', true, true)
-      window.dispatchEvent(context_event)
+  redraw_resize: (event) ->
+    if @is_alive() and !event.handled
+      @style.dimensions.width = \
+        nh_graphs.select(@el)?[0]?[0]?.clientWidth -
+        (@style.margin.left + @style.margin.right)
+      @obj?.attr('width', @style.dimensions.width)
+      @.context.handle_resize(@.context, @.obj, event)
       event.handled = true
     return
 
@@ -224,22 +222,33 @@ class NHGraphLib
       @context.graph.rangify_graph(@context.graph, event)
       for graph in @focus.graphs
         graph.rangify_graph(graph, event)
-    else @remove_listeners()
 
   add_listeners: () ->
-    rangify = this.options.controls.rangify
-    this.options.handler.rangify = this.rangify_graphs.bind(this)
-    rangify?.addEventListener('click', this.options.handler.rangify)
+    # Create throttled resize event handler bound to this
+    @.options.handler.resize = _.throttle(
+      @redraw_resize.bind(@),
+      1000,
+      {leading: false}
+    )
+    window.addEventListener('resize', @options.handler.resize)
+
+    # Create rangify event handler bound to this and add listener
+    rangify = @options.controls.rangify
+    @options.handler.rangify = @rangify_graphs.bind(@)
+    rangify?.addEventListener('click', @options.handler.rangify)
 
   remove_listeners: () ->
-    rangify = this.options.controls.rangify
     console.log('remove listeners called')
+    window.removeEventListener('resize', @options.handler.resize)
+    rangify = this.options.controls.rangify
     rangify?.removeEventListener('click', this.options.handler.rangify)
 
   # Checks baseURI property of object (empty string if not present)
   is_alive: () ->
     if this.obj[0][0].baseURI then return true
-    else return false
+    else
+      @remove_listeners()
+      return false
 
   # Handle the creation of the graph objects and add event listeners
   # 1. Make sure we actually have an element to draw graphs into otherwise throw
@@ -298,10 +307,6 @@ class NHGraphLib
       )
       @.options.controls.time.end?.addEventListener('change', (event) ->
         self.mobile_time_end_change(self, event)
-        return
-      )
-      window.addEventListener('resize', (event) ->
-        self.redraw_resize(self, event)
         return
       )
       this.add_listeners()
