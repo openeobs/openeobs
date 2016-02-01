@@ -39,6 +39,7 @@ NHGraphLib = (function() {
           landscape: 5
         }
       },
+      ranged: true,
       controls: {
         date: {
           start: null,
@@ -51,7 +52,8 @@ NHGraphLib = (function() {
         rangify: null
       },
       handler: {
-        rangify: null
+        rangify: null,
+        resize: null
       }
     };
     this.el = element ? element : null;
@@ -171,14 +173,16 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.rangify_graphs = function(event) {
-    var graph, i, len, ref, results;
+    var graph, i, len, ranged, ref, results;
+    this.options.ranged = this.options.controls.rangify.checked;
+    ranged = this.options.ranged;
     if (this.is_alive()) {
-      this.context.graph.rangify_graph(this.context.graph, event);
+      this.context.graph.rangify_graph(this.context.graph, ranged);
       ref = this.focus.graphs;
       results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         graph = ref[i];
-        results.push(graph.rangify_graph(graph, event));
+        results.push(graph.rangify_graph(graph, ranged));
       }
       return results;
     }
@@ -187,7 +191,6 @@ NHGraphLib = (function() {
   NHGraphLib.prototype.add_listeners = function() {
     var rangify;
     if (typeof _ !== "undefined" && _ !== null) {
-      console.log('throttled handler used');
       this.options.handler.resize = _.debounce(this.redraw_resize.bind(this), 250);
     } else {
       this.options.handler.resize = this.redraw_resize.bind(this);
@@ -200,7 +203,6 @@ NHGraphLib = (function() {
 
   NHGraphLib.prototype.remove_listeners = function() {
     var rangify;
-    console.log('remove listeners called');
     window.removeEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
     return rangify != null ? rangify.removeEventListener('click', this.options.handler.rangify) : void 0;
@@ -879,9 +881,9 @@ NHGraph = (function(superClass) {
     return cp.classList.add('hidden');
   };
 
-  NHGraph.prototype.rangify_graph = function(self, event) {
+  NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
-    if (event.target.checked) {
+    if (ranged) {
       d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
       d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
       self.axes.y.scale.domain([(d0 > 0 ? d0 : 0), d1]);

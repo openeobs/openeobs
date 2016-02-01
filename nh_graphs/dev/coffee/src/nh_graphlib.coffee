@@ -53,6 +53,7 @@ class NHGraphLib
           landscape: 5
         }
       },
+      ranged: true,
       controls: {
         date: {
           start: null,
@@ -218,16 +219,17 @@ class NHGraphLib
   # 1. Check graphlib element is in DOM (remove_listeners if not)
   # 2. Call rangify_graph on context graph
   # 3. Call rangify_graph on all focus graphs
-  rangify_graphs: (event) ->
+  rangify_graphs: () ->
+    @options.ranged = @options.controls.rangify.checked
+    ranged = @options.ranged
     if @is_alive()
-      @context.graph.rangify_graph(@context.graph, event)
+      @context.graph.rangify_graph(@context.graph, ranged)
       for graph in @focus.graphs
-        graph.rangify_graph(graph, event)
+        graph.rangify_graph(graph, ranged)
 
   add_listeners: () ->
     # Create debounced resize event handler bound to this
     if _?
-      console.log('throttled handler used')
       @.options.handler.resize = _.debounce(
         @redraw_resize.bind(@),
         250
@@ -242,14 +244,14 @@ class NHGraphLib
     rangify?.addEventListener('click', @options.handler.rangify)
 
   remove_listeners: () ->
-    console.log('remove listeners called')
     window.removeEventListener('resize', @options.handler.resize)
     rangify = this.options.controls.rangify
     rangify?.removeEventListener('click', this.options.handler.rangify)
 
   # Checks baseURI property of object (empty string if not present)
   is_alive: () ->
-    if this.obj[0][0].baseURI then return true
+    if this.obj[0][0].baseURI
+      return true
     else
       @remove_listeners()
       return false

@@ -42,7 +42,9 @@ ev.mouse = function (action, el, x, y) {
                 bubbles: true,
                 cancelable: true,
                 pageX: x,
-                pageY: y});
+                pageY: y,
+                clientX: x,
+                clientY: y});
         }
         catch (e) {
             // PhantomJS
