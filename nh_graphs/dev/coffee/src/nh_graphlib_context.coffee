@@ -66,6 +66,7 @@ class NHContext extends NHGraphLib
   # 6. Redraw the graph
   handle_resize: (self, parent_svg, event) =>
     if !event.handled
+      console.log('context.handle_resize called')
       self.style.dimensions.width = self.parent_obj.style.dimensions.width -
             ((self.parent_obj.style.padding.left +
             self.parent_obj.style.padding.right) +
@@ -74,7 +75,7 @@ class NHContext extends NHGraphLib
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
       self.graph.resize_graph(self.graph, event)
       self.parent_obj.focus.handle_resize(
-        self.parent_obj,
+        self.parent_obj.focus,
         event
       )
       if self.parent_obj.options.mobile.is_mob

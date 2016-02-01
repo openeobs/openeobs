@@ -224,12 +224,15 @@ class NHGraphLib
         graph.rangify_graph(graph, event)
 
   add_listeners: () ->
-    # Create throttled resize event handler bound to this
-    @.options.handler.resize = _.throttle(
-      @redraw_resize.bind(@),
-      1000,
-      {leading: false}
-    )
+    # Create debounced resize event handler bound to this
+    if _?
+      console.log('throttled handler used')
+      @.options.handler.resize = _.debounce(
+        @redraw_resize.bind(@),
+        250
+      )
+    else
+      @.options.handler.resize = @redraw_resize.bind(@)
     window.addEventListener('resize', @options.handler.resize)
 
     # Create rangify event handler bound to this and add listener

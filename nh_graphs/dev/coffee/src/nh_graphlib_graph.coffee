@@ -191,7 +191,6 @@ class NHGraph extends NHGraphLib
     self.obj.attr('width', self.style.dimensions.width)
     self.axes.x.scale?.range()[1] = self.style.dimensions.width
     self.redraw(self.parent_obj)
-    event.handled = true
     return
 
   # Setup graph which involves:
