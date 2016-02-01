@@ -9,7 +9,7 @@
     'description': """(Data Driven Documents).js Driven Javscript Foo""",
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['web', 'nh_eobs'],
+    'depends': ['web'],
     'data': ['template.xml'],
     'qweb': [],
     'application': True,
