@@ -49,6 +49,9 @@ NHGraphLib = (function() {
           end: null
         },
         rangify: null
+      },
+      handler: {
+        rangify: null
       }
     };
     this.el = element ? element : null;
@@ -155,17 +158,60 @@ NHGraphLib = (function() {
     }
   };
 
-  NHGraphLib.prototype.redraw_resize = function(self, event) {
-    var context_event, ref, ref1, ref2, ref3;
-    if (!event.handled && document.querySelectorAll(self.el).length) {
-      self.style.dimensions.width = ((ref = nh_graphs.select(self.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
-      if ((ref3 = self.obj) != null) {
-        ref3.attr('width', self.style.dimensions.width);
+  NHGraphLib.prototype.redraw_resize = function(event) {
+    var ref, ref1, ref2, ref3;
+    if (this.is_alive() && !event.handled) {
+      this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
+      if ((ref3 = this.obj) != null) {
+        ref3.attr('width', this.style.dimensions.width);
       }
-      context_event = document.createEvent('HTMLEvents');
-      context_event.initEvent('context_resize', true, true);
-      window.dispatchEvent(context_event);
+      this.context.handle_resize(this.context, this.obj, event);
       event.handled = true;
+    }
+  };
+
+  NHGraphLib.prototype.rangify_graphs = function(event) {
+    var graph, i, len, ref, results;
+    if (this.is_alive()) {
+      this.context.graph.rangify_graph(this.context.graph, event);
+      ref = this.focus.graphs;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        graph = ref[i];
+        results.push(graph.rangify_graph(graph, event));
+      }
+      return results;
+    }
+  };
+
+  NHGraphLib.prototype.add_listeners = function() {
+    var rangify;
+    if (typeof _ !== "undefined" && _ !== null) {
+      console.log('throttled handler used');
+      this.options.handler.resize = _.debounce(this.redraw_resize.bind(this), 250);
+    } else {
+      this.options.handler.resize = this.redraw_resize.bind(this);
+    }
+    window.addEventListener('resize', this.options.handler.resize);
+    rangify = this.options.controls.rangify;
+    this.options.handler.rangify = this.rangify_graphs.bind(this);
+    return rangify != null ? rangify.addEventListener('click', this.options.handler.rangify) : void 0;
+  };
+
+  NHGraphLib.prototype.remove_listeners = function() {
+    var rangify;
+    console.log('remove listeners called');
+    window.removeEventListener('resize', this.options.handler.resize);
+    rangify = this.options.controls.rangify;
+    return rangify != null ? rangify.removeEventListener('click', this.options.handler.rangify) : void 0;
+  };
+
+  NHGraphLib.prototype.is_alive = function() {
+    if (this.obj[0][0].baseURI) {
+      return true;
+    } else {
+      this.remove_listeners();
+      return false;
     }
   };
 
@@ -222,9 +268,7 @@ NHGraphLib = (function() {
           self.mobile_time_end_change(self, event);
         });
       }
-      window.addEventListener('resize', function(event) {
-        self.redraw_resize(self, event);
-      });
+      this.add_listeners();
     } else {
       throw new Error('No element specified');
     }
@@ -409,16 +453,16 @@ NHContext = (function(superClass) {
   }
 
   NHContext.prototype.handle_resize = function(self, parent_svg, event) {
-    var d, graph_event, new_date, ref, ref1, ref2, ref3, ref4;
+    var d, new_date, ref, ref1, ref2, ref3, ref4;
     if (!event.handled) {
+      console.log('context.handle_resize called');
       self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
         ref.range()[1] = self.style.dimensions.width;
       }
-      graph_event = document.createEvent('HTMLEvents');
-      graph_event.initEvent('focus_resize', true, true);
-      window.dispatchEvent(graph_event);
+      self.graph.resize_graph(self.graph, event);
+      self.parent_obj.focus.handle_resize(self.parent_obj.focus, event);
       if (self.parent_obj.options.mobile.is_mob) {
         new_date = new Date(self.axes.x.max);
         if (self.parent_obj.is_landscape()) {
@@ -510,9 +554,6 @@ NHContext = (function(superClass) {
       });
       this.graph.drawables.brush.append("g").attr("class", "x brush").call(this.brush).selectAll("rect").attr("y", 0).attr("height", this.graph.style.dimensions.height);
       self = this;
-      window.addEventListener('context_resize', function(event) {
-        return self.handle_resize(self, parent_svg, event);
-      });
     } else {
       throw new Error('Context init being called before SVG initialised');
     }
@@ -664,10 +705,7 @@ NHFocus = (function() {
         this.style.dimensions.height += this.style.title_height;
       }
       parent_svg.style.dimensions.height += this.style.dimensions.height + (this.style.margin.top + this.style.margin.bottom);
-      self = this;
-      return window.addEventListener('focus_resize', function(event) {
-        return self.handle_resize(self, event);
-      });
+      return self = this;
     } else {
       throw new Error('Focus init being called before SVG initialised');
     }
@@ -868,11 +906,10 @@ NHGraph = (function(superClass) {
       ref.range()[1] = self.style.dimensions.width;
     }
     self.redraw(self.parent_obj);
-    event.handled = true;
   };
 
   NHGraph.prototype.init = function(parent_obj) {
-    var adjusted_line, j, k, key, left_offset, len, len1, line_self, ob, rangify, ref, ref1, self, tick_font_size, tick_line_height, top_offset, values, y_label;
+    var adjusted_line, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -1005,15 +1042,6 @@ NHGraph = (function(superClass) {
         return self.options.normal.max = 0;
       }
     })(this);
-    window.addEventListener('graph_resize', function(event) {
-      return self.resize_graph(self, event);
-    });
-    rangify = self.parent_obj.parent_obj.options.controls.rangify;
-    if (rangify != null) {
-      rangify.addEventListener('click', function(event) {
-        return self.rangify_graph(self, event);
-      });
-    }
   };
 
   NHGraph.prototype.draw = function(parent_obj) {

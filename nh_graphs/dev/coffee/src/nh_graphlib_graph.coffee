@@ -191,7 +191,6 @@ class NHGraph extends NHGraphLib
     self.obj.attr('width', self.style.dimensions.width)
     self.axes.x.scale?.range()[1] = self.style.dimensions.width
     self.redraw(self.parent_obj)
-    event.handled = true
     return
 
   # Setup graph which involves:
@@ -347,14 +346,6 @@ class NHGraph extends NHGraphLib
         self.options.normal.min = 0
         self.options.normal.max = 0
     )(@)
-
-    window.addEventListener('graph_resize', (event) ->
-      self.resize_graph(self, event)
-    )
-    rangify = self.parent_obj.parent_obj.options.controls.rangify
-    rangify?.addEventListener('click', (event) ->
-      self.rangify_graph(self, event)
-    )
     return
 
   # Draw graph which involves:

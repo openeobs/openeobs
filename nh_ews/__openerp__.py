@@ -17,11 +17,7 @@
         'security/ir.model.access.csv',
         'data/data.xml'
     ],
-    'demo': ['data/ward_a/demo_news.xml',
-             'data/ward_b/demo_news.xml',
-             'data/ward_c/demo_news.xml',
-             'data/ward_d/demo_news.xml',
-             'data/ward_e/demo_news.xml'],
+    'demo': [],
     'css': [],
     'js': [],
     'qweb': [],
