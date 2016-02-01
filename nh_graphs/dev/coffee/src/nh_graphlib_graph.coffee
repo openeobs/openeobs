@@ -351,10 +351,6 @@ class NHGraph extends NHGraphLib
     window.addEventListener('graph_resize', (event) ->
       self.resize_graph(self, event)
     )
-    rangify = self.parent_obj.parent_obj.options.controls.rangify
-    rangify?.addEventListener('click', (event) ->
-      self.rangify_graph(self, event)
-    )
     return
 
   # Draw graph which involves:

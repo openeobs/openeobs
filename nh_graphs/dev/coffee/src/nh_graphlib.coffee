@@ -43,6 +43,8 @@ class NHGraphLib
     # device rotation
     # - Controls: collects the inputs used for date_start, date_end, time_start,
     # time_end and rangify checkbox
+    # - Handler: Holds handler function's bound to this so that they can be
+    # removed when graph is no longer being displayed
     @options = {
       mobile: {
         is_mob: false,
@@ -60,6 +62,9 @@ class NHGraphLib
           start: null,
           end: null
         },
+        rangify: null
+      },
+      handler: {
         rangify: null
       }
     }
@@ -199,7 +204,7 @@ class NHGraphLib
   # 2. Set the attribute for the object
   # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (self, event) ->
-    if !event.handled && document.querySelectorAll(self.el).length
+    if !event.handled
       self.style.dimensions.width = \
         nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
         (self.style.margin.left + self.style.margin.right)
@@ -209,6 +214,32 @@ class NHGraphLib
       window.dispatchEvent(context_event)
       event.handled = true
     return
+
+  # Handle rangify checkbox click event
+  # 1. Check graphlib element is in DOM (remove_listeners if not)
+  # 2. Call rangify_graph on context graph
+  # 3. Call rangify_graph on all focus graphs
+  rangify_graphs: (event) ->
+    if @is_alive()
+      @context.graph.rangify_graph(@context.graph, event)
+      for graph in @focus.graphs
+        graph.rangify_graph(graph, event)
+    else @remove_listeners()
+
+  add_listeners: () ->
+    rangify = this.options.controls.rangify
+    this.options.handler.rangify = this.rangify_graphs.bind(this)
+    rangify?.addEventListener('click', this.options.handler.rangify)
+
+  remove_listeners: () ->
+    rangify = this.options.controls.rangify
+    console.log('remove listeners called')
+    rangify?.removeEventListener('click', this.options.handler.rangify)
+
+  # Checks baseURI property of object (empty string if not present)
+  is_alive: () ->
+    if this.obj[0][0].baseURI then return true
+    else return false
 
   # Handle the creation of the graph objects and add event listeners
   # 1. Make sure we actually have an element to draw graphs into otherwise throw
@@ -273,6 +304,7 @@ class NHGraphLib
         self.redraw_resize(self, event)
         return
       )
+      this.add_listeners()
       return
     else
       throw new Error('No element specified')
