@@ -65,7 +65,8 @@ class NHGraphLib
         rangify: null
       },
       handler: {
-        rangify: null
+        rangify: null,
+        resize: null
       }
     }
     # Handle the DOM element to draw SVG into
