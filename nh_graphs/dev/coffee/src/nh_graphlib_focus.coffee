@@ -148,9 +148,7 @@ class NHFocus
         (@.style.margin.top + @.style.margin.bottom)
 
       self = @
-      window.addEventListener('focus_resize', (event) ->
-        self.handle_resize(self, event)
-      )
+
     # If no parent SVG object then it either doesn't exist or the focus has
     # been initialised before the SVG has been
     else

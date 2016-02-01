@@ -66,16 +66,17 @@ class NHContext extends NHGraphLib
   # 6. Redraw the graph
   handle_resize: (self, parent_svg, event) =>
     if !event.handled
-      console.log('context.handle_resize called')
       self.style.dimensions.width = self.parent_obj.style.dimensions.width -
             ((self.parent_obj.style.padding.left +
             self.parent_obj.style.padding.right) +
             (self.style.margin.left + self.style.margin.right))
       self.obj.attr('width', self.style.dimensions.width)
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
-      graph_event = document.createEvent('HTMLEvents')
-      graph_event.initEvent('focus_resize', true, true)
-      window.dispatchEvent(graph_event)
+      self.graph.resize_graph(self.graph, event)
+      self.parent_obj.focus.handle_resize(
+        self.parent_obj,
+        event
+      )
       if self.parent_obj.options.mobile.is_mob
         new_date = new Date(self.axes.x.max)
         if self.parent_obj.is_landscape()
@@ -204,9 +205,6 @@ class NHContext extends NHGraphLib
       .call(@.brush).selectAll("rect").attr("y", 0)
       .attr("height", @.graph.style.dimensions.height)
       self = @
-      window.addEventListener('context_resize', (event) ->
-        self.handle_resize(self, parent_svg, event)
-      )
       return
     # If no parent SVG object then it either doesn't exist or the context has
     # been initialised before the SVG has been

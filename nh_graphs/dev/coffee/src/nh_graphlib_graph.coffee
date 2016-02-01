@@ -347,10 +347,6 @@ class NHGraph extends NHGraphLib
         self.options.normal.min = 0
         self.options.normal.max = 0
     )(@)
-
-    window.addEventListener('graph_resize', (event) ->
-      self.resize_graph(self, event)
-    )
     return
 
   # Draw graph which involves:
