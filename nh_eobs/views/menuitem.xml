@@ -163,7 +163,7 @@
                   action="nh_clinical.action_nhc_doctor_allocation"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"/>
+        <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin"/>
 
         <menuitem name="Data Management"
                   sequence="1"
@@ -171,14 +171,14 @@
                   parent="menu_eobs_admin_top_root"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Patients"
+        <menuitem name="Create Patient Visit"
                   sequence="0"
                   id="menu_eobs_patients"
                   parent="menu_eobs_category_data_management"
                   action="action_show_patients"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Current Visits"
+        <menuitem name="Visits In-Progress"
                   sequence="1"
                   id="menu_eobs_spells"
                   parent="menu_eobs_category_data_management"
@@ -190,7 +190,7 @@
                   sequence="2"
                   parent="menu_eobs_category_data_management"
                   action="action_show_locations_dev"
-                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Doctors"
                   sequence="3"
