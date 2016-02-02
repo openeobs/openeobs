@@ -1,5 +1,5 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from . import test_mobile_controller_routes
+# from . import test_mobile_controller_routes
 from . import test_mobile_controller_methods
 
 # NFC tests
