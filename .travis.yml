@@ -22,14 +22,6 @@ addons:
 env:
   global:
   - VERSION="8.0" LINT_CHECK="0" TRANSIFEX="0"
-  - secure: AcerjdxOPtqQ+urjl3HQilOqEDXSouK+t+ZlOfJrDg0zrRZxzZwJUEJPpoNx0lEeak95xN355aau92vnWCHfQFJxqfgu99+Tcgb95l05JW7egEvpd+fk8PSoHB7vEvgCJbDbLhA9vy5NAvpHK+6JUl5HWxvZeCfeP2KqiFRl49CT0mFO4BPtpnfgsMkAfG38ZD7fGnA6oP+7Kj6uz28QmnGn1nmVo4X+BH7y3AT/BMbZkbwkn1wjvyrKDswr4BsCfzPxnvFU4hQRw4EfN60WZHDUydt0c0L1+DGcHZK58Bal3MMGESA5MGOENScKZ3xbMAX87WEDHJ7+RjOiV/H0rMUmnMyu5ncZ8dFlmV65bTo6rJ3Z8TBKCkQvOSN1tEs6l+Xh774C2OdCOBRwFRVm+jDJZUMbA0swhLJvfH10yUVjoKxd1RlG8gdAgcQZ4rdu3YZATEm9g2xEDosWYzF/ozkjBnh6eCmx1c7N/d4Q8xXUSiMvEH0VCRT5B5W1cEBbo5MzB9sutJXezcPoenenjJCsm28Qcs0JgpcvIR+zATelpHUG++++sYMVkzPBthylvv+8ntcZPHRRy2OjFXIu/UkP07wUq9xSxAFsauy8nNN8Y67FcgiLNdNdO9TeHs9xmIzczbKaZ7BK3XptWGmtUnkEXX6jdqvV3SNC5hIg4EE=
-  - secure: tmjvVTpq3jbadJ30/f+tJYtdrFGIFQZRZEtDwmaQ+v6a6c+OsIaPWMrxnjrbrt/xgQBVaJNGdFeOGeazS4dADI2RASg2F02OmM1DFo1AfLaEu+rvhjutQrjctLPCwaRsNvAIepBpUT47Pv1u5hlQ++YwMsPPPdNFsjutv+UmXOmMwkjuUd8Bex5XWYfAs/8ZwGjCQvwOrCYxhNDblFWPd5kMgw2hVOY+xgG46GaJAT0/1hsuwhNLlGYfAinQgMTLOyH2wdX6rBQIqXO0A7+kYSB0oxu1rMqA8oncsgxBAG5DdcsDywq4HhZlNcBAWKKsZkiDUjsEjX6mkoffO+bQMb6xf6k4k1A/Z3YyfI1bC4jfEz6vtJmubtSHwZPMs9WqwPjelSl94MRVODWLbw8yc7J4FvB6efhkPi6es+Nd6lLk2phYijcA58/80Bw0yehUkfOMors/+7BO7jVzFuYhMmd+qNrPQJTI4c3UhMlvwn9N0LyPy0+Lvnmy2mI35I3t/UBjyQjq8gbq8oS7dTcoibbWU6K3UfQeRYxLwezxMqUWTTv7OszSgnAy7GptcAdH//VIMtqN+JbSMaj3GOZgmGj0xxKMnC6v4LRZmvMcpVtkBWcC1mqlIpVRvvfkzl28PX/spt3I8e4H4asz5fZ9tylvdGg8Os8hH/CHYeZfYe4=
-  - secure: TUYZaaQKDqyvVK+77c6y1qopVjBzshYmgrLbAHxVekMmExgjSyPSmR0J2zmIv79OkVQ+786vSKnUDXfFsBrcx3SCCp7V2fowNojAh8dR4GLduWAzIrxeOSum68p7DUxczCAgnnXfgkxbuSN8ABocMXho6DjQkUMhH+gCsXe55WhkOTJDP3Lj+gdQoVGUXiOHGIL7zWzw38YuNpydRZh7oEa3eRNjaLu5S6PnojXLNZrin5u48J+y65Vwv6r/Cwkx6e/BXqiBvc8QdUp3u/qVeFXCq5LuuqRgVgjbCsXrVLHsoH7MFdYD+yluHggt1w3Gmes9mbMiPw6uRyOSoauhPrekknAzND5cyC5Af/k/3HuEYt2q/Wcf3pmNA8DIEu7OsDX6o6Cp5mvQ5CAO1n/lBFt8DDiuceubqoikZ4ZV+SpDAuN8K4TgqGpM3k+piNgbY1lQtUpMqo0OLEMJ3eJBk6ayMxKIWYUoq3JjWIPGYv/sn40tVLt5dxnRmZMwsX2iQVuJ6lqFEdes6bKLnfD3pD6eAmJ3wYLDrd/EprW/6bPYFHEh5oW0n9PoINDMLM9xR2+gpsSSzsTt9jAAw5CoIQ+FqK2En12CTAVypPU2Ng0+wbUuejvaua43iedCwBROAx2Y1/lwVvxzaqGBSxewzKkMM8jkQ7k/sdZyT++dXqQ=
-  - secure: URE+AtKSmO4rcf/q9C1oULTQbI7X9MhzE7eUNwVILnelAXKx/dLeMYrXG/lIPf2DzY7oYa6wdZc1lim6YaE8PocsJmXcujVKlP8+g8Z66yVp3DZKt1naJ+AmuW+0DzR+SjHjud54FJ9F1snsGVBDW3mPd8pPYgs6k9/pYqYJj7ijTFo7QxaCzdVk8qDe52pGTrRxZZTuQr3ABIT1Q6wV8Jd5mwYyapZy+hcUM0D1qHQNhJYyFUg8NIbZrpMZZhCjTE8DBd0p7l/yXmhCSwCWvk1ACYJOCmnK8D5NFZjxK9XnNu+rBtpbDvlocphwePiwgNujTkz90I6JO0IEFnTlB4Tzyzx8myIj/h+gm2v8b0V5YUu5KzD0DobXregiPGbVlC86CxHMAVyugMkoKRsbmmD9H9ysesDRw6hv+3PAkz14B5mlWG6EDQIwx3TL4LXDaMpBWAap+xA0XJj+dYZ28z4M6N5HROBtKajZ7FeP6GU6+m/IYxu0kLVJOaVW/Qv26BquPrQb9NUkPbUOZWiKl62iDgmLNYGzICJA5XRo18ZRtukzCIWNUTy2n+9jXxepgEHwGv79mnLJpEpqYfOi1O+0+mWN8856bgpE0vM/Bof3bu1TiqDypVkHvZQlsXO9JPzWKn9v1x1KQE7C9foVs+PWdnalRi5R1bTU9ZvuVj8=
-  - secure: BdRZiCeTs7A5BlBi6KBwwDyLVc0ICNjSvgvdMWk4S4u4omCCYOGBrzSsq76+R7UJzC7FJjL8WhcQjyqWoJPG7DPg4u7LmdAy1jLcfARTV3QjDQefArpHvgKn9k0Lw12E2zpFh1TahAY42MxUtj62pWEWGQzOUtQvqZc5B3osm/DCaWySm0pu40poNqzLGdfY3UJ2xRveGDecd7WYABq0AGdCaasBGh22unuzatqgTAjYMtP27/I7paTIIsTYwH6R/lHX7hIx9v5QIuQLB5QR+waW/FTM8vH0N7Kk9+4jdgXAuy/Cg6t+A9khyUUY5j3jhZx9QkjGSKmM7YDTR44GOrBb/mk/wWjkSAyQd3rr8vfYwLOWCnJUyzAlGZnbSpqJk89kgAkI17R1Bk+xEiIeikOvcBXdom3rIxL4ge4KwF6gXUEwHGSrbmxuDHMeuLOC+HHhAOi7Bx/333YuWEDRuchISRJDDGo9ydtgHVGfBgH6y1VjH+f91/7qb31dK/qLjztwv8P8NTGNIaENT8bkiL64hK6SZWn5Cv4YKUAnW6D2YxukON2wMLbZJIaag7FgtMOQD2qu+6w2D6W3COiJzLsbZn68zXP7cpK+6FeC2v1EYO6WOk3BGUmMvMAOZHC9V5gSdrwS7DDqdHx12Z2/Nq5pR92wyY8Q93je8RzDGIo=
-  - secure: k7z9KDAbC5Sijtyoj1dSlHAo/ZcJ5cscgd12B60yaWXnhTyNgCw54M8b2bQ0B+2KVuk7ngKGTFISfgRPlgkby7785sX/qu9yCpPpGK8OBIK4sP8xWiMsukGaVihkhKTvlxHTJxFo1DMMEQjUCmlTfCZGJTynpaddrfVQsmUdez/lj0pzpHtMp9fPks+mgcdcdqXL2r2a7JFjMy9zsKuY7Urkdj2XJ3R0qmehBUr4ZS9pTGc3rzMuKoZxuc2ek4cpnF1HXE6nXBiXstKE45qlwXGaRXlIFZTxPJZZWs5JV1ltdI6kTr0u9eapvAukRdfMXXI6IJXllAG51yAeEoVJ26/Rn+I9mAsHZ+iLaacxAbM/GbVOJqa4eRn25kFnIzggKxj8Ngvz5UPtaX+sZlu8vFUWUXq6O6K31NTx+MYbg3BxdjzUjKZjogMddmWX7VZGxaWHgGTZLKBSENfTL5FlJbZinAajOeWiegkFKKBCxiveuhMYvjkJ/Srv9ocyh4zX6Q4crR/DkPbikYEWVo611sq8AAPrOWt6Kt/QzWhe37F6/nYkp5r72Jo/TWHPmmZetCjRIXPfwQvGgG1WYfkiXwA+Lhr94BuSfswK5hqwr/cjTx9FgKKiaNOSGGlVXcgRC3xe9QCPEAvDYOM7BOI9G/u2VY18p666FRqepO/hjGQ=
-  - secure: gP9ZKg652QDfpB8t+LJp+Jv9wgq8wb7UCPXDwTu9b8wCDnRUnHVUESEpe/CWbk34quw4n+w2GGMYaqA+Vqyow60zlas5J1Pw+6iOvxc28gEzZXNB4eMC7HJjH375v0D57cybvnNGMp7VXsj7uJd7KbXAz/MY5OAq/CMrD4TArI0yvy5UmOazWA1JSszxJ2S67532+LWQtl18DlMcvxXBzPWEnWpnWmW3l01WrfmuaZv3Nmv/HzGaA71JBGdvCRP31KJR5Tz/5J4xRSIxr20CuTMhNiKTBEZ0i0/ozwrGsGqVrLBmnakc25YBtxyZvtA0fxJ0niqz4T4vruZ1uFbHOOpPZta9fol0A8/7whJBNmxh/5adB/JdjOKK4voemq/pgt3fIsrIe1APmWxjIt9iB6xLbA+t8puCAHHDLJrtqOftqzcyfXCkNNIGAOo/VP3SojsMB40z3HX6cI2YZ9btyw9wVdZtA/Y+QWxb381v1CdOp1tlgyunY9moQGxTagoxg1lI6wcTrGvndMQjvVsqWDLAookaYP7r29x3OTl7LeERa8lM1XVOK8WWFXBgWPECqusdBfenQUlTY0Z0arMFy3taCSrFqclLD00CZjn+ir0vtBnJZh/pSVcUGdW3No3Pv2iB+xBvdVvyTZICibjmKbnU1dx3ZKbcdUjfHzmllB8=
-  - secure: kI4nYRbndnOgjcNY54b5kGy4EiH3Tb8ro2vvLgD0QrfnPE6yDZWiR8/e85a7zc18o4SzJpMZZQQITRV7MGUWZ4lJYDjWnYNXIYo/fdoad/sOM4afOY9sLE8Yc3ETxMlfbfVtS9QlxlnesqhFz/P9kUstZcdX+N7+BRTRDET588ye+YwM80LBp2PNoZiZKkgFoqm+UykHaipQvEGWY1lL+t711lktbD9uPGZach/sqMTN+H5VmrN6Ff6grt/5BigsgkZjrzSln4wqON+VITXLS/SUMMhinqnOwQnNUeFRIx6cU1GG/nLznllb5XNAI/wRabXjDSCphOApEcpn9sl6NOJaox3a5zfxKWL74/LSqkRPX/YXsmjwkN9iL2mHEer9IqYU9lpm5LgBErJC1sP1cz+XUjAJd9WqIUgpaFDmilhTt3dDxnkV9lL8VVpPgLbUNBiaI11ZTSKLqTmkbfhEkdfLyY98esyxVFeCAtEnok57hyuaRSKeDVThDhlSIrxdwTH/JVsHMO3YH4jz2YmMoOPvytF9CXgJb/KvOUqWm4B2q1ZL1WLinWR8hvLShiujw87jx0zvRwKbHqsUpDzhojWc+ZdEOixuDGzphjRJOQprx+Qbz/2LMuUZ16bqQB4i/2zHXRltFkNMRCzb53jrMWtrmqoQjKvdoGs043xlPug=
   matrix:
   - LINT_CHECK="1" TESTS="0"
 
@@ -37,80 +29,74 @@ env:
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_ews"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_gcs"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_clinical,nh_graphs"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_graphs,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_neurovascular"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_observations"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_pbp"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_stools"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_urinary_analysis"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_vips"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
 # Check all the observation types together
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips"
-    VERSION="openeobs-8-12" SONAR="1"
+    VERSION="openeobs-8-12"
 
 # Check open-eObs modules
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_ews,nh_gcs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_graphs,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,web,xml_test_output"
     INCLUDE="nh_eobs_mobile"
-    VERSION="openeobs-8-12" SONAR="0"
+    VERSION="openeobs-8-12"
 
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output"
     INCLUDE="nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile"
-    VERSION="openeobs-8-12" SONAR="1"
+    VERSION="openeobs-8-12"
 
 virtualenv:
   system_site_packages: true
 before_install:
 - export TZ=UTC
-- wget http://repo1.maven.org/maven2/org/codehaus/sonar/runner/sonar-runner-dist/2.4/sonar-runner-dist-2.4.zip
-- unzip sonar-runner-dist-2.4.zip
-- mv sonar-runner-2.4 ${HOME}/sonar-runner-2.4
-- rm ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
-- echo -e "sonar.host.url=${SONAR_URL}\nsonar.jdbc.username=${SONAR_USER}\nsonar.jdbc.password=${SONAR_PASSWORD}\nsonar.jdbc.url=${SONAR_DBURL}"
-  >> ${HOME}/sonar-runner-2.4/conf/sonar-runner.properties
 - git clone https://github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
 - find_branch() { git show-ref refs/remotes/origin/${TRAVIS_BRANCH} && git checkout ${TRAVIS_BRANCH}; return 0; }; find_branch
@@ -130,8 +116,6 @@ install:
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
 - travis_install_nightly
 script:
-- ls ${TRAVIS_BUILD_DIR}
-- ls ${HOME}/dependencies
 - travis_run_tests
 after_script:
 - coverage xml -o ${HOME}/build/NeovaHealth/openeobs/coverage.xml
@@ -140,9 +124,3 @@ after_script:
 - for rep in ${HOME}/tests/*.xml; do cat "$rep" | grep -v "<?xml " >> test_report.xml;
   done
 - echo "</testsuites>" >> test_report.xml
-- echo -e "\nsonar.python.coverage.reportPath=coverage.xml" >> sonar-project.properties
-- echo -e "\nsonar.python.xunit.reportPath=test_report.xml" >> sonar-project.properties
-- echo -e "\nsonar.branch=${TRAVIS_BRANCH}" >> sonar-project.properties
-- ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST -L 2000:localhost:2000
-  -L 6432:localhost:5432 -fN
-- if [ "$SONAR" == "1" ] ; then "${HOME}/sonar-runner-2.4/bin/sonar-runner" ; fi
