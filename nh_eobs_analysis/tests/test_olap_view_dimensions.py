@@ -57,14 +57,6 @@ class TestOlapViewDimensions(TransactionCase):
         self.assertTrue('date_terminated' in self.olap,
                         'Date Terminated not in OLAP model')
 
-    def test_has_dimension_location_the_observation_was_carried_out_at(self):
-        """
-        Test that the OLAP view has a dimension for the location that the
-        observation was carried out at
-        """
-        self.assertTrue('location_id' in self.olap,
-                        'Location ID not in OLAP model')
-
     def test_has_dimension_ward_the_observation_was_carried_out_in(self):
         """
         Test that the OLAP view has a dimension for the ward that the
@@ -78,14 +70,6 @@ class TestOlapViewDimensions(TransactionCase):
         that triggered the observation
         """
         self.assertTrue('type' in self.olap, 'Trigger Type not in OLAP model')
-
-    def test_has_dimension_observation_early_warning_score(self):
-        """
-        Test that the OLAP view has a dimension for the early warning score
-        that was calculated from the observation's values
-        """
-        self.assertTrue('score' in self.olap,
-                        'Current Score not in OLAP model')
 
     def test_has_dimension_observation_clinical_risk(self):
         """
@@ -134,14 +118,6 @@ class TestOlapViewDimensions(TransactionCase):
         """
         self.assertTrue('partial_reason' in self.olap,
                         'Partial Reason not in OLAP model')
-
-    def test_has_dimension_clinical_risk_for_previous_observation(self):
-        """
-        Test that the OLAP view has a dimension for the clinical risk of the
-        patient's previous observation
-        """
-        self.assertTrue('previous_risk' in self.olap,
-                        'Previous Clinical Risk not in OLAP model')
 
     def test_has_dimension_score_for_previous_observation(self):
         """
