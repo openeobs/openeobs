@@ -175,7 +175,7 @@
                   sequence="0"
                   id="menu_eobs_patients"
                   parent="menu_eobs_category_data_management"
-                  action="action_show_patients"
+                  action="action_create_visit"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Visits In-Progress"

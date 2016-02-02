@@ -120,6 +120,16 @@ class nh_clinical_spellboard(orm.Model):
                 context=context)
             data['patient_id'] = patient_id[0] if patient_id else False
 
+    def patient_id_change(self, cr, uid, ids, patient_id, context=None):
+        patient_pool = self.pool['nh.clinical.patient']
+        result = {'hospital_number': False, 'nhs_number': False}
+
+        if patient_id:
+            patient = patient_pool.browse(cr, uid, [patient_id], context=context)
+            result = {'hospital_number': patient.other_identifier,
+                      'nhs_number': patient.patient_identifier}
+        return {'value': result}
+
     def create(self, cr, uid, vals, context=None):
         """
         Admits a patients or raises an exception.
@@ -219,41 +229,6 @@ class nh_clinical_spellboard(orm.Model):
                      }, context=context)
         return all([res[r] for r in res.keys()])
 
-    def cancel(self, cr, uid, ids, context=None):
-        """
-        Cancels the open admissions of one or more patients.
-
-        :param ids: spell ids
-        :type ids: list
-        :returns: ``True`` if successful. Otherwise ``False``
-        :rtype: bool
-        """
-
-        api = self.pool['nh.eobs.api']
-        res = {}
-        for spell in self.browse(cr, uid, ids, context=context):
-            res[spell.id] = api.cancel_admit(
-                cr, uid, spell.patient_id.other_identifier, context=context)
-        return all([res[r] for r in res.keys()])
-
-    def discharge(self, cr, uid, ids, context=None):
-        """
-        Discharges one or more patients.
-
-        :param ids: spell ids
-        :type ids: list
-        :returns: ``True`` if successful. Otherwise ``False``
-        :rtype: bool
-        """
-
-        api = self.pool['nh.eobs.api']
-        res = {}
-        for spell in self.browse(cr, uid, ids, context=context):
-            res[spell.id] = api.discharge(
-                cr, uid, spell.patient_id.other_identifier,
-                {'discharge_date': dt.now().strftime(dtf)}, context=context)
-        return all([res[r] for r in res.keys()])
-
     def cancel_discharge(self, cr, uid, ids, context=None):
         """
         Cancels the discharge of one or more patients.
@@ -339,7 +314,7 @@ class nh_clinical_spellboard(orm.Model):
 
 
 class TransferPatientWizard(osv.TransientModel):
-
+    """Wizard for transferring a patient."""
     _name = 'nh.clinical.transfer.wizard'
     _columns = {
         'patient_id': fields.many2one(
@@ -355,7 +330,6 @@ class TransferPatientWizard(osv.TransientModel):
         Button called by view_transfer_wizard view to transfer
         patient.
         """
-
         api = self.pool['nh.eobs.api']
         record = self.browse(cr, uid, ids, context=context)
 
@@ -367,7 +341,7 @@ class TransferPatientWizard(osv.TransientModel):
 
 
 class DischargePatientWizard(osv.TransientModel):
-
+    """Wizard for discharging a patient."""
     _name = 'nh.clinical.discharge.wizard'
     _columns = {
         'patient_id': fields.many2one(
@@ -381,7 +355,6 @@ class DischargePatientWizard(osv.TransientModel):
         Button called by view_discharge_wizard view to discharge
         patient.
         """
-
         api = self.pool['nh.eobs.api']
         record = self.browse(cr, uid, ids, context=context)
 
@@ -393,7 +366,7 @@ class DischargePatientWizard(osv.TransientModel):
 
 
 class CancelAdmitPatientWizard(osv.TransientModel):
-
+    """Wizard for cancelling the admission of a patient."""
     _name = 'nh.clinical.cancel_admit.wizard'
     _columns = {
         'patient_id': fields.many2one(
@@ -406,14 +379,9 @@ class CancelAdmitPatientWizard(osv.TransientModel):
 
     def cancel_admit(self, cr, uid, ids, context=None):
         """
-        Cancels the open admissions of one or more patients.
-
-        :param ids: spell ids
-        :type ids: list
-        :returns: ``True`` if successful. Otherwise ``False``
-        :rtype: bool
+        Button called by view_cancel_transfer_wizard to cancel the
+        admissions of a patient.
         """
-
         api = self.pool['nh.eobs.api']
         record = self.browse(cr, uid, ids, context=context)
 

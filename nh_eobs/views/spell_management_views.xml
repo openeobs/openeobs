@@ -27,30 +27,61 @@
                 </tree>
             </field>
         </record>
+
         <record model="ir.ui.view" id="view_spellboard_form">
             <field name="name">Spell Form View</field>
             <field name="model">nh.clinical.spellboard</field>
             <field name="arch" type="xml">
                 <form string="Spell Form View" version="7.0" delete="0" create="false">
-                    <!--<header>-->
-                        <!--<button name="cancel_admit_button" string="Cancel Visit" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>-->
-                        <!--<button name="transfer_button" string="Transfer" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"  attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>-->
-                        <!--<button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>-->
-                        <!--<button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>-->
-                    <!--</header>-->
                     <sheet>
                         <button name="cancel_admit_button" string="Cancel Visit" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="transfer_button" string="Transfer" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"  attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <group>
-                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}" />
                             <field name="state" attrs="{'invisible': True}" />
-                            <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}"/>
-                            <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}" />
+                            <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}" />
                             <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="date_started"/>
                             <field name="code" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                        </group>
+                        <notebook groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
+                            <page string="Referring Doctors">
+                                <group>
+                                    <field name="ref_doctor_ids" nolabel="1"/>
+                                </group>
+                            </page>
+                            <page string="Consulting Doctors">
+                                <group>
+                                    <field name="con_doctor_ids" nolabel="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="create_visit_form_view">
+            <field name="name">Spell Form View</field>
+            <field name="model">nh.clinical.spellboard</field>
+            <field name="arch" type="xml">
+                <form string="Spell Form View" version="7.0" delete="0">
+                    <sheet>
+                        <button name="cancel_admit_button" string="Cancel Visit" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
+                        <button name="transfer_button" string="Transfer" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"  attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
+                        <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
+                        <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
+                        <group>
+                            <field name="patient_id" on_change="patient_id_change(patient_id)"/>
+                            <field name="state" attrs="{'invisible': True}" />
+                            <field name="nhs_number" placeholder="NHS Number" />
+                            <field name="hospital_number" placeholder="Hospital Number" />
+                            <field name="location_id" string="Admission Location" options="{'no_open': True}" domain="[['usage', '=', 'ward']]"/>
+                            <field name="start_date" widget="datetime"/>
+                            <field name="code" />
                         </group>
                         <notebook groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
                             <page string="Referring Doctors">
@@ -137,12 +168,23 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_show_spells">
-            <field name="name">Current Visits</field>
+            <field name="name">Visits In-Progress</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">nh.clinical.spellboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[['state','not in',['completed','cancelled']]]</field>
+            <field name="search_view_id" ref="view_spellboard_search"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_create_visit">
+            <field name="name">Create Patient Visit</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">nh.clinical.spellboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="domain">[['state','not in',['completed','cancelled']]]</field>
+            <field name="view_id" ref="create_visit_form_view"/>
             <field name="search_view_id" ref="view_spellboard_search"/>
         </record>
 
