@@ -114,7 +114,7 @@
                         </div>
                         <group>
                             <group name="parent" col="4">
-                                <field name="parent_id" string="Upper point of care" on_change="onchange_parent_id(usage,parent_id)"/>
+                                <field name="parent_id" string="Upper point of care" on_change="onchange_parent_id(usage,parent_id)"  domain="[['code','!=','GDL0987654321']]"/>
                                 <field name="code"/>
                                 <field name="type" on_change="onchange_type(usage,type)"/>
                                 <field name="usage" on_change="onchange_usage(usage)"/>
@@ -164,6 +164,7 @@
             <field name="res_model">nh.clinical.location</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="domain">[['code','!=','GDL0987654321']]</field>
             <field name="search_view_id" ref="view_eobs_location_search"/>
         </record>
 
